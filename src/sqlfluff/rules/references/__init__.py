@@ -1,9 +1,52 @@
 """The references plugin bundle."""
 
-from typing import List, Type
+from typing import Any, Dict, List, Type
 
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import BaseRule
+
+
+@hookimpl
+def get_configs_info() -> Dict[str, Any]:
+    """Get additional rule config validations and descriptions."""
+    return {
+        "single_table_references": {
+            "validation": ["consistent", "qualified", "unqualified"],
+            "definition": "The expectation for references in single-table select.",
+        },
+        "unquoted_identifiers_policy": {
+            "validation": ["all", "aliases", "column_aliases"],
+            "definition": "Types of unquoted identifiers to flag violations for.",
+        },
+        "quoted_identifiers_policy": {
+            "validation": ["all", "aliases", "column_aliases", "none"],
+            "definition": "Types of quoted identifiers to flag violations for.",
+        },
+        "allow_space_in_identifier": {
+            "validation": [True, False],
+            "definition": ("Should spaces in identifiers be allowed?"),
+        },
+        "additional_allowed_characters": {
+            "definition": (
+                "Optional list of extra allowed characters, "
+                "in addition to alphanumerics (A-Z, a-z, 0-9) and underscores."
+            ),
+        },
+        "prefer_quoted_identifiers": {
+            "validation": [True, False],
+            "definition": (
+                "If ``True``, requires every identifier to be quoted. "
+                "Defaults to ``False``."
+            ),
+        },
+        "prefer_quoted_keywords": {
+            "validation": [True, False],
+            "definition": (
+                "If ``True``, requires every keyword used as an identifier to be "
+                "quoted. Defaults to ``False``."
+            ),
+        },
+    }
 
 
 @hookimpl

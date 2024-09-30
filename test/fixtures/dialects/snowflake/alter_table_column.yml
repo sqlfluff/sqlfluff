@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6b6be4c38e8ffd163c442b919055ed308ab0a0d1a8cb4c24c314600a2f0d056f
+_hash: e8cff0c6e9a5a485ce01b7d111bde77e1c5d289980acbe73d286abe4591fb97d
 file:
 - statement:
     alter_table_statement:
@@ -353,8 +353,8 @@ file:
 - statement_terminator: ;
 - statement:
     alter_table_statement:
-    - keyword: alter
-    - keyword: table
+    - keyword: ALTER
+    - keyword: TABLE
     - table_reference:
         naked_identifier: t1
     - alter_table_table_column_action:
@@ -368,8 +368,8 @@ file:
 - statement_terminator: ;
 - statement:
     alter_table_statement:
-    - keyword: alter
-    - keyword: table
+    - keyword: ALTER
+    - keyword: TABLE
     - table_reference:
         naked_identifier: t1
     - alter_table_table_column_action:
@@ -382,8 +382,8 @@ file:
 - statement_terminator: ;
 - statement:
     alter_table_statement:
-    - keyword: alter
-    - keyword: table
+    - keyword: ALTER
+    - keyword: TABLE
     - table_reference:
         naked_identifier: t1
     - alter_table_table_column_action:
@@ -403,8 +403,8 @@ file:
 - statement_terminator: ;
 - statement:
     alter_table_statement:
-    - keyword: alter
-    - keyword: table
+    - keyword: ALTER
+    - keyword: TABLE
     - table_reference:
         naked_identifier: t1
     - alter_table_table_column_action:
@@ -472,8 +472,8 @@ file:
 - statement_terminator: ;
 - statement:
     alter_table_statement:
-    - keyword: alter
-    - keyword: table
+    - keyword: ALTER
+    - keyword: TABLE
     - table_reference:
         naked_identifier: empl_info
     - alter_table_table_column_action:
@@ -489,8 +489,8 @@ file:
 - statement_terminator: ;
 - statement:
     alter_table_statement:
-    - keyword: alter
-    - keyword: table
+    - keyword: ALTER
+    - keyword: TABLE
     - table_reference:
         naked_identifier: empl_info
     - alter_table_table_column_action:
@@ -519,8 +519,8 @@ file:
 - statement_terminator: ;
 - statement:
     alter_table_statement:
-    - keyword: alter
-    - keyword: table
+    - keyword: ALTER
+    - keyword: TABLE
     - table_reference:
         naked_identifier: empl_info
     - alter_table_table_column_action:
@@ -545,8 +545,8 @@ file:
 - statement_terminator: ;
 - statement:
     alter_table_statement:
-    - keyword: alter
-    - keyword: table
+    - keyword: ALTER
+    - keyword: TABLE
     - table_reference:
         naked_identifier: empl_info
     - alter_table_table_column_action:
@@ -560,8 +560,8 @@ file:
 - statement_terminator: ;
 - statement:
     alter_table_statement:
-    - keyword: alter
-    - keyword: table
+    - keyword: ALTER
+    - keyword: TABLE
     - table_reference:
         naked_identifier: empl_info
     - alter_table_table_column_action:
@@ -830,12 +830,204 @@ file:
       - dot: .
       - naked_identifier: my_table
     - alter_table_constraint_action:
-      - keyword: add
-      - keyword: PRIMARY
-      - keyword: KEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            naked_identifier: TABLE_ID
-          end_bracket: )
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: TABLE_ID
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_schema
+      - dot: .
+      - naked_identifier: some_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - column_reference:
+          naked_identifier: some_column_upr
+      - data_type:
+          data_type_identifier: VARCHAR
+      - keyword: AS
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: UPPER
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: some_column
+                end_bracket: )
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'This is a virtual column'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_schema
+      - dot: .
+      - naked_identifier: some_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: column
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: some_other_column_upr
+      - data_type:
+          data_type_identifier: VARCHAR
+      - keyword: AS
+      - expression:
+        - function:
+            function_name:
+              function_name_identifier: UPPER
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: some_column
+                end_bracket: )
+        - binary_operator:
+          - pipe: '|'
+          - pipe: '|'
+        - quoted_literal: "'some characters'"
+        - binary_operator:
+          - pipe: '|'
+          - pipe: '|'
+        - function:
+            function_name:
+              function_name_identifier: LOWER
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: some_column
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_schema
+      - dot: .
+      - naked_identifier: some_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: column
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: some_column_upr
+      - data_type:
+          data_type_identifier: VARCHAR
+      - keyword: AS
+      - expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: UPPER
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: some_column
+                    end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_schema
+      - dot: .
+      - naked_identifier: some_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: column
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: some_event_date_time_utc
+      - data_type:
+          keyword: TIMESTAMP
+      - keyword: AS
+      - expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: IFF
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                        naked_identifier: is_condition_true
+                    - binary_operator: AND
+                    - function:
+                        function_name:
+                          function_name_identifier: TRY_TO_NUMBER
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: some_text_value
+                            end_bracket: )
+                    - keyword: IS
+                    - keyword: NOT
+                    - null_literal: 'NULL'
+                  - comma: ','
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: TO_TIMESTAMP
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              function:
+                                function_name:
+                                  function_name_identifier: SUBSTR
+                                function_contents:
+                                  bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                      column_reference:
+                                        naked_identifier: some_text_value
+                                  - comma: ','
+                                  - expression:
+                                      numeric_literal: '5'
+                                  - comma: ','
+                                  - expression:
+                                      numeric_literal: '13'
+                                  - end_bracket: )
+                            end_bracket: )
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'1900-01-01'"
+                  - end_bracket: )
+            end_bracket: )
 - statement_terminator: ;

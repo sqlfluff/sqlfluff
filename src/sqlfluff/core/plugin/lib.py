@@ -2,7 +2,7 @@
 
 from typing import Any, Dict, List, Type
 
-from sqlfluff.core.config import ConfigLoader
+from sqlfluff.core.config import load_config_resource
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import BaseRule
 from sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
@@ -31,7 +31,7 @@ def get_templaters() -> List[Type[RawTemplater]]:
 @hookimpl
 def load_default_config() -> Dict[str, Any]:
     """Loads the default configuration for the plugin."""
-    return ConfigLoader.get_global().load_config_resource(
+    return load_config_resource(
         package="sqlfluff.core",
         file_name="default_config.cfg",
     )

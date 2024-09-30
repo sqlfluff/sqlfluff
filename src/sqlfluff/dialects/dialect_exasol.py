@@ -44,7 +44,11 @@ from sqlfluff.dialects.dialect_exasol_keywords import (
 )
 
 ansi_dialect = load_raw_dialect("ansi")
-exasol_dialect = ansi_dialect.copy_as("exasol")
+exasol_dialect = ansi_dialect.copy_as(
+    "exasol",
+    formatted_name="Exasol",
+    docstring="The dialect for `Exasol <https://www.exasol.com/>`_.",
+)
 
 # Clear ANSI Keywords and add all EXASOL keywords
 exasol_dialect.sets("unreserved_keywords").clear()
@@ -481,9 +485,17 @@ class ValuesRangeClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "VALUES",
         "BETWEEN",
-        Ref("NumericLiteralSegment"),
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("BareFunctionSegment"),
+            Ref("FunctionSegment"),
+        ),
         "AND",
-        Ref("NumericLiteralSegment"),
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("BareFunctionSegment"),
+            Ref("FunctionSegment"),
+        ),
         Sequence("WITH", "STEP", Ref("NumericLiteralSegment"), optional=True),
     )
 

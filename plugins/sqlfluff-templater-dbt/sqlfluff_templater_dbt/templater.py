@@ -26,6 +26,8 @@ from typing import (
     List,
     Optional,
     Tuple,
+    Type,
+    TypeVar,
     Union,
 )
 
@@ -70,6 +72,103 @@ class DbtConfigArgs:
     REQUIRE_RESOURCE_NAMES_WITHOUT_SPACES: Optional[bool] = None
 
 
+def is_dbt_exception(exception: Optional[BaseException]) -> bool:
+    """Check whether this looks like a dbt exception."""
+    # None is not a dbt exception.
+    if not exception:
+        return False
+    return exception.__class__.__module__.startswith("dbt")
+
+
+def _extract_error_detail(exception: BaseException) -> str:
+    """Serialise an exception into a string for reuse in other messages."""
+    return (
+        f"{exception.__class__.__module__}.{exception.__class__.__name__}: {exception}"
+    )
+
+
+T = TypeVar("T")
+
+
+def handle_dbt_errors(
+    error_class: Type[Exception], preamble: str
+) -> Callable[[Callable[..., T]], Callable[..., T]]:
+    """A decorator to safely catch dbt exceptions and raise native ones.
+
+    NOTE: This looks and behaves a lot like a context manager, but it's
+    important that it is *not* a context manager so that it can effectively
+    strip the context from handled exceptions. That isn't possible (as far
+    as we've tried) within a context manager.
+
+    dbt exceptions don't pickle nicely, and python exception context tries
+    very hard to make sure that the exception context of any new exceptions
+    is preserved. This means we have to be quite deliberate in stripping any
+    dbt exceptions, not just those that are directly raised, but those which
+    are present within the `__context__` or `__cause__` attributes of any
+    SQLFluff exceptions.
+
+    This wrapper aims to do that, catching any dbt exceptions and
+    raising SQLFluff exceptions, and also making sure that any native
+    SQLFluff exceptions which are handled are also stripped of any
+    unwanted dbt exceptions so that we don't cause issues when in
+    multithreaded/multiprocess operation.
+
+    https://docs.python.org/3/library/exceptions.html#inheriting-from-built-in-exceptions
+    https://github.com/sqlfluff/sqlfluff/issues/6037
+    """  # noqa E501
+
+    def decorator(func: Callable[..., T]) -> Callable[..., T]:
+        def wrapped_method(*args, **kwargs) -> T:
+            # NOTE: `_detail` also acts as a flag to indicate whether an exception
+            # has been raised that we should react to.
+            _detail = ""
+            try:
+                result = func(*args, **kwargs)
+                return result
+            # If we handle any other exception, check for dbt exceptions. We check using
+            # string matching rather than importing the exceptions because the dbt folks
+            # keep changing the names, and we don't really care which one it is, only
+            # whether it's a dbt exception. None of them pickle nicely.
+            except Exception as err:
+                if is_dbt_exception(err):
+                    _detail = _extract_error_detail(err)
+                else:
+                    # Any other errors are re-raised but only after stripping any
+                    # dbt context errors they may have acquired. This includes any
+                    # native SQLFluff errors.
+                    if is_dbt_exception(err.__context__):
+                        err.__context__ = None
+                    if is_dbt_exception(err.__cause__):  # pragma: no cover
+                        # This one seems to be less of an issue in testing, but I'm
+                        # keeping it in for completeness.
+                        err.__cause__ = None
+                    raise err
+            # By raising the new exception outside of the try/except clause we prevent
+            # the link between the new and old exceptions. Otherwise the old one is
+            # likely included in the __context__ attribute of the new one.
+            # Unfortunately the dbt exceptions do not pickle well, so if they were
+            # raised here then they cause all kinds of threading errors during parallel
+            # linting. Python really doesn't likely you trying to remove the `__cause__`
+            # attribute of an exception so this is a mini-hack to sidestep that
+            # behaviour.
+
+            # Connection errors are handled more specifically (because they're fatal)
+            if "FailedToConnect" in _detail:
+                raise SQLTemplaterError(
+                    "dbt tried to connect to the database and failed. Consider "
+                    + "running  `dbt debug` or `dbt compile` to get more "
+                    + "information from dbt. "
+                    + _detail,
+                    fatal=True,
+                )
+            # Other errors will use the preamble given to the decorator.
+            raise error_class(preamble + _detail)
+
+        return wrapped_method
+
+    return decorator
+
+
 class DbtTemplater(JinjaTemplater):
     """A templater using dbt."""
 
@@ -77,14 +176,13 @@ class DbtTemplater(JinjaTemplater):
     sequential_fail_limit = 3
     adapters = {}
 
-    def __init__(self, **kwargs):
+    def __init__(self, override_context: Optional[Dict[str, Any]] = None):
         self.sqlfluff_config = None
         self.formatter = None
         self.project_dir = None
         self.profiles_dir = None
         self.working_dir = os.getcwd()
-        self._sequential_fails = 0
-        super().__init__(**kwargs)
+        super().__init__(override_context=override_context)
 
     def config_pairs(self):
         """Returns info about the given templater for output by the cli."""
@@ -135,18 +233,15 @@ class DbtTemplater(JinjaTemplater):
         # First check whether we need to silence the logs. If a formatter
         # is present then assume that it's not a problem
         if not self.formatter:
-            try:
-                if self.dbt_version_tuple >= (1, 8):
-                    from dbt_common.events.event_manager_client import (
-                        cleanup_event_logger,
-                    )
+            if self.dbt_version_tuple >= (1, 8):
+                from dbt_common.events.event_manager_client import (
+                    cleanup_event_logger,
+                )
 
-                else:
-                    from dbt.events.functions import cleanup_event_logger
+            else:
+                from dbt.events.functions import cleanup_event_logger
 
-                cleanup_event_logger()
-            except ImportError:
-                pass
+            cleanup_event_logger()
 
     @cached_property
     def dbt_config(self):
@@ -220,20 +315,13 @@ class DbtTemplater(JinjaTemplater):
         return DbtCompiler(self.dbt_config)
 
     @cached_property
+    @handle_dbt_errors(
+        SQLFluffUserError,
+        "dbt failed during project compilation. Consider  running  `dbt debug` "
+        "or `dbt compile` to get more information from dbt. ",
+    )
     def dbt_manifest(self):
         """Loads the dbt manifest."""
-        from dbt.exceptions import DbtProjectError
-
-        # NOTE: The uninstalled packages error only exists from around
-        # dbt 1.4 onwards. Before that we'll just get a slightly uglier
-        # error - not a breaking issue.
-        try:
-            from dbt.exceptions import UninstalledPackagesFoundError
-
-            summary_errors = (DbtProjectError, UninstalledPackagesFoundError)
-        except ImportError:
-            summary_errors = (DbtProjectError,)
-
         # Set dbt not to run tracking. We don't load
         # a full project and so some tracking routines
         # may fail.
@@ -244,23 +332,7 @@ class DbtTemplater(JinjaTemplater):
         # dbt 0.20.* and onward
         from dbt.parser.manifest import ManifestLoader
 
-        old_cwd = os.getcwd()
-        try:
-            # Changing cwd temporarily as dbt is not using project_dir to
-            # read/write `target/partial_parse.msgpack`. This can be undone when
-            # https://github.com/dbt-labs/dbt-core/issues/6055 is solved.
-            # For dbt 1.4+ this isn't necessary, but it is required for 1.3
-            # and before.
-            if self.dbt_version_tuple < (1, 4):
-                os.chdir(self.project_dir)
-            _dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
-        except summary_errors as err:  # pragma: no cover
-            raise SQLFluffUserError(f"{err.__class__.__name__}: {err}")
-        finally:
-            if self.dbt_version_tuple < (1, 4):
-                os.chdir(old_cwd)
-
-        return _dbt_manifest
+        return ManifestLoader.get_full_manifest(self.dbt_config)
 
     @cached_property
     def dbt_selector_method(self):
@@ -305,13 +377,7 @@ class DbtTemplater(JinjaTemplater):
         # still be available in those versions.
 
         from dbt import flags
-
-        # From dbt 1.3 onwards, the default_profiles_dir resolver is
-        # available. Before that version we use the flags module
-        try:
-            from dbt.cli.resolvers import default_profiles_dir
-        except ImportError:
-            default_profiles_dir = None
+        from dbt.cli.resolvers import default_profiles_dir
 
         default_dir = (
             default_profiles_dir()
@@ -452,6 +518,9 @@ class DbtTemplater(JinjaTemplater):
                 )
 
     @large_file_check
+    @handle_dbt_errors(
+        SQLTemplaterError, "Error received from dbt during project compilation. "
+    )
     def process(
         self,
         *,
@@ -476,54 +545,11 @@ class DbtTemplater(JinjaTemplater):
         self.profiles_dir = self._get_profiles_dir()
         fname_absolute_path = os.path.abspath(fname) if fname != "stdin" else fname
 
-        try:
-            # These are the names in dbt-core 1.4.1+
-            # https://github.com/dbt-labs/dbt-core/pull/6539
-            from dbt.exceptions import CompilationError
-
-            if self.dbt_version_tuple >= (1, 8):
-                from dbt.adapters.exceptions import FailedToConnectError
-            else:
-                from dbt.exceptions import FailedToConnectError
-        except ImportError:
-            # These are the historic names for older dbt-core versions
-            from dbt.exceptions import CompilationException as CompilationError
-            from dbt.exceptions import (
-                FailedToConnectException as FailedToConnectError,
-            )
-
+        # NOTE: dbt exceptions are caught and handled safely for pickling by the outer
+        # `handle_dbt_errors` decorator.
         try:
             os.chdir(self.project_dir)
-            processed_result = self._unsafe_process(fname_absolute_path, in_str, config)
-            # Reset the fail counter
-            self._sequential_fails = 0
-            return processed_result
-        except FailedToConnectError as e:
-            raise SQLTemplaterError(
-                "dbt tried to connect to the database and failed: you could use "
-                "'execute' to skip the database calls. See "
-                "https://docs.getdbt.com/reference/dbt-jinja-functions/execute/ "
-                f"Error: {e.msg}",
-                fatal=True,
-            )
-        except CompilationError as e:
-            # Increment the counter
-            self._sequential_fails += 1
-            if e.node:
-                _msg = (
-                    f"dbt compilation error on file '{e.node.original_file_path}'"
-                    f", {e.msg}"
-                )
-            else:
-                _msg = f"dbt compilation error: {e.msg}"
-            raise SQLTemplaterError(
-                _msg,
-                # It's fatal if we're over the limit
-                fatal=self._sequential_fails > self.sequential_fail_limit,
-            )
-        except SQLTemplaterError:
-            # Templater errors are re-raised directly to be caught by the linter.
-            raise
+            return self._unsafe_process(fname_absolute_path, in_str, config)
         finally:
             os.chdir(self.working_dir)
 
@@ -653,16 +679,10 @@ class DbtTemplater(JinjaTemplater):
             and not getattr(v, "compiled", False)
         )
 
-        try:
-            # These are the names in dbt-core 1.4.1+
-            # https://github.com/dbt-labs/dbt-core/pull/6539
-            if self.dbt_version_tuple >= (1, 8):
-                from dbt_common.exceptions import UndefinedMacroError
-            else:
-                from dbt.exceptions import UndefinedMacroError
-        except ImportError:
-            # These are the historic names for older dbt-core versions
-            from dbt.exceptions import UndefinedMacroException as UndefinedMacroError
+        if self.dbt_version_tuple >= (1, 8):
+            from dbt_common.exceptions import UndefinedMacroError
+        else:
+            from dbt.exceptions import UndefinedMacroError
 
         with self.connection():
             # Apply the monkeypatch.

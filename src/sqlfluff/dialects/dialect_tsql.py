@@ -47,7 +47,13 @@ from sqlfluff.dialects.dialect_tsql_keywords import (
 )
 
 ansi_dialect = load_raw_dialect("ansi")
-tsql_dialect = ansi_dialect.copy_as("tsql")
+tsql_dialect = ansi_dialect.copy_as(
+    "tsql",
+    formatted_name="Microsoft T-SQL",
+    docstring="""The dialect for `T-SQL`_ (aka Transact-SQL).
+
+.. _`T-SQL`: https://docs.microsoft.com/en-us/sql/t-sql/language-reference""",
+)
 
 tsql_dialect.sets("reserved_keywords").clear()
 tsql_dialect.sets("unreserved_keywords").clear()
@@ -2731,7 +2737,7 @@ class SetStatementSegment(BaseSegment):
                     ),
                 ),
                 Sequence(
-                    OneOf(
+                    Delimited(
                         "DATEFIRST",
                         "DATEFORMAT",
                         "DEADLOCK_PRIORITY",
@@ -4293,8 +4299,29 @@ class OrderByClauseSegment(BaseSegment):
                 ),
                 OneOf("ASC", "DESC", optional=True),
             ),
+            terminators=[Ref("OffsetClauseSegment")],
+        ),
+        Sequence(
+            Ref("OffsetClauseSegment"),
+            Ref("FetchClauseSegment", optional=True),
+            optional=True,
         ),
         Dedent,
+    )
+
+
+class OffsetClauseSegment(BaseSegment):
+    """OFFSET clause as in a SELECT statement."""
+
+    type = "offset_clause"
+
+    match_grammar = Sequence(
+        "OFFSET",
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("ExpressionSegment"),
+        ),
+        OneOf("ROW", "ROWS"),
     )
 
 
@@ -4843,7 +4870,7 @@ class MergeStatementSegment(ansi.MergeStatementSegment):
             ),
             optional=True,
         ),
-        Ref("AliasExpressionSegment", optional=True),
+        Ref("AliasExpressionSegment", optional=True, exclude=Ref.keyword("USING")),
         Dedent,
         "USING",
         Indent,

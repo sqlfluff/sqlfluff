@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 02a96866985a7d40d12108ccd412b6e7a79ffc1f663d3eabca1f10edb8ccf66c
+_hash: 6b7f0119c850aaf1bb7ffaead9dacd87d3d4937ebd27b496bdd6701f01d2f509
 file:
 - statement:
     create_table_statement:
@@ -18,7 +18,8 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: id
+          column_reference:
+            naked_identifier: id
           data_type:
             primitive_type:
               keyword: bigint
@@ -28,7 +29,8 @@ file:
               quoted_literal: "'unique id'"
       - comma: ','
       - column_definition:
-          naked_identifier: data
+          column_reference:
+            naked_identifier: data
           data_type:
             primitive_type:
               keyword: string
@@ -51,19 +53,22 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: id
+          column_reference:
+            naked_identifier: id
           data_type:
             primitive_type:
               keyword: bigint
       - comma: ','
       - column_definition:
-          naked_identifier: data
+          column_reference:
+            naked_identifier: data
           data_type:
             primitive_type:
               keyword: string
       - comma: ','
       - column_definition:
-          naked_identifier: category
+          column_reference:
+            naked_identifier: category
           data_type:
             primitive_type:
               keyword: string
@@ -93,25 +98,29 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: id
+          column_reference:
+            naked_identifier: id
           data_type:
             primitive_type:
               keyword: bigint
       - comma: ','
       - column_definition:
-          naked_identifier: data
+          column_reference:
+            naked_identifier: data
           data_type:
             primitive_type:
               keyword: string
       - comma: ','
       - column_definition:
-          naked_identifier: category
+          column_reference:
+            naked_identifier: category
           data_type:
             primitive_type:
               keyword: string
       - comma: ','
       - column_definition:
-          naked_identifier: ts
+          column_reference:
+            naked_identifier: ts
           data_type:
             primitive_type:
               keyword: timestamp

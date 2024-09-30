@@ -41,7 +41,7 @@ def test_assert_rule_pass_in_sql_should_fail_when_there_are_violations():
 
 def test_rules__test_helper_skipped_when_test_case_skipped():
     """Util rules__test_helper should skip the test when test case is "skipped"."""
-    rule_test_case = RuleTestCase(skip="Skip this one for now")
+    rule_test_case = RuleTestCase(rule="CP01", skip="Skip this one for now")
     with pytest.raises(Skipped) as skipped_test:
         rules__test_helper(rule_test_case)
     skipped_test.match("Skip this one for now")

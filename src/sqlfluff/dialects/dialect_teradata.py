@@ -11,6 +11,7 @@ Teradata Database SQL Data Definition Language Syntax and Examples
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    AnySetOf,
     Anything,
     BaseSegment,
     Bracketed,
@@ -33,7 +34,11 @@ from sqlfluff.core.parser import (
 from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
-teradata_dialect = ansi_dialect.copy_as("teradata")
+teradata_dialect = ansi_dialect.copy_as(
+    "teradata",
+    formatted_name="Teradata",
+    docstring="""The dialect for `Teradata <https://www.teradata.co.uk/>`_.""",
+)
 
 teradata_dialect.patch_lexer_matchers(
     [
@@ -640,9 +645,11 @@ class CreateTableStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
-        # Adding Teradata specific [MULTISET| SET]
-        OneOf("SET", "MULTISET", optional=True),
-        OneOf(Sequence("GLOBAL", "TEMPORARY"), "VOLATILE", optional=True),
+        AnySetOf(
+            OneOf("SET", "MULTISET"),
+            OneOf(Sequence("GLOBAL", "TEMPORARY"), "VOLATILE"),
+            optional=True,
+        ),
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),

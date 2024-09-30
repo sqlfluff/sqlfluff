@@ -4,9 +4,15 @@ This stores the idea of a collection of linted files at a single start path
 
 """
 
-from typing import Any, Dict, List, Literal, Optional, Tuple, TypedDict, Union, overload
+from typing import Dict, Iterable, List, Optional, Tuple, Type, TypedDict, Union
 
-from sqlfluff.core.errors import CheckTuple, SQLLintError
+from sqlfluff.core.errors import (
+    CheckTuple,
+    SerializedObject,
+    SQLBaseError,
+    SQLLintError,
+)
+from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES, LintedFile
 from sqlfluff.core.parser.segments.base import BaseSegment
 
@@ -14,7 +20,7 @@ LintingRecord = TypedDict(
     "LintingRecord",
     {
         "filepath": str,
-        "violations": List[dict],
+        "violations": List[SerializedObject],
         # Things like file length
         "statistics": Dict[str, int],
         # Raw timings, in seconds, for both rules and steps
@@ -132,53 +138,56 @@ class LintedDir:
         if self.retain_files:
             self.files.append(file)
 
-    @overload
-    def check_tuples(self, by_path: Literal[False]) -> List[CheckTuple]:
-        """Return a List of CheckTuples when by_path is False."""
-
-    @overload
-    def check_tuples(self, by_path: Literal[True]) -> Dict[str, List[CheckTuple]]:
-        """Return a Dict of paths and CheckTuples when by_path is True."""
-
-    @overload
-    def check_tuples(self, by_path: bool = False):
-        """Default overload method."""
-
     def check_tuples(
-        self, by_path=False, raise_on_non_linting_violations=True
-    ) -> Union[List[CheckTuple], Dict[str, List[CheckTuple]]]:
+        self, raise_on_non_linting_violations: bool = True
+    ) -> List[CheckTuple]:
         """Compress all the tuples into one list.
 
         NB: This is a little crude, as you can't tell which
         file the violations are from. Good for testing though.
-        For more control set the `by_path` argument to true.
+        For more control use `check_tuples_by_path`.
         """
-        assert self.retain_files, "cannot `check_tuples()` without `retain_files`"
-        if by_path:
-            return {
-                file.path: file.check_tuples(
-                    raise_on_non_linting_violations=raise_on_non_linting_violations
-                )
-                for file in self.files
-            }
-        else:
-            tuple_buffer: List[CheckTuple] = []
-            for file in self.files:
-                tuple_buffer += file.check_tuples(
-                    raise_on_non_linting_violations=raise_on_non_linting_violations
-                )
-            return tuple_buffer
+        return [
+            check_tuple
+            for file in self.files
+            for check_tuple in file.check_tuples(
+                raise_on_non_linting_violations=raise_on_non_linting_violations
+            )
+        ]
 
-    def num_violations(self, **kwargs) -> int:
+    def check_tuples_by_path(
+        self, raise_on_non_linting_violations: bool = True
+    ) -> Dict[str, List[CheckTuple]]:
+        """Fetch all check_tuples from all contained `LintedDir` objects.
+
+        Returns:
+            A dict, with lists of tuples grouped by path.
+        """
+        assert (
+            self.retain_files
+        ), "cannot `check_tuples_by_path()` without `retain_files`"
+        return {
+            file.path: file.check_tuples(
+                raise_on_non_linting_violations=raise_on_non_linting_violations
+            )
+            for file in self.files
+        }
+
+    def num_violations(
+        self,
+        types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
+        fixable: Optional[bool] = None,
+    ) -> int:
         """Count the number of violations in the path."""
-        return sum(file.num_violations(**kwargs) for file in self.files)
+        return sum(
+            file.num_violations(types=types, fixable=fixable) for file in self.files
+        )
 
-    def get_violations(self, **kwargs) -> list:
+    def get_violations(
+        self, rules: Optional[Union[str, Tuple[str, ...]]] = None
+    ) -> List[SQLBaseError]:
         """Return a list of violations in the path."""
-        buff: list = []
-        for file in self.files:
-            buff += file.get_violations(**kwargs)
-        return buff
+        return [v for file in self.files for v in file.get_violations(rules=rules)]
 
     def as_records(self) -> List[LintingRecord]:
         """Return the result as a list of dictionaries.
@@ -199,7 +208,9 @@ class LintedDir:
         }
 
     def persist_changes(
-        self, formatter: Any = None, fixed_file_suffix: str = ""
+        self,
+        formatter: Optional[FormatterInterface] = None,
+        fixed_file_suffix: str = "",
     ) -> Dict[str, Union[bool, str]]:
         """Persist changes to files in the given path.
 

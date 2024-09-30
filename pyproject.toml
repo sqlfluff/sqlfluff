@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sqlfluff"
-version = "3.1.1"
+version = "3.2.0"
 description = "The SQL Linter for Humans"
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.8"
@@ -128,10 +128,12 @@ sqlfluff_rules_tsql = "sqlfluff.rules.tsql"
 
 [tool.sqlfluff_docs]
 # NOTE: Stable version is used by docs/conf.py
-stable_version = "3.1.1"
+stable_version = "3.2.0"
 
 
 [tool.setuptools.package-data]
+# `default_config.cfg` is loaded by sqlfluff as part of config resolution.
+# For more details on `py.typed` see https://peps.python.org/pep-0561/
 sqlfluff = ["core/default_config.cfg", "py.typed"]
 
 
@@ -187,6 +189,8 @@ layers = [
     "sqlfluff.core.parser",
     # `errors` should be a utility library, which can be referenced by the others.
     "sqlfluff.core.errors",
+    # `types` should be almost independent (but may use helpers)
+    "sqlfluff.core.types",
     # `helpers` should be independent and not reference any of the above.
     "sqlfluff.core.helpers",
 ]
@@ -195,6 +199,10 @@ ignore_imports = [
     # Splitting it up seems overkill for now, so an allowable exception.
     "sqlfluff.core.errors -> sqlfluff.core.rules",
     "sqlfluff.core.errors -> sqlfluff.core.parser",
+    # The plugin host need the BaseRule type for type checking, because one
+    # of the hooks returns rules. It's otherwise not something we can import
+    # at this layer.
+    "sqlfluff.core.plugin.hookspecs -> sqlfluff.core.rules.base"
 ]
 
 

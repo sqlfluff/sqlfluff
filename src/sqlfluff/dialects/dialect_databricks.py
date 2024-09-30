@@ -19,6 +19,7 @@ from sqlfluff.core.parser import (
     Matchable,
     OneOf,
     Ref,
+    RegexLexer,
     RegexParser,
     Sequence,
     StringLexer,
@@ -34,7 +35,11 @@ from sqlfluff.dialects.dialect_databricks_keywords import (
 )
 
 sparksql_dialect = load_raw_dialect("sparksql")
-databricks_dialect = sparksql_dialect.copy_as("databricks")
+databricks_dialect = sparksql_dialect.copy_as(
+    "databricks",
+    formatted_name="Databricks",
+    docstring="The dialect for `Databricks <https://databricks.com/>`_.",
+)
 
 databricks_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 databricks_dialect.sets("unreserved_keywords").update(
@@ -56,7 +61,17 @@ databricks_dialect.insert_lexer_matchers(
     before="equals",
 )
 
+databricks_dialect.insert_lexer_matchers(
+    # Notebook Cell Delimiter:
+    # https://learn.microsoft.com/en-us/azure/databricks/notebooks/notebook-export-import#sql-1
+    [
+        RegexLexer("command", r"(\r?\n){2}-- COMMAND ----------(\r?\n)", CodeSegment),
+    ],
+    before="newline",
+)
+
 databricks_dialect.add(
+    CommandCellSegment=TypedParser("command", CodeSegment, type="statement_terminator"),
     DoubleQuotedUDFBody=TypedParser(
         "double_quote",
         CodeSegment,
@@ -185,9 +200,31 @@ databricks_dialect.add(
         IdentifierSegment,
         type="properties_naked_identifier",
     ),
+    LocationWithCredentialGrammar=Sequence(
+        "LOCATION",
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            "WITH",
+            Bracketed(
+                "CREDENTIAL",
+                Ref("PrincipalIdentifierSegment"),
+            ),
+            optional=True,
+        ),
+    ),
 )
 
 databricks_dialect.replace(
+    DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("CommandCellSegment")),
+    # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-describe-volume.html
+    DescribeObjectGrammar=sparksql_dialect.get_grammar("DescribeObjectGrammar").copy(
+        insert=[
+            Sequence(
+                "VOLUME",
+                Ref("VolumeReferenceSegment"),
+            ),
+        ]
+    ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),
         Ref("NamedArgumentSegment"),
@@ -196,6 +233,114 @@ databricks_dialect.replace(
         r"[A-Z_][A-Z0-9_]*",
         IdentifierSegment,
         type="properties_naked_identifier",
+    ),
+    # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-schemas.html
+    # Differences between this and the SparkSQL version:
+    # - Support for `FROM`|`IN` at the catalog level
+    # - `LIKE` keyword is optional
+    ShowDatabasesSchemasGrammar=Sequence(
+        # SHOW { DATABASES | SCHEMAS }
+        OneOf("DATABASES", "SCHEMAS"),
+        Sequence(
+            OneOf("FROM", "IN"),
+            Ref("DatabaseReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            Ref.keyword("LIKE", optional=True),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    ),
+    # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-functions.html
+    # Differences between this and the SparkSQL version:
+    # - Support for `FROM`|`IN` at the schema level
+    # - `LIKE` keyword is optional
+    ShowFunctionsGrammar=Sequence(
+        # SHOW FUNCTIONS
+        OneOf("USER", "SYSTEM", "ALL", optional=True),
+        "FUNCTIONS",
+        Sequence(
+            Sequence(
+                OneOf("FROM", "IN"),
+                Ref("DatabaseReferenceSegment"),
+                optional=True,
+            ),
+            Sequence(
+                Ref.keyword("LIKE", optional=True),
+                OneOf(
+                    # qualified function from a database
+                    Sequence(
+                        Ref("DatabaseReferenceSegment"),
+                        Ref("DotSegment"),
+                        Ref("FunctionNameSegment"),
+                        allow_gaps=False,
+                    ),
+                    # non-qualified function
+                    Ref("FunctionNameSegment"),
+                    # Regex/like string
+                    Ref("QuotedLiteralSegment"),
+                ),
+                optional=True,
+            ),
+            optional=True,
+        ),
+    ),
+    # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-tables.html
+    # Differences between this and the SparkSQL version:
+    # - `LIKE` keyword is optional
+    ShowTablesGrammar=Sequence(
+        # SHOW TABLES
+        "TABLES",
+        Sequence(
+            OneOf("FROM", "IN"),
+            Ref("DatabaseReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            Ref.keyword("LIKE", optional=True),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    ),
+    # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-views.html
+    # Only difference between this and the SparkSQL version:
+    # - `LIKE` keyword is optional
+    ShowViewsGrammar=Sequence(
+        # SHOW VIEWS
+        "VIEWS",
+        Sequence(
+            OneOf("FROM", "IN"),
+            Ref("DatabaseReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            Ref.keyword("LIKE", optional=True),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    ),
+    # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-volumes.html
+    ShowObjectGrammar=sparksql_dialect.get_grammar("ShowObjectGrammar").copy(
+        insert=[
+            Sequence(
+                "VOLUMES",
+                Sequence(
+                    OneOf("FROM", "IN"),
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    Ref.keyword("LIKE", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            )
+        ],
+    ),
+    NotNullGrammar=Sequence(
+        "NOT",
+        "NULL",
     ),
 )
 
@@ -210,8 +355,12 @@ class CatalogReferenceSegment(ansi.ObjectReferenceSegment):
     type = "catalog_reference"
 
 
-# Data Definition Statements
-# https://docs.databricks.com/sql/language-manual/index.html#ddl-statements
+class VolumeReferenceSegment(ansi.ObjectReferenceSegment):
+    """Volume reference."""
+
+    type = "volume_reference"
+
+
 class AlterCatalogStatementSegment(BaseSegment):
     """An `ALTER CATALOG` statement.
 
@@ -312,6 +461,99 @@ class AlterDatabaseStatementSegment(sparksql.AlterDatabaseStatementSegment):
             Ref("UnsetTagsGrammar"),
             Ref("PredictiveOptimizationGrammar"),
         ),
+    )
+
+
+class AlterVolumeStatementSegment(BaseSegment):
+    """Alter Volume Statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-alter-volume.html
+    """
+
+    type = "alter_volume_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "VOLUME",
+        Ref("VolumeReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("VolumeReferenceSegment"),
+            ),
+            Ref("SetOwnerGrammar"),
+            Ref("SetTagsGrammar"),
+            Ref("UnsetTagsGrammar"),
+        ),
+    )
+
+
+class CreateVolumeStatementSegment(BaseSegment):
+    """Create Volume Statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-volume.html
+    """
+
+    type = "create_volume_statement"
+
+    match_grammar = OneOf(
+        # You can create a non-external volume without a location
+        Sequence(
+            "CREATE",
+            "VOLUME",
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("VolumeReferenceSegment"),
+            Ref("CommentGrammar", optional=True),
+        ),
+        # Or you can create an external volume that must have a location
+        Sequence(
+            "CREATE",
+            "EXTERNAL",
+            "VOLUME",
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("VolumeReferenceSegment"),
+            Ref("LocationGrammar"),
+            Ref("CommentGrammar", optional=True),
+        ),
+    )
+
+
+class DropVolumeStatementSegment(BaseSegment):
+    """Drop Volume Statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-drop-volume.html
+    """
+
+    type = "drop_volume_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "VOLUME",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("VolumeReferenceSegment"),
+    )
+
+
+class CreateDatabaseStatementSegment(sparksql.CreateDatabaseStatementSegment):
+    """A `CREATE DATABASE` statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-schema.html
+    """
+
+    match_grammar = sparksql.CreateDatabaseStatementSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref.keyword("MANAGED", optional=True),
+                "LOCATION",
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+        ],
+        at=5,
+        remove=[
+            Ref("LocationGrammar", optional=True),
+        ],
     )
 
 
@@ -713,11 +955,16 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("CreateCatalogStatementSegment"),
             Ref("DropCatalogStatementSegment"),
             Ref("UseCatalogStatementSegment"),
+            Ref("AlterVolumeStatementSegment"),
+            Ref("CreateVolumeStatementSegment"),
+            Ref("DropVolumeStatementSegment"),
+            Ref("CreateDatabaseStatementSegment"),
             Ref("SetTimeZoneStatementSegment"),
             Ref("OptimizeTableStatementSegment"),
             Ref("CreateDatabricksFunctionStatementSegment"),
             Ref("FunctionParameterListGrammarWithComments"),
             Ref("DeclareOrReplaceVariableStatementSegment"),
+            Ref("CommentOnStatementSegment"),
         ]
     )
 
@@ -909,6 +1156,151 @@ class GroupByClauseSegment(sparksql.GroupByClauseSegment):
     )
 
 
+class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
+    """A column constraint, e.g. for CREATE TABLE or ALTER TABLE.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-constraint.html
+    """
+
+    match_grammar = Sequence(
+        Ref("NotNullGrammar", optional=True),
+        Sequence(
+            Sequence(
+                "CONSTRAINT",
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+            OneOf(
+                Sequence(
+                    Ref("PrimaryKeyGrammar"),
+                    Ref("ConstraintOptionGrammar", optional=True),
+                ),
+                Sequence(
+                    Ref("ForeignKeyGrammar", optional=True),
+                    "REFERENCES",
+                    Ref("TableReferenceSegment"),
+                    Ref("BracketedColumnReferenceListGrammar", optional=True),
+                    OneOf(
+                        Ref("ForeignKeyOptionGrammar"),
+                        Ref("ConstraintOptionGrammar"),
+                        optional=True,
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class CreateTableUsingStatementSegment(sparksql.CreateTableStatementSegment):
+    """A `CREATE TABLE [USING]` statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using.html
+    """
+
+    type = "create_table_using_statement"
+
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                Sequence(
+                    "CREATE",
+                    "OR",
+                    optional=True,
+                ),
+                "REPLACE",
+                "TABLE",
+            ),
+            Sequence(
+                "CREATE",
+                Ref.keyword("EXTERNAL", optional=True),
+                "TABLE",
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+        ),
+        Ref("TableReferenceSegment"),
+        Ref("TableSpecificationSegment", optional=True),
+        Sequence(
+            "USING",
+            Ref("DataSourceSegment"),
+            optional=True,
+        ),
+        AnyNumberOf(Ref("TableClausesSegment")),
+        Sequence(
+            "AS",
+            OneOf(
+                Ref("SelectStatementSegment"),
+                Ref("ValuesClauseSegment"),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class TableSpecificationSegment(BaseSegment):
+    """A table specification, e.g. for CREATE TABLE or ALTER TABLE.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-spec.html
+    """
+
+    type = "table_specification_segment"
+
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("ColumnReferenceSegment"),
+                Ref("DatatypeSegment"),
+                AnyNumberOf(
+                    Ref("ColumnPropertiesSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+class ColumnPropertiesSegment(BaseSegment):
+    """Properties for a column in a table specification.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-spec.html
+    """
+
+    type = "column_properties_segment"
+
+    match_grammar = OneOf(
+        Ref("NotNullGrammar"),
+        Ref("GeneratedColumnDefinitionSegment"),
+        Sequence(
+            "DEFAULT",
+            Ref("ColumnConstraintDefaultGrammar"),
+        ),
+        Ref("CommentGrammar"),
+        Ref("ColumnConstraintSegment"),
+        Ref("MaskStatementSegment"),
+    )
+
+
+class TableClausesSegment(BaseSegment):
+    """Clauses for a table specification.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-spec.html
+    """
+
+    type = "table_clauses_segment"
+
+    match_grammar = OneOf(
+        Ref("PartitionClauseSegment"),
+        Ref("ClusterByClauseSegment"),
+        Ref("LocationWithCredentialGrammar"),
+        Ref("OptionsGrammar"),
+        Ref("CommentGrammar"),
+        Ref("TablePropertiesGrammar"),
+        Sequence(
+            "WITH",
+            Ref("RowFilterClauseGrammar"),
+        ),
+    )
+
+
 class GeneratedColumnDefinitionSegment(sparksql.GeneratedColumnDefinitionSegment):
     """A generated column definition, e.g. for CREATE TABLE or ALTER TABLE.
 
@@ -928,6 +1320,7 @@ class GeneratedColumnDefinitionSegment(sparksql.GeneratedColumnDefinitionSegment
                     OneOf(
                         Ref("FunctionSegment"),
                         Ref("BareFunctionSegment"),
+                        Ref("ExpressionSegment"),
                     ),
                 ),
             ),
@@ -958,9 +1351,6 @@ class GeneratedColumnDefinitionSegment(sparksql.GeneratedColumnDefinitionSegment
                 ),
             ),
         ),
-        AnyNumberOf(
-            Ref("ColumnConstraintSegment", optional=True),
-        ),
     )
 
 
@@ -982,4 +1372,48 @@ class DeclareOrReplaceVariableStatementSegment(BaseSegment):
             Ref("ExpressionSegment"),
             optional=True,
         ),
+    )
+
+
+class CommentOnStatementSegment(BaseSegment):
+    """`COMMENT ON` statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-comment.html
+    """
+
+    type = "comment_clause"
+
+    match_grammar = Sequence(
+        "COMMENT",
+        "ON",
+        OneOf(
+            Sequence(
+                "CATALOG",
+                Ref("CatalogReferenceSegment"),
+            ),
+            Sequence(
+                OneOf("DATABASE", "SCHEMA"),
+                Ref("DatabaseReferenceSegment"),
+            ),
+            Sequence(
+                "TABLE",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "VOLUME",
+                Ref("VolumeReferenceSegment"),
+            ),
+            # TODO: Split out individual items if they have references
+            Sequence(
+                OneOf(
+                    "CONNECTION",
+                    "PROVIDER",
+                    "RECIPIENT",
+                    "SHARE",
+                ),
+                Ref("ObjectReferenceSegment"),
+            ),
+        ),
+        "IS",
+        OneOf(Ref("QuotedLiteralSegment"), "NULL"),
     )

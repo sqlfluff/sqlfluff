@@ -94,3 +94,11 @@ CREATE STAGE mystage
 CREATE STAGE mystage
   URL=$your_variable
   STORAGE_INTEGRATION=$your_variable;
+
+CREATE OR REPLACE STAGE foo.bar
+  URL = 's3://foobar'
+  STORAGE_INTEGRATION = foo
+  FILE_FORMAT = (
+    TYPE = CSV
+    PARSE_HEADER = TRUE
+  );

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6f28a08cecf7c9aa1e1307f542e733f7375214f368705d08276c01e474442702
+_hash: b0fc0fab94b9872212e772491b9cc1a0ee2d09b345291b80a8ba94dd2b029555
 file:
 - statement:
     create_table_statement:
@@ -141,4 +141,219 @@ file:
           data_type:
             data_type_identifier: int
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foo
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: tbl_name
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+            data_type_identifier: INT
+        - column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+        - column_constraint_segment:
+            keyword: AUTO_INCREMENT
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col
+        - data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '255'
+                end_bracket: )
+        - column_constraint_segment:
+            keyword: DEFAULT
+            quoted_literal: "''"
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - table_constraint:
+          keyword: INDEX
+          bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col
+            end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table_name
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: tbl_name
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+            data_type_identifier: INT
+        - column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+        - column_constraint_segment:
+            keyword: AUTO_INCREMENT
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col
+        - data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '255'
+                end_bracket: )
+        - column_constraint_segment:
+            keyword: DEFAULT
+            quoted_literal: "''"
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - table_constraint:
+          keyword: INDEX
+          bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col
+            end_bracket: )
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table_name
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: tbl_name
+    - bracketed:
+        start_bracket: (
+        table_constraint:
+          keyword: INDEX
+          bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col
+            end_bracket: )
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table_name
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: tbl_name
+    - bracketed:
+        start_bracket: (
+        table_constraint:
+          keyword: INDEX
+          bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col
+            end_bracket: )
+        end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table_name
 - statement_terminator: ;
