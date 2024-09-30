@@ -78,7 +78,7 @@ duckdb_dialect.replace(
         r"[A-Z_][A-Z0-9_$]*",
         CodeSegment,
         type="function_name_identifier",
-        anti_template=r"^(STRUCT)$",
+        anti_template=r"^(STRUCT|UNION|ENUM)$",
     ),
     DivideSegment=OneOf(
         StringParser("//", BinaryOperatorSegment),
@@ -769,5 +769,41 @@ class CreateFunctionStatementSegment(postgres.CreateFunctionStatementSegment):
         OneOf(
             Sequence("TABLE", Indent, Ref("SelectableGrammar"), Dedent),
             Ref("ExpressionSegment"),
+        ),
+    )
+
+
+class DropFunctionStatementSegment(postgres.DropFunctionStatementSegment):
+    """A `DROP MACRO` or `DROP FUNCTION` statement.
+
+    https://duckdb.org/docs/sql/statements/drop.html
+    """
+
+    match_grammar = Sequence(
+        "DROP",
+        OneOf("MACRO", "FUNCTION"),
+        Ref.keyword("TABLE", optional=True),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class CreateTypeStatementSegment(postgres.CreateTypeStatementSegment):
+    """A `CREATE TYPE` statement.
+
+    https://duckdb.org/docs/sql/statements/create_type.html
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        "TYPE",
+        Ref("DatatypeSegment"),
+        "AS",
+        OneOf(
+            Ref("DatatypeSegment"),
+            Sequence("ENUM", Bracketed(Delimited(Ref("QuotedLiteralSegment")))),
+            Ref("StructTypeSegment"),
+            Sequence("UNION", Ref("StructTypeSchemaSegment")),
         ),
     )

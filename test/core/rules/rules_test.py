@@ -270,11 +270,11 @@ def test_rules_cannot_be_instantiated_without_declared_configs():
     class Rule_NewRule_ZZ99(BaseRule):
         """Testing Rule."""
 
-        config_keywords = ["tab_space_size"]
+        config_keywords = ["case_sensitive"]
 
-    new_rule = Rule_NewRule_ZZ99(code="L000", description="", tab_space_size=6)
-    assert new_rule.tab_space_size == 6
-    # Error is thrown since "tab_space_size" is defined in class,
+    new_rule = Rule_NewRule_ZZ99(code="L000", description="", case_sensitive=False)
+    assert new_rule.case_sensitive is False
+    # Error is thrown since "case_sensitive" is defined in class,
     # but not upon instantiation
     with pytest.raises(ValueError):
         new_rule = Rule_NewRule_ZZ99(code="L000", description="")

@@ -17,7 +17,8 @@ from sqlfluff.core.errors import (
     SQLParseError,
     SQLTemplaterError,
 )
-from sqlfluff.core.linter import LintingResult, runner
+from sqlfluff.core.linter import runner
+from sqlfluff.core.linter.linting_result import combine_dicts, sum_dicts
 from sqlfluff.core.linter.runner import get_runner
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 
@@ -107,29 +108,26 @@ def test__linter__get_violations_filter_rules(rules, num_violations):
 
 def test__linter__linting_result__sum_dicts():
     """Test the summing of dictionaries in the linter."""
-    lr = LintingResult()
     i = {}
     a = dict(a=3, b=123, f=876.321)
     b = dict(a=19, b=321.0, g=23478)
     r = dict(a=22, b=444.0, f=876.321, g=23478)
-    assert lr.sum_dicts(a, b) == r
+    assert sum_dicts(a, b) == r
     # Check the identity too
-    assert lr.sum_dicts(r, i) == r
+    assert sum_dicts(r, i) == r
 
 
 def test__linter__linting_result__combine_dicts():
     """Test the combination of dictionaries in the linter."""
-    lr = LintingResult()
     a = dict(a=3, b=123, f=876.321)
     b = dict(h=19, i=321.0, j=23478)
     r = dict(z=22)
-    assert lr.combine_dicts(a, b, r) == dict(
+    assert combine_dicts(a, b, r) == dict(
         a=3, b=123, f=876.321, h=19, i=321.0, j=23478, z=22
     )
 
 
-@pytest.mark.parametrize("by_path,result_type", [(False, list), (True, dict)])
-def test__linter__linting_result_check_tuples_by_path(by_path, result_type):
+def test__linter__linting_result_check_tuples():
     """Test that a LintingResult can partition violations by the source files."""
     lntr = Linter()
     result = lntr.lint_paths(
@@ -138,8 +136,57 @@ def test__linter__linting_result_check_tuples_by_path(by_path, result_type):
             "test/fixtures/linter/whitespace_errors.sql",
         )
     )
-    check_tuples = result.check_tuples(by_path=by_path)
-    isinstance(check_tuples, result_type)
+    check_tuples = result.check_tuples()
+    isinstance(check_tuples, list)
+    assert check_tuples == [
+        ("LT09", 2, 1),
+        ("LT04", 4, 5),
+        ("LT02", 5, 1),
+        ("LT04", 5, 1),
+        ("LT02", 6, 1),
+        ("AL02", 6, 5),
+        ("LT01", 6, 6),
+        ("CP01", 8, 1),
+        ("LT09", 1, 1),
+        ("LT01", 2, 9),
+        ("LT01", 3, 12),
+        ("LT02", 4, 1),
+        ("CP01", 6, 10),
+    ]
+
+
+def test__linter__linting_result_check_tuples_by_path():
+    """Test that a LintingResult can partition violations by the source files."""
+    lntr = Linter()
+    result = lntr.lint_paths(
+        (
+            "test/fixtures/linter/comma_errors.sql",
+            "test/fixtures/linter/whitespace_errors.sql",
+        )
+    )
+    check_tuples = result.check_tuples_by_path()
+    isinstance(check_tuples, dict)
+    # Normalise the paths in the keys.
+    check_tuples = {k.replace("\\", "/"): v for k, v in check_tuples.items()}
+    assert check_tuples == {
+        "test/fixtures/linter/comma_errors.sql": [
+            ("LT09", 2, 1),
+            ("LT04", 4, 5),
+            ("LT02", 5, 1),
+            ("LT04", 5, 1),
+            ("LT02", 6, 1),
+            ("AL02", 6, 5),
+            ("LT01", 6, 6),
+            ("CP01", 8, 1),
+        ],
+        "test/fixtures/linter/whitespace_errors.sql": [
+            ("LT09", 1, 1),
+            ("LT01", 2, 9),
+            ("LT01", 3, 12),
+            ("LT02", 4, 1),
+            ("CP01", 6, 10),
+        ],
+    }
 
 
 @pytest.mark.parametrize(
@@ -543,3 +590,69 @@ def test_normalise_newlines():
     in_str = "SELECT\r\n foo\n FROM \r \n\r bar;"
     out_str = "SELECT\n foo\n FROM \n \n\n bar;"
     assert out_str == Linter._normalise_newlines(in_str)
+
+
+@pytest.mark.parametrize(
+    "fix_even_unparsable",
+    [False, True],
+)
+def test_unparsable_fix_output(fix_even_unparsable):
+    """Tests functionality and logging output with unparsable sections.
+
+    NOTE: While we cover different paths, the result for this test is the
+    same for both values of `fix_even_unparsable`. We probably need a better
+    test case at some point so that we can actually see the difference.
+    """
+    config = FluffConfig(
+        overrides={"fix_even_unparsable": fix_even_unparsable, "dialect": "ansi"}
+    )
+    linter = Linter(config=config)
+    # Attempt to fix it, capturing the logging output.
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        result = linter.lint_paths(
+            ("test/fixtures/linter/parse_error_2.sql",),
+            fix=True,
+            apply_fixes=True,
+            fixed_file_suffix=f"_{fix_even_unparsable}_fix",
+            fix_even_unparsable=fix_even_unparsable,
+        )
+    # Assert that it parsed (i.e. we found a select_statement), but with an
+    # unparsable section in there too.
+    assert result.tree
+    assert "select_statement" in result.tree.descendant_type_set
+    assert "unparsable" in result.tree.descendant_type_set
+    # We should still find linting issues too
+    assert result.check_tuples(raise_on_non_linting_violations=False) == [
+        ("CP01", 2, 7),  # `a as b` - capitalisation of AS
+        ("AL03", 3, 5),  # 42 is an expression without an alias
+        # The unparsable section is (wrongly) detected as an indentation issue.
+        ("LT02", 4, 1),
+        ("CP01", 5, 1),  # `from` is uncapitalised
+    ]
+    # We should make sure that the warning that asks users to report a bug is
+    # NOT present. i.e. the warning which could happen in `lint_fix_parsed()`.`
+    assert "Please report this as a bug" not in caplog.text
+    # Also not the `fix not applied`. The one in `_warn_unfixable()`
+    assert "it would re-cause the same error" not in caplog.text
+    # In fact, there shouldn't be any warnings at all.
+    assert not caplog.text.strip()
+    # In both cases, the final capitalisation and the `a as b` sections should have
+    # been fixed (because they aren't in the unparsable section).
+    assert "from cte" not in result.tree.raw
+    assert "FROM cte" in result.tree.raw
+    assert "a as b" not in result.tree.raw
+    assert "a AS b" in result.tree.raw
+    # Check whether the file was persisted. If `fix_even_unparsable` was set, then
+    # there should be a file, and it should have the fixes from above in it. If not
+    # then there should be no fixed file, as the persist will have been aborted due
+    # to the parsing issues.
+    predicted_fix_path = (
+        f"test/fixtures/linter/parse_error_2_{fix_even_unparsable}_fix.sql"
+    )
+    if fix_even_unparsable:
+        with open(predicted_fix_path, "r") as f:
+            fixed_sql = f.read()
+        assert result.tree.raw == fixed_sql
+    else:
+        with pytest.raises(FileNotFoundError):
+            open(predicted_fix_path, "r")

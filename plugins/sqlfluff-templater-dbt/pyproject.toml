@@ -1,6 +1,6 @@
 [project]
 name = "sqlfluff-templater-dbt"
-version = "3.1.1"
+version = "3.2.0"
 description = "Lint your dbt project SQL"
 readme = {file = "README.md", content-type = "text/markdown"}
 authors = [
@@ -22,6 +22,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: Implementation :: CPython",
     "Topic :: Utilities",
     "Topic :: Software Development :: Quality Assurance",
@@ -52,7 +53,7 @@ keywords = [
     "dbt",
 ]
 dependencies = [
-    "sqlfluff==3.1.1",
+    "sqlfluff==3.2.0",
     "dbt-core>=1.4.1",
     "jinja2-simple-tags>=0.3.1",
 ]
@@ -70,4 +71,4 @@ Chat = "https://github.com/sqlfluff/sqlfluff#sqlfluff-on-slack"
 sqlfluff_templater_dbt = "sqlfluff_templater_dbt"
 
 [tool.setuptools.packages.find]
-include = ["sqlfluff_templater_dbt", "sqlfluff_templater_dbt.osmosis"]
+include = ["sqlfluff_templater_dbt"]

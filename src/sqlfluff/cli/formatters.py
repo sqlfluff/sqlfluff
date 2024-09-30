@@ -17,8 +17,8 @@ from sqlfluff.cli.helpers import (
 )
 from sqlfluff.cli.outputstream import OutputStream
 from sqlfluff.core import FluffConfig, Linter, SQLBaseError, TimingSummary
-from sqlfluff.core.enums import Color
-from sqlfluff.core.linter import LintedFile, ParsedString
+from sqlfluff.core.linter import FormatterInterface, LintedFile, ParsedString
+from sqlfluff.core.types import Color
 
 
 def split_string_on_spaces(s: str, line_length: int = 100) -> List[str]:
@@ -65,7 +65,7 @@ def format_linting_result_header() -> str:
     return text_buffer.getvalue()
 
 
-class OutputStreamFormatter:
+class OutputStreamFormatter(FormatterInterface):
     """Formatter which writes to an OutputStream.
 
     On instantiation, this formatter accepts a function to

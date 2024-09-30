@@ -2,10 +2,22 @@
 
 import logging
 from bisect import bisect_left
-from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Optional, Tuple
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    NamedTuple,
+    Optional,
+    Tuple,
+    TypeVar,
+)
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLFluffSkipFile, SQLTemplaterError
+from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.helpers.slice import zero_slice
 
 # Instantiate the templater logger
@@ -24,7 +36,10 @@ def iter_indices_of_newlines(raw_str: str) -> Iterator[int]:
             break  # pragma: no cover TODO?
 
 
-def large_file_check(func):
+T = TypeVar("T")
+
+
+def large_file_check(func: Callable[..., T]) -> Callable[..., T]:
     """Raise an exception if the file is over a defined size.
 
     Designed to be implemented as a decorator on `.process()` methods.
@@ -34,8 +49,13 @@ def large_file_check(func):
     """
 
     def _wrapped(
-        self, *, in_str: str, fname: str, config: Optional[FluffConfig] = None, **kwargs
-    ):
+        self: Any,
+        *,
+        in_str: str,
+        fname: str,
+        config: Optional[FluffConfig] = None,
+        formatter: Optional[FormatterInterface] = None,
+    ) -> T:
         if config:
             limit = config.get("large_file_skip_char_limit")
             if limit:
@@ -51,7 +71,9 @@ def large_file_check(func):
                     "in their config by setting the 'large_file_skip_char_limit' "
                     "value, or disable by setting it to zero."
                 )
-        return func(self, in_str=in_str, fname=fname, config=config, **kwargs)
+        return func(
+            self, in_str=in_str, fname=fname, config=config, formatter=formatter
+        )
 
     return _wrapped
 
@@ -493,19 +515,26 @@ class RawTemplater:
 
     name = "raw"
     templater_selector = "templater"
+    config_subsection: Tuple[str, ...] = ()
 
-    def __init__(self, **kwargs: Dict[str, Any]) -> None:
+    def __init__(
+        self,
+        override_context: Optional[Dict[str, Any]] = None,
+    ) -> None:
         """Placeholder init function.
 
-        Here we should load any initial config found in the root directory. The init
-        function shouldn't take any arguments at this stage as we assume that it will
-        load its own config. Maybe at this stage we might allow override parameters to
-        be passed to the linter at runtime from the cli - that would be the only time we
-        would pass arguments in here.
+        We allow override context here even though the raw templater doesn't apply
+        any templating variables. That's to enable classes which inherit from this
+        class to reuse that logic.
         """
+        self.default_context = dict(test_value="__test__")
+        self.override_context = override_context or {}
 
     def sequence_files(
-        self, fnames: List[str], config: Optional[FluffConfig] = None, formatter=None
+        self,
+        fnames: List[str],
+        config: Optional[FluffConfig] = None,
+        formatter: Optional[FormatterInterface] = None,
     ) -> Iterable[str]:
         """Given files to be processed, return a valid processing sequence."""
         # Default is to process in the original order.
@@ -518,7 +547,7 @@ class RawTemplater:
         in_str: str,
         fname: str,
         config: Optional[FluffConfig] = None,
-        formatter=None,
+        formatter: Optional[FormatterInterface] = None,
     ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
         """Process a string and return a TemplatedFile.
 
@@ -551,7 +580,12 @@ class RawTemplater:
 
     @large_file_check
     def process_with_variants(
-        self, *, in_str: str, fname: str, config=None, formatter=None
+        self,
+        *,
+        in_str: str,
+        fname: str,
+        config: Optional[FluffConfig] = None,
+        formatter: Optional[FormatterInterface] = None,
     ) -> Iterator[Tuple[TemplatedFile, List[SQLTemplaterError]]]:
         """Extended version of `process` which returns multiple variants.
 
@@ -577,3 +611,41 @@ class RawTemplater:
                 the string 'templater' and the name of the templater.
         """
         return [("templater", self.name)]
+
+    def get_context(
+        self,
+        fname: Optional[str],
+        config: Optional[FluffConfig],
+    ) -> Dict[str, Any]:
+        """Get the templating context from the config.
+
+        This function retrieves the templating context from the config by
+        loading the config and updating the live_context dictionary with the
+        loaded_context and other predefined context dictionaries. It then goes
+        through the loaded_context dictionary returns the live_context dictionary.
+
+        Args:
+            fname (str, optional): The file name.
+            config (`FluffConfig`, optional): The config object.
+
+        Returns:
+            dict: The templating context.
+        """
+        # TODO: The config loading should be done outside the templater code. Here
+        # is a silly place.
+        if config:
+            # This is now a nested section
+            loaded_context = (
+                config.get_section(
+                    (self.templater_selector, self.name) + self.config_subsection
+                )
+                or {}
+            )
+        else:
+            loaded_context = {}
+        live_context = {}
+        live_context.update(self.default_context)
+        live_context.update(loaded_context)
+        live_context.update(self.override_context)
+
+        return live_context

@@ -277,6 +277,10 @@ class RuleMetaclass(type):
                 try:
                     info_dict = config_info[keyword]
                 except KeyError:  # pragma: no cover
+                    # NOTE: For rule developers, please define config info values
+                    # within the specific rule bundle rather than in the central
+                    # `config_info` package unless the value is necessary for
+                    # multiple rules.
                     raise KeyError(
                         "Config value {!r} for rule {} is not configured in "
                         "`config_info`.".format(keyword, name)
@@ -330,8 +334,8 @@ class RuleMetaclass(type):
                 break
 
         class_dict = RuleMetaclass._populate_docstring(name, class_dict)
-        # Don't try and infer code and description for the base class
-        if bases:
+        # Don't try and infer code and description for the base classes
+        if name not in ("BaseRule",):
             class_dict = RuleMetaclass._populate_code_and_description(name, class_dict)
         # Validate rule names
         rule_name = class_dict.get("name", "")
@@ -425,7 +429,7 @@ class BaseRule(metaclass=RuleMetaclass):
                     (
                         "Unrecognized config '{}' for Rule {}. If this "
                         "is a new option, please add it to "
-                        "`default_config.cfg`"
+                        "`default_config.cfg` or plugin specific config."
                     ).format(keyword, code)
                 )
 

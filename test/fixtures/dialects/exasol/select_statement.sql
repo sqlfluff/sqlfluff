@@ -147,6 +147,24 @@ SELECT v,
        5 * v AS five_times_table
 FROM VALUES BETWEEN 1 AND 9 AS v(v);
 --
+with
+    v as (
+        select
+            RANGE_VALUE
+        from
+            VALUES between 0 and days_between(current_date -6, current_date -1)
+    )
+select * from v;
+--
+with
+    v as (
+        select
+            RANGE_VALUE
+        from
+            VALUES between abs(-5) and days_between(current_date -6, current_date -1)
+    )
+select * from v;
+--
 SELECT 'abcd' LIKE 'a_d' AS res1, '%bcd' like '%%d' AS res2;
 --
 SELECT 'abcd' NOT LIKE 'a_d' AS res1, '%bcd' like '%%d' AS res2;

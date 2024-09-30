@@ -17,11 +17,11 @@ from typing import Optional
 
 from sqlfluff.core.config.ini import load_ini_string
 from sqlfluff.core.config.toml import load_toml_file_config
-from sqlfluff.core.config.types import ConfigMappingType
 from sqlfluff.core.config.validate import validate_config_dict
 from sqlfluff.core.helpers.string import (
     split_comma_separated_string,
 )
+from sqlfluff.core.types import ConfigMappingType
 
 if sys.version_info >= (3, 9):
     # Explicitly rename so that mypy is happy re-exporting it for other
@@ -61,7 +61,7 @@ def _resolve_path(filepath: str, val: str) -> str:
 
 def _resolve_paths_in_config(
     config: ConfigMappingType, filepath: str, logging_reference: Optional[str] = None
-):
+) -> None:
     """Attempt to resolve any paths found in the config file.
 
     NOTE: This method is recursive to crawl the whole config object,
