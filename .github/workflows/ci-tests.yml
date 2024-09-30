@@ -45,7 +45,8 @@ jobs:
     - name: Run the tests
       run: tox -e ${{ matrix.jobs }}
 
-  # Test with coverage tracking on most recent python (py12).
+  # Test with coverage tracking on most recent python (py312).
+  # NOTE: py313 is really new, so not using that for coverage yet.
   python-version-tests:
     name: Python Tests
     strategy:
@@ -58,9 +59,6 @@ jobs:
           # Override coverage to be true for most recent python version.
           - python-version: "3.12"
             coverage: true
-          # Override prerelease to true for pre-release python versions.
-          # - python-version: "3.13"
-          #  prerelease: true
     permissions:
       contents: read
       pull-requests: write
