@@ -446,3 +446,21 @@ test_fail_special_chars_redshift_hash_column:
   configs:
     core:
       dialect: redshift
+
+test_pass_table_aliases:
+  pass_str: | 
+    SELECT 1 AS "special*"
+    FROM VALUES ((1)) AS "non_special"
+  configs:
+    rules:
+      references.special_chars:
+        quoted_identifiers_policy: table_aliases
+
+test_fail_table_aliases:
+  fail_str: | 
+    SELECT 1 AS "special*"
+    FROM VALUES ((1)) AS "special*"
+  configs:
+    rules:
+      references.special_chars:
+        quoted_identifiers_policy: table_aliases
