@@ -32,6 +32,8 @@ jobs:
   modular-python-test:
     name: py${{ inputs.python-version }}-${{ inputs.dbt-version }}
     runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
 
     services:
       # Label used to access the service container
