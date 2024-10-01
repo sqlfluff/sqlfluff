@@ -46,11 +46,11 @@ class SpecialMarkerInserter(JinjaTemplater):
     name = "special_marker_inserter"
 
     def slice_file(
-        self, raw_str: str, render_func: Callable[[str], str], config=None, **kwargs
+        self, raw_str: str, render_func: Callable[[str], str], config=None
     ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Patch a sliced file returned by the superclass."""
         raw_sliced, sliced_file, templated_str = super().slice_file(
-            raw_str, render_func, config, **kwargs
+            raw_str, render_func, config
         )
 
         patched_sliced_file = []

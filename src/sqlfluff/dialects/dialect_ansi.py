@@ -991,6 +991,7 @@ class DatatypeSegment(BaseSegment):
                 optional=True,
             ),
         ),
+        Ref("ArrayTypeSegment"),
     )
 
 
