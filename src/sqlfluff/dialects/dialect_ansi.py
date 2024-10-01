@@ -2486,7 +2486,7 @@ class GroupingSetsClauseSegment(BaseSegment):
 
     type = "grouping_sets_clause"
 
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "GROUPING",
         "SETS",
         Bracketed(
@@ -2541,6 +2541,7 @@ class GroupByClauseSegment(BaseSegment):
         Indent,
         OneOf(
             "ALL",
+            Ref("GroupingSetsClauseSegment"),
             Ref("CubeRollupClauseSegment"),
             # We could replace this next bit with a GroupingExpressionList
             # reference (renaming that to a more generic name), to avoid
