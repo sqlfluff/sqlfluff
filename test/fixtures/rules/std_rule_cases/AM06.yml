@@ -682,3 +682,22 @@ test_pass_array_agg_bigquery:
   configs:
     core:
       dialect: bigquery
+
+test_pass_array_expression_bigquery:
+  pass_str: |
+    SELECT
+      poi.country_code
+      , poi.po_id
+      , ARRAY(
+          SELECT STRUCT(
+              p.product_name
+              , p.sku_id
+              , p.created_at
+            ) AS products_purchased
+          FROM UNNEST(poi.products_purchased) AS p
+          ORDER BY p.created_at
+        ) AS products_purchased
+    FROM `my_project.my_dataset.purchase_orders_products` AS poi
+  configs:
+    core:
+      dialect: bigquery
