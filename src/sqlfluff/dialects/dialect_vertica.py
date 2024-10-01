@@ -26,11 +26,13 @@ from sqlfluff.core.parser import (
     Ref,
     RegexLexer,
     RegexParser,
+    SegmentGenerator,
     Sequence,
     StringLexer,
     StringParser,
     SymbolSegment,
     TypedParser,
+    WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_vertica_keywords import (
@@ -106,6 +108,11 @@ vertica_dialect.patch_lexer_matchers(
                 "quoted_value": (r'"((?:[^"]|"")*)"', 1),
                 "escape_replacements": [(r'""', '"')],
             },
+        ),
+        RegexLexer(
+            "word",
+            r"[\p{L}_][\p{L}\p{N}_$]*",
+            WordSegment,
         ),
     ]
 )
@@ -478,6 +485,45 @@ vertica_dialect.replace(
     ),
     QuotedIdentifierSegment=TypedParser(
         "double_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
+    ),
+    NakedIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            # https://docs.vertica.com/24.3.x/en/sql-reference/language-elements/identifiers/
+            # Unquoted SQL identifiers must begin with one of the following:
+            # * Non-Unicode letters: A–Z or a-z
+            # -- /actually Vertica accepts also non-ASCII UTF-8 Unicode
+            # characters here, which is not well documented/
+            # * Underscore (_)
+            # Subsequent characters in an identifier can be any combination of
+            # the following:
+            # * Non-Unicode letters: A–Z or a-z
+            # * Underscore (_)
+            # * Digits(0–9)
+            # * Unicode letters (letters with diacriticals or not in the Latin
+            # alphabet), unsupported for model names
+            # * Dollar sign ($), unsupported for model names
+            #
+            # Vertica accepts **non-ASCII UTF-8 Unicode characters** for table
+            # names, column names, and other identifiers,
+            # extending the cases where upper/lower case distinctions are
+            # ignored (case-folded) to all alphabets,
+            # including Latin, Cyrillic, and Greek.
+            # \p{L} matches any kind of letter from any language;
+            # \p{N} matches any kind of numeric character in any script
+            r"[\p{L}_][\p{L}\p{N}$_]*",
+            IdentifierSegment,
+            type="naked_identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.upper,
+        )
+    ),
+    ParameterNameSegment=RegexParser(
+        # need to cover cases where non-ascii word is parameter
+        # like ```ALTER TABLE some_table TO utf8_identifier_eg_Verkäufer;```
+        r"[\p{L}_][\p{L}\p{N}$_]*",
+        CodeSegment,
+        type="parameter",
     ),
 )
 

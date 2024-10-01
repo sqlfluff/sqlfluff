@@ -12,11 +12,13 @@ import functools
 import logging
 import multiprocessing
 import multiprocessing.dummy
+import multiprocessing.pool
 import signal
 import sys
 import traceback
-from abc import ABC
-from typing import Callable, Iterator, List, Tuple
+from abc import ABC, abstractmethod
+from types import TracebackType
+from typing import Callable, Iterable, Iterator, List, Optional, Tuple, Union
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile
@@ -24,6 +26,8 @@ from sqlfluff.core.linter import LintedFile, RenderedFile
 from sqlfluff.core.plugin.host import is_main_process
 
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
+
+PartialLintCallable = Callable[[], LintedFile]
 
 
 class BaseRunner(ABC):
@@ -53,7 +57,7 @@ class BaseRunner(ABC):
         self,
         fnames: List[str],
         fix: bool = False,
-    ) -> Iterator[Tuple[str, Callable]]:
+    ) -> Iterator[Tuple[str, PartialLintCallable]]:
         """Iterate through partials for linted files.
 
         Generates filenames and objects which return LintedFiles.
@@ -74,12 +78,13 @@ class BaseRunner(ABC):
                 ),
             )
 
-    def run(self, fnames: List[str], fix: bool):
+    @abstractmethod
+    def run(self, fnames: List[str], fix: bool) -> Iterator[LintedFile]:
         """Run linting on the specified list of files."""
-        raise NotImplementedError  # pragma: no cover
+        ...
 
     @classmethod
-    def _init_global(cls, config) -> None:
+    def _init_global(cls) -> None:
         """Initializes any global state.
 
         May be overridden by subclasses to apply global configuration, initialize
@@ -88,7 +93,7 @@ class BaseRunner(ABC):
         pass
 
     @staticmethod
-    def _handle_lint_path_exception(fname, e) -> None:
+    def _handle_lint_path_exception(fname: Optional[str], e: BaseException) -> None:
         if isinstance(e, IOError):
             # IOErrors are caught in commands.py, so propagate it
             raise (e)  # pragma: no cover
@@ -117,17 +122,16 @@ class SequentialRunner(BaseRunner):
 class ParallelRunner(BaseRunner):
     """Base class for parallel runner implementations (process or thread)."""
 
-    POOL_TYPE: Callable
-    MAP_FUNCTION_NAME: str
+    POOL_TYPE: Callable[..., multiprocessing.pool.Pool]
     # Don't pass the formatter in a parallel world, they
     # don't pickle well.
     pass_formatter = False
 
-    def __init__(self, linter, config, processes) -> None:
+    def __init__(self, linter: Linter, config: FluffConfig, processes: int) -> None:
         super().__init__(linter, config)
         self.processes = processes
 
-    def run(self, fnames: List[str], fix: bool):
+    def run(self, fnames: List[str], fix: bool) -> Iterator[LintedFile]:
         """Parallel implementation.
 
         Note that the partials are generated one at a time then
@@ -138,7 +142,6 @@ class ParallelRunner(BaseRunner):
         with self._create_pool(
             self.processes,
             self._init_global,
-            (self.config,),
         ) as pool:
             try:
                 for lint_result in self._map(
@@ -171,7 +174,9 @@ class ParallelRunner(BaseRunner):
                 pool.terminate()
 
     @staticmethod
-    def _apply(partial_tuple):
+    def _apply(
+        partial_tuple: Tuple[str, PartialLintCallable],
+    ) -> Union["DelayedException", LintedFile]:
         """Shim function used in parallel mode."""
         # Unpack the tuple and ditch the filename in this case.
         fname, partial = partial_tuple
@@ -183,30 +188,42 @@ class ParallelRunner(BaseRunner):
             return DelayedException(e, fname=fname)
 
     @classmethod
-    def _init_global(cls, config) -> None:  # pragma: no cover
+    def _init_global(cls) -> None:  # pragma: no cover
         """For the parallel runners indicate that we're not in the main thread."""
         is_main_process.set(False)
-        super()._init_global(config)
+        super()._init_global()
 
     @classmethod
-    def _create_pool(cls, *args, **kwargs):
-        return cls.POOL_TYPE(*args, **kwargs)
+    def _create_pool(
+        cls, processes: int, initializer: Callable[[], None]
+    ) -> multiprocessing.pool.Pool:
+        return cls.POOL_TYPE(processes=processes, initializer=initializer)
 
     @classmethod
-    def _map(cls, pool, *args, **kwargs):
-        """Runs a class-appropriate version of the general map() function."""
-        return getattr(pool, cls.MAP_FUNCTION_NAME)(*args, **kwargs)
+    @abstractmethod
+    def _map(
+        cls,
+        pool: multiprocessing.pool.Pool,
+        func: Callable[
+            [Tuple[str, PartialLintCallable]], Union["DelayedException", LintedFile]
+        ],
+        iterable: Iterable[Tuple[str, PartialLintCallable]],
+    ) -> Iterable[Union["DelayedException", LintedFile]]:  # pragma: no cover
+        """Class-specific map method.
+
+        NOTE: Must be overridden by an implementation.
+        """
+        ...
 
 
 class MultiProcessRunner(ParallelRunner):
     """Runner that does parallel processing using multiple processes."""
 
     POOL_TYPE = multiprocessing.Pool
-    MAP_FUNCTION_NAME = "imap_unordered"
 
     @classmethod
-    def _init_global(cls, config) -> None:  # pragma: no cover
-        super()._init_global(config)
+    def _init_global(cls) -> None:  # pragma: no cover
+        super()._init_global()
 
         # Disable signal handling in the child processes to let the parent
         # control all KeyboardInterrupt handling (Control C). This is
@@ -214,6 +231,22 @@ class MultiProcessRunner(ParallelRunner):
         # cleanly. Adapted from this post:
         # https://stackoverflow.com/questions/11312525/catch-ctrlc-sigint-and-exit-multiprocesses-gracefully-in-python
         signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+    @classmethod
+    def _map(
+        cls,
+        pool: multiprocessing.pool.Pool,
+        func: Callable[
+            [Tuple[str, PartialLintCallable]], Union["DelayedException", LintedFile]
+        ],
+        iterable: Iterable[Tuple[str, PartialLintCallable]],
+    ) -> Iterable[Union["DelayedException", LintedFile]]:
+        """Map using imap unordered.
+
+        We use this so we can iterate through results as they arrive, and while other
+        files are still being processed.
+        """
+        return pool.imap_unordered(func=func, iterable=iterable)
 
 
 class MultiThreadRunner(ParallelRunner):
@@ -223,19 +256,35 @@ class MultiThreadRunner(ParallelRunner):
     """
 
     POOL_TYPE = multiprocessing.dummy.Pool
-    MAP_FUNCTION_NAME = "imap"
+
+    @classmethod
+    def _map(
+        cls,
+        pool: multiprocessing.pool.Pool,
+        func: Callable[
+            [Tuple[str, PartialLintCallable]], Union["DelayedException", LintedFile]
+        ],
+        iterable: Iterable[Tuple[str, PartialLintCallable]],
+    ) -> Iterable[Union["DelayedException", LintedFile]]:
+        """Map using imap.
+
+        We use this so we can iterate through results as they arrive, and while other
+        files are still being processed.
+        """
+        return pool.imap(func=func, iterable=iterable)
 
 
 class DelayedException(Exception):
     """Multiprocessing process pool uses this to propagate exceptions."""
 
-    def __init__(self, ee, fname=None):
+    def __init__(self, ee: BaseException, fname: Optional[str] = None):
         self.ee = ee
-        __, __, self.tb = sys.exc_info()
-        self.fname = None
+        self.tb: Optional[TracebackType]
+        _, _, self.tb = sys.exc_info()
+        self.fname = fname
         super().__init__(str(ee))
 
-    def reraise(self):
+    def reraise(self) -> None:
         """Reraise the encapsulated exception."""
         raise self.ee.with_traceback(self.tb)
 

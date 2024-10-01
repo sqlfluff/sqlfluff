@@ -1,9 +1,51 @@
 """The aliasing plugin bundle."""
 
-from typing import List, Type
+from typing import Any, Dict, List, Type
 
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import BaseRule
+
+
+@hookimpl
+def get_configs_info() -> Dict[str, Any]:
+    """Get additional rule config validations and descriptions."""
+    return {
+        "aliasing": {
+            "validation": ["implicit", "explicit"],
+            "definition": (
+                "Should alias have an explicit AS or is implicit aliasing required?"
+            ),
+        },
+        "allow_scalar": {
+            "validation": [True, False],
+            "definition": (
+                "Whether or not to allow a single element in the "
+                " select clause to be without an alias."
+            ),
+        },
+        "alias_case_check": {
+            "validation": [
+                "dialect",
+                "case_insensitive",
+                "quoted_cs_naked_upper",
+                "quoted_cs_naked_lower",
+                "case_sensitive",
+            ],
+            "definition": "How to handle comparison casefolding in an alias.",
+        },
+        "min_alias_length": {
+            "validation": range(1000),
+            "definition": (
+                "The minimum length of an alias to allow without raising a violation."
+            ),
+        },
+        "max_alias_length": {
+            "validation": range(1000),
+            "definition": (
+                "The maximum length of an alias to allow without raising a violation."
+            ),
+        },
+    }
 
 
 @hookimpl

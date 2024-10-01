@@ -1036,6 +1036,15 @@ class SelectStatementSegment(BaseSegment):
     )
 
 
+class GroupingSetsClauseSegment(ansi.GroupingSetsClauseSegment):
+    """`GROUPING SETS` clause within the `GROUP BY` clause.
+
+    This is `Nothing` for SQLite.
+    """
+
+    match_grammar = Nothing()
+
+
 class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
     """A `CREATE INDEX` statement.
 

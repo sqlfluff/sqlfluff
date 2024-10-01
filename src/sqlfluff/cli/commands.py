@@ -36,9 +36,9 @@ from sqlfluff.core import (
     dialect_selector,
 )
 from sqlfluff.core.config import progress_bar_configuration
-from sqlfluff.core.enums import Color, FormatType
 from sqlfluff.core.linter import LintingResult
 from sqlfluff.core.plugin.host import get_plugin_manager
+from sqlfluff.core.types import Color, FormatType
 
 
 class StreamHandlerTqdm(logging.StreamHandler):
@@ -662,7 +662,11 @@ def lint(
     if format == FormatType.json.value:
         file_output = json.dumps(result.as_records())
     elif format == FormatType.yaml.value:
-        file_output = yaml.dump(result.as_records(), sort_keys=False)
+        file_output = yaml.dump(
+            result.as_records(),
+            sort_keys=False,
+            allow_unicode=True,
+        )
     elif format == FormatType.none.value:
         file_output = ""
     elif format == FormatType.github_annotation.value:
@@ -759,7 +763,9 @@ def lint(
     if not nofail:
         if not non_human_output:
             formatter.completion_message()
-        sys.exit(result.stats(EXIT_FAIL, EXIT_SUCCESS)["exit code"])
+        exit_code = result.stats(EXIT_FAIL, EXIT_SUCCESS)["exit code"]
+        assert isinstance(exit_code, int), "result.stats error code must be integer."
+        sys.exit(exit_code)
     else:
         sys.exit(EXIT_SUCCESS)
 
@@ -1392,7 +1398,11 @@ def parse(
             # For yaml dumping always dump double quoted strings if they contain
             # tabs or newlines.
             yaml.add_representer(str, quoted_presenter)
-            file_output = yaml.dump(parsed_strings_dict, sort_keys=False)
+            file_output = yaml.dump(
+                parsed_strings_dict,
+                sort_keys=False,
+                allow_unicode=True,
+            )
         elif format == FormatType.json.value:
             file_output = json.dumps(parsed_strings_dict)
         elif format == FormatType.none.value:

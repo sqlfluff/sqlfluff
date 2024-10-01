@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 857fcc5285757408c4a45ef6f3114b118d98f95080003349d3dd8da1b5a5af6e
+_hash: 3152e4c31e1f36fe6548d729df78f0a4a13e748bb97bc8e28f43630399e19fb4
 file:
 - statement:
     explain_statement:
@@ -178,19 +178,22 @@ file:
         - bracketed:
           - start_bracket: (
           - column_definition:
-              naked_identifier: id
+              column_reference:
+                naked_identifier: id
               data_type:
                 primitive_type:
                   keyword: INT
           - comma: ','
           - column_definition:
-              naked_identifier: student_name
+              column_reference:
+                naked_identifier: student_name
               data_type:
                 primitive_type:
                   keyword: STRING
           - comma: ','
           - column_definition:
-              naked_identifier: age
+              column_reference:
+                naked_identifier: age
               data_type:
                 primitive_type:
                   keyword: INT
@@ -212,19 +215,22 @@ file:
         - bracketed:
           - start_bracket: (
           - column_definition:
-              naked_identifier: id
+              column_reference:
+                naked_identifier: id
               data_type:
                 primitive_type:
                   keyword: INT
           - comma: ','
           - column_definition:
-              naked_identifier: student_name
+              column_reference:
+                naked_identifier: student_name
               data_type:
                 primitive_type:
                   keyword: STRING
           - comma: ','
           - column_definition:
-              naked_identifier: age
+              column_reference:
+                naked_identifier: age
               data_type:
                 primitive_type:
                   keyword: INT
