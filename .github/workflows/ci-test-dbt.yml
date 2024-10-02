@@ -74,15 +74,6 @@ jobs:
       if: ${{ !inputs.coverage }}
       run: tox -e ${{ inputs.dbt-version }} -- plugins/sqlfluff-templater-dbt
 
-    - name: Coveralls Parallel (coveralls)
-      uses: coverallsapp/github-action@v2
-      if: ${{ inputs.coverage }}
-      with:
-        path-to-lcov: coverage.lcov
-        github-token: ${{ secrets.gh_token }}
-        flag-name: run-${{ inputs.dbt-version }}
-        parallel: true
-
     - name: Upload coverage data (github)
       uses: actions/upload-artifact@v4
       if: ${{ inputs.coverage }}

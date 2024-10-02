@@ -277,17 +277,6 @@ jobs:
       run: |
         sqlfluff lint --dialect=ansi <(echo "select 1")
 
-  coveralls_finish:
-    name: Finalise coveralls.
-    needs: [python-version-tests, dbt-tests, python-windows-tests, dialect-tests]
-    runs-on: ubuntu-latest
-    steps:
-    - name: Coveralls Finished
-      uses: coverallsapp/github-action@v2
-      with:
-        github-token: ${{ secrets.github_token }}
-        parallel-finished: true
-
   coverage_check:
     name: Combine & check 100% coverage.
     runs-on: ubuntu-latest
