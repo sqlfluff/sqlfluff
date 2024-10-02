@@ -29,10 +29,10 @@ from sqlfluff.core.config.file import (
     load_config_file_as_dict,
     load_config_string_as_dict,
 )
-from sqlfluff.core.config.types import ConfigMappingType
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import nested_combine
 from sqlfluff.core.helpers.file import iter_intermediate_paths
+from sqlfluff.core.types import ConfigMappingType
 
 # Instantiate the config logger
 config_logger = logging.getLogger("sqlfluff.config")

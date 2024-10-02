@@ -8232,6 +8232,26 @@ class SetOperatorSegment(ansi.SetOperatorSegment):
     )
 
 
+class ArrayTypeSegment(ansi.ArrayTypeSegment):
+    """Prefix for array literals specifying the type."""
+
+    type = "array_type"
+    match_grammar = Sequence(
+        "ARRAY",
+        Ref("ArrayTypeSchemaSegment", optional=True),
+    )
+
+
+class ArrayTypeSchemaSegment(ansi.ArrayTypeSegment):
+    """Prefix for array literals specifying the type."""
+
+    type = "array_type_schema"
+    match_grammar = Bracketed(
+        Ref("DatatypeSegment"),
+        Sequence("NOT", "NULL", optional=True),
+    )
+
+
 class ShorthandCastSegment(BaseSegment):
     """A casting operation using '::'."""
 

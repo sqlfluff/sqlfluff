@@ -6,8 +6,8 @@ This includes `.sqlfluff` and `tox.ini` files.
 import configparser
 from typing import List, Tuple
 
-from sqlfluff.core.config.types import ConfigMappingType, ConfigValueType
 from sqlfluff.core.helpers.dict import NestedDictRecord, records_to_nested_dict
+from sqlfluff.core.types import ConfigMappingType, ConfigValueType
 
 
 def coerce_value(val: str) -> ConfigValueType:

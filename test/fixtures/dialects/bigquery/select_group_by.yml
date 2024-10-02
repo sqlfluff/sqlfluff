@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 51f58a63f60716804c340f3536292698e7f5281873e42d3912c7d622d4f5eb3f
+_hash: 2a844546fb0be7e2cd866ce6bda44934d264960c867a71d8e3194006c1f94da7
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
       - keyword: select
@@ -33,4 +33,351 @@ file:
       - keyword: group
       - keyword: by
       - keyword: all
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            naked_identifier: letter
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sum
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: num
+                end_bracket: )
+          alias_expression:
+            keyword: as
+            naked_identifier: sum_num
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table_test
+      groupby_clause:
+      - keyword: group
+      - keyword: by
+      - grouping_sets_clause:
+        - keyword: grouping
+        - keyword: sets
+        - bracketed:
+            start_bracket: (
+            grouping_expression_list:
+              numeric_literal: '1'
+              comma: ','
+              expression:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            naked_identifier: letter
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sum
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: num
+                end_bracket: )
+          alias_expression:
+            keyword: as
+            naked_identifier: sum_num
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table_test
+      groupby_clause:
+      - keyword: group
+      - keyword: by
+      - grouping_sets_clause:
+        - keyword: grouping
+        - keyword: sets
+        - bracketed:
+            start_bracket: (
+            grouping_expression_list:
+              column_reference:
+                naked_identifier: letter
+              comma: ','
+              expression:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            naked_identifier: product_type
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: product_name
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sum
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: product_count
+                end_bracket: )
+          alias_expression:
+            keyword: as
+            naked_identifier: product_sum
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: products
+      groupby_clause:
+      - keyword: group
+      - keyword: by
+      - grouping_sets_clause:
+        - keyword: grouping
+        - keyword: sets
+        - bracketed:
+            start_bracket: (
+            grouping_expression_list:
+              column_reference:
+                naked_identifier: product_type
+              comma: ','
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: rollup
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: product_type
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: product_name
+                    - end_bracket: )
+            end_bracket: )
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: product_type
+      - comma: ','
+      - column_reference:
+          naked_identifier: product_name
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            naked_identifier: product_type
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: product_name
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sum
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: product_count
+                end_bracket: )
+          alias_expression:
+            keyword: as
+            naked_identifier: product_sum
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: products
+      groupby_clause:
+      - keyword: group
+      - keyword: by
+      - grouping_sets_clause:
+        - keyword: grouping
+        - keyword: sets
+        - bracketed:
+            start_bracket: (
+            grouping_expression_list:
+              column_reference:
+                naked_identifier: product_type
+              comma: ','
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: cube
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: product_type
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: product_name
+                    - end_bracket: )
+            end_bracket: )
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: product_type
+      - comma: ','
+      - column_reference:
+          naked_identifier: product_name
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            naked_identifier: product_type
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: product_name
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sum
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: product_count
+                end_bracket: )
+          alias_expression:
+            keyword: as
+            naked_identifier: product_sum
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: products
+      groupby_clause:
+      - keyword: group
+      - keyword: by
+      - cube_rollup_clause:
+          function_name:
+            function_name_identifier: rollup
+          bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - column_reference:
+                naked_identifier: product_type
+            - comma: ','
+            - column_reference:
+                naked_identifier: product_name
+            end_bracket: )
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: product_type
+      - comma: ','
+      - column_reference:
+          naked_identifier: product_name
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            naked_identifier: product_type
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: product_name
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sum
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: product_count
+                end_bracket: )
+          alias_expression:
+            keyword: as
+            naked_identifier: product_sum
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: products
+      groupby_clause:
+      - keyword: group
+      - keyword: by
+      - cube_rollup_clause:
+          function_name:
+            function_name_identifier: cube
+          bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - column_reference:
+                naked_identifier: product_type
+            - comma: ','
+            - column_reference:
+                naked_identifier: product_name
+            end_bracket: )
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: product_type
+      - comma: ','
+      - column_reference:
+          naked_identifier: product_name
+- statement_terminator: ;

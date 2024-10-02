@@ -3,7 +3,7 @@
 This uses the rules API supported from 0.4.0 onwards.
 """
 
-from typing import List, Type
+from typing import Any, Dict, List, Type
 
 from sqlfluff.core.config import load_config_resource
 from sqlfluff.core.plugin import hookimpl
@@ -39,7 +39,7 @@ def get_rules() -> List[Type[BaseRule]]:
 
 
 @hookimpl
-def load_default_config() -> dict:
+def load_default_config() -> Dict[str, Any]:
     """Loads the default configuration for the plugin."""
     return load_config_resource(
         package="sqlfluff_plugin_example",
@@ -48,7 +48,7 @@ def load_default_config() -> dict:
 
 
 @hookimpl
-def get_configs_info() -> dict:
+def get_configs_info() -> Dict[str, Dict[str, Any]]:
     """Get rule config validations and descriptions."""
     return {
         "forbidden_columns": {"definition": "A list of column to forbid"},

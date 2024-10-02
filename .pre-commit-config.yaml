@@ -36,21 +36,36 @@ repos:
     hooks:
       - id: black
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.9.0
+    rev: v1.11.2
     hooks:
       - id: mypy
         additional_dependencies:
+          # NOTE: These dependencies should be the same as the `types-*` dependencies in
+          # `requirements_dev.txt`. If you update these, make sure to update those too.
           [
             types-toml,
-            types-setuptools,
             types-chardet,
             types-appdirs,
             types-colorama,
             types-pyyaml,
             types-regex,
             types-tqdm,
+            # Type stubs are obvious to import, but some dependencies also define their own
+            # types directly (e.g. jinja). pre-commit doesn't actually install the python
+            # package, and so doesn't automatically install the dependencies from
+            # `pyproject.toml` either. We include them here to make sure mypy can function
+            # properly.
+            jinja2,
+            pathspec,
+            pytest,  # and by extension... pluggy
+            click,
           ]
         files: ^src/sqlfluff/.*
+        # The mypy pre-commit hook by default sets a few arguments that we don't normally
+        # use. To undo that we reset the `args` to be empty here. This is important to
+        # ensure we don't get conflicting  results from the pre-commit hook and from the
+        # CI job.
+        args: []
   - repo: https://github.com/pycqa/flake8
     rev: 7.0.0
     hooks:
