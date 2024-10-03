@@ -1605,6 +1605,7 @@ class ExecuteImmediateSegment(BaseSegment):
                 Ref("SingleIdentifierFullGrammar"),  # Variable
                 Ref("FunctionSegment"),  # Function
                 Ref("CaseExpressionSegment"),  # Conditional Expression
+                Ref("ExpressionSegment"),  # Expression
                 Bracketed(Ref("SelectableGrammar")),  # Expression Subquery
             )
         ),
