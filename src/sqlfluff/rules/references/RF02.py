@@ -1,6 +1,6 @@
 """Implementation of Rule RF02."""
 
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import regex
 
@@ -43,6 +43,7 @@ class Rule_RF02(Rule_AL04):
     aliases = ("L027",)
     groups = ("all", "references")
     # Crawl behaviour is defined in AL04
+    _file_declare_cache: Dict[str, List[str]] = {}
 
     def _lint_references_and_aliases(
         self,
@@ -83,12 +84,18 @@ class Rule_RF02(Rule_AL04):
             # very slow.
             ignore_words_list = self._init_ignore_words_list()
 
+        declared_variables = self._find_declared_variables(rule_context)
+
         # A buffer to keep any violations.
         violation_buff = []
         # Check all the references that we have.
         for r in references:
             # Skip if in ignore list
             if ignore_words_list and r.raw.lower() in ignore_words_list:
+                continue
+
+            # Skip if a declared variable name inside the file
+            if r.raw.lower() in declared_variables:
                 continue
 
             # Skip if matches ignore regex
@@ -136,3 +143,27 @@ class Rule_RF02(Rule_AL04):
             self.ignore_words_list = []
 
         return self.ignore_words_list
+
+    def _find_declared_variables(self, rule_context: RuleContext) -> List[str]:
+        """Get any `DECLARE`d variables in the whole of the linted file.
+
+        This assumes that the declare statement is going to be used before any reference
+        """
+        if cached_list := self._file_declare_cache.get(str(rule_context.path)):
+            return cached_list
+        declared_variables: List[str] = []
+
+        # Check for bigquery declared variables
+        if rule_context.dialect.name == "bigquery":
+            declared_variables += [
+                identifier.raw.lower()
+                for declare in rule_context.parent_stack[0].recursive_crawl(
+                    "declare_segment"
+                )
+                for identifier in declare.get_children("identifier")
+            ]
+
+        # TODO: Add any additional dialect specific variable names
+
+        self._file_declare_cache[str(rule_context.path)] = declared_variables
+        return declared_variables
