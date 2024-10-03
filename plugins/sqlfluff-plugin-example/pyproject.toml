@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=40.8.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sqlfluff-plugin-example"
+version = "1.0.0"
+requires-python = ">=3.8"
+dependencies = [
+    "sqlfluff>=0.4.0"
+]
+
+[project.entry-points.sqlfluff]
+sqlfluff_example = "sqlfluff_plugin_example"
