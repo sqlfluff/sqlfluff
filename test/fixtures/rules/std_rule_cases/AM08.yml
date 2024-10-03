@@ -1,24 +1,28 @@
 rule: AM08
 
+test_pass_select_comma:
+  # this syntax is currently not covered by AM08
+  pass_str: "SELECT a.*, b.* FROM a, b"
+
 test_fail_missing_clause:
   fail_str: "SELECT foo.a, bar.b FROM foo INNER JOIN bar;\n"
-  fix_str: "SELECT foo.a, bar.b FROM foo INNER JOIN bar ON 1=1;\n"
+  fix_str: "SELECT foo.a, bar.b FROM foo CROSS JOIN bar;\n"
 
 test_fail_missing_clause_lowercase_default:
   fail_str: "SELECT foo.a, bar.b FROM foo left join bar;\n"
-  fix_str: "SELECT foo.a, bar.b FROM foo left join bar on 1=1;\n"
+  fix_str: "SELECT foo.a, bar.b FROM foo cross join bar;\n"
 
 test_fail_missing_multiple_joins:
   fail_str: "SELECT foo.a, bar.b FROM foo left join bar on 1=2 left join baz;\n"
-  fix_str: "SELECT foo.a, bar.b FROM foo left join bar on 1=2 left join baz on 1=1;\n"
+  fix_str: "SELECT foo.a, bar.b FROM foo left join bar on 1=2 cross join baz;\n"
 
 test_fail_missing_multiple_joins_mixed_types:
   fail_str: "SELECT foo.a, bar.b FROM foo left join bar on foo.x = bar.y left join baz;\n"
-  fix_str: "SELECT foo.a, bar.b FROM foo left join bar on foo.x = bar.y left join baz on 1=1;\n"
+  fix_str: "SELECT foo.a, bar.b FROM foo left join bar on foo.x = bar.y cross join baz;\n"
 
 test_fail_missing_multiple_joins_not_last:
   fail_str: "SELECT foo.a, bar.b FROM foo left join bar left join baz on foo.x = bar.y;\n"
-  fix_str: "SELECT foo.a, bar.b FROM foo left join bar on 1=1 left join baz on foo.x = bar.y;\n"
+  fix_str: "SELECT foo.a, bar.b FROM foo cross join bar left join baz on foo.x = bar.y;\n"
 
 test_pass_inner_join_default:
   pass_str: "SELECT foo.a, bar.b FROM foo INNER JOIN bar ON 1=1;\n"
@@ -41,5 +45,35 @@ test_pass_right_outer_join_default:
 test_pass_full_outer_join_default:
   pass_str: "SELECT foo.a, bar.b FROM foo FULL OUTER JOIN bar ON 1=1;\n"
 
+test_pass_using:
+  pass_str: "SELECT foo.id, bar.id FROM foo LEFT JOIN bar USING (id)"
+  configs:
+    core:
+      dialect: snowflake
+
 test_pass_cross_join_default:
   pass_str: "SELECT foo.a, bar.b FROM foo CROSS JOIN bar;\n"
+
+test_pass_global_cross_join_clickhouse:
+  pass_str: "SELECT foo.a, bar.b FROM foo GLOBAL CROSS JOIN bar;\n"
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_positional_join_duckdb:
+  pass_str: "SELECT foo.a, bar.b FROM foo POSITIONAL JOIN bar;\n"
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_cross_join_where_clickhouse:
+  pass_str: "SELECT m.name AS name, g.genre AS genre FROM movies AS m CROSS JOIN genres AS g WHERE m.id = g.movie_id;\n"
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_asof_join_clickhouse:
+  pass_str: "SELECT t.*, q.* FROM trades t ASOF LEFT JOIN quotes q ON t.symbol = q.symbol AND t.time >= q.time;\n"
+  configs:
+    core:
+      dialect: clickhouse

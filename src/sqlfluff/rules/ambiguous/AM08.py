@@ -17,9 +17,9 @@ class Rule_AM08(BaseRule):
 
     **Anti-pattern**
 
-    A join is used without specifying join condition.
-    This can cause unintended cross join behavior.
-    Prefer explicit const condition instead.
+    Cross joins are valid, but rare in the wild - and more often created by mistake than on purpose.
+    This rule catches situations where a cross join has been specified,
+    but not explicitly and so the risk of a mistaken cross join is highly likely.
 
     .. code-block:: sql
        :force:
@@ -31,18 +31,7 @@ class Rule_AM08(BaseRule):
 
     **Best practice**
 
-    Use const condition instead.
-
-    .. code-block:: sql
-       :force:
-
-        SELECT
-            foo
-        FROM bar
-        JOIN baz
-        ON 1=1;
-
-    If dialect allows, alternatively use CROSS JOIN.
+    Use CROSS JOIN.
 
     .. code-block:: sql
        :force:
@@ -60,36 +49,59 @@ class Rule_AM08(BaseRule):
     is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
-        """Always apply join condition."""
+        """Find joins without ON clause, fix them into CROSS JOIN (if dialect allows it)."""
+
+        cross_join_supported = (
+            False
+            or "CROSS" in context.dialect.sets("reserved_keywords")
+            or "CROSS" in context.dialect.sets("unreserved_keywords")
+        )
+        if not cross_join_supported:  # pragma: no cover
+            # At the time of implementation, there was no dialect which didn't support CROSS JOIN syntax.
+            # Therefore, no cover is used on if statement.
+            return None
+
         # We are only interested in JOIN clauses.
         join_clause = context.segment
         assert join_clause.is_type("join_clause")
 
         join_clause_keywords = [
-            segment for segment in join_clause.segments if segment.type == "keyword"
+            seg for seg in join_clause.segments if seg.type == "keyword"
         ]
-        if join_clause_keywords[0].raw_upper in "CROSS":
-            # If explicit cross join is used, disregard lack of condition
+
+        if any(
+            kw.raw_upper in ("CROSS", "POSITIONAL", "USING")
+            for kw in join_clause_keywords
+        ):
+            # If explicit CROSS JOIN is used, disregard lack of condition
+            # If explicit POSITIONAL JOIN is used, disregard lack of condition
+            # If explicit JOIN USING is used, disregard lack of condition
             return None
 
-        this_join_conditions = join_clause.get_children("join_on_condition")
-        if not this_join_conditions:
-            on_kw = "ON" if join_clause_keywords[-1].raw == "JOIN" else "on"
-            return LintResult(
-                join_clause,
-                fixes=[
-                    LintFix.create_after(
-                        anchor_segment=join_clause.segments[-1],
-                        edit_segments=[
-                            WhitespaceSegment(),
-                            KeywordSegment(on_kw),
-                            WhitespaceSegment(),
-                            LiteralSegment("1", type="numeric_literal"),
-                            ComparisonOperatorSegment("="),
-                            LiteralSegment("1", type="numeric_literal"),
-                        ],
-                    ),
-                ],
-            )
+        this_join_condition = join_clause.get_child("join_on_condition")
+        if this_join_condition:
+            # Join condition is present, no error reported.
+            return None
 
-        return None
+        join_keywords = [kw for kw in join_clause_keywords if kw.raw_upper == "JOIN"]
+        assert len(join_keywords) == 1
+
+        join_kw = join_keywords[0]
+
+        # Please note that this is exclusive on both sides, meaning we get all segments *after* join keyword
+        valid_segments = join_clause.select_children(start_seg=join_kw, stop_seg=None)
+
+        return LintResult(
+            join_clause,
+            fixes=[
+                LintFix.replace(
+                    anchor_segment=join_clause,
+                    edit_segments=[
+                        KeywordSegment("CROSS" if join_kw.raw == "JOIN" else "cross"),
+                        WhitespaceSegment(),
+                        KeywordSegment(join_kw.raw),
+                        *valid_segments,
+                    ],
+                ),
+            ],
+        )
