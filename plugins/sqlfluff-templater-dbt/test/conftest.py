@@ -3,12 +3,21 @@
 import os
 import shutil
 import subprocess
+from importlib import metadata
 from pathlib import Path
 
 import pytest
 
 from sqlfluff.core import FluffConfig
 from sqlfluff_templater_dbt.templater import DbtTemplater
+
+
+def pytest_report_header() -> list[str]:
+    """Return a list of strings to be displayed in the header of the report."""
+    return [
+        f"dbt-core: {metadata.version('dbt-core')}",
+        f"dbt-postgres: {metadata.version('dbt-postgres')}",
+    ]
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -53,7 +62,9 @@ def profiles_dir(dbt_fluff_config):
 @pytest.fixture()
 def dbt_templater():
     """Returns an instance of the DbtTemplater."""
-    return FluffConfig(overrides={"dialect": "ansi"}).get_templater("dbt")
+    return FluffConfig(
+        overrides={"dialect": "ansi", "templater": "dbt"}
+    ).get_templater()
 
 
 @pytest.fixture(scope="session")

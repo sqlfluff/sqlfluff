@@ -1650,6 +1650,8 @@ class AlterTableStatementSegment(BaseSegment):
                     OneOf("DISABLE", "ENABLE"),
                     "KEYS",
                 ),
+                # CONVERT TO CHARACTER SET charset_name [COLLATE collation_name]
+                Sequence("CONVERT", "TO", AnyNumberOf(Ref("AlterOptionSegment"))),
             ),
         ),
     )

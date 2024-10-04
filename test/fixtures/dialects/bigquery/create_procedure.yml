@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6a450ddfea76187e4c305b5fa118cee72a2995a09a62ff249df2605ddaddf871
+_hash: 445d689e251f3f067ff5dca8da0f86d1d55f6de176450608b24539221aa38857
 file:
 - multi_statement_segment:
     create_procedure_statement:
@@ -926,6 +926,79 @@ file:
                 keyword: RAISE
           - statement_terminator: ;
           - keyword: END
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- multi_statement_segment:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - procedure_name:
+        procedure_name_identifier: '`kkk.dynamic_table_creator`'
+    - procedure_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - keyword: IN
+        - parameter: table_suffix
+        - data_type:
+            data_type_identifier: STRING
+        - comma: ','
+        - keyword: IN
+        - parameter: num_rows
+        - data_type:
+            data_type_identifier: INT64
+        - end_bracket: )
+    - begin_statement:
+      - keyword: BEGIN
+      - statement:
+          declare_segment:
+            keyword: DECLARE
+            naked_identifier: table_name
+            data_type:
+              data_type_identifier: STRING
+      - statement_terminator: ;
+      - statement:
+          set_segment:
+            keyword: SET
+            naked_identifier: table_name
+            comparison_operator:
+              raw_comparison_operator: '='
+            expression:
+              quoted_literal: "'my_table_'"
+              binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+              column_reference:
+                naked_identifier: table_suffix
+      - statement_terminator: ;
+      - statement:
+          execute_immediate:
+          - keyword: EXECUTE
+          - keyword: IMMEDIATE
+          - expression:
+            - quoted_literal: "'''\n    CREATE OR REPLACE TABLE `my_dataset.'''"
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - column_reference:
+                naked_identifier: table_name
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - quoted_literal: "'''` AS\n    SELECT\n        GENERATE_UUID() AS id,\n\
+                \        RAND() AS random_value\n    FROM\n        UNNEST(GENERATE_ARRAY(1,\
+                \ '''"
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - column_reference:
+                naked_identifier: num_rows
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - quoted_literal: "''')) AS num\n    '''"
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
