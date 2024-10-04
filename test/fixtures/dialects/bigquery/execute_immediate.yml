@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aa7aa84b500d55d783c542751c59bf97e628be782c6921c2b8f4c16a9b5d277e
+_hash: 38ccd9866f40e2ff07dfbcf1afae3c5f4c41bc6d817505c8ffdfeb3f28daa668
 file:
 - statement:
     declare_segment:
@@ -212,28 +212,29 @@ file:
           - keyword: immediate
           - bracketed:
               start_bracket: (
-              select_statement:
-                select_clause:
-                  keyword: select
-                  select_clause_element:
-                    function:
-                      function_name:
-                        function_name_identifier: format
-                      function_contents:
-                        bracketed:
-                        - start_bracket: (
-                        - expression:
-                            column_reference:
-                              naked_identifier: var_2
-                        - comma: ','
-                        - expression:
-                            column_reference:
-                              naked_identifier: var_1
-                        - comma: ','
-                        - expression:
-                            column_reference:
-                              naked_identifier: var_1
-                        - end_bracket: )
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: select
+                    select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: format
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              column_reference:
+                                naked_identifier: var_2
+                          - comma: ','
+                          - expression:
+                              column_reference:
+                                naked_identifier: var_1
+                          - comma: ','
+                          - expression:
+                              column_reference:
+                                naked_identifier: var_1
+                          - end_bracket: )
               end_bracket: )
       - statement_terminator: ;
       - statement:
