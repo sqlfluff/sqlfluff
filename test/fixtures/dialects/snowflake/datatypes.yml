@@ -1,0 +1,178 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ce11b21cd1d6cf692076fb45e9a24711a81a37da902438e1a23756520b4cc67b
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: blob
+              semi_structured_expression:
+                colon: ':'
+                semi_structured_element: content
+              casting_operator: '::'
+              data_type:
+                array_type:
+                  keyword: array
+                  array_type_schema:
+                    bracketed:
+                      start_bracket: (
+                      data_type:
+                        data_type_identifier: integer
+                      end_bracket: )
+          alias_expression:
+            keyword: as
+            naked_identifier: field1
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: blob
+                  semi_structured_expression:
+                    colon: ':'
+                    semi_structured_element: content
+                keyword: as
+                data_type:
+                  array_type:
+                    keyword: array
+                    array_type_schema:
+                      bracketed:
+                        start_bracket: (
+                        data_type:
+                          data_type_identifier: integer
+                        end_bracket: )
+                end_bracket: )
+          alias_expression:
+            keyword: as
+            naked_identifier: field2
+      - comma: ','
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: table_name
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: col1
+          data_type:
+            array_type:
+              keyword: ARRAY
+              array_type_schema:
+                bracketed:
+                  start_bracket: (
+                  data_type:
+                    data_type_identifier: NUMBER
+                  end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: col2
+          data_type:
+            array_type:
+              keyword: ARRAY
+              array_type_schema:
+                bracketed:
+                - start_bracket: (
+                - data_type:
+                    data_type_identifier: NUMBER
+                - keyword: NOT
+                - keyword: 'NULL'
+                - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: my_udtf
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: check
+          data_type:
+            data_type_identifier: BOOLEAN
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: col1
+          data_type:
+            array_type:
+              keyword: ARRAY
+              array_type_schema:
+                bracketed:
+                  start_bracket: (
+                  data_type:
+                    data_type_identifier: VARCHAR
+                  end_bracket: )
+        end_bracket: )
+    - keyword: AS
+    - udf_body: "$$\n  ...\n  $$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: my_procedure
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: values
+          data_type:
+            array_type:
+              keyword: ARRAY
+              array_type_schema:
+                bracketed:
+                  start_bracket: (
+                  data_type:
+                    data_type_identifier: INTEGER
+                  end_bracket: )
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        array_type:
+          keyword: ARRAY
+          array_type_schema:
+            bracketed:
+              start_bracket: (
+              data_type:
+                data_type_identifier: INTEGER
+              end_bracket: )
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - udf_body: "$$\n    ...\n  $$"
+- statement_terminator: ;
