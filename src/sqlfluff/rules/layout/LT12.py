@@ -1,8 +1,9 @@
 """Implementation of Rule LT12."""
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, cast
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
+from sqlfluff.core.parser.segments import SourceFix, TemplateSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.utils.functional import FunctionalContext, Segments, sp, tsp
@@ -29,6 +30,37 @@ def get_last_segment(segment: Segments) -> Tuple[List[BaseSegment], Segments]:
             segment = children.last(predicate=sp.not_(sp.is_type("end_of_file")))
         else:
             return parent_stack, segment
+
+
+def get_trailing_whitespace_from_string(in_str: str) -> str:
+    r"""Returns the trailing whitespace from a string.
+
+    Designed to work with source strings of placeholders.
+
+    >>> get_trailing_whitespace_from_string("")
+    ''
+    >>> get_trailing_whitespace_from_string("foo")
+    ''
+    >>> get_trailing_whitespace_from_string("   ")
+    '   '
+    >>> get_trailing_whitespace_from_string("  foo   ")
+    '   '
+    >>> get_trailing_whitespace_from_string("foo\n")
+    '\n'
+    >>> get_trailing_whitespace_from_string("bar  \t  \n  \r ")
+    '  \t  \n  \r '
+    """
+    whitespace_chars = " \t\r\n"
+    if not in_str:
+        return in_str  # Empty string
+    if in_str[-1] not in whitespace_chars:
+        return ""  # No whitespace
+    for i in range(0, len(in_str)):
+        if in_str[-(i + 1)] in whitespace_chars:
+            continue
+        return in_str[-i:]
+    else:
+        return in_str  # All whitespace
 
 
 class Rule_LT12(BaseRule):
@@ -129,6 +161,44 @@ class Rule_LT12(BaseRule):
             # NOTE: Edge case. If the file is totally empty, we won't find a final
             # segment. In this case return without error.
             return None
+
+        # Check whether the final segment is a placeholder. If it is, we need
+        # to proceed more carefully.
+        _trailing_segment = segment.get()
+        assert _trailing_segment
+        if _trailing_segment.is_type("placeholder"):
+            self.logger.debug("Trailing placeholder detected.")
+            _template_segment = cast(TemplateSegment, _trailing_segment)
+            _trailing_whitespace = get_trailing_whitespace_from_string(
+                _template_segment.source_str
+            )
+            # Does it already end with a single whitespace?
+            if _trailing_whitespace == "\n":
+                return None
+            # If this segment already has fixes applied, don't try and do it
+            # again.
+            if _template_segment.source_fixes:
+                self.logger.debug("Fixes already applied. Aborting...")
+                return None
+            # It's not a single newline. Return a fix to make it one.
+            _current_stop = _template_segment.pos_marker.source_slice.stop
+            source_fix = SourceFix(
+                "\n",
+                slice(
+                    _current_stop - len(_trailing_whitespace),
+                    _current_stop,
+                ),
+                _template_segment.pos_marker.templated_slice,
+            )
+            return LintResult(
+                anchor=_template_segment,
+                fixes=[
+                    LintFix.replace(
+                        _template_segment,
+                        [_template_segment.edit(source_fixes=[source_fix])],
+                    )
+                ],
+            )
 
         trailing_newlines = Segments(*get_trailing_newlines(context.segment))
         trailing_literal_newlines = trailing_newlines
