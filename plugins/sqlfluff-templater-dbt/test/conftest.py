@@ -62,7 +62,9 @@ def profiles_dir(dbt_fluff_config):
 @pytest.fixture()
 def dbt_templater():
     """Returns an instance of the DbtTemplater."""
-    return FluffConfig(overrides={"dialect": "ansi"}).get_templater("dbt")
+    return FluffConfig(
+        overrides={"dialect": "ansi", "templater": "dbt"}
+    ).get_templater()
 
 
 @pytest.fixture(scope="session")
