@@ -2,6 +2,7 @@
 
 from typing import List, Optional, Tuple, cast
 
+from sqlfluff.core.helpers.string import get_trailing_whitespace_from_string
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.parser.segments import SourceFix, TemplateSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -30,39 +31,6 @@ def get_last_segment(segment: Segments) -> Tuple[List[BaseSegment], Segments]:
             segment = children.last(predicate=sp.not_(sp.is_type("end_of_file")))
         else:
             return parent_stack, segment
-
-
-def get_trailing_whitespace_from_string(in_str: str) -> str:
-    r"""Returns the trailing whitespace from a string.
-
-    Designed to work with source strings of placeholders.
-
-    >>> get_trailing_whitespace_from_string("")
-    ''
-    >>> get_trailing_whitespace_from_string("foo")
-    ''
-    >>> get_trailing_whitespace_from_string("   ")
-    '   '
-    >>> get_trailing_whitespace_from_string("  foo ")
-    ' '
-    >>> get_trailing_whitespace_from_string("foo\n")
-    '\n'
-    >>> get_trailing_whitespace_from_string("bar  \t  \n  \r ")
-    '  \t  \n  \r '
-    """
-    whitespace_chars = " \t\r\n"
-    if not in_str or in_str[-1] not in whitespace_chars:
-        return ""  # No whitespace
-    for i in range(1, len(in_str)):
-        if in_str[-(i + 1)] not in whitespace_chars:
-            # NOTE: The partial whitespace case is included as
-            # future-proofing. In testing it appears it is never
-            # required, and so only covered in the doctests above.
-            # doctest coverage isn't included in the overall coverage
-            # check and so the line below is excluded.
-            return in_str[-i:]  # pragma: no cover
-    else:
-        return in_str  # All whitespace
 
 
 class Rule_LT12(BaseRule):
