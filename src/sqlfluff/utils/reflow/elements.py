@@ -150,7 +150,10 @@ class ReflowBlock(ReflowElement):
 
     @classmethod
     def from_config(
-        cls: Type["ReflowBlock"], segments, config: ReflowConfig, depth_info: DepthInfo
+        cls: Type["ReflowBlock"],
+        segments: Tuple[RawSegment, ...],
+        config: ReflowConfig,
+        depth_info: DepthInfo,
     ) -> "ReflowBlock":
         """Construct a ReflowBlock while extracting relevant configuration.
 
@@ -186,7 +189,7 @@ class ReflowBlock(ReflowElement):
         )
 
 
-def _indent_description(indent: str):
+def _indent_description(indent: str) -> str:
     """Construct a human readable description of the indent.
 
     NOTE: We operate assuming that the "correct" indent is

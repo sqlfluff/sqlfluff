@@ -3,7 +3,7 @@
 # Until we have a proper structure this will work.
 # TODO: Migrate this to the config file.
 from dataclasses import dataclass
-from typing import AbstractSet, Dict, FrozenSet, Optional, Set
+from typing import AbstractSet, Any, Dict, FrozenSet, Optional, Set
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.utils.reflow.depthmap import DepthInfo
@@ -76,7 +76,7 @@ class ReflowConfig:
     ignore_comment_lines: bool = False
 
     @classmethod
-    def from_dict(cls, config_dict: ConfigDictType, **kwargs):
+    def from_dict(cls, config_dict: ConfigDictType, **kwargs: Any) -> "ReflowConfig":
         """Construct a ReflowConfig from a dict."""
         config_types = set(config_dict.keys())
         # Enrich any of the "align" keys with what they're aligning with.
@@ -94,7 +94,7 @@ class ReflowConfig:
         return cls(_config_dict=config_dict, config_types=config_types, **kwargs)
 
     @classmethod
-    def from_fluff_config(cls, config: FluffConfig):
+    def from_fluff_config(cls, config: FluffConfig) -> "ReflowConfig":
         """Constructs a ReflowConfig from a FluffConfig."""
         return cls.from_dict(
             config.get_section(["layout", "type"]),

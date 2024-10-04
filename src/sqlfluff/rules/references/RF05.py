@@ -107,7 +107,7 @@ class Rule_RF05(BaseRule):
             policy = self.quoted_identifiers_policy
 
             # Strip the quotes first
-            identifier = context.segment.raw[1:-1]
+            identifier = context.segment.raw_normalized(casefold=False)
 
             # Skip if in ignore list - repeat check now we've strip the quotes
             if ignore_words_list and identifier.lower() in ignore_words_list:

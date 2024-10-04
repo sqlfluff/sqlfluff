@@ -773,6 +773,22 @@ class CreateFunctionStatementSegment(postgres.CreateFunctionStatementSegment):
     )
 
 
+class DropFunctionStatementSegment(postgres.DropFunctionStatementSegment):
+    """A `DROP MACRO` or `DROP FUNCTION` statement.
+
+    https://duckdb.org/docs/sql/statements/drop.html
+    """
+
+    match_grammar = Sequence(
+        "DROP",
+        OneOf("MACRO", "FUNCTION"),
+        Ref.keyword("TABLE", optional=True),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
 class CreateTypeStatementSegment(postgres.CreateTypeStatementSegment):
     """A `CREATE TYPE` statement.
 

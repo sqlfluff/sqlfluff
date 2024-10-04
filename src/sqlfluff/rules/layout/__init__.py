@@ -1,9 +1,34 @@
 """The aliasing plugin bundle."""
 
-from typing import List, Type
+from typing import Any, Dict, List, Type
 
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import BaseRule
+
+
+@hookimpl
+def get_configs_info() -> Dict[str, Any]:
+    """Get additional rule config validations and descriptions."""
+    return {
+        "ignore_comment_lines": {
+            "validation": [True, False],
+            "definition": (
+                "Should lines that contain only whitespace and comments"
+                " be ignored when linting line lengths?"
+            ),
+        },
+        "ignore_comment_clauses": {
+            "validation": [True, False],
+            "definition": (
+                "Should comment clauses (e.g. column comments) be ignored"
+                " when linting line lengths?"
+            ),
+        },
+        "wildcard_policy": {
+            "validation": ["single", "multiple"],
+            "definition": "Treatment of wildcards. Defaults to ``single``.",
+        },
+    }
 
 
 @hookimpl

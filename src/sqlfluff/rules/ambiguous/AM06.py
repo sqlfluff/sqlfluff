@@ -108,6 +108,15 @@ class Rule_AM06(BaseRule):
         if FunctionalContext(context).parent_stack.any(sp.is_type(*self._ignore_types)):
             return LintResult(memory=context.memory)
 
+        # Ignore Array expressions in BigQuery
+        # BigQuery doesn't support implicit ordering inside an array expression,
+        # these aren't going to be caught by ignoring any of the listed types
+        # above.
+        if context.dialect.name == "bigquery" and FunctionalContext(
+            context
+        ).parent_stack.any(sp.is_type("array_expression")):
+            return LintResult(memory=context.memory)
+
         # Look at child segments and map column references to either the implicit or
         # explicit category.
         # N.B. segment names are used as the numeric literal type is 'raw', so best to

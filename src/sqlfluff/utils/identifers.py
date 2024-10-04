@@ -29,4 +29,6 @@ def identifiers_policy_applicable(
     is_inside_from = any(p.is_type("from_clause") for p in parent_stack)
     if policy == "column_aliases" and is_alias and not is_inside_from:
         return True
+    if policy == "table_aliases" and is_alias and is_inside_from:
+        return True
     return False

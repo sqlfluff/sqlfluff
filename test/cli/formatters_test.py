@@ -10,12 +10,12 @@ from sqlfluff.cli.commands import fix
 from sqlfluff.cli.formatters import OutputStreamFormatter
 from sqlfluff.cli.outputstream import FileOutput
 from sqlfluff.core import FluffConfig
-from sqlfluff.core.enums import Color
 from sqlfluff.core.errors import SQLLintError
 from sqlfluff.core.parser import RawSegment
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.rules import RuleGhost
 from sqlfluff.core.templaters.base import TemplatedFile
+from sqlfluff.core.types import Color
 
 
 def escape_ansi(line):

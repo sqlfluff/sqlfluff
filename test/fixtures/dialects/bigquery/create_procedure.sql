@@ -190,3 +190,24 @@ BEGIN
     --end try
     END;
 END;
+
+CREATE
+OR REPLACE PROCEDURE `kkk.dynamic_table_creator` (
+    IN table_suffix STRING, IN num_rows INT64
+)
+BEGIN
+    DECLARE table_name STRING;
+
+    SET
+    table_name = 'my_table_' || table_suffix;
+
+    EXECUTE IMMEDIATE '''
+    CREATE OR REPLACE TABLE `my_dataset.''' || table_name || '''` AS
+    SELECT
+        GENERATE_UUID() AS id,
+        RAND() AS random_value
+    FROM
+        UNNEST(GENERATE_ARRAY(1, ''' || num_rows || ''')) AS num
+    ''';
+
+END;
