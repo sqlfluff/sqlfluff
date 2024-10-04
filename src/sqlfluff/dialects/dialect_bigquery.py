@@ -72,7 +72,7 @@ bigquery_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "double_at_sign_literal",
-            r"@@[a-zA-Z_][\w]*",
+            r"@@[a-zA-Z_][\w\.]*",
             LiteralSegment,
             segment_kwargs={"trim_chars": ("@@",)},
         ),
@@ -1564,6 +1564,7 @@ class SetStatementSegment(BaseSegment):
         OneOf(
             Ref("NakedIdentifierSegment"),
             Bracketed(Delimited(Ref("NakedIdentifierSegment"))),
+            Ref("SystemVariableSegment"),
         ),
         Ref("EqualsSegment"),
         Delimited(
@@ -1605,6 +1606,7 @@ class ExecuteImmediateSegment(BaseSegment):
                 Ref("SingleIdentifierFullGrammar"),  # Variable
                 Ref("FunctionSegment"),  # Function
                 Ref("CaseExpressionSegment"),  # Conditional Expression
+                Ref("ExpressionSegment"),  # Expression
                 Bracketed(Ref("SelectableGrammar")),  # Expression Subquery
             )
         ),
