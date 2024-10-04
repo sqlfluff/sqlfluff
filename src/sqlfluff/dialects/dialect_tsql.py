@@ -116,7 +116,7 @@ tsql_dialect.sets("datetime_units").update(
 
 tsql_dialect.sets("date_part_function_name").clear()
 tsql_dialect.sets("date_part_function_name").update(
-    ["DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME", "DATEPART"]
+    ["DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME", "DATEPART", "DATETRUNC"]
 )
 
 tsql_dialect.sets("date_format").clear()

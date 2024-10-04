@@ -3,6 +3,8 @@
 Ignoring Errors & Files
 -----------------------
 
+.. _inline_ignoring_errors:
+
 Ignoring individual lines
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -21,7 +23,14 @@ be ignored by quoting their code or the category.
     -- Ignore all parsing errors
     SeLeCt from tBl ;       -- noqa: PRS
 
+.. note::
+   It should be noted that ignoring ``TMP`` and ``PRS`` errors can lead to
+   incorrect ``sqlfluff lint`` and ``sqfluff fix`` results as `SQLFluff` can
+   misinterpret the SQL being analysed.
+
 .. _`flake8's ignore`: https://flake8.pycqa.org/en/3.1.1/user/ignoring-errors.html#in-line-ignoring-errors
+
+.. _inline_ignoring_ranges:
 
 Ignoring line ranges
 ^^^^^^^^^^^^^^^^^^^^
