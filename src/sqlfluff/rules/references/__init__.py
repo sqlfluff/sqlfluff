@@ -15,11 +15,11 @@ def get_configs_info() -> Dict[str, Any]:
             "definition": "The expectation for references in single-table select.",
         },
         "unquoted_identifiers_policy": {
-            "validation": ["all", "aliases", "column_aliases"],
+            "validation": ["all", "aliases", "column_aliases", "table_aliases"],
             "definition": "Types of unquoted identifiers to flag violations for.",
         },
         "quoted_identifiers_policy": {
-            "validation": ["all", "aliases", "column_aliases", "none"],
+            "validation": ["all", "aliases", "column_aliases", "table_aliases", "none"],
             "definition": "Types of quoted identifiers to flag violations for.",
         },
         "allow_space_in_identifier": {
