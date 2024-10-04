@@ -55,7 +55,12 @@ def get_trailing_whitespace_from_string(in_str: str) -> str:
         return ""  # No whitespace
     for i in range(1, len(in_str)):
         if in_str[-(i + 1)] not in whitespace_chars:
-            return in_str[-i:]
+            # NOTE: The partial whitespace case is included as
+            # future-proofing. In testing it appears it is never
+            # required, and so only covered in the doctests above.
+            # doctest coverage isn't included in the overall coverage
+            # check and so the line below is excluded.
+            return in_str[-i:]  # pragma: no cover
     else:
         return in_str  # All whitespace
 
