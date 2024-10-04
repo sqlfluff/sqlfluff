@@ -273,6 +273,7 @@ def _is_leading_with_keyword(
             "keyword"
         )
     else:
+        # TODO: get working coverage test case
         return (
             element_buffer[idx].segments
             and element_buffer[idx].segments[0].is_type("keyword")
@@ -334,6 +335,7 @@ def identify_keyword_rebreak_spans(
                 elif key not in end_elem.depth_info.stack_positions or not all(
                     seg.is_type("keyword", "comment") for seg in end_elem.segments
                 ):
+                    # TODO: get working coverage test case
                     # If we get here, it means the last block was the end or we hit the
                     # end of keywords. This is unlikely to occur.
                     final_idx = end_idx - 2
@@ -722,7 +724,7 @@ def rebreak_keywords_sequence(
         # able to effectively work with it even if we could construct it.
         # This would be unlikely to happen when breaking on only keywords,
         # but was left in that unlikely event.
-        except UnboundLocalError:  # pragma: nocover
+        except UnboundLocalError:  # pragma: no cover
             pass
 
     # Handle each span:
