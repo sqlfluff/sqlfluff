@@ -3,6 +3,7 @@
 from typing import Optional, Set, cast
 
 from sqlfluff.core.parser import NewlineSegment, RawSegment
+from sqlfluff.core.parser.segments import TemplateSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import FunctionalContext, sp
@@ -102,8 +103,14 @@ class Rule_LT07(BaseRule):
             # Search backward through the raw segments from just before
             # the location of the bracket.
             for elem in context.segment.raw_segments[idx - 1 :: -1]:
+                # If there's a literal newline, stop.
                 if elem.is_type("newline"):
                     break
+                # ...or a consumed newline in a placeholder.
+                elif elem.is_type("placeholder"):
+                    placeholder = cast(TemplateSegment, elem)
+                    if placeholder.source_str == "\n":
+                        break
                 elif not elem.is_type("indent", "whitespace"):
                     self.logger.debug("Found non-whitespace: %s", elem)
                     contains_non_whitespace = True

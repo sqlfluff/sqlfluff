@@ -72,8 +72,15 @@ jobs:
   dbt-tests:
     name: dbt Plugin Tests
     strategy:
+      fail-fast: false
       matrix:
-        dbt-version: [ dbt140, dbt150, dbt160, dbt170, dbt180 ]
+        dbt-version:
+          - dbt140
+          - dbt150
+          - dbt160
+          - dbt170
+          - dbt180
+          - dbt190
         include:
           # Default to python 3.12 for dbt tests.
           - python-version: "3.12"
@@ -277,17 +284,6 @@ jobs:
     - name: Run a simple select lint test via file
       run: |
         sqlfluff lint --dialect=ansi <(echo "select 1")
-
-  coveralls_finish:
-    name: Finalise coveralls.
-    needs: [python-version-tests, dbt-tests, python-windows-tests, dialect-tests]
-    runs-on: ubuntu-latest
-    steps:
-    - name: Coveralls Finished
-      uses: coverallsapp/github-action@v2
-      with:
-        github-token: ${{ secrets.github_token }}
-        parallel-finished: true
 
   coverage_check:
     name: Combine & check 100% coverage.

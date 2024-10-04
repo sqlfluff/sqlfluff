@@ -81,15 +81,6 @@ jobs:
         echo "COVSUFFIX=$COVSUFFIX" >> $GITHUB_OUTPUT
         for file in .coverage.*; do mv "$file" "$file.$COVSUFFIX"; done;
 
-    - name: Coveralls Parallel (coveralls)
-      uses: coverallsapp/github-action@v2
-      if: ${{ inputs.coverage }}
-      with:
-        path-to-lcov: coverage.lcov
-        github-token: ${{ secrets.gh_token }}
-        flag-name: run-${{ inputs.python-version }}-${{ steps.cov_suffix.outputs.COVSUFFIX }}
-        parallel: true
-
     - name: Upload coverage data (github)
       uses: actions/upload-artifact@v4
       if: ${{ inputs.coverage }}

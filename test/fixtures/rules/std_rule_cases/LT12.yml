@@ -14,6 +14,21 @@ test_fail_multiple_final_newlines:
 test_pass_templated_plus_raw_newlines:
   pass_str: "{{ '\n\n' }}\n"
 
+test_pass_templated_consume_whitespace:
+  pass_str: "select * from {{ 'trim_whitespace_table' -}}\n"
+
+test_fail_templated_consume_whitespace_nothing:
+  fail_str: "select * from {{ 'trim_whitespace_table' -}}"
+  fix_str: "select * from {{ 'trim_whitespace_table' -}}\n"
+
+test_fail_templated_consume_whitespace_whitespace:
+  fail_str: "select * from {{ 'trim_whitespace_table' -}}   "
+  fix_str: "select * from {{ 'trim_whitespace_table' -}}\n"
+
+test_fail_templated_consume_whitespace_extra:
+  fail_str: "select * from {{ 'trim_whitespace_table' -}}\n\n\n"
+  fix_str: "select * from {{ 'trim_whitespace_table' -}}\n"
+
 test_fail_templated_plus_raw_newlines:
   fail_str: "{{ '\n\n' }}"
   fix_str: "{{ '\n\n' }}\n"
