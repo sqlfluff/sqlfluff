@@ -43,8 +43,8 @@ def get_trailing_whitespace_from_string(in_str: str) -> str:
     ''
     >>> get_trailing_whitespace_from_string("   ")
     '   '
-    >>> get_trailing_whitespace_from_string("  foo   ")
-    '   '
+    >>> get_trailing_whitespace_from_string("  foo ")
+    ' '
     >>> get_trailing_whitespace_from_string("foo\n")
     '\n'
     >>> get_trailing_whitespace_from_string("bar  \t  \n  \r ")
@@ -53,7 +53,7 @@ def get_trailing_whitespace_from_string(in_str: str) -> str:
     whitespace_chars = " \t\r\n"
     if not in_str or in_str[-1] not in whitespace_chars:
         return ""  # No whitespace
-    for i in range(0, len(in_str)):
+    for i in range(1, len(in_str)):
         if in_str[-(i + 1)] not in whitespace_chars:
             return in_str[-i:]
     else:
