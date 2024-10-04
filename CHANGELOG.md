@@ -10,12 +10,42 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [3.2.1] - 2024-10-01
+## [3.2.1] - 2024-10-04
 
 ## Highlights
 
+This release is primarily housekeeping, bugfixes and dialect improvements.
+More specifically:
+
+* Resolving regressions regressions in `JJ01`, filename extension handling
+  and the treatment of unfixable/unparsable files, which have been noticed
+  with recent releases.
+* Resolving bugs in `LT07` & `LT12` which relate to jinja whitespace control.
+* More robust support for arbitrary methods on the `ref` and `source` macros
+  for the dbt templater.
+
+There's also dialect improvements for BigQuery, TSQL, MySQL, MariaDB,
+Snowflake, DuckDB, Databricks, Postgres, Teradata, Exasol & Vertica.
+
+We also saw **six** new contributors merge their first pull request as part
+of this release. Welcome to the project! 🎉🏆🎉
+
 ## What’s Changed
 
+* Dededuplicate rule ignore docs [#6296](https://github.com/sqlfluff/sqlfluff/pull/6296) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Bugfix for LT07 with consumed newlines. [#6294](https://github.com/sqlfluff/sqlfluff/pull/6294) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Bugfix for LT12 with jinja whitespace consumption [#6292](https://github.com/sqlfluff/sqlfluff/pull/6292) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* RF02: Ignore `DECLARE` variables in BigQuery [#6295](https://github.com/sqlfluff/sqlfluff/pull/6295) [@keraion](https://github.com/keraion)
+* Bugfix for JJ01 in parallel mode [#6293](https://github.com/sqlfluff/sqlfluff/pull/6293) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Allow arbitrary attributes & methods for `ThisEmulator` [#6254](https://github.com/sqlfluff/sqlfluff/pull/6254) [@mroy-seedbox](https://github.com/mroy-seedbox)
+* RF05: Add `table_aliases` option [#6273](https://github.com/sqlfluff/sqlfluff/pull/6273) [@keraion](https://github.com/keraion)
+* BigQuery: Add support for concatenating in `EXECUTE IMMEDIATE` [#6287](https://github.com/sqlfluff/sqlfluff/pull/6287) [@keraion](https://github.com/keraion)
+* BigQuery: Add support for `SET` with system variables [#6288](https://github.com/sqlfluff/sqlfluff/pull/6288) [@keraion](https://github.com/keraion)
+* Plugins: Migrate example plugin to `pyproject.toml` [#6286](https://github.com/sqlfluff/sqlfluff/pull/6286) [@keraion](https://github.com/keraion)
+* TSQL: Add DATETRUC to date_part_function_name list [#6283](https://github.com/sqlfluff/sqlfluff/pull/6283) [@paysni](https://github.com/paysni)
+* MySQL Alter table convert to character set [#6277](https://github.com/sqlfluff/sqlfluff/pull/6277) [@greg-finley](https://github.com/greg-finley)
+* Remove dependency on coveralls. [#6284](https://github.com/sqlfluff/sqlfluff/pull/6284) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Test dbt Templater Plugin with dbt 1.9.0 [#6280](https://github.com/sqlfluff/sqlfluff/pull/6280) [@edgarrmondragon](https://github.com/edgarrmondragon)
 * AM06: Ignore array expressions in BigQuery [#6276](https://github.com/sqlfluff/sqlfluff/pull/6276) [@keraion](https://github.com/keraion)
 * Add mariadb to issue labeler [#6278](https://github.com/sqlfluff/sqlfluff/pull/6278) [@greg-finley](https://github.com/greg-finley)
 * BigQuery: Add `GROUPING SETS` clause [#6275](https://github.com/sqlfluff/sqlfluff/pull/6275) [@keraion](https://github.com/keraion)
@@ -45,13 +75,14 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * Remove duplicate timing columns from the timing records [#6229](https://github.com/sqlfluff/sqlfluff/pull/6229) [@Tenzer](https://github.com/Tenzer)
 * Fix time travel clauses in Snowflake dialect [#6230](https://github.com/sqlfluff/sqlfluff/pull/6230) [@fpsebastiam](https://github.com/fpsebastiam)
 
-## New Contributors
 
+## New Contributors
 * [@fpsebastiam](https://github.com/fpsebastiam) made their first contribution in [#6230](https://github.com/sqlfluff/sqlfluff/pull/6230)
 * [@Tenzer](https://github.com/Tenzer) made their first contribution in [#6229](https://github.com/sqlfluff/sqlfluff/pull/6229)
 * [@Clepech](https://github.com/Clepech) made their first contribution in [#6228](https://github.com/sqlfluff/sqlfluff/pull/6228)
 * [@troshnev](https://github.com/troshnev) made their first contribution in [#6183](https://github.com/sqlfluff/sqlfluff/pull/6183)
 * [@gabepesco](https://github.com/gabepesco) made their first contribution in [#6267](https://github.com/sqlfluff/sqlfluff/pull/6267)
+* [@mroy-seedbox](https://github.com/mroy-seedbox) made their first contribution in [#6254](https://github.com/sqlfluff/sqlfluff/pull/6254)
 
 ## [3.2.0] - 2024-09-18
 
