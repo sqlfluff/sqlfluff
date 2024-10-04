@@ -51,14 +51,11 @@ def get_trailing_whitespace_from_string(in_str: str) -> str:
     '  \t  \n  \r '
     """
     whitespace_chars = " \t\r\n"
-    if not in_str:
-        return in_str  # Empty string
-    if in_str[-1] not in whitespace_chars:
+    if not in_str or in_str[-1] not in whitespace_chars:
         return ""  # No whitespace
     for i in range(0, len(in_str)):
-        if in_str[-(i + 1)] in whitespace_chars:
-            continue
-        return in_str[-i:]
+        if in_str[-(i + 1)] not in whitespace_chars:
+            return in_str[-i:]
     else:
         return in_str  # All whitespace
 
