@@ -318,7 +318,8 @@ class FluffConfig:
         templater_name = self._configs["core"].get("templater", "<no value set>")
         try:
             cls = templater_lookup[templater_name]
-            # Instantiate here, optionally with kwargs
+            # Return class. Do not instantiate yet. That happens in `get_templater()`
+            # for situations which require it.
             return cls
         except KeyError:
             if templater_name == "dbt":  # pragma: no cover
