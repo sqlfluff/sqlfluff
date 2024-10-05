@@ -216,3 +216,26 @@ test_fail_no_fix_implicit_column_references:
         b_field
     FROM table_name
     GROUP BY 1, 2
+
+test_pass_cte:
+  pass_str: |
+    WITH T1 AS (
+      SELECT
+        'a'::varchar AS A,
+        1::bigint AS B
+    ),
+    T2 AS (
+      SELECT
+        CASE WHEN COL > 1 THEN 'x' ELSE 'y' END AS A,
+        COL AS B
+      FROM T
+    )
+    SELECT * FROM T1
+    UNION ALL
+    SELECT * FROM T2;
+
+test_pass_subquery:
+  pass_str: |
+    SELECT * FROM (SELECT 'a'::varchar AS A, 1::bigint AS B)
+    UNION ALL
+    SELECT * FROM (SELECT CASE WHEN COL > 1 THEN 'x' ELSE 'y' END AS A, COL AS B FROM T);
