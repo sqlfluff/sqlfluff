@@ -24,6 +24,22 @@ test_fail_missing_multiple_joins_not_last:
   fail_str: "SELECT foo.a, bar.b FROM foo left join bar left join baz on foo.x = bar.y;\n"
   fix_str: "SELECT foo.a, bar.b FROM foo cross join bar left join baz on foo.x = bar.y;\n"
 
+test_fail_cross_join_with_where_clause:
+  fail_str: "SELECT foo.a, bar.b FROM foo JOIN bar WHERE foo.a = bar.a;\n"
+  # Implementation of fixes is not yet done.
+  # fix_str: "SELECT foo.a, bar.b FROM foo JOIN bar OR foo.a = bar.b;\n"
+
+test_fail_cross_join_with_complex_where_clause:
+  fail_str: "SELECT foo.a, bar.b FROM foo JOIN bar WHERE foo.a = bar.a AND foo.x = 3;\n"
+  # Implementation of fixes is not yet done.
+  # fix_str: "SELECT foo.a, bar.b FROM foo JOIN bar OR foo.a = bar.b WHERE foo.x = 3;\n"
+
+test_pass_cross_join_with_complex_where_clause_not_simplifiable:
+  pass_str: "SELECT foo.a, bar.b FROM foo JOIN bar WHERE foo.a = bar.a OR foo.x = 3;\n"
+
+test_pass_cross_join_with_complex_where_clause_and_subqueries:
+  fail_str: "SELECT foo.a, bar.b FROM (SELECT * FROM abc) foo JOIN (SELECT * FROM def WHERE x = 3) bar WHERE foo.a = bar.a;\n"
+
 test_pass_inner_join_default:
   pass_str: "SELECT foo.a, bar.b FROM foo INNER JOIN bar ON 1=1;\n"
 

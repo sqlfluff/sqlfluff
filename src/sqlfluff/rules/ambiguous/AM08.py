@@ -2,13 +2,13 @@
 
 from typing import Optional, Tuple
 
-from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
+from sqlfluff.core.parser import BaseSegment, KeywordSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
 class Rule_AM08(BaseRule):
-    """Join clauses should be present.
+    """Implicit cross join detected.
 
     **Anti-pattern**
 
@@ -48,12 +48,7 @@ class Rule_AM08(BaseRule):
 
         Fix them into CROSS JOIN (if dialect allows it).
         """
-        cross_join_supported = (
-            False
-            or "CROSS" in context.dialect.sets("reserved_keywords")
-            or "CROSS" in context.dialect.sets("unreserved_keywords")
-        )
-        if not cross_join_supported:  # pragma: no cover
+        if not self._cross_join_supported(context):  # pragma: no cover
             # At the time of implementation, all dialects supports CROSS JOIN syntax.
             # Therefore, no cover is used on if statement.
             return None
@@ -80,6 +75,19 @@ class Rule_AM08(BaseRule):
             # Join condition is present, no error reported.
             return None
 
+        select_stmt = self._get_select_stmt(join_clause)
+        assert select_stmt is not None
+        maybe_where_clause = select_stmt.get_child("where_clause")
+        if maybe_where_clause:
+            where_clause_simplifable = self._is_where_clause_simplifable(
+                maybe_where_clause
+            )
+            if where_clause_simplifable:
+                # For now, return violation without fix.
+                return LintResult(join_clause)
+            else:
+                return None
+
         join_keywords = [kw for kw in join_clause_keywords if kw.raw_upper == "JOIN"]
         assert len(join_keywords) == 1
 
@@ -103,3 +111,42 @@ class Rule_AM08(BaseRule):
                 ),
             ],
         )
+
+    @staticmethod
+    def _cross_join_supported(context: RuleContext) -> bool:
+        return (
+            False
+            or "CROSS" in context.dialect.sets("reserved_keywords")
+            or "CROSS" in context.dialect.sets("unreserved_keywords")
+        )
+
+    @staticmethod
+    def _get_select_stmt(join_clause: BaseSegment) -> Optional[BaseSegment]:
+        maybe_from_expr = join_clause.get_parent()
+        if maybe_from_expr is None:
+            return None
+        from_expr, _ = maybe_from_expr
+        assert from_expr.is_type("from_expression")
+
+        maybe_from_clause = from_expr.get_parent()
+        if maybe_from_clause is None:
+            return None
+        from_clause, _ = maybe_from_clause
+        assert from_clause.is_type("from_clause")
+
+        maybe_select_stmt = from_clause.get_parent()
+        if maybe_select_stmt is None:
+            return None
+        select_stmt, _ = maybe_select_stmt
+        assert select_stmt.is_type("select_statement")
+
+        return select_stmt
+
+    @staticmethod
+    def _is_where_clause_simplifable(where_clause: BaseSegment) -> bool:
+        assert where_clause.is_type("where_clause")
+        expr = where_clause.get_child("expression")
+        if not expr:
+            return False
+        ops = expr.get_children("binary_operator")
+        return all(op.raw_upper == "AND" for op in ops)
