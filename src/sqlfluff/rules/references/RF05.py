@@ -63,6 +63,9 @@ class Rule_RF05(BaseRule):
         if dialect_name == "bigquery":
             # In BigQuery, also allow hyphens.
             result.update("-")
+        if dialect_name == "snowflake":
+            # In Snowflake, external stage metadata uses $.
+            result.update("$")
         return "".join(result)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
@@ -100,6 +103,15 @@ class Rule_RF05(BaseRule):
             self.ignore_words_regex, identifier
         ):
             return LintResult(memory=context.memory)
+
+        if (
+            context.parent_stack
+            and context.parent_stack[-1].is_type("column_reference")
+            and context.parent_stack[-2].is_type("select_clause_element")
+            and context.parent_stack[-2].get_child("alias_expression")
+        ):
+            # If selects are aliased, ignore unaliased column reference
+            return None
 
         # Do some extra processing for quoted identifiers.
         if context.segment.is_type("quoted_identifier"):
