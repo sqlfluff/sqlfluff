@@ -2,12 +2,7 @@
 
 from typing import Optional, Tuple
 
-from sqlfluff.core.parser import (
-    ComparisonOperatorSegment,
-    KeywordSegment,
-    LiteralSegment,
-    WhitespaceSegment,
-)
+from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
@@ -17,8 +12,8 @@ class Rule_AM08(BaseRule):
 
     **Anti-pattern**
 
-    Cross joins are valid, but rare in the wild - and more often created by mistake than on purpose.
-    This rule catches situations where a cross join has been specified,
+    Cross joins are valid, but rare in the wild - and more often created by mistake
+    than on purpose. This rule catches situations where a cross join has been specified,
     but not explicitly and so the risk of a mistaken cross join is highly likely.
 
     .. code-block:: sql
@@ -49,15 +44,17 @@ class Rule_AM08(BaseRule):
     is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
-        """Find joins without ON clause, fix them into CROSS JOIN (if dialect allows it)."""
+        """Find joins without ON clause.
 
+        Fix them into CROSS JOIN (if dialect allows it).
+        """
         cross_join_supported = (
             False
             or "CROSS" in context.dialect.sets("reserved_keywords")
             or "CROSS" in context.dialect.sets("unreserved_keywords")
         )
         if not cross_join_supported:  # pragma: no cover
-            # At the time of implementation, there was no dialect which didn't support CROSS JOIN syntax.
+            # At the time of implementation, all dialects supports CROSS JOIN syntax.
             # Therefore, no cover is used on if statement.
             return None
 
@@ -88,7 +85,8 @@ class Rule_AM08(BaseRule):
 
         join_kw = join_keywords[0]
 
-        # Please note that this is exclusive on both sides, meaning we get all segments *after* join keyword
+        # Please note that this is exclusive on both sides.
+        # This means we get all segments *after* join keyword.
         valid_segments = join_clause.select_children(start_seg=join_kw, stop_seg=None)
 
         return LintResult(
