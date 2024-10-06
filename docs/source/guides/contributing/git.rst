@@ -65,6 +65,8 @@ section for tips on how to use it.
 SQLFluff makes extensive use of GitHub to help us manage the project
 and allow all the many disparate contributors to collaborate easily.
 
+.. _installing_git:
+
 Installing Git
 ^^^^^^^^^^^^^^
 
@@ -140,8 +142,9 @@ confused with :code:`git pull`, which is a Git command to pull down
 changes from the server (e.g. GitHub) into your local copy.
 
 An example pull request on GitHub is shown below:
-![Example Pull Request](https://user-images.githubusercontent.com/10931297/139587642-b00fc233-b55d-40a9-886c-094ae30bc2c1.png)
 
+.. image:: github_example_pr.png
+  :alt: Screenshot of an example pull request on GitHub.
 
 In this pull request there are the following tabs:
 
@@ -160,7 +163,14 @@ In this pull request there are the following tabs:
 
 * Files Changed - this is one of the most useful tabs and shows each
   line of code changed. Reviewers should look those this tab, and
-  can click on individual lines to make [comments or code improvement suggestions](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/commenting-on-a-pull-request) which are added to the Conversation tab and the person who opened the pull request (called the pull request author) can then answer or address the concern (including accepting any suggested code changes directly into this change with a click).
+  can click on individual lines to make
+  `comments or code improvement suggestions`_ which are added to the
+  Conversation tab and the person who opened the pull request (called the
+  pull request author) can then answer or address the concern (including
+  accepting any suggested code changes directly into this change with a
+  click).
+
+.. _`comments or code improvement suggestions`: https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/commenting-on-a-pull-request
 
 You can tag people to review your pull request, assign it to someone
 to deal with (not used much as kind of repeat of the author and
@@ -168,7 +178,8 @@ reviewers), add labels...etc.
 
 At the bottom of the Conversation tab you will see the following:
 
-![Bottom of a pull request with "Squash and Merge" and "Close" buttons](https://user-images.githubusercontent.com/10931297/139587722-87476b93-2a74-4aec-be6a-0a11b7e006d8.png)
+.. image:: github_example_merge_panel.png
+  :alt: Bottom of a pull request with "Squash and Merge" and "Close" buttons.
 
 This shows on this PR that all checks have passed and this is ready to merge.
 Clicking the big green "Squash and Merge" button will copy (the "Merge" part)
@@ -203,7 +214,13 @@ but it actually works quite well once you get your head around it.
 
 .. note::
    There is some confusion as to the name *fork* as traditionally that
-   [term was used when you wanted to take a project in a different direction than the original developers](https://drewdevault.com/2019/05/24/What-is-a-fork.html) - so you *forked* the code and never merged back again. In GitHub a *fork* is used to make changes outside of the original repo but usually with the intention of merging them back into the original repo once complete.*
+   term was used when you wanted to take a project in a different direction
+   than the original developers [#f1]_ - so you *forked* the code and never
+   merged back again. In GitHub a *fork* is used to make changes outside of
+   the original repo but usually with the intention of merging them back
+   into the original repo once complete.
+
+   .. [#f1] https://drewdevault.com/2019/05/24/What-is-a-fork.html
 
 Why would you fork when you can just work in the original repo? Well most
 projects don't want people messing with the original repo so restrict
@@ -236,11 +253,15 @@ test it for example. You can clone a repo by clicking on green
 Code button on the repo's home page (make sure you do this on
 your fork and not on the main repo):
 
-![Clone button in GitHub](https://user-images.githubusercontent.com/10931297/139587777-2ac86afc-1bc9-42c9-b6bd-2a9efd92ece2.png)
+.. image:: github_clone_button.png
+  :alt: Screenshot of the clone button in GitHub.
 
 This offers a number of options:
 
-* "Clone with SSH" is the recommended way but is [a little more complicated to set up](https://docs.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh), but allows you to interact with GitHub without entering your GitHub password each time, and is basically mandatory if using [2FA for your GitHub account](https://docs.github.com/en/github/authenticating-to-github/securing-your-account-with-two-factor-authentication-2fa).
+* "Clone with SSH" is the recommended way but is
+  `a little more complicated to set up`_, but allows you to interact
+  with GitHub without entering your GitHub password each time, and
+  is basically mandatory if using `2FA for your GitHub account`_.
 
 * "Clone with HTTPS" works but requires you to enter your
   password each time so gets a little tiresome.
@@ -260,13 +281,18 @@ git address to the forked version when working from a fork.
 After running this command you'll see the repo being downloaded
 locally. You can then branch, edit any of the files, or add new
 files, or even delete files to your hearts content. Any changes
-you make will only be on your PC and then you *push* changes back
+you make will only be on your machine and then you *push* changes back
 up to GitHub. We'll cover that later.
 
 Just like with a fork, you need to keep any local up to date with
 both the original, upstream repo, and the GitHub version. This is
 done by using the :code:`git pull`, :code:`git merge` and
 :code:`git rebase` commands. We'll explain how to do all that below.
+
+.. _`a little more complicated to set up`: https://docs.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh
+.. _`2FA for your GitHub account`: https://docs.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh
+
+.. _git_merge_conflicts:
 
 Git Merge Conflicts
 ^^^^^^^^^^^^^^^^^^^
@@ -300,7 +326,7 @@ to decide what line you want and then delete all the other lines
 (including the ones starting :code:`<<<<`, :code:`====` and
 :code:`>>>>`). Then :code:`git add` the "resolved" file to your branch.
 
-You can even do it [directly on GitHub](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/resolving-a-merge-conflict-on-github).
+You can even do it `directly on GitHub`_.
 
 Merge conflicts get a bad name and people think they are scary to deal
 with but Git actually makes it fairly easy. It will also usually only
@@ -311,6 +337,8 @@ Of course if you're both working on lots of the same code, across lots
 of files they can be a real pain to deal with - this is one of the main
 reasons to resync your branch back to the original :code:`main` branch
 frequently, and also to work on small PRs rather than big unwieldy ones!
+
+.. _`directly on GitHub`: https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/resolving-a-merge-conflict-on-github
 
 .. _`using_git_for_sqlfluff`:
 
@@ -345,7 +373,8 @@ you are waiting on a pull request to be reviewed, you may want to work on
 another feature in the meantime on a fresh branch, which is completely
 independent of your other work. Or perhaps someone discovers an urgent,
 and easily fixed, bug in the code that you can quickly fix, before coming
-back to the current work. See the [Switching between branches](#switching-between-branches) section below for more info on how to switch branches.
+back to the current work. See the :ref:`switching_between_branches`
+section below for more info on how to switch branches.
 
 Working on a separate branch to :code:`main` allows :code:`main` to be kept
 in sync with upstream :code:`main`, which allows new branches to be created
@@ -354,6 +383,8 @@ branch periodically more easily. It also keeps your history of changes
 without a long history on each future pull request. Finally, it also also
 you to completely reset your :code:`main` back to the same as upstream if
 you get it completely messed up, without losing any history in other branches.
+
+.. _resyncing_to_upstream:
 
 Resyncing your main branch to upstream
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -420,9 +451,10 @@ Then force reset your main branch::
     git push origin main --force 
 
 After this your should visit your forked repo on GitHub and check you get a
-message that "This branch is even with sqlfluff:main.":
+message that *"This branch is even with sqlfluff:main."*:
 
-![A forked repo which is even with upstream](https://user-images.githubusercontent.com/10931297/89296513-5930ea00-d65a-11ea-9baf-39f2b04a03a5.png)
+.. image:: github_fork_status.png
+  :alt: A forked repo which is even with upstream.
 
 Creating and working on a branch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -431,15 +463,61 @@ So, when you're ready to make your first changes, do the following:
 
 1. Resync your local copy to upstream as per above (unless you've just
    forked it, in which case you can skip this step)
+
 2. Make sure you are in the main branch - :code:`git checkout main`
-3. Branch `main` to a new branch with a meaningful branch name. For example to work on an issue to add new Posgres Create Table you'd run this command - `git checkout -b postgres-create-table` (note the `-b` which means "create a new branch please").
-4. Make your changes using your favourite code editor (I recommend [Visual Studio Code](https://code.visualstudio.com/) myself).
-5. If making code changes to the website then test them - follow instructions in [`src/CONTRIBUTING.md`](https://github.com/sqlfluff/sqlfluff/blob/main/CONTRIBUTING.md) to set up the environment and then use `tox -e generate-fixture-yml,cov-init,py38,cov-report,linting` to run most of the tests.
-6. Add any new files you added in this change that you want tracked in git - e.g. `git add text/fixtures/dialects/*.sql`. You also need to do this to re-add merge conflict files that you have resolved. You typically do not need to add other files that are already in the repo that you have changed, as Git will track those already.
-7. Commit your changes - `git commit -a`. This means “save all changes to Git (for tracked files)”. If you only want to commit some files, then `git add` just the files you want and then use `git commit` without the `-a` option. When you commit you need to add a message. Git will automatically open your default Git editor - usually `vi` which can take some getting used to but basically type your message and then type `Esc : w q !` to enter command mode (`Esc`), start a command (`:`) save your file (`w` for write) and quit (`q`) and force override any errors on save (`!`). See the next section for an alternative method if you're not comfortable with `vi`. And btw if you want to cancel the commit at this stage, remove any message you added and type `Esc q !` to quit without saving any changes and Git will see you didn’t add a message and cancel the commit.
-8. Push your committed changes to GitHub - `git push`. If this is your first push of this branch to GitHub, then git will tell you you have to use a slightly different command: `git push --set-upstream origin postgres-create-table`
-9. If there are any changes already in GitHub (e.g. of other people are also working on this branch), then you will get and error and need to do a `git pull` to pull them down locally before you are able to push any more changes back up to GitHub.
-10. Repeat steps 4-9 as often as you want until you are happy to open a pull request to merge this back into SQLFluff code base.
+
+3. Branch `main` to a new branch with a meaningful branch name. For example
+   to work on an issue to add new Posgres Create Table you'd run this
+   command - :code:`git checkout -b postgres-create-table` (note the
+   :code:`-b` which means "create a new branch please").
+
+4. Make your changes using your favourite code editor (I recommend `VSCode`_
+   myself).
+
+5. If making code changes to the website then test them - follow instructions
+   in `CONTRIBUTING.md`_ to set up the environment and then use
+   :code:`tox -e generate-fixture-yml,cov-init,py38,cov-report,linting` to
+   run most of the tests.
+
+6. Add any new files you added in this change that you want tracked in
+   git - e.g. :code:`git add text/fixtures/dialects/*.sql`. You also need to
+   do this to re-add merge conflict files that you have resolved. You typically
+   do not need to add other files that are already in the repo that you have
+   changed, as Git will track those already.
+
+7. Commit your changes - :code:`git commit -a`. This means “save all changes
+   to Git (for tracked files)”. If you only want to commit some files, then
+   :code:`git add` just the files you want and then use :code:`git commit`
+   without the :code:`-a` option. When you commit you need to add a message.
+   Git will automatically open your default Git editor - usually :code:`vi`
+   which can take some getting used to but basically type your message and
+   then type :code:`Esc : w q !` to enter command mode (:code:`Esc`), start
+   a command (|colon|) save your file (:code:`w` for write) and quit
+   (:code:`q`) and force override any errors on save (:code:`!`). See the
+   next section for an alternative method if you're not comfortable with
+   :code:`vi`. And btw if you want to cancel the commit at this stage, remove
+   any message you added and type `Esc q !` to quit without saving any changes
+   and Git will see you didn't add a message and cancel the commit.
+
+8. Push your committed changes to GitHub - :code:`git push`. If this is your
+   first push of this branch to GitHub, then git will tell you you have to
+   use a slightly different command:
+   :code:`git push --set-upstream origin postgres-create-table`
+
+9. If there are any changes already in GitHub (e.g. of other people are also
+   working on this branch), then you will get and error and need to do a
+   :code:`git pull` to pull them down locally before you are able to push
+   any more changes back up to GitHub.
+
+10. Repeat steps 4-9 as often as you want until you are happy to open a pull
+    request to merge this back into SQLFluff code base.
+
+.. _`VSCode`: https://code.visualstudio.com/
+.. _`CONTRIBUTING.md`: https://github.com/sqlfluff/sqlfluff/blob/main/CONTRIBUTING.md
+
+.. |colon| raw:: html
+
+    <code class="code docutils literal notranslate">:</code>
 
 Committing changes - to vi or not to vi
 """""""""""""""""""""""""""""""""""""""
@@ -498,7 +576,8 @@ following:
 
 1. Commit any changes in the branch you are working on.
 2. Update you local copy of :code:`upstream` - :code:`git fetch upstream`
-3. Merge the changes from upstream main into your branch - :code:`git merge upstream/main`
+3. Merge the changes from upstream main into your
+   branch - :code:`git merge upstream/main`
 4. Commit the merge - :code:`git commit -a`
 5. Push all your changes up to GitHub - :code:`git push`
 
@@ -506,9 +585,12 @@ Or to merge from a branch on the main repo do the following:
 
 1. Commit any changes in the branch you are working on.
 2. Update you local copy of :code:`main` - :code:`git fetch origin main`
-3. Merge the changes from upstream main into your branch - :code:`git merge main`
+3. Merge the changes from upstream main into your
+   branch - :code:`git merge main`
 4. Commit the merge - :code:`git commit -a`
 5. Push all your changes up to GitHub - :code:`git push`
+
+.. _switching_between_branches:
 
 Switching between branches
 """"""""""""""""""""""""""
@@ -538,7 +620,8 @@ And then you want to take a break from :code:`feature1`, in which case you
 should open a new branch - in most cases you want to branch from :code:`main`
 again, and not from :code:`feature1` branch so make sure you flip back to
 :code:`main` again if this is the case. If working on a fork, you should also
-check your :code:`main` is up to date first - see the [Resynching your main branch to upstream](#resyncing-your-main-branch-to-upstream) section above::
+check your :code:`main` is up to date first - see the :ref:`resyncing_to_upstream`
+section above::
 
     # Check your branch is clean and everything has been committed
     git status
@@ -619,11 +702,14 @@ satisfying green tick, or a scary red cross.
 Merge conflict checks
 """""""""""""""""""""
 
-The first check that GitHub itself will do is check for any [merge conflicts](#git-merge-conflicts) and these
-must be resolved before the pull request can be merged. If you merge :code:`main` to your code
-before submitting a pull request, then it's unlikely you'll get any of these (unless someone's
-got in real quick while you were opening it!) which is why it's recommended to do that, but
-other pull requests can be action while yours is being reviewed so can still happen. Smaller pull request, touching few files reduces the chance of this so again, where at all possible, break up changes into smaller batches.
+The first check that GitHub itself will do is check for any
+:ref:`git_merge_conflicts` and these must be resolved before the pull request
+can be merged. If you merge :code:`main` to your code before submitting a pull
+request, then it's unlikely you'll get any of these (unless someone's got in
+real quick while you were opening it!) which is why it's recommended to do
+that, but other pull requests can be action while yours is being reviewed so
+can still happen. Smaller pull request, touching few files reduces the chance
+of this so again, where at all possible, break up changes into smaller batches.
 
 Linter checks
 """""""""""""
@@ -651,9 +737,9 @@ standard. It is not a personal sleight upon you or your code, and if you
 are getting annoyed with feedback I suggest you take a break and step away
 and read it again later, in a fresh light. Of course if if you feel that a
 reviewer is acting inappropriately then please raise it - we have a
-[code of conduct](https://github.com/sqlfluff/sqlfluff/blob/main/CODE_OF_CONDUCT.md)
-and want all contributors to feel welcome. Feel free to also reach out to
-a maintainer if you would like to discuss something privately.
+`Code of Conduct`_ and want all contributors to feel welcome. Feel free to
+also reach out to a maintainer if you would like to discuss something
+privately.
 
 When a reviewer makes a code suggestion you can accept it right in GitHub
 and it will automatically update your branch. As this happens in GitHub
@@ -689,8 +775,7 @@ reviewers are not aware that it's good for a re-review or merge.
 Only SQLFluff maintainers can merge pull requests, but **every contributor**
 can review pull requests, and merging becomes a lot easier (and so more
 likely!) if someone else has already had a look through the changes. Please,
-please, please help us [review Pull Requests](#reviewing-pull-requests) to
-help spread the load!
+please, please help us `reviewing_pull_requests`_ to help spread the load!
 
 Draft pull requests
 """""""""""""""""""
@@ -709,6 +794,8 @@ merge conflicts. Then the rest of the files can be added to the pull request,
 or a separate one opened for those (maybe a new pull request per language if
 you want different translators to approve any changes).
 
+.. _reviewing_pull_requests:
+
 Reviewing pull requests
 ^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -724,11 +811,13 @@ request - this indicates that it has been reviewed and is just as useful
 Do also be conscious of how feedback will be read. We have many first
 time contributors who may not be as familiar with language (either programming
 language or English language!) so do try to avoid technical terms,
-colloquialism...etc. Though we are aware of [commonly used acronyms and terms in the Git world](#glossary-of-terms) like LGTM (“Looks Good To Me”).
+colloquialism...etc. Though we are aware of some very commonly used acronyms
+and terms (which we've included in our :ref:`glossary_of_git_terms`) like
+LGTM ("Looks Good To Me").
 
 Do be mindful as well that pull request authors have voluntarily spent time
 on this and we wish to encourage that and foster an inclusive environment.
-Offensive language is forbidden by our [code of conduct](https://github.com/sqlfluff/sqlfluff/blob/main/CODE_OF_CONDUCT.md).
+Offensive language is forbidden by our `Code of Conduct`_.
 
 Do remember that a code review is also about reviewing the authors changes,
 and not about showing off your own knowledge! Try not to get side-tracked
@@ -737,18 +826,26 @@ comes up during a code review but is not directly related.
 
 On that note, do also remember that code can be improved incrementally.
 Small changes are much better in Git. So, while it's OK to point out a
-fuller solution do remember that [“Perfection is the enemy of good”](https://en.wikipedia.org/wiki/Perfect_is_the_enemy_of_good) and accepting a change that is an improvement and then improving further in future iterations can often be better than holding out for the perfect solution that may never come. Of course that doesn’t mean we should accept code that regresses the quality, or seems like the wrong way of doing it completely!
+fuller solution do remember that `Perfect is the enemy of good`_ and accepting
+a change that is an improvement and then improving further in future
+iterations can often be better than holding out for the perfect solution
+that may never come. Of course that doesn't mean we should accept code that
+regresses the quality, or seems like the wrong way of doing it completely!
 
 And finally, we strongly encourage positive GitHub reactions - particular
 for new contributors. They give quick, encouraging, feedback and add a
 playful, fun tone:
 
-![GitHub Heart and Rocket reactions](https://user-images.githubusercontent.com/10931297/89312722-7f14b980-d66f-11ea-90e3-5209d77e3105.png)
+.. image:: github_reactions.png
+  :alt: GitHub Heart and Rocket reactions.
 
 We discourage the negative ones though (thumbs down 👎, or confused 😕).
 Better to add a comment (politely!) explaining your concerns and then if
 others agree with you, they can "thumbs up" your comment. This keeps things
 on a positive tone and also means your cause for concerns are fully understood.
+
+.. _`Code of Conduct`: https://github.com/sqlfluff/sqlfluff/blob/main/CODE_OF_CONDUCT.md
+.. _`Perfect is the enemy of good`: https://en.wikipedia.org/wiki/Perfect_is_the_enemy_of_good
 
 .. _github_desktop:
 
@@ -764,14 +861,28 @@ GitHub Desktop
 Installing GitHub Desktop
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-First make sure you have Git installed. See our section on [Installing Git](#installing-git) for more details.
+First make sure you have Git installed. See our section on
+:ref:`installing_git` for more details.
 
-You can then download the install file from [GitHub Desktop](https://desktop.github.com/), with further instructions from their [Installing and configuring GitHub Desktop](https://docs.github.com/en/free-pro-team@latest/desktop/installing-and-configuring-github-desktop) document. Your main tasks  will be to [Authenticate with GitHub](https://docs.github.com/en/free-pro-team@latest/desktop/installing-and-configuring-github-desktop/authenticating-to-github) and [Configuring Git for GitHub Desktop](https://docs.github.com/en/free-pro-team@latest/desktop/installing-and-configuring-github-desktop/configuring-git-for-github-desktop) so that the systems know who you are.
+You can then download the install file from https://desktop.github.com/, with
+further instructions from their `Installing and configuring GitHub Desktop`_
+document. Your main tasks will be to `Authenticate with GitHub`_ and
+`Configuring Git for GitHub Desktop`_ so that the systems know who you are.
+
+.. _`Installing and configuring GitHub Desktop`: https://docs.github.com/en/free-pro-team@latest/desktop/installing-and-configuring-github-desktop
+.. _`Authenticate with GitHub`: https://docs.github.com/en/free-pro-team@latest/desktop/installing-and-configuring-github-desktop/authenticating-to-github
+.. _`Configuring Git for GitHub Desktop`: https://docs.github.com/en/free-pro-team@latest/desktop/installing-and-configuring-github-desktop/configuring-git-for-github-desktop
 
 Cloning the SQLFluff repo
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you have not done already, you will want to clone a copy of the [sqlfluff](https://github.com/sqlfluff/sqlfluff) into your computer. The simplest way is to follow [Cloning a repository from GitHub to GitHub Desktop](https://docs.github.com/en/free-pro-team@latest/desktop/contributing-and-collaborating-using-github-desktop/cloning-a-repository-from-github-to-github-desktop) where you go to the repository on the website and select "Open with GitHub Desktop". This will open a window where you can click "Clone" and the job will be done.
+If you have not done already, you will want to clone a copy of the
+https://github.com/sqlfluff/sqlfluff repo into your computer. The simplest way
+is to follow `Cloning a repository from GitHub to GitHub Desktop`_ where you
+go to the repository on the website and select "Open with GitHub Desktop".
+This will open a window where you can click "Clone" and the job will be done.
+
+.. _`Cloning a repository from GitHub to GitHub Desktop`: https://docs.github.com/en/free-pro-team@latest/desktop/contributing-and-collaborating-using-github-desktop/cloning-a-repository-from-github-to-github-desktop
 
 Navigating GitHub Desktop
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -789,12 +900,14 @@ out of date. GitHub Desktop will highlight if your repository is out of date,
 with an option to pull any changes from the origin so that you have the latest
 versions.
 
+.. _github_desktop_creating_a_branch:
+
 Making your own edits (creating a branch)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You want to create your own branch before you start to change the HTTP
-Archive repository as you do not have permission to edit the :code:`main`
-branch. A branch is a way for you to group your own edits so you can later
+You want to create your own branch before you start as you very likely
+do not have permission to edit the SQLFluff :code:`main` branch. A branch
+is a way for you to group your own edits so you can later
 submit (push) them for review. Then, when they are approved, they will get
 merged back into the main branch.
 
@@ -837,6 +950,8 @@ quickly commit your current edits via the form to the bottom left.
 Once you have commits you will be prompted to push those commits to
 GitHub. I typically do this straight after committing. 
 
+.. _getting_your_changes_accepted:
+
 Getting your changes accepted
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -846,29 +961,34 @@ be reviewed, approved and merged back into the main repository.
 
 For this I switch back to the website, as it is there you will be
 communicating with reviewers. To get this stage started you need to
-create a pull request. Go to the [repository on the GitHub website](https://github.com/sqlfluff/sqlfluff),
+create a pull request. Go to the `SQLFluff responsitory on GitHub`_,
 make sure your branch is selected, then click the Pull request link
 and follow the instructions. This will notify the reviewers who will
 help you to get your changes live.
+
+.. _`SQLFluff responsitory on GitHub`: https://github.com/sqlfluff/sqlfluff
 
 Keeping the forked repository up to date
 """"""""""""""""""""""""""""""""""""""""
 
 The main branch of your fork should be kept in sync with the original
 repository (rebased). Especially before you create any branches to make
-edits. Details on how to do this are in the [Resyncing your main branch to upstream](#resyncing-your-main-branch-to-upstream) section.
+edits. Details on how to do this are in the :ref:`resyncing_to_upstream`
+section.
 
 Making your own edits
 """""""""""""""""""""
 
-This is done in the exact same way as [before](#making-your-own-edits-creating-a-branch).
-Create a branch from your master (make sure master is up to date using the
-above process), publish the branch, edit the files in the branch, commit
-your edits, push back to GitHub. 
+This is done in the exact same way as before (i.e. in
+:ref:`github_desktop_creating_a_branch`). Create a branch from your master
+(make sure master is up to date using the above process), publish the branch,
+edit the files in the branch, commit your edits, push back to GitHub. 
 
 With a forked repository the process to get your edits accepted is about the
-same as [before](#getting-your-changes-accepted). Go to the web page for
-your copy of the repository and create a pull request.
+same as before (i.e. in :ref:`getting_your_changes_accepted`). Go to the web page
+for your copy of the repository and create a pull request.
+
+.. _glossary_of_git_terms:
 
 Glossary of terms
 -----------------

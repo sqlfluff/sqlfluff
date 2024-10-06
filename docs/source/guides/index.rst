@@ -14,8 +14,12 @@ Setting up SQLFluff
 
    setup/teamrollout
 
-Troubleshooting SQLFluff
-------------------------
+.. 
+    NOTE: Eventually we should add a troubleshooting section here too,
+    but that doesn't have any content yet.
+
+    Troubleshooting SQLFluff
+    ------------------------
 
 .. _development:
 
