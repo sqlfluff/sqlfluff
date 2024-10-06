@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [3.2.1] - 2024-10-04
+## [3.2.1] - 2024-10-06
 
 ## Highlights
 
@@ -32,6 +32,9 @@ of this release. Welcome to the project! 🎉🏆🎉
 
 ## What’s Changed
 
+* Postgres: Support walrus operator named arguments [#6299](https://github.com/sqlfluff/sqlfluff/pull/6299) [@keraion](https://github.com/keraion)
+* TSQL: handle nested joins, RF01 better aliasing [#6300](https://github.com/sqlfluff/sqlfluff/pull/6300) [@keraion](https://github.com/keraion)
+* Exclude Macros - Allow multiple paths. [#6221](https://github.com/sqlfluff/sqlfluff/pull/6221) [@culpgrant](https://github.com/culpgrant)
 * Dededuplicate rule ignore docs [#6296](https://github.com/sqlfluff/sqlfluff/pull/6296) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Bugfix for LT07 with consumed newlines. [#6294](https://github.com/sqlfluff/sqlfluff/pull/6294) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Bugfix for LT12 with jinja whitespace consumption [#6292](https://github.com/sqlfluff/sqlfluff/pull/6292) [@alanmcruickshank](https://github.com/alanmcruickshank)
