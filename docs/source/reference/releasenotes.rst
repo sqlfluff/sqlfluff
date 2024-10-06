@@ -10,6 +10,8 @@ of each individual release, see the detailed changelog_.
 
 .. _changelog: https://github.com/sqlfluff/sqlfluff/blob/main/CHANGELOG.md
 
+.. _upgrading_3_0:
+
 Upgrading to 3.x
 ----------------
 
