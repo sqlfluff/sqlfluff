@@ -242,6 +242,26 @@ test_pass_leading_window_function:
         orderby_clause:
           keyword_line_position: leading
 
+test_pass_leading_window_comment_function:
+  pass_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER ( /* comment here */
+      PARTITION BY c
+    ORDER BY d
+    ) AS e
+    FROM f
+    JOIN g
+    ON g.h = f.h
+  configs:
+    layout:
+      type:
+        partitionby_clause:
+          keyword_line_position: leading
+        orderby_clause:
+          keyword_line_position: leading
+
 test_fail_leading_window_function:
   fail_str: |
     SELECT
