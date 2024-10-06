@@ -499,3 +499,11 @@ test_fail_cte_unqualified_to_qualified_6014:
     rules:
       references.consistent:
         single_table_references: qualified
+
+test_pass_postgres_named_arguments:
+  pass_str: |
+    select t1.b
+    from __test__(a := 1) t1;
+  configs:
+    core:
+      dialect: postgres

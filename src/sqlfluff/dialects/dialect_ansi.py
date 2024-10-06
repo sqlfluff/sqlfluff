@@ -1562,6 +1562,7 @@ class FromExpressionElementSegment(BaseSegment):
     _base_from_expression_element = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
+        Ref("TemporalQuerySegment", optional=True),
         Ref(
             "AliasExpressionSegment",
             exclude=OneOf(
@@ -1618,6 +1619,10 @@ class FromExpressionElementSegment(BaseSegment):
 
         # Handle any aliases
         alias_expression = self.get_child("alias_expression")
+        if not alias_expression:  # pragma: no cover
+            _bracketed = self.get_child("bracketed")
+            if _bracketed:
+                alias_expression = _bracketed.get_child("alias_expression")
         if alias_expression:
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
@@ -4357,6 +4362,17 @@ class SamplingExpressionSegment(BaseSegment):
             optional=True,
         ),
     )
+
+
+class TemporalQuerySegment(BaseSegment):
+    """A segment that allows Temporal Queries to be run.
+
+    https://learn.microsoft.com/en-us/sql/relational-databases/tables/temporal-tables
+    """
+
+    type = "temporal_query"
+
+    match_grammar: Matchable = Nothing()
 
 
 class LocalAliasSegment(BaseSegment):
