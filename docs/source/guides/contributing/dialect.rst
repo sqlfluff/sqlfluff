@@ -101,7 +101,7 @@ Segment grammar options
 
 There are a number of options when creating SQL grammar including:
 
-.. list-table:: Title
+.. list-table::
    :header-rows: 1
 
    * - Grammar
@@ -519,7 +519,7 @@ another return option:
 With that code the above item could parse.
 
 I added a test case (covered below) and submitted
-`pull request #1522 <https://github.com/sqlfluff/sqlfluff/pull/1522`_
+`pull request #1522 <https://github.com/sqlfluff/sqlfluff/pull/1522>`_
 to fix this.
 
 Example 2
@@ -602,14 +602,14 @@ You can see we simply replaced the :code:`"GROUP"` by a
 given. Rechecking the example with this changed code, showed it now parsed.
 We did the same for :code:`"ORDER"`, and also changed a few other places in
 the code with similar clauses and added a test case (covered below) and
-submitted `pull request #1546 <https://github.com/sqlfluff/sqlfluff/pull/1546`_
+submitted `pull request #1546 <https://github.com/sqlfluff/sqlfluff/pull/1546>`_
 to fix this.
 
 Example 3
 ^^^^^^^^^
 
 As an example of using the reference grammar to fix an existing SQLFluff
-grammar, `pull request #4744 <https://github.com/sqlfluff/sqlfluff/pull/4744`_
+grammar, `pull request #4744 <https://github.com/sqlfluff/sqlfluff/pull/4744>`_
 contributed the :code:`CREATE CAST` / :code:`DROP CAST` statements to SQLFluff
 from scratch for both ANSI and PostgreSQL dialects. The first step when
 contributing a new statement is to check whether the statement is part of the
@@ -683,7 +683,7 @@ to analyze the tree. *A strong indicator that there should be a shared*
 
 After writing the ANSI segment (and corresponding tests), it was time to move
 on to the PostgreSQL grammar. In this case, a quick glance at the
-`documentation <https://www.postgresql.org/docs/15/sql-createcast.html>` shows
+`documentation <https://www.postgresql.org/docs/15/sql-createcast.html>`_ shows
 us that there are some notable differences from ANSI SQL:
 
 * You can only specify :code:`FUNCTION`. Other keywords like :code:`ROUTINE`
@@ -735,20 +735,20 @@ existing high-level SQLFluff concept. For example, this bison grammar defines
 a bracketed comma-delimited list which would be better represented using
 :code:`Bracketed` and :code:`Delimited` in SQLFluff::
 
-    func_args:	'(' func_args_list ')'					{ $$ = $2; }
-                | '(' ')'								{ $$ = NIL; }
+    func_args:	'(' func_args_list ')'              { $$ = $2; }
+                | '(' ')'                           { $$ = NIL; }
             ;
 
     func_args_list:
-                func_arg								{ $$ = list_make1($1); }
-                | func_args_list ',' func_arg			{ $$ = lappend($1, $3); }
+                func_arg                            { $$ = list_make1($1); }
+                | func_args_list ',' func_arg       { $$ = lappend($1, $3); }
             ;
 
 Example 4
 ^^^^^^^^^
 
 As an example of using the reference grammar to fix an existing SQLFluff
-grammar, `issue #4336 <https://github.com/sqlfluff/sqlfluff/issue/4336`_
+grammar, `issue #4336 <https://github.com/sqlfluff/sqlfluff/issue/4336>`_
 reported that array slices were not being parsed correctly in PostgreSQL.
 A simple :code:`SELECT` statement was given that I further simplified to
 the following test case:
@@ -763,8 +763,8 @@ bison grammar for PostgreSQL's :code:`SELECT` statement and drilling down
 into it to find an array accessor symbol; searching for :code:`SelectStmt:`
 proved to be a `lucky guess to start with`_::
 
-    SelectStmt: select_no_parens			%prec UMINUS
-                | select_with_parens		%prec UMINUS
+    SelectStmt: select_no_parens            %prec UMINUS
+                | select_with_parens        %prec UMINUS
             ;
 
 .. _`lucky guess to start with`: https://github.com/postgres/postgres/blob/e0693faf797f997f45bee8e572e8b4288cc7eaeb/src/backend/parser/gram.y#L12497-L12504
@@ -788,8 +788,8 @@ Digging into :code:`indirection`, we finally find where the array accessor
 is happening::
 
     indirection:
-                indirection_el							{ $$ = list_make1($1); }
-                | indirection indirection_el			{ $$ = lappend($1, $2); }
+                indirection_el                      { $$ = list_make1($1); }
+                | indirection indirection_el        { $$ = lappend($1, $2); }
             ;
     indirection_el: <snip>
                 | '[' a_expr ']'
@@ -812,8 +812,8 @@ is happening::
                     }
             ;
     opt_slice_bound:
-                a_expr									{ $$ = $1; }
-                | /*EMPTY*/								{ $$ = NULL; }
+                a_expr                              { $$ = $1; }
+                | /*EMPTY*/                         { $$ = NULL; }
             ;
 
 From this we observe:
@@ -909,7 +909,7 @@ Observing this, we can make a few observations. The most glaring are that:
 At this point, it's a simple matter of simplifying & rewriting the grammar
 to fix these shortcomings and better align it with the bison grammar, which
 was done in
-`pull request #4748 <https://github.com/sqlfluff/sqlfluff/pull/4748`_.
+`pull request #4748 <https://github.com/sqlfluff/sqlfluff/pull/4748>`_.
 
 Testing your changes
 --------------------
