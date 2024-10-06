@@ -268,6 +268,8 @@ preference to try to match this symbol. For example if we'd defined an
 want this to be considered first, and only fall back to that if we couldn't
 match this.
 
+.. _dialect_keywords:
+
 Keywords
 ^^^^^^^^
 

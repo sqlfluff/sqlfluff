@@ -20,7 +20,7 @@ within the codebase, for example the :ref:`ruleref`, :ref:`cliref` and
 we use to generate these docs, see the `generate-auto-docs.py`_ file.
 
 .. _`docstrings`:  https://en.wikipedia.org/wiki/Docstring
-.. _`docs.sqlfluff.com`:  https://en.wikipedia.org/wiki/Docstring
+.. _`docs.sqlfluff.com`:  https://docs.sqlfluff.com
 .. _`autodoc`: https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
 .. _`generate-auto-docs.py`: https://github.com/sqlfluff/sqlfluff/blob/main/docs/generate-auto-docs.py
 
