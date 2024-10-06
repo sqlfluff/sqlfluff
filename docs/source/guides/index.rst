@@ -23,14 +23,12 @@ Contributing to SQLFluff
 ------------------------
 
 It is recommended that the following is read in conjunction with exploring
-the codebase. `dialect_ansi.py` in particular is helpful to understand the
-recursive structure of segments and grammars. Some more detail is also given
-on our Wiki_ including a `Contributing Dialect Changes`_ guide.
+the codebase. `dialect_ansi.py`_ in particular is helpful to understand the
+recursive structure of segments and grammars.
 
 You may also need to reference the :ref:`internal_api_docs`.
 
-.. _Wiki: https://github.com/sqlfluff/sqlfluff/wiki/
-.. _`Contributing Dialect Changes`: https://github.com/sqlfluff/sqlfluff/wiki/Contributing-Dialect-Changes
+.. _`dialect_ansi.py`: https://github.com/sqlfluff/sqlfluff/blob/main/src/sqlfluff/dialects/dialect_ansi.py
 
 .. toctree::
    :maxdepth: 1
