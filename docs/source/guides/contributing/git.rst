@@ -304,7 +304,7 @@ code, but so has someone else, and their changes has been merged
 into :code:`main`, so when you attempt to merge (either by syncing
 :code:`main` back **to** your branch to update your branch with
 any new changes since branching, or by attempting to open a pull
-request **from** your branch) Git will give up and say "I dunno
+request **from** your branch) Git will give up and say "I don't know
 what to do here - you deal with it!".
 
 In actually fact, dealing with merge conflicts is actually very
@@ -424,7 +424,7 @@ messages in your next branch and pull request.
 Commands to force reset your main branch to upstream
 """"""""""""""""""""""""""""""""""""""""""""""""""""
 
-You can use the below commands to reset your local fork to upsteam and then
+You can use the below commands to reset your local fork to upstream and then
 push those changes to GitHub.
 
 .. note::
@@ -447,8 +447,8 @@ Then force reset your main branch::
 
     git fetch upstream
     git checkout main
-    git reset --hard upstream/main  
-    git push origin main --force 
+    git reset --hard upstream/main
+    git push origin main --force
 
 After this your should visit your forked repo on GitHub and check you get a
 message that *"This branch is even with sqlfluff:main."*:
@@ -662,7 +662,7 @@ The other alternative is to just create a new folder and clone the whole
 repo again and manage it completely separately. This can be easier, safer
 and less confusing for those less familiar with Git if working on a limited
 number of branches. However it doesn't scale very well and is not the way
-you're gonna get the most out of Git so as soon as you go beyond a second
+you're going to get the most out of Git so as soon as you go beyond a second
 branch I'd strongly encourage you get used to checking out between branches.
 
 I do encourage separate folders however if you have different repos (e.g.
@@ -945,10 +945,10 @@ Committing and pushing your edits to the web
 Every once in a while you want to store and document your changes.
 This can help you or others in the future. You also have to commit
 before you can share (push) your changes with anyone. You can
-quickly commit your current edits via the form to the bottom left. 
+quickly commit your current edits via the form to the bottom left.
 
 Once you have commits you will be prompted to push those commits to
-GitHub. I typically do this straight after committing. 
+GitHub. I typically do this straight after committing.
 
 .. _getting_your_changes_accepted:
 
@@ -982,7 +982,7 @@ Making your own edits
 This is done in the exact same way as before (i.e. in
 :ref:`github_desktop_creating_a_branch`). Create a branch from your master
 (make sure master is up to date using the above process), publish the branch,
-edit the files in the branch, commit your edits, push back to GitHub. 
+edit the files in the branch, commit your edits, push back to GitHub.
 
 With a forked repository the process to get your edits accepted is about the
 same as before (i.e. in :ref:`getting_your_changes_accepted`). Go to the web page
