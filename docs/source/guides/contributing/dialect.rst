@@ -204,7 +204,7 @@ original ANSI dialect, and then adds or overrides parsing segments. If a dialect
 has the exact same :code:`SELECT`, :code:`FROM` and :code:`WHERE` clauses as
 ANSI but a different ::code:`ORDER BY` syntax, then only the ::code:`ORDER BY`
 clause needs to overridden so the dialect file will be very small. For some of
-the other dialects where there's lots of differences (:ref:`tsql-dialect-ref`!)
+the other dialects where there's lots of differences (:ref:`tsql_dialect_ref`!)
 you may be overriding a lot more.
 
 .. _`src/sqlfluff/dialects`: https://github.com/sqlfluff/sqlfluff/tree/main/src/sqlfluff/dialects
@@ -1053,7 +1053,7 @@ The following command runs just the dialect tests, for **a specific** dialect:
 
 Or, if making a dialect change to fix a rule that is incorrectly flagging,
 you can just run the tests for that one rule, for example to run the
-:sqlfluff:ref:`LT01`tests:
+:sqlfluff:ref:`LT01` tests:
 
 .. code-block:: bash
 
