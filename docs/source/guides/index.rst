@@ -39,3 +39,4 @@ You may also need to reference the :ref:`internal_api_docs`.
    contributing/dialect
    contributing/rules
    contributing/plugins
+   contributing/docs
