@@ -387,25 +387,41 @@ def _revise_templated_lines(
                 _case_type = cast(TemplateSegment, first_segment).block_type
 
             if _case_type in ("block_start", "block_mid"):
-                # Is following _line_ AND element also a block?
-                # i.e. nothing else between.
-                if (
-                    idx + 1 < len(lines)
-                    and first_point_idx + 3 == lines[idx + 1].indent_points[0].idx + 1
-                ):
-                    seg = elements[first_point_idx + 3].segments[0]
-                    if seg.is_type("placeholder"):
-                        if cast(TemplateSegment, seg).block_type == "block_start":
-                            _inter_steps = list(
-                                range(
-                                    line.initial_indent_balance,
-                                    lines[idx + 1].initial_indent_balance,
-                                )
-                            )
-                            reflow_logger.debug(
-                                "      Precedes block. Adding Steps: %s", _inter_steps
-                            )
-                            steps.update(_inter_steps)
+                # Search forward until we actually find something rendered.
+                # Indents can usually be shuffled a bit around unrendered
+                # elements.
+                # NOTE: We're starting with the current line.
+                _block_depth = 0
+                _forward_indent_balance = line.initial_indent_balance
+                for check_line in lines[idx:]:
+                    _forward_indent_balance = check_line.initial_indent_balance
+                    _break_1 = False
+                    for blk in check_line.iter_blocks(elements):
+                        _break_2 = False
+                        for _seg in blk.segments:
+                            if not _seg.is_type("placeholder"):
+                                _break_2 = True
+                                break
+                            _block_type = cast(TemplateSegment, _seg).block_type
+                            if _block_type == "block_start":
+                                _block_depth += 1
+                            elif _block_type == "block_end":
+                                _block_depth -= 1
+                        if _break_2:
+                            _break_1 = True
+                            break
+                    if _break_1:
+                        break
+
+                if _forward_indent_balance > line.initial_indent_balance:
+                    reflow_logger.debug(
+                        "      Precedes block. Adding Steps: %s:%s",
+                        line.initial_indent_balance,
+                        _forward_indent_balance,
+                    )
+                    steps.update(
+                        range(line.initial_indent_balance, _forward_indent_balance)
+                    )
 
             if _case_type in ("block_end", "block_mid"):
                 # Is preceding _line_ AND element also a block?
@@ -426,8 +442,9 @@ def _revise_templated_lines(
                             steps.update(_inter_steps)
 
             reflow_logger.debug(
-                "    Line %s: Initial Balance: %s Options: %s",
+                "    Rendered Line %s (Source %s): Initial Balance: %s Options: %s",
                 idx,
+                first_block.segments[0].pos_marker.source_position()[0],
                 lines[idx].initial_indent_balance,
                 steps,
             )
@@ -675,9 +692,9 @@ def _revise_comment_lines(
                     "  Comment Only Line: %s. Anchoring to %s", comment_line_idx, idx
                 )
                 # Mutate reference lines to match this one.
-                lines[comment_line_idx].initial_indent_balance = (
-                    line.initial_indent_balance
-                )
+                lines[
+                    comment_line_idx
+                ].initial_indent_balance = line.initial_indent_balance
             # Reset the buffer
             comment_line_buffer = []
 
