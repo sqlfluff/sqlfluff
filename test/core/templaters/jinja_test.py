@@ -713,6 +713,8 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_g_macros/jinja", True, False),
         # Excluding macros
         ("jinja_exclude_macro_path/jinja", True, False),
+        # Excluding macros with running from subdirectory
+        ("jinja_exclude_macro_path/model_directory/jinja_sub_directory", True, False),
         # jinja raw tag
         ("jinja_h_macros/jinja", True, False),
         ("jinja_i_raw/raw_tag", True, False),

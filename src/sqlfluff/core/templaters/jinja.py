@@ -1111,16 +1111,16 @@ class JinjaTemplater(PythonTemplater):
         These macros will be ignored and not loaded into context
 
         Args:
-            macro_path (str): The raw string to be sliced.
-            exclude_macros_path (List[str]): The rendering function to be used.
+            macro_path (str): Str of the path to the macro
+            exclude_macros_path (List[str]): Str of the path to the macros to exclude
 
         Returns:
             bool: True if the macro should be excluded
         """
         for exclude_path in exclude_macros_path:
-            macro_path_abs = os.path.abspath(macro_path)
-            exclude_path_abs = os.path.abspath(exclude_path)
-            if exclude_path_abs in macro_path_abs:
+            macro_path_normalized = os.path.normpath(os.path.abspath(macro_path))
+            exclude_path_normalized = os.path.normpath(exclude_path)
+            if exclude_path_normalized in macro_path_normalized:
                 templater_logger.debug("Skipping this macro file: %s", macro_path)
                 return True
         return False

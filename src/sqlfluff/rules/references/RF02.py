@@ -1,6 +1,6 @@
 """Implementation of Rule RF02."""
 
-from typing import List, Optional
+from typing import List, Optional, Set
 
 import regex
 
@@ -83,12 +83,18 @@ class Rule_RF02(Rule_AL04):
             # very slow.
             ignore_words_list = self._init_ignore_words_list()
 
+        sql_variables = self._find_sql_variables(rule_context)
+
         # A buffer to keep any violations.
         violation_buff = []
         # Check all the references that we have.
         for r in references:
             # Skip if in ignore list
             if ignore_words_list and r.raw.lower() in ignore_words_list:
+                continue
+
+            # Skip if a sql variable name inside the file
+            if r.raw.lower() in sql_variables:
                 continue
 
             # Skip if matches ignore regex
@@ -136,3 +142,26 @@ class Rule_RF02(Rule_AL04):
             self.ignore_words_list = []
 
         return self.ignore_words_list
+
+    def _find_sql_variables(self, rule_context: RuleContext) -> Set[str]:
+        """Get any `DECLARE`d variables in the whole of the linted file.
+
+        This assumes that the declare statement is going to be used before any reference
+        """
+        sql_variables: Set[str] = set()
+
+        # Check for bigquery declared variables. These may only exists at the top of
+        # the file or at the beginning of a `BEGIN` block. The risk of collision
+        # _should_ be low and no `IF` chain searching should be required.
+        if rule_context.dialect.name == "bigquery":
+            sql_variables |= {
+                identifier.raw.lower()
+                for declare in rule_context.parent_stack[0].recursive_crawl(
+                    "declare_segment"
+                )
+                for identifier in declare.get_children("identifier")
+            }
+
+        # TODO: Add any additional dialect specific variable names
+
+        return sql_variables

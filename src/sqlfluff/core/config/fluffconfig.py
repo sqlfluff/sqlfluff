@@ -97,9 +97,7 @@ class FluffConfig:
         dialect: Optional[str] = self._configs["core"]["dialect"]
         self._initialise_dialect(dialect, require_dialect)
 
-        self._configs["core"]["templater_obj"] = self.get_templater(
-            self._configs["core"]["templater"]
-        )
+        self._configs["core"]["templater_obj"] = self.get_templater()
 
     def _handle_comma_separated_values(self) -> None:
         for in_key, out_key in [
@@ -153,7 +151,10 @@ class FluffConfig:
         del state["_plugin_manager"]
         # The dbt templater doesn't pickle well, but isn't required
         # within threaded operations. If it was, it could easily be
-        # rehydrated within the thread.
+        # rehydrated within the thread. For rules which want to determine
+        # the type of a templater in their context, use
+        # `get_templater_class()` instead, which avoids instantiating
+        # a new templater instance.
         state["_configs"]["core"].pop("templater_obj", None)
         return state
 
@@ -298,20 +299,28 @@ class FluffConfig:
 
         return cls(overrides=overrides, require_dialect=require_dialect)
 
-    def get_templater(
-        self, templater_name: str = "jinja", **kwargs: Any
-    ) -> "RawTemplater":
-        """Fetch a templater by name."""
+    def get_templater_class(self) -> Type["RawTemplater"]:
+        """Get the configured templater class.
+
+        NOTE: This is mostly useful to call directly when rules want to determine
+        the *type* of a templater without (in particular to work out if it's a
+        derivative of the jinja templater), without needing to instantiate a
+        full templater. Instantiated templaters don't pickle well, so aren't
+        automatically passed around between threads/processes.
+        """
         templater_lookup: Dict[str, Type["RawTemplater"]] = {
             templater.name: templater
             for templater in chain.from_iterable(
                 self._plugin_manager.hook.get_templaters()
             )
         }
+        # Fetch the config value.
+        templater_name = self._configs["core"].get("templater", "<no value set>")
         try:
             cls = templater_lookup[templater_name]
-            # Instantiate here, optionally with kwargs
-            return cls(**kwargs)
+            # Return class. Do not instantiate yet. That happens in `get_templater()`
+            # for situations which require it.
+            return cls
         except KeyError:
             if templater_name == "dbt":  # pragma: no cover
                 config_logger.warning(
@@ -323,6 +332,10 @@ class FluffConfig:
                 "Requested templater {!r} which is not currently available. Try one of "
                 "{}".format(templater_name, ", ".join(templater_lookup.keys()))
             )
+
+    def get_templater(self, **kwargs: Any) -> "RawTemplater":
+        """Instantiate the configured templater."""
+        return self.get_templater_class()(**kwargs)
 
     def make_child_from_path(self, path: str) -> FluffConfig:
         """Make a child config at a path but pass on overrides and extra_config_path."""

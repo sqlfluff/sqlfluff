@@ -4173,29 +4173,6 @@ class FromClauseSegment(ansi.FromClauseSegment):
     )
 
 
-class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
-    """FROM Expression Element Segment.
-
-    Overriding ANSI to add Temporal Query.
-    """
-
-    match_grammar = (
-        ansi.FromExpressionElementSegment._base_from_expression_element.copy(
-            insert=[
-                Ref("TemporalQuerySegment", optional=True),
-            ],
-            before=Ref(
-                "AliasExpressionSegment",
-                exclude=OneOf(
-                    Ref("SamplingExpressionSegment"),
-                    Ref("JoinLikeClauseGrammar"),
-                ),
-                optional=True,
-            ),
-        )
-    )
-
-
 class TableExpressionSegment(BaseSegment):
     """The main table expression e.g. within a FROM clause.
 
@@ -5598,7 +5575,7 @@ class SamplingExpressionSegment(ansi.SamplingExpressionSegment):
     )
 
 
-class TemporalQuerySegment(BaseSegment):
+class TemporalQuerySegment(ansi.TemporalQuerySegment):
     """A segment that allows Temporal Queries to be run.
 
     https://learn.microsoft.com/en-us/sql/relational-databases/tables/temporal-tables
