@@ -391,26 +391,13 @@ def _revise_templated_lines(
                 # Indents can usually be shuffled a bit around unrendered
                 # elements.
                 # NOTE: We're starting with the current line.
-                _block_depth = 0
                 _forward_indent_balance = line.initial_indent_balance
                 for check_line in lines[idx:]:
                     _forward_indent_balance = check_line.initial_indent_balance
-                    _break_1 = False
-                    for blk in check_line.iter_blocks(elements):
-                        _break_2 = False
-                        for _seg in blk.segments:
-                            if not _seg.is_type("placeholder"):
-                                _break_2 = True
-                                break
-                            _block_type = cast(TemplateSegment, _seg).block_type
-                            if _block_type == "block_start":
-                                _block_depth += 1
-                            elif _block_type == "block_end":
-                                _block_depth -= 1
-                        if _break_2:
-                            _break_1 = True
-                            break
-                    if _break_1:
+                    if not all(
+                        _seg.is_type("placeholder")
+                        for _seg in check_line._iter_block_segments(elements)
+                    ):
                         break
 
                 if _forward_indent_balance > line.initial_indent_balance:
