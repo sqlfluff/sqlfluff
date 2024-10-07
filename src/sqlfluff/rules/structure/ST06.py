@@ -86,35 +86,16 @@ class Rule_ST06(BaseRule):
         ]  # type: ignore
 
         assert context.segment.is_type("select_clause")
-        # Ignore select clauses which belong to:
-        # - set expression, which is most commonly a union
-        # - insert_statement
-        # - create table statement
-        #
-        # In each of these contexts, the order of columns in a select should
-        # be preserved.
-        if len(context.parent_stack) >= 2 and context.parent_stack[-2].is_type(
-            "insert_statement", "set_expression"
-        ):
-            return None
-        if (
-            len(context.parent_stack) >= 3
-            and context.parent_stack[-3].is_type("insert_statement", "set_expression")
-            and context.parent_stack[-2].is_type("with_compound_statement")
-        ):
-            return None
-        if len(context.parent_stack) >= 3 and context.parent_stack[-3].is_type(
-            "create_table_statement", "merge_statement"
-        ):
-            return None
-        if (
-            len(context.parent_stack) >= 4
-            and context.parent_stack[-4].is_type(
-                "create_table_statement", "merge_statement"
-            )
-            and context.parent_stack[-2].is_type("with_compound_statement")
-        ):
-            return None
+
+        for seg in reversed(context.parent_stack):
+            if seg.is_type(
+                "insert_statement",
+                "set_expression",
+                "with_compound_statement",
+                "create_table_statement",
+                "merge_statement",
+            ):
+                return None
 
         select_clause_segment = context.segment
         select_target_elements = context.segment.get_children("select_clause_element")
