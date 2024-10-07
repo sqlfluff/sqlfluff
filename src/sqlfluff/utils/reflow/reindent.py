@@ -673,8 +673,8 @@ def _revise_skipped_source_lines(
     # Slice to avoid copying
     for idx, line in enumerate(lines[:]):
         # Find lines which _start_ with a placeholder
-        seg = next(line.iter_block_segments(elements))
-        if not seg.is_type("placeholder"):
+        seg = next(line.iter_block_segments(elements), None)
+        if not seg or not seg.is_type("placeholder"):
             continue
         template_seg = cast(TemplateSegment, seg)
         if template_seg.block_type != "block_start":
