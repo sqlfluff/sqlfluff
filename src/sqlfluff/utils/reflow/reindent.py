@@ -485,7 +485,8 @@ def _revise_templated_lines(
                 if last_group_line:
                     _inner_lines = list(range(last_group_line + 1, idx))
                     reflow_logger.debug(
-                        "      Extending Intermediates with %s", _inner_lines
+                        "      Extending Intermediates with rendered indices %s",
+                        _inner_lines,
                     )
                     inner_lines.extend(_inner_lines)
                 # if we have a temp balance - crystallise it
@@ -523,18 +524,38 @@ def _revise_templated_lines(
                         # NOTE: We set it temporarily here, because if we're going
                         # to pass an outer template loop then we should discard it.
                         # i.e. only count intervals within inner loops.
-                        _this_through = net_balance + ip.indent_trough
-                        temp_balance_trough = (
-                            _this_through
-                            if temp_balance_trough is None
-                            else min(temp_balance_trough, _this_through)
-                        )
-                        reflow_logger.debug(
-                            "      Stash Trough: %s (min = %s) @ %s",
-                            _this_through,
-                            temp_balance_trough,
-                            idx,
-                        )
+
+                        # We also abort if there's nothing rendered after it
+                        # (i.e. the only thing between us and a group line is
+                        # unrendered).
+                        _stash = True
+                        if idx + 1 in group_lines:
+                            for elem in elements[
+                                ip.idx + 1 : lines[idx].indent_points[-1].idx
+                            ]:
+                                if all(
+                                    seg.is_type("placeholder") for seg in elem.segments
+                                ):
+                                    continue
+                            else:
+                                reflow_logger.debug(
+                                    "This is really a trailing point. Don't stash."
+                                )
+                                _stash = False
+
+                        if _stash:
+                            _this_through = net_balance + ip.indent_trough
+                            temp_balance_trough = (
+                                _this_through
+                                if temp_balance_trough is None
+                                else min(temp_balance_trough, _this_through)
+                            )
+                            reflow_logger.debug(
+                                "      Stash Trough: %s (min = %s) @ %s",
+                                _this_through,
+                                temp_balance_trough,
+                                idx,
+                            )
                     # NOTE: We update net_balance _after_ the clause above.
                     net_balance += ip.indent_impulse
 
