@@ -310,7 +310,6 @@ def _revise_templated_lines(
 
     for group_idx, group_uuid in enumerate(sorted_group_indices):
         reflow_logger.debug("  Evaluating Group UUID: %s", group_uuid)
-
         group_lines = grouped[group_uuid]
 
         # Check for case 1.
@@ -563,6 +562,86 @@ def _revise_templated_lines(
                 "contains newlines.",
                 first_seg.pos_marker.working_line_no,
             )
+            lines.remove(line)
+
+
+def _revise_skipped_source_lines(
+    lines: List[_IndentLine],
+    elements: ReflowSequenceType,
+) -> None:
+    """Given an initial set of individual lines, revise any with skipped source.
+
+    NOTE: This mutates the `lines` argument.
+
+    In the cases of {% if ... %} statements, there can be strange effects if
+    we try and lint both rendered and unrendered locations. In particular when
+    there's one at the end of a loop. In all of these cases, if we find an
+    unrendered {% if %} block, which is rendered elsewhere in the template
+    we skip that line.
+    """
+    reflow_logger.debug("# Revise skipped source lines.")
+    if_locs = defaultdict(list)
+    skipped_source_blocks = []
+
+    # Slice to avoid copying
+    for idx, line in enumerate(lines[:]):
+        has_skipped_source = False
+        # Find lines which _start_ with a placeholder
+        for idx, seg in enumerate(line._iter_block_segments(elements)):
+            if not seg.is_type("placeholder"):
+                break
+            template_seg = cast(TemplateSegment, seg)
+            # For now only deal with lines that that start with a block_start.
+            if idx == 0:
+                # If we start with anything else, ignore this line for now.
+                if template_seg.block_type != "block_start":
+                    break
+                template_loc = template_seg.pos_marker.templated_position()
+                source_loc = template_seg.pos_marker.source_position()
+                reflow_logger.debug(
+                    f"  Found block start: {seg} {template_seg.source_str!r} "
+                    f"{template_loc} {source_loc}"
+                )
+                if_locs[source_loc].append(template_loc)
+                # Search forward, and see whether it's all skipped.
+                # NOTE: Just on the same line for now.
+            elif template_seg.block_type == "skipped_source":
+                has_skipped_source = True
+            elif template_seg.block_type == "block_end":
+                # If we get here, we've only had placeholders on this line.
+                # If it's also had skipped source. Make a note of the location
+                # in both the source and template.
+                if has_skipped_source:
+                    reflow_logger.debug(f"  Skipped line found: {template_loc}")
+                    skipped_source_blocks.append((source_loc, template_loc))
+
+    ignore_locs = []
+    # Now iterate through each of the potentially skipped blocks, and work out
+    # if they were otherwise rendered in a different location.
+    for source_loc, template_loc in skipped_source_blocks:
+        # Is there at least once location of this source which isn't also
+        # skipped.
+        for other_template_loc in if_locs[source_loc]:
+            if (source_loc, other_template_loc) not in skipped_source_blocks:
+                reflow_logger.debug(
+                    "  Skipped element rendered elsewhere "
+                    f"{(source_loc, template_loc)} at {other_template_loc}"
+                )
+                ignore_locs.append(template_loc)
+
+    # Now go back through the lines, and remove any which we can ignore.
+    # Slice to avoid copying
+    for idx, line in enumerate(lines[:]):
+        # Find lines which _start_ with a placeholder
+        seg = next(line._iter_block_segments(elements))
+        if not seg.is_type("placeholder"):
+            continue
+        template_seg = cast(TemplateSegment, seg)
+        if template_seg.block_type != "block_start":
+            continue
+        template_loc = template_seg.pos_marker.templated_position()
+        if template_loc in ignore_locs:
+            reflow_logger.debug("  Removing line from buffer...")
             lines.remove(line)
 
 
@@ -1526,6 +1605,7 @@ def lint_indent_points(
 
     # Revise templated indents
     _revise_templated_lines(lines, elements)
+    _revise_skipped_source_lines(lines, elements)
     # Revise comment indents
     _revise_comment_lines(lines, elements, ignore_comment_lines=ignore_comment_lines)
 
