@@ -474,3 +474,19 @@ test_pass_pivot_snowflake:
   configs:
     core:
       dialect: snowflake
+
+test_pass_pivot_snowflake_complex:
+  pass_str: |
+    SELECT
+      COL1,
+      COL2,
+      CAST("'PIVOTED1'" AS bigint) AS PIVOTED1,
+      "'PIVOTED2'" AS PIVOTED2
+    FROM TBL
+    PIVOT (
+      MAX(VAL)
+      FOR COL IN ('PIVOTED1', 'PIVOTED2')
+    )
+  configs:
+    core:
+      dialect: snowflake

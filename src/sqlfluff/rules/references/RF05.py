@@ -104,12 +104,7 @@ class Rule_RF05(BaseRule):
         ):
             return LintResult(memory=context.memory)
 
-        if (
-            context.parent_stack
-            and context.parent_stack[-1].is_type("column_reference")
-            and context.parent_stack[-2].is_type("select_clause_element")
-            and context.parent_stack[-2].get_child("alias_expression")
-        ):
+        if self._is_aliased_select_clause_element(context):
             # If selects are aliased, ignore unaliased column reference
             return None
 
@@ -227,3 +222,13 @@ class Rule_RF05(BaseRule):
             self.ignore_words_list = []
 
         return self.ignore_words_list
+
+    @staticmethod
+    def _is_aliased_select_clause_element(context: RuleContext) -> bool:
+        for seg in reversed(context.parent_stack):
+            if seg.is_type("alias_expression"):
+                return False
+            if seg.is_type("select_clause_element"):
+                return seg.get_child("alias_expression") is not None
+
+        return False
