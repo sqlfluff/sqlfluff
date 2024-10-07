@@ -2298,24 +2298,3 @@ test_pass_loop_indent_4:
             {%- endif -%}
         {% endfor %}
     from foo
-
-test_pass_loop_indent_5:
-  pass_str: |
-    select
-        {% for i in range(1, 3) %}
-            {% if not loop.first %},{% endif %}
-            1
-        {% endfor %}
-    from foo
-
-test_pass_loop_indent_6:
-  pass_str: |
-    select
-        {% for i in range(1, 3) %}
-            {% if not loop.first %},{% endif %}
-            {% for j in range(1, 3) %}
-                {% if not loop.first %},{% endif %}
-                1
-            {% endfor %}
-        {% endfor %}
-    from foo

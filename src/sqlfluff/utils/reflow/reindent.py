@@ -524,31 +524,23 @@ def _revise_templated_lines(
                         # We also abort if there's nothing rendered after it
                         # (i.e. the only thing between us and a group line is
                         # unrendered).
-                        _stash = True
-                        if idx + 1 in group_lines:
+                        if idx + 1 not in group_lines or all(
+                            seg.is_type("placeholder")
                             for elem in elements[
                                 ip.idx + 1 : lines[idx].indent_points[-1].idx
-                            ]:
-                                if all(
-                                    seg.is_type("placeholder") for seg in elem.segments
-                                ):
-                                    continue
-                            else:
-                                reflow_logger.debug(
-                                    "This is really a trailing point. Don't stash."
-                                )
-                                _stash = False
-
-                        if _stash:
-                            _this_through = net_balance + ip.indent_trough
+                            ]
+                            for seg in elem.segments
+                        ):
+                            # Update the balance trough if stashing is ok
+                            _this_trough = net_balance + ip.indent_trough
                             temp_balance_trough = (
-                                _this_through
-                                if temp_balance_trough is None
-                                else min(temp_balance_trough, _this_through)
+                                min(temp_balance_trough, _this_trough)
+                                if temp_balance_trough
+                                else _this_trough
                             )
                             reflow_logger.debug(
                                 "      Stash Trough: %s (min = %s) @ %s",
-                                _this_through,
+                                _this_trough,
                                 temp_balance_trough,
                                 idx,
                             )
