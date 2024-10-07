@@ -25,7 +25,7 @@ from sqlfluff.core.parser import (
     RawSegment,
     WhitespaceSegment,
 )
-from sqlfluff.core.parser.segments import Indent, SourceFix
+from sqlfluff.core.parser.segments import SourceFix
 from sqlfluff.core.parser.segments.meta import MetaSegment, TemplateSegment
 from sqlfluff.core.rules import LintFix, LintResult
 from sqlfluff.utils.reflow.elements import (
@@ -392,38 +392,25 @@ def _revise_templated_lines(
                 _case_type = cast(TemplateSegment, first_segment).block_type
 
             if _case_type in ("block_start", "block_mid"):
-                # Search forward until we actually find something rendered.
-                # Indents can usually be shuffled a bit around unrendered
-                # elements.
-                # NOTE: We should only be counting non-template indents, i.e.
-                # ones that don't have a block associated with them.
-                # NOTE: We're starting with the current line.
-                _forward_indent_balance = line.initial_indent_balance
-                for check_line in lines[idx:]:
-                    if not all(
-                        _seg.is_type("placeholder")
-                        for _seg in check_line.iter_block_segments(elements)
-                    ):
-                        break
-                    # Add up the non-block indents
-                    for point in check_line.iter_points(elements):
-                        for seg in point.segments:
-                            if not seg.is_type("indent"):
-                                continue
-                            indent_seg = cast(Indent, seg)
-                            if indent_seg.block_uuid:
-                                continue
-                            _forward_indent_balance += indent_seg.indent_val
-
-                if _forward_indent_balance > line.initial_indent_balance:
-                    reflow_logger.debug(
-                        "      Precedes block. Adding Steps: %s:%s",
-                        line.initial_indent_balance,
-                        _forward_indent_balance,
-                    )
-                    steps.update(
-                        range(line.initial_indent_balance, _forward_indent_balance)
-                    )
+                # Is following _line_ AND element also a block?
+                # i.e. nothing else between.
+                if (
+                    idx + 1 < len(lines)
+                    and first_point_idx + 3 == lines[idx + 1].indent_points[0].idx + 1
+                ):
+                    seg = elements[first_point_idx + 3].segments[0]
+                    if seg.is_type("placeholder"):
+                        if cast(TemplateSegment, seg).block_type == "block_start":
+                            _inter_steps = list(
+                                range(
+                                    line.initial_indent_balance,
+                                    lines[idx + 1].initial_indent_balance,
+                                )
+                            )
+                            reflow_logger.debug(
+                                "      Precedes block. Adding Steps: %s", _inter_steps
+                            )
+                            steps.update(_inter_steps)
 
             if _case_type in ("block_end", "block_mid"):
                 # Is preceding _line_ AND element also a block?
@@ -521,29 +508,18 @@ def _revise_templated_lines(
                         # to pass an outer template loop then we should discard it.
                         # i.e. only count intervals within inner loops.
 
-                        # We also abort if there's nothing rendered after it
-                        # (i.e. the only thing between us and a group line is
-                        # unrendered).
-                        if idx + 1 not in group_lines or all(
-                            seg.is_type("placeholder")
-                            for elem in elements[
-                                ip.idx + 1 : lines[idx].indent_points[-1].idx
-                            ]
-                            for seg in elem.segments
-                        ):
-                            # Update the balance trough if stashing is ok
-                            _this_trough = net_balance + ip.indent_trough
-                            temp_balance_trough = (
-                                min(temp_balance_trough, _this_trough)
-                                if temp_balance_trough
-                                else _this_trough
-                            )
-                            reflow_logger.debug(
-                                "      Stash Trough: %s (min = %s) @ %s",
-                                _this_trough,
-                                temp_balance_trough,
-                                idx,
-                            )
+                        _this_through = net_balance + ip.indent_trough
+                        temp_balance_trough = (
+                            _this_through
+                            if temp_balance_trough is None
+                            else min(temp_balance_trough, _this_through)
+                        )
+                        reflow_logger.debug(
+                            "      Stash Trough: %s (min = %s) @ %s",
+                            _this_through,
+                            temp_balance_trough,
+                            idx,
+                        )
                     # NOTE: We update net_balance _after_ the clause above.
                     net_balance += ip.indent_impulse
 
@@ -710,9 +686,9 @@ def _revise_comment_lines(
                     "  Comment Only Line: %s. Anchoring to %s", comment_line_idx, idx
                 )
                 # Mutate reference lines to match this one.
-                lines[comment_line_idx].initial_indent_balance = (
-                    line.initial_indent_balance
-                )
+                lines[
+                    comment_line_idx
+                ].initial_indent_balance = line.initial_indent_balance
             # Reset the buffer
             comment_line_buffer = []
 
