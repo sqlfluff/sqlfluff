@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 51208606064154d068df2d6ed073ffe52a6a99aff41cbee7e4f5012a16b838ac
+_hash: 011a520581ff1e1de0d2ea932c3751c0aefdb3f6d40f76641bf80c214f8d2f1c
 file:
 - statement:
     create_function_statement:
@@ -503,4 +503,38 @@ file:
         \ AND\n                        LOWER(COL_2) = 'test_marketing')\n        \
         \        THEN 'marketing_channel'\n            ELSE '(Other)'\nEND\n$$"
 - statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: pi_udf
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: FLOAT
+    - keyword: AS
+    - udf_body: "'3.141592654::FLOAT'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: pi_udf
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: FLOAT
+    - keyword: AS
+    - udf_body: "'3.141592654::FLOAT'"
 - statement_terminator: ;
