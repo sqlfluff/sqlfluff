@@ -320,6 +320,17 @@ class ReflowPoint(ReflowElement):
             return consumed_whitespace.split("\n")[-1]
         return seg.raw if seg else ""
 
+    def get_indent_segment_vals(self, exclude_block_indents=False) -> List[int]:
+        """Iterate through any indent segments and extract their values."""
+        values = []
+        for seg in self.segments:
+            if seg.is_type("indent"):
+                indent_seg = cast(Indent, seg)
+                if exclude_block_indents and indent_seg.block_uuid:
+                    continue
+                values.append(indent_seg.indent_val)
+        return values
+
     @staticmethod
     def _generate_indent_stats(
         segments: Sequence[RawSegment],

@@ -289,27 +289,26 @@ def _revise_templated_lines(
     depths = defaultdict(list)
     grouped = defaultdict(list)
     for idx, line in enumerate(lines):
-        if line.is_all_templates(elements):
-            # We can't assume they're all a single block.
-            # So handle all blocks on the line.
-            for i in range(line.indent_points[0].idx, line.indent_points[-1].idx):
-                if isinstance(elements[i], ReflowPoint):
-                    continue
-                # We already checked that it's all templates.
-                segment = cast(MetaSegment, elements[i].segments[0])
-                assert segment.is_type("placeholder", "template_loop")
-                # If it's not got a block uuid, it's not a block, so it
-                # should just be indented as usual. No need to revise.
-                # e.g. comments or variables
-                if segment.block_uuid:
-                    grouped[segment.block_uuid].append(idx)
-                    depths[segment.block_uuid].append(line.initial_indent_balance)
-                    reflow_logger.debug(
-                        "  UUID: %s @ %s = %r",
-                        segment.block_uuid,
-                        idx,
-                        segment.pos_marker.source_str(),
-                    )
+        if not line.is_all_templates(elements):
+            continue
+        # We can't assume they're all a single block.
+        # So handle all blocks on the line.
+        for block in line.iter_blocks(elements):
+            # We already checked that it's all templates.
+            segment = cast(MetaSegment, block.segments[0])
+            assert segment.is_type("placeholder", "template_loop")
+            # If it's not got a block uuid, it's not a block, so it
+            # should just be indented as usual. No need to revise.
+            # e.g. comments or variables
+            if segment.block_uuid:
+                grouped[segment.block_uuid].append(idx)
+                depths[segment.block_uuid].append(line.initial_indent_balance)
+                reflow_logger.debug(
+                    "  UUID: %s @ %s = %r",
+                    segment.block_uuid,
+                    idx,
+                    segment.pos_marker.source_str(),
+                )
 
     # Sort through the lines, so we do to *most* indented first.
     sorted_group_indices = sorted(
@@ -347,22 +346,22 @@ def _revise_templated_lines(
                 continue
 
             for i in range(first_point_idx, 0, -1):
-                if isinstance(elements[i], ReflowPoint):
-                    for seg in elements[i].segments[::-1]:
-                        if seg.is_type("indent"):
-                            # If it's the one straight away, after a block_end or
-                            # block_mid, skip it. We know this because it will have
-                            # block_uuid.
-                            if cast(Indent, seg).block_uuid:
-                                continue
-                            # Minus because we're going backward.
-                            indent_balance -= cast(Indent, seg).indent_val
-                            steps.add(indent_balance)
+                _element = elements[i]
+                if isinstance(_element, ReflowPoint):
+                    # If it's the one straight away, after a block_end or
+                    # block_mid, skip it. We know this because it will have
+                    # block_uuid.
+                    for indent_val in _element.get_indent_segment_vals(
+                        exclude_block_indents=True
+                    )[::-1]:
+                        # Minus because we're going backward.
+                        indent_balance -= indent_val
+                        steps.add(indent_balance)
                 # if it's anything other than a blank placeholder, break.
                 # NOTE: We still need the forward version of this.
-                elif not elements[i].segments[0].is_type("placeholder"):
+                elif not _element.segments[0].is_type("placeholder"):
                     break
-                elif cast(TemplateSegment, elements[i].segments[0]).block_type not in (
+                elif cast(TemplateSegment, _element.segments[0]).block_type not in (
                     "block_start",
                     "block_end",
                     "skipped_source",
@@ -375,16 +374,13 @@ def _revise_templated_lines(
             # Run forward through the post point.
             indent_balance = line.initial_indent_balance
             last_point_idx = line.indent_points[-1].idx
-            for seg in elements[last_point_idx].segments:
-                if seg.is_type("indent"):
-                    # If it's the one straight away, after a block_start or
-                    # block_mid, skip it. We know this because it will have
-                    # block_uuid.
-                    if cast(Indent, seg).block_uuid:
-                        continue
-                    # Positive because we're going forward.
-                    indent_balance += cast(Indent, seg).indent_val
-                    steps.add(indent_balance)
+            last_point = cast(ReflowPoint, elements[last_point_idx])
+            for indent_val in last_point.get_indent_segment_vals(
+                exclude_block_indents=True
+            ):
+                # Positive because we're going forward.
+                indent_balance += indent_val
+                steps.add(indent_balance)
 
             # NOTE: Edge case for consecutive blocks of the same type.
             # If we're next to another block which is "inner" (i.e.) has
