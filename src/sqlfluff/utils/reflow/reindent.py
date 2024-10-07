@@ -13,6 +13,7 @@ from typing import (
     Optional,
     Set,
     Tuple,
+    Union,
     cast,
 )
 
@@ -131,33 +132,41 @@ class _IndentLine:
             starting_balance = 0
         return cls(starting_balance, indent_points)
 
-    def iter_blocks(self, elements: ReflowSequenceType) -> Iterator[ReflowBlock]:
+    def iter_elements(
+        self, elements: ReflowSequenceType
+    ) -> Iterator[Union[ReflowPoint, ReflowBlock]]:
         # Edge case for initial lines (i.e. where last_line_break is None)
         if self.indent_points[-1].last_line_break_idx is None:
             range_slice = slice(None, self.indent_points[-1].idx)
         else:
             range_slice = slice(self.indent_points[0].idx, self.indent_points[-1].idx)
         for element in elements[range_slice]:
-            if isinstance(element, ReflowPoint):
-                continue
             yield element
 
-    def _iter_block_segments(
-        self, elements: ReflowSequenceType
-    ) -> Iterator[RawSegment]:
+    def iter_blocks(self, elements: ReflowSequenceType) -> Iterator[ReflowBlock]:
+        for element in self.iter_elements(elements):
+            if isinstance(element, ReflowBlock):
+                yield element
+
+    def iter_points(self, elements: ReflowSequenceType) -> Iterator[ReflowPoint]:
+        for element in self.iter_elements(elements):
+            if isinstance(element, ReflowPoint):
+                yield element
+
+    def iter_block_segments(self, elements: ReflowSequenceType) -> Iterator[RawSegment]:
         for block in self.iter_blocks(elements):
             yield from block.segments
 
     def is_all_comments(self, elements: ReflowSequenceType) -> bool:
         """Is this line made up of just comments?"""
-        block_segments = list(self._iter_block_segments(elements))
+        block_segments = list(self.iter_block_segments(elements))
         return bool(block_segments) and all(
             seg.is_type("comment") for seg in block_segments
         )
 
     def is_all_templates(self, elements: ReflowSequenceType) -> bool:
         """Is this line made up of just template elements?"""
-        block_segments = list(self._iter_block_segments(elements))
+        block_segments = list(self.iter_block_segments(elements))
         return bool(block_segments) and all(
             seg.is_type("placeholder", "template_loop") for seg in block_segments
         )
@@ -390,15 +399,25 @@ def _revise_templated_lines(
                 # Search forward until we actually find something rendered.
                 # Indents can usually be shuffled a bit around unrendered
                 # elements.
+                # NOTE: We should only be counting non-template indents, i.e.
+                # ones that don't have a block associated with them.
                 # NOTE: We're starting with the current line.
                 _forward_indent_balance = line.initial_indent_balance
                 for check_line in lines[idx:]:
-                    _forward_indent_balance = check_line.initial_indent_balance
                     if not all(
                         _seg.is_type("placeholder")
-                        for _seg in check_line._iter_block_segments(elements)
+                        for _seg in check_line.iter_block_segments(elements)
                     ):
                         break
+                    # Add up the non-block indents
+                    for point in check_line.iter_points(elements):
+                        for seg in point.segments:
+                            if not seg.is_type("indent"):
+                                continue
+                            indent_seg = cast(Indent, seg)
+                            if indent_seg.block_uuid:
+                                continue
+                            _forward_indent_balance += indent_seg.indent_val
 
                 if _forward_indent_balance > line.initial_indent_balance:
                     reflow_logger.debug(
@@ -591,7 +610,7 @@ def _revise_skipped_source_lines(
     for idx, line in enumerate(lines[:]):
         has_skipped_source = False
         # Find lines which _start_ with a placeholder
-        for idx, seg in enumerate(line._iter_block_segments(elements)):
+        for idx, seg in enumerate(line.iter_block_segments(elements)):
             if not seg.is_type("placeholder"):
                 break
             template_seg = cast(TemplateSegment, seg)
@@ -637,7 +656,7 @@ def _revise_skipped_source_lines(
     # Slice to avoid copying
     for idx, line in enumerate(lines[:]):
         # Find lines which _start_ with a placeholder
-        seg = next(line._iter_block_segments(elements))
+        seg = next(line.iter_block_segments(elements))
         if not seg.is_type("placeholder"):
             continue
         template_seg = cast(TemplateSegment, seg)
