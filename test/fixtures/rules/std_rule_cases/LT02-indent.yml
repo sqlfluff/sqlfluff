@@ -2255,7 +2255,7 @@ test_pass_loop_indent_0:
     from foo
   configs:
     core:
-      dialect: bigquery  
+      dialect: bigquery
 
 test_pass_loop_indent_1:
   pass_str: |

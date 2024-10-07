@@ -20,7 +20,9 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         ("LT12", "models/my_new_project/multiple_trailing_newline.sql", [(3, 1)]),
     ],
 )
-def test__rules__std_file_dbt(rule, path, violations, project_dir, dbt_fluff_config):  # noqa
+def test__rules__std_file_dbt(
+    rule, path, violations, project_dir, dbt_fluff_config
+):  # noqa
     """Test linter finds the given errors in (and only in) the right places (DBT)."""
     assert_rule_raises_violations_in_file(
         rule=rule,
