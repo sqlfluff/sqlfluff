@@ -3474,6 +3474,7 @@ class CreateFunctionStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
+        OneOf("TEMP", "TEMPORARY", optional=True),
         Sequence("SECURE", optional=True),
         Sequence("AGGREGATE", optional=True),
         "FUNCTION",
