@@ -204,7 +204,7 @@ class _IndentLine:
         )
 
         reflow_logger.debug(
-            "Desired Indent Calculation: IB: %s, RUI: %s, UIL: %s, "
+            "    Desired Indent Calculation: IB: %s, RUI: %s, UIL: %s, "
             "iII: %s, iIT: %s. = %s",
             self.initial_indent_balance,
             relevant_untaken_indents,
@@ -1138,11 +1138,15 @@ def _lint_line_starting_indent(
                 reflow_logger.debug("    Indent is bigger than required. OK.")
                 return []
 
+    # NOTE: If the reindent code is flagging an indent change here that you
+    # don't agree with for a line with templated elements, especially in a
+    # loop, it's very likely that the fix shouldn't be here but much earlier
+    # in the code as part of `_revise_templated_lines()`.
     reflow_logger.debug(
-        "    Correcting indent @ line %s. Existing indent: %r -> %r",
+        "    Correcting indent @ line %s. Expected: %r. Found %r",
         elements[initial_point_idx + 1].segments[0].pos_marker.working_line_no,
-        current_indent,
         desired_starting_indent,
+        current_indent,
     )
 
     # Initial point gets special handling if it has no newlines.
@@ -1427,7 +1431,10 @@ def _lint_line_buffer_indents(
     allow generation of LintResult objects directly from them.
     """
     reflow_logger.info(
-        "    Line #%s [source line #%s]. idx=%s:%s. FI %s. UPI: %s.",
+        # NOTE: We add a little extra ## here because it's effectively
+        # the start of linting a single line and so the point to start
+        # interpreting the any debug logging from.
+        "## Evaluate Rendered Line #%s [source line #%s]. idx=%s:%s.",
         elements[indent_line.indent_points[0].idx + 1]
         .segments[0]
         .pos_marker.working_line_no,
@@ -1436,11 +1443,9 @@ def _lint_line_buffer_indents(
         .pos_marker.source_position()[0],
         indent_line.indent_points[0].idx,
         indent_line.indent_points[-1].idx,
-        forced_indents,
-        imbalanced_indent_locs,
     )
     reflow_logger.debug(
-        "   Line Content: %s",
+        "  Line Content: %s",
         [
             repr(elem.raw)
             for elem in elements[
@@ -1448,7 +1453,9 @@ def _lint_line_buffer_indents(
             ]
         ],
     )
-    reflow_logger.debug("  Evaluate Line: %s. FI %s", indent_line, forced_indents)
+    reflow_logger.debug("  Indent Line: %s", indent_line)
+    reflow_logger.debug("  Forced Indents: %s", forced_indents)
+    reflow_logger.debug("  Imbalanced Indent Locs: %s", imbalanced_indent_locs)
     results = []
 
     # First, handle starting indent.
