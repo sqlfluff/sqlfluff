@@ -715,6 +715,11 @@ def lint(
         github_result_native = []
         for record in result.as_records():
             filepath = record["filepath"]
+
+            # Add a group, titled with the filename
+            if record["violations"]:
+                github_result_native.append(f"::group::{filepath}")
+
             for violation in record["violations"]:
                 # NOTE: The output format is designed for GitHub action:
                 # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-notice-message
@@ -740,6 +745,10 @@ def lint(
                     line += f" [{violation['name']}]"
 
                 github_result_native.append(line)
+
+            # Close the group
+            if record["violations"]:
+                github_result_native.append("::endgroup::")
 
         file_output = "\n".join(github_result_native)
 
