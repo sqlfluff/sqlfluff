@@ -133,18 +133,22 @@ redirects = {
     "perma/cli": "../reference/cli.html",
     "perma/rules": "../reference/rules.html",
     "perma/dialects": "../reference/dialects.html",
-    "perma/architecture": "../development/architecture.html",
+    "perma/architecture": "../guides/contributing/architecture.html",
     "perma/rule_disabling": (
         "../configuration/rule_configuration.html#enabling-and-disabling-rules"
     ),
-    "perma/internals": "../development/index.html",
+    "perma/internals": "../reference/internals/index.html",
     "perma/modularity": "../why_sqlfluff.html#modularity",
     "perma/indentation": "../configuration/layout.html#configuring-indent-locations",
     "perma/releasenotes": "../reference/releasenotes.html",
     "perma/why": "../why_sqlfluff.html",
-    "perma/plugin_dev": "../development/plugins.html",
+    "perma/plugin_dev": "../guides/contributing/plugins.html",
     "perma/variables": "../configuration/templating/index.html",
     "perma/python_templating": "../configuration/templating/python.html",
+    "perma/guides": "../guides/index.html",
+    "perma/contribute_dialect_keywords": (
+        "../guides/contributing/dialect.html#dialect_keywords"
+    ),
     # Add permalinks for rule codes
     **{
         f"perma/rule/{code}": (
