@@ -13,6 +13,7 @@ from typing import (
     Optional,
     Set,
     Tuple,
+    Union,
     cast,
 )
 
@@ -24,7 +25,7 @@ from sqlfluff.core.parser import (
     RawSegment,
     WhitespaceSegment,
 )
-from sqlfluff.core.parser.segments import Indent, SourceFix
+from sqlfluff.core.parser.segments import SourceFix
 from sqlfluff.core.parser.segments.meta import MetaSegment, TemplateSegment
 from sqlfluff.core.rules import LintFix, LintResult
 from sqlfluff.utils.reflow.elements import (
@@ -131,33 +132,36 @@ class _IndentLine:
             starting_balance = 0
         return cls(starting_balance, indent_points)
 
-    def iter_blocks(self, elements: ReflowSequenceType) -> Iterator[ReflowBlock]:
+    def iter_elements(
+        self, elements: ReflowSequenceType
+    ) -> Iterator[Union[ReflowPoint, ReflowBlock]]:
         # Edge case for initial lines (i.e. where last_line_break is None)
         if self.indent_points[-1].last_line_break_idx is None:
             range_slice = slice(None, self.indent_points[-1].idx)
         else:
             range_slice = slice(self.indent_points[0].idx, self.indent_points[-1].idx)
         for element in elements[range_slice]:
-            if isinstance(element, ReflowPoint):
-                continue
             yield element
 
-    def _iter_block_segments(
-        self, elements: ReflowSequenceType
-    ) -> Iterator[RawSegment]:
+    def iter_blocks(self, elements: ReflowSequenceType) -> Iterator[ReflowBlock]:
+        for element in self.iter_elements(elements):
+            if isinstance(element, ReflowBlock):
+                yield element
+
+    def iter_block_segments(self, elements: ReflowSequenceType) -> Iterator[RawSegment]:
         for block in self.iter_blocks(elements):
             yield from block.segments
 
     def is_all_comments(self, elements: ReflowSequenceType) -> bool:
         """Is this line made up of just comments?"""
-        block_segments = list(self._iter_block_segments(elements))
+        block_segments = list(self.iter_block_segments(elements))
         return bool(block_segments) and all(
             seg.is_type("comment") for seg in block_segments
         )
 
     def is_all_templates(self, elements: ReflowSequenceType) -> bool:
         """Is this line made up of just template elements?"""
-        block_segments = list(self._iter_block_segments(elements))
+        block_segments = list(self.iter_block_segments(elements))
         return bool(block_segments) and all(
             seg.is_type("placeholder", "template_loop") for seg in block_segments
         )
@@ -204,7 +208,7 @@ class _IndentLine:
         )
 
         reflow_logger.debug(
-            "Desired Indent Calculation: IB: %s, RUI: %s, UIL: %s, "
+            "    Desired Indent Calculation: IB: %s, RUI: %s, UIL: %s, "
             "iII: %s, iIT: %s. = %s",
             self.initial_indent_balance,
             relevant_untaken_indents,
@@ -280,27 +284,26 @@ def _revise_templated_lines(
     depths = defaultdict(list)
     grouped = defaultdict(list)
     for idx, line in enumerate(lines):
-        if line.is_all_templates(elements):
-            # We can't assume they're all a single block.
-            # So handle all blocks on the line.
-            for i in range(line.indent_points[0].idx, line.indent_points[-1].idx):
-                if isinstance(elements[i], ReflowPoint):
-                    continue
-                # We already checked that it's all templates.
-                segment = cast(MetaSegment, elements[i].segments[0])
-                assert segment.is_type("placeholder", "template_loop")
-                # If it's not got a block uuid, it's not a block, so it
-                # should just be indented as usual. No need to revise.
-                # e.g. comments or variables
-                if segment.block_uuid:
-                    grouped[segment.block_uuid].append(idx)
-                    depths[segment.block_uuid].append(line.initial_indent_balance)
-                    reflow_logger.debug(
-                        "  UUID: %s @ %s = %r",
-                        segment.block_uuid,
-                        idx,
-                        segment.pos_marker.source_str(),
-                    )
+        if not line.is_all_templates(elements):
+            continue
+        # We can't assume they're all a single block.
+        # So handle all blocks on the line.
+        for block in line.iter_blocks(elements):
+            # We already checked that it's all templates.
+            segment = cast(MetaSegment, block.segments[0])
+            assert segment.is_type("placeholder", "template_loop")
+            # If it's not got a block uuid, it's not a block, so it
+            # should just be indented as usual. No need to revise.
+            # e.g. comments or variables
+            if segment.block_uuid:
+                grouped[segment.block_uuid].append(idx)
+                depths[segment.block_uuid].append(line.initial_indent_balance)
+                reflow_logger.debug(
+                    "  UUID: %s @ %s = %r",
+                    segment.block_uuid,
+                    idx,
+                    segment.pos_marker.source_str(),
+                )
 
     # Sort through the lines, so we do to *most* indented first.
     sorted_group_indices = sorted(
@@ -310,7 +313,6 @@ def _revise_templated_lines(
 
     for group_idx, group_uuid in enumerate(sorted_group_indices):
         reflow_logger.debug("  Evaluating Group UUID: %s", group_uuid)
-
         group_lines = grouped[group_uuid]
 
         # Check for case 1.
@@ -339,22 +341,22 @@ def _revise_templated_lines(
                 continue
 
             for i in range(first_point_idx, 0, -1):
-                if isinstance(elements[i], ReflowPoint):
-                    for seg in elements[i].segments[::-1]:
-                        if seg.is_type("indent"):
-                            # If it's the one straight away, after a block_end or
-                            # block_mid, skip it. We know this because it will have
-                            # block_uuid.
-                            if cast(Indent, seg).block_uuid:
-                                continue
-                            # Minus because we're going backward.
-                            indent_balance -= cast(Indent, seg).indent_val
-                            steps.add(indent_balance)
+                _element = elements[i]
+                if isinstance(_element, ReflowPoint):
+                    # If it's the one straight away, after a block_end or
+                    # block_mid, skip it. We know this because it will have
+                    # block_uuid.
+                    for indent_val in _element.get_indent_segment_vals(
+                        exclude_block_indents=True
+                    )[::-1]:
+                        # Minus because we're going backward.
+                        indent_balance -= indent_val
+                        steps.add(indent_balance)
                 # if it's anything other than a blank placeholder, break.
                 # NOTE: We still need the forward version of this.
-                elif not elements[i].segments[0].is_type("placeholder"):
+                elif not _element.segments[0].is_type("placeholder"):
                     break
-                elif cast(TemplateSegment, elements[i].segments[0]).block_type not in (
+                elif cast(TemplateSegment, _element.segments[0]).block_type not in (
                     "block_start",
                     "block_end",
                     "skipped_source",
@@ -367,16 +369,13 @@ def _revise_templated_lines(
             # Run forward through the post point.
             indent_balance = line.initial_indent_balance
             last_point_idx = line.indent_points[-1].idx
-            for seg in elements[last_point_idx].segments:
-                if seg.is_type("indent"):
-                    # If it's the one straight away, after a block_start or
-                    # block_mid, skip it. We know this because it will have
-                    # block_uuid.
-                    if cast(Indent, seg).block_uuid:
-                        continue
-                    # Positive because we're going forward.
-                    indent_balance += cast(Indent, seg).indent_val
-                    steps.add(indent_balance)
+            last_point = cast(ReflowPoint, elements[last_point_idx])
+            for indent_val in last_point.get_indent_segment_vals(
+                exclude_block_indents=True
+            ):
+                # Positive because we're going forward.
+                indent_balance += indent_val
+                steps.add(indent_balance)
 
             # NOTE: Edge case for consecutive blocks of the same type.
             # If we're next to another block which is "inner" (i.e.) has
@@ -427,8 +426,9 @@ def _revise_templated_lines(
                             steps.update(_inter_steps)
 
             reflow_logger.debug(
-                "    Line %s: Initial Balance: %s Options: %s",
+                "    Rendered Line %s (Source %s): Initial Balance: %s Options: %s",
                 idx,
+                first_block.segments[0].pos_marker.source_position()[0],
                 lines[idx].initial_indent_balance,
                 steps,
             )
@@ -463,7 +463,8 @@ def _revise_templated_lines(
                 if last_group_line:
                     _inner_lines = list(range(last_group_line + 1, idx))
                     reflow_logger.debug(
-                        "      Extending Intermediates with %s", _inner_lines
+                        "      Extending Intermediates with rendered indices %s",
+                        _inner_lines,
                     )
                     inner_lines.extend(_inner_lines)
                 # if we have a temp balance - crystallise it
@@ -501,6 +502,7 @@ def _revise_templated_lines(
                         # NOTE: We set it temporarily here, because if we're going
                         # to pass an outer template loop then we should discard it.
                         # i.e. only count intervals within inner loops.
+
                         _this_through = net_balance + ip.indent_trough
                         temp_balance_trough = (
                             _this_through
@@ -563,6 +565,89 @@ def _revise_templated_lines(
                 "contains newlines.",
                 first_seg.pos_marker.working_line_no,
             )
+            lines.remove(line)
+
+
+def _revise_skipped_source_lines(
+    lines: List[_IndentLine],
+    elements: ReflowSequenceType,
+) -> None:
+    """Given an initial set of individual lines, revise any with skipped source.
+
+    NOTE: This mutates the `lines` argument.
+
+    In the cases of {% if ... %} statements, there can be strange effects if
+    we try and lint both rendered and unrendered locations. In particular when
+    there's one at the end of a loop. In all of these cases, if we find an
+    unrendered {% if %} block, which is rendered elsewhere in the template
+    we skip that line.
+    """
+    reflow_logger.debug("# Revise skipped source lines.")
+    if_locs = defaultdict(list)
+    skipped_source_blocks = []
+
+    # Slice to avoid copying
+    for idx, line in enumerate(lines[:]):
+        has_skipped_source = False
+        # Find lines which _start_ with a placeholder
+        for idx, seg in enumerate(line.iter_block_segments(elements)):
+            if not seg.is_type("placeholder"):
+                break
+            template_seg = cast(TemplateSegment, seg)
+            # For now only deal with lines that that start with a block_start.
+            if idx == 0:
+                # If we start with anything else, ignore this line for now.
+                if template_seg.block_type != "block_start":
+                    break
+                template_loc = template_seg.pos_marker.templated_position()
+                source_loc = template_seg.pos_marker.source_position()
+                reflow_logger.debug(
+                    f"  Found block start: {seg} {template_seg.source_str!r} "
+                    f"{template_loc} {source_loc}"
+                )
+                if_locs[source_loc].append(template_loc)
+                # Search forward, and see whether it's all skipped.
+                # NOTE: Just on the same line for now.
+            elif template_seg.block_type == "skipped_source":
+                has_skipped_source = True
+            elif template_seg.block_type == "block_end":
+                # If we get here, we've only had placeholders on this line.
+                # If it's also had skipped source. Make a note of the location
+                # in both the source and template.
+                if has_skipped_source:
+                    reflow_logger.debug(f"  Skipped line found: {template_loc}")
+                    skipped_source_blocks.append((source_loc, template_loc))
+
+    ignore_locs = []
+    # Now iterate through each of the potentially skipped blocks, and work out
+    # if they were otherwise rendered in a different location.
+    for source_loc, template_loc in skipped_source_blocks:
+        # Is there at least once location of this source which isn't also
+        # skipped.
+        for other_template_loc in if_locs[source_loc]:
+            if (source_loc, other_template_loc) not in skipped_source_blocks:
+                reflow_logger.debug(
+                    "  Skipped element rendered elsewhere "
+                    f"{(source_loc, template_loc)} at {other_template_loc}"
+                )
+                ignore_locs.append(template_loc)
+
+    # Now go back through the lines, and remove any which we can ignore.
+    # Slice to avoid copying
+    for idx, line in enumerate(lines[:]):
+        # Find lines which _start_ with a placeholder
+        try:
+            seg = next(line.iter_block_segments(elements))
+        except StopIteration:
+            continue
+        if not seg.is_type("placeholder"):
+            continue
+        template_seg = cast(TemplateSegment, seg)
+        if template_seg.block_type != "block_start":
+            continue
+        template_loc = template_seg.pos_marker.templated_position()
+        if template_loc in ignore_locs:
+            reflow_logger.debug("  Removing line from buffer...")
             lines.remove(line)
 
 
@@ -1138,11 +1223,15 @@ def _lint_line_starting_indent(
                 reflow_logger.debug("    Indent is bigger than required. OK.")
                 return []
 
+    # NOTE: If the reindent code is flagging an indent change here that you
+    # don't agree with for a line with templated elements, especially in a
+    # loop, it's very likely that the fix shouldn't be here but much earlier
+    # in the code as part of `_revise_templated_lines()`.
     reflow_logger.debug(
-        "    Correcting indent @ line %s. Existing indent: %r -> %r",
+        "    Correcting indent @ line %s. Expected: %r. Found %r",
         elements[initial_point_idx + 1].segments[0].pos_marker.working_line_no,
-        current_indent,
         desired_starting_indent,
+        current_indent,
     )
 
     # Initial point gets special handling if it has no newlines.
@@ -1427,7 +1516,10 @@ def _lint_line_buffer_indents(
     allow generation of LintResult objects directly from them.
     """
     reflow_logger.info(
-        "    Line #%s [source line #%s]. idx=%s:%s. FI %s. UPI: %s.",
+        # NOTE: We add a little extra ## here because it's effectively
+        # the start of linting a single line and so the point to start
+        # interpreting the any debug logging from.
+        "## Evaluate Rendered Line #%s [source line #%s]. idx=%s:%s.",
         elements[indent_line.indent_points[0].idx + 1]
         .segments[0]
         .pos_marker.working_line_no,
@@ -1436,11 +1528,9 @@ def _lint_line_buffer_indents(
         .pos_marker.source_position()[0],
         indent_line.indent_points[0].idx,
         indent_line.indent_points[-1].idx,
-        forced_indents,
-        imbalanced_indent_locs,
     )
     reflow_logger.debug(
-        "   Line Content: %s",
+        "  Line Content: %s",
         [
             repr(elem.raw)
             for elem in elements[
@@ -1448,7 +1538,9 @@ def _lint_line_buffer_indents(
             ]
         ],
     )
-    reflow_logger.debug("  Evaluate Line: %s. FI %s", indent_line, forced_indents)
+    reflow_logger.debug("  Indent Line: %s", indent_line)
+    reflow_logger.debug("  Forced Indents: %s", forced_indents)
+    reflow_logger.debug("  Imbalanced Indent Locs: %s", imbalanced_indent_locs)
     results = []
 
     # First, handle starting indent.
@@ -1519,6 +1611,7 @@ def lint_indent_points(
 
     # Revise templated indents
     _revise_templated_lines(lines, elements)
+    _revise_skipped_source_lines(lines, elements)
     # Revise comment indents
     _revise_comment_lines(lines, elements, ignore_comment_lines=ignore_comment_lines)
 
