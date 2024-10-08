@@ -244,7 +244,7 @@ snowflake_dialect.add(
         type="semi_structured_element",
     ),
     # Normally, double quotes can't be used for literals. But in a few
-    # cases they can (e.g. Tags).
+    # cases they can (e.g. Tags, Comments).
     DoubleQuotedLiteralSegment=TypedParser(
         "double_quote", LiteralSegment, type="quoted_literal"
     ),
@@ -2626,7 +2626,9 @@ class CommentEqualsClauseSegment(BaseSegment):
 
     type = "comment_equals_clause"
     match_grammar = Sequence(
-        "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+        "COMMENT",
+        Ref("EqualsSegment"),
+        OneOf(Ref("QuotedLiteralSegment"), Ref("DoubleQuotedLiteralSegment")),
     )
 
 
