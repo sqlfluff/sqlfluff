@@ -4054,60 +4054,50 @@ class CopyOptionsSegment(BaseSegment):
 
     type = "copy_options"
 
-    match_grammar = OneOf(
-        AnySetOf(
-            Sequence("ON_ERROR", Ref("EqualsSegment"), Ref("CopyOptionOnErrorSegment")),
-            Sequence("SIZE_LIMIT", Ref("EqualsSegment"), Ref("NumericLiteralSegment")),
-            Sequence("PURGE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-            Sequence(
-                "RETURN_FAILED_ONLY", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-            ),
-            Sequence(
-                "MATCH_BY_COLUMN_NAME",
-                Ref("EqualsSegment"),
-                OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE", "NONE"),
-            ),
-            Sequence(
-                "INCLUDE_METADATA",
-                Ref("EqualsSegment"),
-                Bracketed(
-                    Delimited(
-                        Sequence(
-                            Ref("SingleIdentifierGrammar"),
-                            Ref("EqualsSegment"),
-                            OneOf(
-                                "METADATA$FILENAME",
-                                "METADATA$FILE_ROW_NUMBER",
-                                "METADATA$FILE_CONTENT_KEY",
-                                "METADATA$FILE_LAST_MODIFIED",
-                                "METADATA$START_SCAN_TIME",
-                            ),
+    _copy_options_matchables = [
+        Sequence("ON_ERROR", Ref("EqualsSegment"), Ref("CopyOptionOnErrorSegment")),
+        Sequence("SIZE_LIMIT", Ref("EqualsSegment"), Ref("NumericLiteralSegment")),
+        Sequence("PURGE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "RETURN_FAILED_ONLY", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "MATCH_BY_COLUMN_NAME",
+            Ref("EqualsSegment"),
+            OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE", "NONE"),
+        ),
+        Sequence(
+            "INCLUDE_METADATA",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            "METADATA$FILENAME",
+                            "METADATA$FILE_ROW_NUMBER",
+                            "METADATA$FILE_CONTENT_KEY",
+                            "METADATA$FILE_LAST_MODIFIED",
+                            "METADATA$START_SCAN_TIME",
                         ),
-                    )
-                ),
-            ),
-            Sequence(
-                "ENFORCE_LENGTH", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-            ),
-            Sequence(
-                "TRUNCATECOLUMNS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-            ),
-            Sequence("FORCE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-        ),
-        AnySetOf(
-            Sequence("OVERWRITE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-            Sequence("SINGLE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-            Sequence(
-                "MAX_FILE_SIZE", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
-            ),
-            Sequence(
-                "INCLUDE_QUERY_ID", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-            ),
-            Sequence(
-                "DETAILED_OUTPUT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+                    ),
+                )
             ),
         ),
-    )
+        Sequence("ENFORCE_LENGTH", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("TRUNCATECOLUMNS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("FORCE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("OVERWRITE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("SINGLE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("MAX_FILE_SIZE", Ref("EqualsSegment"), Ref("NumericLiteralSegment")),
+        Sequence(
+            "INCLUDE_QUERY_ID", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence("DETAILED_OUTPUT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+    ]
+
+    match_grammar = AnySetOf(*_copy_options_matchables)
 
 
 class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
@@ -5959,7 +5949,7 @@ class CopyIntoLocationStatementSegment(BaseSegment):
             "FROM",
             OneOf(
                 Ref("TableReferenceSegment"),
-                Bracketed(Ref("SelectStatementSegment")),
+                Bracketed(Ref("SelectableGrammar")),
             ),
             optional=True,
         ),
@@ -5976,7 +5966,9 @@ class CopyIntoLocationStatementSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("FileFormatSegment"),
             ),
-            Ref("CopyOptionsSegment"),
+            # We explode the CopyOptionsSegments because the AnySetOf may appear in any
+            # order for these other elements as well.
+            *CopyOptionsSegment._copy_options_matchables,
             Sequence(
                 "VALIDATION_MODE",
                 Ref("EqualsSegment"),
@@ -6041,7 +6033,9 @@ class CopyIntoTableStatementSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("FileFormatSegment"),
             ),
-            Ref("CopyOptionsSegment"),
+            # We explode the CopyOptionsSegments because the AnySetOf may appear in any
+            # order for these other elements as well.
+            *CopyOptionsSegment._copy_options_matchables,
         ),
         Sequence(
             "VALIDATION_MODE",
