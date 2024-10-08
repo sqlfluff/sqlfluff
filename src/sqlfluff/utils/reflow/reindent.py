@@ -148,6 +148,11 @@ class _IndentLine:
             if isinstance(element, ReflowBlock):
                 yield element
 
+    def iter_points(self, elements: ReflowSequenceType) -> Iterator[ReflowPoint]:
+        for element in self.iter_elements(elements):
+            if isinstance(element, ReflowPoint):
+                yield element
+
     def iter_block_segments(self, elements: ReflowSequenceType) -> Iterator[RawSegment]:
         for block in self.iter_blocks(elements):
             yield from block.segments
@@ -387,25 +392,34 @@ def _revise_templated_lines(
                 _case_type = cast(TemplateSegment, first_segment).block_type
 
             if _case_type in ("block_start", "block_mid"):
-                # Is following _line_ AND element also a block?
-                # i.e. nothing else between.
-                if (
-                    idx + 1 < len(lines)
-                    and first_point_idx + 3 == lines[idx + 1].indent_points[0].idx + 1
-                ):
-                    seg = elements[first_point_idx + 3].segments[0]
-                    if seg.is_type("placeholder"):
-                        if cast(TemplateSegment, seg).block_type == "block_start":
-                            _inter_steps = list(
-                                range(
-                                    line.initial_indent_balance,
-                                    lines[idx + 1].initial_indent_balance,
-                                )
-                            )
-                            reflow_logger.debug(
-                                "      Precedes block. Adding Steps: %s", _inter_steps
-                            )
-                            steps.update(_inter_steps)
+                # Search forward until we actually find something rendered.
+                # Indents can usually be shuffled a bit around unrendered
+                # elements.
+                # NOTE: We should only be counting non-template indents, i.e.
+                # ones that don't have a block associated with them.
+                # NOTE: We're starting with the current line.
+                _forward_indent_balance = line.initial_indent_balance
+                for elem in elements[line.indent_points[0].idx :]:
+                    if isinstance(elem, ReflowBlock):
+                        if not all(
+                            _seg.is_type("placeholder") for _seg in elem.segments
+                        ):
+                            break
+                        continue
+                    # Otherwise it's a point.
+                    for seg in elem.segments:
+                        if not seg.is_type("indent"):
+                            continue
+                        indent_seg = cast(Indent, seg)
+                        reflow_logger.debug(f"      A4: {seg}")
+                        if indent_seg.block_uuid:
+                            continue
+                        _forward_indent_balance += indent_seg.indent_val
+                        reflow_logger.debug(
+                            "      Precedes block. Adding Step: %s",
+                            _forward_indent_balance,
+                        )
+                        steps.add(_forward_indent_balance)
 
             if _case_type in ("block_end", "block_mid"):
                 # Is preceding _line_ AND element also a block?
