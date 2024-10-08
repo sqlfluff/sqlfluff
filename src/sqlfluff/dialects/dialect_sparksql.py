@@ -1616,6 +1616,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("TemporaryGrammar", optional=True),
         Ref.keyword("STREAMING", optional=True),
         Ref.keyword("LIVE", optional=True),
+        Ref.keyword("MATERIALIZED", optional=True),
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
