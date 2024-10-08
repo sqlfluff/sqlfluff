@@ -122,7 +122,7 @@ ansi_dialect.set_lexer_matchers(
         ),
         RegexLexer(
             "double_quote",
-            r'"([^"\\]|\\.)*"',
+            r'"(""|[^"\\]|\\.)*"',
             CodeSegment,
             segment_kwargs={
                 "quoted_value": (r'"((?:[^"\\]|\\.)*)"', 1),
