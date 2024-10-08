@@ -2243,6 +2243,54 @@ test_inconsistent_indent:
     )
     SELECT * FROM x
 
+test_pass_loop_indent_0:
+  # NOTE: This biguqery test is designed to be a kind of base case
+  # for the next few cases. Bigquery allows a trailing comma in a
+  # select so is a good candidate for this.
+  pass_str: |
+    select
+        {% for i in range(1, 3) %}
+            1,
+        {% endfor %}
+    from foo
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_loop_indent_1:
+  pass_str: |
+    select
+        {% for i in range(1, 3) %}
+            {% for j in range(1, 3) %}
+                1
+                {% if not loop.last %},{% endif %}
+            {% endfor %}
+            {% if not loop.last %},{% endif %}
+        {% endfor %}
+    from foo
+
+test_pass_loop_indent_3:
+  pass_str: |
+    select
+        {% for i in range(1, 3) %}
+            1
+            {% if not loop.last %}
+                ,
+            {% endif %}
+        {% endfor %}
+    from foo
+
+test_pass_loop_indent_4:
+  pass_str: |
+    select
+        {% for i in range(1, 3) %}
+            1
+            {%- if not loop.last -%}
+                ,
+            {%- endif -%}
+        {% endfor %}
+    from foo
+
 test_fail_sqlite_update_returning:
   fail_str: |
     UPDATE

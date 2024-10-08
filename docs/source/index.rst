@@ -57,14 +57,14 @@ Contents
 ^^^^^^^^
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Documentation for SQLFluff:
 
    gettingstarted
    why_sqlfluff
+   guides/index
    configuration/index
    production/index
-   development/index
    reference/index
    inthewild
    jointhecommunity
