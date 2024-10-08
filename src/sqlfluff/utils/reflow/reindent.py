@@ -411,7 +411,6 @@ def _revise_templated_lines(
                         if not seg.is_type("indent"):
                             continue
                         indent_seg = cast(Indent, seg)
-                        reflow_logger.debug(f"      A4: {seg}")
                         if indent_seg.block_uuid:
                             continue
                         _forward_indent_balance += indent_seg.indent_val
