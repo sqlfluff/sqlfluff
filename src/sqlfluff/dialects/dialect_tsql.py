@@ -4371,8 +4371,10 @@ class UpdateStatementSegment(BaseSegment):
     type = "update_statement"
     match_grammar = Sequence(
         "UPDATE",
+        Indent,
         OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         Ref("PostTableExpressionGrammar", optional=True),
+        Dedent,
         Ref("SetClauseListSegment"),
         Ref("OutputClauseSegment", optional=True),
         Ref("FromClauseSegment", optional=True),

@@ -3113,6 +3113,7 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
 
     match_grammar: Matchable = Sequence(
         "UPDATE",
+        Indent,
         OneOf(
             Ref("FileReferenceSegment"),
             Ref("TableReferenceSegment"),
@@ -3124,6 +3125,7 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
             exclude=Ref.keyword("SET"),
             optional=True,
         ),
+        Dedent,
         Ref("SetClauseListSegment"),
         Ref("WhereClauseSegment", optional=True),
     )
