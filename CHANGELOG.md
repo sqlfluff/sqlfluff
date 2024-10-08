@@ -10,6 +10,18 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.2.2] - 2024-10-07
+
+## Highlights
+
+This is a hotfix release to resolve an issue with the JJ01 rule when running
+in parallel mode.
+
+## What’s Changed
+
+* Hotfix for JJ01 [#6304](https://github.com/sqlfluff/sqlfluff/pull/6304) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add note on 3.0.x to main docs page. [#6302](https://github.com/sqlfluff/sqlfluff/pull/6302) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
 ## [3.2.1] - 2024-10-06
 
 ## Highlights
