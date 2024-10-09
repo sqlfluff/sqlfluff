@@ -217,7 +217,7 @@ test_fail_no_fix_implicit_column_references:
     FROM table_name
     GROUP BY 1, 2
 
-test_pass_cte:
+test_pass_cte_used_in_set:
   pass_str: |
     WITH T1 AS (
       SELECT
@@ -234,8 +234,36 @@ test_pass_cte:
     UNION ALL
     SELECT * FROM T2;
 
-test_pass_subquery:
+test_pass_subquery_used_in_set:
   pass_str: |
     SELECT * FROM (SELECT 'a'::varchar AS A, 1::bigint AS B)
     UNION ALL
     SELECT * FROM (SELECT CASE WHEN COL > 1 THEN 'x' ELSE 'y' END AS A, COL AS B FROM T);
+
+test_fail_cte_used_in_select:
+  fail_str: |
+    WITH T1 AS (
+      SELECT
+        'a'::varchar AS A,
+        1::bigint AS B
+    ),
+    T2 AS (
+      SELECT
+        CASE WHEN COL > 1 THEN 'x' ELSE 'y' END AS A,
+        COL AS B
+      FROM T
+    )
+    SELECT * FROM T1 INNER JOIN T2 ON T1.A = T2A;
+  fix_str: |
+    WITH T1 AS (
+      SELECT
+        'a'::varchar AS A,
+        1::bigint AS B
+    ),
+    T2 AS (
+      SELECT
+        COL AS B,
+        CASE WHEN COL > 1 THEN 'x' ELSE 'y' END AS A
+      FROM T
+    )
+    SELECT * FROM T1 INNER JOIN T2 ON T1.A = T2A;

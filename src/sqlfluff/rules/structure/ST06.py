@@ -87,15 +87,33 @@ class Rule_ST06(BaseRule):
 
         assert context.segment.is_type("select_clause")
 
+        # insert, merge, create table, union are order-sensitive
         for seg in reversed(context.parent_stack):
             if seg.is_type(
                 "insert_statement",
                 "set_expression",
-                "with_compound_statement",
                 "create_table_statement",
                 "merge_statement",
             ):
                 return None
+
+        # CTE is order-sensitive only if CTE is referenced in set expression
+        for seg in reversed(context.parent_stack):
+            if seg.is_type("common_table_expression"):
+                cte_identifier = seg.get_child("identifier")
+                assert cte_identifier is not None
+                maybe_with_compound_statement = seg.get_parent()
+                if maybe_with_compound_statement is None:
+                    break
+                with_compound_statement, _ = maybe_with_compound_statement
+                for ref in with_compound_statement.recursive_crawl("table_reference"):
+                    if ref.raw_upper == cte_identifier.raw_upper:
+                        path = with_compound_statement.path_to(ref)
+                        if any(
+                            path_step.segment.is_type("set_expression")
+                            for path_step in path
+                        ):
+                            return None
 
         select_clause_segment = context.segment
         select_target_elements = context.segment.get_children("select_clause_element")
