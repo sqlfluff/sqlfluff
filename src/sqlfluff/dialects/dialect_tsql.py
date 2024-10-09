@@ -2614,7 +2614,7 @@ class CreateFunctionStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("FunctionOptionSegment", optional=True),
-        "AS",
+        Ref.keyword("AS", optional=True),
         Ref("ProcedureDefinitionGrammar"),
     )
 
@@ -2625,31 +2625,33 @@ class FunctionOptionSegment(BaseSegment):
     type = "function_option_segment"
     match_grammar = Sequence(
         "WITH",
-        AnyNumberOf(
-            "ENCRYPTION",
-            "SCHEMABINDING",
-            Sequence(
-                OneOf(
-                    Sequence(
-                        "RETURNS",
-                        "NULL",
+        Delimited(
+            AnyNumberOf(
+                "ENCRYPTION",
+                "SCHEMABINDING",
+                Sequence(
+                    OneOf(
+                        Sequence(
+                            "RETURNS",
+                            "NULL",
+                        ),
+                        "CALLED",
                     ),
-                    "CALLED",
-                ),
-                "ON",
-                "NULL",
-                "INPUT",
-            ),
-            Ref("ExecuteAsClauseSegment"),
-            Sequence(
-                "INLINE",
-                Ref("EqualsSegment"),
-                OneOf(
                     "ON",
-                    "OFF",
+                    "NULL",
+                    "INPUT",
                 ),
+                Ref("ExecuteAsClauseSegment"),
+                Sequence(
+                    "INLINE",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        "ON",
+                        "OFF",
+                    ),
+                ),
+                min_times=1,
             ),
-            min_times=1,
         ),
     )
 
@@ -4171,29 +4173,6 @@ class FromClauseSegment(ansi.FromClauseSegment):
     )
 
 
-class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
-    """FROM Expression Element Segment.
-
-    Overriding ANSI to add Temporal Query.
-    """
-
-    match_grammar = (
-        ansi.FromExpressionElementSegment._base_from_expression_element.copy(
-            insert=[
-                Ref("TemporalQuerySegment", optional=True),
-            ],
-            before=Ref(
-                "AliasExpressionSegment",
-                exclude=OneOf(
-                    Ref("SamplingExpressionSegment"),
-                    Ref("JoinLikeClauseGrammar"),
-                ),
-                optional=True,
-            ),
-        )
-    )
-
-
 class TableExpressionSegment(BaseSegment):
     """The main table expression e.g. within a FROM clause.
 
@@ -4392,8 +4371,10 @@ class UpdateStatementSegment(BaseSegment):
     type = "update_statement"
     match_grammar = Sequence(
         "UPDATE",
+        Indent,
         OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         Ref("PostTableExpressionGrammar", optional=True),
+        Dedent,
         Ref("SetClauseListSegment"),
         Ref("OutputClauseSegment", optional=True),
         Ref("FromClauseSegment", optional=True),
@@ -5596,7 +5577,7 @@ class SamplingExpressionSegment(ansi.SamplingExpressionSegment):
     )
 
 
-class TemporalQuerySegment(BaseSegment):
+class TemporalQuerySegment(ansi.TemporalQuerySegment):
     """A segment that allows Temporal Queries to be run.
 
     https://learn.microsoft.com/en-us/sql/relational-databases/tables/temporal-tables

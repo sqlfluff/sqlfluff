@@ -90,6 +90,8 @@ grant import share on account to role my_role;
 grant manage grants on account to role my_role;
 grant monitor execution on account to role my_role;
 grant monitor usage on account to role my_role;
+grant monitor on user some_user to role my_role;
+revoke monitor on user some_user from role my_role;
 grant override share restrictions on account to role my_role;
 grant create account on account to role my_role;
 grant create share on account to role my_role;

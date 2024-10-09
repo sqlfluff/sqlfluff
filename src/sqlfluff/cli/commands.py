@@ -464,11 +464,16 @@ def get_linter_and_formatter(
 
 @click.group(
     context_settings={"help_option_names": ["-h", "--help"]},
-    epilog="""\b\bExamples:\n
-  sqlfluff lint --dialect postgres .\n
-  sqlfluff lint --dialect postgres --rules ST05 .\n
-  sqlfluff fix --dialect sqlite --rules LT10,ST05 src/queries\n
-  sqlfluff parse --dialect sqlite --templater jinja src/queries/common.sql
+    # NOTE: The code-block directive here looks a little odd in the CLI
+    # but is a good balance between what appears in the CLI and what appears
+    # in the auto generated docs for the CLI by sphinx.
+    epilog="""Examples:\n
+.. code-block:: sh
+
+   sqlfluff lint --dialect postgres .\n
+   sqlfluff lint --dialect mysql --rules ST05 my_query.sql\n
+   sqlfluff fix --dialect sqlite --rules LT10,ST05 src/queries\n
+   sqlfluff parse --dialect duckdb --templater jinja path/my_query.sql\n\n
 """,
 )
 @click.version_option()
@@ -715,6 +720,11 @@ def lint(
         github_result_native = []
         for record in result.as_records():
             filepath = record["filepath"]
+
+            # Add a group, titled with the filename
+            if record["violations"]:
+                github_result_native.append(f"::group::{filepath}")
+
             for violation in record["violations"]:
                 # NOTE: The output format is designed for GitHub action:
                 # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-notice-message
@@ -740,6 +750,10 @@ def lint(
                     line += f" [{violation['name']}]"
 
                 github_result_native.append(line)
+
+            # Close the group
+            if record["violations"]:
+                github_result_native.append("::endgroup::")
 
         file_output = "\n".join(github_result_native)
 

@@ -351,7 +351,12 @@ class MergeTreesOrderByClauseSegment(BaseSegment):
                 "TUPLE",
                 Bracketed(),  # tuple() not tuple
             ),
-            Ref("BracketedColumnReferenceListGrammar"),
+            Bracketed(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
             Ref("ColumnReferenceSegment"),
         ),
     )

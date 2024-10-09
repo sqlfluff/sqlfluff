@@ -1616,6 +1616,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("TemporaryGrammar", optional=True),
         Ref.keyword("STREAMING", optional=True),
         Ref.keyword("LIVE", optional=True),
+        Ref.keyword("MATERIALIZED", optional=True),
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
@@ -3113,6 +3114,7 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
 
     match_grammar: Matchable = Sequence(
         "UPDATE",
+        Indent,
         OneOf(
             Ref("FileReferenceSegment"),
             Ref("TableReferenceSegment"),
@@ -3124,6 +3126,7 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
             exclude=Ref.keyword("SET"),
             optional=True,
         ),
+        Dedent,
         Ref("SetClauseListSegment"),
         Ref("WhereClauseSegment", optional=True),
     )

@@ -161,16 +161,9 @@ class FluffConfig:
     def __setstate__(self, state: Dict[str, Any]) -> None:  # pragma: no cover
         # Restore instance attributes
         self.__dict__.update(state)
-        # NB: We don't reinstate the plugin manager, but this should only
-        # be happening between processes where the plugin manager should
-        # probably be fresh in any case.
-        # NOTE: This means that registering user plugins directly will only
-        # work if those plugins are used in the main process (i.e. templaters).
-        # User registered linting rules either must be "installed" and therefore
-        # available to all processes - or their use is limited to only single
-        # process invocations of sqlfluff. In the event that user registered
-        # rules are used in a multi-process invocation, they will not be applied
-        # in the child processes.
+        # NOTE: Rather than rehydrating the previous plugin manager, we
+        # fetch a fresh one.
+        self._plugin_manager = get_plugin_manager()
         # NOTE: Likewise we don't reinstate the "templater_obj" config value
         # which should also only be used in the main thread rather than child
         # processes.

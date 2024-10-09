@@ -1,0 +1,61 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ae71a202bbe935777772d21fa220c7d04baf22912bf0d1a9335bc4ec9ac3f52c
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          numeric_literal: '1'
+          alias_expression:
+            keyword: as
+            naked_identifier: foo
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '2'
+          alias_expression:
+            keyword: as
+            quoted_identifier: '"foo"'
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '3'
+          alias_expression:
+            keyword: as
+            quoted_identifier: '"""foo"""'
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '4'
+          alias_expression:
+            keyword: as
+            quoted_identifier: '"""""foo"""""'
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: bar
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            quoted_identifier: '"bar"'
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            quoted_identifier: '"""bar"""'
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            quoted_identifier: '"""""bar"""""'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - quoted_identifier: '"""""a"""""'
+              - dot: .
+              - quoted_identifier: '"""""b"""""'
+              - dot: .
+              - quoted_identifier: '"""""c"""""'
