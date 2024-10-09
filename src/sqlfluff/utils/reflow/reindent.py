@@ -516,6 +516,23 @@ def _revise_templated_lines(
                         # to pass an outer template loop then we should discard it.
                         # i.e. only count intervals within inner loops.
 
+                        # Is there anything rendered between here and the next
+                        # group line?
+                        next_group_line = min(n for n in group_lines if n > idx)
+                        next_group_line_start_point = (
+                            lines[next_group_line].indent_points[0].idx
+                        )
+                        for i in range(ip.idx, next_group_line_start_point):
+                            if isinstance(elements[i], ReflowBlock):
+                                if not all(
+                                    seg.is_type("placeholder")
+                                    for seg in elements[i].segments
+                                ):
+                                    break
+                        else:
+                            # no. skip this trough
+                            continue
+
                         _this_through = net_balance + ip.indent_trough
                         temp_balance_trough = (
                             _this_through
