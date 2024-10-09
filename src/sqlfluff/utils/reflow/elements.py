@@ -99,6 +99,22 @@ class ReflowElement:
             for seg in self.segments
         )
 
+    def is_all_unrendered(self) -> bool:
+        """Return whether this element is all unrendered.
+
+        Returns True if contains only whitespace, indents, template loops or placeholders.
+
+        Note:
+        * ReflowBlocks will contain the placeholders and loops
+        * ReflowPoints will contain whitespace, indents and newlines.
+        """
+        for seg in self.segments:
+            if not seg.is_type(
+                "whitespace", "placeholder", "newline", "indent", "template_loop"
+            ):
+                return False
+        return True
+
 
 @dataclass(frozen=True)
 class ReflowBlock(ReflowElement):

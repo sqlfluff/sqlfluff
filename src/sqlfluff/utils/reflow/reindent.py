@@ -161,10 +161,7 @@ class _IndentLine:
 
     def is_all_templates(self, elements: ReflowSequenceType) -> bool:
         """Is this line made up of just template elements?"""
-        block_segments = list(self.iter_block_segments(elements))
-        return bool(block_segments) and all(
-            seg.is_type("placeholder", "template_loop") for seg in block_segments
-        )
+        return all(block.is_all_unrendered() for block in self.iter_blocks(elements))
 
     def desired_indent_units(self, forced_indents: List[int]) -> int:
         """Calculate the desired indent units.
@@ -404,9 +401,7 @@ def _revise_templated_lines(
                 _forward_indent_balance = line.initial_indent_balance
                 for elem in elements[line.indent_points[0].idx :]:
                     if isinstance(elem, ReflowBlock):
-                        if not all(
-                            _seg.is_type("placeholder") for _seg in elem.segments
-                        ):
+                        if not elem.is_all_unrendered():
                             break
                         continue
                     # Otherwise it's a point.
@@ -524,10 +519,7 @@ def _revise_templated_lines(
                         )
                         for i in range(ip.idx, next_group_line_start_point):
                             if isinstance(elements[i], ReflowBlock):
-                                if not all(
-                                    seg.is_type("placeholder")
-                                    for seg in elements[i].segments
-                                ):
+                                if not elements[i].is_all_unrendered():
                                     break
                         else:
                             # no. skip this trough
