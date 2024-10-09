@@ -148,11 +148,6 @@ class _IndentLine:
             if isinstance(element, ReflowBlock):
                 yield element
 
-    def iter_points(self, elements: ReflowSequenceType) -> Iterator[ReflowPoint]:
-        for element in self.iter_elements(elements):
-            if isinstance(element, ReflowPoint):
-                yield element
-
     def iter_block_segments(self, elements: ReflowSequenceType) -> Iterator[RawSegment]:
         for block in self.iter_blocks(elements):
             yield from block.segments
