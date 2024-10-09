@@ -2290,3 +2290,159 @@ test_pass_loop_indent_4:
             {%- endif -%}
         {% endfor %}
     from foo
+
+test_fail_sqlite_update_returning:
+  fail_str: |
+    UPDATE
+    foo
+    SET
+    updated = now()
+    WHERE
+        bar = $1
+    RETURNING
+    updated;
+  fix_str: |
+    UPDATE
+        foo
+    SET
+        updated = now()
+    WHERE
+        bar = $1
+    RETURNING
+        updated;
+  configs:
+    core:
+      dialect: sqlite
+
+test_fail_postgres_update_returning:
+  fail_str: |
+    UPDATE
+    foo
+    SET
+    updated = now()
+    WHERE
+        bar = ''
+    RETURNING
+    updated;
+  fix_str: |
+    UPDATE
+        foo
+    SET
+        updated = now()
+    WHERE
+        bar = ''
+    RETURNING
+        updated;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_postgres_insert_returning:
+  fail_str: |
+    INSERT INTO foo (updated)
+    VALUES (now())
+    RETURNING
+    updated;
+  fix_str: |
+    INSERT INTO foo (updated)
+    VALUES (now())
+    RETURNING
+        updated;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_ansi_update:
+  fail_str: |
+    UPDATE
+    foo
+    SET
+    updated = now()
+    WHERE
+        bar = '';
+  fix_str: |
+    UPDATE
+        foo
+    SET
+        updated = now()
+    WHERE
+        bar = '';
+  configs:
+    core:
+      dialect: ansi
+
+test_fail_exasol_update:
+  fail_str: |
+    UPDATE
+    foo
+    SET
+    updated = now()
+    WHERE
+        bar = '';
+  fix_str: |
+    UPDATE
+        foo
+    SET
+        updated = now()
+    WHERE
+        bar = '';
+  configs:
+    core:
+      dialect: exasol
+
+test_fail_mysql_update:
+  fail_str: |
+    UPDATE
+    foo
+    SET
+    updated = now()
+    WHERE
+        bar = '';
+  fix_str: |
+    UPDATE
+        foo
+    SET
+        updated = now()
+    WHERE
+        bar = '';
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_teradata_update:
+  fail_str: |
+    UPDATE
+    foo
+    SET
+    updated = now()
+    WHERE
+        bar = '';
+  fix_str: |
+    UPDATE
+        foo
+    SET
+        updated = now()
+    WHERE
+        bar = '';
+  configs:
+    core:
+      dialect: teradata
+
+test_fail_tsql_update:
+  fail_str: |
+    UPDATE
+    foo
+    SET
+    updated = now()
+    WHERE
+        bar = '';
+  fix_str: |
+    UPDATE
+        foo
+    SET
+        updated = now()
+    WHERE
+        bar = '';
+  configs:
+    core:
+      dialect: tsql

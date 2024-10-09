@@ -4940,6 +4940,7 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         ),
         Sequence(
             "RETURNING",
+            Indent,
             OneOf(
                 Ref("StarSegment"),
                 Delimited(
@@ -4949,6 +4950,7 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
                     ),
                 ),
             ),
+            Dedent,
             optional=True,
         ),
     )
@@ -5633,6 +5635,7 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
         ),
         Sequence(
             "RETURNING",
+            Indent,
             OneOf(
                 Ref("StarSegment"),
                 Delimited(
@@ -5642,6 +5645,7 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
                     ),
                 ),
             ),
+            Dedent,
             optional=True,
         ),
     )
@@ -5722,10 +5726,12 @@ class UpdateStatementSegment(BaseSegment):
         # TODO add [ WITH [ RECURSIVE ] with_query [, ...] ]
         "UPDATE",
         Ref.keyword("ONLY", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         # SET is not a reserved word in all dialects (e.g. RedShift)
         # So specifically exclude as an allowed implicit alias to avoid parsing errors
         Ref("AliasExpressionSegment", exclude=Ref.keyword("SET"), optional=True),
+        Dedent,
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
         OneOf(
@@ -5735,6 +5741,7 @@ class UpdateStatementSegment(BaseSegment):
         ),
         Sequence(
             "RETURNING",
+            Indent,
             OneOf(
                 Ref("StarSegment"),
                 Delimited(
@@ -5744,6 +5751,7 @@ class UpdateStatementSegment(BaseSegment):
                     ),
                 ),
             ),
+            Dedent,
             optional=True,
         ),
     )

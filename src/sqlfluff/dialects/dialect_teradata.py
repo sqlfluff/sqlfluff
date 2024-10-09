@@ -692,6 +692,7 @@ class UpdateStatementSegment(BaseSegment):
     type = "update_statement"
     match_grammar = Sequence(
         "UPDATE",
+        Indent,
         OneOf(
             Ref("TableReferenceSegment"),
             Ref("FromUpdateClauseSegment"),
@@ -700,6 +701,7 @@ class UpdateStatementSegment(BaseSegment):
                 Ref("FromUpdateClauseSegment"),
             ),
         ),
+        Dedent,
         Ref("SetClauseListSegment"),
         Ref("WhereClauseSegment", optional=True),
     )
