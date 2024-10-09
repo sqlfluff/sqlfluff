@@ -11,8 +11,10 @@ from sqlfluff.core.parser import (
     Bracketed,
     CodeSegment,
     CommentSegment,
+    Dedent,
     Delimited,
     IdentifierSegment,
+    Indent,
     LiteralSegment,
     Matchable,
     NewlineSegment,
@@ -598,6 +600,7 @@ class ReturningClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "RETURNING",
+        Indent,
         Delimited(
             Ref("WildcardExpressionSegment"),
             Sequence(
@@ -605,6 +608,7 @@ class ReturningClauseSegment(BaseSegment):
                 Ref("AliasExpressionSegment", optional=True),
             ),
         ),
+        Dedent,
     )
 
 
@@ -999,9 +1003,12 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
             ),
             optional=True,
         ),
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("AliasExpressionSegment", optional=True),
+        Dedent,
         "SET",
+        Indent,
         Delimited(
             Sequence(
                 OneOf(
@@ -1012,6 +1019,7 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
                 Ref("ExpressionSegment"),
             ),
         ),
+        Dedent,
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("ReturningClauseSegment", optional=True),
