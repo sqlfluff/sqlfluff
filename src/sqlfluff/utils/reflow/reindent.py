@@ -356,6 +356,10 @@ def _revise_templated_lines(
                     )[::-1]:
                         # Minus because we're going backward.
                         indent_balance -= indent_val
+                        reflow_logger.debug(
+                            "      Backward look. Adding Step: %s",
+                            indent_balance,
+                        )
                         steps.add(indent_balance)
                 # if it's anything other than a blank placeholder, break.
                 # NOTE: We still need the forward version of this.
@@ -380,6 +384,10 @@ def _revise_templated_lines(
             ):
                 # Positive because we're going forward.
                 indent_balance += indent_val
+                reflow_logger.debug(
+                    "      Forward look. Adding Step: %s",
+                    indent_balance,
+                )
                 steps.add(indent_balance)
 
             # NOTE: Edge case for consecutive blocks of the same type.
@@ -571,6 +579,22 @@ def _revise_templated_lines(
                 # MUTATION
                 lines[idx].initial_indent_balance -= 1
         else:
+            if len(overlap) > 1:
+                reflow_logger.debug(
+                    "    Case 2 (precheck): Overlap: %s. Checking inner groups.",
+                    overlap,
+                )
+                # We've got more than one option. To help narrow down, see whether
+                # we should nest outside other inner groups.
+                check_lines = [group_lines[0] + 1, group_lines[-1] - 1]
+                for inner_uuid in sorted_group_indices[:group_idx]:
+                    for idx in check_lines:
+                        if idx in grouped[inner_uuid]:
+                            reflow_logger.debug(
+                                "      Discarding %s.",
+                                lines[idx].initial_indent_balance,
+                            )
+                            overlap.discard(lines[idx].initial_indent_balance)
             best_indent = max(overlap)
             reflow_logger.debug(
                 "    Case 2: Best: %s, Overlap: %s", best_indent, overlap
