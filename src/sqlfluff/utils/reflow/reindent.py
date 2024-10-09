@@ -26,7 +26,7 @@ from sqlfluff.core.parser import (
     WhitespaceSegment,
 )
 from sqlfluff.core.parser.segments import SourceFix
-from sqlfluff.core.parser.segments.meta import Indent, MetaSegment, TemplateSegment
+from sqlfluff.core.parser.segments.meta import MetaSegment, TemplateSegment
 from sqlfluff.core.rules import LintFix, LintResult
 from sqlfluff.utils.reflow.elements import (
     IndentStats,
@@ -415,13 +415,10 @@ def _revise_templated_lines(
                             break
                         continue
                     # Otherwise it's a point.
-                    for seg in elem.segments:
-                        if not seg.is_type("indent"):
-                            continue
-                        indent_seg = cast(Indent, seg)
-                        if indent_seg.block_uuid:
-                            continue
-                        _forward_indent_balance += indent_seg.indent_val
+                    for indent_val in elem.get_indent_segment_vals(
+                        exclude_block_indents=True
+                    ):
+                        _forward_indent_balance += indent_val
                         reflow_logger.debug(
                             "      Precedes block. Adding Step: %s",
                             _forward_indent_balance,
