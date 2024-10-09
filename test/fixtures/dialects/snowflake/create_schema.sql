@@ -5,3 +5,5 @@ create schema mytestschema comment = 'My test schema.';
 create schema mytestschema tag (tag1 = 'foo', tag2 = 'bar');
 create schema mytestschema with managed access;
 create transient schema if not exists mytestschema default_ddl_collation = 'de_DE';
+CREATE SCHEMA MYDB.MYSCHEMA COMMENT = "Space for landing my data";
+CREATE SCHEMA IF NOT EXISTS MYDB.MYSCHEMA COMMENT = "Space for landing my data";

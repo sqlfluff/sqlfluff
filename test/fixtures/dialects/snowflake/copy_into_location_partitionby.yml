@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 31e6dc8d20a831630c5a425d0450f5cc3f2825f331b37e0c8afe2ed856b403a2
+_hash: 8db526b7bbcd6ab13070713faa15146daedffa07e9deb1f030150fa57f974495
 file:
   statement:
     copy_into_location_statement:
@@ -77,11 +77,10 @@ file:
               raw_comparison_operator: '='
             file_type: parquet
           end_bracket: )
-    - copy_options:
-        keyword: max_file_size
-        comparison_operator:
-          raw_comparison_operator: '='
-        numeric_literal: '32000000'
+    - keyword: max_file_size
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '32000000'
     - keyword: header
     - comparison_operator:
         raw_comparison_operator: '='

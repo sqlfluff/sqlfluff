@@ -186,3 +186,5 @@ We recommend only using this configuration approach for configuration that
 applies to one file in isolation. For configuration changes for areas of
 a project or for whole projects we recommend :ref:`nesting` of configuration
 files.
+
+This syntax is very similar to the method for :ref:`inline_ignoring_errors`.

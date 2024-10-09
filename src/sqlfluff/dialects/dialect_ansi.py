@@ -122,7 +122,7 @@ ansi_dialect.set_lexer_matchers(
         ),
         RegexLexer(
             "double_quote",
-            r'"([^"\\]|\\.)*"',
+            r'"(""|[^"\\]|\\.)*"',
             CodeSegment,
             segment_kwargs={
                 "quoted_value": (r'"((?:[^"\\]|\\.)*)"', 1),
@@ -3709,10 +3709,12 @@ class UpdateStatementSegment(BaseSegment):
     type = "update_statement"
     match_grammar: Matchable = Sequence(
         "UPDATE",
+        Indent,
         Ref("TableReferenceSegment"),
         # SET is not a reserved word in all dialects (e.g. RedShift)
         # So specifically exclude as an allowed implicit alias to avoid parsing errors
         Ref("AliasExpressionSegment", exclude=Ref.keyword("SET"), optional=True),
+        Dedent,
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
