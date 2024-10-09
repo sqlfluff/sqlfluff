@@ -112,7 +112,7 @@ postgres_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "json_operator",
-            r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
+            r"->>?|#>>?|@[>@?]|<@|\?[|&]?|#-",
             SymbolSegment,
         ),
         # r"|".join(
