@@ -581,7 +581,8 @@ def _revise_templated_lines(
         else:
             if len(overlap) > 1:
                 reflow_logger.debug(
-                    "    Case 2 (precheck): Overlap: %s. Checking inner groups.",
+                    "    Case 2 (precheck): Overlap: %s. Checking lines on the "
+                    "immediate inside to check nesting.",
                     overlap,
                 )
                 # We've got more than one option. To help narrow down, see whether
