@@ -382,3 +382,17 @@ test_fail_snowflake_semi_structured_cast_4453:
     rules:
       convention.casting_style:
         preferred_type_casting_style: cast
+
+test_pass_macro_cast:
+  # If a cast is in a templated section, it shouldn't
+  # mean the ones in the file are inconsistent.
+  pass_str: |
+    {% macro cast_macro(col) %}
+        CAST(col as int)
+    {% endmacro %}
+
+    select
+        a,
+        {{ cast_macro('b') }},
+        c::date as d
+    from tbl
