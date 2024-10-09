@@ -585,16 +585,17 @@ def _revise_templated_lines(
                     overlap,
                 )
                 # We've got more than one option. To help narrow down, see whether
-                # we should nest outside other inner groups.
+                # we we can net outside the lines immediately inside.
                 check_lines = [group_lines[0] + 1, group_lines[-1] - 1]
-                for inner_uuid in sorted_group_indices[:group_idx]:
-                    for idx in check_lines:
-                        if idx in grouped[inner_uuid]:
-                            reflow_logger.debug(
-                                "      Discarding %s.",
-                                lines[idx].initial_indent_balance,
-                            )
-                            overlap.discard(lines[idx].initial_indent_balance)
+                for idx in check_lines:
+                    # NOTE: It's important here that we've already called
+                    # _revise_skipped_source_lines. We don't want to take
+                    # them into account here as that will throw us off.
+                    reflow_logger.debug(
+                        "      Discarding %s.",
+                        lines[idx].initial_indent_balance,
+                    )
+                    overlap.discard(lines[idx].initial_indent_balance)
             best_indent = max(overlap)
             reflow_logger.debug(
                 "    Case 2: Best: %s, Overlap: %s", best_indent, overlap
@@ -1663,9 +1664,13 @@ def lint_indent_points(
         elements, allow_implicit_indents=allow_implicit_indents
     )
 
-    # Revise templated indents
-    _revise_templated_lines(lines, elements)
+    # Revise templated indents.
+    # NOTE: There's a small dependency that we should make sure we remove
+    # any "skipped source" lines before revising the templated lines in the
+    # second step. That's because those "skipped source" lines can throw
+    # off the detection algorithm.
     _revise_skipped_source_lines(lines, elements)
+    _revise_templated_lines(lines, elements)
     # Revise comment indents
     _revise_comment_lines(lines, elements, ignore_comment_lines=ignore_comment_lines)
 
