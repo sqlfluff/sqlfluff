@@ -102,7 +102,8 @@ class ReflowElement:
     def is_all_unrendered(self) -> bool:
         """Return whether this element is all unrendered.
 
-        Returns True if contains only whitespace, indents, template loops or placeholders.
+        Returns True if contains only whitespace, indents, template loops
+        or placeholders.
 
         Note:
         * ReflowBlocks will contain the placeholders and loops
