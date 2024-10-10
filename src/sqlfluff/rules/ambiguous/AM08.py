@@ -143,7 +143,9 @@ class Rule_AM08(BaseRule):
         if maybe_select_stmt is None:
             return None
         select_stmt, _ = maybe_select_stmt
-        assert select_stmt.is_type("select_statement")
+        assert select_stmt.is_type(
+            "select_statement", "update_statement", "delete_statement"
+        )
 
         return select_stmt
 
