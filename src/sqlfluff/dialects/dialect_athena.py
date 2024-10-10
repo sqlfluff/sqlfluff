@@ -214,7 +214,13 @@ athena_dialect.add(
         type="quoted_identifier",
         casefold=str.lower,
     ),
-    DatetimeWithTZSegment=Sequence(OneOf("TIMESTAMP", "TIME"), "WITH", "TIME", "ZONE"),
+    DatetimeWithTZSegment=Sequence(
+        OneOf("TIMESTAMP", "TIME"),
+        Bracketed(Ref("NumericLiteralSegment"), optional=True),
+        "WITH",
+        "TIME",
+        "ZONE",
+    ),
 )
 
 athena_dialect.replace(
