@@ -7,9 +7,13 @@ import pytest
 from sqlfluff import lint
 from sqlfluff.core.plugin.host import get_plugin_manager
 
-KEYWORD_ANTI = re.compile(r"    \*\*Anti-pattern\*\*")
-KEYWORD_BEST = re.compile(r"    \*\*Best practice\*\*")
-KEYWORD_CODE_BLOCK = re.compile(r"\n    \.\. code-block:: (sql|jinja)\n")
+# NOTE: python 3.13 treats docstring whitespace differently to previous
+# versions. Not critical for rendering, but does affect how we test for
+# content here.
+# https://docs.python.org/3.13/whatsnew/3.13.html#other-language-changes
+KEYWORD_ANTI = re.compile(r"\*\*Anti-pattern\*\*")
+KEYWORD_BEST = re.compile(r"\*\*Best practice\*\*")
+KEYWORD_CODE_BLOCK = re.compile(r"\.\. code-block:: (sql|jinja)\n")
 
 
 @pytest.mark.parametrize(
@@ -36,8 +40,12 @@ def test_keyword_anti_before_best():
     for plugin_rules in get_plugin_manager().hook.get_rules():
         for rule in plugin_rules:
             if rule._check_docstring is True:
-                best_pos = KEYWORD_BEST.search(rule.__doc__).start()
-                anti_pos = KEYWORD_ANTI.search(rule.__doc__).start()
+                best_match = KEYWORD_BEST.search(rule.__doc__)
+                anti_match = KEYWORD_ANTI.search(rule.__doc__)
+                assert best_match
+                assert anti_match
+                best_pos = best_match.start()
+                anti_pos = anti_match.start()
                 assert anti_pos < best_pos, (
                     f"{rule.__name__} keyword {KEYWORD_BEST} appears before "
                     f"{KEYWORD_ANTI}"
