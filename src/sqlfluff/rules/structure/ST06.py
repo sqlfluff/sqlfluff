@@ -97,14 +97,14 @@ class Rule_ST06(BaseRule):
             ):
                 return None
 
-        # CTE is order-sensitive only if CTE is referenced in set expression
+        # CTE is order-sensitive only if CTE is referenced as SELECT * in set expression
         for seg in reversed(context.parent_stack):
             if seg.is_type("common_table_expression"):
                 cte_identifier = seg.get_child("identifier")
                 assert cte_identifier is not None
                 maybe_with_compound_statement = seg.get_parent()
                 if maybe_with_compound_statement is None:
-                    break
+                    break  # pragma: no cover
                 with_compound_statement, _ = maybe_with_compound_statement
                 for ref in with_compound_statement.recursive_crawl("table_reference"):
                     if ref.raw_upper == cte_identifier.raw_upper:
@@ -113,7 +113,20 @@ class Rule_ST06(BaseRule):
                             path_step.segment.is_type("set_expression")
                             for path_step in path
                         ):
-                            return None
+                            select_statements = [
+                                path_step.segment
+                                for path_step in path
+                                if path_step.segment.is_type(
+                                    "select_statement",
+                                    "unordered_select_statement_segment",
+                                )
+                            ]
+                            if any(
+                                "wildcard_expression"
+                                in select_statement.descendant_type_set
+                                for select_statement in select_statements
+                            ):
+                                return None
 
         select_clause_segment = context.segment
         select_target_elements = context.segment.get_children("select_clause_element")
