@@ -2263,6 +2263,9 @@ ansi_dialect.add(
                             "FunctionSegment"
                         ),  # WHERE (a, substr(b,1,3)) IN (select c,d FROM...)
                         Ref("LocalAliasSegment"),  # WHERE (LOCAL.a, LOCAL.b) IN (...)
+                        Ref(
+                            "ExpressionSegment"
+                        ),  # SELECT (1*1, 2) IN (STRUCT(1 AS a, 2 AS b));
                     ),
                 ),
                 parse_mode=ParseMode.GREEDY,
