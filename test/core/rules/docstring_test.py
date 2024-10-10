@@ -7,9 +7,13 @@ import pytest
 from sqlfluff import lint
 from sqlfluff.core.plugin.host import get_plugin_manager
 
+# NOTE: python 3.13 treats docstring whitespace differently to previous
+# versions. Not critical for rendering, but does affect how we test for
+# content here.
+# https://docs.python.org/3.13/whatsnew/3.13.html#other-language-changes
 KEYWORD_ANTI = re.compile(r"\*\*Anti-pattern\*\*")
 KEYWORD_BEST = re.compile(r"\*\*Best practice\*\*")
-KEYWORD_CODE_BLOCK = re.compile(r"\n\.\. code-block:: (sql|jinja)\n")
+KEYWORD_CODE_BLOCK = re.compile(r"\.\. code-block:: (sql|jinja)\n")
 
 
 @pytest.mark.parametrize(
