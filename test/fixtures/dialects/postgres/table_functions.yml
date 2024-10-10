@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ff47a1913e0a5d7ef2272660de07f3c6e23aebf80fb751f498cc3a44457e2780
+_hash: 44e5601cc593b38c3a1d0743827b4ea56cae885023b0c0767d1e4cd33b2bf217
 file:
 - statement:
     select_statement:
@@ -179,15 +179,14 @@ file:
               function_name_identifier: make_interval
             function_contents:
               bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    naked_identifier: mins
-              - expression:
+                start_bracket: (
+                named_argument:
+                  naked_identifier: mins
                   assignment_operator: :=
-                  column_reference:
-                    naked_identifier: activity_dur_mnt
-              - end_bracket: )
+                  expression:
+                    column_reference:
+                      naked_identifier: activity_dur_mnt
+                end_bracket: )
         - keyword: BETWEEN
         - cast_expression:
             quoted_literal: "'2024-01-07T00:00:00'"

@@ -28,6 +28,9 @@ greenplum:
 hive:
   - "/(hive)/i"
 
+mariadb:
+  - "/(mariadb)/i"
+
 materialize:
   - "/(materialize)/i"
 

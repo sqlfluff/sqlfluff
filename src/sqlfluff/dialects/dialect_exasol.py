@@ -485,9 +485,17 @@ class ValuesRangeClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "VALUES",
         "BETWEEN",
-        Ref("NumericLiteralSegment"),
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("BareFunctionSegment"),
+            Ref("FunctionSegment"),
+        ),
         "AND",
-        Ref("NumericLiteralSegment"),
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("BareFunctionSegment"),
+            Ref("FunctionSegment"),
+        ),
         Sequence("WITH", "STEP", Ref("NumericLiteralSegment"), optional=True),
     )
 
@@ -1563,7 +1571,9 @@ class UpdateStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "UPDATE",
+        Indent,
         OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
+        Dedent,
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),

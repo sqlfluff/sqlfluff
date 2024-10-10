@@ -12,7 +12,7 @@ import stat
 import tempfile
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, Dict, Iterable, List, NamedTuple, Optional, Tuple, Type, Union
+from typing import Dict, Iterable, List, NamedTuple, Optional, Tuple, Type, Union
 
 from sqlfluff.core.errors import (
     CheckTuple,
@@ -21,6 +21,7 @@ from sqlfluff.core.errors import (
     SQLParseError,
     SQLTemplaterError,
 )
+from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.linter.patch import FixPatch, generate_source_patches
 
 # Classes needed only for type checking
@@ -44,7 +45,7 @@ class FileTimings:
     # process this as we wish later.
     rule_timings: List[Tuple[str, str, float]]
 
-    def __repr__(self):  # pragma: no cover
+    def __repr__(self) -> str:  # pragma: no cover
         return "<FileTimings>"
 
     def get_rule_timing_dict(self) -> Dict[str, float]:
@@ -166,12 +167,23 @@ class LintedFile(NamedTuple):
             violations += self.ignore_mask.generate_warnings_for_unused()
         return violations
 
-    def num_violations(self, **kwargs) -> int:
+    def num_violations(
+        self,
+        types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
+        filter_ignore: bool = True,
+        filter_warning: bool = True,
+        fixable: Optional[bool] = None,
+    ) -> int:
         """Count the number of violations.
 
         Optionally now with filters.
         """
-        violations = self.get_violations(**kwargs)
+        violations = self.get_violations(
+            types=types,
+            filter_ignore=filter_ignore,
+            filter_warning=filter_warning,
+            fixable=fixable,
+        )
         return len(violations)
 
     def is_clean(self) -> bool:
@@ -369,7 +381,9 @@ class LintedFile(NamedTuple):
                 str_buff += raw_source_string[source_slice]
         return str_buff
 
-    def persist_tree(self, suffix: str = "", formatter: Any = None) -> bool:
+    def persist_tree(
+        self, suffix: str = "", formatter: Optional[FormatterInterface] = None
+    ) -> bool:
         """Persist changes to the given path."""
         if self.num_violations(fixable=True) > 0:
             write_buff, success = self.fix_string()
@@ -398,7 +412,7 @@ class LintedFile(NamedTuple):
     @staticmethod
     def _safe_create_replace_file(
         input_path: str, output_path: str, write_buff: str, encoding: str
-    ):
+    ) -> None:
         # Write to a temporary file first, so in case of encoding or other
         # issues, we don't delete or corrupt the user's existing file.
 

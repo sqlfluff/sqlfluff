@@ -11,6 +11,7 @@ Teradata Database SQL Data Definition Language Syntax and Examples
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    AnySetOf,
     Anything,
     BaseSegment,
     Bracketed,
@@ -644,9 +645,11 @@ class CreateTableStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
-        # Adding Teradata specific [MULTISET| SET]
-        OneOf("SET", "MULTISET", optional=True),
-        OneOf(Sequence("GLOBAL", "TEMPORARY"), "VOLATILE", optional=True),
+        AnySetOf(
+            OneOf("SET", "MULTISET"),
+            OneOf(Sequence("GLOBAL", "TEMPORARY"), "VOLATILE"),
+            optional=True,
+        ),
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
@@ -689,6 +692,7 @@ class UpdateStatementSegment(BaseSegment):
     type = "update_statement"
     match_grammar = Sequence(
         "UPDATE",
+        Indent,
         OneOf(
             Ref("TableReferenceSegment"),
             Ref("FromUpdateClauseSegment"),
@@ -697,6 +701,7 @@ class UpdateStatementSegment(BaseSegment):
                 Ref("FromUpdateClauseSegment"),
             ),
         ),
+        Dedent,
         Ref("SetClauseListSegment"),
         Ref("WhereClauseSegment", optional=True),
     )

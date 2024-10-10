@@ -380,21 +380,6 @@ class ColumnsExpressionFunctionContentsSegment(
     )
 
 
-class NamedArgumentSegment(postgres.NamedArgumentSegment):
-    """Named argument to a function.
-
-    Some functions may use a `walrus operator`.
-    e.g. https://duckdb.org/docs/sql/functions/struct#struct_packname--any-
-    """
-
-    type = "named_argument"
-    match_grammar = Sequence(
-        Ref("NakedIdentifierSegment"),
-        OneOf(Ref("RightArrowSegment"), Ref("WalrusOperatorSegment")),
-        Ref("ExpressionSegment"),
-    )
-
-
 class LambdaExpressionSegment(BaseSegment):
     """Lambda function used in a function or columns expression.
 
@@ -773,6 +758,22 @@ class CreateFunctionStatementSegment(postgres.CreateFunctionStatementSegment):
     )
 
 
+class DropFunctionStatementSegment(postgres.DropFunctionStatementSegment):
+    """A `DROP MACRO` or `DROP FUNCTION` statement.
+
+    https://duckdb.org/docs/sql/statements/drop.html
+    """
+
+    match_grammar = Sequence(
+        "DROP",
+        OneOf("MACRO", "FUNCTION"),
+        Ref.keyword("TABLE", optional=True),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
 class CreateTypeStatementSegment(postgres.CreateTypeStatementSegment):
     """A `CREATE TYPE` statement.
 
@@ -782,10 +783,10 @@ class CreateTypeStatementSegment(postgres.CreateTypeStatementSegment):
     match_grammar = Sequence(
         "CREATE",
         "TYPE",
-        Ref("DatatypeIdentifierSegment"),
+        Ref("DatatypeSegment"),
         "AS",
         OneOf(
-            Ref("DatatypeIdentifierSegment"),
+            Ref("DatatypeSegment"),
             Sequence("ENUM", Bracketed(Delimited(Ref("QuotedLiteralSegment")))),
             Ref("StructTypeSegment"),
             Sequence("UNION", Ref("StructTypeSchemaSegment")),

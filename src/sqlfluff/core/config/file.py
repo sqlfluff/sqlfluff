@@ -17,11 +17,11 @@ from typing import Optional
 
 from sqlfluff.core.config.ini import load_ini_string
 from sqlfluff.core.config.toml import load_toml_file_config
-from sqlfluff.core.config.types import ConfigMappingType
 from sqlfluff.core.config.validate import validate_config_dict
 from sqlfluff.core.helpers.string import (
     split_comma_separated_string,
 )
+from sqlfluff.core.types import ConfigMappingType
 
 if sys.version_info >= (3, 9):
     # Explicitly rename so that mypy is happy re-exporting it for other
@@ -37,7 +37,11 @@ else:  # pragma: no cover
     cache = lru_cache(maxsize=None)
 
 
-COMMA_SEPARATED_PATH_KEYS = ("load_macros_from_path", "loader_search_path")
+COMMA_SEPARATED_PATH_KEYS = (
+    "load_macros_from_path",
+    "loader_search_path",
+    "exclude_macros_from_path",
+)
 RESOLVE_PATH_SUFFIXES = ("_path", "_dir")
 
 

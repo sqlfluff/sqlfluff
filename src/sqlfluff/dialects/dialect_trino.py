@@ -69,6 +69,7 @@ trino_dialect.insert_lexer_matchers(
 
 trino_dialect.add(
     RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
+    LambdaArrowSegment=StringParser("->", SymbolSegment, type="lambda_arrow"),
     StartAngleBracketSegment=StringParser(
         "<", SymbolSegment, type="start_angle_bracket"
     ),
@@ -233,6 +234,10 @@ trino_dialect.replace(
     # match ANSI's naked identifier casefold, trino is case-insensitive.
     QuotedIdentifierSegment=TypedParser(
         "double_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
+    ),
+    FunctionContentsExpressionGrammar=OneOf(
+        Ref("LambdaExpressionSegment"),
+        Ref("ExpressionSegment"),
     ),
 )
 
@@ -574,4 +579,18 @@ class CommentOnStatementSegment(BaseSegment):
             ),
             Sequence("IS", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
         ),
+    )
+
+
+class LambdaExpressionSegment(BaseSegment):
+    """Lambda function used in a function."""
+
+    type = "lambda_function"
+    match_grammar = Sequence(
+        OneOf(
+            Ref("ParameterNameSegment"),
+            Bracketed(Delimited(Ref("ParameterNameSegment"))),
+        ),
+        Ref("LambdaArrowSegment"),
+        Ref("ExpressionSegment"),
     )

@@ -8,7 +8,7 @@ import click
 from tqdm import tqdm
 
 from sqlfluff.core import FluffConfig
-from sqlfluff.core.enums import FormatType
+from sqlfluff.core.types import FormatType
 
 
 class OutputStream(abc.ABC):

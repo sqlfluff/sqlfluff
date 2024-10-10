@@ -74,3 +74,31 @@ def test__rules__order_by(project_dir, dbt_fluff_config):  # noqa
 
     violations = lnt.check_tuples()
     assert len(violations) == 0
+
+
+def test__rules__indent_oscillate(project_dir, dbt_fluff_config):  # noqa
+    """Verify that we don't get oscillations with LT02 and dbt."""
+    # This *should* be the wrong format
+    path_1 = "models/my_new_project/indent_loop_4.sql"
+    # This *should* be the correct format
+    path_2 = "models/my_new_project/indent_loop_8.sql"
+    # Get the content of the latter
+    with open(os.path.join(project_dir, path_2), "r") as f:
+        path_2_content = f.read()
+    linter = Linter(
+        config=FluffConfig(configs=dbt_fluff_config, overrides={"rules": "LT02"})
+    )
+    # Check the wrong one first (path_1)
+    linted_dir = linter.lint_path(os.path.join(project_dir, path_1), fix=True)
+    linted_file = linted_dir.files[0]
+    assert linted_file.check_tuples() == [("LT02", 6, 1)]
+    fixed_file_1, _ = linted_file.fix_string()
+    assert (
+        fixed_file_1 == path_2_content
+    ), "indent_loop_4.sql should match indent_loop_8.sql post fix"
+    # Check the correct one second, we shouldn't get any issues.
+    # NOTE: This also checks that the fixed version of the first one wouldn't
+    # change again.
+    linted_dir = linter.lint_path(os.path.join(project_dir, path_2), fix=True)
+    linted_file = linted_dir.files[0]
+    assert linted_file.check_tuples() == []  # Should find no issues.

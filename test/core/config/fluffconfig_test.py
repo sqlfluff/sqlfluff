@@ -60,7 +60,7 @@ def test__config__nested_config_tests():
         config=FluffConfig(overrides=dict(exclude_rules="CP02", dialect="ansi"))
     )
     lnt = lntr.lint_path("test/fixtures/config/inheritance_b")
-    violations = lnt.check_tuples(by_path=True)
+    violations = lnt.check_tuples_by_path()
     for k in violations:
         if k.endswith("nested\\example.sql"):
             # CP01 is enabled in the .sqlfluff file and not excluded.
@@ -85,17 +85,27 @@ def test__config__nested_config_tests():
             assert "LT02" not in [c[0] for c in violations[k]]
 
 
-def test__config__templater_selection():
+@pytest.mark.parametrize(
+    "templater_name,templater_class,raises_error",
+    [
+        ("raw", RawTemplater, False),
+        ("jinja", JinjaTemplater, False),
+        ("python", PythonTemplater, False),
+        ("placeholder", PlaceholderTemplater, False),
+        ("afefhlsakufe", None, True),
+        ("", None, True),
+        (None, None, True),
+    ],
+)
+def test__config__templater_selection(templater_name, templater_class, raises_error):
     """Test template selection by name."""
-    cfg = FluffConfig(overrides={"dialect": "ansi"})
-    assert cfg.get_templater().__class__ is JinjaTemplater
-    assert cfg.get_templater("raw").__class__ is RawTemplater
-    assert cfg.get_templater("python").__class__ is PythonTemplater
-    assert cfg.get_templater("jinja").__class__ is JinjaTemplater
-    assert cfg.get_templater("placeholder").__class__ is PlaceholderTemplater
-
-    with pytest.raises(ValueError):
-        cfg.get_templater("afefhlsakufe")
+    if raises_error:
+        with pytest.raises(SQLFluffUserError):
+            FluffConfig(overrides={"dialect": "ansi", "templater": templater_name})
+    else:
+        cfg = FluffConfig(overrides={"dialect": "ansi", "templater": templater_name})
+        assert cfg.get_templater().__class__ is templater_class
+        assert cfg._configs["core"]["templater_obj"].__class__ is templater_class
 
 
 def test__config__glob_exclude_config_tests():
@@ -106,7 +116,7 @@ def test__config__glob_exclude_config_tests():
     """
     lntr = Linter(config=FluffConfig.from_path("test/fixtures/config/glob_exclude"))
     lnt = lntr.lint_path("test/fixtures/config/glob_exclude/test.sql")
-    violations = lnt.check_tuples(by_path=True)
+    violations = lnt.check_tuples_by_path()
     for k in violations:
         assert ("AM04", 12, 1) in violations[k]
         assert "RF02" not in [c[0] for c in violations[k]]
@@ -123,7 +133,7 @@ def test__config__glob_include_config_tests():
     """
     lntr = Linter(config=FluffConfig.from_path("test/fixtures/config/glob_include"))
     lnt = lntr.lint_path("test/fixtures/config/glob_include/test.sql")
-    violations = lnt.check_tuples(by_path=True)
+    violations = lnt.check_tuples_by_path()
     for k in violations:
         assert ("LT13", 1, 1) in violations[k]
         assert ("AM05", 14, 1) in violations[k]
@@ -141,7 +151,7 @@ def test__config__rules_set_to_none():
         config=FluffConfig.from_path("test/fixtures/config/rules_set_to_none")
     )
     lnt = lntr.lint_path("test/fixtures/config/rules_set_to_none/test.sql")
-    violations = lnt.check_tuples(by_path=True)
+    violations = lnt.check_tuples_by_path()
     for k in violations:
         assert ("LT13", 1, 1) in violations[k]
         assert ("AM04", 12, 1) in violations[k]
@@ -154,7 +164,7 @@ def test__config__rules_group_with_exclude():
         config=FluffConfig.from_path("test/fixtures/config/rules_group_with_exclude")
     )
     lnt = lntr.lint_path("test/fixtures/config/rules_group_with_exclude/test.sql")
-    violations = lnt.check_tuples(by_path=True)
+    violations = lnt.check_tuples_by_path()
     for k in violations:
         assert ("CP01", 15, 1) in violations[k]
         assert "LT04" not in [c[0] for c in violations[k]]

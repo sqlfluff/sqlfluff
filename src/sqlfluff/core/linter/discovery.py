@@ -134,8 +134,8 @@ def _match_file_extension(filepath: str, valid_extensions: Sequence[str]) -> boo
     Returns:
         True if the file has an extension in `valid_extensions`.
     """
-    _, file_ext = os.path.splitext(filepath)
-    return file_ext.lower() in valid_extensions
+    filepath = filepath.lower()
+    return any(filepath.endswith(ext) for ext in valid_extensions)
 
 
 def _process_exact_path(

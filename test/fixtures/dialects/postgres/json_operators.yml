@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 523aa9b63c310f2a06987dffad7a60892a46e43c765efe10a96cb82ce3fd1bff
+_hash: 947fce13543180fe3b7fce322f22c12f2f6a180eaa92f5e0ad5a6b6db113d2a6
 file:
 - statement:
     select_statement:
@@ -129,4 +129,112 @@ file:
                 keyword: json
             binary_operator: '#>>'
             quoted_literal: "'{a,2}'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+          - cast_expression:
+              quoted_literal: "'{\"a\":1, \"b\":2}'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+          - binary_operator: '@>'
+          - cast_expression:
+              quoted_literal: "'{\"b\":2}'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - cast_expression:
+              quoted_literal: "'{\"b\":2}'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+          - binary_operator: <@
+          - cast_expression:
+              quoted_literal: "'{\"a\":1, \"b\":2}'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'{\"a\":1, \"b\":2}'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+            binary_operator: '?'
+            quoted_literal: "'b'"
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'{\"a\":1, \"b\":2, \"c\":3}'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+            binary_operator: ?|
+            typed_array_literal:
+              array_type:
+                keyword: array
+              array_literal:
+              - start_square_bracket: '['
+              - quoted_literal: "'b'"
+              - comma: ','
+              - quoted_literal: "'d'"
+              - end_square_bracket: ']'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'[\"a\", \"b\", \"c\"]'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+            binary_operator: ?&
+            typed_array_literal:
+              array_type:
+                keyword: array
+              array_literal:
+              - start_square_bracket: '['
+              - quoted_literal: "'a'"
+              - comma: ','
+              - quoted_literal: "'b'"
+              - end_square_bracket: ']'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'[\"a\", {\"b\":1}]'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+            binary_operator: '#-'
+            quoted_literal: "'{1,b}'"
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'{\"a\":[1,2,3,4,5]}'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+            binary_operator: '@?'
+            quoted_literal: "'$.a[*] ? (@ > 2)'"
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'{\"a\":[1,2,3,4,5]}'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+            binary_operator: '@@'
+            quoted_literal: "'$.a[*] > 2'"
 - statement_terminator: ;

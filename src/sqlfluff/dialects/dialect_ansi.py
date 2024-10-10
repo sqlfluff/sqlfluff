@@ -122,7 +122,7 @@ ansi_dialect.set_lexer_matchers(
         ),
         RegexLexer(
             "double_quote",
-            r'"([^"\\]|\\.)*"',
+            r'"(""|[^"\\]|\\.)*"',
             CodeSegment,
             segment_kwargs={
                 "quoted_value": (r'"((?:[^"\\]|\\.)*)"', 1),
@@ -991,6 +991,7 @@ class DatatypeSegment(BaseSegment):
                 optional=True,
             ),
         ),
+        Ref("ArrayTypeSegment"),
     )
 
 
@@ -1561,6 +1562,7 @@ class FromExpressionElementSegment(BaseSegment):
     _base_from_expression_element = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
+        Ref("TemporalQuerySegment", optional=True),
         Ref(
             "AliasExpressionSegment",
             exclude=OneOf(
@@ -1617,6 +1619,10 @@ class FromExpressionElementSegment(BaseSegment):
 
         # Handle any aliases
         alias_expression = self.get_child("alias_expression")
+        if not alias_expression:  # pragma: no cover
+            _bracketed = self.get_child("bracketed")
+            if _bracketed:
+                alias_expression = _bracketed.get_child("alias_expression")
         if alias_expression:
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
@@ -2257,6 +2263,9 @@ ansi_dialect.add(
                             "FunctionSegment"
                         ),  # WHERE (a, substr(b,1,3)) IN (select c,d FROM...)
                         Ref("LocalAliasSegment"),  # WHERE (LOCAL.a, LOCAL.b) IN (...)
+                        Ref(
+                            "ExpressionSegment"
+                        ),  # SELECT (1*1, 2) IN (STRUCT(1 AS a, 2 AS b));
                     ),
                 ),
                 parse_mode=ParseMode.GREEDY,
@@ -2485,7 +2494,7 @@ class GroupingSetsClauseSegment(BaseSegment):
 
     type = "grouping_sets_clause"
 
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "GROUPING",
         "SETS",
         Bracketed(
@@ -2540,6 +2549,7 @@ class GroupByClauseSegment(BaseSegment):
         Indent,
         OneOf(
             "ALL",
+            Ref("GroupingSetsClauseSegment"),
             Ref("CubeRollupClauseSegment"),
             # We could replace this next bit with a GroupingExpressionList
             # reference (renaming that to a more generic name), to avoid
@@ -3702,10 +3712,12 @@ class UpdateStatementSegment(BaseSegment):
     type = "update_statement"
     match_grammar: Matchable = Sequence(
         "UPDATE",
+        Indent,
         Ref("TableReferenceSegment"),
         # SET is not a reserved word in all dialects (e.g. RedShift)
         # So specifically exclude as an allowed implicit alias to avoid parsing errors
         Ref("AliasExpressionSegment", exclude=Ref.keyword("SET"), optional=True),
+        Dedent,
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
@@ -4355,6 +4367,17 @@ class SamplingExpressionSegment(BaseSegment):
             optional=True,
         ),
     )
+
+
+class TemporalQuerySegment(BaseSegment):
+    """A segment that allows Temporal Queries to be run.
+
+    https://learn.microsoft.com/en-us/sql/relational-databases/tables/temporal-tables
+    """
+
+    type = "temporal_query"
+
+    match_grammar: Matchable = Nothing()
 
 
 class LocalAliasSegment(BaseSegment):

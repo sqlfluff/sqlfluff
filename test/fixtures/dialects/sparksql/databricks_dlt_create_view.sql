@@ -22,3 +22,7 @@ AS SELECT
     a,
     b
 FROM live.taxi_raw;
+
+CREATE OR REFRESH MATERIALIZED VIEW temp_table
+AS
+SELECT 1 AS ID;

@@ -9,6 +9,7 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
+    Anything,
     BaseSegment,
     Bracketed,
     CodeSegment,
@@ -243,7 +244,7 @@ snowflake_dialect.add(
         type="semi_structured_element",
     ),
     # Normally, double quotes can't be used for literals. But in a few
-    # cases they can (e.g. Tags).
+    # cases they can (e.g. Tags, Comments).
     DoubleQuotedLiteralSegment=TypedParser(
         "double_quote", LiteralSegment, type="quoted_literal"
     ),
@@ -1727,7 +1728,10 @@ class FromBeforeExpressionSegment(BaseSegment):
 
 
 class FromPivotExpressionSegment(BaseSegment):
-    """A PIVOT expression."""
+    """A PIVOT expression.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/pivot.html
+    """
 
     type = "from_pivot_expression"
     match_grammar = Sequence(
@@ -1737,7 +1741,16 @@ class FromPivotExpressionSegment(BaseSegment):
             "FOR",
             Ref("SingleIdentifierGrammar"),
             "IN",
-            Bracketed(Delimited(Ref("LiteralGrammar"))),
+            Bracketed(
+                OneOf(
+                    Delimited(Ref("LiteralGrammar")),
+                    Sequence("ANY", Ref("OrderByClauseSegment", optional=True)),
+                    Ref("SelectStatementSegment"),
+                )
+            ),
+            Sequence(
+                "DEFAULT", "ON", "NULL", Bracketed(Ref("LiteralGrammar")), optional=True
+            ),
         ),
     )
 
@@ -2080,7 +2093,7 @@ class AlterTableTableColumnActionSegment(BaseSegment):
             "ADD",
             Ref.keyword("COLUMN", optional=True),
             # @TODO: Cannot specify IF NOT EXISTS if also specifying
-            # DEFAULT, AUTOINCREMENT, IDENTITY UNIQUE, PRIMARY KEY, FOREIGN KEY
+            # DEFAULT, AUTOINCREMENT, IDENTITY UNIQUE, PRIMARY KEY, FOREIGN KEY, AS
             Ref("IfNotExistsGrammar", optional=True),
             # Handle Multiple Columns
             Delimited(
@@ -2089,9 +2102,9 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                     Ref("ColumnReferenceSegment"),
                     Ref("DatatypeSegment"),
                     OneOf(
-                        # Default
+                        # Default & AS (virtual columns)
                         Sequence(
-                            "DEFAULT",
+                            OneOf("DEFAULT", "AS"),
                             Ref("ExpressionSegment"),
                         ),
                         # Auto-increment/identity column
@@ -2613,7 +2626,9 @@ class CommentEqualsClauseSegment(BaseSegment):
 
     type = "comment_equals_clause"
     match_grammar = Sequence(
-        "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+        "COMMENT",
+        Ref("EqualsSegment"),
+        OneOf(Ref("QuotedLiteralSegment"), Ref("DoubleQuotedLiteralSegment")),
     )
 
 
@@ -2903,6 +2918,7 @@ class AccessStatementSegment(BaseSegment):
                 "INTEGRATION",
                 "SCHEMA",
                 "ROLE",
+                "USER",
                 Sequence("ALL", "SCHEMAS", "IN", "DATABASE"),
                 Sequence("FUTURE", "SCHEMAS", "IN", "DATABASE"),
                 _schema_object_types,
@@ -3461,6 +3477,7 @@ class CreateFunctionStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
+        OneOf("TEMP", "TEMPORARY", optional=True),
         Sequence("SECURE", optional=True),
         Sequence("AGGREGATE", optional=True),
         "FUNCTION",
@@ -4040,60 +4057,50 @@ class CopyOptionsSegment(BaseSegment):
 
     type = "copy_options"
 
-    match_grammar = OneOf(
-        AnySetOf(
-            Sequence("ON_ERROR", Ref("EqualsSegment"), Ref("CopyOptionOnErrorSegment")),
-            Sequence("SIZE_LIMIT", Ref("EqualsSegment"), Ref("NumericLiteralSegment")),
-            Sequence("PURGE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-            Sequence(
-                "RETURN_FAILED_ONLY", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-            ),
-            Sequence(
-                "MATCH_BY_COLUMN_NAME",
-                Ref("EqualsSegment"),
-                OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE", "NONE"),
-            ),
-            Sequence(
-                "INCLUDE_METADATA",
-                Ref("EqualsSegment"),
-                Bracketed(
-                    Delimited(
-                        Sequence(
-                            Ref("SingleIdentifierGrammar"),
-                            Ref("EqualsSegment"),
-                            OneOf(
-                                "METADATA$FILENAME",
-                                "METADATA$FILE_ROW_NUMBER",
-                                "METADATA$FILE_CONTENT_KEY",
-                                "METADATA$FILE_LAST_MODIFIED",
-                                "METADATA$START_SCAN_TIME",
-                            ),
+    _copy_options_matchables = [
+        Sequence("ON_ERROR", Ref("EqualsSegment"), Ref("CopyOptionOnErrorSegment")),
+        Sequence("SIZE_LIMIT", Ref("EqualsSegment"), Ref("NumericLiteralSegment")),
+        Sequence("PURGE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "RETURN_FAILED_ONLY", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "MATCH_BY_COLUMN_NAME",
+            Ref("EqualsSegment"),
+            OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE", "NONE"),
+        ),
+        Sequence(
+            "INCLUDE_METADATA",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            "METADATA$FILENAME",
+                            "METADATA$FILE_ROW_NUMBER",
+                            "METADATA$FILE_CONTENT_KEY",
+                            "METADATA$FILE_LAST_MODIFIED",
+                            "METADATA$START_SCAN_TIME",
                         ),
-                    )
-                ),
-            ),
-            Sequence(
-                "ENFORCE_LENGTH", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-            ),
-            Sequence(
-                "TRUNCATECOLUMNS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-            ),
-            Sequence("FORCE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-        ),
-        AnySetOf(
-            Sequence("OVERWRITE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-            Sequence("SINGLE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-            Sequence(
-                "MAX_FILE_SIZE", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
-            ),
-            Sequence(
-                "INCLUDE_QUERY_ID", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-            ),
-            Sequence(
-                "DETAILED_OUTPUT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+                    ),
+                )
             ),
         ),
-    )
+        Sequence("ENFORCE_LENGTH", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("TRUNCATECOLUMNS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("FORCE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("OVERWRITE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("SINGLE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("MAX_FILE_SIZE", Ref("EqualsSegment"), Ref("NumericLiteralSegment")),
+        Sequence(
+            "INCLUDE_QUERY_ID", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence("DETAILED_OUTPUT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+    ]
+
+    match_grammar = AnySetOf(*_copy_options_matchables)
 
 
 class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
@@ -4413,6 +4420,17 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 Ref("ConstraintPropertiesSegment"),
                                 Ref("ColumnDefinitionSegment"),
                                 Ref("SingleIdentifierGrammar"),
+                                Sequence(
+                                    Ref("SingleIdentifierGrammar"),
+                                    Ref("DatatypeSegment"),
+                                    Bracketed(
+                                        Anything(), optional=True
+                                    ),  # For types like VARCHAR(100)
+                                    "AS",
+                                    OptionallyBracketed(
+                                        Ref("ExpressionSegment"),
+                                    ),
+                                ),
                             ),
                             Ref("CommentClauseSegment", optional=True),
                         ),
@@ -5934,7 +5952,7 @@ class CopyIntoLocationStatementSegment(BaseSegment):
             "FROM",
             OneOf(
                 Ref("TableReferenceSegment"),
-                Bracketed(Ref("SelectStatementSegment")),
+                Bracketed(Ref("SelectableGrammar")),
             ),
             optional=True,
         ),
@@ -5951,7 +5969,9 @@ class CopyIntoLocationStatementSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("FileFormatSegment"),
             ),
-            Ref("CopyOptionsSegment"),
+            # We explode the CopyOptionsSegments because the AnySetOf may appear in any
+            # order for these other elements as well.
+            *CopyOptionsSegment._copy_options_matchables,
             Sequence(
                 "VALIDATION_MODE",
                 Ref("EqualsSegment"),
@@ -6016,7 +6036,9 @@ class CopyIntoTableStatementSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("FileFormatSegment"),
             ),
-            Ref("CopyOptionsSegment"),
+            # We explode the CopyOptionsSegments because the AnySetOf may appear in any
+            # order for these other elements as well.
+            *CopyOptionsSegment._copy_options_matchables,
         ),
         Sequence(
             "VALIDATION_MODE",
@@ -8205,6 +8227,26 @@ class SetOperatorSegment(ansi.SetOperatorSegment):
             Ref.keyword("ALL", optional=True),
         ),
         "MINUS",
+    )
+
+
+class ArrayTypeSegment(ansi.ArrayTypeSegment):
+    """Prefix for array literals specifying the type."""
+
+    type = "array_type"
+    match_grammar = Sequence(
+        "ARRAY",
+        Ref("ArrayTypeSchemaSegment", optional=True),
+    )
+
+
+class ArrayTypeSchemaSegment(ansi.ArrayTypeSegment):
+    """Prefix for array literals specifying the type."""
+
+    type = "array_type_schema"
+    match_grammar = Bracketed(
+        Ref("DatatypeSegment"),
+        Sequence("NOT", "NULL", optional=True),
     )
 
 

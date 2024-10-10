@@ -7,6 +7,38 @@ test_pass_with_clause_closing_aligned:
         select 1
     ) select * from cte
 
+test_pass_with_clause_closing_aligned_whitespace_consumption_a:
+  pass_str: |
+    with cte as (
+        select 1
+        {{- ' from i_consume_whitespace ' -}}
+    ) select * from cte
+
+test_pass_with_clause_closing_aligned_whitespace_consumption_b:
+  pass_str: |
+    with cte as (
+        select 1
+        {#- I'm a comment which consumes whitespace -#}
+    ) select * from cte
+
+test_pass_with_clause_closing_aligned_whitespace_consumption_c:
+  pass_str: |
+    with cte as (
+        select 1
+        {%- if False -%}{%- endif -%}
+    ) select * from cte
+
+test_fix_with_clause_closing_aligned_whitespace_consumption_d:
+  fail_str: |
+    with cte as (
+        select 1
+        {%- if False -%}{%- endif -%}) select * from cte
+  fix_str: |
+    with cte as (
+        select 1
+        {%- if False -%}{%- endif -%}
+    ) select * from cte
+
 test_pass_with_clause_closing_oneline:
   # with statement oneline
   pass_str: with cte as (select 1) select * from cte

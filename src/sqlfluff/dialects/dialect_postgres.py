@@ -112,7 +112,7 @@ postgres_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "json_operator",
-            r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
+            r"->>?|#>>?|@[>@?]|<@|\?[|&]?|#-",
             SymbolSegment,
         ),
         # r"|".join(
@@ -412,9 +412,9 @@ postgres_dialect.replace(
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
-            # Can’t begin with $, must only contain digits, letters, underscore it $ but
-            # can’t be all digits.
-            r"([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
+            # Can’t begin with $ or digits,
+            # must only contain digits, letters, underscore or $
+            r"[A-Z_][A-Z0-9_$]*",
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
@@ -4940,6 +4940,7 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         ),
         Sequence(
             "RETURNING",
+            Indent,
             OneOf(
                 Ref("StarSegment"),
                 Delimited(
@@ -4949,6 +4950,7 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
                     ),
                 ),
             ),
+            Dedent,
             optional=True,
         ),
     )
@@ -4991,6 +4993,7 @@ class SetStatementSegment(BaseSegment):
                     Delimited(
                         Ref("LiteralGrammar"),
                         Ref("NakedIdentifierSegment"),
+                        Ref("QuotedIdentifierSegment"),
                         # https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L1810-L1815
                         Ref("OnKeywordAsIdentifierSegment"),
                     ),
@@ -5632,6 +5635,7 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
         ),
         Sequence(
             "RETURNING",
+            Indent,
             OneOf(
                 Ref("StarSegment"),
                 Delimited(
@@ -5641,6 +5645,7 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
                     ),
                 ),
             ),
+            Dedent,
             optional=True,
         ),
     )
@@ -5721,10 +5726,12 @@ class UpdateStatementSegment(BaseSegment):
         # TODO add [ WITH [ RECURSIVE ] with_query [, ...] ]
         "UPDATE",
         Ref.keyword("ONLY", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         # SET is not a reserved word in all dialects (e.g. RedShift)
         # So specifically exclude as an allowed implicit alias to avoid parsing errors
         Ref("AliasExpressionSegment", exclude=Ref.keyword("SET"), optional=True),
+        Dedent,
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
         OneOf(
@@ -5734,6 +5741,7 @@ class UpdateStatementSegment(BaseSegment):
         ),
         Sequence(
             "RETURNING",
+            Indent,
             OneOf(
                 Ref("StarSegment"),
                 Delimited(
@@ -5743,6 +5751,7 @@ class UpdateStatementSegment(BaseSegment):
                     ),
                 ),
             ),
+            Dedent,
             optional=True,
         ),
     )
@@ -6046,7 +6055,7 @@ class NamedArgumentSegment(BaseSegment):
     type = "named_argument"
     match_grammar = Sequence(
         Ref("NakedIdentifierSegment"),
-        Ref("RightArrowSegment"),
+        OneOf(Ref("RightArrowSegment"), Ref("WalrusOperatorSegment")),
         Ref("ExpressionSegment"),
     )
 

@@ -2,12 +2,15 @@
 
 import copy
 import importlib
+import importlib.util
 import logging
 import os.path
 import pkgutil
 import sys
 from functools import reduce
 from typing import (
+    TYPE_CHECKING,
+    Any,
     Callable,
     Dict,
     Iterable,
@@ -16,10 +19,13 @@ from typing import (
     Optional,
     Set,
     Tuple,
+    Type,
+    Union,
     cast,
 )
 
 import jinja2.nodes
+import jinja2.parser
 from jinja2 import (
     Environment,
     FileSystemLoader,
@@ -33,6 +39,7 @@ from jinja2.sandbox import SandboxedEnvironment
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLFluffUserError, SQLTemplaterError
+from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.helpers.slice import is_zero_slice, slice_length
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
@@ -42,6 +49,9 @@ from sqlfluff.core.templaters.base import (
 )
 from sqlfluff.core.templaters.python import PythonTemplater
 from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer, JinjaTrace
+
+if TYPE_CHECKING:  # pragma: no cover
+    from jinja2.runtime import Macro
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -56,7 +66,7 @@ class UndefinedRecorder:
     # https://jinja.palletsprojects.com/en/3.0.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
     alters_data = False
 
-    def __init__(self, name: str, undefined_set: set) -> None:
+    def __init__(self, name: str, undefined_set: Set[str]) -> None:
         self.name = name
         # Reference to undefined set to modify, it is assumed that the
         # calling code keeps a reference to this variable to they can
@@ -68,12 +78,12 @@ class UndefinedRecorder:
         self.undefined_set.add(self.name)
         return ""
 
-    def __getattr__(self, item) -> "UndefinedRecorder":
+    def __getattr__(self, item: str) -> "UndefinedRecorder":
         """Don't fail when called, remember instead."""
         self.undefined_set.add(self.name)
         return UndefinedRecorder(f"{self.name}.{item}", self.undefined_set)
 
-    def __call__(self, *args, **kwargs) -> "UndefinedRecorder":
+    def __call__(self, *args: Any, **kwargs: Any) -> "UndefinedRecorder":
         """Don't fail when called unlike parent class."""
         return UndefinedRecorder(f"{self.name}()", self.undefined_set)
 
@@ -92,7 +102,9 @@ class JinjaTemplater(PythonTemplater):
         pass
 
     @staticmethod
-    def _extract_macros_from_template(template, env, ctx):
+    def _extract_macros_from_template(
+        template: str, env: Environment, ctx: Dict[str, Any]
+    ) -> Dict[str, "Macro"]:
         """Take a template string and extract any macros from it.
 
         Lovingly inspired by http://codyaray.com/2015/05/auto-load-jinja2-macros
@@ -105,7 +117,7 @@ class JinjaTemplater(PythonTemplater):
         from jinja2.runtime import Macro  # noqa
 
         # Iterate through keys exported from the loaded template string
-        context = {}
+        context: Dict[str, Macro] = {}
         # NOTE: `env.from_string()` will raise TemplateSyntaxError if `template`
         # is invalid.
         macro_template = env.from_string(template, globals=ctx)
@@ -130,9 +142,9 @@ class JinjaTemplater(PythonTemplater):
         cls,
         path: List[str],
         env: Environment,
-        ctx: Dict,
+        ctx: Dict[str, Any],
         exclude_paths: Optional[List[str]] = None,
-    ) -> dict:
+    ) -> Dict[str, "Macro"]:
         """Take a path and extract macros from it.
 
         Args:
@@ -148,7 +160,7 @@ class JinjaTemplater(PythonTemplater):
             ValueError: If a path does not exist.
             SQLTemplaterError: If there is an error in the Jinja macro file.
         """
-        macro_ctx = {}
+        macro_ctx: Dict[str, "Macro"] = {}
         for path_entry in path:
             # Does it exist? It should as this check was done on config load.
             if not os.path.exists(path_entry):
@@ -190,7 +202,9 @@ class JinjaTemplater(PythonTemplater):
                             )
         return macro_ctx
 
-    def _extract_macros_from_config(self, config, env, ctx):
+    def _extract_macros_from_config(
+        self, config: FluffConfig, env: Environment, ctx: Dict[str, Any]
+    ) -> Dict[str, "Macro"]:
         """Take a config and load any macros from it.
 
         Args:
@@ -202,7 +216,6 @@ class JinjaTemplater(PythonTemplater):
             dict: A dictionary containing the extracted macros.
         """
         if config:
-            # This is now a nested section
             loaded_context = (
                 config.get_section((self.templater_selector, self.name, "macros")) or {}
             )
@@ -210,7 +223,7 @@ class JinjaTemplater(PythonTemplater):
             loaded_context = {}
 
         # Iterate to load macros
-        macro_ctx = {}
+        macro_ctx: Dict[str, "Macro"] = {}
         for value in loaded_context.values():
             try:
                 macro_ctx.update(
@@ -222,7 +235,7 @@ class JinjaTemplater(PythonTemplater):
                 )
         return macro_ctx
 
-    def _extract_libraries_from_config(self, config):
+    def _extract_libraries_from_config(self, config: FluffConfig) -> Dict[str, Any]:
         """Extracts libraries from the given configuration.
 
         This function iterates over the modules in the library path and
@@ -262,9 +275,13 @@ class JinjaTemplater(PythonTemplater):
             # import_module is deprecated as of python 3.4. This follows roughly
             # the guidance of the python docs:
             # https://docs.python.org/3/library/importlib.html#approximating-importlib-import-module
-            spec = module_finder.find_spec(module_name)
+            spec = module_finder.find_spec(module_name, None)
+            assert (
+                spec
+            ), f"Module {module_name} failed to be found despite being listed."
             module = importlib.util.module_from_spec(spec)
             sys.modules[module_name] = module
+            assert spec.loader, f"Module {module_name} missing expected loader."
             spec.loader.exec_module(module)
 
             if "." in module_name:  # nested modules have `.` in module_name
@@ -291,27 +308,40 @@ class JinjaTemplater(PythonTemplater):
         return {k: v for k, v in libraries.__dict__.items() if not k.startswith("__")}
 
     @staticmethod
-    def _generate_dbt_builtins():
+    def _generate_dbt_builtins() -> Dict[str, Any]:
         """Generate the dbt builtins which are injected in the context."""
         # This feels a bit wrong defining these here, they should probably
         # be configurable somewhere sensible. But for now they're not.
         # TODO: Come up with a better solution.
 
-        class ThisEmulator:
+        class RelationEmulator:
             """A class which emulates the `this` class from dbt."""
 
-            name = "this_model"
+            identifier = "this_model"
             schema = "this_schema"
             database = "this_database"
 
-            def __str__(self) -> str:  # pragma: no cover TODO?
-                return self.name
+            def __init__(self, identifier: str = "this_model") -> None:
+                self.identifier = identifier
+
+            def __call__(self, *args: Any, **kwargs: Any) -> "RelationEmulator":
+                return self
+
+            def __getattr__(self, name: str) -> Union["RelationEmulator", bool]:
+                if name[0:3] == "is_":
+                    return True
+                return self
+
+            def __str__(self) -> str:
+                return self.identifier
 
         dbt_builtins = {
-            "ref": lambda *args: args[-1],
+            "ref": lambda *args, **kwargs: RelationEmulator(args[-1]),
             # In case of a cross project ref in dbt, model_ref is the second
             # argument. Otherwise it is the only argument.
-            "source": lambda source_name, table: f"{source_name}_{table}",
+            "source": lambda source_name, table: RelationEmulator(
+                f"{source_name}_{table}"
+            ),
             "config": lambda **kwargs: "",
             "var": lambda variable, default="": "item",
             # `is_incremental()` renders as True, always in this case.
@@ -320,12 +350,14 @@ class JinjaTemplater(PythonTemplater):
             # We should try to find a solution to that. Perhaps forcing the file
             # to be parsed TWICE if it uses this variable.
             "is_incremental": lambda: True,
-            "this": ThisEmulator(),
+            "this": RelationEmulator(),
         }
         return dbt_builtins
 
     @classmethod
-    def _crawl_tree(cls, tree, variable_names, raw) -> Iterator[SQLTemplaterError]:
+    def _crawl_tree(
+        cls, tree: jinja2.nodes.Node, variable_names: Set[str], raw: str
+    ) -> Iterator[SQLTemplaterError]:
         """Crawl the tree looking for occurrences of the undeclared values."""
         # First iterate through children
         for elem in tree.iter_child_nodes():
@@ -345,7 +377,7 @@ class JinjaTemplater(PythonTemplater):
                 line_pos=pos,
             )
 
-    def _get_jinja_env(self, config=None):
+    def _get_jinja_env(self, config: Optional[FluffConfig] = None) -> Environment:
         """Get a properly configured jinja environment.
 
         This method returns a properly configured jinja environment. It
@@ -365,6 +397,7 @@ class JinjaTemplater(PythonTemplater):
         Returns:
             jinja2.Environment: A properly configured jinja environment.
         """
+        loader: Optional[FileSystemLoader]
         macros_path = self._get_macros_path(config, "load_macros_from_path")
         loader_search_path = self._get_loader_search_path(config)
         final_search_path = (loader_search_path or []) + (macros_path or [])
@@ -373,12 +406,12 @@ class JinjaTemplater(PythonTemplater):
         if ignore_templating:
 
             class SafeFileSystemLoader(FileSystemLoader):
-                def get_source(self, environment, name, *args, **kwargs):
+                def get_source(
+                    self, environment: Environment, name: str
+                ) -> Tuple[str, str, Callable[..., Any]]:
                     try:
                         if not isinstance(name, DummyUndefined):
-                            return super().get_source(
-                                environment, name, *args, **kwargs
-                            )
+                            return super().get_source(environment, name)
                         raise TemplateNotFound(str(name))
                     except TemplateNotFound:
                         # When ignore=templating is set, treat missing files
@@ -393,7 +426,7 @@ class JinjaTemplater(PythonTemplater):
             loader = SafeFileSystemLoader(final_search_path or [])
         else:
             loader = FileSystemLoader(final_search_path) if final_search_path else None
-        extensions = ["jinja2.ext.do"]
+        extensions: List[Union[str, Type[Extension]]] = ["jinja2.ext.do"]
         if self._apply_dbt_builtins(config):
             extensions.append(DBTTestExtension)
 
@@ -406,7 +439,9 @@ class JinjaTemplater(PythonTemplater):
             loader=loader,
         )
 
-    def _get_macros_path(self, config: FluffConfig, key: str) -> Optional[List[str]]:
+    def _get_macros_path(
+        self, config: Optional[FluffConfig], key: str
+    ) -> Optional[List[str]]:
         """Get the list of macros paths from the provided config object.
 
         This method searches for a config section specified by the
@@ -433,7 +468,9 @@ class JinjaTemplater(PythonTemplater):
                     return result
         return None
 
-    def _get_loader_search_path(self, config: FluffConfig) -> Optional[List[str]]:
+    def _get_loader_search_path(
+        self, config: Optional[FluffConfig]
+    ) -> Optional[List[str]]:
         """Get the list of Jinja loader search paths from the provided config object.
 
         This method searches for a config section specified by the
@@ -469,7 +506,7 @@ class JinjaTemplater(PythonTemplater):
         """
         return JinjaAnalyzer(raw_str, env)
 
-    def _apply_dbt_builtins(self, config: FluffConfig) -> bool:
+    def _apply_dbt_builtins(self, config: Optional[FluffConfig]) -> bool:
         """Check if dbt builtins should be applied from the provided config object.
 
         This method searches for a config section specified by the
@@ -485,25 +522,42 @@ class JinjaTemplater(PythonTemplater):
             bool: True if dbt builtins should be applied, False otherwise.
         """
         if config:
-            return config.get_section(
+            apply_dbt_builtins = config.get_section(
                 (self.templater_selector, self.name, "apply_dbt_builtins")
             )
+            # If the config is totally absent for this templater, default to False,
+            # but for any other value that isn't boolean, throw an error.
+            if apply_dbt_builtins is None:
+                apply_dbt_builtins = False
+            assert isinstance(apply_dbt_builtins, bool), (
+                f"`apply_dbt_builtins` for {self.templater_selector}.{self.name} "
+                f"must be True/False, not {apply_dbt_builtins!r}"
+            )
+            return apply_dbt_builtins
         return False
 
-    def get_context(self, fname=None, config=None, **kw) -> Dict:
+    def _get_env_context(
+        self,
+        fname: Optional[str],
+        config: Optional[FluffConfig],
+        env: Environment,
+    ) -> Dict[str, Any]:
         """Get the templating context from the config.
+
+        NOTE: This closely mirrors the `get_context` method which we inherit from the
+        python templater, but extends the signature. For that reason we define a new
+        method here, which internally refers to `get_context`.
 
         Args:
             fname (str, optional): The name of the file.
             config (dict, optional): The configuration.
-            **kw: Additional keyword arguments.
+            env: The Jinja Environment.
 
         Returns:
             dict: The templating context.
         """
         # Load the context
-        env = kw.pop("env")
-        live_context = super().get_context(fname=fname, config=config)
+        live_context = self.get_context(fname, config)
         # Apply dbt builtin functions if we're allowed.
         if config:
             # first make libraries available in the context
@@ -511,8 +565,9 @@ class JinjaTemplater(PythonTemplater):
             libraries = self._extract_libraries_from_config(config=config)
             live_context.update(libraries)
 
-            if libraries.get("SQLFLUFF_JINJA_FILTERS"):
-                env.filters.update(libraries.get("SQLFLUFF_JINJA_FILTERS"))
+            jinja_filters = libraries.get("SQLFLUFF_JINJA_FILTERS")
+            if jinja_filters:
+                env.filters.update(jinja_filters)
 
             if self._apply_dbt_builtins(config):
                 # This feels a bit wrong defining these here, they should probably
@@ -550,8 +605,8 @@ class JinjaTemplater(PythonTemplater):
         return live_context
 
     def construct_render_func(
-        self, fname=None, config=None
-    ) -> Tuple[Environment, dict, Callable[[str], str]]:
+        self, fname: Optional[str] = None, config: Optional[FluffConfig] = None
+    ) -> Tuple[Environment, Dict[str, Any], Callable[[str], str]]:
         """Builds and returns objects needed to create and run templates.
 
         Args:
@@ -568,7 +623,7 @@ class JinjaTemplater(PythonTemplater):
         """
         # Load the context
         env = self._get_jinja_env(config)
-        live_context = self.get_context(fname=fname, config=config, env=env)
+        live_context = self._get_env_context(fname, config, env)
 
         def render_func(in_str: str) -> str:
             """Used by JinjaTracer to instantiate templates.
@@ -613,7 +668,7 @@ class JinjaTemplater(PythonTemplater):
 
     @staticmethod
     def _init_undefined_tracking(
-        live_context: dict,
+        live_context: Dict[str, Any],
         potentially_undefined_variables: Iterable[str],
         ignore_templating: bool = False,
     ) -> Set[str]:
@@ -641,7 +696,7 @@ class JinjaTemplater(PythonTemplater):
         in_str: str,
         fname: str,
         config: Optional[FluffConfig] = None,
-        formatter=None,
+        formatter: Optional[FormatterInterface] = None,
     ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
         """Process a string and return the new string.
 
@@ -741,7 +796,11 @@ class JinjaTemplater(PythonTemplater):
             )
 
     def slice_file(
-        self, raw_str: str, render_func: Callable[[str], str], config=None, **kwargs
+        self,
+        raw_str: str,
+        render_func: Callable[[str], str],
+        config: Optional[FluffConfig] = None,
+        append_to_templated: str = "",
     ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix.
 
@@ -749,7 +808,7 @@ class JinjaTemplater(PythonTemplater):
             raw_str (str): The raw string to be sliced.
             render_func (Callable[[str], str]): The rendering function to be used.
             config (optional): Optional configuration.
-            **kwargs: Additional keyword arguments.
+            append_to_templated: Optional string to append to the template.
 
         Returns:
             Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
@@ -763,13 +822,13 @@ class JinjaTemplater(PythonTemplater):
         templater_logger.debug("    Raw String: %r", raw_str[:80])
         analyzer = self._get_jinja_analyzer(raw_str, self._get_jinja_env())
         tracer = analyzer.analyze(render_func)
-        trace = tracer.trace(append_to_templated=kwargs.pop("append_to_templated", ""))
+        trace = tracer.trace(append_to_templated=append_to_templated)
         return trace.raw_sliced, trace.sliced_file, trace.templated_str
 
     @staticmethod
     def _rectify_templated_slices(
         length_deltas: Dict[int, int], sliced_template: List[TemplatedFileSlice]
-    ):
+    ) -> List[TemplatedFileSlice]:
         """This method rectifies the source slices of a variant template.
 
         :TRICKY: We want to yield variants that _look like_ they were
@@ -859,8 +918,8 @@ class JinjaTemplater(PythonTemplater):
         in_str: str,
         render_func: Callable[[str], str],
         uncovered_slices: Set[int],
-        append_to_templated="",
-    ):
+        append_to_templated: str = "",
+    ) -> Iterator[Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]]:
         """Address uncovered slices by tweaking the template to hit them.
 
         Args:
@@ -974,8 +1033,13 @@ class JinjaTemplater(PythonTemplater):
 
     @large_file_check
     def process_with_variants(
-        self, *, in_str: str, fname: str, config=None, formatter=None
-    ) -> Iterator[Tuple[Optional[TemplatedFile], List[SQLTemplaterError]]]:
+        self,
+        *,
+        in_str: str,
+        fname: str,
+        config: Optional[FluffConfig] = None,
+        formatter: Optional[FormatterInterface] = None,
+    ) -> Iterator[Tuple[TemplatedFile, List[SQLTemplaterError]]]:
         """Process a string and return one or more variant renderings.
 
         Note that the arguments are enforced as keywords
@@ -999,9 +1063,6 @@ class JinjaTemplater(PythonTemplater):
             in_str=in_str, fname=fname, config=config, formatter=formatter
         )
         yield templated_file, violations
-
-        if not templated_file:
-            return  # pragma: no cover
 
         # Find uncovered code (if any), tweak the template to hit that code.
         # First, identify the literals which _are_ covered.
@@ -1050,16 +1111,16 @@ class JinjaTemplater(PythonTemplater):
         These macros will be ignored and not loaded into context
 
         Args:
-            macro_path (str): The raw string to be sliced.
-            exclude_macros_path (List[str]): The rendering function to be used.
+            macro_path (str): Str of the path to the macro
+            exclude_macros_path (List[str]): Str of the path to the macros to exclude
 
         Returns:
             bool: True if the macro should be excluded
         """
         for exclude_path in exclude_macros_path:
-            macro_path_abs = os.path.abspath(macro_path)
-            exclude_path_abs = os.path.abspath(exclude_path)
-            if exclude_path_abs in macro_path_abs:
+            macro_path_normalized = os.path.normpath(os.path.abspath(macro_path))
+            exclude_path_normalized = os.path.normpath(exclude_path)
+            if exclude_path_normalized in macro_path_normalized:
                 templater_logger.debug("Skipping this macro file: %s", macro_path)
                 return True
         return False
@@ -1079,7 +1140,7 @@ class DummyUndefined(jinja2.Undefined):
     # https://jinja.palletsprojects.com/en/3.0.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
     alters_data = False
 
-    def __init__(self, name) -> None:
+    def __init__(self, name: str) -> None:
         super().__init__()
         self.name = name
 
@@ -1087,7 +1148,7 @@ class DummyUndefined(jinja2.Undefined):
         return self.name.replace(".", "_")
 
     @classmethod
-    def create(cls, name) -> "DummyUndefined":
+    def create(cls, name: str) -> "DummyUndefined":
         """Factory method.
 
         When ignoring=templating is configured, use 'name' as the value for
@@ -1102,7 +1163,7 @@ class DummyUndefined(jinja2.Undefined):
         result = DummyUndefined(name)
         return result
 
-    def __getattr__(self, item):
+    def __getattr__(self, item: str) -> "DummyUndefined":
         """Intercept any calls to undefined attributes.
 
         Args:
@@ -1116,7 +1177,7 @@ class DummyUndefined(jinja2.Undefined):
     # Implement the most common magic methods. This helps avoid
     # templating errors for undefined variables.
     # https://www.tutorialsteacher.com/python/magic-methods-in-python
-    def _self_impl(self, *args, **kwargs) -> "DummyUndefined":
+    def _self_impl(self, *args: Any, **kwargs: Any) -> "DummyUndefined":
         """Return an instance of the class itself.
 
         Args:
@@ -1128,7 +1189,7 @@ class DummyUndefined(jinja2.Undefined):
         """
         return self
 
-    def _bool_impl(self, *args, **kwargs) -> bool:
+    def _bool_impl(self, *args: Any, **kwargs: Any) -> bool:
         """Return a boolean value.
 
         Args:
@@ -1140,32 +1201,23 @@ class DummyUndefined(jinja2.Undefined):
         """
         return True
 
-    __add__ = _self_impl
-    __sub__ = _self_impl
-    __mul__ = _self_impl
-    __floordiv__ = _self_impl
-    __truediv__ = _self_impl
-    __mod__ = _self_impl
-    __pow__ = _self_impl
-    __pos__ = _self_impl
-    __neg__ = _self_impl
-    __lshift__ = _self_impl
-    __rshift__ = _self_impl
-    __getitem__ = _self_impl
+    # We're intentionally changing the behaviour here compared to the base
+    # class of Undefined. That means we're going to silence the `assignment`
+    # mypy warnings. Operations on an undefined result in another undefined.
+    __add__ = __sub__ = __mul__ = _self_impl  # type: ignore[assignment]
+    __floordiv__ = __truediv__ = _self_impl  # type: ignore[assignment]
+    __mod__ = __pow__ = _self_impl  # type: ignore[assignment]
+    __pos__ = __neg__ = _self_impl  # type: ignore[assignment]
+    __lshift__ = __rshift__ = _self_impl
+    __getitem__ = _self_impl  # type: ignore[assignment]
     __invert__ = _self_impl
-    __call__ = _self_impl
-    __and__ = _bool_impl
-    __or__ = _bool_impl
-    __xor__ = _bool_impl
-    __bool__ = _bool_impl
-    __lt__ = _bool_impl
-    __le__ = _bool_impl
-    __eq__ = _bool_impl
-    __ne__ = _bool_impl
-    __ge__ = _bool_impl
-    __gt__ = _bool_impl
+    __call__ = _self_impl  # type: ignore[assignment]
+    # Boolean operations on an undefined are handled separately.
+    __and__ = __or__ = __xor__ = __bool__ = _bool_impl
+    __lt__ = __le__ = __ge__ = __gt__ = _bool_impl  # type: ignore[assignment]
+    __eq__ = __ne__ = _bool_impl
 
-    def __hash__(self) -> int:  # pragma: no cov
+    def __hash__(self) -> int:  # pragma: no cover
         """Return a constant hash value.
 
         Returns:
@@ -1174,7 +1226,7 @@ class DummyUndefined(jinja2.Undefined):
         # This is called by the "in" operator, among other things.
         return 0
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator["DummyUndefined"]:
         """Return an iterator that contains only the instance of the class itself.
 
         Returns:
@@ -1188,7 +1240,7 @@ class DBTTestExtension(Extension):
 
     tags = {"test"}
 
-    def parse(self, parser) -> jinja2.nodes.Macro:
+    def parse(self, parser: jinja2.parser.Parser) -> jinja2.nodes.Macro:
         """Parses out the contents of the test tag."""
         node = jinja2.nodes.Macro(lineno=next(parser.stream).lineno)
         test_name = parser.parse_assign_target(name_only=True).name

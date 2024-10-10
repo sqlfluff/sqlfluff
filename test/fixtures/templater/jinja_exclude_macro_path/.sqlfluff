@@ -1,3 +1,3 @@
 [sqlfluff:templater:jinja]
 load_macros_from_path = macros
-exclude_macros_from_path = macros/macros_exclude
+exclude_macros_from_path = macros/macros_exclude, macros/macros_exclude_2

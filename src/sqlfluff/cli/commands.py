@@ -36,9 +36,9 @@ from sqlfluff.core import (
     dialect_selector,
 )
 from sqlfluff.core.config import progress_bar_configuration
-from sqlfluff.core.enums import Color, FormatType
 from sqlfluff.core.linter import LintingResult
 from sqlfluff.core.plugin.host import get_plugin_manager
+from sqlfluff.core.types import Color, FormatType
 
 
 class StreamHandlerTqdm(logging.StreamHandler):
@@ -464,11 +464,16 @@ def get_linter_and_formatter(
 
 @click.group(
     context_settings={"help_option_names": ["-h", "--help"]},
-    epilog="""\b\bExamples:\n
-  sqlfluff lint --dialect postgres .\n
-  sqlfluff lint --dialect postgres --rules ST05 .\n
-  sqlfluff fix --dialect sqlite --rules LT10,ST05 src/queries\n
-  sqlfluff parse --dialect sqlite --templater jinja src/queries/common.sql
+    # NOTE: The code-block directive here looks a little odd in the CLI
+    # but is a good balance between what appears in the CLI and what appears
+    # in the auto generated docs for the CLI by sphinx.
+    epilog="""Examples:\n
+.. code-block:: sh
+
+   sqlfluff lint --dialect postgres .\n
+   sqlfluff lint --dialect mysql --rules ST05 my_query.sql\n
+   sqlfluff fix --dialect sqlite --rules LT10,ST05 src/queries\n
+   sqlfluff parse --dialect duckdb --templater jinja path/my_query.sql\n\n
 """,
 )
 @click.version_option()
@@ -662,7 +667,11 @@ def lint(
     if format == FormatType.json.value:
         file_output = json.dumps(result.as_records())
     elif format == FormatType.yaml.value:
-        file_output = yaml.dump(result.as_records(), sort_keys=False)
+        file_output = yaml.dump(
+            result.as_records(),
+            sort_keys=False,
+            allow_unicode=True,
+        )
     elif format == FormatType.none.value:
         file_output = ""
     elif format == FormatType.github_annotation.value:
@@ -711,6 +720,11 @@ def lint(
         github_result_native = []
         for record in result.as_records():
             filepath = record["filepath"]
+
+            # Add a group, titled with the filename
+            if record["violations"]:
+                github_result_native.append(f"::group::{filepath}")
+
             for violation in record["violations"]:
                 # NOTE: The output format is designed for GitHub action:
                 # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-notice-message
@@ -737,6 +751,10 @@ def lint(
 
                 github_result_native.append(line)
 
+            # Close the group
+            if record["violations"]:
+                github_result_native.append("::endgroup::")
+
         file_output = "\n".join(github_result_native)
 
     if file_output:
@@ -759,7 +777,9 @@ def lint(
     if not nofail:
         if not non_human_output:
             formatter.completion_message()
-        sys.exit(result.stats(EXIT_FAIL, EXIT_SUCCESS)["exit code"])
+        exit_code = result.stats(EXIT_FAIL, EXIT_SUCCESS)["exit code"]
+        assert isinstance(exit_code, int), "result.stats error code must be integer."
+        sys.exit(exit_code)
     else:
         sys.exit(EXIT_SUCCESS)
 
@@ -1392,7 +1412,11 @@ def parse(
             # For yaml dumping always dump double quoted strings if they contain
             # tabs or newlines.
             yaml.add_representer(str, quoted_presenter)
-            file_output = yaml.dump(parsed_strings_dict, sort_keys=False)
+            file_output = yaml.dump(
+                parsed_strings_dict,
+                sort_keys=False,
+                allow_unicode=True,
+            )
         elif format == FormatType.json.value:
             file_output = json.dumps(parsed_strings_dict)
         elif format == FormatType.none.value:

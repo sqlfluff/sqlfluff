@@ -1,30 +1,26 @@
 rule: RF05
 
 test_fail_special_chars_create_table_space:
-  fail_str:
-    CREATE TABLE DBO.ColumnNames
-    (
+  fail_str: |
+    CREATE TABLE DBO.ColumnNames (
         "Internal Space" INT
     )
 
 test_fail_special_chars_create_table_gt:
-  fail_str:
-    CREATE TABLE DBO.ColumnNames
-    (
+  fail_str: |
+    CREATE TABLE DBO.ColumnNames (
         "Greater>Than" INT
     )
 
 test_fail_special_chars_create_table_lt:
-  fail_str:
-    CREATE TABLE DBO.ColumnNames
-    (
+  fail_str: |
+    CREATE TABLE DBO.ColumnNames (
         "Less<Than" INT
     )
 
 test_fail_special_chars_create_table_lt_bigquery:
-  fail_str:
-    CREATE TABLE DBO.ColumnNames
-    (
+  fail_str: |
+    CREATE TABLE DBO.ColumnNames (
         `Less<Than` INT
     )
   configs:
@@ -32,9 +28,8 @@ test_fail_special_chars_create_table_lt_bigquery:
       dialect: bigquery
 
 test_fail_special_chars_create_table_hash_unquoted:
-  fail_str:
-    CREATE TABLE DBO.ColumnNames
-    (
+  fail_str: |
+    CREATE TABLE DBO.ColumnNames (
         Number# INT
     )
   configs:
@@ -42,9 +37,8 @@ test_fail_special_chars_create_table_hash_unquoted:
       dialect: tsql
 
 test_pass_special_chars_create_table_none:
-  pass_str:
-    CREATE TABLE DBO.ColumnNames
-    (
+  pass_str: |
+    CREATE TABLE DBO.ColumnNames (
         "No_Internal_Space" INT,
         GreaterThan INT,
         LessThan INT,
@@ -52,9 +46,8 @@ test_pass_special_chars_create_table_none:
     )
 
 test_pass_special_chars_create_table_none_quoted_tsql:
-  pass_str:
-    CREATE TABLE DBO.ColumnNames
-    (
+  pass_str: |
+    CREATE TABLE DBO.ColumnNames (
         [No_Internal_Space] INT,
         [GreaterThan] INT,
         [LessThan] INT,
@@ -65,9 +58,8 @@ test_pass_special_chars_create_table_none_quoted_tsql:
       dialect: tsql
 
 test_pass_special_chars_create_table_none_quoted_biquery:
-  pass_str:
-    CREATE TABLE DBO.ColumnNames
-    (
+  pass_str: |
+    CREATE TABLE DBO.ColumnNames (
         `No_Internal_Space` INT,
         `GreaterThan` INT,
         `LessThan` INT,
@@ -78,9 +70,7 @@ test_pass_special_chars_create_table_none_quoted_biquery:
       dialect: bigquery
 
 test_pass_special_chars_create_table_space_allowed:
-  pass_str:
-    CREATE TABLE DBO.ColumnNames
-    (
+  pass_str: CREATE TABLE DBO.ColumnNames (
         "Internal Space" INT
     )
   configs:
@@ -89,7 +79,7 @@ test_pass_special_chars_create_table_space_allowed:
         allow_space_in_identifier: true
 
 test_fail_special_chars_quoted_policy_alias:
-  fail_str:
+  fail_str: |
     SELECT a
     FROM DBO.ColumnNames as "alias with space"
   configs:
@@ -98,7 +88,7 @@ test_fail_special_chars_quoted_policy_alias:
         quoted_identifiers_policy: aliases
 
 test_fail_special_chars_quoted_policy_column_alias:
-  fail_str:
+  fail_str: |
     SELECT a as "alias with space"
     FROM DBO.ColumnNames
   configs:
@@ -107,7 +97,7 @@ test_fail_special_chars_quoted_policy_column_alias:
         quoted_identifiers_policy: column_aliases
 
 test_fail_special_chars_unquoted_policy_aliases:
-  fail_str:
+  fail_str: |
     SELECT a
     FROM DBO.ColumnNames as aliashash#
   configs:
@@ -118,7 +108,7 @@ test_fail_special_chars_unquoted_policy_aliases:
       dialect: tsql
 
 test_fail_special_chars_unquoted_policy_column_aliases:
-  fail_str:
+  fail_str: |
     SELECT a as aliashash#
     FROM DBO.ColumnNames
   configs:
@@ -129,7 +119,7 @@ test_fail_special_chars_unquoted_policy_column_aliases:
       dialect: tsql
 
 test_pass_special_chars_quoted_policy_aliases:
-  pass_str:
+  pass_str: |
     SELECT "column with space" as a
     FROM DBO.ColumnNames
   configs:
@@ -138,7 +128,7 @@ test_pass_special_chars_quoted_policy_aliases:
         quoted_identifiers_policy: aliases
 
 test_pass_special_chars_quoted_policy_none:
-  pass_str:
+  pass_str: |
     SELECT "column with space" as "alias with space"
     FROM DBO.ColumnNames
   configs:
@@ -147,7 +137,7 @@ test_pass_special_chars_quoted_policy_none:
         quoted_identifiers_policy: none
 
 test_pass_special_chars_unquoted_policy_aliases:
-  pass_str:
+  pass_str: |
     SELECT Number# as a
     FROM DBO.ColumnNames
   configs:
@@ -158,7 +148,7 @@ test_pass_special_chars_unquoted_policy_aliases:
       dialect: tsql
 
 test_pass_special_chars_unquoted_policy_column_aliases:
-  pass_str:
+  pass_str: |
     SELECT Number# as a
     FROM DBO.ColumnNames as AliasHash#
   configs:
@@ -169,7 +159,7 @@ test_pass_special_chars_unquoted_policy_column_aliases:
       dialect: tsql
 
 test_pass_special_chars_quoted_policy_column_aliases:
-  pass_str:
+  pass_str: |
     SELECT "column with space" as a
     FROM DBO.ColumnNames as "alias with space"
   configs:
@@ -178,7 +168,7 @@ test_pass_special_chars_quoted_policy_column_aliases:
         quoted_identifiers_policy: column_aliases
 
 test_pass_dots_bigquery:
-  pass_str:
+  pass_str: |
     SELECT a
     FROM `user.schema.table`
   configs:
@@ -186,7 +176,7 @@ test_pass_dots_bigquery:
       dialect: bigquery
 
 test_pass_star_bigquery:
-  pass_str:
+  pass_str: |
     SELECT a
     FROM `user.schema.table_*`
   configs:
@@ -194,7 +184,7 @@ test_pass_star_bigquery:
       dialect: bigquery
 
 test_fail_star_bigquery:
-  fail_str:
+  fail_str: |
     SELECT a
     FROM `user.schema.table_*_something`
   configs:
@@ -204,7 +194,7 @@ test_fail_star_bigquery:
 test_pass_hyphen_bigquery_quotes_1:
   # Passes without setting 'additional_allowed_characters' because RF05 allows
   # hyphens in BigQuery by default.
-  pass_str:
+  pass_str: |
     SELECT a
     FROM `user.schema.table-something`
   configs:
@@ -214,7 +204,7 @@ test_pass_hyphen_bigquery_quotes_1:
 test_pass_hyphen_bigquery_quotes_2:
   # Passes because explicitly setting 'additional_allowed_characters' adds to the
   # default ("-") value.
-  pass_str:
+  pass_str: |
     SELECT a
     FROM `user.schema.table-some+thing`
   configs:
@@ -222,10 +212,10 @@ test_pass_hyphen_bigquery_quotes_2:
       dialect: bigquery
     rules:
       references.special_chars:
-        additional_allowed_characters: '+'
+        additional_allowed_characters: "+"
 
 test_pass_hyphen_bigquery_no_quotes:
-  pass_str:
+  pass_str: |
     SELECT a
     FROM user.schema.table-something
   configs:
@@ -233,7 +223,7 @@ test_pass_hyphen_bigquery_no_quotes:
       dialect: bigquery
 
 test_pass_dot_bigquery:
-  pass_str:
+  pass_str: |
     SELECT a
     FROM `user.schema.table-something`
     WHERE `user.schema.table-something`.a = 1
@@ -242,10 +232,10 @@ test_pass_dot_bigquery:
       dialect: bigquery
     rules:
       references.special_chars:
-        additional_allowed_characters: '-.'
+        additional_allowed_characters: "-."
 
 test_fail_single_quote_bigquery:
-  fail_str:
+  fail_str: |
     SELECT a
     FROM `user.schema.table'something`
   configs:
@@ -253,10 +243,10 @@ test_fail_single_quote_bigquery:
       dialect: bigquery
     rules:
       references.special_chars:
-        additional_allowed_characters: '-.'
+        additional_allowed_characters: "-."
 
 test_pass_single_quote_bigquery:
-  pass_str:
+  pass_str: |
     SELECT a
     FROM `user.schema.table'something`
   configs:
@@ -264,10 +254,10 @@ test_pass_single_quote_bigquery:
       dialect: bigquery
     rules:
       references.special_chars:
-        additional_allowed_characters: '-''.'
+        additional_allowed_characters: "-'."
 
 test_pass_single_quote2_bigquery:
-  pass_str:
+  pass_str: |
     SELECT a
     FROM `user.schema.table'something`
   configs:
@@ -278,7 +268,7 @@ test_pass_single_quote2_bigquery:
         additional_allowed_characters: "-'."
 
 test_pass_dot_slash_identifier_in_file_reference_sparksql:
-  pass_str:
+  pass_str: |
     SELECT a
     FROM TEXT.`examples/src/main/resources/people.txt`
   configs:
@@ -286,7 +276,7 @@ test_pass_dot_slash_identifier_in_file_reference_sparksql:
       dialect: sparksql
 
 test_pass_star_identifier_in_file_reference_sparksql:
-  pass_str:
+  pass_str: |
     SELECT a
     FROM TEXT.`//root/*.txt`;
   configs:
@@ -294,7 +284,7 @@ test_pass_star_identifier_in_file_reference_sparksql:
       dialect: sparksql
 
 test_pass_question_mark_identifier_in_file_reference_sparksql:
-  pass_str:
+  pass_str: |
     SELECT a
     FROM TEXT.`//root/200?.txt`;
   configs:
@@ -302,7 +292,7 @@ test_pass_question_mark_identifier_in_file_reference_sparksql:
       dialect: sparksql
 
 test_pass_character_class_identifier_in_file_reference_sparksql:
-  pass_str:
+  pass_str: |
     SELECT a
     FROM TEXT.`//root/200[23].txt`;
   configs:
@@ -310,7 +300,7 @@ test_pass_character_class_identifier_in_file_reference_sparksql:
       dialect: sparksql
 
 test_pass_negated_character_class_identifier_in_file_reference_sparksql:
-  pass_str:
+  pass_str: |
     SELECT a
     FROM TEXT.`//root/200[^23].txt`;
   configs:
@@ -318,7 +308,7 @@ test_pass_negated_character_class_identifier_in_file_reference_sparksql:
       dialect: sparksql
 
 test_pass_character_range_identifier_in_file_reference_sparksql:
-  pass_str:
+  pass_str: |
     SELECT a
     FROM TEXT.`//root/200[2-5].txt`;
   configs:
@@ -326,7 +316,7 @@ test_pass_character_range_identifier_in_file_reference_sparksql:
       dialect: sparksql
 
 test_pass_negated_character_range_identifier_in_file_reference_sparksql:
-  pass_str:
+  pass_str: |
     SELECT a
     FROM TEXT.`//root/200[^2-5].txt`;
   configs:
@@ -334,7 +324,7 @@ test_pass_negated_character_range_identifier_in_file_reference_sparksql:
       dialect: sparksql
 
 test_pass_alteration_identifier_in_file_reference_sparksql:
-  pass_str:
+  pass_str: |
     SELECT a
     FROM TEXT.`//root/20{04, 05}.txt`;
   configs:
@@ -342,7 +332,7 @@ test_pass_alteration_identifier_in_file_reference_sparksql:
       dialect: sparksql
 
 test_pass_ignore_lists_quoted:
-  pass_str:
+  pass_str: |
     SELECT a as 'aliashash#'
   configs:
     rules:
@@ -350,20 +340,17 @@ test_pass_ignore_lists_quoted:
         ignore_words: aliashash#
 
 test_pass_ignore_lists_quoted_fail:
-  fail_str:
-    SELECT a as 'aliashash#'
+  fail_str: SELECT a as 'aliashash#'
 
 test_pass_ignore_lists_quoted_mixed_case:
-  pass_str:
-    SELECT a as 'aliasHash#'
+  pass_str: SELECT a as 'aliasHash#'
   configs:
     rules:
       references.special_chars:
         ignore_words: aliashash#
 
 test_pass_ignore_lists_unquoted:
-  pass_str:
-    SELECT a as alias$
+  pass_str: SELECT a as alias$
   configs:
     core:
       dialect: postgres
@@ -372,15 +359,13 @@ test_pass_ignore_lists_unquoted:
         ignore_words: alias$
 
 test_pass_ignore_lists_unquoted_fail:
-  fail_str:
-    SELECT a as alias$
+  fail_str: SELECT a as alias$
   configs:
     core:
       dialect: postgres
 
 test_pass_ignore_lists_unquoted_mixed_case:
-  pass_str:
-    SELECT a as Alias$
+  pass_str: SELECT a as Alias$
   configs:
     core:
       dialect: postgres
@@ -389,8 +374,7 @@ test_pass_ignore_lists_unquoted_mixed_case:
         ignore_words: alias$
 
 test_pass_ignore_words_regex_unquoted:
-  pass_str:
-    SELECT a as alias$
+  pass_str: SELECT a as alias$
   configs:
     core:
       dialect: postgres
@@ -399,31 +383,27 @@ test_pass_ignore_words_regex_unquoted:
         ignore_words_regex: lias\$$
 
 test_pass_ignore_words_regex_quoted:
-  pass_str:
-    SELECT a as 'aliashash#'
+  pass_str: SELECT a as 'aliashash#'
   configs:
     rules:
       references.special_chars:
         ignore_words_regex: hash#$
 
 test_fail_ignore_words_regex_quoted_mixed_case:
-  fail_str:
-    SELECT a as 'aliasHash#'
+  fail_str: SELECT a as 'aliasHash#'
   configs:
     rules:
       references.special_chars:
         ignore_words_regex: hash#$
 
 test_pass_special_chars_show_tblproperties:
-  pass_str:
-    SHOW TBLPROPERTIES customer ('created.date');
+  pass_str: SHOW TBLPROPERTIES customer ('created.date');
   configs:
     core:
       dialect: sparksql
 
 test_fail_special_chars_show_tblproperties:
-  fail_str:
-    SHOW TBLPROPERTIES customer ('created.*');
+  fail_str: SHOW TBLPROPERTIES customer ('created.*');
   configs:
     core:
       dialect: sparksql
@@ -446,3 +426,67 @@ test_fail_special_chars_redshift_hash_column:
   configs:
     core:
       dialect: redshift
+
+test_pass_table_aliases:
+  pass_str: |
+    SELECT 1 AS "special*"
+    FROM VALUES ((1)) AS "non_special"
+  configs:
+    rules:
+      references.special_chars:
+        quoted_identifiers_policy: table_aliases
+
+test_fail_table_aliases:
+  fail_str: |
+    SELECT 1 AS "special*"
+    FROM VALUES ((1)) AS "special*"
+  configs:
+    rules:
+      references.special_chars:
+        quoted_identifiers_policy: table_aliases
+
+test_pass_special_chars_snowflake_stage_metadata:
+  # https://docs.snowflake.com/en/user-guide/querying-metadata
+  pass_str: |
+    SELECT
+      METADATA$FILENAME
+      , METADATA$FILE_ROW_NUMBER
+      , METADATA$FILE_CONTENT_KEY
+      , METADATA$FILE_LAST_MODIFIED
+      , METADATA$START_SCAN_TIME
+    FROM @ext_stage;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_pivot_snowflake:
+  pass_str: |
+    SELECT
+      COL1,
+      COL2,
+      "'PIVOTED1'" AS PIVOTED1,
+      "'PIVOTED2'" AS PIVOTED2
+    FROM TBL
+    PIVOT (
+      MAX(VAL)
+      FOR COL IN ('PIVOTED1', 'PIVOTED2')
+    )
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_pivot_snowflake_complex:
+  pass_str: |
+    SELECT
+      COL1,
+      COL2,
+      CAST("'PIVOTED1'" AS bigint) AS PIVOTED1,
+      "'PIVOTED2'" AS PIVOTED2
+    FROM TBL
+    PIVOT (
+      MAX(VAL)
+      FOR COL IN ('PIVOTED1', 'PIVOTED2')
+    )
+  configs:
+    core:
+      dialect: snowflake

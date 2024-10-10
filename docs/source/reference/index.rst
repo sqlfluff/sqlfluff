@@ -10,4 +10,5 @@ Reference
    rules
    cli
    api
+   internals/index
    releasenotes
