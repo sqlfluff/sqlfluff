@@ -23,6 +23,10 @@ There's also a refactor of where we guides and howtos in the docs. Keep an eye
 on that section going forward for more information about best practice and
 troubleshooting for SQLFluff.
 
+Even in this small PR, we've seen **two** new contributors. Welcome
+[@nspcc-cm](https://github.com/nspcc-cm) & [@rogalski](https://github.com/rogalski)
+to the project!
+
 ## What’s Changed
 
 * BigQuery: Support Tuple syntax in other locations [#6328](https://github.com/sqlfluff/sqlfluff/pull/6328) [@keraion](https://github.com/keraion)
