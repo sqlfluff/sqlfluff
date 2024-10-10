@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 95c2853fc6ace75fe1c436b6139f973024fb81a4d343674d203ebfb6859ba9a7
+_hash: 91356f5092bfd660feacc2acbd4548995cf183cbc49bd4a2188556a4fd2a56f6
 file:
   statement:
     select_statement:
@@ -22,40 +22,40 @@ file:
               - expression:
                   quoted_literal: "'(\\w)(\\w*)'"
               - comma: ','
-              - expression:
-                - column_reference:
-                    naked_identifier: x
-                - binary_operator: ->
-                - function:
-                    function_name:
-                      function_name_identifier: UPPER
-                    function_contents:
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                            naked_identifier: x
-                          array_accessor:
-                            start_square_bracket: '['
-                            numeric_literal: '1'
-                            end_square_bracket: ']'
-                        end_bracket: )
-                - binary_operator:
-                  - pipe: '|'
-                  - pipe: '|'
-                - function:
-                    function_name:
-                      function_name_identifier: LOWER
-                    function_contents:
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                            naked_identifier: x
-                          array_accessor:
-                            start_square_bracket: '['
-                            numeric_literal: '2'
-                            end_square_bracket: ']'
-                        end_bracket: )
+              - lambda_function:
+                  parameter: x
+                  lambda_arrow: ->
+                  expression:
+                  - function:
+                      function_name:
+                        function_name_identifier: UPPER
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: x
+                            array_accessor:
+                              start_square_bracket: '['
+                              numeric_literal: '1'
+                              end_square_bracket: ']'
+                          end_bracket: )
+                  - binary_operator:
+                    - pipe: '|'
+                    - pipe: '|'
+                  - function:
+                      function_name:
+                        function_name_identifier: LOWER
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: x
+                            array_accessor:
+                              start_square_bracket: '['
+                              numeric_literal: '2'
+                              end_square_bracket: ']'
+                          end_bracket: )
               - end_bracket: )
   statement_terminator: ;
