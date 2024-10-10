@@ -32,18 +32,24 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jobs: [ 'linting', 'doclinting', 'docbuild', 'yamllint', 'mypy', 'doctests' ]
-    name: ${{ matrix.jobs }} tests
+        job: [ 'linting', 'doclinting', 'docbuild', 'yamllint', 'mypy', 'doctests' ]
+        include:
+          # Default to most recent python version
+          - python-version: "3.13"
+          # As at 2024-10-10, docbuild fails on 3.13, so fall back to 3.12
+          - job: docbuild
+            python-version: "3.12"
+    name: ${{ matrix.job }} tests
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.13'
+        python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: pip install tox
     - name: Run the tests
-      run: tox -e ${{ matrix.jobs }}
+      run: tox -e ${{ matrix.job }}
 
   # Test with coverage tracking on most recent python (py313).
   # NOTE: py313 is really new, so not using that for coverage yet.
@@ -82,8 +88,10 @@ jobs:
           - dbt180
           - dbt190
         include:
-          # Default to python 3.13 for dbt tests.
-          - python-version: "3.13"
+          # Default to python 3.12 for dbt tests.
+          # * Python 3.13 not supported yet.
+          # * Looks like it's due to psycopg2 support as of 2024-10-10
+          - python-version: "3.12"
           # For dbt 1.4 - 1.6 override to python 3.11
           - dbt-version: dbt140
             python-version: "3.11"
@@ -225,7 +233,7 @@ jobs:
 
   python-windows-dbt-tests:
     runs-on: windows-latest
-    name: dbt Plugin Python 3.13 Windows tests
+    name: dbt Plugin Python 3.12 Windows tests
     steps:
     - name: Start PostgreSQL on Windows
       run: |
@@ -243,7 +251,8 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.13"
+        # NOTE: As of 2024-10-10, dbt does not yet support python 3.13.
+        python-version: "3.12"
     - name: Install dependencies
       shell: bash
       run: pip install tox
