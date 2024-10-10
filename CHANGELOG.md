@@ -14,6 +14,15 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is another release of dialect improvements and rule bugfixes. Notably:
+
+* More robust algorithms for the indentation of Jinja template tags in `LT02`.
+* The `github-annotation-native` format option now has _groups_ for each filename.
+
+There's also a refactor of where we guides and howtos in the docs. Keep an eye
+on that section going forward for more information about best practice and
+troubleshooting for SQLFluff.
+
 ## What’s Changed
 
 * BigQuery: Support Tuple syntax in other locations [#6328](https://github.com/sqlfluff/sqlfluff/pull/6328) [@keraion](https://github.com/keraion)
