@@ -1,0 +1,30 @@
+rule: ST10
+
+test_fail_unused_table_in_join:
+  fail_str: |
+    with 
+      widget as (
+        select * from some_widget_dbt_table
+      ),
+
+      inventor as (
+        select * from some_inventor_dbt_table
+      )
+
+    select
+      widget.id,
+      widget.name,
+      inventor.name
+    from
+      widget
+      left join inventor
+        on widget.inventor_id = inventor.id
+
+  fix_str: |
+    select
+      widget.id,
+      widget.name,
+    from
+      widget
+      left join inventor
+        on widget.inventor_id = inventor.id
