@@ -14,8 +14,8 @@ select
     products._fivetran_deleted
 from products
 inner join dispensaries
-on products.dispensary_id = dispensaries.dispensary_id
-and products.valid_date_local = dispensaries.valid_date_local
+    on products.dispensary_id = dispensaries.dispensary_id
+    and products.valid_date_local = dispensaries.valid_date_local
 where not products._fivetran_deleted
 {% if is_incremental() -%}
     and products.valid_date_local >= (
