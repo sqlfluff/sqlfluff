@@ -10,6 +10,36 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.2.3] - 2024-10-10
+
+## Highlights
+
+## What’s Changed
+
+* BigQuery: Support Tuple syntax in other locations [#6328](https://github.com/sqlfluff/sqlfluff/pull/6328) [@keraion](https://github.com/keraion)
+* Trino: Fix rule interactions with lambda functions [#6327](https://github.com/sqlfluff/sqlfluff/pull/6327) [@keraion](https://github.com/keraion)
+* Resolve some more edge cases in LT02 [#6324](https://github.com/sqlfluff/sqlfluff/pull/6324) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* RF05 - fine tuning for snowflake dialect [#6297](https://github.com/sqlfluff/sqlfluff/pull/6297) [@rogalski](https://github.com/rogalski)
+* Indentation: `UPDATE` and `RETURNING` clauses [#6314](https://github.com/sqlfluff/sqlfluff/pull/6314) [@keraion](https://github.com/keraion)
+* Postgres: Fix lexing some JSON operators [#6323](https://github.com/sqlfluff/sqlfluff/pull/6323) [@keraion](https://github.com/keraion)
+* Add support for `grant monitor on user ...` in Snowflake dialect [#6322](https://github.com/sqlfluff/sqlfluff/pull/6322) [@mroy-seedbox](https://github.com/mroy-seedbox)
+* Exclude templated casts from CV11 [#6320](https://github.com/sqlfluff/sqlfluff/pull/6320) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Snowflake allow double-quoted comments [#6318](https://github.com/sqlfluff/sqlfluff/pull/6318) [@greg-finley](https://github.com/greg-finley)
+* Databricks materialized view [#6319](https://github.com/sqlfluff/sqlfluff/pull/6319) [@greg-finley](https://github.com/greg-finley)
+* Allow double quotes to be escaped by writing twice [#6316](https://github.com/sqlfluff/sqlfluff/pull/6316) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Resolve an oscillation bug with LT02 [#6306](https://github.com/sqlfluff/sqlfluff/pull/6306) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Create a "Guides and Howtos" section of the docs. [#6301](https://github.com/sqlfluff/sqlfluff/pull/6301) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add groups to the `github-annotation-native` format option. [#6312](https://github.com/sqlfluff/sqlfluff/pull/6312) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Snowflake: Support CTEs and multiple orders of CopyOptions in COPY INTO [#6313](https://github.com/sqlfluff/sqlfluff/pull/6313) [@keraion](https://github.com/keraion)
+* Allow expressions in ORDER BY for clickhouse [#6311](https://github.com/sqlfluff/sqlfluff/pull/6311) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Snowflake: support temp UDFs [#6309](https://github.com/sqlfluff/sqlfluff/pull/6309) [@rogalski](https://github.com/rogalski)
+* fix: tsql create function syntax corrections [#6289](https://github.com/sqlfluff/sqlfluff/pull/6289) [@nspcc-cm](https://github.com/nspcc-cm)
+
+## New Contributors
+
+* [@nspcc-cm](https://github.com/nspcc-cm) made their first contribution in [#6289](https://github.com/sqlfluff/sqlfluff/pull/6289)
+* [@rogalski](https://github.com/rogalski) made their first contribution in [#6309](https://github.com/sqlfluff/sqlfluff/pull/6309)
+
 ## [3.2.2] - 2024-10-07
 
 ## Highlights
