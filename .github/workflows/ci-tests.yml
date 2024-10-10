@@ -52,7 +52,6 @@ jobs:
       run: tox -e ${{ matrix.job }}
 
   # Test with coverage tracking on most recent python (py313).
-  # NOTE: py313 is really new, so not using that for coverage yet.
   python-version-tests:
     name: Python Tests
     strategy:
