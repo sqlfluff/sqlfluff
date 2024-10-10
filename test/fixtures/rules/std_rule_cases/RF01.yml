@@ -318,3 +318,13 @@ test_pass_tsql_nested_join_alias:
   configs:
     core:
       dialect: tsql
+
+test_pass_trino_lambda_expression:
+  pass_str: |
+    SELECT
+        a_column,
+        TRANSFORM(array_col, x -> x.example) AS array_col_example
+    FROM example_table;
+  configs:
+    core:
+      dialect: trino
