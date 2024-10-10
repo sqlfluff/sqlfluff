@@ -39,13 +39,13 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
+        python-version: '3.13'
     - name: Install dependencies
       run: pip install tox
     - name: Run the tests
       run: tox -e ${{ matrix.jobs }}
 
-  # Test with coverage tracking on most recent python (py312).
+  # Test with coverage tracking on most recent python (py313).
   # NOTE: py313 is really new, so not using that for coverage yet.
   python-version-tests:
     name: Python Tests
@@ -57,7 +57,7 @@ jobs:
           # This saves time, as testing without coverage tracking is faster.
           - coverage: false
           # Override coverage to be true for most recent python version.
-          - python-version: "3.12"
+          - python-version: "3.13"
             coverage: true
     permissions:
       contents: read
@@ -82,8 +82,8 @@ jobs:
           - dbt180
           - dbt190
         include:
-          # Default to python 3.12 for dbt tests.
-          - python-version: "3.12"
+          # Default to python 3.13 for dbt tests.
+          - python-version: "3.13"
           # For dbt 1.4 - 1.6 override to python 3.11
           - dbt-version: dbt140
             python-version: "3.11"
@@ -135,7 +135,7 @@ jobs:
       pull-requests: write
     uses: ./.github/workflows/ci-test-python.yml
     with:
-      python-version: "3.12"
+      python-version: "3.13"
       marks: ${{ matrix.marks }}
       coverage: ${{ matrix.coverage }}
     secrets:
@@ -148,7 +148,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
+        python-version: '3.13'
     - name: Install dependencies
       run: |
         pip install -r requirements_dev.txt
@@ -174,7 +174,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
+        python-version: '3.13'
     - name: Install dependencies
       run: |
         pip install -e .
@@ -189,7 +189,7 @@ jobs:
 
   python-windows-tests:
     runs-on: windows-latest
-    name: Python 3.12 Windows tests
+    name: Python 3.13 Windows tests
     steps:
     - name: Set git to use LF
       run: |
@@ -199,7 +199,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.12"
+        python-version: "3.13"
     - name: List Env
       shell: bash
       run: |
@@ -218,14 +218,14 @@ jobs:
     - name: Upload coverage data (github)
       uses: actions/upload-artifact@v4
       with:
-        name: coverage-data-winpy3.12
+        name: coverage-data-winpy3.13
         path: ".coverage.*"
         if-no-files-found: ignore
         include-hidden-files: true
 
   python-windows-dbt-tests:
     runs-on: windows-latest
-    name: dbt Plugin Python 3.12 Windows tests
+    name: dbt Plugin Python 3.13 Windows tests
     steps:
     - name: Start PostgreSQL on Windows
       run: |
@@ -243,7 +243,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.12"
+        python-version: "3.13"
     - name: Install dependencies
       shell: bash
       run: pip install tox
@@ -264,7 +264,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.12"
+        python-version: "3.13"
     - uses: actions/checkout@v4
     - name: Install dependencies
       run: |
@@ -293,7 +293,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.13"
 
       - run: python -m pip install --upgrade coverage[toml]
 
