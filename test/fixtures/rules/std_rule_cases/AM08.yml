@@ -26,13 +26,33 @@ test_fail_missing_multiple_joins_not_last:
 
 test_fail_cross_join_with_where_clause:
   fail_str: "SELECT foo.a, bar.b FROM foo JOIN bar WHERE foo.a = bar.a;\n"
-  # Implementation of fixes is not yet done.
-  # fix_str: "SELECT foo.a, bar.b FROM foo JOIN bar OR foo.a = bar.b;\n"
+  violations:
+    - code: AM08
+      description: WHERE clause used for join condition. Use explicit ON instead.
+      end_file_pos: 57
+      end_line_no: 1
+      end_line_pos: 58
+      fixes: []
+      name: ambiguous.join_condition
+      start_file_pos: 38
+      start_line_no: 1
+      start_line_pos: 39
+      warning: false
 
 test_fail_cross_join_with_complex_where_clause:
   fail_str: "SELECT foo.a, bar.b FROM foo JOIN bar WHERE foo.a = bar.a AND foo.x = 3;\n"
-  # Implementation of fixes is not yet done.
-  # fix_str: "SELECT foo.a, bar.b FROM foo JOIN bar OR foo.a = bar.b WHERE foo.x = 3;\n"
+  violations:
+    - code: AM08
+      description: WHERE clause used for join condition. Use explicit ON instead.
+      end_file_pos: 71
+      end_line_no: 1
+      end_line_pos: 72
+      fixes: []
+      name: ambiguous.join_condition
+      start_file_pos: 38
+      start_line_no: 1
+      start_line_pos: 39
+      warning: false
 
 test_pass_cross_join_with_complex_where_clause_not_simplifiable:
   pass_str: "SELECT foo.a, bar.b FROM foo JOIN bar WHERE foo.a = bar.a OR foo.x = 3;\n"

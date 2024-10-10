@@ -84,8 +84,13 @@ class Rule_AM08(BaseRule):
             )
             if where_clause_simplifable:
                 # For now, return violation without fix.
-                return LintResult(join_clause)
+                return LintResult(
+                    maybe_where_clause,
+                    description="WHERE clause used for join condition. "
+                    "Use explicit ON instead.",
+                )
             else:
+                # In case of complex expression, try to avoid false positive
                 return None
 
         join_keywords = [kw for kw in join_clause_keywords if kw.raw_upper == "JOIN"]
