@@ -746,6 +746,11 @@ ansi_dialect.add(
     # Uses grammar for LT06 support
     ColumnsExpressionGrammar=Nothing(),
     ListComprehensionGrammar=Nothing(),
+    TimeWithTZGrammar=Sequence(
+        OneOf("TIME", "TIMESTAMP"),
+        Bracketed(Ref("NumericLiteralSegment"), optional=True),
+        Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+    ),
 )
 
 
@@ -955,11 +960,7 @@ class DatatypeSegment(BaseSegment):
 
     type = "data_type"
     match_grammar: Matchable = OneOf(
-        Sequence(
-            OneOf("TIME", "TIMESTAMP"),
-            Bracketed(Ref("NumericLiteralSegment"), optional=True),
-            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
-        ),
+        Ref("TimeWithTZGrammar"),
         Sequence(
             "DOUBLE",
             "PRECISION",

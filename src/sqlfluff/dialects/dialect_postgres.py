@@ -795,11 +795,7 @@ class DateTimeTypeIdentifier(BaseSegment):
     type = "datetime_type_identifier"
     match_grammar = OneOf(
         "DATE",
-        Sequence(
-            OneOf("TIME", "TIMESTAMP"),
-            Bracketed(Ref("NumericLiteralSegment"), optional=True),
-            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
-        ),
+        Ref("TimeWithTZGrammar"),
         Sequence(
             OneOf("INTERVAL", "TIMETZ", "TIMESTAMPTZ"),
             Bracketed(Ref("NumericLiteralSegment"), optional=True),

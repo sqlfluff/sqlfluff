@@ -338,10 +338,7 @@ class DateTimeTypeIdentifier(BaseSegment):
     match_grammar = OneOf(
         "DATE",
         "DATETIME",
-        Sequence(
-            OneOf("TIME", "TIMESTAMP"),
-            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
-        ),
+        Ref("TimeWithTZGrammar"),
         OneOf("TIMETZ", "TIMESTAMPTZ"),
         # INTERVAL types are not Datetime types under Redshift:
         # https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
