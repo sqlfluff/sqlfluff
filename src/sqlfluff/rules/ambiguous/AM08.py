@@ -138,13 +138,17 @@ class Rule_AM08(BaseRule):
             elif seg.is_type("update_statement", "delete_statement"):
                 return None
 
-        return None
+        # According to grammar, this is not reachable.
+        # Do not emit any error instead of crashing.
+        return None  # pragma: no cover
 
     @staticmethod
     def _is_where_clause_simplifable(where_clause: BaseSegment) -> bool:
         assert where_clause.is_type("where_clause")
         expr = where_clause.get_child("expression")
-        if not expr:
+        if not expr:  # pragma: no cover
+            # According to grammar, we should always have an ExpressionSegment
+            # See sqlfluff.dialects.dialect_ansi.WhereClauseSegment
             return False
         ops = expr.get_children("binary_operator")
         return all(op.raw_upper == "AND" for op in ops)

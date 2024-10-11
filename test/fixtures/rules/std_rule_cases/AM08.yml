@@ -113,3 +113,28 @@ test_pass_asof_join_clickhouse:
   configs:
     core:
       dialect: clickhouse
+
+test_noop_delete:
+  pass_str: |
+    DELETE t1, t2 FROM t1 JOIN t2 JOIN t3
+    WHERE t1.id=t2.id AND t2.id=t3.id;
+  configs:
+    core:
+      dialect: mysql
+
+test_noop_cross_apply:
+  pass_str: |
+    SELECT DeptID, DeptName, DeptMgrID, EmpID, EmpLastName, EmpSalary
+    FROM Departments d
+    CROSS APPLY dbo.GetReports(d.DeptMgrID);
+  configs:
+    core:
+      dialect: tsql
+
+test_noop_outer_apply:
+  pass_str: |
+    SELECT * FROM Department D
+    OUTER APPLY dbo.fn_GetAllEmployeeOfADepartment(D.DepartmentID);
+  configs:
+    core:
+      dialect: tsql
