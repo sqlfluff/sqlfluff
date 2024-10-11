@@ -275,11 +275,7 @@ class DatatypeSegment(BaseSegment):
         "JSON",
         # Date and time
         "DATE",
-        Sequence(
-            OneOf("TIME", "TIMESTAMP"),
-            Ref("BracketedArguments", optional=True),
-            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
-        ),
+        Ref("TimeWithTZGrammar"),
         # Structural
         Ref("ArrayTypeSegment"),
         "MAP",
