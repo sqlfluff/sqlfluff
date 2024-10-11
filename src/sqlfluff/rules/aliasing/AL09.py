@@ -20,83 +20,41 @@ class Rule_AL09(BaseRule):
 
     In all dialects, aliasing to an exact copy of the column reference
     is always unnecessary (e.g. :code:`foo as foo` or :code:`"BAR" as "BAR"`).
-    The situation which is dialect dependent is how the alias is treated
-    when the quoting and casing of the two are not the same. We allow
-    users to override this behaviour using the :code:`self_alias_casing`
-    config value, but the default behaviour is to attempt to auto detect from
-    the dialect (i.e. with :code:`self_alias_casefold` set to :code:`dialect`).
-
-    .. list-table::
-       :widths: 26 48 26
-       :header-rows: 1
-
-       * - :code:`self_alias_casing` setting / Dialect behaviour
-         - ⚠️ Self-alias examples.
-         - ✅ Re-casing examples.
-       * - :code:`unquoted_sensitive`. Default for :ref:`clickhouse_dialect_ref`,
-           :ref:`trino_dialect_ref` and :ref:`bigquery_dialect_ref`, and known
-           to be an optional configuration for :ref:`tsql_dialect_ref` instances.
-           See :ref:`note <note_about_bigquery_and_clickhouse>` below.
-         - This is the most conservative setting, which restricts this rule
-           to only flag self aliases, when the casing is exactly the same,
-           even when unquoted e.g. :code:`"Foo" as "Foo"`.
-         - Any case change (even un-quoted) is a re-casing alias e.g.
-           :code:`Foo as fOo` or :code:`"Foo" as "foo"`.
-       * - :code:`quoted_insensitive` & case insensitive dialects e.g.
-           :ref:`duckdb_dialect_ref` or :ref:`sparksql_dialect_ref`
-         - Regardless of quotes or casing, all aliases which compare the same
-           as their references are self-aliases e.g. :code:`"Foo" as fOo`.
-         - NA. Re-casing is not possible in these dialects. The case of the
-           object as it was originally defined is always returned.
-       * - :code:`unquoted_uppercase` natively :code:`UPPERCASE` dialects
-           e.g. :ref:`snowflake_dialect_ref`, :ref:`tsql_dialect_ref` &
-           :ref:`oracle_dialect_ref` i.e. dialects where unquoted
-           identifiers are treated as uppercase.
-         - Identifiers which all resolve to the default casing of :code:`FOO`
-           e.g. :code:`foo as foo`, :code:`foo as FOO`, :code:`Foo as "FOO"`
-           & :code:`"FOO" as FOO`.
-         - Aliases which resolve to a different case e.g.
-           :code:`"foo" as foo`, :code:`"Foo" as "FOO"`
-       * - :code:`unquoted_lowercase` & natively :code:`lowercase` dialects
-           e.g. :ref:`athena_dialect_ref`, :ref:`hive_dialect_ref`,
-           :ref:`postgres_dialect_ref` & :ref:`mysql_dialect_ref` i.e. dialects
-           where unquoted identifiers are treated as lowercase.
-         - Identifiers which all resolve to the default casing of :code:`foo`
-           e.g. :code:`foo as foo`, :code:`foo as FOO`, :code:`Foo as "foo"`
-           & :code:`"foo" as foo`.
-         - Aliases which resolve to a different case e.g.
-           :code:`"FOO" as FOO`, :code:`"Foo" as "foo"`
-
-    This rule is closely associated with (and constrained by the same above
-    factors) as :sqlfluff:ref:`references.quoting` (:sqlfluff:ref:`RF06`).
-
-    .. _note_about_bigquery_and_clickhouse:
 
     .. note::
 
-       While :ref:`clickhouse_dialect_ref` and :ref:`bigquery_dialect_ref`
-       default to the same setting for this rule, they do that for different
-       reasons.
+       This rule works in conjunction with :sqlfluff:ref:`references.quoting`
+       (:sqlfluff:ref:`RF06`) and :sqlfluff:ref:`capitalisation.identifiers`
+       (:sqlfluff:ref:`CP02`) to handle self aliases with mixed quoting
+       and casing. In the situation that these two roles are not enabled
+       then this rule will only fix the strict case where the quoting
+       and casing of the alias and reference are the same.
 
-       :ref:`clickhouse_dialect_ref` is case sensitive throughout, regardless
-       of whether identifiers or aliases are quoted or unquoted. If a column
-       is defined as :code:`foo` and then a user runs :code:`select FOO from my_table`
-       then Clickhouse will return a :code:`UNKNOWN_IDENTIFIER` error.
+       If those two rules are enabled, the fixes applied may result in a
+       situation where this rule can kick in as a secondary effect. For
+       example this :ref:`snowflake_dialect_ref` query:
 
-       :ref:`bigquery_dialect_ref` and :ref:`trino_dialect_ref` store column
-       casing differently, but both of them *resolve* references case insensitively.
-       However both of them also respect the case of references in the result set
-       without aliasing. As a result, re-casing can be done without quoting.
+       .. code-block:: sql
 
-       It's worth noting that for these dialects, you may wish to disable
-       :sqlfluff:ref:`capitalisation.identifiers` (:sqlfluff:ref:`CP02`) for the
-       project as that will otherwise coerce any unquoted identifiers to the default
-       capitalisation. This may be undesirable if you wish to take advantage of
-       this casing behaviour in any of these dialects.
+          -- Original Query. AL09 will not trigger because casing and
+          -- quoting a different. RF06 will however fix the unnecessary
+          -- quoting of "COL".
+          SELECT "COL" AS col FROM table;
+          -- After RF06, the query will look like this, at which point
+          -- CP02 will see the inconsistent capitalisation. Depending
+          -- on the configuration it will change one of the identifiers.
+          -- Let's assume the default configuration of "consistent".
+          SELECT COL AS col FROM table;
+          -- After CP02, the alias and the reference will be the same
+          -- and at this point AL09 can take over and remove the alias.
+          SELECT COL AS COL FROM table;
+          -- ..resulting in:
+          SELECT COL FROM table;
 
-       As a general rule, the case sensitivity of different dialects varies
-       significantly, and as such we recommend using a single consistent approach
-       to casing across your project if at all possible.
+       This interdependence between the rules, and the configuration
+       options offered by each one means a variety of outcomes can be
+       achieved by enabling and disabling each one. See
+       :ref:`ruleselection` and :ref:`ruleconfig` for more details.
 
     **Anti-pattern**
 
@@ -159,65 +117,63 @@ class Rule_AL09(BaseRule):
                 "alias_expression"
             )  # `as col_a`
 
-            # If the alias is for a column_reference type (not function)
-            # then continue
-            if alias_expression and column:
-                # If column has either a naked_identifier or quoted_identifier
-                # (not positional identifier like $n in snowflake)
-                # then continue
-                if column.get_child("naked_identifier") or column.get_child(
-                    "quoted_identifier"
-                ):
-                    whitespace = clause_element.get_child("whitespace")  # ` `
+            # We're only interested in direct aliasing of columns (i.e. not
+            # and expression), so if that isn't the case, move on.
+            if not (alias_expression and column):
+                continue
 
-                    # If the column name is quoted then get the `quoted_identifier`,
-                    # otherwise get the last `naked_identifier`.
-                    # The last naked_identifier in column_reference type
-                    # belongs to the column name.
-                    # Example: a.col_name where `a` is table name/alias identifier
-                    if column.get_child("quoted_identifier"):
-                        column_identifier = column.get_child("quoted_identifier")
-                    else:
-                        column_identifier = column.get_children("naked_identifier")[-1]
+            # The column needs to be a naked_identifier or quoted_identifier
+            # (not positional identifier like $n in snowflake).
+            # Move on if not. Some column references have multiple elements
+            # (e.g. my_table.my_column), so only fetch the last available.
+            _column_elements = column.get_children(
+                "naked_identifier", "quoted_identifier"
+            )
+            if not _column_elements:
+                continue
+            column_identifier = _column_elements[-1]
 
-                    # The alias can be the naked_identifier or the quoted_identifier
-                    alias_identifier = alias_expression.get_child(
-                        "naked_identifier"
-                    ) or alias_expression.get_child("quoted_identifier")
+            # Fetch the whitespace between the reference and the alias.
+            whitespace = clause_element.get_child("whitespace")  # ` `
 
-                    if not (
-                        whitespace and column_identifier and alias_identifier
-                    ):  # pragma: no cover
-                        # We *should* expect all of these to be non-null, but some bug
-                        # reports suggest that that isn't always the case for some
-                        # dialects. In those cases, log a warning here, but don't
-                        # flag it as a linting issue. Hopefully this will help
-                        # better bug reports in future.
-                        self.logger.warning(
-                            "AL09 found an unexpected syntax in an alias expression. "
-                            "Unable to determine if this is a self-alias. Please "
-                            "report this as a bug on GitHub.\n\n"
-                            f"Debug details: dialect: {context.dialect.name}, "
-                            f"whitespace: {whitespace is not None}, "
-                            f"column_identifier: {column_identifier is not None}, "
-                            f"alias_identifier: {alias_identifier is not None}, "
-                            f"alias_expression: {clause_element.raw!r}."
-                        )
-                        continue
+            # The alias can be the naked_identifier or the quoted_identifier
+            alias_identifier = alias_expression.get_child(
+                "naked_identifier", "quoted_identifier"
+            )
 
-                    # Column self-aliased
-                    if column_identifier.raw_upper == alias_identifier.raw_upper:
-                        fixes: List[LintFix] = []
+            if not (whitespace and alias_identifier):  # pragma: no cover
+                # We *should* expect all of these to be non-null, but some bug
+                # reports suggest that that isn't always the case for some
+                # dialects. In those cases, log a warning here, but don't
+                # flag it as a linting issue. Hopefully this will help
+                # better bug reports in future.
+                self.logger.warning(
+                    "AL09 found an unexpected syntax in an alias expression. "
+                    "Unable to determine if this is a self-alias. Please "
+                    "report this as a bug on GitHub.\n\n"
+                    f"Debug details: dialect: {context.dialect.name}, "
+                    f"whitespace: {whitespace is not None}, "
+                    f"alias_identifier: {alias_identifier is not None}, "
+                    f"alias_expression: {clause_element.raw!r}."
+                )
+                continue
 
-                        fixes.append(LintFix.delete(whitespace))
-                        fixes.append(LintFix.delete(alias_expression))
+            # We compare the _exact_ raw value of the column identifier
+            # and the alias identifier (i.e. including quoting and casing).
+            # Resolving aliases & references with differing quoting and casing
+            # should be done in conjunction with RF06 & CP02 (see docstring).
+            if column_identifier.raw == alias_identifier.raw:
+                fixes: List[LintFix] = []
 
-                        violations.append(
-                            LintResult(
-                                anchor=clause_element_raw_segments[0],
-                                description="Column should not be self-aliased.",
-                                fixes=fixes,
-                            )
-                        )
+                fixes.append(LintFix.delete(whitespace))
+                fixes.append(LintFix.delete(alias_expression))
+
+                violations.append(
+                    LintResult(
+                        anchor=clause_element_raw_segments[0],
+                        description="Column should not be self-aliased.",
+                        fixes=fixes,
+                    )
+                )
 
         return violations or None
