@@ -75,8 +75,11 @@ class Rule_AM08(BaseRule):
             # Join condition is present, no error reported.
             return None
 
-        select_stmt = self._get_select_stmt(join_clause)
-        assert select_stmt is not None
+        select_stmt = self._get_select_stmt(context.parent_stack)
+        if select_stmt is None:
+            # Do not emit this warning for JOIN in UPDATE or DELETE
+            return None
+
         maybe_where_clause = select_stmt.get_child("where_clause")
         if maybe_where_clause:
             where_clause_simplifable = self._is_where_clause_simplifable(
@@ -126,28 +129,14 @@ class Rule_AM08(BaseRule):
         )
 
     @staticmethod
-    def _get_select_stmt(join_clause: BaseSegment) -> Optional[BaseSegment]:
-        maybe_from_expr = join_clause.get_parent()
-        if maybe_from_expr is None:
-            return None
-        from_expr, _ = maybe_from_expr
-        assert from_expr.is_type("from_expression")
+    def _get_select_stmt(stack: Tuple[BaseSegment, ...]) -> Optional[BaseSegment]:
+        for seg in reversed(stack):
+            if seg.is_type("select_statement"):
+                return seg
+            elif seg.is_type("update_statement", "delete_statement"):
+                return None
 
-        maybe_from_clause = from_expr.get_parent()
-        if maybe_from_clause is None:
-            return None
-        from_clause, _ = maybe_from_clause
-        assert from_clause.is_type("from_clause")
-
-        maybe_select_stmt = from_clause.get_parent()
-        if maybe_select_stmt is None:
-            return None
-        select_stmt, _ = maybe_select_stmt
-        assert select_stmt.is_type(
-            "select_statement", "update_statement", "delete_statement"
-        )
-
-        return select_stmt
+        return None
 
     @staticmethod
     def _is_where_clause_simplifable(where_clause: BaseSegment) -> bool:
