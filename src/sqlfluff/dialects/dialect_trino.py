@@ -248,8 +248,9 @@ trino_dialect.replace(
         # Add arrow operators for functions (e.g. regexp_replace)
         Ref("RightArrowOperator"),
     ),
+    # match ANSI's naked identifier casefold, trino is case-insensitive.
     QuotedIdentifierSegment=TypedParser(
-        "double_quote", IdentifierSegment, type="quoted_identifier"
+        "double_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
     ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("LambdaExpressionSegment"),
