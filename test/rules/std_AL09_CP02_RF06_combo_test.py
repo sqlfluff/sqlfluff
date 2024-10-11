@@ -186,6 +186,24 @@ select
 from foo
 """,
         ),
+        # DuckDB is always case insensitive so likewise has a different result.
+        (
+            ["AL09", "CP02", "RF06"],
+            "duckdb",
+            """
+select
+    a,
+    b,
+    c,
+    d,
+    e,
+    f,
+    g,
+    h,
+    i
+from foo
+""",
+        ),
     ],
 )
 def test__rules__std_AL09_CP02_RF06(rules, dialect, fixed_sql):

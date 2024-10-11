@@ -218,7 +218,8 @@ clickhouse_dialect.replace(
             type="quoted_literal",
         ),
     ),
-    # Drop casefold from ANSI
+    # Drop casefold from ANSI, clickhouse is always case sensitive, even when
+    # unquoted.
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
