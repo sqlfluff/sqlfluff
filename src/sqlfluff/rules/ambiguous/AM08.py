@@ -97,7 +97,9 @@ class Rule_AM08(BaseRule):
                 return None
 
         join_keywords = [kw for kw in join_clause_keywords if kw.raw_upper == "JOIN"]
-        assert len(join_keywords) == 1
+        if len(join_keywords) != 1:
+            # This can happen in T-SQL CROSS APPLY / OUTER APPLY
+            return None
 
         join_kw = join_keywords[0]
 
