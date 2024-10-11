@@ -2612,27 +2612,6 @@ class AlterExtensionStatementSegment(BaseSegment):
     )
 
 
-class WrapperReferenceSegment(ansi.ObjectReferenceSegment):
-    """A Wrapper object reference."""
-
-    type = "wrapper_reference"
-    match_grammar: Matchable = Ref("SingleIdentifierGrammar")
-
-
-class HandlerReferenceSegment(ansi.ObjectReferenceSegment):
-    """A Handler object reference."""
-
-    type = "handler_reference"
-    match_grammar: Matchable = Ref("SingleIdentifierGrammar")
-
-
-class ValidatorReferenceSegment(ansi.ObjectReferenceSegment):
-    """A validator object reference."""
-
-    type = "validator_reference"
-    match_grammar: Matchable = Ref("SingleIdentifierGrammar")
-
-
 class CreateForeignDataWrapperStatementSegment(BaseSegment):
     """A CREATE FOREIGN DATA WRAPPER Statement.
 
@@ -2642,17 +2621,15 @@ class CreateForeignDataWrapperStatementSegment(BaseSegment):
     type = "create_foreign_data_wrapper"
     match_grammar: Matchable = Sequence(
         "CREATE",
-        "FOREIGN",
-        "DATA",
-        "WRAPPER",
-        Ref("WrapperReferenceSegment"),
+        Ref("ForeignDataWrapperGrammar"),
+        Ref("SingleIdentifierGrammar"),
         Indent,
         "HANDLER",
-        Ref("HandlerReferenceSegment"),
+        Ref("SingleIdentifierGrammar"),
         Dedent,
         Indent,
         "VALIDATOR",
-        Ref("ValidatorReferenceSegment"),
+        Ref("SingleIdentifierGrammar"),
         Dedent,
     )
 
