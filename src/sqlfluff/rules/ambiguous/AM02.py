@@ -15,7 +15,8 @@ class Rule_AM02(BaseRule):
 
     .. note::
        This rule is only enabled for dialects that support ``UNION`` and
-       ``UNION DISTINCT`` (``ansi``, ``hive``, ``mysql``, and ``redshift``).
+       ``UNION DISTINCT`` (``ansi``, ``bigquery``, ``clickhouse``, 
+      ``databricks``, ``db2``, ``hive``, ``mysql``, and ``redshift``).
 
     **Anti-pattern**
 
