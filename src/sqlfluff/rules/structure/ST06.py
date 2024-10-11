@@ -86,35 +86,47 @@ class Rule_ST06(BaseRule):
         ]  # type: ignore
 
         assert context.segment.is_type("select_clause")
-        # Ignore select clauses which belong to:
-        # - set expression, which is most commonly a union
-        # - insert_statement
-        # - create table statement
-        #
-        # In each of these contexts, the order of columns in a select should
-        # be preserved.
-        if len(context.parent_stack) >= 2 and context.parent_stack[-2].is_type(
-            "insert_statement", "set_expression"
-        ):
-            return None
-        if (
-            len(context.parent_stack) >= 3
-            and context.parent_stack[-3].is_type("insert_statement", "set_expression")
-            and context.parent_stack[-2].is_type("with_compound_statement")
-        ):
-            return None
-        if len(context.parent_stack) >= 3 and context.parent_stack[-3].is_type(
-            "create_table_statement", "merge_statement"
-        ):
-            return None
-        if (
-            len(context.parent_stack) >= 4
-            and context.parent_stack[-4].is_type(
-                "create_table_statement", "merge_statement"
-            )
-            and context.parent_stack[-2].is_type("with_compound_statement")
-        ):
-            return None
+
+        # insert, merge, create table, union are order-sensitive
+        for seg in reversed(context.parent_stack):
+            if seg.is_type(
+                "insert_statement",
+                "set_expression",
+                "create_table_statement",
+                "merge_statement",
+            ):
+                return None
+
+        # CTE is order-sensitive only if CTE is referenced as SELECT * in set expression
+        for seg in reversed(context.parent_stack):
+            if seg.is_type("common_table_expression"):
+                cte_identifier = seg.get_child("identifier")
+                assert cte_identifier is not None
+                maybe_with_compound_statement = seg.get_parent()
+                if maybe_with_compound_statement is None:
+                    break  # pragma: no cover
+                with_compound_statement, _ = maybe_with_compound_statement
+                for ref in with_compound_statement.recursive_crawl("table_reference"):
+                    if ref.raw_upper == cte_identifier.raw_upper:
+                        path = with_compound_statement.path_to(ref)
+                        if any(
+                            path_step.segment.is_type("set_expression")
+                            for path_step in path
+                        ):
+                            select_statements = [
+                                path_step.segment
+                                for path_step in path
+                                if path_step.segment.is_type(
+                                    "select_statement",
+                                    "unordered_select_statement_segment",
+                                )
+                            ]
+                            if any(
+                                "wildcard_expression"
+                                in select_statement.descendant_type_set
+                                for select_statement in select_statements
+                            ):
+                                return None
 
         select_clause_segment = context.segment
         select_target_elements = context.segment.get_children("select_clause_element")
