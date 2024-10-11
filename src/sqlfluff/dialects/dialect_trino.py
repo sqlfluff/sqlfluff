@@ -74,6 +74,11 @@ trino_dialect.add(
         "<", SymbolSegment, type="start_angle_bracket"
     ),
     EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
+    FormatJsonEncodingGrammar=Sequence(
+        "FORMAT",
+        "JSON",
+        Sequence("ENCODING", OneOf("UTF8", "UTF16", "UTF32"), optional=True),
+    ),
 )
 
 trino_dialect.bracket_sets("angle_bracket_pairs").update(
@@ -216,6 +221,24 @@ trino_dialect.replace(
                 Ref("QuotedLiteralSegment"),
                 Ref("SingleIdentifierGrammar"),
                 Ref("ColumnReferenceSegment"),
+            ),
+        ),
+        # For JSON_QUERY function
+        # https://trino.io/docs/current/functions/json.html#json-query
+        Sequence(
+            Ref("ExpressionSegment"),  # json_input
+            Ref("FormatJsonEncodingGrammar", optional=True),
+            Ref("CommaSegment"),
+            Ref("ExpressionSegment"),  # json_path
+            OneOf(
+                Sequence("WITHOUT", Ref.keyword("ARRAY", optional=True), "WRAPPER"),
+                Sequence(
+                    "WITH",
+                    OneOf("CONDITIONAL", "UNCONDITIONAL", optional=True),
+                    Ref.keyword("ARRAY", optional=True),
+                    "WRAPPER",
+                ),
+                optional=True,
             ),
         ),
         Ref("IgnoreRespectNullsGrammar"),
