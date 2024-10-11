@@ -2612,6 +2612,51 @@ class AlterExtensionStatementSegment(BaseSegment):
     )
 
 
+class WrapperReferenceSegment(ansi.ObjectReferenceSegment):
+    """A Wrapper object reference."""
+
+    type = "wrapper_reference"
+    match_grammar: Matchable = Ref("SingleIdentifierGrammar")
+
+
+class HandlerReferenceSegment(ansi.ObjectReferenceSegment):
+    """A Handler object reference."""
+
+    type = "handler_reference"
+    match_grammar: Matchable = Ref("SingleIdentifierGrammar")
+
+
+class ValidatorReferenceSegment(ansi.ObjectReferenceSegment):
+    """A validator object reference."""
+
+    type = "validator_reference"
+    match_grammar: Matchable = Ref("SingleIdentifierGrammar")
+
+
+class CreateForeignDataWrapperStatementSegment(BaseSegment):
+    """A CREATE FOREIGN DATA WRAPPER Statement.
+
+    Docs: https://fdw.dev/catalog/
+    """
+
+    type = "create_foreign_data_wrapper"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "FOREIGN",
+        "DATA",
+        "WRAPPER",
+        Ref("WrapperReferenceSegment"),
+        Indent,
+        "HANDLER",
+        Ref("HandlerReferenceSegment"),
+        Dedent,
+        Indent,
+        "VALIDATOR",
+        Ref("ValidatorReferenceSegment"),
+        Dedent,
+    )
+
+
 class SubscriptionReferenceSegment(ansi.ObjectReferenceSegment):
     """A subscription reference."""
 
@@ -4665,6 +4710,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropStatisticsStatementSegment"),
             Ref("ShowStatementSegment"),
             Ref("SetConstraintsStatementSegment"),
+            Ref("CreateForeignDataWrapperStatementSegment"),
         ],
     )
 
