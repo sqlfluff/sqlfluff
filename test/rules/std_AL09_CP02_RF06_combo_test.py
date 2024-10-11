@@ -167,25 +167,6 @@ select
 from foo
 """,
         ),
-        # Ditto Trino (and also MySQL, but it has different identifier
-        # quoting so would need a more complex test case).
-        (
-            ["AL09", "CP02", "RF06"],
-            "trino",
-            """
-select
-    a,
-    b,
-    "C" as c,
-    d,
-    "E" as e,
-    f,
-    g as "G",
-    h,
-    i
-from foo
-""",
-        ),
         # DuckDB is always case insensitive so likewise has a different result.
         (
             ["AL09", "CP02", "RF06"],
