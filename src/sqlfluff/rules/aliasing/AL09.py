@@ -14,12 +14,10 @@ class Rule_AL09(BaseRule):
 
     Renaming the column to itself is a redundant piece of SQL,
     which doesn't affect its functionality. This rule only applies
-    when the current dialect would resolve the two identifiers to
-    the same object. Aliases which effectively change the casing of
-    an identifier as still allowed.
-
-    In all dialects, aliasing to an exact copy of the column reference
-    is always unnecessary (e.g. :code:`foo as foo` or :code:`"BAR" as "BAR"`).
+    when aliasing to an exact copy of the column reference (e.g.
+    :code:`foo as foo` or :code:`"BAR" as "BAR"`, see note below on
+    more complex examples). Aliases which effectively change the casing of
+    an identifier are still allowed.
 
     .. note::
 
@@ -129,7 +127,7 @@ class Rule_AL09(BaseRule):
             _column_elements = column.get_children(
                 "naked_identifier", "quoted_identifier"
             )
-            if not _column_elements:
+            if not _column_elements:  # pragma: no cover
                 continue
             column_identifier = _column_elements[-1]
 

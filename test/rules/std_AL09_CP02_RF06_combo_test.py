@@ -25,10 +25,13 @@ from foo
 
 
 @pytest.mark.parametrize(
-    "rules, fixed_sql",
+    "rules,dialect,fixed_sql",
     [
+        # NOTE: The first few examples here are with ANSI which is
+        # configured as a natively UPPERCASE dialect.
         (
             ["AL09"],
+            "ansi",
             """
 select
     a as A,
@@ -45,6 +48,7 @@ from foo
         ),
         (
             ["CP02"],
+            "ansi",
             """
 select
     a as a,
@@ -61,6 +65,7 @@ from foo
         ),
         (
             ["RF06"],
+            "ansi",
             """
 select
     a as A,
@@ -77,6 +82,7 @@ from foo
         ),
         (
             ["AL09", "CP02"],
+            "ansi",
             """
 select
     a,
@@ -93,6 +99,7 @@ from foo
         ),
         (
             ["AL09", "RF06"],
+            "ansi",
             """
 select
     a as A,
@@ -109,6 +116,7 @@ from foo
         ),
         (
             ["CP02", "RF06"],
+            "ansi",
             """
 select
     a as a,
@@ -125,6 +133,7 @@ from foo
         ),
         (
             ["AL09", "CP02", "RF06"],
+            "ansi",
             """
 select
     a,
@@ -139,10 +148,48 @@ select
 from foo
 """,
         ),
+        # Postgres is natively lowercase, and so the results are
+        # different.
+        (
+            ["AL09", "CP02", "RF06"],
+            "postgres",
+            """
+select
+    a,
+    b,
+    "C" as c,
+    d,
+    "E" as e,
+    f,
+    g as "G",
+    h,
+    i
+from foo
+""",
+        ),
+        # Ditto Trino (and also MySQL, but it has different identifier
+        # quoting so would need a more complex test case).
+        (
+            ["AL09", "CP02", "RF06"],
+            "trino",
+            """
+select
+    a,
+    b,
+    "C" as c,
+    d,
+    "E" as e,
+    f,
+    g as "G",
+    h,
+    i
+from foo
+""",
+        ),
     ],
 )
-def test__rules__std_AL09_CP02_RF06(rules, fixed_sql):
+def test__rules__std_AL09_CP02_RF06(rules, dialect, fixed_sql):
     """Test interactions between AL09, CP02 & RF06."""
     print(f"Running with rules: {rules}")
-    result = sqlfluff.fix(input_query, rules=rules)
+    result = sqlfluff.fix(input_query, dialect=dialect, rules=rules)
     assert result == fixed_sql

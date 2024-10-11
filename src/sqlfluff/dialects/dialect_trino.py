@@ -20,6 +20,8 @@ from sqlfluff.core.parser import (
     OneOf,
     Ref,
     RegexLexer,
+    RegexParser,
+    SegmentGenerator,
     Sequence,
     StringLexer,
     StringParser,
@@ -109,6 +111,17 @@ trino_dialect.replace(
             ),
         ),
         Ref("IntervalExpressionSegment"),
+    ),
+    # Replicate the ANSI segment but casefolding lower.
+    NakedIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"[A-Z0-9_]*[A-Z][A-Z0-9_]*",
+            IdentifierSegment,
+            type="naked_identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.lower,
+        )
     ),
     LikeGrammar=Sequence("LIKE"),
     # TODO: There are no custom SQL functions in Trino! How to handle this?
@@ -235,9 +248,8 @@ trino_dialect.replace(
         # Add arrow operators for functions (e.g. regexp_replace)
         Ref("RightArrowOperator"),
     ),
-    # match ANSI's naked identifier casefold, trino is case-insensitive.
     QuotedIdentifierSegment=TypedParser(
-        "double_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
+        "double_quote", IdentifierSegment, type="quoted_identifier"
     ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("LambdaExpressionSegment"),
