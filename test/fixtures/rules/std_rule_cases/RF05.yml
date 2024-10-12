@@ -382,6 +382,18 @@ test_pass_ignore_words_regex_unquoted:
       references.special_chars:
         ignore_words_regex: lias\$$
 
+test_pass_create_extension_reference_quoted:
+  pass_str: CREATE EXTENSION IF NOT EXISTS "quoted-extension";
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_drop_extension_reference_quoted:
+  pass_str: DROP EXTENSION IF EXISTS "quoted-extension";
+  configs:
+    core:
+      dialect: postgres
+
 test_pass_ignore_words_regex_quoted:
   pass_str: SELECT a as 'aliashash#'
   configs:
