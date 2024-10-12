@@ -462,6 +462,14 @@ def test__templater_dbt_templating_absolute_path(
             "undefined. This can happen when calling a macro that does not exist.",
             SQLTemplaterError,
         ),
+        (
+            "compile_missing_table.sql",
+            # In the test suite we don't get a very helpful error message from dbt
+            # but in live testing, the inclusion of the triggering error sometimes
+            # gives us something much more useful.
+            "because dbt raised a fatal exception during compilation",
+            SQLFluffSkipFile,
+        ),
     ],
 )
 def test__templater_dbt_handle_exceptions(
