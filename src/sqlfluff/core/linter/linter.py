@@ -896,7 +896,7 @@ class Linter:
             self.formatter.dispatch_template_header(fname, self.config, config)
 
         # Just use the local config from here:
-        config = config or self.config
+        config = (config or self.config).copy()
 
         # Scan the raw file for config commands.
         config.process_raw_file_for_config(in_str, fname)

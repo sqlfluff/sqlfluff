@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from copy import copy, deepcopy
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
@@ -167,6 +168,17 @@ class FluffConfig:
         # NOTE: Likewise we don't reinstate the "templater_obj" config value
         # which should also only be used in the main thread rather than child
         # processes.
+
+    def copy(self) -> FluffConfig:
+        """Returns a copy of the FluffConfig.
+
+        This creates a shallow copy of most of the config, but with a deep copy of the
+        `_configs` dictionary.
+        """
+        configs_attribute_copy = deepcopy(self._configs)
+        config_copy = copy(self)
+        config_copy._configs = configs_attribute_copy
+        return config_copy
 
     @classmethod
     def from_root(
