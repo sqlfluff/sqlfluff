@@ -35,7 +35,7 @@ class Rule_AL09(BaseRule):
        .. code-block:: sql
 
           -- Original Query. AL09 will not trigger because casing and
-          -- quoting a different. RF06 will however fix the unnecessary
+          -- quoting are different. RF06 will however fix the unnecessary
           -- quoting of "COL".
           SELECT "COL" AS col FROM table;
           -- After RF06, the query will look like this, at which point
