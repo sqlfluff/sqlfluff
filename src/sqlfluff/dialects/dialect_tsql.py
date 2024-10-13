@@ -466,7 +466,7 @@ tsql_dialect.replace(
             type="function_name_identifier",
             anti_template=r"^("
             + r"|".join(
-                dialect.sets("reserved_keywords")
+                dialect.sets("reserved_keywords").difference({"UPDATE"})
                 | dialect.sets("future_reserved_keywords")
             )
             + r")$",
