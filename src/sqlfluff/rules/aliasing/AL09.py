@@ -24,7 +24,7 @@ class Rule_AL09(BaseRule):
        This rule works in conjunction with :sqlfluff:ref:`references.quoting`
        (:sqlfluff:ref:`RF06`) and :sqlfluff:ref:`capitalisation.identifiers`
        (:sqlfluff:ref:`CP02`) to handle self aliases with mixed quoting
-       and casing. In the situation that these two roles are not enabled
+       and casing. In the situation that these two rules are not enabled
        then this rule will only fix the strict case where the quoting
        and casing of the alias and reference are the same.
 
