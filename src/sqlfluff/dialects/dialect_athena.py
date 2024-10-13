@@ -273,6 +273,11 @@ athena_dialect.replace(
             Sequence("WITH", "ORDINALITY", optional=True),
         ]
     ),
+    AlterTableDropColumnGrammar=Sequence(
+        "DROP",
+        Ref.keyword("COLUMN"),
+        Ref("SingleIdentifierGrammar"),
+    ),
 )
 
 
