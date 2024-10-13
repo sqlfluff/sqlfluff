@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5da52c9b61f489951f21119b14a49acc58bf2903b00bbf3a79068df5dfe4f467
+_hash: d788dbfbeaf65337c5ad5d8914093c4be2db4ffa389f349383e6ddafc2d3622a
 file:
 - batch:
     statement:
@@ -899,6 +899,47 @@ file:
                 data_type:
                   data_type_identifier: date
                 end_bracket: )
+    statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[HangFire]'
+        - dot: .
+        - quoted_identifier: '[JobParameter]'
+      - keyword: ADD
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            quoted_identifier: '[FK_HangFire_JobParameter_Job]'
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              quoted_identifier: '[JobId]'
+            end_bracket: )
+        - references_constraint_grammar:
+          - keyword: REFERENCES
+          - table_reference:
+            - quoted_identifier: '[HangFire]'
+            - dot: .
+            - quoted_identifier: '[Job]'
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                quoted_identifier: '[Id]'
+              end_bracket: )
+          - keyword: 'ON'
+          - keyword: UPDATE
+          - keyword: CASCADE
+          - keyword: 'ON'
+          - keyword: DELETE
+          - keyword: CASCADE
     statement_terminator: ;
 - go_statement:
     keyword: GO

@@ -1830,13 +1830,11 @@ class ReferencesConstraintGrammar(BaseSegment):
         Ref("TableReferenceSegment"),
         # Foreign columns making up FOREIGN KEY constraint
         Ref("BracketedColumnReferenceListGrammar", optional=True),
-        Sequence(
-            "ON",
-            OneOf("DELETE", "UPDATE"),
-            Ref("ReferentialActionGrammar"),
-            optional=True,
+        AnySetOf(
+            Sequence("ON", "DELETE", Ref("ReferentialActionGrammar")),
+            Sequence("ON", "UPDATE", Ref("ReferentialActionGrammar")),
+            Sequence("NOT", "FOR", "REPLICATION"),
         ),
-        Sequence("NOT", "FOR", "REPLICATION", optional=True),
     )
 
 
