@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 38085f5164101f2733456e16eefe8e735836e336b123116ba3f4ef4900b27dde
+_hash: 693e2baaeb5e33ed133910627941c4f129513d421c911e175422c580f1d9ab60
 file:
 - statement:
     create_clone_statement:
@@ -121,4 +121,37 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'de_DE'"
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - schema_reference:
+      - naked_identifier: MYDB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+    - schema_object_properties:
+        comment_equals_clause:
+          keyword: COMMENT
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: '"Space for landing my data"'
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - schema_reference:
+      - naked_identifier: MYDB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+    - schema_object_properties:
+        comment_equals_clause:
+          keyword: COMMENT
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: '"Space for landing my data"'
 - statement_terminator: ;

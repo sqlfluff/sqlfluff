@@ -205,6 +205,14 @@ class Rule_CV11(BaseRule):
         if context.dialect.name == "teradata":
             return None
 
+        # If we're in a templated section, don't consider the current location.
+        # (i.e. if a cast happens in a macro, the end user writing the current
+        # query may not know that or have control over it, so we should just
+        # skip it).
+        if context.segment.pos_marker:
+            if not context.segment.pos_marker.is_literal():
+                return None
+
         # Construct segment type casting
         if context.segment.is_type("function"):
             function_name = context.segment.get_child("function_name")
@@ -397,7 +405,6 @@ class Rule_CV11(BaseRule):
                         expression_datatype_segment[2:],
                     )
             elif self.preferred_type_casting_style == "shorthand":
-
                 bracketed = functional_context.segment.children(
                     sp.is_type("function_contents")
                 ).children(sp.is_type("bracketed"))

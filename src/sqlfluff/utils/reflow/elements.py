@@ -99,6 +99,23 @@ class ReflowElement:
             for seg in self.segments
         )
 
+    def is_all_unrendered(self) -> bool:
+        """Return whether this element is all unrendered.
+
+        Returns True if contains only whitespace, indents, template loops
+        or placeholders.
+
+        Note:
+        * ReflowBlocks will contain the placeholders and loops
+        * ReflowPoints will contain whitespace, indents and newlines.
+        """
+        for seg in self.segments:
+            if not seg.is_type(
+                "whitespace", "placeholder", "newline", "indent", "template_loop"
+            ):
+                return False
+        return True
+
 
 @dataclass(frozen=True)
 class ReflowBlock(ReflowElement):
@@ -319,6 +336,17 @@ class ReflowPoint(ReflowElement):
             # directly via _get_indent_segment.
             return consumed_whitespace.split("\n")[-1]
         return seg.raw if seg else ""
+
+    def get_indent_segment_vals(self, exclude_block_indents=False) -> List[int]:
+        """Iterate through any indent segments and extract their values."""
+        values = []
+        for seg in self.segments:
+            if seg.is_type("indent"):
+                indent_seg = cast(Indent, seg)
+                if exclude_block_indents and indent_seg.block_uuid:
+                    continue
+                values.append(indent_seg.indent_val)
+        return values
 
     @staticmethod
     def _generate_indent_stats(

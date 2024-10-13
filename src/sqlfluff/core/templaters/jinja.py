@@ -314,21 +314,34 @@ class JinjaTemplater(PythonTemplater):
         # be configurable somewhere sensible. But for now they're not.
         # TODO: Come up with a better solution.
 
-        class ThisEmulator:
+        class RelationEmulator:
             """A class which emulates the `this` class from dbt."""
 
-            name = "this_model"
+            identifier = "this_model"
             schema = "this_schema"
             database = "this_database"
 
-            def __str__(self) -> str:  # pragma: no cover TODO?
-                return self.name
+            def __init__(self, identifier: str = "this_model") -> None:
+                self.identifier = identifier
+
+            def __call__(self, *args: Any, **kwargs: Any) -> "RelationEmulator":
+                return self
+
+            def __getattr__(self, name: str) -> Union["RelationEmulator", bool]:
+                if name[0:3] == "is_":
+                    return True
+                return self
+
+            def __str__(self) -> str:
+                return self.identifier
 
         dbt_builtins = {
-            "ref": lambda *args: args[-1],
+            "ref": lambda *args, **kwargs: RelationEmulator(args[-1]),
             # In case of a cross project ref in dbt, model_ref is the second
             # argument. Otherwise it is the only argument.
-            "source": lambda source_name, table: f"{source_name}_{table}",
+            "source": lambda source_name, table: RelationEmulator(
+                f"{source_name}_{table}"
+            ),
             "config": lambda **kwargs: "",
             "var": lambda variable, default="": "item",
             # `is_incremental()` renders as True, always in this case.
@@ -337,7 +350,7 @@ class JinjaTemplater(PythonTemplater):
             # We should try to find a solution to that. Perhaps forcing the file
             # to be parsed TWICE if it uses this variable.
             "is_incremental": lambda: True,
-            "this": ThisEmulator(),
+            "this": RelationEmulator(),
         }
         return dbt_builtins
 
@@ -1098,16 +1111,16 @@ class JinjaTemplater(PythonTemplater):
         These macros will be ignored and not loaded into context
 
         Args:
-            macro_path (str): The raw string to be sliced.
-            exclude_macros_path (List[str]): The rendering function to be used.
+            macro_path (str): Str of the path to the macro
+            exclude_macros_path (List[str]): Str of the path to the macros to exclude
 
         Returns:
             bool: True if the macro should be excluded
         """
         for exclude_path in exclude_macros_path:
-            macro_path_abs = os.path.abspath(macro_path)
-            exclude_path_abs = os.path.abspath(exclude_path)
-            if exclude_path_abs in macro_path_abs:
+            macro_path_normalized = os.path.normpath(os.path.abspath(macro_path))
+            exclude_path_normalized = os.path.normpath(exclude_path)
+            if exclude_path_normalized in macro_path_normalized:
                 templater_logger.debug("Skipping this macro file: %s", macro_path)
                 return True
         return False

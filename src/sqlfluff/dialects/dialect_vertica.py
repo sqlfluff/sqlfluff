@@ -1664,11 +1664,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
     match_grammar: Matchable = Sequence(
         OneOf(
             # Date / Datetime
-            Sequence(
-                OneOf("TIME", "TIMESTAMP"),
-                Bracketed(Ref("NumericLiteralSegment"), optional=True),
-                Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
-            ),
+            Ref("TimeWithTZGrammar"),
             "DATE",
             "DATETIME",
             "SMALLDATETIME",

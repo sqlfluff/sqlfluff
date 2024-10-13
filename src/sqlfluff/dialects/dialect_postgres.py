@@ -112,7 +112,7 @@ postgres_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "json_operator",
-            r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
+            r"->>?|#>>?|@[>@?]|<@|\?[|&]?|#-",
             SymbolSegment,
         ),
         # r"|".join(
@@ -795,11 +795,7 @@ class DateTimeTypeIdentifier(BaseSegment):
     type = "datetime_type_identifier"
     match_grammar = OneOf(
         "DATE",
-        Sequence(
-            OneOf("TIME", "TIMESTAMP"),
-            Bracketed(Ref("NumericLiteralSegment"), optional=True),
-            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
-        ),
+        Ref("TimeWithTZGrammar"),
         Sequence(
             OneOf("INTERVAL", "TIMETZ", "TIMESTAMPTZ"),
             Bracketed(Ref("NumericLiteralSegment"), optional=True),
@@ -2613,6 +2609,28 @@ class AlterExtensionStatementSegment(BaseSegment):
                 ),
             ),
         ),
+    )
+
+
+class CreateForeignDataWrapperStatementSegment(BaseSegment):
+    """A CREATE FOREIGN DATA WRAPPER Statement.
+
+    Docs: https://fdw.dev/catalog/
+    """
+
+    type = "create_foreign_data_wrapper"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("ForeignDataWrapperGrammar"),
+        Ref("SingleIdentifierGrammar"),
+        Indent,
+        "HANDLER",
+        Ref("SingleIdentifierGrammar"),
+        Dedent,
+        Indent,
+        "VALIDATOR",
+        Ref("SingleIdentifierGrammar"),
+        Dedent,
     )
 
 
@@ -4669,6 +4687,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropStatisticsStatementSegment"),
             Ref("ShowStatementSegment"),
             Ref("SetConstraintsStatementSegment"),
+            Ref("CreateForeignDataWrapperStatementSegment"),
         ],
     )
 
@@ -4940,6 +4959,7 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         ),
         Sequence(
             "RETURNING",
+            Indent,
             OneOf(
                 Ref("StarSegment"),
                 Delimited(
@@ -4949,6 +4969,7 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
                     ),
                 ),
             ),
+            Dedent,
             optional=True,
         ),
     )
@@ -5633,6 +5654,7 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
         ),
         Sequence(
             "RETURNING",
+            Indent,
             OneOf(
                 Ref("StarSegment"),
                 Delimited(
@@ -5642,6 +5664,7 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
                     ),
                 ),
             ),
+            Dedent,
             optional=True,
         ),
     )
@@ -5722,10 +5745,12 @@ class UpdateStatementSegment(BaseSegment):
         # TODO add [ WITH [ RECURSIVE ] with_query [, ...] ]
         "UPDATE",
         Ref.keyword("ONLY", optional=True),
+        Indent,
         Ref("TableReferenceSegment"),
         # SET is not a reserved word in all dialects (e.g. RedShift)
         # So specifically exclude as an allowed implicit alias to avoid parsing errors
         Ref("AliasExpressionSegment", exclude=Ref.keyword("SET"), optional=True),
+        Dedent,
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
         OneOf(
@@ -5735,6 +5760,7 @@ class UpdateStatementSegment(BaseSegment):
         ),
         Sequence(
             "RETURNING",
+            Indent,
             OneOf(
                 Ref("StarSegment"),
                 Delimited(
@@ -5744,6 +5770,7 @@ class UpdateStatementSegment(BaseSegment):
                     ),
                 ),
             ),
+            Dedent,
             optional=True,
         ),
     )
@@ -6047,7 +6074,7 @@ class NamedArgumentSegment(BaseSegment):
     type = "named_argument"
     match_grammar = Sequence(
         Ref("NakedIdentifierSegment"),
-        Ref("RightArrowSegment"),
+        OneOf(Ref("RightArrowSegment"), Ref("WalrusOperatorSegment")),
         Ref("ExpressionSegment"),
     )
 

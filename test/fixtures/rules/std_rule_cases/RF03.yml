@@ -499,3 +499,21 @@ test_fail_cte_unqualified_to_qualified_6014:
     rules:
       references.consistent:
         single_table_references: qualified
+
+test_pass_postgres_named_arguments:
+  pass_str: |
+    select t1.b
+    from __test__(a := 1) t1;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_trino_lambda_expression:
+  pass_str: |
+    SELECT
+        a_column,
+        TRANSFORM(array_col, x -> x.example) AS array_col_example
+    FROM example_table;
+  configs:
+    core:
+      dialect: trino

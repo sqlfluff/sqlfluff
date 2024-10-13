@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 797272c70835ec65c6cc5125064ea6ab26a2d995682307c7f37e50649b3f45ae
+_hash: c66235d23458e18428aca8c525fb3575b4c9fac1fe207f2008f4b9dea6b251b3
 file:
 - statement:
     copy_into_table_statement:
@@ -189,11 +189,10 @@ file:
     - keyword: into
     - table_reference:
         naked_identifier: mytable
-    - copy_options:
-        keyword: purge
-        comparison_operator:
-          raw_comparison_operator: '='
-        boolean_literal: 'true'
+    - keyword: purge
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
     copy_into_table_statement:
@@ -404,24 +403,64 @@ file:
     - keyword: FROM
     - storage_location:
         stage_path: '@stage1'
-    - copy_options:
-      - keyword: MATCH_BY_COLUMN_NAME
+    - keyword: MATCH_BY_COLUMN_NAME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: CASE_INSENSITIVE
+    - keyword: INCLUDE_METADATA
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: ingestdate
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: CASE_INSENSITIVE
-      - keyword: INCLUDE_METADATA
+      - keyword: METADATA$START_SCAN_TIME
+      - comma: ','
+      - naked_identifier: filename
       - comparison_operator:
           raw_comparison_operator: '='
-      - bracketed:
-        - start_bracket: (
-        - naked_identifier: ingestdate
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - keyword: METADATA$START_SCAN_TIME
-        - comma: ','
-        - naked_identifier: filename
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - keyword: METADATA$FILENAME
-        - end_bracket: )
+      - keyword: METADATA$FILENAME
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: table1
+    - keyword: FROM
+    - storage_location:
+        stage_path: '@stage1'
+    - keyword: MATCH_BY_COLUMN_NAME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: CASE_INSENSITIVE
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          json_file_format_type_parameters:
+            keyword: TYPE
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: JSON
+          end_bracket: )
+    - keyword: INCLUDE_METADATA
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: ingestdate
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: METADATA$START_SCAN_TIME
+      - comma: ','
+      - naked_identifier: filename
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: METADATA$FILENAME
+      - end_bracket: )
 - statement_terminator: ;

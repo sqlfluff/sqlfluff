@@ -396,6 +396,7 @@ UNRESERVED_KEYWORDS = [
     "INCREMENT",
     "INFINITE",
     "INLINE",
+    "INPUT",
     "INSTEAD",
     "INTERVAL",
     "IO",

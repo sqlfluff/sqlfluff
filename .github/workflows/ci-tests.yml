@@ -32,31 +32,37 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jobs: [ 'linting', 'doclinting', 'docbuild', 'yamllint', 'mypy', 'doctests' ]
-    name: ${{ matrix.jobs }} tests
+        job: [ 'linting', 'doclinting', 'docbuild', 'yamllint', 'mypy', 'doctests' ]
+        include:
+          # Default to most recent python version
+          - python-version: "3.13"
+          # As at 2024-10-10, docbuild fails on 3.13, so fall back to 3.12
+          - job: docbuild
+            python-version: "3.12"
+    name: ${{ matrix.job }} tests
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
+        python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: pip install tox
     - name: Run the tests
-      run: tox -e ${{ matrix.jobs }}
+      run: tox -e ${{ matrix.job }}
 
-  # Test with coverage tracking on most recent python (py12).
+  # Test with coverage tracking on most recent python (py313).
   python-version-tests:
     name: Python Tests
     strategy:
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
         include:
           # Default to test without coverage tracking on older python versions.
           # This saves time, as testing without coverage tracking is faster.
           - coverage: false
           # Override coverage to be true for most recent python version.
-          - python-version: "3.12"
+          - python-version: "3.13"
             coverage: true
     permissions:
       contents: read
@@ -71,10 +77,19 @@ jobs:
   dbt-tests:
     name: dbt Plugin Tests
     strategy:
+      fail-fast: false
       matrix:
-        dbt-version: [ dbt140, dbt150, dbt160, dbt170, dbt180 ]
+        dbt-version:
+          - dbt140
+          - dbt150
+          - dbt160
+          - dbt170
+          - dbt180
+          - dbt190
         include:
           # Default to python 3.12 for dbt tests.
+          # * Python 3.13 not supported yet.
+          # * Looks like it's due to psycopg2 support as of 2024-10-10
           - python-version: "3.12"
           # For dbt 1.4 - 1.6 override to python 3.11
           - dbt-version: dbt140
@@ -127,7 +142,7 @@ jobs:
       pull-requests: write
     uses: ./.github/workflows/ci-test-python.yml
     with:
-      python-version: "3.12"
+      python-version: "3.13"
       marks: ${{ matrix.marks }}
       coverage: ${{ matrix.coverage }}
     secrets:
@@ -140,7 +155,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
+        python-version: '3.13'
     - name: Install dependencies
       run: |
         pip install -r requirements_dev.txt
@@ -166,7 +181,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
+        python-version: '3.13'
     - name: Install dependencies
       run: |
         pip install -e .
@@ -181,7 +196,7 @@ jobs:
 
   python-windows-tests:
     runs-on: windows-latest
-    name: Python 3.12 Windows tests
+    name: Python 3.13 Windows tests
     steps:
     - name: Set git to use LF
       run: |
@@ -191,7 +206,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.12"
+        python-version: "3.13"
     - name: List Env
       shell: bash
       run: |
@@ -210,7 +225,7 @@ jobs:
     - name: Upload coverage data (github)
       uses: actions/upload-artifact@v4
       with:
-        name: coverage-data-winpy3.12
+        name: coverage-data-winpy3.13
         path: ".coverage.*"
         if-no-files-found: ignore
         include-hidden-files: true
@@ -235,6 +250,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
+        # NOTE: As of 2024-10-10, dbt does not yet support python 3.13.
         python-version: "3.12"
     - name: Install dependencies
       shell: bash
@@ -256,7 +272,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.12"
+        python-version: "3.13"
     - uses: actions/checkout@v4
     - name: Install dependencies
       run: |
@@ -277,17 +293,6 @@ jobs:
       run: |
         sqlfluff lint --dialect=ansi <(echo "select 1")
 
-  coveralls_finish:
-    name: Finalise coveralls.
-    needs: [python-version-tests, dbt-tests, python-windows-tests, dialect-tests]
-    runs-on: ubuntu-latest
-    steps:
-    - name: Coveralls Finished
-      uses: coverallsapp/github-action@v2
-      with:
-        github-token: ${{ secrets.github_token }}
-        parallel-finished: true
-
   coverage_check:
     name: Combine & check 100% coverage.
     runs-on: ubuntu-latest
@@ -296,7 +301,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.13"
 
       - run: python -m pip install --upgrade coverage[toml]
 
