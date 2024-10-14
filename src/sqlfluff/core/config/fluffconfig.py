@@ -156,7 +156,11 @@ class FluffConfig:
         # the type of a templater in their context, use
         # `get_templater_class()` instead, which avoids instantiating
         # a new templater instance.
-        state["_configs"]["core"].pop("templater_obj", None)
+        # NOTE: It's important that we do this on a copy so that we
+        # don't disturb the original object if it's still in use.
+        state["_configs"] = state["_configs"].copy()
+        state["_configs"]["core"] = state["_configs"]["core"].copy()
+        state["_configs"]["core"]["templater_obj"] = None
         return state
 
     def __setstate__(self, state: Dict[str, Any]) -> None:  # pragma: no cover
@@ -178,6 +182,13 @@ class FluffConfig:
         configs_attribute_copy = deepcopy(self._configs)
         config_copy = copy(self)
         config_copy._configs = configs_attribute_copy
+        # During the initial `.copy()`, we use the same `__reduce__()` method
+        # which is used during pickling. The `templater_obj` doesn't pickle
+        # well so is normally removed, but it's ok for us to just pass across
+        # the original object here as we're in the same process.
+        configs_attribute_copy["core"]["templater_obj"] = self._configs["core"][
+            "templater_obj"
+        ]
         return config_copy
 
     @classmethod
