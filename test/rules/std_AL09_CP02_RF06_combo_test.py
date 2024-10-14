@@ -16,7 +16,7 @@ select
     "C" as C,
     "d" as d,
     "E" as e,
-    f as F,
+    "f" as F,
     g as "G",
     h as h,
     I as I
@@ -39,7 +39,7 @@ select
     "C" as C,
     "d" as d,
     "E" as e,
-    f as F,
+    "f" as F,
     g as "G",
     h,
     I
@@ -56,7 +56,7 @@ select
     "C" as c,
     "d" as d,
     "E" as e,
-    f as f,
+    "f" as f,
     g as "G",
     h as h,
     i as i
@@ -73,7 +73,7 @@ select
     C as C,
     "d" as d,
     E as e,
-    f as F,
+    "f" as F,
     g as G,
     h as h,
     I as I
@@ -90,7 +90,7 @@ select
     "C" as c,
     "d" as d,
     "E" as e,
-    f,
+    "f" as f,
     g as "G",
     h,
     i
@@ -107,7 +107,7 @@ select
     C,
     "d" as d,
     E as e,
-    f as F,
+    "f" as F,
     g as G,
     h,
     I
@@ -124,7 +124,7 @@ select
     c as c,
     "d" as d,
     e as e,
-    f as f,
+    "f" as f,
     g as g,
     h as h,
     i as i
@@ -141,7 +141,7 @@ select
     c,
     "d" as d,
     e,
-    f,
+    "f" as f,
     g,
     h,
     i
