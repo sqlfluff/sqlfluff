@@ -1087,6 +1087,49 @@ class CreateAggregateStatementSegment(BaseSegment):
     )
 
 
+class AlterAggregateStatementSegment(BaseSegment):
+    """A `ALTER AGGREGATE` statement.
+
+    https://www.postgresql.org/docs/current/sql-alteraggregate.html
+    """
+
+    type = "alter_aggregate_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "AGGREGATE",
+        Ref("FunctionNameSegment"),
+        Bracketed(
+            OneOf(
+                Ref("FunctionParameterListGrammar"),
+                Anything(),
+                Ref("StarSegment"),
+            )
+        ),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("FunctionNameSegment"),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+            Sequence(
+                "SET",
+                "SCHEMA",
+                Ref("SchemaReferenceSegment"),
+            ),
+        ),
+    )
+
+
 class RelationOptionSegment(BaseSegment):
     """Relation option element from reloptions.
 
@@ -4682,6 +4725,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateForeignTableStatementSegment"),
             Ref("DropAggregateStatementSegment"),
             Ref("CreateAggregateStatementSegment"),
+            Ref("AlterAggregateStatementSegment"),
             Ref("CreateStatisticsStatementSegment"),
             Ref("AlterStatisticsStatementSegment"),
             Ref("DropStatisticsStatementSegment"),
