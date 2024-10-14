@@ -1,2 +1,5 @@
 SELECT col1
-FROM {{ this }}
+FROM {{ this }};
+
+SELECT col1
+FROM {{ this.render() }};
