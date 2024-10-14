@@ -1,2 +1,2 @@
 SELECT col1
-FROM {{ this }}
+FROM {{ this.render() }}
