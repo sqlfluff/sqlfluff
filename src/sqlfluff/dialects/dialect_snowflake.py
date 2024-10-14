@@ -1893,7 +1893,7 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
         insert=[
             Sequence(
                 Ref("SystemFunctionName"),
-                Bracketed(Ref("QuotedLiteralSegment")),
+                Bracketed(Delimited(Ref("LiteralGrammar"))),
             )
         ],
         before=Ref("WildcardExpressionSegment"),
