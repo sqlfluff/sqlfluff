@@ -5,6 +5,7 @@ import os
 
 import pytest
 
+import sqlfluff
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.templaters import (
@@ -374,3 +375,15 @@ def test__process_raw_file_for_config(raw_sql):
     # internal list attributes should have overridden exploded list values
     assert cfg.get("rule_allowlist") == ["LT05", "LT06"]
     assert cfg.get("rule_denylist") == ["LT01", "LT02"]
+
+
+def test__api__immutable_config():
+    """Tests that a config is not mutated when parsing."""
+    config = FluffConfig.from_path(
+        "test/fixtures/api/config_path_test/extra_configs/.sqlfluff"
+    )
+    assert config.get("dialect") == "ansi"
+    sqlfluff.parse(
+        "-- sqlfluff:dialect: postgres\nSELECT * FROM table1\n", config=config
+    )
+    assert config.get("dialect") == "ansi"
