@@ -14,6 +14,14 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This release is almost all dialect fixes and bugfixes. Notably also, this
+release brings official python 3.13 support too (although most users should
+not realise any differences).
+
+We also see **two** new contributors to the project. Welcome
+[@R3gardless](https://github.com/R3gardless)
+& [@brandonschabell](https://github.com/brandonschabell)! 🎉🎉🎉
+
 ## What’s Changed
 
 * Utilize a deepcopy of the config object when parsing files [#6344](https://github.com/sqlfluff/sqlfluff/pull/6344) [@brandonschabell](https://github.com/brandonschabell)
