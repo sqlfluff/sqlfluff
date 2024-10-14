@@ -10,6 +10,42 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.2.4] - 2024-10-14
+
+## Highlights
+
+This release is almost all dialect fixes and bugfixes. Notably also, this
+release brings official python 3.13 support too (although most users should
+not realise any differences).
+
+We also see **two** new contributors to the project. Welcome
+[@R3gardless](https://github.com/R3gardless)
+& [@brandonschabell](https://github.com/brandonschabell)! 🎉🎉🎉
+
+## What’s Changed
+
+* Utilize a deepcopy of the config object when parsing files [#6344](https://github.com/sqlfluff/sqlfluff/pull/6344) [@brandonschabell](https://github.com/brandonschabell)
+* Snowflake supports other literals in system functions [#6355](https://github.com/sqlfluff/sqlfluff/pull/6355) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Snowflake: Un-reserve CURRENT_USER [#6354](https://github.com/sqlfluff/sqlfluff/pull/6354) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* tsql: handle additional primary/foreign key options in constraints [#6347](https://github.com/sqlfluff/sqlfluff/pull/6347) [@keraion](https://github.com/keraion)
+* Add `DROP COLUMN` support for multiple dialects [#6348](https://github.com/sqlfluff/sqlfluff/pull/6348) [@keraion](https://github.com/keraion)
+* TSQL: allow `UPDATE` to be a function name [#6349](https://github.com/sqlfluff/sqlfluff/pull/6349) [@keraion](https://github.com/keraion)
+* tsql: allow both on delete and on update in a `reference_constraint` [#6346](https://github.com/sqlfluff/sqlfluff/pull/6346) [@keraion](https://github.com/keraion)
+* Postgres : Allow Extensions with Special Characters in Name [#6345](https://github.com/sqlfluff/sqlfluff/pull/6345) [@R3gardless](https://github.com/R3gardless)
+* Fix `tox` command in test/fixtures/dialects/README.md [#6342](https://github.com/sqlfluff/sqlfluff/pull/6342) [@R3gardless](https://github.com/R3gardless)
+* Revise dbt warnings when a file fails to compile [#6338](https://github.com/sqlfluff/sqlfluff/pull/6338) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Postgres: Add `CREATE FOREIGN DATA WRAPPER` statement [#6335](https://github.com/sqlfluff/sqlfluff/pull/6335) [@keraion](https://github.com/keraion)
+* Trino: Add some support to `json_query` functions [#6336](https://github.com/sqlfluff/sqlfluff/pull/6336) [@keraion](https://github.com/keraion)
+* Handle deprecation warning of "fork" [#6332](https://github.com/sqlfluff/sqlfluff/pull/6332) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Python 3.13 support and make it default for test coverage [#6269](https://github.com/sqlfluff/sqlfluff/pull/6269) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* ST06 - Fix union of CTE/Subquery [#6298](https://github.com/sqlfluff/sqlfluff/pull/6298) [@rogalski](https://github.com/rogalski)
+* Refactor timestamp grammar [#6331](https://github.com/sqlfluff/sqlfluff/pull/6331) [@greg-finley](https://github.com/greg-finley)
+
+## New Contributors
+
+* [@R3gardless](https://github.com/R3gardless) made their first contribution in [#6342](https://github.com/sqlfluff/sqlfluff/pull/6342)
+* [@brandonschabell](https://github.com/brandonschabell) made their first contribution in [#6344](https://github.com/sqlfluff/sqlfluff/pull/6344)
+
 ## [3.2.3] - 2024-10-10
 
 ## Highlights

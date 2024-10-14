@@ -2612,6 +2612,28 @@ class AlterExtensionStatementSegment(BaseSegment):
     )
 
 
+class CreateForeignDataWrapperStatementSegment(BaseSegment):
+    """A CREATE FOREIGN DATA WRAPPER Statement.
+
+    Docs: https://fdw.dev/catalog/
+    """
+
+    type = "create_foreign_data_wrapper"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("ForeignDataWrapperGrammar"),
+        Ref("SingleIdentifierGrammar"),
+        Indent,
+        "HANDLER",
+        Ref("SingleIdentifierGrammar"),
+        Dedent,
+        Indent,
+        "VALIDATOR",
+        Ref("SingleIdentifierGrammar"),
+        Dedent,
+    )
+
+
 class SubscriptionReferenceSegment(ansi.ObjectReferenceSegment):
     """A subscription reference."""
 
@@ -4665,6 +4687,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropStatisticsStatementSegment"),
             Ref("ShowStatementSegment"),
             Ref("SetConstraintsStatementSegment"),
+            Ref("CreateForeignDataWrapperStatementSegment"),
         ],
     )
 

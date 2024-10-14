@@ -696,20 +696,13 @@ class DbtTemplater(JinjaTemplater):
                 # The explanation on the undefined macro error is already fairly
                 # explanatory, so just pass it straight through.
                 raise SQLTemplaterError(str(err))
-            except Exception as err:  # pragma: no cover
-                # NOTE: We use .error() here rather than .exception() because
-                # for most users, the trace which accompanies the latter isn't
-                # particularly helpful.
-                templater_logger.error(
-                    "Fatal dbt compilation error on %s. This occurs most often "
-                    "during incorrect sorting of ephemeral models before linting. "
-                    "Please report this error on github at "
-                    "https://github.com/sqlfluff/sqlfluff/issues, including "
-                    "both the raw and compiled sql for the model affected.",
-                    fname,
-                )
-                # Additional error logging in case we get a fatal dbt error.
-                raise SQLFluffSkipFile(  # pragma: no cover
+            except Exception as err:
+                # This happens if there's a fatal error at compile time. That
+                # can sometimes happen for SQLFluff related reasons (it used
+                # to happen if we tried to compile ephemeral models in the
+                # wrong order), but more often because a macro tries to query
+                # a table at compile time which doesn't exist.
+                raise SQLFluffSkipFile(
                     f"Skipped file {fname} because dbt raised a fatal "
                     f"exception during compilation: {err!s}"
                 )
