@@ -156,6 +156,8 @@ class Rule_AL09(BaseRule):
                 )
                 continue
 
+            case_sensitive_dialects = ["clickhouse"]
+
             # We compare the _exact_ raw value of the column identifier
             # and the alias identifier (i.e. including quoting and casing).
             # Resolving aliases & references with differing quoting and casing
@@ -171,6 +173,27 @@ class Rule_AL09(BaseRule):
                         anchor=clause_element_raw_segments[0],
                         description="Column should not be self-aliased.",
                         fixes=fixes,
+                    )
+                )
+            # If *both* are unquoted, and we're in a dialect which isn't case
+            # sensitive for unquoted identifiers, then flag an error but don't
+            # suggest a fix. It's ambiguous about what the users intent was:
+            # i.e. did they mean to change the case (and so the correct
+            # resolution is quoting), or did they mistakenly add an unnecessary
+            # alias?
+            elif (
+                context.dialect not in case_sensitive_dialects
+                and column_identifier.is_type("naked_identifier")
+                and alias_identifier.is_type("naked_identifier")
+                and column_identifier.raw_upper == alias_identifier.raw_upper
+            ):
+                violations.append(
+                    LintResult(
+                        anchor=clause_element_raw_segments[0],
+                        description=(
+                            "Ambiguous self alias. Either remove unnecessary "
+                            "alias, or quote alias to make case change explicit."
+                        ),
                     )
                 )
 

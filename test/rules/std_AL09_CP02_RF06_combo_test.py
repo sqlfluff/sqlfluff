@@ -7,7 +7,7 @@ RF06: Identifier Quoting
 
 import pytest
 
-import sqlfluff
+from sqlfluff.core import Linter
 
 input_query = """
 select
@@ -190,5 +190,12 @@ from foo
 def test__rules__std_AL09_CP02_RF06(rules, dialect, fixed_sql):
     """Test interactions between AL09, CP02 & RF06."""
     print(f"Running with rules: {rules}")
-    result = sqlfluff.fix(input_query, dialect=dialect, rules=rules)
-    assert result == fixed_sql
+    linter = Linter(dialect=dialect, rules=rules)
+    result = linter.lint_string(input_query, fix=True)
+    fixed, _ = result.fix_string()
+    assert fixed == fixed_sql
+    # Check violations after fix.
+    # NOTE: We should really use the rules testing utilities here
+    # but they don't yet support multiple rules.
+    post_fix_result = linter.lint_string(fixed, fix=False)
+    assert not post_fix_result.check_tuples()
