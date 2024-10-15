@@ -77,8 +77,12 @@ class Rule_AL09(BaseRule):
 
         SELECT
             col,
+            "Col"
             COL,
-            -- Re-casing aliasing is still allowed where necessary
+        FROM table;
+        
+        -- Re-casing aliasing is still allowed where necessary, i.e.
+        SELECT
             col as "Col",
             "col" as "COL"
         FROM table;
