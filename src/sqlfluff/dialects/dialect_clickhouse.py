@@ -253,6 +253,12 @@ clickhouse_dialect.replace(
         OneOf("DATE", "TIME", "TIMESTAMP"),
         TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
     ),
+    AlterTableDropColumnGrammar=Sequence(
+        "DROP",
+        Ref.keyword("COLUMN"),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+    ),
 )
 
 # Set the datetime units
@@ -351,7 +357,12 @@ class MergeTreesOrderByClauseSegment(BaseSegment):
                 "TUPLE",
                 Bracketed(),  # tuple() not tuple
             ),
-            Ref("BracketedColumnReferenceListGrammar"),
+            Bracketed(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
             Ref("ColumnReferenceSegment"),
         ),
     )

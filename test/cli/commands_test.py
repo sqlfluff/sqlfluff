@@ -1652,7 +1652,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
         # SQLFluff produces trailing newline
         if result[-1] == "":
             del result[-1]
-        assert len(result) == 12
+        assert len(result) == 16
     else:
         raise Exception
 
@@ -1778,6 +1778,7 @@ def test__cli__command_lint_serialize_github_annotation():
         (
             "test/fixtures/linter/identifier_capitalisation.sql",
             (
+                "::group::{filename}\n"
                 "::error title=SQLFluff,file={filename},"
                 "line=3,col=5,endLine=3,endColumn=8::"
                 "RF02: Unqualified reference 'foo' found in select with more than one "
@@ -1805,12 +1806,14 @@ def test__cli__command_lint_serialize_github_annotation():
                 "line=5,col=18,endLine=5,endColumn=22::"
                 "CP02: Unquoted identifiers must be consistently lower case. "
                 "[capitalisation.identifiers]\n"
+                "::endgroup::\n"
                 # SQLFluff produces trailing newline
             ),
         ),
         (
             "test/fixtures/linter/jinja_spacing.sql",
             (
+                "::group::{filename}\n"
                 "::error title=SQLFluff,file={filename},"
                 "line=3,col=15,endLine=3,endColumn=22::JJ01: "
                 "Jinja tags should have a single whitespace on either "
@@ -1818,6 +1821,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 # .format() method.
                 "side: {{{{foo}}}} "
                 "[jinja.padding]\n"
+                "::endgroup::\n"
             ),
         ),
     ],
@@ -1843,7 +1847,6 @@ def test__cli__command_lint_serialize_github_annotation_native(
         ],
         ret_code=1,
     )
-
     assert result.output == expected_output.format(filename=fpath_normalised)
 
 

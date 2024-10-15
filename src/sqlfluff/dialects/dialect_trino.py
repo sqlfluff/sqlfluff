@@ -69,10 +69,16 @@ trino_dialect.insert_lexer_matchers(
 
 trino_dialect.add(
     RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
+    LambdaArrowSegment=StringParser("->", SymbolSegment, type="lambda_arrow"),
     StartAngleBracketSegment=StringParser(
         "<", SymbolSegment, type="start_angle_bracket"
     ),
     EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
+    FormatJsonEncodingGrammar=Sequence(
+        "FORMAT",
+        "JSON",
+        Sequence("ENCODING", OneOf("UTF8", "UTF16", "UTF32"), optional=True),
+    ),
 )
 
 trino_dialect.bracket_sets("angle_bracket_pairs").update(
@@ -217,6 +223,24 @@ trino_dialect.replace(
                 Ref("ColumnReferenceSegment"),
             ),
         ),
+        # For JSON_QUERY function
+        # https://trino.io/docs/current/functions/json.html#json-query
+        Sequence(
+            Ref("ExpressionSegment"),  # json_input
+            Ref("FormatJsonEncodingGrammar", optional=True),
+            Ref("CommaSegment"),
+            Ref("ExpressionSegment"),  # json_path
+            OneOf(
+                Sequence("WITHOUT", Ref.keyword("ARRAY", optional=True), "WRAPPER"),
+                Sequence(
+                    "WITH",
+                    OneOf("CONDITIONAL", "UNCONDITIONAL", optional=True),
+                    Ref.keyword("ARRAY", optional=True),
+                    "WRAPPER",
+                ),
+                optional=True,
+            ),
+        ),
         Ref("IgnoreRespectNullsGrammar"),
         Ref("IndexColumnDefinitionSegment"),
         Ref("EmptyStructLiteralSegment"),
@@ -233,6 +257,10 @@ trino_dialect.replace(
     # match ANSI's naked identifier casefold, trino is case-insensitive.
     QuotedIdentifierSegment=TypedParser(
         "double_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
+    ),
+    FunctionContentsExpressionGrammar=OneOf(
+        Ref("LambdaExpressionSegment"),
+        Ref("ExpressionSegment"),
     ),
 )
 
@@ -270,11 +298,7 @@ class DatatypeSegment(BaseSegment):
         "JSON",
         # Date and time
         "DATE",
-        Sequence(
-            OneOf("TIME", "TIMESTAMP"),
-            Ref("BracketedArguments", optional=True),
-            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
-        ),
+        Ref("TimeWithTZGrammar"),
         # Structural
         Ref("ArrayTypeSegment"),
         "MAP",
@@ -574,4 +598,18 @@ class CommentOnStatementSegment(BaseSegment):
             ),
             Sequence("IS", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
         ),
+    )
+
+
+class LambdaExpressionSegment(BaseSegment):
+    """Lambda function used in a function."""
+
+    type = "lambda_function"
+    match_grammar = Sequence(
+        OneOf(
+            Ref("ParameterNameSegment"),
+            Bracketed(Delimited(Ref("ParameterNameSegment"))),
+        ),
+        Ref("LambdaArrowSegment"),
+        Ref("ExpressionSegment"),
     )

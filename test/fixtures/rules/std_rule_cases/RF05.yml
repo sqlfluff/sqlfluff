@@ -382,6 +382,18 @@ test_pass_ignore_words_regex_unquoted:
       references.special_chars:
         ignore_words_regex: lias\$$
 
+test_pass_create_extension_reference_quoted:
+  pass_str: CREATE EXTENSION IF NOT EXISTS "quoted-extension";
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_drop_extension_reference_quoted:
+  pass_str: DROP EXTENSION IF EXISTS "quoted-extension";
+  configs:
+    core:
+      dialect: postgres
+
 test_pass_ignore_words_regex_quoted:
   pass_str: SELECT a as 'aliashash#'
   configs:
@@ -444,3 +456,49 @@ test_fail_table_aliases:
     rules:
       references.special_chars:
         quoted_identifiers_policy: table_aliases
+
+test_pass_special_chars_snowflake_stage_metadata:
+  # https://docs.snowflake.com/en/user-guide/querying-metadata
+  pass_str: |
+    SELECT
+      METADATA$FILENAME
+      , METADATA$FILE_ROW_NUMBER
+      , METADATA$FILE_CONTENT_KEY
+      , METADATA$FILE_LAST_MODIFIED
+      , METADATA$START_SCAN_TIME
+    FROM @ext_stage;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_pivot_snowflake:
+  pass_str: |
+    SELECT
+      COL1,
+      COL2,
+      "'PIVOTED1'" AS PIVOTED1,
+      "'PIVOTED2'" AS PIVOTED2
+    FROM TBL
+    PIVOT (
+      MAX(VAL)
+      FOR COL IN ('PIVOTED1', 'PIVOTED2')
+    )
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_pivot_snowflake_complex:
+  pass_str: |
+    SELECT
+      COL1,
+      COL2,
+      CAST("'PIVOTED1'" AS bigint) AS PIVOTED1,
+      "'PIVOTED2'" AS PIVOTED2
+    FROM TBL
+    PIVOT (
+      MAX(VAL)
+      FOR COL IN ('PIVOTED1', 'PIVOTED2')
+    )
+  configs:
+    core:
+      dialect: snowflake

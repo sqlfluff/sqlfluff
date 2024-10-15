@@ -25,8 +25,7 @@ for the wiki.
 
 :star2: **Fifth** - if you are so inclined - pull requests on the core codebase
 are always welcome. Dialect additions are often a good entry point for new
-contributors, and we have
-[a wiki page](https://github.com/sqlfluff/sqlfluff/wiki/Contributing-Dialect-Changes)
+contributors, and we have [a set of guides](https://docs.sqlfluff.com/en/stable/perma/guides.html)
 to help you through your first contribution. Bear in mind that all the tests
 should pass, and test coverage should not decrease unduly as part of the
 changes which you make. You may find it useful to familiarise yourself with the

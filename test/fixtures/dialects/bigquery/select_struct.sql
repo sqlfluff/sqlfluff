@@ -55,3 +55,5 @@ FROM table;
 SELECT
   TO_JSON(STRUCT()) AS col
 FROM table;
+
+SELECT (1*1, 2) IN (STRUCT(1 AS a, 2 AS b));

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from copy import copy, deepcopy
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
@@ -155,25 +156,40 @@ class FluffConfig:
         # the type of a templater in their context, use
         # `get_templater_class()` instead, which avoids instantiating
         # a new templater instance.
-        state["_configs"]["core"].pop("templater_obj", None)
+        # NOTE: It's important that we do this on a copy so that we
+        # don't disturb the original object if it's still in use.
+        state["_configs"] = state["_configs"].copy()
+        state["_configs"]["core"] = state["_configs"]["core"].copy()
+        state["_configs"]["core"]["templater_obj"] = None
         return state
 
     def __setstate__(self, state: Dict[str, Any]) -> None:  # pragma: no cover
         # Restore instance attributes
         self.__dict__.update(state)
-        # NB: We don't reinstate the plugin manager, but this should only
-        # be happening between processes where the plugin manager should
-        # probably be fresh in any case.
-        # NOTE: This means that registering user plugins directly will only
-        # work if those plugins are used in the main process (i.e. templaters).
-        # User registered linting rules either must be "installed" and therefore
-        # available to all processes - or their use is limited to only single
-        # process invocations of sqlfluff. In the event that user registered
-        # rules are used in a multi-process invocation, they will not be applied
-        # in the child processes.
+        # NOTE: Rather than rehydrating the previous plugin manager, we
+        # fetch a fresh one.
+        self._plugin_manager = get_plugin_manager()
         # NOTE: Likewise we don't reinstate the "templater_obj" config value
         # which should also only be used in the main thread rather than child
         # processes.
+
+    def copy(self) -> FluffConfig:
+        """Returns a copy of the FluffConfig.
+
+        This creates a shallow copy of most of the config, but with a deep copy of the
+        `_configs` dictionary.
+        """
+        configs_attribute_copy = deepcopy(self._configs)
+        config_copy = copy(self)
+        config_copy._configs = configs_attribute_copy
+        # During the initial `.copy()`, we use the same `__reduce__()` method
+        # which is used during pickling. The `templater_obj` doesn't pickle
+        # well so is normally removed, but it's ok for us to just pass across
+        # the original object here as we're in the same process.
+        configs_attribute_copy["core"]["templater_obj"] = self._configs["core"][
+            "templater_obj"
+        ]
+        return config_copy
 
     @classmethod
     def from_root(

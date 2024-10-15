@@ -1,7 +1,7 @@
 .. _reflowinternals:
 
-Reflow Internals
-----------------
+:code:`sqlfluff.utils.reflow`: Whitespace Reflow API
+----------------------------------------------------
 
 Many rules supported by SQLFluff involve the spacing and layout of different
 elements, either to enforce a particular layout or just to add or remove

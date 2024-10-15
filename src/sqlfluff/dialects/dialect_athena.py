@@ -214,7 +214,6 @@ athena_dialect.add(
         type="quoted_identifier",
         casefold=str.lower,
     ),
-    DatetimeWithTZSegment=Sequence(OneOf("TIMESTAMP", "TIME"), "WITH", "TIME", "ZONE"),
 )
 
 athena_dialect.replace(
@@ -273,6 +272,11 @@ athena_dialect.replace(
         insert=[
             Sequence("WITH", "ORDINALITY", optional=True),
         ]
+    ),
+    AlterTableDropColumnGrammar=Sequence(
+        "DROP",
+        Ref.keyword("COLUMN"),
+        Ref("SingleIdentifierGrammar"),
     ),
 )
 
@@ -414,7 +418,7 @@ class DatatypeSegment(BaseSegment):
                 )
             ),
         ),
-        Ref("DatetimeWithTZSegment"),
+        Ref("TimeWithTZGrammar"),
     )
 
 

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d0bf6b8b24c65e7cdb438e4729eb7ce5c42cb21c0eacd859a76bfac0b021f319
+_hash: 1d356a551759ad8cc2f3f301276a9f1cbd1411488fe0c4c65098b545d442527b
 file:
 - statement:
     select_statement:
@@ -104,8 +104,8 @@ file:
               function_name_identifier: FILTER
             function_contents:
               bracketed:
-              - start_bracket: (
-              - expression:
+                start_bracket: (
+                expression:
                   typed_array_literal:
                     array_type:
                       keyword: ARRAY
@@ -121,17 +121,17 @@ file:
                     - comma: ','
                     - numeric_literal: '7'
                     - end_square_bracket: ']'
-              - comma: ','
-              - expression:
-                - column_reference:
-                    naked_identifier: x
-                - binary_operator: ->
-                - column_reference:
-                    naked_identifier: x
-                - comparison_operator:
-                    raw_comparison_operator: '>'
-                - numeric_literal: '0'
-              - end_bracket: )
+                comma: ','
+                lambda_function:
+                  parameter: x
+                  lambda_arrow: ->
+                  expression:
+                    column_reference:
+                      naked_identifier: x
+                    comparison_operator:
+                      raw_comparison_operator: '>'
+                    numeric_literal: '0'
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -143,8 +143,8 @@ file:
               function_name_identifier: ANY_MATCH
             function_contents:
               bracketed:
-              - start_bracket: (
-              - expression:
+                start_bracket: (
+                expression:
                   typed_array_literal:
                     array_type:
                       keyword: ARRAY
@@ -160,17 +160,17 @@ file:
                     - comma: ','
                     - numeric_literal: '7'
                     - end_square_bracket: ']'
-              - comma: ','
-              - expression:
-                - column_reference:
-                    naked_identifier: x
-                - binary_operator: ->
-                - column_reference:
-                    naked_identifier: x
-                - comparison_operator:
-                    raw_comparison_operator: '>'
-                - numeric_literal: '0'
-              - end_bracket: )
+                comma: ','
+                lambda_function:
+                  parameter: x
+                  lambda_arrow: ->
+                  expression:
+                    column_reference:
+                      naked_identifier: x
+                    comparison_operator:
+                      raw_comparison_operator: '>'
+                    numeric_literal: '0'
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:

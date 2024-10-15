@@ -37,7 +37,11 @@ else:  # pragma: no cover
     cache = lru_cache(maxsize=None)
 
 
-COMMA_SEPARATED_PATH_KEYS = ("load_macros_from_path", "loader_search_path")
+COMMA_SEPARATED_PATH_KEYS = (
+    "load_macros_from_path",
+    "loader_search_path",
+    "exclude_macros_from_path",
+)
 RESOLVE_PATH_SUFFIXES = ("_path", "_dir")
 
 

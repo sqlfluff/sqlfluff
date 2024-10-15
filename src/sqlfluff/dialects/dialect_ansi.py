@@ -122,7 +122,7 @@ ansi_dialect.set_lexer_matchers(
         ),
         RegexLexer(
             "double_quote",
-            r'"([^"\\]|\\.)*"',
+            r'"(""|[^"\\]|\\.)*"',
             CodeSegment,
             segment_kwargs={
                 "quoted_value": (r'"((?:[^"\\]|\\.)*)"', 1),
@@ -734,6 +734,8 @@ ansi_dialect.add(
                 optional=True,
             ),
         ),
+        # Drop
+        Ref("AlterTableDropColumnGrammar"),
         # Rename
         Sequence(
             "RENAME",
@@ -741,11 +743,22 @@ ansi_dialect.add(
             Ref("TableReferenceSegment"),
         ),
     ),
+    AlterTableDropColumnGrammar=Sequence(
+        "DROP",
+        Ref.keyword("COLUMN", optional=True),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+    ),
     OrderNoOrderGrammar=OneOf("ORDER", "NOORDER"),
     ColumnsExpressionNameGrammar=Nothing(),
     # Uses grammar for LT06 support
     ColumnsExpressionGrammar=Nothing(),
     ListComprehensionGrammar=Nothing(),
+    TimeWithTZGrammar=Sequence(
+        OneOf("TIME", "TIMESTAMP"),
+        Bracketed(Ref("NumericLiteralSegment"), optional=True),
+        Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+    ),
 )
 
 
@@ -955,11 +968,7 @@ class DatatypeSegment(BaseSegment):
 
     type = "data_type"
     match_grammar: Matchable = OneOf(
-        Sequence(
-            OneOf("TIME", "TIMESTAMP"),
-            Bracketed(Ref("NumericLiteralSegment"), optional=True),
-            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
-        ),
+        Ref("TimeWithTZGrammar"),
         Sequence(
             "DOUBLE",
             "PRECISION",
@@ -1562,6 +1571,7 @@ class FromExpressionElementSegment(BaseSegment):
     _base_from_expression_element = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
+        Ref("TemporalQuerySegment", optional=True),
         Ref(
             "AliasExpressionSegment",
             exclude=OneOf(
@@ -1618,6 +1628,10 @@ class FromExpressionElementSegment(BaseSegment):
 
         # Handle any aliases
         alias_expression = self.get_child("alias_expression")
+        if not alias_expression:  # pragma: no cover
+            _bracketed = self.get_child("bracketed")
+            if _bracketed:
+                alias_expression = _bracketed.get_child("alias_expression")
         if alias_expression:
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
@@ -2258,6 +2272,9 @@ ansi_dialect.add(
                             "FunctionSegment"
                         ),  # WHERE (a, substr(b,1,3)) IN (select c,d FROM...)
                         Ref("LocalAliasSegment"),  # WHERE (LOCAL.a, LOCAL.b) IN (...)
+                        Ref(
+                            "ExpressionSegment"
+                        ),  # SELECT (1*1, 2) IN (STRUCT(1 AS a, 2 AS b));
                     ),
                 ),
                 parse_mode=ParseMode.GREEDY,
@@ -3704,10 +3721,12 @@ class UpdateStatementSegment(BaseSegment):
     type = "update_statement"
     match_grammar: Matchable = Sequence(
         "UPDATE",
+        Indent,
         Ref("TableReferenceSegment"),
         # SET is not a reserved word in all dialects (e.g. RedShift)
         # So specifically exclude as an allowed implicit alias to avoid parsing errors
         Ref("AliasExpressionSegment", exclude=Ref.keyword("SET"), optional=True),
+        Dedent,
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
@@ -4357,6 +4376,17 @@ class SamplingExpressionSegment(BaseSegment):
             optional=True,
         ),
     )
+
+
+class TemporalQuerySegment(BaseSegment):
+    """A segment that allows Temporal Queries to be run.
+
+    https://learn.microsoft.com/en-us/sql/relational-databases/tables/temporal-tables
+    """
+
+    type = "temporal_query"
+
+    match_grammar: Matchable = Nothing()
 
 
 class LocalAliasSegment(BaseSegment):

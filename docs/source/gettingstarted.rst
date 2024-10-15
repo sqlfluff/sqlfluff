@@ -45,6 +45,8 @@ the best instructions for what to do next are `on the python website`_.
 .. _`instructions for all platforms here`: https://wiki.python.org/moin/BeginnersGuide/Download
 .. _`on the python website`: https://pip.pypa.io/en/stable/installation/
 
+.. _installingsqlfluff:
+
 Installing SQLFluff
 -------------------
 
@@ -61,7 +63,7 @@ version number.
 .. code-block:: text
 
     $ sqlfluff version
-    3.2.0
+    3.2.4
 
 Basic Usage
 -----------
