@@ -80,7 +80,7 @@ class Rule_AL09(BaseRule):
             "Col"
             COL,
         FROM table;
-        
+
         -- Re-casing aliasing is still allowed where necessary, i.e.
         SELECT
             col as "Col",
