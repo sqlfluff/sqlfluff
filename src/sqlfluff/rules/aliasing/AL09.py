@@ -182,7 +182,7 @@ class Rule_AL09(BaseRule):
             # resolution is quoting), or did they mistakenly add an unnecessary
             # alias?
             elif (
-                context.dialect not in case_sensitive_dialects
+                context.dialect.name not in case_sensitive_dialects
                 and column_identifier.is_type("naked_identifier")
                 and alias_identifier.is_type("naked_identifier")
                 and column_identifier.raw_upper == alias_identifier.raw_upper

@@ -212,6 +212,29 @@ from foo
 """,
             [],
         ),
+        # Clickhouse is always case sensitive has a more conservative result.
+        # All the quotes are gone, but all the aliases with a case change remain.
+        (
+            # NOTE: Testing without CP02 as that rule is much less appropriate
+            # for clickhouse.
+            ["AL09", "RF06"],
+            "clickhouse",
+            """
+select
+    a as A,
+    B as b,
+    C,
+    d,
+    E as e,
+    f as F,
+    g as G,
+    h,
+    I
+from foo
+""",
+            # None of those aliases should be flagged as an issue.
+            [],
+        ),
     ],
 )
 def test__rules__std_AL09_CP02_RF06(rules, dialect, fixed_sql, post_fix_errors):
