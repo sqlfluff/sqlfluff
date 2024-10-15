@@ -348,7 +348,8 @@ test_pass_leading_qualify:
     FROM f
     JOIN g
     ON g.h = f.h
-    QUALIFY ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) = 1
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY c
+    ORDER BY d) = 1
   configs:
     core:
       dialect: duckdb
@@ -366,7 +367,8 @@ test_pass_alone_qualify:
     JOIN g
     ON g.h = f.h
     QUALIFY
-    ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) = 1
+    ROW_NUMBER() OVER (PARTITION BY c
+    ORDER BY d) = 1
   configs:
     core:
       dialect: duckdb
@@ -390,7 +392,8 @@ test_fail_leading_qualify:
     FROM f
     JOIN g
     ON g.h = f.h
-    QUALIFY ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) = 1
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY c
+    ORDER BY d) = 1
   configs:
     core:
       dialect: duckdb
@@ -407,7 +410,8 @@ test_fail_alone_qualify:
     FROM f
     JOIN g
     ON g.h = f.h
-    QUALIFY ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) = 1
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY c
+    ORDER BY d) = 1
   fix_str: |
     SELECT
     a,
@@ -416,7 +420,8 @@ test_fail_alone_qualify:
     JOIN g
     ON g.h = f.h
     QUALIFY
-    ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) = 1
+    ROW_NUMBER() OVER (PARTITION BY c
+    ORDER BY d) = 1
   configs:
     core:
       dialect: duckdb
@@ -494,3 +499,12 @@ test_pass_templated_leading_from_clause:
       type:
         join_clause:
           keyword_line_position: alone
+
+test_pass_none_where_clause:
+  pass_str: |
+    SELECT a, b FROM tabx WHERE b = 2;
+  configs:
+    layout:
+      type:
+        where_clause:
+          keyword_line_position: none

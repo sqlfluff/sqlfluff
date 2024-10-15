@@ -301,6 +301,10 @@ def identify_keyword_rebreak_spans(
         # Do any of its parents have config, and are we at the start
         # of them?
         for key in elem.keyword_line_position_configs.keys():
+            # If the element has been unset by using "None" then we want to skip adding
+            # it here.
+            if elem.keyword_line_position_configs[key].lower() == "none":
+                continue
             # If we're not at the start of the segment, then pass. Some keywords might
             # be at an index of 1 due to a leading indent so check for both 0 and 1.
             if elem.depth_info.stack_positions[key].idx > 1:
