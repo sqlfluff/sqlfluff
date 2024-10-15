@@ -55,10 +55,112 @@ test_fail_with_quotes_same_case:
             "Col_G"
         from foo
 
-test_pass_different_case:
+test_fail_different_case:
     # If the casing is different, even if the quoting is the same, we
-    # should never fail/fix the rule. If CP02 changes the casing we
-    # might trigger after that, but by then the casing will be different.
+    # should never propose a fix. However in most dialects we should still
+    # flag the issue. If CP02 is active, this situation will be resolved
+    # before an error shows.
+    fail_str: |
+        select
+            col_a as this_alias_is_fine,
+            col_b as Col_B,
+            COL_C as col_c,
+            Col_D as COL_D,
+            col_e Col_e,
+            COL_F col_f,
+            Col_G COL_G,
+            "col_b" as "Col_B",
+            "COL_C" as "col_c",
+            "Col_D" as "COL_D",
+            "col_e" "Col_e",
+            "COL_F" "col_f",
+            "Col_G" "COL_G"
+        from foo
+    violations:
+    - code: AL09
+      description: >-
+        Ambiguous self alias. Either remove unnecessary alias, or quote
+        alias/reference to make case change explicit.
+      name: aliasing.self_alias.column
+      warning: false
+      fixes: []
+      start_line_no: 3
+      start_line_pos: 5
+      start_file_pos: 44
+      end_line_no: 3
+      end_line_pos: 10
+      end_file_pos: 49
+    - code: AL09
+      description: >-
+        Ambiguous self alias. Either remove unnecessary alias, or quote
+        alias/reference to make case change explicit.
+      name: aliasing.self_alias.column
+      warning: false
+      fixes: []
+      start_line_no: 4
+      start_line_pos: 5
+      start_file_pos: 64
+      end_line_no: 4
+      end_line_pos: 10
+      end_file_pos: 69
+    - code: AL09
+      description: >-
+        Ambiguous self alias. Either remove unnecessary alias, or quote
+        alias/reference to make case change explicit.
+      name: aliasing.self_alias.column
+      warning: false
+      fixes: []
+      start_line_no: 5
+      start_line_pos: 5
+      start_file_pos: 84
+      end_line_no: 5
+      end_line_pos: 10
+      end_file_pos: 89
+    - code: AL09
+      description: >-
+        Ambiguous self alias. Either remove unnecessary alias, or quote
+        alias/reference to make case change explicit.
+      name: aliasing.self_alias.column
+      warning: false
+      fixes: []
+      start_line_no: 6
+      start_line_pos: 5
+      start_file_pos: 104
+      end_line_no: 6
+      end_line_pos: 10
+      end_file_pos: 109
+    - code: AL09
+      description: >-
+        Ambiguous self alias. Either remove unnecessary alias, or quote
+        alias/reference to make case change explicit.
+      name: aliasing.self_alias.column
+      warning: false
+      fixes: []
+      start_line_no: 7
+      start_line_pos: 5
+      start_file_pos: 121
+      end_line_no: 7
+      end_line_pos: 10
+      end_file_pos: 126
+    - code: AL09
+      description: >-
+        Ambiguous self alias. Either remove unnecessary alias, or quote
+        alias/reference to make case change explicit.
+      name: aliasing.self_alias.column
+      warning: false
+      fixes: []
+      start_line_no: 8
+      start_line_pos: 5
+      start_file_pos: 138
+      end_line_no: 8
+      end_line_pos: 10
+      end_file_pos: 143
+
+test_pass_different_case_clickhouse:
+    # If the casing is different, even if the quoting is the same, we
+    # should never propose a fix. In clickhouse, different cases are
+    # always different objects, even when unquoted - so never flag
+    # aliases as unnecessary if the casing is different.
     pass_str: |
         select
             col_a as this_alias_is_fine,
@@ -75,6 +177,9 @@ test_pass_different_case:
             "COL_F" "col_f",
             "Col_G" "COL_G"
         from foo
+    configs:
+        core:
+            dialect: clickhouse
 
 test_pass_different_quotes:
     # If the quoting is different, even if the casing is the same, we
