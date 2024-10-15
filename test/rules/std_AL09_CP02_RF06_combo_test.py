@@ -25,7 +25,7 @@ from foo
 
 
 @pytest.mark.parametrize(
-    "rules,dialect,fixed_sql",
+    "rules,dialect,fixed_sql,post_fix_errors",
     [
         # NOTE: The first few examples here are with ANSI which is
         # configured as a natively UPPERCASE dialect.
@@ -45,6 +45,13 @@ select
     I
 from foo
 """,
+            [
+                # These two (A & B) are detected as self aliases, but not
+                # auto-fixed, because the intent is ambiguous.
+                # Should the alias/reference be quoted or removed?
+                ("AL09", 3, 5),
+                ("AL09", 4, 5),
+            ],
         ),
         (
             ["CP02"],
@@ -62,6 +69,7 @@ select
     i as i
 from foo
 """,
+            [],
         ),
         (
             ["RF06"],
@@ -79,6 +87,7 @@ select
     I as I
 from foo
 """,
+            [],
         ),
         (
             ["AL09", "CP02"],
@@ -96,6 +105,9 @@ select
     i
 from foo
 """,
+            # NOTE: When CP02 is active, AL09 errors are no longer
+            # present, because CP02 allowed them to be resolved.
+            [],
         ),
         (
             ["AL09", "RF06"],
@@ -113,6 +125,17 @@ select
     I
 from foo
 """,
+            [
+                # Without CPO2, the errors on line 3 & 5 are present. They're
+                # detected as self-aliases, but with ambiguous fixes (A & B).
+                ("AL09", 3, 5),
+                ("AL09", 4, 5),
+                # Additionally, with RF06 removing quotes, it creates two
+                # new issues, where the previously quoted aliases are now
+                # unquoted, but still different cases (E & G).
+                ("AL09", 7, 5),
+                ("AL09", 9, 5),
+            ],
         ),
         (
             ["CP02", "RF06"],
@@ -130,6 +153,7 @@ select
     i as i
 from foo
 """,
+            [],
         ),
         (
             ["AL09", "CP02", "RF06"],
@@ -147,6 +171,7 @@ select
     i
 from foo
 """,
+            [],
         ),
         # Postgres is natively lowercase, and so the results are
         # different.
@@ -166,6 +191,7 @@ select
     i
 from foo
 """,
+            [],
         ),
         # DuckDB is always case insensitive so likewise has a different result.
         (
@@ -184,10 +210,11 @@ select
     i
 from foo
 """,
+            [],
         ),
     ],
 )
-def test__rules__std_AL09_CP02_RF06(rules, dialect, fixed_sql):
+def test__rules__std_AL09_CP02_RF06(rules, dialect, fixed_sql, post_fix_errors):
     """Test interactions between AL09, CP02 & RF06."""
     print(f"Running with rules: {rules}")
     linter = Linter(dialect=dialect, rules=rules)
@@ -198,4 +225,4 @@ def test__rules__std_AL09_CP02_RF06(rules, dialect, fixed_sql):
     # NOTE: We should really use the rules testing utilities here
     # but they don't yet support multiple rules.
     post_fix_result = linter.lint_string(fixed, fix=False)
-    assert not post_fix_result.check_tuples()
+    assert post_fix_result.check_tuples() == post_fix_errors

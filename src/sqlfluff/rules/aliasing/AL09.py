@@ -192,7 +192,8 @@ class Rule_AL09(BaseRule):
                         anchor=clause_element_raw_segments[0],
                         description=(
                             "Ambiguous self alias. Either remove unnecessary "
-                            "alias, or quote alias to make case change explicit."
+                            "alias, or quote alias/reference to make case "
+                            "change explicit."
                         ),
                     )
                 )
