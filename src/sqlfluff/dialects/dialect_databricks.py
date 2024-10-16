@@ -585,6 +585,7 @@ class MaskStatementSegment(BaseSegment):
         ),
     )
 
+
 class ColumnFieldDefinitionSegment(ansi.ColumnDefinitionSegment):
     """A column field definition, e.g. for CREATE TABLE or ALTER TABLE.
 
@@ -598,7 +599,7 @@ class ColumnFieldDefinitionSegment(ansi.ColumnDefinitionSegment):
         Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
         AnyNumberOf(
             Ref("ColumnConstraintSegment", optional=True),
-            Ref("ColumnDefaultGrammar", optional=True), # For default values
+            Ref("ColumnDefaultGrammar", optional=True),  # For default values
         ),
     )
 
