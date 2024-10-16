@@ -173,10 +173,15 @@ class Rule_ST10(BaseRule):
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Implement the logic to detect unused tables in joins.
 
-        1. Get all the tables that are joined in the query.
-        2. Get all the tables that are used in the select statement.
-        3. Compare the two lists and find the tables that are in the join list but not in the select list.
-        4. For each unused table, create a LintResult with a fix that removes the join.
+        First we fetch all the tables brought *into* the query via
+        either FROM or JOIN clauses. We then search for all the
+        tables referenced in all the other clauses and look for
+        mismatches.
+
+        NOTE: If *any* references aren't appropriately qualified,
+        this rule will abort (because it won't know how to resolve
+        the ambiguous references). That means it relies on RF02
+        having been already applied.
         """
         reference_clause_types = [
             "select_clause",
@@ -218,7 +223,10 @@ class Rule_ST10(BaseRule):
                 results.append(
                     LintResult(
                         anchor=segment,
-                        description=f"Joined table '{segment.raw}' not referenced in query",
+                        description=(
+                            f"Joined table '{segment.raw}' not referenced "
+                            "elsewhere in query"
+                        ),
                     )
                 )
         return results
