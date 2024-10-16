@@ -66,7 +66,7 @@ CREATE TABLE student (id INT, name STRING DEFAULT 'bobby tables', age INT);
 -- Create a table with non nullable column with default value
 CREATE TABLE student (id INT, name STRING NOT NULL DEFAULT 'bobby tables', age INT);
 
--- Create a table with a default timestamp 
+-- Create a table with a default timestamp
 CREATE TABLE clock (
     which_time TIMESTAMP DEFAULT current_timestamp()
 );
