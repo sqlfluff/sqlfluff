@@ -2,7 +2,7 @@ rule: ST10
 
 test_fail_unused_table_in_join:
   fail_str: |
-    with 
+    with
       widget as (
         select * from some_widget_dbt_table
       ),
