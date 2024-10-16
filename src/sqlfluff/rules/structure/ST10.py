@@ -164,6 +164,11 @@ class Rule_ST10(BaseRule):
             f"Analysed brough into SELECT clause.\nJoined: {joined_tables}\n"
             f"Referenced in other joins: {referenced_tables}"
         )
+        # If there's only a single table in this SELECT, we don't return
+        # *ANY*. That's to shortcut this rule to not consider single table
+        # selects.
+        if len(referenced_tables) <= 1:
+            return []
         # If a table is referenced elsewhere in the join, we shouldn't consider
         # it as a potential issue later. So purge them from the list now.
         return [
