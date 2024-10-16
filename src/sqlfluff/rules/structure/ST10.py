@@ -78,9 +78,7 @@ class Rule_ST10(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
     is_fix_compatible = False
 
-    def _extract_references_from_expression(
-        self, segment: BaseSegment
-    ) -> Tuple[str, BaseSegment]:
+    def _extract_references_from_expression(self, segment: BaseSegment) -> str:
         assert segment.is_type("from_expression_element")
         # If there's an alias, we care more about that.
         alias_expression = segment.get_child("alias_expression")
@@ -88,16 +86,18 @@ class Rule_ST10(BaseRule):
             alias_identifier = alias_expression.get_child("identifier")
             if alias_identifier:
                 # Append the raw representation and the from expression.
-                return alias_identifier.raw_upper, segment
+                return alias_identifier.raw_upper
         # Otherwise if no alias, we need the name of the object we're
         # referencing.
         for table_reference in segment.recursive_crawl(
             "table_reference", no_recursive_seg_type="statement"
         ):
-            return table_reference.raw_upper, segment
-        # If we didn't return anything, raise an error for now. I'm not
-        # sure how that might happen.
-        raise NotImplementedError("HOW DO WE GET HERE?")
+            return table_reference.raw_upper
+        # If we can't find a reference, just return an empty string
+        # to signal that there isn't one. This could be a case of a
+        # VALUES clause, or anything else selectable which hasn't
+        # been given an alias.
+        return ""
 
     def _extract_referenced_tables(
         self, segment: BaseSegment, allow_unqualified: bool = False
@@ -133,9 +133,9 @@ class Rule_ST10(BaseRule):
             for from_expression_elem in from_expression.get_children(
                 "from_expression_element"
             ):
-                joined_tables.append(
-                    self._extract_references_from_expression(from_expression_elem)
-                )
+                ref = self._extract_references_from_expression(from_expression_elem)
+                if ref:
+                    joined_tables.append((ref, from_expression_elem))
 
             # Then handle any join clauses.
             for join_clause in from_expression.get_children("join_clause"):
@@ -143,12 +143,10 @@ class Rule_ST10(BaseRule):
                 for from_expression_elem in join_clause.get_children(
                     "from_expression_element"
                 ):
-                    ref, e = self._extract_references_from_expression(
-                        from_expression_elem
-                    )
-                    # In the case of a JOIN, stash the whole clause, not just the table
-                    joined_tables.append((ref, e))
-                    _this_clause_refs.append(ref)
+                    ref = self._extract_references_from_expression(from_expression_elem)
+                    if ref:
+                        joined_tables.append((ref, from_expression_elem))
+                        _this_clause_refs.append(ref)
 
                 # Look for any references in the ON clause to other tables.
                 for join_on_condition in join_clause.get_children("join_on_condition"):
