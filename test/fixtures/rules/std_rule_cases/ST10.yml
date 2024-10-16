@@ -1,5 +1,50 @@
 rule: ST10
 
+test_fail_simple:
+  fail_str: |
+    select
+        1
+    from b join c using(d)
+
+test_pass_single_table:
+  # If there's only one table, even if not referenced, then
+  # don't raise an error.
+  pass_str: |
+    select
+        1
+    from foo
+
+test_pass_values:
+  # If there's only one table, even if not referenced, then
+  # don't raise an error.
+  pass_str: |
+    select
+        1
+    from (VALUES (1, 'one'), (2, 'two'), (3, 'three')) 
+
+# If there are any unqualified references, we shouldn't raise
+# an issue until they're resolved.
+test_pass_unqualified_select:
+  pass_str: |
+    select
+        a
+    from b join c using(d)
+test_pass_unqualified_where:
+  pass_str: |
+    select
+        1
+    from b join c using(d)
+    where e
+test_pass_unqualified_group_by:
+  pass_str: |
+    select
+        1
+    from b join c using(d)
+    group by e
+
+
+
+
 test_fail_unused_table_in_join:
   fail_str: |
     with
