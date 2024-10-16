@@ -19,10 +19,10 @@ class Rule_CP02(Rule_CP01):
 
        In **most** dialects, unquoted identifiers are treated as case-insensitive
        and so the fixes proposed by this rule do not change the interpretation
-       of the query. **HOWEVER**, some databases (notably :ref:`bigquery_dialect_ref`
-       and :ref:`clickhouse_dialect_ref`) do take the casing of *unquoted*
-       identifiers into account when determining the casing of the column heading
-       in the *result*.
+       of the query. **HOWEVER**, some databases (notably :ref:`bigquery_dialect_ref`,
+       :ref:`trino_dialect_ref` and :ref:`clickhouse_dialect_ref`) do take the casing
+       of *unquoted* identifiers into account when determining the casing of the column
+       heading in the *result*.
 
        As this feature is only present in a few dialects, and not widely understood
        by users, we regard it as *an antipattern*. It is more widely understood that
