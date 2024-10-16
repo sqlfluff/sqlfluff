@@ -1,12 +1,19 @@
 """Implementation of Rule ST10."""
 
-from typing import Optional
+from typing import Iterator, List, Tuple, cast
 
-from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.parser.segments import BaseSegment
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
+
+
+class UnqualifiedReferenceError(ValueError):
+    """Custom exception for signalling when a reference is unqualified."""
 
 
 class Rule_ST10(BaseRule):
-    """Unused tables in joins should be removed.
+    """Joined table not referenced in query.
 
     This rule will check if there are any tables that are referenced in the
     ``FROM`` or ``JOIN`` clause of a ``SELECT`` statement, but where no
@@ -52,11 +59,118 @@ class Rule_ST10(BaseRule):
 
     In the (*very rare*) situations that it is logically necessary to include
     a table in a join clause, but not otherwise refer to it (likely for
-    granularity reasons), we recommend ignoring this rule for that specific
-    line by using ``-- noqa: ST10`` at the end of the line.
+    granularity reasons, or as a stepping stone to another table), we recommend
+    ignoring this rule for that specific line by using ``-- noqa: ST10`` at
+    the end of the line.
+
+    .. note:
+
+       To avoid sticky situations with casing and quoting in different dialects
+       this rule uses case-insensitive comparison. That means if you have two
+       tables with the same name, but different cases (and you're really sure
+       that's a good idea!), then this rule may not detect if one of them is
+       unused.
     """
 
-    def _eval(self, context: RuleContext) -> Optional[LintResult]:
+    name = "structure.unused_join"
+    aliases = ()
+    groups: Tuple[str, ...] = ("all", "structure")
+    crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
+    is_fix_compatible = False
+
+    def _extract_references_from_expression(
+        self, segment: BaseSegment
+    ) -> Tuple[str, BaseSegment]:
+        assert segment.is_type("from_expression_element")
+        # If there's an alias, we care more about that.
+        alias_expression = segment.get_child("alias_expression")
+        if alias_expression:
+            alias_identifier = alias_expression.get_child("identifier")
+            if alias_identifier:
+                # Append the raw representation and the from expression.
+                return alias_identifier.raw_upper, segment
+        # Otherwise if no alias, we need the name of the object we're
+        # referencing.
+        for table_reference in segment.recursive_crawl(
+            "table_reference", no_recursive_seg_type="statement"
+        ):
+            return table_reference.raw_upper, segment
+        # If we didn't return anything, raise an error for now. I'm not
+        # sure how that might happen.
+        raise NotImplementedError("HOW DO WE GET HERE?")
+
+    def _extract_referenced_tables(
+        self, segment: BaseSegment, allow_unqualified: bool = False
+    ) -> Iterator[str]:
+        for ref in segment.recursive_crawl(
+            "object_reference", no_recursive_seg_type="statement"
+        ):
+            obj_ref = cast(ObjectReferenceSegment, ref)
+            parts = list(obj_ref.iter_raw_references())
+            if len(parts) < 2:
+                if allow_unqualified:
+                    continue
+                else:
+                    raise UnqualifiedReferenceError(ref.raw)
+            # Remove any quoting characters when returning.
+            yield parts[-2].part.upper().strip("\"'`[]")
+
+    def _extract_references_from_select(
+        self, segment: BaseSegment
+    ) -> List[Tuple[str, BaseSegment]]:
+        assert segment.is_type("select_statement")
+        # Tables which exist in the query
+        joined_tables = []
+        # Tables which are referred to elsewhere.
+        # NOTE: We populate this here if a table is referred to in the the
+        # join clause for a *different* table.
+        referenced_tables = []
+        # Extract the information from any FROM clauses.
+        from_clause = segment.get_child("from_clause")
+        if not from_clause:  # No from, no joins, no worries
+            return []
+        for from_expression in from_clause.get_children("from_expression"):
+            for from_expression_elem in from_expression.get_children(
+                "from_expression_element"
+            ):
+                joined_tables.append(
+                    self._extract_references_from_expression(from_expression_elem)
+                )
+
+            # Then handle any join clauses.
+            for join_clause in from_expression.get_children("join_clause"):
+                _this_clause_refs = []
+                for from_expression_elem in join_clause.get_children(
+                    "from_expression_element"
+                ):
+                    ref, e = self._extract_references_from_expression(
+                        from_expression_elem
+                    )
+                    # In the case of a JOIN, stash the whole clause, not just the table
+                    joined_tables.append((ref, e))
+                    _this_clause_refs.append(ref)
+
+                # Look for any references in the ON clause to other tables.
+                for join_on_condition in join_clause.get_children("join_on_condition"):
+                    # We can tolerate some unqualified references here, so no need
+                    # to raise exceptions.
+                    for tbl_ref in self._extract_referenced_tables(
+                        join_on_condition, allow_unqualified=True
+                    ):
+                        if tbl_ref not in _this_clause_refs:
+                            referenced_tables.append(tbl_ref)
+
+        self.logger.debug(
+            f"Analysed brough into SELECT clause.\nJoined: {joined_tables}\n"
+            f"Referenced in other joins: {referenced_tables}"
+        )
+        # If a table is referenced elsewhere in the join, we shouldn't consider
+        # it as a potential issue later. So purge them from the list now.
+        return [
+            (ref, seg) for (ref, seg) in joined_tables if ref not in referenced_tables
+        ]
+
+    def _eval(self, context: RuleContext) -> List[LintResult]:
         """Implement the logic to detect unused tables in joins.
 
         1. Get all the tables that are joined in the query.
@@ -64,9 +178,47 @@ class Rule_ST10(BaseRule):
         3. Compare the two lists and find the tables that are in the join list but not in the select list.
         4. For each unused table, create a LintResult with a fix that removes the join.
         """
-        join_tables = context.segment.get_children("join_clause")
-        select_tables = context.segment.get_children("select_clause")
-        unused_tables = [table for table in join_tables if table not in select_tables]
-        for table in unused_tables:
-            return LintResult(anchor=table, fixes=[LintFix("delete", table)])
-        return None
+        reference_clause_types = [
+            "select_clause",
+            "where_clause",
+            "groupby_clause",
+            "orderby_clause",
+            "having_clause",
+            "qualify_clause",
+        ]
+
+        joined_tables = self._extract_references_from_select(context.segment)
+        if not joined_tables:  # No from, no joins, no worries
+            return []
+        # We should now have a list of joined tables (or aliases) which
+        # aren't otherwise referred to in the FROM clause. Now we work
+        # through all the other clauses.
+        table_references = set()
+        for other_clause in context.segment.get_children(*reference_clause_types):
+            try:
+                for tbl_ref in self._extract_referenced_tables(
+                    other_clause, allow_unqualified=False
+                ):
+                    table_references.add(tbl_ref)
+            except UnqualifiedReferenceError as err:
+                self.logger.debug(
+                    f"Found an unqualified ref '{err}'. Aborting for this SELECT."
+                )
+                return []
+
+        results: List[LintResult] = []
+        self.logger.debug(
+            f"Select statement {context.segment} references "
+            f"tables: {table_references}.\n"
+            f"Joined tables to asses: {joined_tables}"
+        )
+        for tbl_ref, segment in joined_tables:
+            if tbl_ref not in table_references:
+                # if segment.is_type()
+                results.append(
+                    LintResult(
+                        anchor=segment,
+                        description=f"Joined table '{segment.raw}' not referenced in query",
+                    )
+                )
+        return results
