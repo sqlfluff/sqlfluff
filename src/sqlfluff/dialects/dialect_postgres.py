@@ -1097,7 +1097,7 @@ class AlterAggregateStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "ALTER",
         "AGGREGATE",
-        Ref("FunctionNameSegment"),
+        Ref("ObjectReferenceSegment"),
         Bracketed(
             OneOf(
                 Ref("FunctionParameterListGrammar"),

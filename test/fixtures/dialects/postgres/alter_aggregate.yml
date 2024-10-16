@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e05e798927033f235d50b8f71d66fbfc953170fc4f1c4cbce36834f165e685d6
+_hash: 2bab70cb3d96e59b198ec8bdc4355e0b9e1433b58324de800aec8457a62ee1f7
 file:
 - statement:
     alter_aggregate_statement:
     - keyword: ALTER
     - keyword: AGGREGATE
-    - function_name:
-        function_name_identifier: range_agg_preserve_gaps
+    - object_reference:
+        naked_identifier: range_agg_preserve_gaps
     - bracketed:
         start_bracket: (
         word: TSTZRANGE
@@ -24,8 +24,8 @@ file:
     alter_aggregate_statement:
     - keyword: ALTER
     - keyword: AGGREGATE
-    - function_name:
-        function_name_identifier: my_agg
+    - object_reference:
+        naked_identifier: my_agg
     - bracketed:
         start_bracket: (
         word: TSTZRANGE
@@ -39,8 +39,8 @@ file:
     alter_aggregate_statement:
     - keyword: ALTER
     - keyword: AGGREGATE
-    - function_name:
-        function_name_identifier: my_agg
+    - object_reference:
+        naked_identifier: my_agg
     - bracketed:
         start_bracket: (
         word: TSTZRANGE
@@ -53,8 +53,8 @@ file:
     alter_aggregate_statement:
     - keyword: ALTER
     - keyword: AGGREGATE
-    - function_name:
-        function_name_identifier: my_agg
+    - object_reference:
+        naked_identifier: my_agg
     - bracketed:
         start_bracket: (
         word: TSTZRANGE
@@ -67,8 +67,8 @@ file:
     alter_aggregate_statement:
     - keyword: ALTER
     - keyword: AGGREGATE
-    - function_name:
-        function_name_identifier: my_agg
+    - object_reference:
+        naked_identifier: my_agg
     - bracketed:
         start_bracket: (
         word: TSTZRANGE
@@ -81,8 +81,8 @@ file:
     alter_aggregate_statement:
     - keyword: ALTER
     - keyword: AGGREGATE
-    - function_name:
-        function_name_identifier: my_agg
+    - object_reference:
+        naked_identifier: my_agg
     - bracketed:
         start_bracket: (
         star: '*'
@@ -96,8 +96,8 @@ file:
     alter_aggregate_statement:
     - keyword: ALTER
     - keyword: AGGREGATE
-    - function_name:
-        function_name_identifier: complex_agg_function
+    - object_reference:
+        naked_identifier: complex_agg_function
     - bracketed:
       - start_bracket: (
       - word: integer
