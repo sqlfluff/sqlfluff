@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0073b11191c8a2fce82283d0cde9270748421d685bd50e315beebc4a37cd3cd8
+_hash: 38ccd9866f40e2ff07dfbcf1afae3c5f4c41bc6d817505c8ffdfeb3f28daa668
 file:
 - statement:
     declare_segment:
@@ -63,23 +63,25 @@ file:
           function:
             function_name:
               function_name_identifier: timestamp_add
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: current_timestamp
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
-            - comma: ','
-            - expression:
-                interval_expression:
-                  keyword: interval
-                  expression:
-                    numeric_literal: '3'
-                  date_part: hour
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: current_timestamp
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  interval_expression:
+                    keyword: interval
+                    expression:
+                      numeric_literal: '3'
+                    date_part: hour
+              - end_bracket: )
           end_bracket: )
 - statement_terminator: ;
 - multi_statement_segment:
@@ -142,20 +144,21 @@ file:
           - function:
               function_name:
                 function_name_identifier: format
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    naked_identifier: var_2
-              - comma: ','
-              - expression:
-                  column_reference:
-                    naked_identifier: var_1
-              - comma: ','
-              - expression:
-                  column_reference:
-                    naked_identifier: var_1
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: var_2
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: var_1
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: var_1
+                - end_bracket: )
       - statement_terminator: ;
       - statement:
           execute_immediate:
@@ -173,32 +176,34 @@ file:
                   function:
                     function_name:
                       function_name_identifier: format
-                    bracketed:
-                    - start_bracket: (
-                    - expression:
-                        column_reference:
-                          naked_identifier: var_1
-                    - comma: ','
-                    - expression:
-                        column_reference:
-                          naked_identifier: var_2
-                    - end_bracket: )
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: var_1
+                      - comma: ','
+                      - expression:
+                          column_reference:
+                            naked_identifier: var_2
+                      - end_bracket: )
             - else_clause:
                 keyword: else
                 expression:
                   function:
                     function_name:
                       function_name_identifier: format
-                    bracketed:
-                    - start_bracket: (
-                    - expression:
-                        column_reference:
-                          naked_identifier: var_1
-                    - comma: ','
-                    - expression:
-                        column_reference:
-                          naked_identifier: m
-                    - end_bracket: )
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: var_1
+                      - comma: ','
+                      - expression:
+                          column_reference:
+                            naked_identifier: m
+                      - end_bracket: )
             - keyword: end
       - statement_terminator: ;
       - statement:
@@ -207,27 +212,29 @@ file:
           - keyword: immediate
           - bracketed:
               start_bracket: (
-              select_statement:
-                select_clause:
-                  keyword: select
-                  select_clause_element:
-                    function:
-                      function_name:
-                        function_name_identifier: format
-                      bracketed:
-                      - start_bracket: (
-                      - expression:
-                          column_reference:
-                            naked_identifier: var_2
-                      - comma: ','
-                      - expression:
-                          column_reference:
-                            naked_identifier: var_1
-                      - comma: ','
-                      - expression:
-                          column_reference:
-                            naked_identifier: var_1
-                      - end_bracket: )
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: select
+                    select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: format
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              column_reference:
+                                naked_identifier: var_2
+                          - comma: ','
+                          - expression:
+                              column_reference:
+                                naked_identifier: var_1
+                          - comma: ','
+                          - expression:
+                              column_reference:
+                                naked_identifier: var_1
+                          - end_bracket: )
               end_bracket: )
       - statement_terminator: ;
       - statement:

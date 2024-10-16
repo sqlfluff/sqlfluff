@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 935199c7ac89c3a42afe824da3a00b3541e19ed276476b2ef8cd50e05ab7c023
+_hash: 65e0ce1830acb15dbd20f3d6d82693d53a35f2e5715e39ed4c880cc8337783a7
 file:
   batch:
   - statement:
@@ -18,33 +18,37 @@ file:
           function:
             function_name:
               function_name_identifier: ISNULL
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    naked_identifier: Shared
-                    dot: .
-                    function_name_identifier: GetESTDateTime
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      function:
-                        function_name:
-                          function_name_identifier: GETDATE
-                        bracketed:
-                          start_bracket: (
-                          end_bracket: )
-                    end_bracket: )
-            - comma: ','
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: GETDATE
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      naked_identifier: Shared
+                      dot: .
+                      function_name_identifier: GetESTDateTime
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          function:
+                            function_name:
+                              function_name_identifier: GETDATE
+                            function_contents:
+                              bracketed:
+                                start_bracket: (
+                                end_bracket: )
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: GETDATE
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+              - end_bracket: )
   - statement:
       select_statement:
         select_clause:
@@ -62,20 +66,21 @@ file:
             function:
               function_name:
                 keyword: cast
-              bracketed:
-                start_bracket: (
-                expression:
-                  quoted_literal: "'1900-01-01'"
-                keyword: as
-                data_type:
-                  data_type_identifier: datetime2
-                  bracketed_arguments:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        numeric_literal: '7'
-                      end_bracket: )
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'1900-01-01'"
+                  keyword: as
+                  data_type:
+                    data_type_identifier: datetime2
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          numeric_literal: '7'
+                        end_bracket: )
+                  end_bracket: )
             alias_expression:
               keyword: as
               naked_identifier: DataRefreshDate
@@ -106,16 +111,17 @@ file:
           function:
             function_name:
               keyword: cast
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '100'
-              keyword: as
-              data_type:
-                data_type_identifier: nvarchar
-                bracketed_arguments:
-                  bracketed:
-                    start_bracket: (
-                    keyword: max
-                    end_bracket: )
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '100'
+                keyword: as
+                data_type:
+                  data_type_identifier: nvarchar
+                  bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      keyword: max
+                      end_bracket: )
+                end_bracket: )

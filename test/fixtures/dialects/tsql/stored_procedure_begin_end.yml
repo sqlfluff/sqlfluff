@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2994b0898ee3fa4c6a39ccc0a26d004d90582cc796255ec0b85138cbb33401b7
+_hash: 7f71fc8304b1b2f26f7e6755ba3326e8051a2d846e70c1f6b8e78fdfe899e279
 file:
 - batch:
     create_procedure_statement:
@@ -218,9 +218,10 @@ file:
                       function:
                         function_name:
                           function_name_identifier: ERROR_NUMBER
-                        bracketed:
-                          start_bracket: (
-                          end_bracket: )
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            end_bracket: )
                     statement_terminator: ;
               - statement:
                   set_segment:
@@ -232,9 +233,10 @@ file:
                       function:
                         function_name:
                           function_name_identifier: ERROR_LINE
-                        bracketed:
-                          start_bracket: (
-                          end_bracket: )
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            end_bracket: )
                     statement_terminator: ;
               - statement:
                   set_segment:
@@ -259,9 +261,10 @@ file:
                     - function:
                         function_name:
                           function_name_identifier: ERROR_MESSAGE
-                        bracketed:
-                          start_bracket: (
-                          end_bracket: )
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            end_bracket: )
                     statement_terminator: ;
               - statement:
                   goto_statement:

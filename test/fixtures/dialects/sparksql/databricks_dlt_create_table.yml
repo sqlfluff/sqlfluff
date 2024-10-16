@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6865f6ecd86e015884d5f86a75b0ece68cce4b15f099a618ac80145d688274ef
+_hash: 0844556b3b33e5a374b7e75dba86efd409dc1d152f60ab1d1e214eade54adf0b
 file:
 - statement:
     create_table_statement:
@@ -94,14 +94,15 @@ file:
                 function:
                   function_name:
                     function_name_identifier: CLOUD_FILES
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      quoted_literal: '"/databricks-datasets/retail-org/customers/"'
-                  - comma: ','
-                  - expression:
-                      quoted_literal: '"csv"'
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        quoted_literal: '"/databricks-datasets/retail-org/customers/"'
+                    - comma: ','
+                    - expression:
+                        quoted_literal: '"csv"'
+                    - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -132,14 +133,15 @@ file:
                 function:
                   function_name:
                     function_name_identifier: STREAM
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                      - naked_identifier: live
-                      - dot: .
-                      - naked_identifier: customers_bronze
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - naked_identifier: live
+                        - dot: .
+                        - naked_identifier: customers_bronze
+                      end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -202,14 +204,15 @@ file:
                 function:
                   function_name:
                     function_name_identifier: STREAM
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                      - naked_identifier: live
-                      - dot: .
-                      - naked_identifier: customers_bronze
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - naked_identifier: live
+                        - dot: .
+                        - naked_identifier: customers_bronze
+                      end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -223,7 +226,8 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: a
+          column_reference:
+            naked_identifier: a
           data_type:
             primitive_type:
               keyword: STRING
@@ -233,7 +237,8 @@ file:
               quoted_literal: "'a'"
       - comma: ','
       - column_definition:
-          naked_identifier: b
+          column_reference:
+            naked_identifier: b
           data_type:
             primitive_type:
               keyword: INT

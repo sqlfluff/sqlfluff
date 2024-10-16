@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2afc00620c19ab518360a0671524869ccf5691b6e7b1116a0ce06e4aebd41214
+_hash: 6164a59aac8643febce94f6e4e89a9cc5fdf94b6b8cdb978c56ee82c1fbfde90
 file:
 - statement:
     create_domain_statement:
@@ -60,12 +60,13 @@ file:
             function:
               function_name:
                 function_name_identifier: LENGTH
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: value
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: value
+                  end_bracket: )
             comparison_operator:
               raw_comparison_operator: '>'
             numeric_literal: '0'
@@ -81,12 +82,13 @@ file:
             function:
               function_name:
                 function_name_identifier: LENGTH
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: value
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: value
+                  end_bracket: )
             comparison_operator:
             - raw_comparison_operator: <
             - raw_comparison_operator: '='

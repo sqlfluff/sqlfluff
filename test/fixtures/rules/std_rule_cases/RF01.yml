@@ -305,3 +305,26 @@ test_pass_postgres_merge_with_alias:
   configs:
     core:
       dialect: tsql
+
+test_pass_tsql_nested_join_alias:
+  pass_str: |
+    SELECT
+        tst1.Name, tst2.OtherName
+    FROM dbo.Test1 AS tst1
+        LEFT OUTER JOIN (dbo.Test2       AS tst2
+                              INNER JOIN dbo.FilterTable AS fltr1
+                                  ON tst2.Id = fltr1.Id)
+            ON tst1.id = tst2.id
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_trino_lambda_expression:
+  pass_str: |
+    SELECT
+        a_column,
+        TRANSFORM(array_col, x -> x.example) AS array_col_example
+    FROM example_table;
+  configs:
+    core:
+      dialect: trino

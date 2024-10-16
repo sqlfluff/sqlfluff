@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f9ce164e521bde2f59e168d96fa1333eab314cb0e034162c363d9e79413c946e
+_hash: 1ca35910d549e429c9c406c2e5684b2dc5c4e78af48534241ef94366fec3e863
 file:
 - statement:
     create_table_statement:
@@ -45,29 +45,30 @@ file:
             function:
               function_name:
                 function_name_identifier: MAP
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  typed_array_literal:
-                    array_type:
-                      keyword: ARRAY
-                    array_literal:
-                    - start_square_bracket: '['
-                    - quoted_literal: "'foo'"
-                    - comma: ','
-                    - quoted_literal: "'bar'"
-                    - end_square_bracket: ']'
-              - comma: ','
-              - expression:
-                  typed_array_literal:
-                    array_type:
-                      keyword: ARRAY
-                    array_literal:
-                    - start_square_bracket: '['
-                    - numeric_literal: '1'
-                    - comma: ','
-                    - numeric_literal: '2'
-                    - end_square_bracket: ']'
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    typed_array_literal:
+                      array_type:
+                        keyword: ARRAY
+                      array_literal:
+                      - start_square_bracket: '['
+                      - quoted_literal: "'foo'"
+                      - comma: ','
+                      - quoted_literal: "'bar'"
+                      - end_square_bracket: ']'
+                - comma: ','
+                - expression:
+                    typed_array_literal:
+                      array_type:
+                        keyword: ARRAY
+                      array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '1'
+                      - comma: ','
+                      - numeric_literal: '2'
+                      - end_square_bracket: ']'
+                - end_bracket: )
           end_bracket: )
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8d87ced2cb76bdc46947437b43aeacc28944904f5747df8f6bde8556a59c7527
+_hash: 91f87bc9d4512025f7ce6db3931b1d37161bb5fc607ccf7477937380b1002ef2
 file:
   statement:
     select_statement:
@@ -14,14 +14,15 @@ file:
           - function:
               function_name:
                 function_name_identifier: PARSE_JSON
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                  - naked_identifier: t
-                  - dot: .
-                  - naked_identifier: metadata
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: t
+                    - dot: .
+                    - naked_identifier: metadata
+                  end_bracket: )
           - array_accessor:
               start_square_bracket: '['
               expression:
@@ -40,14 +41,15 @@ file:
             function:
               function_name:
                 function_name_identifier: PARSE_JSON
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                  - naked_identifier: t
-                  - dot: .
-                  - naked_identifier: metadata
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: t
+                    - dot: .
+                    - naked_identifier: metadata
+                  end_bracket: )
             semi_structured_expression:
               colon: ':'
               semi_structured_element: customer_id

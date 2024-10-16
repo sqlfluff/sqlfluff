@@ -43,7 +43,28 @@ from sqlfluff.dialects.dialect_bigquery_keywords import (
 )
 
 ansi_dialect = load_raw_dialect("ansi")
-bigquery_dialect = ansi_dialect.copy_as("bigquery")
+bigquery_dialect = ansi_dialect.copy_as(
+    "bigquery",
+    formatted_name="Google BigQuery",
+    docstring="""**Default Casing**: BigQuery resolves unquoted column
+identifiers case insensitively, and table/dataset identifiers case
+sensitively (by default, unless :code:`is_case_insensitive` is set for
+the latter). Unless specified, columns are returned in the case which
+they were defined in, which means columns can be re-cased in the result
+set without aliasing e.g. if a table is defined with
+:code:`CREATE TEMPORARY TABLE foo (col1 int, COL2 int)` then
+:code:`SELECT * FROM foo` returns :code:`col1` and :code:`COL2` in the
+result, but :code:`SELECT COL1, col2 FROM foo` returns :code:`COL1` and
+:code:`col2` in the result.
+
+**Quotes**: String Literals: ``''``, ``""``, ``@`` or ``@@`` (with the
+quoted options, also supporting variants prefixes with ``r``/``R`` (for
+raw/regex expressions) or ``b``/``B`` (for byte strings)),
+Identifiers: ``""`` or |back_quotes|.
+
+The dialect for `BigQuery <https://cloud.google.com/bigquery/>`_
+on Google Cloud Platform (GCP).""",
+)
 
 bigquery_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
@@ -58,7 +79,7 @@ bigquery_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "double_at_sign_literal",
-            r"@@[a-zA-Z_][\w]*",
+            r"@@[a-zA-Z_][\w\.]*",
             LiteralSegment,
             segment_kwargs={"trim_chars": ("@@",)},
         ),
@@ -962,6 +983,55 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
     )
 
 
+class DateTimeFunctionContentsSegment(ansi.DateTimeFunctionContentsSegment):
+    """Datetime function contents segment."""
+
+    match_grammar = Sequence(
+        Bracketed(
+            Delimited(
+                Ref("DatetimeUnitSegment"),
+                Ref("DatePartWeekSegment"),
+                Ref("FunctionContentsGrammar"),
+            ),
+        )
+    )
+
+
+class ExtractFunctionContentsSegment(BaseSegment):
+    """Extract Function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            OneOf(
+                Ref("DatetimeUnitSegment"),
+                Ref("DatePartWeekSegment"),
+                Ref("ExtendedDatetimeUnitSegment"),
+            ),
+            "FROM",
+            Ref("ExpressionSegment"),
+        ),
+    )
+
+
+class NormalizeFunctionContentsSegment(BaseSegment):
+    """Normalize Function Contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref("ExpressionSegment"),
+            Sequence(
+                Ref("CommaSegment"),
+                OneOf("NFC", "NFKC", "NFD", "NFKD"),
+                optional=True,
+            ),
+        ),
+    )
+
+
 class FunctionSegment(ansi.FunctionSegment):
     """A scalar or aggregate function.
 
@@ -976,28 +1046,13 @@ class FunctionSegment(ansi.FunctionSegment):
             Sequence(
                 # BigQuery EXTRACT allows optional TimeZone
                 Ref("ExtractFunctionNameSegment"),
-                Bracketed(
-                    OneOf(
-                        Ref("DatetimeUnitSegment"),
-                        Ref("DatePartWeekSegment"),
-                        Ref("ExtendedDatetimeUnitSegment"),
-                    ),
-                    "FROM",
-                    Ref("ExpressionSegment"),
-                ),
+                Ref("ExtractFunctionContentsSegment"),
             ),
             Sequence(
                 # BigQuery NORMALIZE allows optional normalization_mode
                 # https://cloud.google.com/bigquery/docs/reference/standard-sql/functions-and-operators#normalize
                 Ref("NormalizeFunctionNameSegment"),
-                Bracketed(
-                    Ref("ExpressionSegment"),
-                    Sequence(
-                        Ref("CommaSegment"),
-                        OneOf("NFC", "NFKC", "NFD", "NFKD"),
-                        optional=True,
-                    ),
-                ),
+                Ref("NormalizeFunctionContentsSegment"),
             ),
             Sequence(
                 # Treat functions which take date parts separately
@@ -1007,16 +1062,7 @@ class FunctionSegment(ansi.FunctionSegment):
                     "DatePartFunctionNameSegment",
                     exclude=Ref("ExtractFunctionNameSegment"),
                 ),
-                Bracketed(
-                    Delimited(
-                        Ref("DatetimeUnitSegment"),
-                        Ref("DatePartWeekSegment"),
-                        Ref(
-                            "FunctionContentsGrammar",
-                        ),
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
+                Ref("DateTimeFunctionContentsSegment"),
             ),
             Sequence(
                 Sequence(
@@ -1028,14 +1074,7 @@ class FunctionSegment(ansi.FunctionSegment):
                             Ref("ValuesClauseSegment"),
                         ),
                     ),
-                    Bracketed(
-                        Ref(
-                            "FunctionContentsGrammar",
-                            # The brackets might be empty for some functions...
-                            optional=True,
-                        ),
-                        parse_mode=ParseMode.GREEDY,
-                    ),
+                    Ref("FunctionContentsSegment"),
                 ),
                 # Functions returning ARRAYS in BigQuery can have optional
                 # Array Accessor clauses
@@ -1247,6 +1286,18 @@ class StructTypeSchemaSegment(BaseSegment):
     )
 
 
+class ArrayFunctionContentsSegment(BaseSegment):
+    """Array function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref("SelectableGrammar"),
+        ),
+    )
+
+
 class ArrayExpressionSegment(ansi.ArrayExpressionSegment):
     """Expression to construct a ARRAY from a subquery.
 
@@ -1255,9 +1306,7 @@ class ArrayExpressionSegment(ansi.ArrayExpressionSegment):
 
     match_grammar = Sequence(
         Ref("ArrayFunctionNameSegment"),
-        Bracketed(
-            Ref("SelectableGrammar"),
-        ),
+        Ref("ArrayFunctionContentsSegment"),
     )
 
 
@@ -1522,6 +1571,7 @@ class SetStatementSegment(BaseSegment):
         OneOf(
             Ref("NakedIdentifierSegment"),
             Bracketed(Delimited(Ref("NakedIdentifierSegment"))),
+            Ref("SystemVariableSegment"),
         ),
         Ref("EqualsSegment"),
         Delimited(
@@ -1563,6 +1613,7 @@ class ExecuteImmediateSegment(BaseSegment):
                 Ref("SingleIdentifierFullGrammar"),  # Variable
                 Ref("FunctionSegment"),  # Function
                 Ref("CaseExpressionSegment"),  # Conditional Expression
+                Ref("ExpressionSegment"),  # Expression
                 Bracketed(Ref("SelectableGrammar")),  # Expression Subquery
             )
         ),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6aa7cecf1e4e9c9564e77ea114924339272ff388cb0dcfe19c4a71bed8c87193
+_hash: 057f6c37ee24870bcb7428c406bb1429e4ed5f8ca5a134bc7c0cc54d4ccc31aa
 file:
 - statement:
     select_statement:
@@ -36,14 +36,15 @@ file:
           function:
             function_name:
               function_name_identifier: datetime_trunc
-            bracketed:
-              start_bracket: (
-              expression:
-                parameterized_expression:
-                  at_sign_literal: '@z2'
-              comma: ','
-              date_part: week
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  parameterized_expression:
+                    at_sign_literal: '@z2'
+                comma: ','
+                date_part: week
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -53,14 +54,15 @@ file:
           function:
             function_name:
               function_name_identifier: datetime_trunc
-            bracketed:
-              start_bracket: (
-              expression:
-                parameterized_expression:
-                  at_sign_literal: '@_ab'
-              comma: ','
-              date_part: week
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  parameterized_expression:
+                    at_sign_literal: '@_ab'
+                comma: ','
+                date_part: week
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -70,14 +72,15 @@ file:
           function:
             function_name:
               function_name_identifier: datetime_trunc
-            bracketed:
-              start_bracket: (
-              expression:
-                parameterized_expression:
-                  at_sign_literal: '@a'
-              comma: ','
-              date_part: week
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  parameterized_expression:
+                    at_sign_literal: '@a'
+                comma: ','
+                date_part: week
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -87,13 +90,14 @@ file:
           function:
             function_name:
               function_name_identifier: parse_date
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: '"%Y%m"'
-              comma: ','
-              date_part: year
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: '"%Y%m"'
+                comma: ','
+                date_part: year
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -126,15 +130,16 @@ file:
           function:
             function_name:
               function_name_identifier: concat
-            bracketed:
-            - start_bracket: (
-            - expression:
-                quoted_literal: '"1"'
-            - comma: ','
-            - expression:
-                parameterized_expression:
-                  question_mark: '?'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: '"1"'
+              - comma: ','
+              - expression:
+                  parameterized_expression:
+                    question_mark: '?'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -148,25 +153,27 @@ file:
           function:
             function_name:
               function_name_identifier: datetime_trunc
-            bracketed:
-              start_bracket: (
-              expression:
-                parameterized_expression:
-                  at_sign_literal: '@z2'
-              comma: ','
-              date_part: week
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  parameterized_expression:
+                    at_sign_literal: '@z2'
+                comma: ','
+                date_part: week
+                end_bracket: )
       - comma: ','
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: sum
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: something
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: something
+                end_bracket: )
             over_clause:
               keyword: over
               bracketed:

@@ -32,6 +32,8 @@ jobs:
   modular-python-test:
     name: py${{ inputs.python-version }}-${{ inputs.dbt-version }}
     runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
 
     services:
       # Label used to access the service container
@@ -74,15 +76,6 @@ jobs:
       if: ${{ !inputs.coverage }}
       run: tox -e ${{ inputs.dbt-version }} -- plugins/sqlfluff-templater-dbt
 
-    - name: Coveralls Parallel (coveralls)
-      uses: coverallsapp/github-action@v2
-      if: ${{ inputs.coverage }}
-      with:
-        path-to-lcov: coverage.lcov
-        github-token: ${{ secrets.gh_token }}
-        flag-name: run-${{ inputs.dbt-version }}
-        parallel: true
-
     - name: Upload coverage data (github)
       uses: actions/upload-artifact@v4
       if: ${{ inputs.coverage }}
@@ -90,3 +83,4 @@ jobs:
         name: coverage-data-py${{ inputs.python-version }}-${{ inputs.dbt-version }}
         path: ".coverage.*"
         if-no-files-found: ignore
+        include-hidden-files: true

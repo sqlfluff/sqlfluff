@@ -61,7 +61,7 @@ class SQLBaseError(ValueError):
             self.line_pos = line_pos
         super().__init__(self.desc())
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         """Errors compare equal if they are the same type and same content."""
         if not isinstance(other, self.__class__):
             return False

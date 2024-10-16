@@ -33,6 +33,8 @@ from sqlfluff.core.parser import (
     RegexParser,
     SegmentGenerator,
     Sequence,
+    StringParser,
+    SymbolSegment,
     TypedParser,
     WhitespaceSegment,
     WordSegment,
@@ -45,7 +47,13 @@ from sqlfluff.dialects.dialect_tsql_keywords import (
 )
 
 ansi_dialect = load_raw_dialect("ansi")
-tsql_dialect = ansi_dialect.copy_as("tsql")
+tsql_dialect = ansi_dialect.copy_as(
+    "tsql",
+    formatted_name="Microsoft T-SQL",
+    docstring="""The dialect for `T-SQL`_ (aka Transact-SQL).
+
+.. _`T-SQL`: https://docs.microsoft.com/en-us/sql/t-sql/language-reference""",
+)
 
 tsql_dialect.sets("reserved_keywords").clear()
 tsql_dialect.sets("unreserved_keywords").clear()
@@ -108,7 +116,7 @@ tsql_dialect.sets("datetime_units").update(
 
 tsql_dialect.sets("date_part_function_name").clear()
 tsql_dialect.sets("date_part_function_name").update(
-    ["DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME", "DATEPART"]
+    ["DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME", "DATEPART", "DATETRUNC"]
 )
 
 tsql_dialect.sets("date_format").clear()
@@ -379,6 +387,9 @@ tsql_dialect.add(
             type="date_format",
         )
     ),
+    # Here we add a special case for a DotSegment where we don't want to apply
+    # LT01's respace rule.
+    LeadingDotSegment=StringParser(".", SymbolSegment, type="leading_dot"),
 )
 
 tsql_dialect.replace(
@@ -455,7 +466,7 @@ tsql_dialect.replace(
             type="function_name_identifier",
             anti_template=r"^("
             + r"|".join(
-                dialect.sets("reserved_keywords")
+                dialect.sets("reserved_keywords").difference({"UPDATE"})
                 | dialect.sets("future_reserved_keywords")
             )
             + r")$",
@@ -1819,13 +1830,11 @@ class ReferencesConstraintGrammar(BaseSegment):
         Ref("TableReferenceSegment"),
         # Foreign columns making up FOREIGN KEY constraint
         Ref("BracketedColumnReferenceListGrammar", optional=True),
-        Sequence(
-            "ON",
-            OneOf("DELETE", "UPDATE"),
-            Ref("ReferentialActionGrammar"),
-            optional=True,
+        AnySetOf(
+            Sequence("ON", "DELETE", Ref("ReferentialActionGrammar")),
+            Sequence("ON", "UPDATE", Ref("ReferentialActionGrammar")),
+            Sequence("NOT", "FOR", "REPLICATION"),
         ),
-        Sequence("NOT", "FOR", "REPLICATION", optional=True),
     )
 
 
@@ -2058,6 +2067,33 @@ class TableReferenceSegment(ObjectReferenceSegment):
     """
 
     type = "table_reference"
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            AnyNumberOf(
+                Sequence(
+                    Ref("DotSegment"),
+                    Ref("SingleIdentifierGrammar", optional=True),
+                ),
+                min_times=0,
+                max_times=3,
+            ),
+        ),
+        # This can have a leading number of dots. If the table reference starts with a
+        # dot segment, apply a special type of DotSegment to prevent removal of spaces
+        Sequence(
+            Ref("LeadingDotSegment"),
+            AnyNumberOf(
+                Sequence(
+                    Ref("SingleIdentifierGrammar", optional=True),
+                    Ref("DotSegment"),
+                ),
+                min_times=0,
+                max_times=2,
+            ),
+            Ref("SingleIdentifierGrammar"),
+        ),
+    )
 
 
 class SchemaReferenceSegment(ObjectReferenceSegment):
@@ -2443,71 +2479,78 @@ class ColumnConstraintSegment(BaseSegment):
     type = "column_constraint_segment"
     # Column constraint from
     # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql
-    match_grammar = Sequence(
+    match_grammar = OneOf(
         Sequence(
-            "CONSTRAINT",
-            Ref("ObjectReferenceSegment"),  # Constraint name
-            optional=True,
-        ),
-        OneOf(
-            "FILESTREAM",
             Sequence(
-                "COLLATE", Ref("CollationReferenceSegment")
-            ),  # [COLLATE collation_name]
-            "SPARSE",
-            Sequence(
-                "MASKED",
-                "WITH",
-                Bracketed("FUNCTION", Ref("EqualsSegment"), Ref("LiteralGrammar")),
+                "CONSTRAINT",
+                Ref("ObjectReferenceSegment"),  # Constraint name
+                optional=True,
             ),
-            Sequence(
+            OneOf(
+                "FILESTREAM",
                 Sequence(
-                    "CONSTRAINT",
-                    Ref("ObjectReferenceSegment"),  # Constraint name
-                    optional=True,
+                    "COLLATE", Ref("CollationReferenceSegment")
+                ),  # [COLLATE collation_name]
+                "SPARSE",
+                Sequence(
+                    "MASKED",
+                    "WITH",
+                    Bracketed("FUNCTION", Ref("EqualsSegment"), Ref("LiteralGrammar")),
                 ),
-                # DEFAULT <value>
-                "DEFAULT",
-                OptionallyBracketed(
-                    OneOf(
-                        OptionallyBracketed(Ref("LiteralGrammar")),  # ((-1))
-                        Ref("BareFunctionSegment"),
-                        Ref("FunctionSegment"),
-                        Ref("NextValueSequenceSegment"),
+                Sequence(
+                    Sequence(
+                        "CONSTRAINT",
+                        Ref("ObjectReferenceSegment"),  # Constraint name
+                        optional=True,
+                    ),
+                    # DEFAULT <value>
+                    "DEFAULT",
+                    OptionallyBracketed(
+                        OneOf(
+                            OptionallyBracketed(Ref("LiteralGrammar")),  # ((-1))
+                            Ref("BareFunctionSegment"),
+                            Ref("FunctionSegment"),
+                            Ref("NextValueSequenceSegment"),
+                        ),
                     ),
                 ),
-            ),
-            Ref("IdentityGrammar"),
-            Sequence("NOT", "FOR", "REPLICATION"),
-            Sequence(
-                Sequence("GENERATED", "ALWAYS", "AS"),
-                OneOf("ROW", "TRANSACTION_ID", "SEQUENCE_NUMBER"),
-                OneOf("START", "END"),
-                Ref.keyword("HIDDEN", optional=True),
-            ),
-            Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
-            "ROWGUIDCOL",
-            Ref("EncryptedWithGrammar"),
-            Ref("PrimaryKeyGrammar"),
-            Ref("RelationalIndexOptionsSegment"),
-            Ref("OnPartitionOrFilegroupOptionSegment"),
-            "UNIQUE",  # UNIQUE #can be removed as included in PrimaryKeyGrammar?
-            Ref("ForeignKeyGrammar"),
-            Ref("ReferencesConstraintGrammar"),
-            Ref("CheckConstraintGrammar"),
-            Ref("FilestreamOnOptionSegment", optional=True),
-            # column_index
-            Sequence(
-                "INDEX",
-                Ref("ObjectReferenceSegment"),  # index name
-                OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
+                Ref("IdentityGrammar"),
+                Sequence("NOT", "FOR", "REPLICATION"),
+                Sequence(
+                    Sequence("GENERATED", "ALWAYS", "AS"),
+                    OneOf("ROW", "TRANSACTION_ID", "SEQUENCE_NUMBER"),
+                    OneOf("START", "END"),
+                    Ref.keyword("HIDDEN", optional=True),
+                ),
+                Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
+                "ROWGUIDCOL",
+                Ref("EncryptedWithGrammar"),
+                # Primary Key without a column list
+                Ref("PrimaryKeyGrammar"),
+                Ref("RelationalIndexOptionsSegment"),
+                Ref("OnPartitionOrFilegroupOptionSegment"),
+                # Foreign Key without a column list
+                Ref("ForeignKeyGrammar"),
+                Ref("ReferencesConstraintGrammar"),
+                Ref("CheckConstraintGrammar"),
+                Ref("FilestreamOnOptionSegment", optional=True),
+                # column_index
+                Sequence(
+                    "INDEX",
+                    Ref("ObjectReferenceSegment"),  # index name
+                    OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
+                    # other optional blocks (RelationalIndexOptionsSegment,
+                    # OnIndexOptionSegment,FilestreamOnOptionSegment) are mentioned
+                    # above
+                ),
                 # other optional blocks (RelationalIndexOptionsSegment,
-                # OnIndexOptionSegment,FilestreamOnOptionSegment) are mentioned above
+                # OnIndexOptionSegment, ReferencesConstraintGrammar,
+                # CheckConstraintGrammar) are mentioned above
             ),
-            # other optional blocks (RelationalIndexOptionsSegment,
-            # OnIndexOptionSegment, ReferencesConstraintGrammar, CheckConstraintGrammar)
-            # are mentioned above
         ),
+        # This is used where a PK or FK may have a column list plus additional
+        # options set.
+        Ref("TableConstraintSegment"),
     )
 
 
@@ -2576,7 +2619,7 @@ class CreateFunctionStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("FunctionOptionSegment", optional=True),
-        "AS",
+        Ref.keyword("AS", optional=True),
         Ref("ProcedureDefinitionGrammar"),
     )
 
@@ -2587,31 +2630,33 @@ class FunctionOptionSegment(BaseSegment):
     type = "function_option_segment"
     match_grammar = Sequence(
         "WITH",
-        AnyNumberOf(
-            "ENCRYPTION",
-            "SCHEMABINDING",
-            Sequence(
-                OneOf(
-                    Sequence(
-                        "RETURNS",
-                        "NULL",
+        Delimited(
+            AnyNumberOf(
+                "ENCRYPTION",
+                "SCHEMABINDING",
+                Sequence(
+                    OneOf(
+                        Sequence(
+                            "RETURNS",
+                            "NULL",
+                        ),
+                        "CALLED",
                     ),
-                    "CALLED",
-                ),
-                "ON",
-                "NULL",
-                "INPUT",
-            ),
-            Ref("ExecuteAsClauseSegment"),
-            Sequence(
-                "INLINE",
-                Ref("EqualsSegment"),
-                OneOf(
                     "ON",
-                    "OFF",
+                    "NULL",
+                    "INPUT",
                 ),
+                Ref("ExecuteAsClauseSegment"),
+                Sequence(
+                    "INLINE",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        "ON",
+                        "OFF",
+                    ),
+                ),
+                min_times=1,
             ),
-            min_times=1,
         ),
     )
 
@@ -2699,7 +2744,7 @@ class SetStatementSegment(BaseSegment):
                     ),
                 ),
                 Sequence(
-                    OneOf(
+                    Delimited(
                         "DATEFIRST",
                         "DATEFORMAT",
                         "DEADLOCK_PRIORITY",
@@ -3117,6 +3162,48 @@ class PartitionSchemeClause(BaseSegment):
     )
 
 
+class CastFunctionContentsSegment(BaseSegment):
+    """Cast Function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref("ExpressionSegment"),
+            "AS",
+            Ref("DatatypeSegment"),
+        ),
+    )
+
+
+class ConvertFunctionContentsSegment(BaseSegment):
+    """Convert Function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref("DatatypeSegment"),
+            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            Ref("CommaSegment"),
+            Ref("ExpressionSegment"),
+            Sequence(Ref("CommaSegment"), Ref("NumericLiteralSegment"), optional=True),
+        ),
+    )
+
+
+class RankFunctionContentsSegment(BaseSegment):
+    """Rank Function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref("NumericLiteralSegment", optional=True),
+        ),
+    )
+
+
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
 
@@ -3134,23 +3221,11 @@ class FunctionSegment(BaseSegment):
             # So those functions parse date parts as DatetimeUnitSegment
             # rather than identifiers.
             Ref("DatePartFunctionNameSegment"),
-            Bracketed(
-                Delimited(
-                    Ref("DatetimeUnitSegment"),
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                    ),
-                ),
-                parse_mode=ParseMode.GREEDY,
-            ),
+            Ref("DateTimeFunctionContentsSegment"),
         ),
         Sequence(
             Ref("RankFunctionNameSegment"),
-            Bracketed(
-                Ref("NumericLiteralSegment", optional=True),
-            ),
+            Ref("RankFunctionContentsSegment"),
             "OVER",
             Bracketed(
                 Ref("PartitionClauseSegment", optional=True),
@@ -3160,37 +3235,16 @@ class FunctionSegment(BaseSegment):
         Sequence(
             # https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql
             Ref("ConvertFunctionNameSegment"),
-            Bracketed(
-                Ref("DatatypeSegment"),
-                Bracketed(Ref("NumericLiteralSegment"), optional=True),
-                Ref("CommaSegment"),
-                Ref("ExpressionSegment"),
-                Sequence(
-                    Ref("CommaSegment"), Ref("NumericLiteralSegment"), optional=True
-                ),
-            ),
+            Ref("ConvertFunctionContentsSegment"),
         ),
         Sequence(
             # https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql
             Ref("CastFunctionNameSegment"),
-            Bracketed(
-                Ref("ExpressionSegment"),
-                "AS",
-                Ref("DatatypeSegment"),
-            ),
+            Ref("CastFunctionContentsSegment"),
         ),
         Sequence(
             Ref("WithinGroupFunctionNameSegment"),
-            Bracketed(
-                Delimited(
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                    ),
-                ),
-                parse_mode=ParseMode.GREEDY,
-            ),
+            Ref("FunctionContentsSegment"),
             Ref("WithinGroupClause", optional=True),
         ),
         Sequence(
@@ -3209,14 +3263,7 @@ class FunctionSegment(BaseSegment):
                 ),
                 Ref("ReservedKeywordFunctionNameSegment"),
             ),
-            Bracketed(
-                Ref(
-                    "FunctionContentsGrammar",
-                    # The brackets might be empty for some functions...
-                    optional=True,
-                ),
-                parse_mode=ParseMode.GREEDY,
-            ),
+            Ref("FunctionContentsSegment"),
             Ref("PostFunctionGrammar", optional=True),
         ),
     )
@@ -3877,7 +3924,8 @@ class TryCatchSegment(BaseSegment):
         "CATCH",
         Ref("DelimiterGrammar", optional=True),
         Indent,
-        Ref("OneOrMoreStatementsGrammar"),
+        # A catch block may be empty
+        AnyNumberOf(Ref("StatementAndDelimiterGrammar")),
         Dedent,
         "END",
         "CATCH",
@@ -4130,29 +4178,6 @@ class FromClauseSegment(ansi.FromClauseSegment):
     )
 
 
-class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
-    """FROM Expression Element Segment.
-
-    Overriding ANSI to add Temporal Query.
-    """
-
-    match_grammar = (
-        ansi.FromExpressionElementSegment._base_from_expression_element.copy(
-            insert=[
-                Ref("TemporalQuerySegment", optional=True),
-            ],
-            before=Ref(
-                "AliasExpressionSegment",
-                exclude=OneOf(
-                    Ref("SamplingExpressionSegment"),
-                    Ref("JoinLikeClauseGrammar"),
-                ),
-                optional=True,
-            ),
-        )
-    )
-
-
 class TableExpressionSegment(BaseSegment):
     """The main table expression e.g. within a FROM clause.
 
@@ -4258,8 +4283,29 @@ class OrderByClauseSegment(BaseSegment):
                 ),
                 OneOf("ASC", "DESC", optional=True),
             ),
+            terminators=[Ref("OffsetClauseSegment")],
+        ),
+        Sequence(
+            Ref("OffsetClauseSegment"),
+            Ref("FetchClauseSegment", optional=True),
+            optional=True,
         ),
         Dedent,
+    )
+
+
+class OffsetClauseSegment(BaseSegment):
+    """OFFSET clause as in a SELECT statement."""
+
+    type = "offset_clause"
+
+    match_grammar = Sequence(
+        "OFFSET",
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("ExpressionSegment"),
+        ),
+        OneOf("ROW", "ROWS"),
     )
 
 
@@ -4330,8 +4376,10 @@ class UpdateStatementSegment(BaseSegment):
     type = "update_statement"
     match_grammar = Sequence(
         "UPDATE",
+        Indent,
         OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         Ref("PostTableExpressionGrammar", optional=True),
+        Dedent,
         Ref("SetClauseListSegment"),
         Ref("OutputClauseSegment", optional=True),
         Ref("FromClauseSegment", optional=True),
@@ -4808,7 +4856,7 @@ class MergeStatementSegment(ansi.MergeStatementSegment):
             ),
             optional=True,
         ),
-        Ref("AliasExpressionSegment", optional=True),
+        Ref("AliasExpressionSegment", optional=True, exclude=Ref.keyword("USING")),
         Dedent,
         "USING",
         Indent,
@@ -5534,7 +5582,7 @@ class SamplingExpressionSegment(ansi.SamplingExpressionSegment):
     )
 
 
-class TemporalQuerySegment(BaseSegment):
+class TemporalQuerySegment(ansi.TemporalQuerySegment):
     """A segment that allows Temporal Queries to be run.
 
     https://learn.microsoft.com/en-us/sql/relational-databases/tables/temporal-tables

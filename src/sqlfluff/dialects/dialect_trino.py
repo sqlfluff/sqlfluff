@@ -33,7 +33,19 @@ from sqlfluff.dialects.dialect_trino_keywords import (
 )
 
 ansi_dialect = load_raw_dialect("ansi")
-trino_dialect = ansi_dialect.copy_as("trino")
+trino_dialect = ansi_dialect.copy_as(
+    "trino",
+    formatted_name="Trino",
+    docstring="""**Default Casing**: ``lowercase``, although the case
+of a reference is used in the result set column label. If a column is defined
+using :code:`CREATE TEMPORARY TABLE foo (COL1 int)`, then :code:`SELECT * FROM foo`
+returns a column labelled :code:`col1`, however :code:`SELECT COL1 FROM foo`
+returns a column labelled :code:`COL1`.
+
+**Quotes**: String Literals: ``''``, Identifiers: ``""``
+
+The dialect for `Trino <https://trino.io/docs/current/>`_.""",
+)
 
 # Set the bare functions: https://trino.io/docs/current/functions/datetime.html
 trino_dialect.sets("bare_functions").update(
@@ -61,6 +73,22 @@ trino_dialect.insert_lexer_matchers(
 
 trino_dialect.add(
     RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
+    LambdaArrowSegment=StringParser("->", SymbolSegment, type="lambda_arrow"),
+    StartAngleBracketSegment=StringParser(
+        "<", SymbolSegment, type="start_angle_bracket"
+    ),
+    EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
+    FormatJsonEncodingGrammar=Sequence(
+        "FORMAT",
+        "JSON",
+        Sequence("ENCODING", OneOf("UTF8", "UTF16", "UTF32"), optional=True),
+    ),
+)
+
+trino_dialect.bracket_sets("angle_bracket_pairs").update(
+    [
+        ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
+    ]
 )
 
 trino_dialect.patch_lexer_matchers(
@@ -199,6 +227,24 @@ trino_dialect.replace(
                 Ref("ColumnReferenceSegment"),
             ),
         ),
+        # For JSON_QUERY function
+        # https://trino.io/docs/current/functions/json.html#json-query
+        Sequence(
+            Ref("ExpressionSegment"),  # json_input
+            Ref("FormatJsonEncodingGrammar", optional=True),
+            Ref("CommaSegment"),
+            Ref("ExpressionSegment"),  # json_path
+            OneOf(
+                Sequence("WITHOUT", Ref.keyword("ARRAY", optional=True), "WRAPPER"),
+                Sequence(
+                    "WITH",
+                    OneOf("CONDITIONAL", "UNCONDITIONAL", optional=True),
+                    Ref.keyword("ARRAY", optional=True),
+                    "WRAPPER",
+                ),
+                optional=True,
+            ),
+        ),
         Ref("IgnoreRespectNullsGrammar"),
         Ref("IndexColumnDefinitionSegment"),
         Ref("EmptyStructLiteralSegment"),
@@ -215,6 +261,10 @@ trino_dialect.replace(
     # match ANSI's naked identifier casefold, trino is case-insensitive.
     QuotedIdentifierSegment=TypedParser(
         "double_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
+    ),
+    FunctionContentsExpressionGrammar=OneOf(
+        Ref("LambdaExpressionSegment"),
+        Ref("ExpressionSegment"),
     ),
 )
 
@@ -252,18 +302,45 @@ class DatatypeSegment(BaseSegment):
         "JSON",
         # Date and time
         "DATE",
-        Sequence(
-            OneOf("TIME", "TIMESTAMP"),
-            Ref("BracketedArguments", optional=True),
-            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
-        ),
+        Ref("TimeWithTZGrammar"),
         # Structural
-        "ARRAY",
+        Ref("ArrayTypeSegment"),
         "MAP",
-        "ROW",
+        Ref("RowTypeSegment"),
         # Others
         "IPADDRESS",
         "UUID",
+    )
+
+
+class RowTypeSegment(ansi.StructTypeSegment):
+    """Expression to construct a ROW datatype."""
+
+    match_grammar = Sequence(
+        "ROW",
+        Ref("RowTypeSchemaSegment", optional=True),
+    )
+
+
+class RowTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a ROW datatype."""
+
+    type = "struct_type_schema"
+    match_grammar = Bracketed(
+        Delimited(  # Comma-separated list of field names/types
+            Sequence(
+                OneOf(
+                    # ParameterNames can look like Datatypes so can't use
+                    # Optional=True here and instead do a OneOf in order
+                    # with DataType only first, followed by both.
+                    Ref("DatatypeSegment"),
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("DatatypeSegment"),
+                    ),
+                )
+            )
+        )
     )
 
 
@@ -435,13 +512,34 @@ class ListaggOverflowClauseSegment(BaseSegment):
 
 
 class ArrayTypeSegment(ansi.ArrayTypeSegment):
-    """Prefix for array literals.
-
-    Trino supports "ARRAY"
-    """
+    """Prefix for array literals optionally specifying the type."""
 
     type = "array_type"
-    match_grammar = Ref.keyword("ARRAY")
+    match_grammar = Sequence(
+        "ARRAY",
+        Ref("ArrayTypeSchemaSegment", optional=True),
+    )
+
+
+class ArrayTypeSchemaSegment(ansi.ArrayTypeSegment):
+    """Data type segment of the array.
+
+    Trino supports ARRAY(DATA_TYPE) and ARRAY<DATA_TYPE>
+    """
+
+    type = "array_type_schema"
+    match_grammar = OneOf(
+        Bracketed(
+            Ref("DatatypeSegment"),
+            bracket_pairs_set="angle_bracket_pairs",
+            bracket_type="angle",
+        ),
+        Bracketed(
+            Ref("DatatypeSegment"),
+            bracket_pairs_set="bracket_pairs",
+            bracket_type="round",
+        ),
+    )
 
 
 class GroupByClauseSegment(BaseSegment):
@@ -504,4 +602,18 @@ class CommentOnStatementSegment(BaseSegment):
             ),
             Sequence("IS", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
         ),
+    )
+
+
+class LambdaExpressionSegment(BaseSegment):
+    """Lambda function used in a function."""
+
+    type = "lambda_function"
+    match_grammar = Sequence(
+        OneOf(
+            Ref("ParameterNameSegment"),
+            Bracketed(Delimited(Ref("ParameterNameSegment"))),
+        ),
+        Ref("LambdaArrowSegment"),
+        Ref("ExpressionSegment"),
     )

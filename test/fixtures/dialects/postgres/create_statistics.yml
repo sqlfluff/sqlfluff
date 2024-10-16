@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 682c4b0e97052115e86585ee5e158bb179855e81f8e8862611da31557b0b5563
+_hash: 10d4fcaf40a03d2023d398da83e71ce860e67bf9e226862202c9a363311cbb6e
 file:
 - statement:
     create_statistics_statement:
@@ -20,29 +20,31 @@ file:
         function:
           function_name:
             function_name_identifier: date_trunc
-          bracketed:
-          - start_bracket: (
-          - expression:
-              quoted_literal: "'month'"
-          - comma: ','
-          - expression:
-              column_reference:
-                naked_identifier: a
-          - end_bracket: )
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                quoted_literal: "'month'"
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: a
+            - end_bracket: )
     - comma: ','
     - expression:
         function:
           function_name:
             function_name_identifier: date_trunc
-          bracketed:
-          - start_bracket: (
-          - expression:
-              quoted_literal: "'day'"
-          - comma: ','
-          - expression:
-              column_reference:
-                naked_identifier: a
-          - end_bracket: )
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                quoted_literal: "'day'"
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: a
+            - end_bracket: )
     - keyword: FROM
     - table_reference:
         naked_identifier: t3
@@ -89,29 +91,31 @@ file:
         function:
           function_name:
             function_name_identifier: date_trunc
-          bracketed:
-          - start_bracket: (
-          - expression:
-              quoted_literal: "'month'"
-          - comma: ','
-          - expression:
-              column_reference:
-                naked_identifier: a
-          - end_bracket: )
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                quoted_literal: "'month'"
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: a
+            - end_bracket: )
     - comma: ','
     - expression:
         function:
           function_name:
             function_name_identifier: date_trunc
-          bracketed:
-          - start_bracket: (
-          - expression:
-              quoted_literal: "'day'"
-          - comma: ','
-          - expression:
-              column_reference:
-                naked_identifier: a
-          - end_bracket: )
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                quoted_literal: "'day'"
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: a
+            - end_bracket: )
     - keyword: FROM
     - table_reference:
         naked_identifier: t3

@@ -1,11 +1,13 @@
 """Defines the linter class."""
 
+import fnmatch
 import logging
 import os
 import time
 from typing import (
     TYPE_CHECKING,
     Any,
+    Dict,
     Iterator,
     List,
     Optional,
@@ -390,8 +392,12 @@ class Linter:
             formatter.dispatch_lint_header(fname, sorted(rule_pack.codes()))
 
         # Look for comment segments which might indicate lines to ignore.
-        if not config.get("disable_noqa"):
-            ignore_mask, ivs = IgnoreMask.from_tree(tree, rule_pack.reference_map)
+        disable_noqa_except: Optional[str] = config.get("disable_noqa_except")
+        if not config.get("disable_noqa") or disable_noqa_except:
+            allowed_rules_ref_map = cls.allowed_rule_ref_map(
+                rule_pack.reference_map, disable_noqa_except
+            )
+            ignore_mask, ivs = IgnoreMask.from_tree(tree, allowed_rules_ref_map)
             initial_linting_errors += ivs
         else:
             ignore_mask = None
@@ -493,12 +499,18 @@ class Linter:
                             cls._report_conflicting_fixes_same_anchor(message)
                             for lint_result in linting_errors:
                                 lint_result.fixes = []
-                        elif fixes == last_fixes:  # pragma: no cover
+                        elif fixes == last_fixes:
                             # If we generate the same fixes two times in a row,
                             # that means we're in a loop, and we want to stop.
                             # (Fixes should address issues, hence different
                             # and/or fewer fixes next time.)
-                            cls._warn_unfixable(crawler.code)
+                            # This is most likely because fixes could not be safely
+                            # applied last time, so we should stop gracefully.
+                            linter_logger.debug(
+                                f"Fixes generated for {crawler.code} are the same as "
+                                "the previous pass. Assuming that we cannot apply them "
+                                "safely. Passing gracefully."
+                            )
                         else:
                             # This is the happy path. We have fixes, now we want to
                             # apply them.
@@ -508,7 +520,9 @@ class Linter:
                                 config.get("dialect_obj"),
                                 crawler.code,
                                 anchor_info,
+                                fix_even_unparsable=config.get("fix_even_unparsable"),
                             )
+
                             # Check for infinite loops. We use a combination of the
                             # fixed templated file and the list of source fixes to
                             # apply.
@@ -516,7 +530,14 @@ class Linter:
                                 new_tree.raw,
                                 tuple(new_tree.source_fixes),
                             )
-                            if not _valid:
+                            # Was anything actually applied? If not, then the fixes we
+                            # had cannot be safely applied and we should stop trying.
+                            if loop_check_tuple == (tree.raw, tuple(tree.source_fixes)):
+                                linter_logger.debug(
+                                    f"Fixes for {crawler.code} could not be safely be "
+                                    "applied. Likely due to initially unparsable file."
+                                )
+                            elif not _valid:
                                 # The fixes result in an invalid file. Don't apply
                                 # the fix and skip onward. Show a warning.
                                 linter_logger.warning(
@@ -670,7 +691,10 @@ class Linter:
         # or templating fails.
         else:
             rule_timings = []
-            if parsed.config.get("disable_noqa"):
+            disable_noqa_except: Optional[str] = parsed.config.get(
+                "disable_noqa_except"
+            )
+            if parsed.config.get("disable_noqa") and not disable_noqa_except:
                 # NOTE: This path is only accessible if there is no valid `tree`
                 # which implies that there was a fatal templating fail. Even an
                 # unparsable file will still have a valid tree.
@@ -680,6 +704,9 @@ class Linter:
                 # comments (the normal path for identifying these comments
                 # requires access to the parse tree, and because of the failure,
                 # we don't have a parse tree).
+                allowed_rules_ref_map = cls.allowed_rule_ref_map(
+                    rule_pack.reference_map, disable_noqa_except
+                )
                 ignore_mask, ignore_violations = IgnoreMask.from_source(
                     parsed.source_str,
                     [
@@ -687,7 +714,7 @@ class Linter:
                         for lm in parsed.config.get("dialect_obj").lexer_matchers
                         if lm.name == "inline_comment"
                     ][0],
-                    rule_pack.reference_map,
+                    allowed_rules_ref_map,
                 )
                 violations += ignore_violations
 
@@ -727,6 +754,27 @@ class Linter:
                 formatter.dispatch_dialect_warning(parsed.config.get("dialect"))
 
         return linted_file
+
+    @classmethod
+    def allowed_rule_ref_map(
+        cls, reference_map: Dict[str, Set[str]], disable_noqa_except: Optional[str]
+    ) -> Dict[str, Set[str]]:
+        """Generate a noqa rule reference map."""
+        # disable_noqa_except is not set, return the entire map.
+        if not disable_noqa_except:
+            return reference_map
+        output_map = reference_map
+        # Add the special rules so they can be excluded for `disable_noqa_except` usage
+        for special_rule in ["PRS", "LXR", "TMP"]:
+            output_map[special_rule] = set([special_rule])
+        # Expand glob usage of rules
+        unexpanded_rules = tuple(r.strip() for r in disable_noqa_except.split(","))
+        noqa_set = set()
+        for r in unexpanded_rules:
+            for x in fnmatch.filter(output_map.keys(), r):
+                noqa_set |= output_map.get(x, set())
+        # Return a new map with only the excluded rules
+        return {k: v.intersection(noqa_set) for k, v in output_map.items()}
 
     @classmethod
     def lint_rendered(
@@ -848,7 +896,7 @@ class Linter:
             self.formatter.dispatch_template_header(fname, self.config, config)
 
         # Just use the local config from here:
-        config = config or self.config
+        config = (config or self.config).copy()
 
         # Scan the raw file for config commands.
         config.process_raw_file_for_config(in_str, fname)

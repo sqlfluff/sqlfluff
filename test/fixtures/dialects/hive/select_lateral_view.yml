@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8b745501faab5270d0a39402a5a7f56217bcd43dcf399c8fea0962c5c51fd5da
+_hash: 973bbeb099b1a9711d177ca3af9a993abb5d75b50defdbb0da1d5a49ba48b5f9
 file:
 - statement:
     select_statement:
@@ -29,12 +29,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: explode
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: adid_list
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: adid_list
+                    end_bracket: )
             - naked_identifier: adTable
             - keyword: AS
             - naked_identifier: adid
@@ -51,11 +52,12 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '1'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '1'
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -69,12 +71,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: explode
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: adid_list
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: adid_list
+                    end_bracket: )
             - naked_identifier: adTable
             - keyword: AS
             - naked_identifier: adid
@@ -105,12 +108,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: explode
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: col1
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: col1
+                    end_bracket: )
             - naked_identifier: myTable1
             - keyword: AS
             - naked_identifier: myCol1
@@ -120,12 +124,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: explode
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: myCol1
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: myCol1
+                    end_bracket: )
             - naked_identifier: myTable2
             - keyword: AS
             - naked_identifier: myCol2
@@ -154,12 +159,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: explode
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: col1
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: col1
+                    end_bracket: )
             - naked_identifier: myTable1
             - keyword: AS
             - naked_identifier: myCol1
@@ -169,12 +175,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: explode
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: col2
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: col2
+                    end_bracket: )
             - naked_identifier: myTable2
             - keyword: AS
             - naked_identifier: myCol2
@@ -200,16 +207,18 @@ file:
             - function:
                 function_name:
                   function_name_identifier: explode
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    function:
-                      function_name:
-                        function_name_identifier: array
-                      bracketed:
-                        start_bracket: (
-                        end_bracket: )
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      function:
+                        function_name:
+                          function_name_identifier: array
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            end_bracket: )
+                    end_bracket: )
             - naked_identifier: C
             - keyword: AS
             - naked_identifier: a
@@ -239,16 +248,18 @@ file:
             - function:
                 function_name:
                   function_name_identifier: explode
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    function:
-                      function_name:
-                        function_name_identifier: array
-                      bracketed:
-                        start_bracket: (
-                        end_bracket: )
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      function:
+                        function_name:
+                          function_name_identifier: array
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            end_bracket: )
+                    end_bracket: )
             - naked_identifier: C
             - keyword: AS
             - naked_identifier: a
@@ -264,33 +275,35 @@ file:
           function:
             function_name:
               function_name_identifier: explode
-            bracketed:
-              start_bracket: (
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: map
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      quoted_literal: "'A'"
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '10'
-                  - comma: ','
-                  - expression:
-                      quoted_literal: "'B'"
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '20'
-                  - comma: ','
-                  - expression:
-                      quoted_literal: "'C'"
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '30'
-                  - end_bracket: )
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: map
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          quoted_literal: "'A'"
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '10'
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'B'"
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '20'
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'C'"
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '30'
+                      - end_bracket: )
+                end_bracket: )
           alias_expression:
             keyword: AS
             bracketed:
@@ -309,24 +322,26 @@ file:
           function:
             function_name:
               function_name_identifier: posexplode
-            bracketed:
-              start_bracket: (
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: array
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      quoted_literal: "'A'"
-                  - comma: ','
-                  - expression:
-                      quoted_literal: "'B'"
-                  - comma: ','
-                  - expression:
-                      quoted_literal: "'C'"
-                  - end_bracket: )
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: array
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          quoted_literal: "'A'"
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'B'"
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'C'"
+                      - end_bracket: )
+                end_bracket: )
           alias_expression:
             keyword: AS
             bracketed:
@@ -345,49 +360,53 @@ file:
           function:
             function_name:
               function_name_identifier: inline
-            bracketed:
-              start_bracket: (
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: array
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      function:
-                        function_name:
-                          function_name_identifier: struct
-                        bracketed:
-                        - start_bracket: (
-                        - expression:
-                            quoted_literal: "'A'"
-                        - comma: ','
-                        - expression:
-                            numeric_literal: '10'
-                        - comma: ','
-                        - expression:
-                            keyword: DATE
-                            date_constructor_literal: "'2015-01-01'"
-                        - end_bracket: )
-                  - comma: ','
-                  - expression:
-                      function:
-                        function_name:
-                          function_name_identifier: struct
-                        bracketed:
-                        - start_bracket: (
-                        - expression:
-                            quoted_literal: "'B'"
-                        - comma: ','
-                        - expression:
-                            numeric_literal: '20'
-                        - comma: ','
-                        - expression:
-                            keyword: DATE
-                            date_constructor_literal: "'2016-02-02'"
-                        - end_bracket: )
-                  - end_bracket: )
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: array
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          function:
+                            function_name:
+                              function_name_identifier: struct
+                            function_contents:
+                              bracketed:
+                              - start_bracket: (
+                              - expression:
+                                  quoted_literal: "'A'"
+                              - comma: ','
+                              - expression:
+                                  numeric_literal: '10'
+                              - comma: ','
+                              - expression:
+                                  keyword: DATE
+                                  date_constructor_literal: "'2015-01-01'"
+                              - end_bracket: )
+                      - comma: ','
+                      - expression:
+                          function:
+                            function_name:
+                              function_name_identifier: struct
+                            function_contents:
+                              bracketed:
+                              - start_bracket: (
+                              - expression:
+                                  quoted_literal: "'B'"
+                              - comma: ','
+                              - expression:
+                                  numeric_literal: '20'
+                              - comma: ','
+                              - expression:
+                                  keyword: DATE
+                                  date_constructor_literal: "'2016-02-02'"
+                              - end_bracket: )
+                      - end_bracket: )
+                end_bracket: )
           alias_expression:
             keyword: AS
             bracketed:
@@ -408,31 +427,32 @@ file:
           function:
             function_name:
               function_name_identifier: stack
-            bracketed:
-            - start_bracket: (
-            - expression:
-                numeric_literal: '2'
-            - comma: ','
-            - expression:
-                quoted_literal: "'A'"
-            - comma: ','
-            - expression:
-                numeric_literal: '10'
-            - comma: ','
-            - expression:
-                keyword: DATE
-                date_constructor_literal: "'2015-01-01'"
-            - comma: ','
-            - expression:
-                quoted_literal: "'B'"
-            - comma: ','
-            - expression:
-                numeric_literal: '20'
-            - comma: ','
-            - expression:
-                keyword: DATE
-                date_constructor_literal: "'2016-01-01'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '2'
+              - comma: ','
+              - expression:
+                  quoted_literal: "'A'"
+              - comma: ','
+              - expression:
+                  numeric_literal: '10'
+              - comma: ','
+              - expression:
+                  keyword: DATE
+                  date_constructor_literal: "'2015-01-01'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'B'"
+              - comma: ','
+              - expression:
+                  numeric_literal: '20'
+              - comma: ','
+              - expression:
+                  keyword: DATE
+                  date_constructor_literal: "'2016-01-01'"
+              - end_bracket: )
           alias_expression:
             keyword: AS
             bracketed:

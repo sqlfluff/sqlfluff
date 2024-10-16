@@ -36,7 +36,17 @@ from sqlfluff.dialects.dialect_athena_keywords import (
 
 ansi_dialect = load_raw_dialect("ansi")
 
-athena_dialect = ansi_dialect.copy_as("athena")
+athena_dialect = ansi_dialect.copy_as(
+    "athena",
+    formatted_name="AWS Athena",
+    docstring="""**Default Casing**: ``lowercase``
+
+**Quotes**: String Literals: ``''``, ``""`` or |back_quotes|,
+Identifiers: ``""`` or |back_quotes|
+
+The dialect for `Athena <https://aws.amazon.com/athena/>`_
+on Amazon Web Services (AWS).""",
+)
 
 athena_dialect.sets("unreserved_keywords").update(athena_unreserved_keywords)
 athena_dialect.sets("reserved_keywords").update(athena_reserved_keywords)
@@ -204,7 +214,6 @@ athena_dialect.add(
         type="quoted_identifier",
         casefold=str.lower,
     ),
-    DatetimeWithTZSegment=Sequence(OneOf("TIMESTAMP", "TIME"), "WITH", "TIME", "ZONE"),
 )
 
 athena_dialect.replace(
@@ -263,6 +272,11 @@ athena_dialect.replace(
         insert=[
             Sequence("WITH", "ORDINALITY", optional=True),
         ]
+    ),
+    AlterTableDropColumnGrammar=Sequence(
+        "DROP",
+        Ref.keyword("COLUMN"),
+        Ref("SingleIdentifierGrammar"),
     ),
 )
 
@@ -404,7 +418,7 @@ class DatatypeSegment(BaseSegment):
                 )
             ),
         ),
-        Ref("DatetimeWithTZSegment"),
+        Ref("TimeWithTZGrammar"),
     )
 
 

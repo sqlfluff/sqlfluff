@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 405ab9d1f5df047af29966b099705a1830b65db2c3918e8f4f78dadab5ffbc70
+_hash: 94a5fbf4619e3ecb9e25fab9d9caed53b87ba63398bf253b89c9ac116afe4762
 file:
 - statement:
     select_statement:
@@ -38,33 +38,35 @@ file:
           - function:
               function_name:
                 function_name_identifier: LPAD
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  quoted_literal: "' '"
-              - comma: ','
-              - expression:
-                - numeric_literal: '2'
-                - binary_operator: '*'
-                - bare_function: LEVEL
-                - binary_operator: '-'
-                - numeric_literal: '1'
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "' '"
+                - comma: ','
+                - expression:
+                  - numeric_literal: '2'
+                  - binary_operator: '*'
+                  - bare_function: LEVEL
+                  - binary_operator: '-'
+                  - numeric_literal: '1'
+                - end_bracket: )
           - binary_operator:
             - pipe: '|'
             - pipe: '|'
           - function:
               function_name:
                 function_name_identifier: SYS_CONNECT_BY_PATH
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    naked_identifier: last_name
-              - comma: ','
-              - expression:
-                  quoted_literal: "'/'"
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: last_name
+                - comma: ','
+                - expression:
+                    quoted_literal: "'/'"
+                - end_bracket: )
           alias_expression:
             quoted_identifier: '"PATH"'
       from_clause:
@@ -118,12 +120,13 @@ file:
           function:
             function_name:
               function_name_identifier: SUM
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: price
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: price
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: volume
@@ -158,12 +161,13 @@ file:
           function:
             function_name:
               function_name_identifier: SUM
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: price
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: price
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: volume
@@ -252,12 +256,13 @@ file:
             function:
               function_name:
                 function_name_identifier: sum
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: price
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: price
+                  end_bracket: )
             alias_expression:
               keyword: AS
               naked_identifier: volume
@@ -352,14 +357,15 @@ file:
               naked_identifier: aschema
               dot: .
               function_name_identifier: afunction
-            bracketed:
-            - start_bracket: (
-            - expression:
-                quoted_literal: "'hello'"
-            - comma: ','
-            - expression:
-                numeric_literal: '123'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'hello'"
+              - comma: ','
+              - expression:
+                  numeric_literal: '123'
+              - end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -382,18 +388,19 @@ file:
           - function:
               function_name:
                 function_name_identifier: substr
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    naked_identifier: c
-              - comma: ','
-              - expression:
-                  numeric_literal: '1'
-              - comma: ','
-              - expression:
-                  numeric_literal: '3'
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: c
+                - comma: ','
+                - expression:
+                    numeric_literal: '1'
+                - comma: ','
+                - expression:
+                    numeric_literal: '3'
+                - end_bracket: )
           - end_bracket: )
         - keyword: IN
         - bracketed:
@@ -457,11 +464,12 @@ file:
                 function:
                   function_name:
                     function_name_identifier: f1
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      quoted_literal: "'a'"
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "'a'"
+                      end_bracket: )
             - comma: ','
             - quoted_literal: "'b'"
             - comma: ','
@@ -506,9 +514,10 @@ file:
           function:
             function_name:
               function_name_identifier: ROW_NUMBER
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -550,9 +559,10 @@ file:
           function:
             function_name:
               function_name_identifier: ROW_NUMBER
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -972,18 +982,19 @@ file:
           function:
             function_name:
               function_name_identifier: JSON_EXTRACT
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: json_str
-            - comma: ','
-            - expression:
-                quoted_literal: "'$.\"@id\"'"
-            - comma: ','
-            - expression:
-                quoted_literal: "'$.error()'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: json_str
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.\"@id\"'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.error()'"
+              - end_bracket: )
             emits_segment:
               keyword: EMITS
               bracketed:
@@ -1034,10 +1045,11 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: a
@@ -1066,12 +1078,13 @@ file:
           function:
             function_name:
               function_name_identifier: ABS
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: x
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: x
@@ -1108,10 +1121,11 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: cc
@@ -1169,10 +1183,11 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: c
@@ -1218,9 +1233,10 @@ file:
           function:
             function_name:
               function_name_identifier: ROW_NUMBER
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -1594,9 +1610,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: row_number
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
                 over_clause:
                   keyword: OVER
                   bracketed:
@@ -1796,6 +1813,128 @@ file:
                 identifier_list:
                   naked_identifier: v
                 end_bracket: )
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: with
+      common_table_expression:
+        naked_identifier: v
+        keyword: as
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                column_reference:
+                  naked_identifier: RANGE_VALUE
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    values_range_clause:
+                    - keyword: VALUES
+                    - keyword: between
+                    - numeric_literal: '0'
+                    - keyword: and
+                    - function:
+                        function_name:
+                          function_name_identifier: days_between
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              bare_function: current_date
+                              binary_operator: '-'
+                              numeric_literal: '6'
+                          - comma: ','
+                          - expression:
+                              bare_function: current_date
+                              binary_operator: '-'
+                              numeric_literal: '1'
+                          - end_bracket: )
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: v
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: with
+      common_table_expression:
+        naked_identifier: v
+        keyword: as
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                column_reference:
+                  naked_identifier: RANGE_VALUE
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    values_range_clause:
+                    - keyword: VALUES
+                    - keyword: between
+                    - function:
+                        function_name:
+                          function_name_identifier: abs
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              numeric_literal:
+                                sign_indicator: '-'
+                                numeric_literal: '5'
+                            end_bracket: )
+                    - keyword: and
+                    - function:
+                        function_name:
+                          function_name_identifier: days_between
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              bare_function: current_date
+                              binary_operator: '-'
+                              numeric_literal: '6'
+                          - comma: ','
+                          - expression:
+                              bare_function: current_date
+                              binary_operator: '-'
+                              numeric_literal: '1'
+                          - end_bracket: )
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: v
 - statement_terminator: ;
 - statement:
     select_statement:

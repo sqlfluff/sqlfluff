@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7cbf5938384c1ea604a0b07ea850f8a356d98fcbfdd4e80c991f4a0ef5e9814d
+_hash: b27020b480d914870f45713849ab63c9749457f35299ef6506cd2bfdf5ef78c6
 file:
 - batch:
     statement:
@@ -136,17 +136,18 @@ file:
                     function:
                       function_name:
                         keyword: CAST
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                          - naked_identifier: P_1
-                          - dot: .
-                          - naked_identifier: IDEID
-                        keyword: AS
-                        data_type:
-                          data_type_identifier: varchar
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                            - naked_identifier: P_1
+                            - dot: .
+                            - naked_identifier: IDEID
+                          keyword: AS
+                          data_type:
+                            data_type_identifier: varchar
+                          end_bracket: )
             - join_clause:
               - keyword: LEFT
               - keyword: OUTER
@@ -194,34 +195,36 @@ file:
                     function:
                       function_name:
                         keyword: CAST
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                          - naked_identifier: P_2
-                          - dot: .
-                          - naked_identifier: IDEID
-                        keyword: AS
-                        data_type:
-                          data_type_identifier: varchar
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                            - naked_identifier: P_2
+                            - dot: .
+                            - naked_identifier: IDEID
+                          keyword: AS
+                          data_type:
+                            data_type_identifier: varchar
+                          end_bracket: )
             - join_on_condition:
                 keyword: 'ON'
                 expression:
                   function:
                     function_name:
                       keyword: CAST
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                        - naked_identifier: BA
-                        - dot: .
-                        - naked_identifier: IDEID
-                      keyword: AS
-                      data_type:
-                        data_type_identifier: varchar
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                          - naked_identifier: BA
+                          - dot: .
+                          - naked_identifier: IDEID
+                        keyword: AS
+                        data_type:
+                          data_type_identifier: varchar
+                        end_bracket: )
                   comparison_operator:
                     raw_comparison_operator: '='
                   column_reference:
@@ -291,3 +294,86 @@ file:
           statement_terminator: ;
 - go_statement:
     keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: tst1
+            - dot: .
+            - naked_identifier: Name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: tst2
+            - dot: .
+            - naked_identifier: OtherName
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: Test1
+              alias_expression:
+                keyword: AS
+                naked_identifier: tst1
+            join_clause:
+            - keyword: LEFT
+            - keyword: OUTER
+            - keyword: JOIN
+            - from_expression_element:
+                bracketed:
+                  start_bracket: (
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: dbo
+                    - dot: .
+                    - naked_identifier: Test2
+                  alias_expression:
+                    keyword: AS
+                    naked_identifier: tst2
+                  join_clause:
+                  - keyword: INNER
+                  - keyword: JOIN
+                  - from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - naked_identifier: dbo
+                        - dot: .
+                        - naked_identifier: FilterTable
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: fltr1
+                  - join_on_condition:
+                      keyword: 'ON'
+                      expression:
+                      - column_reference:
+                        - naked_identifier: tst2
+                        - dot: .
+                        - naked_identifier: Id
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - column_reference:
+                        - naked_identifier: fltr1
+                        - dot: .
+                        - naked_identifier: Id
+                  end_bracket: )
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: tst1
+                  - dot: .
+                  - naked_identifier: id
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: tst2
+                  - dot: .
+                  - naked_identifier: id
+          statement_terminator: ;

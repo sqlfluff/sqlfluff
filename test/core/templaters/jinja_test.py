@@ -703,6 +703,7 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_c_dbt/dbt_builtins_ref", True, False),
         ("jinja_c_dbt/dbt_builtins_source", True, False),
         ("jinja_c_dbt/dbt_builtins_this", True, False),
+        ("jinja_c_dbt/dbt_builtins_this_callable", True, False),
         ("jinja_c_dbt/dbt_builtins_var_default", True, False),
         ("jinja_c_dbt/dbt_builtins_test", True, False),
         # do directive
@@ -713,6 +714,8 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_g_macros/jinja", True, False),
         # Excluding macros
         ("jinja_exclude_macro_path/jinja", True, False),
+        # Excluding macros with running from subdirectory
+        ("jinja_exclude_macro_path/model_directory/jinja_sub_directory", True, False),
         # jinja raw tag
         ("jinja_h_macros/jinja", True, False),
         ("jinja_i_raw/raw_tag", True, False),
@@ -1607,6 +1610,32 @@ FROM {{ j }}{{ self.table_name() }}
             ],
             DerivedJinjaTemplater,
         ),
+        (
+            # test for issue 6121: The first rendered element
+            # inside the loop is far from the start position of the loop.
+            """
+{% for i in range(2) %}{% set a = 0 %}{% set b = 0 %}{% set c = 0 %}
+SELECT 1;
+{% endfor %}
+""",
+            None,
+            [
+                ("literal", slice(0, 1, None), slice(0, 1, None)),
+                ("block_start", slice(1, 24, None), slice(1, 1, None)),
+                ("templated", slice(24, 39, None), slice(1, 1, None)),
+                ("templated", slice(39, 54, None), slice(1, 1, None)),
+                ("templated", slice(54, 69, None), slice(1, 1, None)),
+                ("literal", slice(69, 80, None), slice(1, 12, None)),
+                ("block_end", slice(80, 92, None), slice(12, 12, None)),
+                ("templated", slice(24, 39, None), slice(12, 12, None)),
+                ("templated", slice(39, 54, None), slice(12, 12, None)),
+                ("templated", slice(54, 69, None), slice(12, 12, None)),
+                ("literal", slice(69, 80, None), slice(12, 23, None)),
+                ("block_end", slice(80, 92, None), slice(23, 23, None)),
+                ("literal", slice(92, 93, None), slice(23, 24, None)),
+            ],
+            JinjaTemplater,
+        ),
     ],
 )
 def test__templater_jinja_slice_file(
@@ -1762,6 +1791,161 @@ def test_undefined_magic_methods():
     assert ud > ud
 
     assert ud + ud is ud
+
+
+def test_relation_emulator_magic_methods():
+    """Test all the magic methods defined on RelationEmulator."""
+    dbt_builtins = JinjaTemplater._generate_dbt_builtins()
+
+    # tests for 'this'
+    t = dbt_builtins["this"]
+    assert str(t) == "this_model"
+    assert t.something is t
+    assert str(t.database) == "this_database"
+    assert str(t.schema) == "this_schema"
+    assert str(t.name) == "this_model"
+    assert str(t.identifier) == "this_model"
+    assert str(t.type) == "this_model"
+    assert str(t.something_new) == "this_model"
+    assert t.is_table is True
+    assert t.is_view is True
+    assert t.is_materialized_view is True
+    assert t.is_cte is True
+    assert t.is_dynamic_table is True
+    assert t.is_iceberg_format is True
+    assert t.is_something_new is True
+    assert t.something() is t
+    assert t.something().something() is t
+    assert t.something().something is t
+    assert str(t.include()) == "this_model"
+    assert str(t.include(database=False)) == "this_model"
+    assert str(t.some_new_method()) == "this_model"
+    assert str(t.something().something) == "this_model"
+
+    # tests for 'ref'
+    r = dbt_builtins["ref"]("ref_model")
+    assert str(r) == "ref_model"
+    assert r.something is r
+    assert str(r.database) == "this_database"
+    assert str(r.schema) == "this_schema"
+    assert str(r.name) == "ref_model"
+    assert str(r.identifier) == "ref_model"
+    assert str(r.type) == "ref_model"
+    assert str(r.something_new) == "ref_model"
+    assert r.is_table is True
+    assert r.is_view is True
+    assert r.is_materialized_view is True
+    assert r.is_cte is True
+    assert r.is_dynamic_table is True
+    assert r.is_iceberg_format is True
+    assert r.is_something_new is True
+    assert r.something() is r
+    assert r.something().something() is r
+    assert r.something().something is r
+    assert str(r.include()) == "ref_model"
+    assert str(r.include(database=False)) == "ref_model"
+    assert str(r.some_new_method()) == "ref_model"
+    assert str(r.something().something) == "ref_model"
+
+    # tests for versioned 'ref'
+    r = dbt_builtins["ref"]("ref_model", version=2)
+    assert str(r) == "ref_model"
+    assert r.something is r
+    assert str(r.database) == "this_database"
+    assert str(r.schema) == "this_schema"
+    assert str(r.name) == "ref_model"
+    assert str(r.identifier) == "ref_model"
+    assert str(r.type) == "ref_model"
+    assert str(r.something_new) == "ref_model"
+    assert r.is_table is True
+    assert r.is_view is True
+    assert r.is_materialized_view is True
+    assert r.is_cte is True
+    assert r.is_dynamic_table is True
+    assert r.is_iceberg_format is True
+    assert r.is_something_new is True
+    assert r.something() is r
+    assert r.something().something() is r
+    assert r.something().something is r
+    assert str(r.include()) == "ref_model"
+    assert str(r.include(database=False)) == "ref_model"
+    assert str(r.some_new_method()) == "ref_model"
+    assert str(r.something().something) == "ref_model"
+
+    # tests for 'ref' from project/package
+    r = dbt_builtins["ref"]("package", "ref_model")
+    assert str(r) == "ref_model"
+    assert r.something is r
+    assert str(r.database) == "this_database"
+    assert str(r.schema) == "this_schema"
+    assert str(r.name) == "ref_model"
+    assert str(r.identifier) == "ref_model"
+    assert str(r.type) == "ref_model"
+    assert str(r.something_new) == "ref_model"
+    assert r.is_table is True
+    assert r.is_view is True
+    assert r.is_materialized_view is True
+    assert r.is_cte is True
+    assert r.is_dynamic_table is True
+    assert r.is_iceberg_format is True
+    assert r.is_something_new is True
+    assert r.something() is r
+    assert r.something().something() is r
+    assert r.something().something is r
+    assert str(r.include()) == "ref_model"
+    assert str(r.include(database=False)) == "ref_model"
+    assert str(r.some_new_method()) == "ref_model"
+    assert str(r.something().something) == "ref_model"
+
+    # tests for versioned 'ref' from project/package
+    r = dbt_builtins["ref"]("package", "ref_model", version=2)
+    assert str(r) == "ref_model"
+    assert r.something is r
+    assert str(r.database) == "this_database"
+    assert str(r.schema) == "this_schema"
+    assert str(r.name) == "ref_model"
+    assert str(r.identifier) == "ref_model"
+    assert str(r.type) == "ref_model"
+    assert str(r.something_new) == "ref_model"
+    assert r.is_table is True
+    assert r.is_view is True
+    assert r.is_materialized_view is True
+    assert r.is_cte is True
+    assert r.is_dynamic_table is True
+    assert r.is_iceberg_format is True
+    assert r.is_something_new is True
+    assert r.something() is r
+    assert r.something().something() is r
+    assert r.something().something is r
+    assert str(r.include()) == "ref_model"
+    assert str(r.include(database=False)) == "ref_model"
+    assert str(r.some_new_method()) == "ref_model"
+    assert str(r.something().something) == "ref_model"
+
+    # tests for 'source'
+    s = dbt_builtins["source"]("sourcename", "tablename")
+    assert str(s) == "sourcename_tablename"
+    assert s.something is s
+    assert str(s.database) == "this_database"
+    assert str(s.schema) == "this_schema"
+    assert str(s.name) == "sourcename_tablename"
+    assert str(s.identifier) == "sourcename_tablename"
+    assert str(s.type) == "sourcename_tablename"
+    assert str(s.something_new) == "sourcename_tablename"
+    assert s.is_table is True
+    assert s.is_view is True
+    assert s.is_materialized_view is True
+    assert s.is_cte is True
+    assert s.is_dynamic_table is True
+    assert s.is_iceberg_format is True
+    assert s.is_something_new is True
+    assert s.something() is s
+    assert s.something().something() is s
+    assert s.something().something is s
+    assert str(s.include()) == "sourcename_tablename"
+    assert str(s.include(database=False)) == "sourcename_tablename"
+    assert str(s.some_new_method()) == "sourcename_tablename"
+    assert str(s.something().something) == "sourcename_tablename"
 
 
 @pytest.mark.parametrize(

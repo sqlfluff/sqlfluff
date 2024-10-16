@@ -202,16 +202,16 @@ def release(new_version_num):
 
     write_changelog.close()
 
-    click.echo("Updating plugins/sqlfluff-templater-dbt/setup.cfg")
-    for filename in ["plugins/sqlfluff-templater-dbt/setup.cfg"]:
+    click.echo("Updating plugins/sqlfluff-templater-dbt/pyproject.toml")
+    for filename in ["plugins/sqlfluff-templater-dbt/pyproject.toml"]:
         input_file = open(filename, "r").readlines()
         # Regardless of platform, write newlines as \n
         write_file = open(filename, "w", newline="\n")
         for line in input_file:
             if line.startswith("version"):
-                line = f"version = {new_version_num}\n"
-            elif line.startswith("    sqlfluff=="):
-                line = f"    sqlfluff=={new_version_num}\n"
+                line = f'version = "{new_version_num}"\n'
+            elif line.startswith('    "sqlfluff=='):
+                line = f'    "sqlfluff=={new_version_num}",\n'
             write_file.write(line)
         write_file.close()
 

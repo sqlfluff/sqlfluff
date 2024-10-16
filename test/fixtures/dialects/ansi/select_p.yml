@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 52a429dfcb1863cb70cd11d53dae4b271d435e7e754faf00e6c75858ecfe635c
+_hash: de26e1976e6e97160b8f29ed212a7b33d60d5a41f83626f323334414360ef685
 file:
   statement:
     select_statement:
@@ -13,27 +13,29 @@ file:
           function:
             function_name:
               function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '25.65'
-              keyword: AS
-              data_type:
-                data_type_identifier: int
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '25.65'
+                keyword: AS
+                data_type:
+                  data_type_identifier: int
+                end_bracket: )
       - comma: ','
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: SAFE_CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                null_literal: 'NULL'
-              keyword: AS
-              data_type:
-                data_type_identifier: STRING
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  null_literal: 'NULL'
+                keyword: AS
+                data_type:
+                  data_type_identifier: STRING
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: age_label
@@ -42,14 +44,15 @@ file:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: day
-              keyword: FROM
-              expression:
-                column_reference:
-                  naked_identifier: end_time
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: day
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: end_time
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: day

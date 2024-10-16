@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 43b69fb7c9a47bfe3657238210c34ff612d3239222818a4441efec6d29451639
+_hash: e6ea6f704809e270a82bb0d55c9169b15274337f6475ef179ec04a90d2c0264b
 file:
 - statement:
     select_statement:
@@ -13,9 +13,9 @@ file:
           function:
             function_name:
               keyword: COLUMNS
-            bracketed:
-              start_bracket: (
-              columns_expression:
+            function_contents:
+              bracketed:
+                start_bracket: (
                 lambda_function:
                   parameter: c
                   lambda_arrow: ->
@@ -24,7 +24,7 @@ file:
                       naked_identifier: c
                     keyword: LIKE
                     quoted_literal: "'%num%'"
-              end_bracket: )
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -41,11 +41,11 @@ file:
           function:
             function_name:
               keyword: COLUMNS
-            bracketed:
-              start_bracket: (
-              columns_expression:
+            function_contents:
+              bracketed:
+                start_bracket: (
                 quoted_literal: "'number\\d+'"
-              end_bracket: )
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -62,20 +62,21 @@ file:
           function:
             function_name:
               function_name_identifier: min
-            bracketed:
-              start_bracket: (
-              expression:
-                function:
-                  function_name:
-                    keyword: COLUMNS
-                  bracketed:
-                    start_bracket: (
-                    columns_expression:
-                      wildcard_expression:
-                        wildcard_identifier:
-                          star: '*'
-                    end_bracket: )
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      keyword: COLUMNS
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        wildcard_expression:
+                          wildcard_identifier:
+                            star: '*'
+                        end_bracket: )
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -92,39 +93,41 @@ file:
           function:
             function_name:
               function_name_identifier: min
-            bracketed:
-              start_bracket: (
-              expression:
-                function:
-                  function_name:
-                    keyword: COLUMNS
-                  bracketed:
-                    start_bracket: (
-                    columns_expression:
-                      wildcard_expression:
-                        wildcard_identifier:
-                          star: '*'
-                    end_bracket: )
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      keyword: COLUMNS
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        wildcard_expression:
+                          wildcard_identifier:
+                            star: '*'
+                        end_bracket: )
+                end_bracket: )
       - comma: ','
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              expression:
-                function:
-                  function_name:
-                    keyword: COLUMNS
-                  bracketed:
-                    start_bracket: (
-                    columns_expression:
-                      wildcard_expression:
-                        wildcard_identifier:
-                          star: '*'
-                    end_bracket: )
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      keyword: COLUMNS
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        wildcard_expression:
+                          wildcard_identifier:
+                            star: '*'
+                        end_bracket: )
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -141,60 +144,62 @@ file:
           function:
             function_name:
               function_name_identifier: min
-            bracketed:
-              start_bracket: (
-              expression:
-                function:
-                  function_name:
-                    keyword: COLUMNS
-                  bracketed:
-                    start_bracket: (
-                    columns_expression:
-                      wildcard_expression:
-                        wildcard_identifier:
-                          star: '*'
-                        wildcard_replace:
-                          keyword: REPLACE
-                          bracketed:
-                            start_bracket: (
-                            expression:
-                            - column_reference:
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      keyword: COLUMNS
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        wildcard_expression:
+                          wildcard_identifier:
+                            star: '*'
+                          wildcard_replace:
+                            keyword: REPLACE
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                              - column_reference:
+                                  naked_identifier: number
+                              - binary_operator: +
+                              - column_reference:
+                                  naked_identifier: id
+                              alias_expression:
+                                keyword: AS
                                 naked_identifier: number
-                            - binary_operator: +
-                            - column_reference:
-                                naked_identifier: id
-                            alias_expression:
-                              keyword: AS
-                              naked_identifier: number
-                            end_bracket: )
-                    end_bracket: )
-              end_bracket: )
+                              end_bracket: )
+                        end_bracket: )
+                end_bracket: )
       - comma: ','
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              expression:
-                function:
-                  function_name:
-                    keyword: COLUMNS
-                  bracketed:
-                    start_bracket: (
-                    columns_expression:
-                      wildcard_expression:
-                        wildcard_identifier:
-                          star: '*'
-                        wildcard_exclude:
-                          keyword: EXCLUDE
-                          bracketed:
-                            start_bracket: (
-                            column_reference:
-                              naked_identifier: number
-                            end_bracket: )
-                    end_bracket: )
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      keyword: COLUMNS
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        wildcard_expression:
+                          wildcard_identifier:
+                            star: '*'
+                          wildcard_exclude:
+                            keyword: EXCLUDE
+                            bracketed:
+                              start_bracket: (
+                              column_reference:
+                                naked_identifier: number
+                              end_bracket: )
+                        end_bracket: )
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -212,24 +217,24 @@ file:
           - function:
               function_name:
                 keyword: COLUMNS
-              bracketed:
-                start_bracket: (
-                columns_expression:
+              function_contents:
+                bracketed:
+                  start_bracket: (
                   wildcard_expression:
                     wildcard_identifier:
                       star: '*'
-                end_bracket: )
+                  end_bracket: )
           - binary_operator: +
           - function:
               function_name:
                 keyword: COLUMNS
-              bracketed:
-                start_bracket: (
-                columns_expression:
+              function_contents:
+                bracketed:
+                  start_bracket: (
                   wildcard_expression:
                     wildcard_identifier:
                       star: '*'
-                end_bracket: )
+                  end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:

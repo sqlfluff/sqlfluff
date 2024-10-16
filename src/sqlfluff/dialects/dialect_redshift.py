@@ -19,7 +19,6 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
-    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
@@ -36,7 +35,22 @@ from sqlfluff.dialects.dialect_redshift_keywords import (
 
 postgres_dialect = load_raw_dialect("postgres")
 ansi_dialect = load_raw_dialect("ansi")
-redshift_dialect = postgres_dialect.copy_as("redshift")
+redshift_dialect = postgres_dialect.copy_as(
+    "redshift",
+    formatted_name="AWS Redshift",
+    docstring="""**Default Casing**: ``lowercase`` (unless configured
+to be case sensitive with all identifiers using the
+:code:`enable_case_sensitive_identifier` configuration value, see
+the `Redshift Names & Identifiers Docs`_).
+
+**Quotes**: String Literals: ``''``, Identifiers: ``""``.
+
+The dialect for `Redshift`_ on Amazon Web Services (AWS).
+
+.. _`Redshift`: https://aws.amazon.com/redshift/
+.. _`Redshift Names & Identifiers Docs`: https://spark.apache.org/docs/latest/sql-ref.html
+""",  # noqa: E501
+)
 
 # Set Keywords
 redshift_dialect.sets("unreserved_keywords").clear()
@@ -324,10 +338,7 @@ class DateTimeTypeIdentifier(BaseSegment):
     match_grammar = OneOf(
         "DATE",
         "DATETIME",
-        Sequence(
-            OneOf("TIME", "TIMESTAMP"),
-            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
-        ),
+        Ref("TimeWithTZGrammar"),
         OneOf("TIMETZ", "TIMESTAMPTZ"),
         # INTERVAL types are not Datetime types under Redshift:
         # https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
@@ -2070,6 +2081,9 @@ class StatementSegment(postgres.StatementSegment):
             Ref("CreateExternalFunctionStatementSegment"),
             Ref("GrantUsageDatashareStatementSegment"),
         ],
+        remove=[
+            Ref("ShowStatementSegment"),
+        ],
     )
 
 
@@ -2497,17 +2511,7 @@ class FunctionSegment(ansi.FunctionSegment):
             # rather than identifiers.
             Sequence(
                 Ref("DatePartFunctionNameSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("DatetimeUnitSegment"),
-                        Ref(
-                            "FunctionContentsGrammar",
-                            # The brackets might be empty for some functions...
-                            optional=True,
-                        ),
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
+                Ref("DateTimeFunctionContentsSegment"),
             ),
         ),
         Sequence(
@@ -2533,24 +2537,27 @@ class FunctionSegment(ansi.FunctionSegment):
                         ),
                     ),
                 ),
-                Bracketed(
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
+                Ref("FunctionContentsSegment"),
             ),
             Ref("PostFunctionGrammar", optional=True),
         ),
         Sequence(
             Ref("ConvertFunctionNameSegment"),
-            Bracketed(
-                Ref("DatatypeSegment"),
-                Ref("CommaSegment"),
-                Ref("ExpressionSegment"),
-            ),
+            Ref("ConvertFunctionContentsSegment"),
+        ),
+    )
+
+
+class ConvertFunctionContentsSegment(BaseSegment):
+    """Convert Function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref("DatatypeSegment"),
+            Ref("CommaSegment"),
+            Ref("ExpressionSegment"),
         ),
     )
 

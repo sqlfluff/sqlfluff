@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 79da78c613cc371329828508a62c84ef826111bc98cd7e8b884f337a29bc91cc
+_hash: 5da583c0e5899600af6cd8bd9abd5e14a54d6374cf5f53cdf7b03802e8c554ca
 file:
   batch:
   - statement:
@@ -221,14 +221,80 @@ file:
             function:
               function_name:
                 keyword: CAST
-              bracketed:
-                start_bracket: (
-                expression:
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: InventoryTs
+                  keyword: AS
+                  data_type:
+                    data_type_identifier: date
+                  end_bracket: )
+        - end_bracket: )
+      - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Foo]'
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - quoted_identifier: '[ID]'
+          - data_type:
+              data_type_identifier: '[int]'
+          - column_constraint_segment:
+              identity_grammar:
+                keyword: IDENTITY
+                bracketed:
+                - start_bracket: (
+                - numeric_literal: '1'
+                - comma: ','
+                - numeric_literal: '1'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          - column_constraint_segment:
+              table_constraint:
+              - keyword: CONSTRAINT
+              - object_reference:
+                  quoted_identifier: '[PK_Foo_ID]'
+              - keyword: PRIMARY
+              - keyword: KEY
+              - keyword: CLUSTERED
+              - bracketed_index_column_list_grammar:
+                  bracketed:
+                    start_bracket: (
+                    index_column_definition:
+                      quoted_identifier: '[ID]'
+                      keyword: ASC
+                    end_bracket: )
+        - comma: ','
+        - column_definition:
+          - quoted_identifier: '[other_ID]'
+          - data_type:
+              data_type_identifier: '[int]'
+          - column_constraint_segment:
+            - keyword: FOREIGN
+            - keyword: KEY
+          - column_constraint_segment:
+              references_constraint_grammar:
+                keyword: REFERENCES
+                table_reference:
+                - quoted_identifier: '[dbo]'
+                - dot: .
+                - quoted_identifier: '[Bar]'
+                bracketed:
+                  start_bracket: (
                   column_reference:
-                    naked_identifier: InventoryTs
-                keyword: AS
-                data_type:
-                  data_type_identifier: date
-                end_bracket: )
+                    naked_identifier: id
+                  end_bracket: )
+          - column_constraint_segment:
+              keyword: UNIQUE
         - end_bracket: )
       - statement_terminator: ;

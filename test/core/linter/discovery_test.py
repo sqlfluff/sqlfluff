@@ -5,7 +5,7 @@ import os
 import pytest
 
 from sqlfluff.core.errors import SQLFluffUserError
-from sqlfluff.core.linter.discovery import _find_ignore_config_files, paths_from_path
+from sqlfluff.core.linter.discovery import _load_specs_from_lines, paths_from_path
 
 
 def normalise_paths(paths):
@@ -38,11 +38,12 @@ def test__linter__path_from_paths__default():
 def test__linter__path_from_paths__exts():
     """Test configuration of file discovery."""
     paths = normalise_paths(
-        paths_from_path("test/fixtures/linter", target_file_exts=[".txt"])
+        paths_from_path("test/fixtures/linter", target_file_exts=[".txt", ".txt.j2"])
     )
     assert "test.fixtures.linter.passing.sql" not in paths
     assert "test.fixtures.linter.passing_cap_extension.SQL" not in paths
     assert "test.fixtures.linter.discovery_file.txt" in paths
+    assert "test.fixtures.linter.discovery_file.txt.j2" in paths
 
 
 def test__linter__path_from_paths__file():
@@ -116,13 +117,23 @@ def test__linter__path_from_paths__ignore(path):
     }
 
 
-def test__config__find_sqlfluffignore_in_same_directory():
-    """Test find ignore file in the same directory as sql file."""
-    ignore_files = _find_ignore_config_files(
-        path="test/fixtures/linter/sqlfluffignore/path_b/query_b.sql",
-        working_path="test/fixtures/linter/sqlfluffignore/",
-    )
-    assert ignore_files == {
-        os.path.abspath("test/fixtures/linter/sqlfluffignore/path_b/.sqlfluffignore"),
-        os.path.abspath("test/fixtures/linter/sqlfluffignore/.sqlfluffignore"),
-    }
+def test__linter__path_from_paths__specific_bad_ext():
+    """Test we get no match if a path with the wrong extension is passed."""
+    assert paths_from_path("README.md") == []
+
+
+@pytest.mark.parametrize(
+    "lines",
+    [
+        12345,  # Something not iterable
+        ["!"],  # An iterable, with an invalid pattern in it.
+    ],
+)
+def test__linter__load_specs_from_lines(lines):
+    """Test the unhappy path of _load_specs_from_lines.
+
+    This is typically if we pass something un-iterable,
+    or an invalid pattern
+    """
+    with pytest.raises(SQLFluffUserError):
+        _load_specs_from_lines(lines, "<test>")

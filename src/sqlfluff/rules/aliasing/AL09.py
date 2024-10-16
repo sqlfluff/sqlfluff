@@ -13,29 +13,78 @@ class Rule_AL09(BaseRule):
     """Column aliases should not alias to itself, i.e. self-alias.
 
     Renaming the column to itself is a redundant piece of SQL,
-    which doesn't affect its functionality.
+    which doesn't affect its functionality. This rule only applies
+    when aliasing to an exact copy of the column reference (e.g.
+    :code:`foo as foo` or :code:`"BAR" as "BAR"`, see note below on
+    more complex examples). Aliases which effectively change the casing of
+    an identifier are still allowed.
 
-    Note that this rule does allow self-alias to change case sensitivity.
+    .. note::
+
+       This rule works in conjunction with :sqlfluff:ref:`references.quoting`
+       (:sqlfluff:ref:`RF06`) and :sqlfluff:ref:`capitalisation.identifiers`
+       (:sqlfluff:ref:`CP02`) to handle self aliases with mixed quoting
+       and casing. In the situation that these two rules are not enabled
+       then this rule will only fix the strict case where the quoting
+       and casing of the alias and reference are the same.
+
+       If those two rules are enabled, the fixes applied may result in a
+       situation where this rule can kick in as a secondary effect. For
+       example this :ref:`snowflake_dialect_ref` query:
+
+       .. code-block:: sql
+
+          -- Original Query. AL09 will not trigger because casing and
+          -- quoting are different. RF06 will however fix the unnecessary
+          -- quoting of "COL".
+          SELECT "COL" AS col FROM table;
+          -- After RF06, the query will look like this, at which point
+          -- CP02 will see the inconsistent capitalisation. Depending
+          -- on the configuration it will change one of the identifiers.
+          -- Let's assume the default configuration of "consistent".
+          SELECT COL AS col FROM table;
+          -- After CP02, the alias and the reference will be the same
+          -- and at this point AL09 can take over and remove the alias.
+          SELECT COL AS COL FROM table;
+          -- ..resulting in:
+          SELECT COL FROM table;
+
+       This interdependence between the rules, and the configuration
+       options offered by each one means a variety of outcomes can be
+       achieved by enabling and disabling each one. See
+       :ref:`ruleselection` and :ref:`ruleconfig` for more details.
 
     **Anti-pattern**
 
-    Aliasing the column to itself.
+    Aliasing the column to itself, where not necessary for changing the case
+    of an identifier.
 
     .. code-block:: sql
 
         SELECT
-            col AS col
+            col AS col,
+            "Col" AS "Col",
+            COL AS col
         FROM table;
 
     **Best practice**
 
     Not to use alias to rename the column to its original name.
-    Self-aliasing leads to redundant code without changing any functionality.
+    Self-aliasing leads to redundant code without changing any functionality,
+    unless used to effectively change the case of the identifier.
 
     .. code-block:: sql
 
         SELECT
-            col
+            col,
+            "Col"
+            COL,
+        FROM table;
+
+        -- Re-casing aliasing is still allowed where necessary, i.e.
+        SELECT
+            col as "Col",
+            "col" as "COL"
         FROM table;
     """
 
@@ -70,47 +119,87 @@ class Rule_AL09(BaseRule):
                 "alias_expression"
             )  # `as col_a`
 
-            # If the alias is for a column_reference type (not function)
-            # then continue
-            if alias_expression and column:
-                # If column has either a naked_identifier or quoted_identifier
-                # (not positional identifier like $n in snowflake)
-                # then continue
-                if column.get_child("naked_identifier") or column.get_child(
-                    "quoted_identifier"
-                ):
-                    whitespace = clause_element.get_child("whitespace")  # ` `
+            # We're only interested in direct aliasing of columns (i.e. not
+            # and expression), so if that isn't the case, move on.
+            if not (alias_expression and column):
+                continue
 
-                    # If the column name is quoted then get the `quoted_identifier`,
-                    # otherwise get the last `naked_identifier`.
-                    # The last naked_identifier in column_reference type
-                    # belongs to the column name.
-                    # Example: a.col_name where `a` is table name/alias identifier
-                    if column.get_child("quoted_identifier"):
-                        column_identifier = column.get_child("quoted_identifier")
-                    else:
-                        column_identifier = column.get_children("naked_identifier")[-1]
+            # The column needs to be a naked_identifier or quoted_identifier
+            # (not positional identifier like $n in snowflake).
+            # Move on if not. Some column references have multiple elements
+            # (e.g. my_table.my_column), so only fetch the last available.
+            _column_elements = column.get_children(
+                "naked_identifier", "quoted_identifier"
+            )
+            if not _column_elements:  # pragma: no cover
+                continue
+            column_identifier = _column_elements[-1]
 
-                    # The alias can be the naked_identifier or the quoted_identifier
-                    alias_identifier = alias_expression.get_child(
-                        "naked_identifier"
-                    ) or alias_expression.get_child("quoted_identifier")
+            # Fetch the whitespace between the reference and the alias.
+            whitespace = clause_element.get_child("whitespace")  # ` `
 
-                    assert whitespace and column_identifier and alias_identifier
+            # The alias can be the naked_identifier or the quoted_identifier
+            alias_identifier = alias_expression.get_child(
+                "naked_identifier", "quoted_identifier"
+            )
 
-                    # Column self-aliased
-                    if column_identifier.raw_upper == alias_identifier.raw_upper:
-                        fixes: List[LintFix] = []
+            if not (whitespace and alias_identifier):  # pragma: no cover
+                # We *should* expect all of these to be non-null, but some bug
+                # reports suggest that that isn't always the case for some
+                # dialects. In those cases, log a warning here, but don't
+                # flag it as a linting issue. Hopefully this will help
+                # better bug reports in future.
+                self.logger.warning(
+                    "AL09 found an unexpected syntax in an alias expression. "
+                    "Unable to determine if this is a self-alias. Please "
+                    "report this as a bug on GitHub.\n\n"
+                    f"Debug details: dialect: {context.dialect.name}, "
+                    f"whitespace: {whitespace is not None}, "
+                    f"alias_identifier: {alias_identifier is not None}, "
+                    f"alias_expression: {clause_element.raw!r}."
+                )
+                continue
 
-                        fixes.append(LintFix.delete(whitespace))
-                        fixes.append(LintFix.delete(alias_expression))
+            case_sensitive_dialects = ["clickhouse"]
 
-                        violations.append(
-                            LintResult(
-                                anchor=clause_element_raw_segments[0],
-                                description="Column should not be self-aliased.",
-                                fixes=fixes,
-                            )
-                        )
+            # We compare the _exact_ raw value of the column identifier
+            # and the alias identifier (i.e. including quoting and casing).
+            # Resolving aliases & references with differing quoting and casing
+            # should be done in conjunction with RF06 & CP02 (see docstring).
+            if column_identifier.raw == alias_identifier.raw:
+                fixes: List[LintFix] = []
+
+                fixes.append(LintFix.delete(whitespace))
+                fixes.append(LintFix.delete(alias_expression))
+
+                violations.append(
+                    LintResult(
+                        anchor=clause_element_raw_segments[0],
+                        description="Column should not be self-aliased.",
+                        fixes=fixes,
+                    )
+                )
+            # If *both* are unquoted, and we're in a dialect which isn't case
+            # sensitive for unquoted identifiers, then flag an error but don't
+            # suggest a fix. It's ambiguous about what the users intent was:
+            # i.e. did they mean to change the case (and so the correct
+            # resolution is quoting), or did they mistakenly add an unnecessary
+            # alias?
+            elif (
+                context.dialect.name not in case_sensitive_dialects
+                and column_identifier.is_type("naked_identifier")
+                and alias_identifier.is_type("naked_identifier")
+                and column_identifier.raw_upper == alias_identifier.raw_upper
+            ):
+                violations.append(
+                    LintResult(
+                        anchor=clause_element_raw_segments[0],
+                        description=(
+                            "Ambiguous self alias. Either remove unnecessary "
+                            "alias, or quote alias/reference to make case "
+                            "change explicit."
+                        ),
+                    )
+                )
 
         return violations or None

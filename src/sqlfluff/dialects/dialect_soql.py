@@ -18,7 +18,15 @@ from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 
-soql_dialect = ansi_dialect.copy_as("soql")
+soql_dialect = ansi_dialect.copy_as(
+    "soql",
+    formatted_name="Salesforce Object Query Language (SOQL)",
+    docstring=(
+        "The dialect for `SOQL <https://developer.salesforce.com/docs/"
+        "atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql.htm>`_ "
+        "(Salesforce Object Query Language)."
+    ),
+)
 
 soql_dialect.insert_lexer_matchers(
     [

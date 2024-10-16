@@ -228,7 +228,7 @@ def _check_references(
 
 def _validate_one_reference(
     single_table_references: str,
-    ref: BaseSegment,
+    ref: ObjectReferenceSegment,
     this_ref_type: str,
     standalone_aliases: List[BaseSegment],
     table_ref_str: str,
@@ -239,7 +239,7 @@ def _validate_one_reference(
 ) -> Optional[LintResult]:
     # We skip any unqualified wildcard references (i.e. *). They shouldn't
     # count.
-    if not ref.is_qualified() and ref.is_type("wildcard_identifier"):  # type: ignore
+    if not ref.is_qualified() and ref.is_type("wildcard_identifier"):
         return None
     # Oddball case: Column aliases provided via function calls in by
     # FROM or JOIN. References to these don't need to be qualified.
@@ -248,6 +248,15 @@ def _validate_one_reference(
     # entirely rather than trying to enforce anything.
     if ref.raw in [a.raw for a in standalone_aliases]:
         return None
+
+    # If the reference is qualified, see that the table is not in the standalone_aliases
+    # namely for lambda expressions.
+    if ref.is_qualified():
+        for part in ref.extract_possible_references(
+            level=ref.ObjectReferenceLevel.TABLE
+        ):
+            if part.segments[0].raw in [a.raw for a in standalone_aliases]:
+                return None
 
     # Oddball case: tsql table variables can't be used to qualify references.
     # This appears here as an empty string for table_ref_str.

@@ -9,6 +9,7 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
+    Anything,
     BaseSegment,
     Bracketed,
     CodeSegment,
@@ -42,7 +43,17 @@ from sqlfluff.dialects.dialect_snowflake_keywords import (
 )
 
 ansi_dialect = load_raw_dialect("ansi")
-snowflake_dialect = ansi_dialect.copy_as("snowflake")
+snowflake_dialect = ansi_dialect.copy_as(
+    "snowflake",
+    formatted_name="Snowflake",
+    docstring="""**Default Casing**: ``UPPERCASE``
+
+**Quotes**: String Literals: ``''``, Identifiers: ``""``
+
+The dialect for
+`Snowflake <https://docs.snowflake.com/en/sql-reference.html>`_,
+which has much of its syntax inherited from :ref:`postgres_dialect_ref`.""",
+)
 
 snowflake_dialect.patch_lexer_matchers(
     [
@@ -233,7 +244,7 @@ snowflake_dialect.add(
         type="semi_structured_element",
     ),
     # Normally, double quotes can't be used for literals. But in a few
-    # cases they can (e.g. Tags).
+    # cases they can (e.g. Tags, Comments).
     DoubleQuotedLiteralSegment=TypedParser(
         "double_quote", LiteralSegment, type="quoted_literal"
     ),
@@ -341,6 +352,11 @@ snowflake_dialect.add(
         r"'?CONTINUE'?|'?SKIP_FILE(?:_[0-9]+%?)?'?|'?ABORT_STATEMENT'?",
         LiteralSegment,
         type="copy_on_error_option",
+    ),
+    DynamicTableLagIntervalSegment=RegexParser(
+        r"'((DOWNSTREAM)|([1-9]\d*\s+(?:SECOND|MINUTE|HOUR|DAY)S?))'",
+        LiteralSegment,
+        type="dynamic_table_lag_interval_segment",
     ),
     DoubleQuotedUDFBody=TypedParser(
         "double_quote",
@@ -455,6 +471,10 @@ snowflake_dialect.add(
         # '' and $$$$ are allowed as alternatives to NULL.
         Ref("QuotedLiteralSegment"),
     ),
+    DynamicTableTargetLagSegment=OneOf(
+        Ref("DynamicTableLagIntervalSegment"),
+        "DOWNSTREAM",
+    ),
     StartExcludeBracketSegment=StringParser(
         "{-", SymbolSegment, type="start_exclude_bracket"
     ),
@@ -564,6 +584,23 @@ snowflake_dialect.add(
         "LOCALTIME",
         "LOCALTIMESTAMP",
     ),
+    ExceptionCodeSegment=Sequence(
+        Ref("NegativeSegment"),
+        RegexParser(
+            r"20[0-9]{3}",
+            LiteralSegment,
+            type="exception_code",
+        ),
+    ),
+    # https://docs.snowflake.com/en/sql-reference/sql/create-table-constraint
+    InlineConstraintGrammar=AnySetOf(
+        Sequence(Ref.keyword("NOT", optional=True), "ENFORCED"),
+        Sequence(Ref.keyword("NOT", optional=True), "DEFERRABLE"),
+        Sequence("INITIALLY", OneOf("DEFERRED", "IMMEDIATE")),
+        OneOf("ENABLE", "DISABLE"),
+        OneOf("VALIDATE", "NOVALIDATE"),
+        OneOf("RELY", "NORELY"),
+    ),
 )
 
 snowflake_dialect.replace(
@@ -593,6 +630,7 @@ snowflake_dialect.replace(
         Ref("DatetimeUnitSegment"),
         Ref("NamedParameterExpressionSegment"),
         Ref("ReferencedVariableNameSegment"),
+        Ref("LambdaExpressionSegment"),
         Sequence(
             Ref("ExpressionSegment"),
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
@@ -603,6 +641,7 @@ snowflake_dialect.replace(
             Ref("MatchRecognizeClauseSegment"),
             Ref("ChangesClauseSegment"),
             Ref("ConnectByClauseSegment"),
+            Ref("FromAtExpressionSegment"),
             Ref("FromBeforeExpressionSegment"),
             Ref("FromPivotExpressionSegment"),
             AnyNumberOf(Ref("FromUnpivotExpressionSegment")),
@@ -733,6 +772,17 @@ snowflake_dialect.replace(
         Ref("UnconditionalCrossJoinKeywordsGrammar"),
         Ref("HorizontalJoinKeywordsGrammar"),
         Ref("NonStandardJoinTypeKeywordsGrammar"),
+    ),
+    FunctionParameterGrammar=Sequence(
+        OneOf(
+            Ref("DatatypeSegment"),
+            Sequence(Ref("ParameterNameSegment"), Ref("DatatypeSegment")),
+        ),
+        Sequence(
+            "DEFAULT",
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
     ),
 )
 
@@ -1299,6 +1349,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateProcedureStatementSegment"),
             Ref("AlterProcedureStatementSegment"),
             Ref("ScriptingLetStatementSegment"),
+            Ref("ScriptingDeclareStatementSegment"),
             Ref("ReturnStatementSegment"),
             Ref("ShowStatementSegment"),
             Ref("AlterAccountStatementSegment"),
@@ -1362,6 +1413,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterExternalVolumeStatementSegment"),
             Ref("ForInLoopSegment"),
             Ref("CreateEventTableStatementSegment"),
+            Ref("CreatePasswordPolicyStatementSegment"),
+            Ref("AlterPasswordPolicyStatementSegment"),
+            Ref("DropPasswordPolicyStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -1431,12 +1485,20 @@ class WithinGroupClauseSegment(BaseSegment):
 
 
 class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
-    """A table expression."""
+    """A table expression.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/from
+    """
 
     type = "from_expression_element"
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
+        OneOf(
+            Ref("FromAtExpressionSegment"),
+            Ref("FromBeforeExpressionSegment"),
+            optional=True,
+        ),
         Ref(
             "AliasExpressionSegment",
             exclude=OneOf(
@@ -1666,7 +1728,10 @@ class FromBeforeExpressionSegment(BaseSegment):
 
 
 class FromPivotExpressionSegment(BaseSegment):
-    """A PIVOT expression."""
+    """A PIVOT expression.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/pivot.html
+    """
 
     type = "from_pivot_expression"
     match_grammar = Sequence(
@@ -1676,7 +1741,16 @@ class FromPivotExpressionSegment(BaseSegment):
             "FOR",
             Ref("SingleIdentifierGrammar"),
             "IN",
-            Bracketed(Delimited(Ref("LiteralGrammar"))),
+            Bracketed(
+                OneOf(
+                    Delimited(Ref("LiteralGrammar")),
+                    Sequence("ANY", Ref("OrderByClauseSegment", optional=True)),
+                    Ref("SelectStatementSegment"),
+                )
+            ),
+            Sequence(
+                "DEFAULT", "ON", "NULL", Bracketed(Ref("LiteralGrammar")), optional=True
+            ),
         ),
     )
 
@@ -1819,7 +1893,7 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
         insert=[
             Sequence(
                 Ref("SystemFunctionName"),
-                Bracketed(Ref("QuotedLiteralSegment")),
+                Bracketed(Delimited(Ref("LiteralGrammar"))),
             )
         ],
         before=Ref("WildcardExpressionSegment"),
@@ -1925,7 +1999,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
     If possible, please keep the order below the same as Snowflake's doc:
     """
 
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "ALTER",
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
@@ -2019,7 +2093,7 @@ class AlterTableTableColumnActionSegment(BaseSegment):
             "ADD",
             Ref.keyword("COLUMN", optional=True),
             # @TODO: Cannot specify IF NOT EXISTS if also specifying
-            # DEFAULT, AUTOINCREMENT, IDENTITY UNIQUE, PRIMARY KEY, FOREIGN KEY
+            # DEFAULT, AUTOINCREMENT, IDENTITY UNIQUE, PRIMARY KEY, FOREIGN KEY, AS
             Ref("IfNotExistsGrammar", optional=True),
             # Handle Multiple Columns
             Delimited(
@@ -2028,9 +2102,9 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                     Ref("ColumnReferenceSegment"),
                     Ref("DatatypeSegment"),
                     OneOf(
-                        # Default
+                        # Default & AS (virtual columns)
                         Sequence(
-                            "DEFAULT",
+                            OneOf("DEFAULT", "AS"),
                             Ref("ExpressionSegment"),
                         ),
                         # Auto-increment/identity column
@@ -2257,45 +2331,7 @@ class AlterTableConstraintActionSegment(BaseSegment):
         # Add Column
         Sequence(
             "ADD",
-            Sequence(
-                "CONSTRAINT",
-                OneOf(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("QuotedIdentifierSegment"),
-                ),
-                optional=True,
-            ),
-            OneOf(
-                Sequence(
-                    Ref("PrimaryKeyGrammar"),
-                    Bracketed(
-                        Delimited(
-                            Ref("ColumnReferenceSegment"),
-                        ),
-                    ),
-                ),
-                Sequence(
-                    Sequence(
-                        Ref("ForeignKeyGrammar"),
-                        Bracketed(
-                            Delimited(
-                                Ref("ColumnReferenceSegment"),
-                            )
-                        ),
-                    ),
-                    "REFERENCES",
-                    Ref("TableReferenceSegment"),
-                    Bracketed(
-                        Delimited(
-                            Ref("ColumnReferenceSegment"),
-                        ),
-                        optional=True,
-                    ),
-                ),
-                Sequence(
-                    "UNIQUE", Bracketed(Ref("ColumnReferenceSegment"), optional=True)
-                ),
-            ),
+            Ref("ConstraintPropertiesSegment"),
         ),
         Sequence(
             "DROP",
@@ -2303,7 +2339,7 @@ class AlterTableConstraintActionSegment(BaseSegment):
             OneOf(
                 Ref("PrimaryKeyGrammar"),
                 Ref("ForeignKeyGrammar"),
-                "UNIQUE",
+                Ref("UniqueKeyGrammar"),
             ),
             Delimited(Ref("ColumnReferenceSegment")),
         ),
@@ -2590,7 +2626,9 @@ class CommentEqualsClauseSegment(BaseSegment):
 
     type = "comment_equals_clause"
     match_grammar = Sequence(
-        "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+        "COMMENT",
+        Ref("EqualsSegment"),
+        OneOf(Ref("QuotedLiteralSegment"), Ref("DoubleQuotedLiteralSegment")),
     )
 
 
@@ -2880,6 +2918,7 @@ class AccessStatementSegment(BaseSegment):
                 "INTEGRATION",
                 "SCHEMA",
                 "ROLE",
+                "USER",
                 Sequence("ALL", "SCHEMAS", "IN", "DATABASE"),
                 Sequence("FUTURE", "SCHEMAS", "IN", "DATABASE"),
                 _schema_object_types,
@@ -3438,6 +3477,7 @@ class CreateFunctionStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
+        OneOf("TEMP", "TEMPORARY", optional=True),
         Sequence("SECURE", optional=True),
         Sequence("AGGREGATE", optional=True),
         "FUNCTION",
@@ -3898,29 +3938,46 @@ class ConstraintPropertiesSegment(BaseSegment):
 
     type = "constraint_properties_segment"
     match_grammar = Sequence(
-        Sequence("CONSTRAINT", Ref("QuotedLiteralSegment"), optional=True),
+        Sequence(
+            "CONSTRAINT",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
         OneOf(
-            Sequence("UNIQUE", Bracketed(Ref("ColumnReferenceSegment"), optional=True)),
             Sequence(
-                Ref("PrimaryKeyGrammar"),
-                Bracketed(Ref("ColumnReferenceSegment"), optional=True),
+                OneOf(
+                    Ref("PrimaryKeyGrammar"),
+                    Ref("UniqueKeyGrammar"),
+                ),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                    # For use in CREATE TABLE as a part of
+                    # ColumnDefinitionSegment.ColumnConstraintSegment
+                    optional=True,
+                ),
             ),
             Sequence(
                 Sequence(
                     Ref("ForeignKeyGrammar"),
-                    Bracketed(Ref("ColumnReferenceSegment"), optional=True),
-                    optional=True,
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                        )
+                    ),
                 ),
                 "REFERENCES",
                 Ref("TableReferenceSegment"),
-                Bracketed(Ref("ColumnReferenceSegment")),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                    optional=True,
+                ),
             ),
         ),
-        AnySetOf(
-            OneOf(Sequence("NOT", optional=True), "ENFORCED"),
-            OneOf(Sequence("NOT", optional=True), "DEFERRABLE"),
-            OneOf("INITIALLY", OneOf("DEFERRED", "IMMEDIATE")),
-        ),
+        Ref("InlineConstraintGrammar", optional=True),
     )
 
 
@@ -3930,7 +3987,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     https://docs.snowflake.com/en/sql-reference/sql/create-table.html
     """
 
-    match_grammar = AnySetOf(
+    match_grammar: Matchable = AnySetOf(
         Sequence("COLLATE", Ref("CollationReferenceSegment")),
         Sequence(
             "DEFAULT",
@@ -4000,41 +4057,50 @@ class CopyOptionsSegment(BaseSegment):
 
     type = "copy_options"
 
-    match_grammar = OneOf(
-        AnySetOf(
-            Sequence("ON_ERROR", Ref("EqualsSegment"), Ref("CopyOptionOnErrorSegment")),
-            Sequence("SIZE_LIMIT", Ref("EqualsSegment"), Ref("NumericLiteralSegment")),
-            Sequence("PURGE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-            Sequence(
-                "RETURN_FAILED_ONLY", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-            ),
-            Sequence(
-                "MATCH_BY_COLUMN_NAME",
-                Ref("EqualsSegment"),
-                OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE", "NONE"),
-            ),
-            Sequence(
-                "ENFORCE_LENGTH", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-            ),
-            Sequence(
-                "TRUNCATECOLUMNS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-            ),
-            Sequence("FORCE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+    _copy_options_matchables = [
+        Sequence("ON_ERROR", Ref("EqualsSegment"), Ref("CopyOptionOnErrorSegment")),
+        Sequence("SIZE_LIMIT", Ref("EqualsSegment"), Ref("NumericLiteralSegment")),
+        Sequence("PURGE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "RETURN_FAILED_ONLY", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
         ),
-        AnySetOf(
-            Sequence("OVERWRITE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-            Sequence("SINGLE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-            Sequence(
-                "MAX_FILE_SIZE", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
-            ),
-            Sequence(
-                "INCLUDE_QUERY_ID", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-            ),
-            Sequence(
-                "DETAILED_OUTPUT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        Sequence(
+            "MATCH_BY_COLUMN_NAME",
+            Ref("EqualsSegment"),
+            OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE", "NONE"),
+        ),
+        Sequence(
+            "INCLUDE_METADATA",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            "METADATA$FILENAME",
+                            "METADATA$FILE_ROW_NUMBER",
+                            "METADATA$FILE_CONTENT_KEY",
+                            "METADATA$FILE_LAST_MODIFIED",
+                            "METADATA$START_SCAN_TIME",
+                        ),
+                    ),
+                )
             ),
         ),
-    )
+        Sequence("ENFORCE_LENGTH", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("TRUNCATECOLUMNS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("FORCE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("OVERWRITE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("SINGLE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("MAX_FILE_SIZE", Ref("EqualsSegment"), Ref("NumericLiteralSegment")),
+        Sequence(
+            "INCLUDE_QUERY_ID", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence("DETAILED_OUTPUT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+    ]
+
+    match_grammar = AnySetOf(*_copy_options_matchables)
 
 
 class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
@@ -4323,7 +4389,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Sequence(
             "TARGET_LAG",
             Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+            Ref("DynamicTableTargetLagSegment"),
             optional=True,
         ),
         Sequence(
@@ -4351,9 +4417,20 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                     Delimited(
                         Sequence(
                             OneOf(
-                                Ref("TableConstraintSegment"),
+                                Ref("ConstraintPropertiesSegment"),
                                 Ref("ColumnDefinitionSegment"),
                                 Ref("SingleIdentifierGrammar"),
+                                Sequence(
+                                    Ref("SingleIdentifierGrammar"),
+                                    Ref("DatatypeSegment"),
+                                    Bracketed(
+                                        Anything(), optional=True
+                                    ),  # For types like VARCHAR(100)
+                                    "AS",
+                                    OptionallyBracketed(
+                                        Ref("ExpressionSegment"),
+                                    ),
+                                ),
                             ),
                             Ref("CommentClauseSegment", optional=True),
                         ),
@@ -4782,7 +4859,7 @@ class CreateStatementSegment(BaseSegment):
         OneOf(
             Ref("SelectStatementSegment"),
             Sequence(
-                Bracketed(Ref("FunctionContentsGrammar"), optional=True),
+                Ref("FunctionContentsSegment"),
                 "RETURNS",
                 Ref("DatatypeSegment"),
                 Ref("FunctionAssignerSegment"),
@@ -5272,6 +5349,7 @@ class CsvFileFormatTypeParameters(BaseSegment):
                 "EMPTY_FIELD_AS_NULL",
                 "SKIP_BYTE_ORDER_MARK",
                 "TRIM_SPACE",
+                "PARSE_HEADER",
             ),
             Ref("EqualsSegment"),
             Ref("BooleanLiteralGrammar"),
@@ -5743,7 +5821,7 @@ class CreateExternalTableSegment(BaseSegment):
                     OptionallyBracketed(
                         Sequence(
                             Ref("ExpressionSegment"),
-                            Ref("TableConstraintSegment", optional=True),
+                            Ref("ConstraintPropertiesSegment", optional=True),
                             Sequence(
                                 Ref.keyword("NOT", optional=True), "NULL", optional=True
                             ),
@@ -5874,7 +5952,7 @@ class CopyIntoLocationStatementSegment(BaseSegment):
             "FROM",
             OneOf(
                 Ref("TableReferenceSegment"),
-                Bracketed(Ref("SelectStatementSegment")),
+                Bracketed(Ref("SelectableGrammar")),
             ),
             optional=True,
         ),
@@ -5891,7 +5969,9 @@ class CopyIntoLocationStatementSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("FileFormatSegment"),
             ),
-            Ref("CopyOptionsSegment"),
+            # We explode the CopyOptionsSegments because the AnySetOf may appear in any
+            # order for these other elements as well.
+            *CopyOptionsSegment._copy_options_matchables,
             Sequence(
                 "VALIDATION_MODE",
                 Ref("EqualsSegment"),
@@ -5956,7 +6036,9 @@ class CopyIntoTableStatementSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("FileFormatSegment"),
             ),
-            Ref("CopyOptionsSegment"),
+            # We explode the CopyOptionsSegments because the AnySetOf may appear in any
+            # order for these other elements as well.
+            *CopyOptionsSegment._copy_options_matchables,
         ),
         Sequence(
             "VALIDATION_MODE",
@@ -6697,6 +6779,7 @@ class ShowStatementSegment(BaseSegment):
         "PROCEDURES",
         Sequence("FUTURE", "GRANTS"),
         Sequence("EXTERNAL", "VOLUMES"),
+        Sequence("PASSWORD", "POLICIES"),
     )
 
     _object_scope_types = OneOf(
@@ -7545,6 +7628,12 @@ class DescribeStatementSegment(BaseSegment):
                     ),
                 ),
             ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-password-policy
+            Sequence(
+                "PASSWORD",
+                "POLICY",
+                Ref("PasswordPolicyReferenceSegment"),
+            ),
         ),
     )
 
@@ -7766,14 +7855,7 @@ class CallStatementSegment(BaseSegment):
         "CALL",
         Sequence(
             Ref("FunctionNameSegment"),
-            Bracketed(
-                Ref(
-                    "FunctionContentsGrammar",
-                    # The brackets might be empty for some functions...
-                    optional=True,
-                ),
-                parse_mode=ParseMode.GREEDY,
-            ),
+            Ref("FunctionContentsSegment"),
         ),
     )
 
@@ -7880,6 +7962,7 @@ class FrameClauseSegment(ansi.FrameClauseSegment):
             OneOf(
                 Ref("NumericLiteralSegment"),
                 Ref("ReferencedVariableNameSegment"),
+                Sequence("INTERVAL", Ref("QuotedLiteralSegment")),
                 "UNBOUNDED",
             ),
             OneOf("PRECEDING", "FOLLOWING"),
@@ -8147,6 +8230,26 @@ class SetOperatorSegment(ansi.SetOperatorSegment):
     )
 
 
+class ArrayTypeSegment(ansi.ArrayTypeSegment):
+    """Prefix for array literals specifying the type."""
+
+    type = "array_type"
+    match_grammar = Sequence(
+        "ARRAY",
+        Ref("ArrayTypeSchemaSegment", optional=True),
+    )
+
+
+class ArrayTypeSchemaSegment(ansi.ArrayTypeSegment):
+    """Prefix for array literals specifying the type."""
+
+    type = "array_type_schema"
+    match_grammar = Bracketed(
+        Ref("DatatypeSegment"),
+        Sequence("NOT", "NULL", optional=True),
+    )
+
+
 class ShorthandCastSegment(BaseSegment):
     """A casting operation using '::'."""
 
@@ -8299,4 +8402,234 @@ class BindVariableSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("ColonSegment"),
         Ref("LocalVariableNameSegment"),
+    )
+
+
+class ScriptingDeclareStatementSegment(BaseSegment):
+    """A snowflake `Declare` statement for SQL scripting.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/declare
+    https://docs.snowflake.com/en/developer-guide/snowflake-scripting/variables
+    """
+
+    type = "scripting_declare_statement"
+    match_grammar = Sequence(
+        "DECLARE",
+        Indent,
+        AnyNumberOf(
+            Sequence(
+                # Avoid BEGIN as a variable from the subsequent scripting block
+                Ref("LocalVariableNameSegment", exclude=Ref.keyword("BEGIN")),
+                OneOf(
+                    # Variable assignment
+                    OneOf(
+                        Sequence(
+                            Ref("DatatypeSegment"),
+                            OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                            Ref("ExpressionSegment"),
+                        ),
+                        Sequence(
+                            OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                            Ref("ExpressionSegment"),
+                        ),
+                    ),
+                    # Cursor assignment
+                    Sequence(
+                        "CURSOR",
+                        "FOR",
+                        OneOf(
+                            Ref("LocalVariableNameSegment"), Ref("SelectableGrammar")
+                        ),
+                    ),
+                    # Resultset assignment
+                    Sequence(
+                        "RESULTSET",
+                        Ref("WalrusOperatorSegment"),
+                        Bracketed(Ref("SelectableGrammar")),
+                    ),
+                    # Exception assignment
+                    Sequence(
+                        "EXCEPTION",
+                        Bracketed(
+                            Delimited(
+                                Ref("ExceptionCodeSegment"), Ref("QuotedLiteralSegment")
+                            )
+                        ),
+                    ),
+                ),
+                Ref("DelimiterGrammar"),
+            ),
+            min_times=1,
+        ),
+        Dedent,
+        Ref("ScriptingBlockStatementSegment"),
+    )
+
+
+class LambdaExpressionSegment(BaseSegment):
+    """A lambda expression.
+
+    https://docs.snowflake.com/en/user-guide/querying-semistructured#lambda-expressions
+    """
+
+    type = "lambda_expression"
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                Ref("DatatypeSegment", optional=True),
+            ),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("DatatypeSegment"),
+                    )
+                )
+            ),
+        ),
+        Ref("FunctionAssignerSegment"),
+        Ref("ExpressionSegment"),
+    )
+
+
+class PasswordPolicyReferenceSegment(ansi.ObjectReferenceSegment):
+    """Password Policy Reference."""
+
+    type = "password_policy_reference"
+
+
+class PasswordPolicyOptionsSegment(BaseSegment):
+    """Password Policy Options."""
+
+    type = "password_policy_options"
+
+    match_grammar = AnySetOf(
+        Sequence(
+            "PASSWORD_MIN_LENGTH", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
+        ),
+        Sequence(
+            "PASSWORD_MAX_LENGTH", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
+        ),
+        Sequence(
+            "PASSWORD_MIN_UPPER_CASE_CHARS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "PASSWORD_MIN_LOWER_CASE_CHARS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "PASSWORD_MIN_NUMERIC_CHARS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "PASSWORD_MIN_SPECIAL_CHARS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "PASSWORD_MIN_AGE_DAYS", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
+        ),
+        Sequence(
+            "PASSWORD_MAX_AGE_DAYS", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
+        ),
+        Sequence(
+            "PASSWORD_MAX_RETRIES", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
+        ),
+        Sequence(
+            "PASSWORD_LOCKOUT_TIME_MINS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "PASSWORD_HISTORY", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
+        ),
+        Sequence("COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+    )
+
+
+class CreatePasswordPolicyStatementSegment(BaseSegment):
+    """Create Password Policy Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/create-packages-policy
+    """
+
+    type = "create_password_policy_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "PASSWORD",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("PasswordPolicyReferenceSegment"),
+        Ref("PasswordPolicyOptionsSegment", optional=True),
+    )
+
+
+class AlterPasswordPolicyStatementSegment(BaseSegment):
+    """Alter Password Policy Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/alter-password-policy
+    """
+
+    type = "alter_password_policy_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "PASSWORD",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("PasswordPolicyReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("PasswordPolicyReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                Ref("PasswordPolicyOptionsSegment"),
+            ),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence(
+                "UNSET",
+                AnySetOf(
+                    "PASSWORD_MIN_LENGTH",
+                    "PASSWORD_MAX_LENGTH",
+                    "PASSWORD_MIN_UPPER_CASE_CHARS",
+                    "PASSWORD_MIN_LOWER_CASE_CHARS",
+                    "PASSWORD_MIN_NUMERIC_CHARS",
+                    "PASSWORD_MIN_SPECIAL_CHARS",
+                    "PASSWORD_MIN_AGE_DAYS",
+                    "PASSWORD_MAX_AGE_DAYS",
+                    "PASSWORD_MAX_RETRIES",
+                    "PASSWORD_LOCKOUT_TIME_MINS",
+                    "PASSWORD_HISTORY",
+                    "COMMENT",
+                ),
+            ),
+        ),
+    )
+
+
+class DropPasswordPolicyStatementSegment(BaseSegment):
+    """Drop Password Policy Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/drop-password-policy
+    """
+
+    type = "drop_password_policy_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "PASSWORD",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("PasswordPolicyReferenceSegment"),
     )

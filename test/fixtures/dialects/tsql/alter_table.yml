@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 08e12e9160d43c99db40005772eb315a945b74782b70b08564e2a9c837ce4b7b
+_hash: d788dbfbeaf65337c5ad5d8914093c4be2db4ffa389f349383e6ddafc2d3622a
 file:
 - batch:
     statement:
@@ -889,15 +889,57 @@ file:
           function:
             function_name:
               keyword: CAST
-            bracketed:
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    quoted_identifier: '[InventoryTs]'
+                keyword: AS
+                data_type:
+                  data_type_identifier: date
+                end_bracket: )
+    statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[HangFire]'
+        - dot: .
+        - quoted_identifier: '[JobParameter]'
+      - keyword: ADD
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            quoted_identifier: '[FK_HangFire_JobParameter_Job]'
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              quoted_identifier: '[JobId]'
+            end_bracket: )
+        - references_constraint_grammar:
+          - keyword: REFERENCES
+          - table_reference:
+            - quoted_identifier: '[HangFire]'
+            - dot: .
+            - quoted_identifier: '[Job]'
+          - bracketed:
               start_bracket: (
-              expression:
-                column_reference:
-                  quoted_identifier: '[InventoryTs]'
-              keyword: AS
-              data_type:
-                data_type_identifier: date
+              column_reference:
+                quoted_identifier: '[Id]'
               end_bracket: )
+          - keyword: 'ON'
+          - keyword: UPDATE
+          - keyword: CASCADE
+          - keyword: 'ON'
+          - keyword: DELETE
+          - keyword: CASCADE
     statement_terminator: ;
 - go_statement:
     keyword: GO

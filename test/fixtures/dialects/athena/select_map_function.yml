@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 99a237d11640a33fbd36edc57ed22013a69bc9c5c6a030f1b033c6a739c55df0
+_hash: d3a96b1eccd493595749b7190deaf10a39b1975ad4de2a561dac87a096c0bd5e
 file:
 - statement:
     select_statement:
@@ -13,9 +13,10 @@ file:
           function:
             function_name:
               function_name_identifier: map
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     with_compound_statement:
@@ -32,34 +33,35 @@ file:
                 function:
                   function_name:
                     function_name_identifier: map
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      typed_array_literal:
-                        array_type:
-                          keyword: ARRAY
-                        array_literal:
-                        - start_square_bracket: '['
-                        - quoted_literal: "'first'"
-                        - comma: ','
-                        - quoted_literal: "'last'"
-                        - comma: ','
-                        - quoted_literal: "'age'"
-                        - end_square_bracket: ']'
-                  - comma: ','
-                  - expression:
-                      typed_array_literal:
-                        array_type:
-                          keyword: ARRAY
-                        array_literal:
-                        - start_square_bracket: '['
-                        - quoted_literal: "'Bob'"
-                        - comma: ','
-                        - quoted_literal: "'Smith'"
-                        - comma: ','
-                        - quoted_literal: "'35'"
-                        - end_square_bracket: ']'
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        typed_array_literal:
+                          array_type:
+                            keyword: ARRAY
+                          array_literal:
+                          - start_square_bracket: '['
+                          - quoted_literal: "'first'"
+                          - comma: ','
+                          - quoted_literal: "'last'"
+                          - comma: ','
+                          - quoted_literal: "'age'"
+                          - end_square_bracket: ']'
+                    - comma: ','
+                    - expression:
+                        typed_array_literal:
+                          array_type:
+                            keyword: ARRAY
+                          array_literal:
+                          - start_square_bracket: '['
+                          - quoted_literal: "'Bob'"
+                          - comma: ','
+                          - quoted_literal: "'Smith'"
+                          - comma: ','
+                          - quoted_literal: "'35'"
+                          - end_square_bracket: ']'
+                    - end_bracket: )
                 alias_expression:
                   keyword: AS
                   naked_identifier: a_map
@@ -86,43 +88,45 @@ file:
           function:
             function_name:
               function_name_identifier: map_filter
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: map
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: map
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          typed_array_literal:
+                            array_type:
+                              keyword: ARRAY
+                            array_literal:
+                              start_square_bracket: '['
+                              end_square_bracket: ']'
+                      - comma: ','
+                      - expression:
+                          typed_array_literal:
+                            array_type:
+                              keyword: ARRAY
+                            array_literal:
+                              start_square_bracket: '['
+                              end_square_bracket: ']'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
                   bracketed:
                   - start_bracket: (
-                  - expression:
-                      typed_array_literal:
-                        array_type:
-                          keyword: ARRAY
-                        array_literal:
-                          start_square_bracket: '['
-                          end_square_bracket: ']'
+                  - column_reference:
+                      naked_identifier: k
                   - comma: ','
-                  - expression:
-                      typed_array_literal:
-                        array_type:
-                          keyword: ARRAY
-                        array_literal:
-                          start_square_bracket: '['
-                          end_square_bracket: ']'
+                  - column_reference:
+                      naked_identifier: v
                   - end_bracket: )
-            - comma: ','
-            - expression:
-                bracketed:
-                - start_bracket: (
-                - column_reference:
-                    naked_identifier: k
-                - comma: ','
-                - column_reference:
-                    naked_identifier: v
-                - end_bracket: )
-                binary_operator: ->
-                boolean_literal: 'true'
-            - end_bracket: )
+                  binary_operator: ->
+                  boolean_literal: 'true'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -132,57 +136,59 @@ file:
           function:
             function_name:
               function_name_identifier: map_filter
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: map
-                  bracketed:
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: map
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          typed_array_literal:
+                            array_type:
+                              keyword: ARRAY
+                            array_literal:
+                            - start_square_bracket: '['
+                            - numeric_literal: '10'
+                            - comma: ','
+                            - numeric_literal: '20'
+                            - comma: ','
+                            - numeric_literal: '30'
+                            - end_square_bracket: ']'
+                      - comma: ','
+                      - expression:
+                          typed_array_literal:
+                            array_type:
+                              keyword: ARRAY
+                            array_literal:
+                            - start_square_bracket: '['
+                            - quoted_literal: "'a'"
+                            - comma: ','
+                            - null_literal: 'null'
+                            - comma: ','
+                            - quoted_literal: "'c'"
+                            - end_square_bracket: ']'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - bracketed:
                   - start_bracket: (
-                  - expression:
-                      typed_array_literal:
-                        array_type:
-                          keyword: ARRAY
-                        array_literal:
-                        - start_square_bracket: '['
-                        - numeric_literal: '10'
-                        - comma: ','
-                        - numeric_literal: '20'
-                        - comma: ','
-                        - numeric_literal: '30'
-                        - end_square_bracket: ']'
+                  - column_reference:
+                      naked_identifier: k
                   - comma: ','
-                  - expression:
-                      typed_array_literal:
-                        array_type:
-                          keyword: ARRAY
-                        array_literal:
-                        - start_square_bracket: '['
-                        - quoted_literal: "'a'"
-                        - comma: ','
-                        - null_literal: 'null'
-                        - comma: ','
-                        - quoted_literal: "'c'"
-                        - end_square_bracket: ']'
+                  - column_reference:
+                      naked_identifier: v
                   - end_bracket: )
-            - comma: ','
-            - expression:
-              - bracketed:
-                - start_bracket: (
-                - column_reference:
-                    naked_identifier: k
-                - comma: ','
+                - binary_operator: ->
                 - column_reference:
                     naked_identifier: v
-                - end_bracket: )
-              - binary_operator: ->
-              - column_reference:
-                  naked_identifier: v
-              - keyword: IS
-              - keyword: NOT
-              - null_literal: 'NULL'
-            - end_bracket: )
+                - keyword: IS
+                - keyword: NOT
+                - null_literal: 'NULL'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -192,55 +198,57 @@ file:
           function:
             function_name:
               function_name_identifier: map_filter
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: map
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: map
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          typed_array_literal:
+                            array_type:
+                              keyword: ARRAY
+                            array_literal:
+                            - start_square_bracket: '['
+                            - quoted_literal: "'k1'"
+                            - comma: ','
+                            - quoted_literal: "'k2'"
+                            - comma: ','
+                            - quoted_literal: "'k3'"
+                            - end_square_bracket: ']'
+                      - comma: ','
+                      - expression:
+                          typed_array_literal:
+                            array_type:
+                              keyword: ARRAY
+                            array_literal:
+                            - start_square_bracket: '['
+                            - numeric_literal: '20'
+                            - comma: ','
+                            - numeric_literal: '3'
+                            - comma: ','
+                            - numeric_literal: '15'
+                            - end_square_bracket: ']'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
                   bracketed:
                   - start_bracket: (
-                  - expression:
-                      typed_array_literal:
-                        array_type:
-                          keyword: ARRAY
-                        array_literal:
-                        - start_square_bracket: '['
-                        - quoted_literal: "'k1'"
-                        - comma: ','
-                        - quoted_literal: "'k2'"
-                        - comma: ','
-                        - quoted_literal: "'k3'"
-                        - end_square_bracket: ']'
+                  - column_reference:
+                      naked_identifier: k
                   - comma: ','
-                  - expression:
-                      typed_array_literal:
-                        array_type:
-                          keyword: ARRAY
-                        array_literal:
-                        - start_square_bracket: '['
-                        - numeric_literal: '20'
-                        - comma: ','
-                        - numeric_literal: '3'
-                        - comma: ','
-                        - numeric_literal: '15'
-                        - end_square_bracket: ']'
+                  - column_reference:
+                      naked_identifier: v
                   - end_bracket: )
-            - comma: ','
-            - expression:
-                bracketed:
-                - start_bracket: (
-                - column_reference:
-                    naked_identifier: k
-                - comma: ','
-                - column_reference:
+                  binary_operator: ->
+                  column_reference:
                     naked_identifier: v
-                - end_bracket: )
-                binary_operator: ->
-                column_reference:
-                  naked_identifier: v
-                comparison_operator:
-                  raw_comparison_operator: '>'
-                numeric_literal: '10'
-            - end_bracket: )
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  numeric_literal: '10'
+              - end_bracket: )
 - statement_terminator: ;

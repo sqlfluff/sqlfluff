@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 93b8eab28bc8d020bec2090f2622efa53b1c4cad87bbeff2761cac9025a40f78
+_hash: ec3dc1fe9c14c409f2080b419858302d1d5431a0e6bb8b82f2d380d72ae9cf4d
 file:
 - statement:
     values_clause:
@@ -65,27 +65,29 @@ file:
           function:
             function_name:
               function_name_identifier: greatest
-            bracketed:
-            - start_bracket: (
-            - expression:
-                numeric_literal: '5'
-            - comma: ','
-            - expression:
-                numeric_literal: '6'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '5'
+              - comma: ','
+              - expression:
+                  numeric_literal: '6'
+              - end_bracket: )
       - comma: ','
       - expression:
           function:
             function_name:
               function_name_identifier: least
-            bracketed:
-            - start_bracket: (
-            - expression:
-                numeric_literal: '7'
-            - comma: ','
-            - expression:
-                numeric_literal: '8'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '7'
+              - comma: ','
+              - expression:
+                  numeric_literal: '8'
+              - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:

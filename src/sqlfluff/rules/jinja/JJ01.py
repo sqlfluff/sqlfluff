@@ -127,9 +127,12 @@ class Rule_JJ01(BaseRule):
 
         # We also only work with setups which use the jinja templater
         # or a derivative of that. Otherwise return empty.
-        _templater = context.config.get("templater_obj")
-        if not isinstance(_templater, JinjaTemplater):
-            self.logger.debug(f"Detected non-jinja templater: {_templater}")
+        # NOTE: The `templater_obj` is not available in parallel operations
+        # and we don't really want to rehydrate a templater just to check
+        # what type it is, so use `get_templater_class()`.
+        _templater_class = context.config.get_templater_class()
+        if not issubclass(_templater_class, JinjaTemplater):
+            self.logger.debug(f"Detected non-jinja templater: {_templater_class.name}")
             return []
 
         results = []

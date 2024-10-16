@@ -194,3 +194,9 @@ MERGE INTO Production.ProductInventory WITH (ROWLOCK, INDEX(myindex, myindex2)) 
     OUTPUT $action, Inserted.ProductID, Inserted.LocationID,
         Inserted.Quantity AS NewQty, Deleted.Quantity AS PreviousQty;
 GO
+
+MERGE INTO dbo.target
+USING  (	SELECT 1 AS i	) AS source
+ON source.i = target.i
+WHEN MATCHED
+THEN  UPDATE SET target.i = source.i;

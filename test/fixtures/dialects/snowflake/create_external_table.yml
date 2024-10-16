@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3fd9d3efb6620e03f0d42e0aac7b4cd42ebb5bbb57618ecf0729e9c12557f981
+_hash: d7f125183a06e5dd101887af97594d6c8e23f4793108c4feea0eda167a37ec92
 file:
 - statement:
     create_external_table_statement:
@@ -90,22 +90,23 @@ file:
           function:
             function_name:
               function_name_identifier: try_cast
-            bracketed:
-              start_bracket: (
-              expression:
-                cast_expression:
-                  column_reference:
-                    naked_identifier: VALUE
-                  semi_structured_expression:
-                    colon: ':'
-                    semi_structured_element: c1
-                  casting_operator: '::'
-                  data_type:
-                    data_type_identifier: varchar
-              keyword: as
-              data_type:
-                data_type_identifier: integer
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c1
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: integer
+                end_bracket: )
       - keyword: not
       - keyword: 'null'
       - comma: ','
@@ -117,22 +118,23 @@ file:
           function:
             function_name:
               function_name_identifier: try_cast
-            bracketed:
-              start_bracket: (
-              expression:
-                cast_expression:
-                  column_reference:
-                    naked_identifier: VALUE
-                  semi_structured_expression:
-                    colon: ':'
-                    semi_structured_element: c2
-                  casting_operator: '::'
-                  data_type:
-                    data_type_identifier: varchar
-              keyword: as
-              data_type:
-                keyword: timestamp
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c2
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  keyword: timestamp
+                end_bracket: )
       - comma: ','
       - naked_identifier: stoptime
       - data_type:
@@ -142,22 +144,23 @@ file:
           function:
             function_name:
               function_name_identifier: try_cast
-            bracketed:
-              start_bracket: (
-              expression:
-                cast_expression:
-                  column_reference:
-                    naked_identifier: VALUE
-                  semi_structured_expression:
-                    colon: ':'
-                    semi_structured_element: c3
-                  casting_operator: '::'
-                  data_type:
-                    data_type_identifier: varchar
-              keyword: as
-              data_type:
-                keyword: timestamp
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c3
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  keyword: timestamp
+                end_bracket: )
       - comma: ','
       - naked_identifier: start_station_id
       - data_type:
@@ -167,22 +170,23 @@ file:
           function:
             function_name:
               function_name_identifier: try_cast
-            bracketed:
-              start_bracket: (
-              expression:
-                cast_expression:
-                  column_reference:
-                    naked_identifier: VALUE
-                  semi_structured_expression:
-                    colon: ':'
-                    semi_structured_element: c4
-                  casting_operator: '::'
-                  data_type:
-                    data_type_identifier: varchar
-              keyword: as
-              data_type:
-                data_type_identifier: integer
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c4
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: integer
+                end_bracket: )
       - keyword: 'null'
       - comma: ','
       - naked_identifier: start_station_name
@@ -211,22 +215,23 @@ file:
           function:
             function_name:
               function_name_identifier: try_cast
-            bracketed:
-              start_bracket: (
-              expression:
-                cast_expression:
-                  column_reference:
-                    naked_identifier: VALUE
-                  semi_structured_expression:
-                    colon: ':'
-                    semi_structured_element: c6
-                  casting_operator: '::'
-                  data_type:
-                    data_type_identifier: varchar
-              keyword: as
-              data_type:
-                data_type_identifier: float
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c6
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: float
+                end_bracket: )
       - comma: ','
       - naked_identifier: start_station_longitude
       - data_type:
@@ -236,22 +241,23 @@ file:
           function:
             function_name:
               function_name_identifier: try_cast
-            bracketed:
-              start_bracket: (
-              expression:
-                cast_expression:
-                  column_reference:
-                    naked_identifier: VALUE
-                  semi_structured_expression:
-                    colon: ':'
-                    semi_structured_element: c7
-                  casting_operator: '::'
-                  data_type:
-                    data_type_identifier: varchar
-              keyword: as
-              data_type:
-                data_type_identifier: float
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c7
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: float
+                end_bracket: )
       - comma: ','
       - naked_identifier: end_station_id
       - data_type:
@@ -261,22 +267,23 @@ file:
           function:
             function_name:
               function_name_identifier: try_cast
-            bracketed:
-              start_bracket: (
-              expression:
-                cast_expression:
-                  column_reference:
-                    naked_identifier: VALUE
-                  semi_structured_expression:
-                    colon: ':'
-                    semi_structured_element: c8
-                  casting_operator: '::'
-                  data_type:
-                    data_type_identifier: varchar
-              keyword: as
-              data_type:
-                data_type_identifier: integer
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c8
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: integer
+                end_bracket: )
       - comma: ','
       - naked_identifier: end_station_name
       - data_type:
@@ -304,22 +311,23 @@ file:
           function:
             function_name:
               function_name_identifier: try_cast
-            bracketed:
-              start_bracket: (
-              expression:
-                cast_expression:
-                  column_reference:
-                    naked_identifier: VALUE
-                  semi_structured_expression:
-                    colon: ':'
-                    semi_structured_element: c10
-                  casting_operator: '::'
-                  data_type:
-                    data_type_identifier: varchar
-              keyword: as
-              data_type:
-                data_type_identifier: float
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c10
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: float
+                end_bracket: )
       - comma: ','
       - naked_identifier: end_station_longitude
       - data_type:
@@ -329,22 +337,23 @@ file:
           function:
             function_name:
               function_name_identifier: try_cast
-            bracketed:
-              start_bracket: (
-              expression:
-                cast_expression:
-                  column_reference:
-                    naked_identifier: VALUE
-                  semi_structured_expression:
-                    colon: ':'
-                    semi_structured_element: c11
-                  casting_operator: '::'
-                  data_type:
-                    data_type_identifier: varchar
-              keyword: as
-              data_type:
-                data_type_identifier: float
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c11
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: float
+                end_bracket: )
       - comma: ','
       - naked_identifier: bikeid
       - data_type:
@@ -354,22 +363,23 @@ file:
           function:
             function_name:
               function_name_identifier: try_cast
-            bracketed:
-              start_bracket: (
-              expression:
-                cast_expression:
-                  column_reference:
-                    naked_identifier: VALUE
-                  semi_structured_expression:
-                    colon: ':'
-                    semi_structured_element: c12
-                  casting_operator: '::'
-                  data_type:
-                    data_type_identifier: varchar
-              keyword: as
-              data_type:
-                data_type_identifier: integer
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c12
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: integer
+                end_bracket: )
       - comma: ','
       - naked_identifier: membership_type
       - data_type:
@@ -415,22 +425,23 @@ file:
           function:
             function_name:
               function_name_identifier: try_cast
-            bracketed:
-              start_bracket: (
-              expression:
-                cast_expression:
-                  column_reference:
-                    naked_identifier: VALUE
-                  semi_structured_expression:
-                    colon: ':'
-                    semi_structured_element: c15
-                  casting_operator: '::'
-                  data_type:
-                    data_type_identifier: varchar
-              keyword: as
-              data_type:
-                data_type_identifier: integer
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c15
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: integer
+                end_bracket: )
       - comma: ','
       - naked_identifier: gender
       - data_type:
@@ -440,22 +451,23 @@ file:
           function:
             function_name:
               function_name_identifier: try_cast
-            bracketed:
-              start_bracket: (
-              expression:
-                cast_expression:
-                  column_reference:
-                    naked_identifier: VALUE
-                  semi_structured_expression:
-                    colon: ':'
-                    semi_structured_element: c16
-                  casting_operator: '::'
-                  data_type:
-                    data_type_identifier: varchar
-              keyword: as
-              data_type:
-                data_type_identifier: integer
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c16
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: integer
+                end_bracket: )
       - comma: ','
       - naked_identifier: year
       - data_type:
@@ -468,18 +480,19 @@ file:
               function:
                 function_name:
                   function_name_identifier: substr
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    column_reference:
-                      naked_identifier: metadata$filename
-                - comma: ','
-                - expression:
-                    numeric_literal: '22'
-                - comma: ','
-                - expression:
-                    numeric_literal: '4'
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: metadata$filename
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '22'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '4'
+                  - end_bracket: )
               casting_operator: '::'
               data_type:
                 data_type_identifier: integer

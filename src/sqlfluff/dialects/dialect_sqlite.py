@@ -11,8 +11,10 @@ from sqlfluff.core.parser import (
     Bracketed,
     CodeSegment,
     CommentSegment,
+    Dedent,
     Delimited,
     IdentifierSegment,
+    Indent,
     LiteralSegment,
     Matchable,
     NewlineSegment,
@@ -37,7 +39,23 @@ from sqlfluff.dialects.dialect_sqlite_keywords import (
 
 ansi_dialect = load_raw_dialect("ansi")
 
-sqlite_dialect = ansi_dialect.copy_as("sqlite")
+sqlite_dialect = ansi_dialect.copy_as(
+    "sqlite",
+    formatted_name="SQLite",
+    docstring="""**Default Casing**: Not specified in the docs,
+but through testing it appears that SQLite *stores* column names
+in whatever case they were defined, but is always *case-insensitive*
+when resolving those names.
+
+**Quotes**: String Literals: ``''`` (or  ``""`` if not otherwise resolved
+to an identifier), Identifiers: ``""``, ``[]`` or |back_quotes|. See the
+`SQLite Keywords Docs`_ for more details.
+
+The dialect for `SQLite <https://www.sqlite.org/>`_.
+
+.. _`SQLite Keywords Docs`: https://sqlite.org/lang_keywords.html
+""",
+)
 
 sqlite_dialect.sets("reserved_keywords").clear()
 sqlite_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
@@ -315,6 +333,19 @@ sqlite_dialect.replace(
             ),
         ),
         Ref("IndexColumnDefinitionSegment"),
+        # Raise Function contents
+        OneOf(
+            "IGNORE",
+            Sequence(
+                OneOf(
+                    "ABORT",
+                    "FAIL",
+                    "ROLLBACK",
+                ),
+                Ref("CommaSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
     ),
     # NOTE: This block was copy/pasted from dialect_ansi.py with these changes made:
     #  - "PRIOR" keyword removed from Expression_A_Unary_Operator_Grammar
@@ -569,6 +600,7 @@ class ReturningClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "RETURNING",
+        Indent,
         Delimited(
             Ref("WildcardExpressionSegment"),
             Sequence(
@@ -576,6 +608,7 @@ class ReturningClauseSegment(BaseSegment):
                 Ref("AliasExpressionSegment", optional=True),
             ),
         ),
+        Dedent,
     )
 
 
@@ -757,6 +790,7 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
                 "UNIQUE",
                 Ref("BracketedColumnReferenceListGrammar"),
                 # Later add support for index_parameters?
+                Ref("ConflictClauseSegment", optional=True),
             ),
             Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
                 Ref("PrimaryKeyGrammar"),
@@ -880,7 +914,7 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
         "ON",
         Ref("TableReferenceSegment"),
         Sequence("FOR", "EACH", "ROW", optional=True),
-        Sequence("WHEN", Bracketed(Ref("ExpressionSegment")), optional=True),
+        Sequence("WHEN", OptionallyBracketed(Ref("ExpressionSegment")), optional=True),
         "BEGIN",
         Delimited(
             Ref("UpdateStatementSegment"),
@@ -969,9 +1003,12 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
             ),
             optional=True,
         ),
+        Indent,
         Ref("TableReferenceSegment"),
         Ref("AliasExpressionSegment", optional=True),
+        Dedent,
         "SET",
+        Indent,
         Delimited(
             Sequence(
                 OneOf(
@@ -982,6 +1019,7 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
                 Ref("ExpressionSegment"),
             ),
         ),
+        Dedent,
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("ReturningClauseSegment", optional=True),
@@ -1004,6 +1042,15 @@ class SelectStatementSegment(BaseSegment):
             Ref("NamedWindowSegment", optional=True),
         ]
     )
+
+
+class GroupingSetsClauseSegment(ansi.GroupingSetsClauseSegment):
+    """`GROUPING SETS` clause within the `GROUP BY` clause.
+
+    This is `Nothing` for SQLite.
+    """
+
+    match_grammar = Nothing()
 
 
 class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8fab8176123d3063d83e53cc60e50bb312fc5eaeaac89cb9c50d73489f4635d5
+_hash: 51d346a915d0f87f6d66889eb8169b3d44ac5f87f62588a851beb4fca8e6c52b
 file:
 - statement:
     create_table_statement:
@@ -56,22 +56,23 @@ file:
             data_type_identifier: DateTime32
       - end_bracket: )
     - engine:
-      - keyword: ENGINE
-      - comparison_operator:
+        keyword: ENGINE
+        comparison_operator:
           raw_comparison_operator: '='
-      - table_engine_function:
+        table_engine_function:
           function_name:
             function_name_identifier: MergeTree
-      - keyword: ORDER
-      - keyword: BY
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-            naked_identifier: ty
-        - comma: ','
-        - column_reference:
-            naked_identifier: t2
-        - end_bracket: )
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: ty
+          - comma: ','
+          - column_reference:
+              naked_identifier: t2
+          - end_bracket: )
     - table_ttl_segment:
         keyword: TTL
         expression:

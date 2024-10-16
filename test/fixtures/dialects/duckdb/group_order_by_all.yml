@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1759b9c4960a1ff609b7537b411d431eb154305019b3a6bd720485c6343871d4
+_hash: f8a43f0a13569e849958bf2bced90a8f0fdfddebf945c36152fb90a797306eaf
 file:
 - statement:
     select_statement:
@@ -29,15 +29,16 @@ file:
           function:
             function_name:
               function_name_identifier: SUM
-            bracketed:
-              start_bracket: (
-              expression:
-              - column_reference:
-                  naked_identifier: scum
-              - binary_operator: +
-              - column_reference:
-                  naked_identifier: villainy
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                - column_reference:
+                    naked_identifier: scum
+                - binary_operator: +
+                - column_reference:
+                    naked_identifier: villainy
+                end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: total_scum_and_villainy
@@ -82,15 +83,16 @@ file:
           function:
             function_name:
               function_name_identifier: SUM
-            bracketed:
-              start_bracket: (
-              expression:
-              - column_reference:
-                  naked_identifier: scum
-              - binary_operator: +
-              - column_reference:
-                  naked_identifier: villainy
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                - column_reference:
+                    naked_identifier: scum
+                - binary_operator: +
+                - column_reference:
+                    naked_identifier: villainy
+                end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: total_scum_and_villainy
@@ -118,12 +120,13 @@ file:
           function:
             function_name:
               function_name_identifier: sum
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: civility
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: civility
+                end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: total_civility

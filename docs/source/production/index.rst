@@ -12,7 +12,6 @@ be part of `CI/CD`_ pipelines.
    :maxdepth: 2
 
    security
-   teamrollout
    cli_use
    diff_quality
    pre_commit

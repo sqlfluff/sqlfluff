@@ -26,10 +26,22 @@ def findall(substr: str, in_str: str) -> Iterator[int]:
 
 
 def split_colon_separated_string(in_str: str) -> Tuple[Tuple[str, ...], str]:
-    """Converts a colon separated string.
+    r"""Converts a colon separated string.
+
+    The final value in the string is handled separately the other others.
+    >>> split_colon_separated_string("a:b")
+    (('a',), 'b')
+    >>> split_colon_separated_string("a:b:c")
+    (('a', 'b'), 'c')
+    >>> split_colon_separated_string("a:b:c:d")
+    (('a', 'b', 'c'), 'd')
+    >>> split_colon_separated_string("a")
+    ((), 'a')
 
     NOTE: This also includes some provisions for values which may be
     Windows paths containing colons and NOT stripping those.
+    >>> split_colon_separated_string("foo:bar:C:\\Users")
+    (('foo', 'bar'), 'C:\\Users')
     """
     config_path: List[str] = []
     for element in in_str.split(":"):
@@ -57,3 +69,36 @@ def split_comma_separated_string(raw: Union[str, List[str]]) -> List[str]:
         return [s.strip() for s in raw.split(",") if s.strip()]
     assert isinstance(raw, list)
     return raw
+
+
+def get_trailing_whitespace_from_string(in_str: str) -> str:
+    r"""Returns the trailing whitespace from a string.
+
+    Designed to work with source strings of placeholders.
+
+    >>> get_trailing_whitespace_from_string("")
+    ''
+    >>> get_trailing_whitespace_from_string("foo")
+    ''
+    >>> get_trailing_whitespace_from_string("   ")
+    '   '
+    >>> get_trailing_whitespace_from_string("  foo ")
+    ' '
+    >>> get_trailing_whitespace_from_string("foo\n")
+    '\n'
+    >>> get_trailing_whitespace_from_string("bar  \t  \n  \r ")
+    '  \t  \n  \r '
+    """
+    whitespace_chars = " \t\r\n"
+    if not in_str or in_str[-1] not in whitespace_chars:
+        return ""  # No whitespace
+    for i in range(1, len(in_str)):
+        if in_str[-(i + 1)] not in whitespace_chars:
+            # NOTE: The partial whitespace case is included as
+            # future-proofing. In testing it appears it is never
+            # required, and so only covered in the doctests above.
+            # doctest coverage isn't included in the overall coverage
+            # check and so the line below is excluded.
+            return in_str[-i:]  # pragma: no cover
+    else:
+        return in_str  # All whitespace

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a6fb7fabf3e33524cd99938920ae8641cac9c8140dec8551a6e5496327f9db51
+_hash: 9be9329970aa32642d4134062d883fe52b0699e418b88ab997ade442859f8585
 file:
 - statement:
     with_compound_statement:
@@ -27,11 +27,12 @@ file:
                   function:
                     function_name:
                       function_name_identifier: json_parse
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        quoted_literal: "'[1, 2]'"
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'[1, 2]'"
+                        end_bracket: )
                   alias_expression:
                     keyword: AS
                     naked_identifier: inventory
@@ -51,11 +52,12 @@ file:
                   function:
                     function_name:
                       function_name_identifier: json_parse
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        quoted_literal: "'[3, 4, 5]'"
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'[3, 4, 5]'"
+                        end_bracket: )
                   alias_expression:
                     keyword: AS
                     naked_identifier: inventory
@@ -75,11 +77,12 @@ file:
                   function:
                     function_name:
                       function_name_identifier: json_parse
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        quoted_literal: "'[6, 7, 8, 9]'"
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'[6, 7, 8, 9]'"
+                        end_bracket: )
                   alias_expression:
                     keyword: AS
                     naked_identifier: inventory
@@ -214,15 +217,16 @@ file:
                   function:
                     function_name:
                       function_name_identifier: MOD
-                    bracketed:
-                    - start_bracket: (
-                    - expression:
-                        column_reference:
-                          naked_identifier: idx
-                    - comma: ','
-                    - expression:
-                        numeric_literal: '3'
-                    - end_bracket: )
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: idx
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '3'
+                      - end_bracket: )
                   binary_operator: +
                   numeric_literal: '1'
                 end_square_bracket: ']'

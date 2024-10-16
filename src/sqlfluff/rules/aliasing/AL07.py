@@ -33,7 +33,7 @@ class Rule_AL07(BaseRule):
        neither realistic nor desirable. In particular for BigQuery due to the
        complexity of backtick requirements and determining whether a name refers
        to a project or dataset so automated fixes can potentially break working
-       SQL code. For most users :class:`Rule_AL06` is likely a more appropriate
+       SQL code. For most users :sqlfluff:ref:`AL06` is likely a more appropriate
        linting rule to drive a sensible behaviour around aliasing.
 
        The stricter treatment of aliases in this rule may be useful for more

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aa70ac109a77bef6e01f8fba80b5c7474d2fd192720d43719d24f668ff025471
+_hash: 3a7d5b90e23f8cfe49dd3e20dc30d058edb9ec6ac5fe0ad3ee930658a72543f5
 file:
 - statement:
     select_statement:
@@ -158,19 +158,20 @@ file:
           function:
             function_name:
               function_name_identifier: COALESCE
-            bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                  naked_identifier: family
-              - keyword: LIKE
-              - quoted_literal: "'%ursidae%'"
-              - keyword: ESCAPE
-              - quoted_literal: "'\\\\'"
-            - comma: ','
-            - expression:
-                boolean_literal: 'FALSE'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                    naked_identifier: family
+                - keyword: LIKE
+                - quoted_literal: "'%ursidae%'"
+                - keyword: ESCAPE
+                - quoted_literal: "'\\\\'"
+              - comma: ','
+              - expression:
+                  boolean_literal: 'FALSE'
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: is_bear
@@ -341,20 +342,21 @@ file:
           function:
             function_name:
               function_name_identifier: COALESCE
-            bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                  naked_identifier: family
-              - keyword: SIMILAR
-              - keyword: TO
-              - quoted_literal: "'%ursidae%'"
-              - keyword: ESCAPE
-              - quoted_literal: "'\\\\'"
-            - comma: ','
-            - expression:
-                boolean_literal: 'FALSE'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                    naked_identifier: family
+                - keyword: SIMILAR
+                - keyword: TO
+                - quoted_literal: "'%ursidae%'"
+                - keyword: ESCAPE
+                - quoted_literal: "'\\\\'"
+              - comma: ','
+              - expression:
+                  boolean_literal: 'FALSE'
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: is_bear
@@ -385,32 +387,33 @@ file:
                 function:
                   function_name:
                     function_name_identifier: TO_NUMBER
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      case_expression:
-                      - keyword: CASE
-                      - when_clause:
-                        - keyword: WHEN
-                        - expression:
-                          - column_reference:
-                              naked_identifier: honey_numerical_code
-                          - keyword: SIMILAR
-                          - keyword: TO
-                          - quoted_literal: "'[0-9]{0,7}.?[0-9]{0,2}'"
-                        - keyword: THEN
-                        - expression:
-                            column_reference:
-                              naked_identifier: honey_numerical_code
-                      - else_clause:
-                          keyword: ELSE
-                          expression:
-                            null_literal: 'NULL'
-                      - keyword: END
-                  - comma: ','
-                  - expression:
-                      quoted_literal: "'24601'"
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        case_expression:
+                        - keyword: CASE
+                        - when_clause:
+                          - keyword: WHEN
+                          - expression:
+                            - column_reference:
+                                naked_identifier: honey_numerical_code
+                            - keyword: SIMILAR
+                            - keyword: TO
+                            - quoted_literal: "'[0-9]{0,7}.?[0-9]{0,2}'"
+                          - keyword: THEN
+                          - expression:
+                              column_reference:
+                                naked_identifier: honey_numerical_code
+                        - else_clause:
+                            keyword: ELSE
+                            expression:
+                              null_literal: 'NULL'
+                        - keyword: END
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'24601'"
+                    - end_bracket: )
                 alias_expression:
                   keyword: AS
                   naked_identifier: honey_numerical_code

@@ -70,3 +70,14 @@ copy into mytable1 (column1)
 copy into mytable1 (column1)
     from @public.stage/subfolder/
     file_format = (TYPE = JSON);
+
+COPY INTO table1 FROM @stage1
+MATCH_BY_COLUMN_NAME = CASE_INSENSITIVE
+INCLUDE_METADATA = (
+    ingestdate = METADATA$START_SCAN_TIME, filename = METADATA$FILENAME);
+
+COPY INTO table1 FROM @stage1
+MATCH_BY_COLUMN_NAME = CASE_INSENSITIVE
+FILE_FORMAT = (TYPE = JSON)
+INCLUDE_METADATA = (
+    ingestdate = METADATA$START_SCAN_TIME, filename = METADATA$FILENAME);

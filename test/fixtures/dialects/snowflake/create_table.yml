@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 09ce4465cc81752ef2cc8eba0e1c3de1f2359fdf047a71d44494499f5fb5cc93
+_hash: 74de85b93e5227b9ab1271d01a558b6ca2e844a1d05659c33297c0d5e51b08a9
 file:
 - statement:
     create_table_statement:
@@ -110,12 +110,13 @@ file:
     - function:
         function_name:
           function_name_identifier: LINEAR
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: amount
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: amount
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -150,12 +151,13 @@ file:
     - function:
         function_name:
           function_name_identifier: LINEAR
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: amount
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: amount
+            end_bracket: )
     - bracketed:
         start_bracket: (
         column_definition:
@@ -601,17 +603,19 @@ file:
               function:
                 function_name:
                   function_name_identifier: array_agg
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    function:
-                      function_name:
-                        function_name_identifier: object_construct
-                      bracketed:
-                        start_bracket: (
-                        star: '*'
-                        end_bracket: )
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      function:
+                        function_name:
+                          function_name_identifier: object_construct
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            star: '*'
+                            end_bracket: )
+                    end_bracket: )
           from_clause:
             keyword: from
             from_expression:
@@ -620,25 +624,27 @@ file:
                   function:
                     function_name:
                       function_name_identifier: table
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        function:
-                          function_name:
-                            function_name_identifier: infer_schema
-                          bracketed:
-                          - start_bracket: (
-                          - snowflake_keyword_expression:
-                              parameter: location
-                              parameter_assigner: =>
-                              quoted_literal: "'@mystage'"
-                          - comma: ','
-                          - snowflake_keyword_expression:
-                              parameter: file_format
-                              parameter_assigner: =>
-                              quoted_literal: "'my_parquet_format'"
-                          - end_bracket: )
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          function:
+                            function_name:
+                              function_name_identifier: infer_schema
+                            function_contents:
+                              bracketed:
+                              - start_bracket: (
+                              - snowflake_keyword_expression:
+                                  parameter: location
+                                  parameter_assigner: =>
+                                  quoted_literal: "'@mystage'"
+                              - comma: ','
+                              - snowflake_keyword_expression:
+                                  parameter: file_format
+                                  parameter_assigner: =>
+                                  quoted_literal: "'my_parquet_format'"
+                              - end_bracket: )
+                        end_bracket: )
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -700,9 +706,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: CURRENT_TIMESTAMP
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
       - comma: ','
       - column_definition:
           naked_identifier: timestamp_col3
@@ -714,11 +721,12 @@ file:
               function:
                 function_name:
                   function_name_identifier: CURRENT_TIMESTAMP
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '2'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '2'
+                    end_bracket: )
       - comma: ','
       - column_definition:
           naked_identifier: sysdate_col4
@@ -730,9 +738,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: SYSDATE
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -998,7 +1007,7 @@ file:
     - keyword: TARGET_LAG
     - comparison_operator:
         raw_comparison_operator: '='
-    - quoted_literal: "'1 minute'"
+    - dynamic_table_lag_interval_segment: "'1 minute'"
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -1069,7 +1078,7 @@ file:
     - keyword: TARGET_LAG
     - comparison_operator:
         raw_comparison_operator: '='
-    - quoted_literal: "'1 minute'"
+    - dynamic_table_lag_interval_segment: "'1 minute'"
     - keyword: REFRESH_MODE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -1135,6 +1144,346 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: raw
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_DOWNSTREAM_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: DOWNSTREAM
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_DOWNSTREAM_QUOTED_LITERAL_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'DOWNSTREAM'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_SINGLE_SECOND_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'1 second'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_MULTIPLE_SECONDS_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'5 seconds'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_SINGLE_MINUTE_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'1 minute'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_MULTIPLE_MINUTES_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'5 minutes'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_SINGLE_HOUR_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'1 hour'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_MULTIPLE_HOURS_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'5 hours'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_SINGLE_DAY_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'1 day'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_MULTIPLE_DAYS_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'5 days'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -1221,4 +1570,191 @@ file:
           data_type:
             data_type_identifier: NUMBER
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TEMP
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+          - constraint_properties_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+            - keyword: ENABLE
+            - keyword: ENFORCED
+            - keyword: VALIDATE
+            - keyword: RELY
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: myschema
+      - dot: .
+      - naked_identifier: mytable
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        comma: ','
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: mytable_pk
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+        - keyword: NOT
+        - keyword: ENFORCED
+        - keyword: NOVALIDATE
+        - keyword: NORELY
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_schema
+      - dot: .
+      - naked_identifier: some_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: is_condition_true
+          data_type:
+            data_type_identifier: BOOLEAN
+      - comma: ','
+      - column_definition:
+          naked_identifier: some_text_value
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '100'
+                end_bracket: )
+      - comma: ','
+      - naked_identifier: some_event_date_time_utc
+      - data_type:
+          data_type_identifier: VARCHAR
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: TO_TIMESTAMP
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: SUBSTR
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                              naked_identifier: some_text_value
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '5'
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '13'
+                        - end_bracket: )
+                  end_bracket: )
+          end_bracket: )
+      - comma: ','
+      - naked_identifier: some_other_event_date_time_utc
+      - data_type:
+          keyword: TIMESTAMP
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: IFF
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                      naked_identifier: is_condition_true
+                  - binary_operator: AND
+                  - function:
+                      function_name:
+                        function_name_identifier: TRY_TO_NUMBER
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: some_text_value
+                          end_bracket: )
+                  - keyword: IS
+                  - keyword: NOT
+                  - null_literal: 'NULL'
+                - comma: ','
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: TO_TIMESTAMP
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            function:
+                              function_name:
+                                function_name_identifier: SUBSTR
+                              function_contents:
+                                bracketed:
+                                - start_bracket: (
+                                - expression:
+                                    column_reference:
+                                      naked_identifier: some_text_value
+                                - comma: ','
+                                - expression:
+                                    numeric_literal: '5'
+                                - comma: ','
+                                - expression:
+                                    numeric_literal: '13'
+                                - end_bracket: )
+                          end_bracket: )
+                - comma: ','
+                - expression:
+                    quoted_literal: "'1900-01-01'"
+                - end_bracket: )
+          end_bracket: )
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'The date and time of the other event'"
+      - end_bracket: )
 - statement_terminator: ;

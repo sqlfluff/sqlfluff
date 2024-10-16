@@ -8,6 +8,7 @@ from typing import (
     List,
     Optional,
     SupportsIndex,
+    Tuple,
     Union,
     overload,
 )
@@ -19,14 +20,16 @@ from sqlfluff.utils.functional.raw_file_slices import RawFileSlices
 PredicateType = Callable[[BaseSegment], bool]
 
 
-class Segments(tuple):
+class Segments(Tuple[BaseSegment, ...]):
     """Encapsulates a sequence of one or more BaseSegments.
 
     The segments may or may not be contiguous in a parse tree.
     Provides useful operations on a sequence of segments to simplify rule creation.
     """
 
-    def __new__(cls, *segments, templated_file=None):
+    def __new__(
+        cls, *segments: BaseSegment, templated_file: Optional[TemplatedFile] = None
+    ) -> "Segments":
         """Override new operator."""
         return super(Segments, cls).__new__(cls, segments)
 
@@ -176,7 +179,9 @@ class Segments(tuple):
         else:
             return result
 
-    def get(self, index: int = 0, *, default: Any = None) -> Optional[BaseSegment]:
+    def get(
+        self, index: int = 0, *, default: Optional[BaseSegment] = None
+    ) -> Optional[BaseSegment]:
         """Return specified item. Returns default if index out of range."""
         try:
             return self[index]

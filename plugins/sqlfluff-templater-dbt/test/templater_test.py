@@ -4,6 +4,7 @@ import glob
 import json
 import logging
 import os
+import pickle
 import shutil
 import subprocess
 from copy import deepcopy
@@ -435,14 +436,15 @@ def test__templater_dbt_templating_absolute_path(
 
 
 @pytest.mark.parametrize(
-    "fname,exception_msg",
+    "fname,exception_msg,exception_class",
     [
         (
             "compiler_error.sql",
-            "dbt compilation error on file 'models/my_new_project/compiler_error.sql'"
-            ", Unexpected end of template. Jinja was looking for the following tags:"
-            " 'endfor' or 'else'. The innermost block that needs to be closed is "
-            "'for'.\n  line 5\n    {{ col }}",
+            "Compilation Error in model compiler_error "
+            "(models/my_new_project/compiler_error.sql)\n  "
+            "Unexpected end of template. Jinja was looking for the following tags: "
+            "'endfor' or 'else'.",
+            SQLFluffUserError,
         ),
         (
             "unknown_ref.sql",
@@ -450,6 +452,7 @@ def test__templater_dbt_templating_absolute_path(
             "Model 'model.my_new_project.unknown_ref' "
             "(models/my_new_project/unknown_ref.sql) depends on a node named "
             "'i_do_not_exist' which was not found",
+            SQLFluffUserError,
         ),
         (
             "unknown_macro.sql",
@@ -457,6 +460,15 @@ def test__templater_dbt_templating_absolute_path(
             "Compilation Error in model unknown_macro "
             "(models/my_new_project/unknown_macro.sql)\n  'invalid_macro' is "
             "undefined. This can happen when calling a macro that does not exist.",
+            SQLTemplaterError,
+        ),
+        (
+            "compile_missing_table.sql",
+            # In the test suite we don't get a very helpful error message from dbt
+            # but in live testing, the inclusion of the triggering error sometimes
+            # gives us something much more useful.
+            "because dbt raised a fatal exception during compilation",
+            SQLFluffSkipFile,
         ),
     ],
 )
@@ -467,6 +479,7 @@ def test__templater_dbt_handle_exceptions(
     dbt_project_folder,
     fname,
     exception_msg,
+    exception_class,
 ):
     """Test that exceptions during compilation are returned as violation."""
     from dbt.adapters.factory import get_adapter
@@ -479,7 +492,7 @@ def test__templater_dbt_handle_exceptions(
     # as dbt throws an error if a node fails to parse while computing the DAG
     shutil.move(src_fpath, target_fpath)
     try:
-        with pytest.raises(SQLTemplaterError) as excinfo:
+        with pytest.raises(exception_class) as excinfo:
             dbt_templater.process(
                 in_str="",
                 fname=target_fpath,
@@ -490,8 +503,31 @@ def test__templater_dbt_handle_exceptions(
     finally:
         shutil.move(target_fpath, src_fpath)
         get_adapter(dbt_templater.dbt_config).connections.release()
+
+    # Debug logging.
+    print("Raised:", excinfo.value)
+    for trace in excinfo.traceback:
+        print(trace)
+
     # NB: Replace slashes to deal with different platform paths being returned.
-    assert exception_msg in excinfo.value.desc().replace("\\", "/")
+    if exception_class is SQLTemplaterError:
+        _msg = excinfo.value.desc().replace("\\", "/")
+    else:
+        _msg = str(excinfo.value).replace("\\", "/")
+    assert exception_msg in _msg
+    # Ensure that there's no context parent exception, because they don't pickle well.
+    # https://github.com/sqlfluff/sqlfluff/issues/6037
+    # We *should* be stripping any inherited exceptions from anything returned here.
+    # Any residual dbt exceptions are a risk for pickling errors.
+    assert not excinfo.value.__context__
+    assert not excinfo.value.__cause__
+    # We also ensure that the exception can be pickled and unpickled safely.
+    # Pickling of exceptions happens during parallel operation and so if it can't
+    # be done safely then that will cause bugs.
+    pickled_exception = pickle.dumps(excinfo.value)
+    roundtrip_exception = pickle.loads(pickled_exception)
+    assert isinstance(roundtrip_exception, type(excinfo.value))
+    assert str(roundtrip_exception) == str(excinfo.value)
 
 
 @mock.patch("dbt.adapters.postgres.impl.PostgresAdapter.set_relations_cache")
@@ -550,11 +586,8 @@ def test__templater_dbt_handle_database_connection_failure(
         shutil.move(target_fpath, src_fpath)
         get_adapter(dbt_templater.dbt_config).connections.release()
     # NB: Replace slashes to deal with different platform paths being returned.
-    assert (
-        excinfo.value.desc()
-        .replace("\\", "/")
-        .startswith("dbt tried to connect to the database")
-    )
+    error_message = excinfo.value.desc().replace("\\", "/")
+    assert "dbt tried to connect to the database" in error_message
 
 
 def test__project_dir_does_not_exist_error(dbt_templater):

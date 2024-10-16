@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c0f080db908906d750c6204125990b52d6d37b21bd173359fcf77ee795356633
+_hash: 2308f7f492730cf964ffdb3b20dade075a9fedd8d2ec39e791dbadcb439e3316
 file:
 - statement:
     declare_segment:
@@ -254,9 +254,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: RAND
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
               comparison_operator:
                 raw_comparison_operator: <
               numeric_literal: '0.5'
@@ -317,23 +318,25 @@ file:
           function:
             function_name:
               function_name_identifier: CONCAT
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: CAST
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: heads_count
-                    keyword: AS
-                    data_type:
-                      data_type_identifier: STRING
-                    end_bracket: )
-            - comma: ','
-            - expression:
-                quoted_literal: "' heads in a row'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: CAST
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: heads_count
+                        keyword: AS
+                        data_type:
+                          data_type_identifier: STRING
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  quoted_literal: "' heads in a row'"
+              - end_bracket: )
 - statement_terminator: ;

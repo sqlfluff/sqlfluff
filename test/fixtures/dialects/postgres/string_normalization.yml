@@ -1,0 +1,653 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4ec62be0fe156066c9e6457c974676baa77581602dab7972e462bd68f2f1beef
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: test_column
+              - keyword: IS
+              - keyword: NORMALIZED
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: is_normalized
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: test_column
+              - keyword: IS
+              - keyword: NFC
+              - keyword: NORMALIZED
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: is_normalized
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: test_column
+              - keyword: IS
+              - keyword: NFD
+              - keyword: NORMALIZED
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: is_normalized
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: test_column
+              - keyword: IS
+              - keyword: NFKC
+              - keyword: NORMALIZED
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: is_normalized
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: test_column
+              - keyword: IS
+              - keyword: NFKD
+              - keyword: NORMALIZED
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: is_normalized
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: test_column
+              - keyword: IS
+              - keyword: NOT
+              - keyword: NORMALIZED
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: is_normalized
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: test_column
+              - keyword: IS
+              - keyword: NOT
+              - keyword: NFC
+              - keyword: NORMALIZED
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: is_normalized
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: test_column
+              - keyword: IS
+              - keyword: NOT
+              - keyword: NFD
+              - keyword: NORMALIZED
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: is_normalized
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: test_column
+              - keyword: IS
+              - keyword: NOT
+              - keyword: NFKC
+              - keyword: NORMALIZED
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: is_normalized
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: test_column
+              - keyword: IS
+              - keyword: NOT
+              - keyword: NFKD
+              - keyword: NORMALIZED
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: is_normalized
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    create_domain_statement:
+    - keyword: CREATE
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: text_default
+    - keyword: AS
+    - data_type:
+        keyword: TEXT
+    - keyword: CHECK
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: VALUE
+          - keyword: IS
+          - keyword: NORMALIZED
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_domain_statement:
+    - keyword: CREATE
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: text_nfc
+    - keyword: AS
+    - data_type:
+        keyword: TEXT
+    - keyword: CHECK
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: VALUE
+          - keyword: IS
+          - keyword: NFC
+          - keyword: NORMALIZED
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_domain_statement:
+    - keyword: CREATE
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: text_nfd
+    - keyword: AS
+    - data_type:
+        keyword: TEXT
+    - keyword: CHECK
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: VALUE
+          - keyword: IS
+          - keyword: NFD
+          - keyword: NORMALIZED
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_domain_statement:
+    - keyword: CREATE
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: text_nfkc
+    - keyword: AS
+    - data_type:
+        keyword: TEXT
+    - keyword: CHECK
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: VALUE
+          - keyword: IS
+          - keyword: NFKC
+          - keyword: NORMALIZED
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_domain_statement:
+    - keyword: CREATE
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: text_nfkd
+    - keyword: AS
+    - data_type:
+        keyword: TEXT
+    - keyword: CHECK
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: VALUE
+          - keyword: IS
+          - keyword: NFKD
+          - keyword: NORMALIZED
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_domain_statement:
+    - keyword: CREATE
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: text_default
+    - keyword: AS
+    - data_type:
+        keyword: TEXT
+    - keyword: CHECK
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: VALUE
+          - keyword: IS
+          - keyword: NOT
+          - keyword: normalized
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_domain_statement:
+    - keyword: CREATE
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: text_nfc
+    - keyword: AS
+    - data_type:
+        keyword: TEXT
+    - keyword: CHECK
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: VALUE
+          - keyword: IS
+          - keyword: NOT
+          - keyword: NFC
+          - keyword: NORMALIZED
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_domain_statement:
+    - keyword: CREATE
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: text_nfd
+    - keyword: AS
+    - data_type:
+        keyword: TEXT
+    - keyword: CHECK
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: VALUE
+          - keyword: IS
+          - keyword: NOT
+          - keyword: NFD
+          - keyword: NORMALIZED
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_domain_statement:
+    - keyword: CREATE
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: text_nfkc
+    - keyword: AS
+    - data_type:
+        keyword: TEXT
+    - keyword: CHECK
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: VALUE
+          - keyword: IS
+          - keyword: NOT
+          - keyword: NFKC
+          - keyword: NORMALIZED
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_domain_statement:
+    - keyword: CREATE
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: text_nfkd
+    - keyword: AS
+    - data_type:
+        keyword: TEXT
+    - keyword: CHECK
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: VALUE
+          - keyword: IS
+          - keyword: NOT
+          - keyword: NFKD
+          - keyword: NORMALIZED
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: test_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: test_column
+      - data_type:
+          keyword: text
+      - column_constraint_segment:
+        - keyword: primary
+        - keyword: key
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: default_constraint
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: test_column
+            - keyword: IS
+            - keyword: NORMALIZED
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: nfc_constraint
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: test_column
+            - keyword: IS
+            - keyword: NFC
+            - keyword: NORMALIZED
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: nfd_constraint
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: test_column
+            - keyword: IS
+            - keyword: NFD
+            - keyword: NORMALIZED
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: nfkc_constraint
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: test_column
+            - keyword: IS
+            - keyword: NFKC
+            - keyword: NORMALIZED
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: nfkd_constraint
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: test_column
+            - keyword: IS
+            - keyword: NFKD
+            - keyword: NORMALIZED
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: not_default_constraint
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: test_column
+            - keyword: IS
+            - keyword: NOT
+            - keyword: NORMALIZED
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: not_nfc_constraint
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: test_column
+            - keyword: IS
+            - keyword: NOT
+            - keyword: NFC
+            - keyword: NORMALIZED
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: not_nfd_constraint
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: test_column
+            - keyword: IS
+            - keyword: NOT
+            - keyword: NFD
+            - keyword: NORMALIZED
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: not_nfkc_constraint
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: test_column
+            - keyword: IS
+            - keyword: NOT
+            - keyword: NFKC
+            - keyword: NORMALIZED
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: not_nfkd_constraint
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: test_column
+            - keyword: IS
+            - keyword: NOT
+            - keyword: NFKD
+            - keyword: NORMALIZED
+            end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9630e84f8a1e62373243524752cc6eb7ab25f89c00d9d3c3b29fa70b2f564a4c
+_hash: 194112eabf0998f956d77665f1688527afee60d3ae477c84afbc42796bd581d3
 file:
 - statement:
     create_table_statement:
@@ -14,7 +14,8 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: a
+          column_reference:
+            naked_identifier: a
           data_type:
             struct_type:
               keyword: STRUCT
@@ -34,7 +35,8 @@ file:
               - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          naked_identifier: d
+          column_reference:
+            naked_identifier: d
           data_type:
           - keyword: MAP
           - start_angle_bracket: <
@@ -48,7 +50,8 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          naked_identifier: e
+          column_reference:
+            naked_identifier: e
           data_type:
             array_type:
               keyword: ARRAY
@@ -68,7 +71,8 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: a
+          column_reference:
+            naked_identifier: a
           data_type:
             struct_type:
               keyword: STRUCT
@@ -94,7 +98,8 @@ file:
               quoted_literal: "'col_comment'"
       - comma: ','
       - column_definition:
-          naked_identifier: d
+          column_reference:
+            naked_identifier: d
           data_type:
           - keyword: MAP
           - start_angle_bracket: <
@@ -112,7 +117,8 @@ file:
               quoted_literal: "'col_comment'"
       - comma: ','
       - column_definition:
-          naked_identifier: e
+          column_reference:
+            naked_identifier: e
           data_type:
             array_type:
               keyword: ARRAY
@@ -136,7 +142,8 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: a
+          column_reference:
+            naked_identifier: a
           data_type:
             struct_type:
               keyword: STRUCT
@@ -164,7 +171,8 @@ file:
               - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          naked_identifier: d
+          column_reference:
+            naked_identifier: d
           data_type:
           - keyword: MAP
           - start_angle_bracket: <
@@ -200,7 +208,8 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          naked_identifier: g
+          column_reference:
+            naked_identifier: g
           data_type:
             array_type:
               keyword: ARRAY
@@ -242,7 +251,8 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: a
+          column_reference:
+            naked_identifier: a
           data_type:
             struct_type:
               keyword: STRUCT
@@ -262,7 +272,8 @@ file:
               - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          quoted_identifier: '`d`'
+          column_reference:
+            quoted_identifier: '`d`'
           data_type:
           - keyword: MAP
           - start_angle_bracket: <
@@ -276,7 +287,8 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          naked_identifier: e
+          column_reference:
+            naked_identifier: e
           data_type:
             array_type:
               keyword: ARRAY
@@ -285,5 +297,28 @@ file:
                 primitive_type:
                   keyword: STRING
               end_angle_bracket: '>'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: field_a
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: field_b
+          data_type:
+            primitive_type:
+              keyword: VARIANT
       - end_bracket: )
 - statement_terminator: ;

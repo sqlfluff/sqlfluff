@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 335468b5c467677aabed89e846c2fc395ae5ecce235e2c57ea8630f3817ff611
+_hash: e1f1add5999a73e226c754a91e2563fff6e68676f50c0e0ca4ecaf5430821f2d
 file:
   statement:
     select_statement:
@@ -13,35 +13,62 @@ file:
           function:
             function_name:
               function_name_identifier: cast
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: field_1
-              keyword: as
-              data_type:
-              - keyword: time
-              - keyword: with
-              - keyword: time
-              - keyword: zone
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: field_1
+                keyword: as
+                data_type:
+                - keyword: time
+                - keyword: with
+                - keyword: time
+                - keyword: zone
+                end_bracket: )
       - comma: ','
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: cast
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: field_2
-              keyword: as
-              data_type:
-              - keyword: timestamp
-              - keyword: with
-              - keyword: time
-              - keyword: zone
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: field_2
+                keyword: as
+                data_type:
+                - keyword: timestamp
+                - keyword: with
+                - keyword: time
+                - keyword: zone
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CAST
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bare_function: CURRENT_TIMESTAMP
+                keyword: AS
+                data_type:
+                - keyword: TIMESTAMP
+                - bracketed:
+                    start_bracket: (
+                    numeric_literal: '6'
+                    end_bracket: )
+                - keyword: WITH
+                - keyword: TIME
+                - keyword: ZONE
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: _log_time
+      - comma: ','
       from_clause:
         keyword: FROM
         from_expression:

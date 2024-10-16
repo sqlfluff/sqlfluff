@@ -64,7 +64,25 @@ from sqlfluff.dialects.dialect_ansi_keywords import (
     ansi_unreserved_keywords,
 )
 
-ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
+ansi_dialect = Dialect(
+    "ansi",
+    root_segment_name="FileSegment",
+    formatted_name="ANSI",
+    docstring="""**Default Casing**: ``UPPERCASE``
+
+**Quotes**: String Literals: ``''``, Identifiers: ``""``
+
+This is the base dialect which holds most of the definitions of common
+SQL commands and structures. If the dialect which you're actually using
+isn't specifically implemented by SQLFluff, using this dialect is a good
+place to start.
+
+This dialect doesn't intend to be brutal in adhering to (and only to) the
+ANSI SQL spec *(mostly because ANSI charges for access to that spec)*. It aims
+to be a representation of vanilla SQL before any other project adds their
+spin to it, and so may contain a slightly wider set of functions than actually
+available in true ANSI SQL.""",
+)
 
 ansi_dialect.set_lexer_matchers(
     [
@@ -104,7 +122,7 @@ ansi_dialect.set_lexer_matchers(
         ),
         RegexLexer(
             "double_quote",
-            r'"([^"\\]|\\.)*"',
+            r'"(""|[^"\\]|\\.)*"',
             CodeSegment,
             segment_kwargs={
                 "quoted_value": (r'"((?:[^"\\]|\\.)*)"', 1),
@@ -357,6 +375,8 @@ ansi_dialect.add(
     # type
     NullLiteralSegment=StringParser("null", LiteralKeywordSegment, type="null_literal"),
     NanLiteralSegment=StringParser("nan", LiteralKeywordSegment, type="null_literal"),
+    UnknownLiteralSegment=Nothing(),
+    NormalizedGrammar=Nothing(),
     TrueSegment=StringParser("true", LiteralKeywordSegment, type="boolean_literal"),
     FalseSegment=StringParser("false", LiteralKeywordSegment, type="boolean_literal"),
     # We use a GRAMMAR here not a Segment. Otherwise, we get an unnecessary layer
@@ -451,7 +471,9 @@ ansi_dialect.add(
     IsClauseGrammar=OneOf(
         Ref("NullLiteralSegment"),
         Ref("NanLiteralSegment"),
+        Ref("UnknownLiteralSegment"),
         Ref("BooleanLiteralGrammar"),
+        Ref("NormalizedGrammar"),
     ),
     InOperatorGrammar=Sequence(
         Ref.keyword("NOT", optional=True),
@@ -712,6 +734,8 @@ ansi_dialect.add(
                 optional=True,
             ),
         ),
+        # Drop
+        Ref("AlterTableDropColumnGrammar"),
         # Rename
         Sequence(
             "RENAME",
@@ -719,10 +743,22 @@ ansi_dialect.add(
             Ref("TableReferenceSegment"),
         ),
     ),
+    AlterTableDropColumnGrammar=Sequence(
+        "DROP",
+        Ref.keyword("COLUMN", optional=True),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+    ),
     OrderNoOrderGrammar=OneOf("ORDER", "NOORDER"),
     ColumnsExpressionNameGrammar=Nothing(),
     # Uses grammar for LT06 support
     ColumnsExpressionGrammar=Nothing(),
+    ListComprehensionGrammar=Nothing(),
+    TimeWithTZGrammar=Sequence(
+        OneOf("TIME", "TIMESTAMP"),
+        Bracketed(Ref("NumericLiteralSegment"), optional=True),
+        Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+    ),
 )
 
 
@@ -932,11 +968,7 @@ class DatatypeSegment(BaseSegment):
 
     type = "data_type"
     match_grammar: Matchable = OneOf(
-        Sequence(
-            OneOf("TIME", "TIMESTAMP"),
-            Bracketed(Ref("NumericLiteralSegment"), optional=True),
-            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
-        ),
+        Ref("TimeWithTZGrammar"),
         Sequence(
             "DOUBLE",
             "PRECISION",
@@ -968,6 +1000,7 @@ class DatatypeSegment(BaseSegment):
                 optional=True,
             ),
         ),
+        Ref("ArrayTypeSegment"),
     )
 
 
@@ -1394,6 +1427,41 @@ class FunctionNameSegment(BaseSegment):
     )
 
 
+class DateTimeFunctionContentsSegment(BaseSegment):
+    """Datetime function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Delimited(
+                Ref("DatetimeUnitSegment"),
+                Ref(
+                    "FunctionContentsGrammar",
+                    # The brackets might be empty for some functions...
+                    optional=True,
+                ),
+            ),
+        ),
+    )
+
+
+class FunctionContentsSegment(BaseSegment):
+    """Function Contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref(
+                "FunctionContentsGrammar",
+                # The brackets might be empty for some functions...
+                optional=True,
+            ),
+        ),
+    )
+
+
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
 
@@ -1406,23 +1474,8 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar: Matchable = OneOf(
         Sequence(
-            # Treat functions which take date parts separately
-            # So those functions parse date parts as DatetimeUnitSegment
-            # rather than identifiers.
-            Sequence(
-                Ref("DatePartFunctionNameSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("DatetimeUnitSegment"),
-                        Ref(
-                            "FunctionContentsGrammar",
-                            # The brackets might be empty for some functions...
-                            optional=True,
-                        ),
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
-            ),
+            Ref("DatePartFunctionNameSegment"),
+            Ref("DateTimeFunctionContentsSegment"),
         ),
         Ref("ColumnsExpressionGrammar"),
         Sequence(
@@ -1435,14 +1488,7 @@ class FunctionSegment(BaseSegment):
                         Ref("ValuesClauseSegment"),
                     ),
                 ),
-                Bracketed(
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
+                Ref("FunctionContentsSegment"),
             ),
             Ref("PostFunctionGrammar", optional=True),
         ),
@@ -1525,6 +1571,7 @@ class FromExpressionElementSegment(BaseSegment):
     _base_from_expression_element = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
+        Ref("TemporalQuerySegment", optional=True),
         Ref(
             "AliasExpressionSegment",
             exclude=OneOf(
@@ -1581,6 +1628,10 @@ class FromExpressionElementSegment(BaseSegment):
 
         # Handle any aliases
         alias_expression = self.get_child("alias_expression")
+        if not alias_expression:  # pragma: no cover
+            _bracketed = self.get_child("bracketed")
+            if _bracketed:
+                alias_expression = _bracketed.get_child("alias_expression")
         if alias_expression:
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
@@ -2213,14 +2264,17 @@ ansi_dialect.add(
                     Ref("ExpressionSegment"),
                     Ref("SelectableGrammar"),
                     Delimited(
+                        Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
                         Ref(
                             "ColumnReferenceSegment"
                         ),  # WHERE (a,b,c) IN (select a,b,c FROM...)
                         Ref(
                             "FunctionSegment"
                         ),  # WHERE (a, substr(b,1,3)) IN (select c,d FROM...)
-                        Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
                         Ref("LocalAliasSegment"),  # WHERE (LOCAL.a, LOCAL.b) IN (...)
+                        Ref(
+                            "ExpressionSegment"
+                        ),  # SELECT (1*1, 2) IN (STRUCT(1 AS a, 2 AS b));
                     ),
                 ),
                 parse_mode=ParseMode.GREEDY,
@@ -2253,6 +2307,7 @@ ansi_dialect.add(
                 ),
             ),
             Ref("LocalAliasSegment"),
+            Ref("ListComprehensionGrammar"),
             terminators=[Ref("CommaSegment")],
         ),
         Ref("AccessorGrammar", optional=True),
@@ -2448,7 +2503,7 @@ class GroupingSetsClauseSegment(BaseSegment):
 
     type = "grouping_sets_clause"
 
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "GROUPING",
         "SETS",
         Bracketed(
@@ -2503,6 +2558,7 @@ class GroupByClauseSegment(BaseSegment):
         Indent,
         OneOf(
             "ALL",
+            Ref("GroupingSetsClauseSegment"),
             Ref("CubeRollupClauseSegment"),
             # We could replace this next bit with a GroupingExpressionList
             # reference (renaming that to a more generic name), to avoid
@@ -3665,10 +3721,12 @@ class UpdateStatementSegment(BaseSegment):
     type = "update_statement"
     match_grammar: Matchable = Sequence(
         "UPDATE",
+        Indent,
         Ref("TableReferenceSegment"),
         # SET is not a reserved word in all dialects (e.g. RedShift)
         # So specifically exclude as an allowed implicit alias to avoid parsing errors
         Ref("AliasExpressionSegment", exclude=Ref.keyword("SET"), optional=True),
+        Dedent,
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
@@ -4281,7 +4339,7 @@ class CreateTriggerStatementSegment(BaseSegment):
             "EXECUTE",
             "PROCEDURE",
             Ref("FunctionNameIdentifierSegment"),
-            Bracketed(Ref("FunctionContentsGrammar", optional=True)),
+            Ref("FunctionContentsSegment"),
             optional=True,
         ),
     )
@@ -4318,6 +4376,17 @@ class SamplingExpressionSegment(BaseSegment):
             optional=True,
         ),
     )
+
+
+class TemporalQuerySegment(BaseSegment):
+    """A segment that allows Temporal Queries to be run.
+
+    https://learn.microsoft.com/en-us/sql/relational-databases/tables/temporal-tables
+    """
+
+    type = "temporal_query"
+
+    match_grammar: Matchable = Nothing()
 
 
 class LocalAliasSegment(BaseSegment):

@@ -143,3 +143,29 @@ $$
 def addone_py(i):
   return i+1
 $$;
+
+
+CREATE OR REPLACE FUNCTION TEST_DB.TEST_SCHEMA.TEST_TABLE(
+  COL_1 VARCHAR DEFAULT NULL
+  , COL_2 VARCHAR DEFAULT NULL
+)
+RETURNS VARCHAR
+LANGUAGE SQL
+AS
+$$
+SELECT
+        CASE
+            WHEN (LOWER(COL_1) IS NOT NULL AND
+                        LOWER(COL_2) = 'test_marketing')
+                THEN 'marketing_channel'
+            ELSE '(Other)'
+END
+$$;;
+
+CREATE TEMPORARY FUNCTION pi_udf()
+  RETURNS FLOAT
+  AS '3.141592654::FLOAT';
+
+CREATE TEMP FUNCTION pi_udf()
+  RETURNS FLOAT
+  AS '3.141592654::FLOAT';

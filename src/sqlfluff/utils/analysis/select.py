@@ -130,7 +130,7 @@ def get_select_statement_info(
 
 def get_aliases_from_select(
     segment: BaseSegment, dialect: Optional[Dialect] = None
-) -> Tuple[Optional[list], Optional[list]]:
+) -> Tuple[Optional[List[AliasInfo]], Optional[List[BaseSegment]]]:
     """Gets the aliases referred to in the FROM clause.
 
     Returns a tuple of two lists:
@@ -161,7 +161,9 @@ def get_aliases_from_select(
     return table_aliases, standalone_aliases
 
 
-def _has_value_table_function(table_expr, dialect) -> bool:
+def _has_value_table_function(
+    table_expr: BaseSegment, dialect: Optional[Dialect]
+) -> bool:
     if not dialect:
         # We need the dialect to get the value table function names. If
         # we don't have it, assume the clause does not have a value table
@@ -210,14 +212,14 @@ def _get_pivot_table_columns(
 def _get_lambda_argument_columns(
     segment: BaseSegment, dialect: Optional[Dialect]
 ) -> List[BaseSegment]:
-    if not dialect or dialect.name not in ["athena", "sparksql"]:
+    if not dialect or dialect.name not in ["athena", "sparksql", "duckdb", "trino"]:
         # Only athena and sparksql are known to have lambda expressions,
         # so all other dialects will have zero lambda columns
         return []
 
     lambda_argument_columns: list[BaseSegment] = []
-    for potential_lambda in segment.recursive_crawl("expression"):
-        potential_arrow = potential_lambda.get_child("binary_operator")
+    for potential_lambda in segment.recursive_crawl("expression", "lambda_function"):
+        potential_arrow = potential_lambda.get_child("binary_operator", "lambda_arrow")
         if potential_arrow and potential_arrow.raw == "->":
             arrow_operator = potential_arrow
             # The arguments will be before the arrow operator, so we get anything
@@ -226,7 +228,9 @@ def _get_lambda_argument_columns(
             # more, this doesn't cleanly match a lambda expression
             argument_segments = potential_lambda.select_children(
                 stop_seg=arrow_operator,
-                select_if=(lambda x: x.is_type("bracketed", "column_reference")),
+                select_if=(
+                    lambda x: x.is_type("bracketed", "column_reference", "parameter")
+                ),
             )
 
             assert len(argument_segments) == 1
@@ -237,11 +241,13 @@ def _get_lambda_argument_columns(
                 # There will be a start bracket if it's bracketed.
                 assert start_bracket
                 if start_bracket.raw == "(":
-                    bracketed_arguments = child_segment.get_children("column_reference")
+                    bracketed_arguments = child_segment.get_children(
+                        "column_reference", "parameter"
+                    )
                     raw_arguments = [argument for argument in bracketed_arguments]
                     lambda_argument_columns += raw_arguments
 
-            elif child_segment.is_type("column_reference"):
+            elif child_segment.is_type("column_reference", "parameter"):
                 lambda_argument_columns.append(child_segment)
 
     return lambda_argument_columns
