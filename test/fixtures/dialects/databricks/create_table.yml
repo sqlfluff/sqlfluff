@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d505be32cbb519e6de1746ab542bd37646b0abf36f6dddb921b82b9e572878c9
+_hash: 7ee77c6e9b81bfcf5f60df9cfd5b6268885971bda49cf9cffd71918479b53a35
 file:
 - statement:
     create_table_statement:
@@ -490,5 +490,129 @@ file:
           - keyword: REFERENCES
           - table_reference:
               naked_identifier: TABLE2
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: name
+          data_type:
+            primitive_type:
+              keyword: STRING
+          keyword: DEFAULT
+          quoted_literal: "'bobby tables'"
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: name
+          data_type:
+            primitive_type:
+              keyword: STRING
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+          keyword: DEFAULT
+          quoted_literal: "'bobby tables'"
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: clock
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: which_time
+          data_type:
+            primitive_type:
+              keyword: TIMESTAMP
+          keyword: DEFAULT
+          function:
+            function_name:
+              function_name_identifier: current_timestamp
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: clock
+    - bracketed:
+        start_bracket: (
+        column_definition:
+        - column_reference:
+            naked_identifier: which_time
+        - data_type:
+            primitive_type:
+              keyword: TIMESTAMP
+        - column_constraint_segment:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: clock_pk
+          - keyword: PRIMARY
+          - keyword: KEY
+        - keyword: DEFAULT
+        - function:
+            function_name:
+              function_name_identifier: current_timestamp
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
         end_bracket: )
 - statement_terminator: ;
