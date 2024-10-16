@@ -59,3 +59,19 @@ CREATE OR REPLACE TABLE TABLE1 (
     CONSTRAINT DATE_CONSTRAINT
     FOREIGN KEY REFERENCES TABLE2
 );
+
+-- Create a table with a column with default value
+CREATE TABLE student (id INT, name STRING DEFAULT 'bobby tables', age INT);
+
+-- Create a table with non nullable column with default value
+CREATE TABLE student (id INT, name STRING NOT NULL DEFAULT 'bobby tables', age INT);
+
+-- Create a table with a default timestamp 
+CREATE TABLE clock (
+    which_time TIMESTAMP DEFAULT current_timestamp()
+);
+
+-- Create a table with mixing default value and constraints
+CREATE TABLE clock (
+    which_time TIMESTAMP CONSTRAINT clock_pk PRIMARY KEY DEFAULT current_timestamp() NOT NULL
+);
