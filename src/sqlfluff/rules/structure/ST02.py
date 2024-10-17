@@ -14,6 +14,24 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import FunctionalContext, Segments, sp
 
 
+class FunctionNameSegment(BaseSegment):
+    """Function name, including any prefix bits, e.g. project or schema.
+
+    NOTE: This is a minimal segment definition to allow appropriate fixing.
+    """
+
+    type = "function_name"
+
+
+class FunctionContentsSegment(BaseSegment):
+    """Function Contents.
+
+    NOTE: This is a minimal segment definition to allow appropriate fixing.
+    """
+
+    type = "function_contents"
+
+
 class Rule_ST02(BaseRule):
     """Unnecessary ``CASE`` statement.
 
@@ -92,13 +110,19 @@ class Rule_ST02(BaseRule):
         """Generate list of fixes to convert CASE statement to COALESCE function."""
         # Add coalesce and opening parenthesis.
         edits = [
-            WordSegment("coalesce", type="function_name_identifier"),
-            SymbolSegment("(", type="start_bracket"),
-            coalesce_arg_1,
-            SymbolSegment(",", type="comma"),
-            WhitespaceSegment(),
-            coalesce_arg_2,
-            SymbolSegment(")", type="end_bracket"),
+            FunctionNameSegment(
+                segments=(WordSegment("coalesce", type="function_name_identifier"),)
+            ),
+            FunctionContentsSegment(
+                segments=(
+                    SymbolSegment("(", type="start_bracket"),
+                    coalesce_arg_1,
+                    SymbolSegment(",", type="comma"),
+                    WhitespaceSegment(),
+                    coalesce_arg_2,
+                    SymbolSegment(")", type="end_bracket"),
+                )
+            ),
         ]
 
         if preceding_not:
