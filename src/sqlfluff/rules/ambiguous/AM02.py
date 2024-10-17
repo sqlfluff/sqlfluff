@@ -16,7 +16,8 @@ class Rule_AM02(BaseRule):
     .. note::
        This rule is only enabled for dialects that support ``UNION`` and
        ``UNION DISTINCT`` (``ansi``, ``bigquery``, ``clickhouse``,
-       ``databricks``, ``db2``, ``hive``, ``mysql``, and ``redshift``).
+       ``databricks``, ``db2``, ``hive``, ``mysql``, ``redshift``,
+       ``snowflake``, and ``trino``).
 
     **Anti-pattern**
 
@@ -67,6 +68,8 @@ class Rule_AM02(BaseRule):
             "hive",
             "mysql",
             "redshift",
+            "snowflake",
+            "trino",
         ]:
             return LintResult()
 
