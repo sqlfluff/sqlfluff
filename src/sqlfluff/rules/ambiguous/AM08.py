@@ -2,8 +2,8 @@
 
 from typing import Optional, Tuple
 
-from sqlfluff.core.parser import BaseSegment, KeywordSegment, WhitespaceSegment
-from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
@@ -82,45 +82,15 @@ class Rule_AM08(BaseRule):
 
         maybe_where_clause = select_stmt.get_child("where_clause")
         if maybe_where_clause:
-            where_clause_simplifable = self._is_where_clause_simplifable(
-                maybe_where_clause
-            )
-            if where_clause_simplifable:
-                # For now, return violation without fix.
-                return LintResult(
-                    maybe_where_clause,
-                    description="WHERE clause used for join condition. "
-                    "Use explicit ON instead.",
-                )
-            else:
-                # In case of complex expression, try to avoid false positive
-                return None
+            # See CV12
+            return None
 
         join_keywords = [kw for kw in join_clause_keywords if kw.raw_upper == "JOIN"]
         if len(join_keywords) != 1:
             # This can happen in T-SQL CROSS APPLY / OUTER APPLY
             return None
 
-        join_kw = join_keywords[0]
-
-        # Please note that this is exclusive on both sides.
-        # This means we get all segments *after* join keyword.
-        valid_segments = join_clause.select_children(start_seg=join_kw, stop_seg=None)
-
-        return LintResult(
-            join_clause,
-            fixes=[
-                LintFix.replace(
-                    anchor_segment=join_clause,
-                    edit_segments=[
-                        KeywordSegment("CROSS" if join_kw.raw == "JOIN" else "cross"),
-                        WhitespaceSegment(),
-                        KeywordSegment(join_kw.raw),
-                        *valid_segments,
-                    ],
-                ),
-            ],
-        )
+        return LintResult(join_clause)
 
     @staticmethod
     def _cross_join_supported(context: RuleContext) -> bool:
@@ -141,14 +111,3 @@ class Rule_AM08(BaseRule):
         # According to grammar, this is not reachable.
         # Do not emit any error instead of crashing.
         return None  # pragma: no cover
-
-    @staticmethod
-    def _is_where_clause_simplifable(where_clause: BaseSegment) -> bool:
-        assert where_clause.is_type("where_clause")
-        expr = where_clause.get_child("expression")
-        if not expr:  # pragma: no cover
-            # According to grammar, we should always have an ExpressionSegment
-            # See sqlfluff.dialects.dialect_ansi.WhereClauseSegment
-            return False
-        ops = expr.get_children("binary_operator")
-        return all(op.raw_upper == "AND" for op in ops)
