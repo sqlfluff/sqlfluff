@@ -1177,3 +1177,12 @@ test_fail_redshift_qualify_does_not_follows_from:
   configs:
     core:
       dialect: redshift
+
+test_pass_postgres_jsonb_array_elements_text:
+  # https://github.com/sqlfluff/sqlfluff/issues/4623
+  pass_str: |
+    SELECT t
+    FROM jsonb_array_elements_text('["orange","banana","watermelon"]') AS t;
+  configs:
+    core:
+      dialect: postgres
