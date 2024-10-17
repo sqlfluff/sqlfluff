@@ -226,7 +226,7 @@ class Rule_CV12(BaseRule):
             )
         else:
             assert select_statement.segments[-1].is_type("where_clause")
-            assert select_statement.segments[-2].is_type("whitespace")
+            assert select_statement.segments[-2].is_type("whitespace", "newline")
             yield LintResult(
                 anchor=where_clause,
                 fixes=[
