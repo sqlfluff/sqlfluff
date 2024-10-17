@@ -82,9 +82,19 @@ class UndefinedRecorder:
         self.undefined_set.add(self.name)
         return UndefinedRecorder(f"{self.name}.{item}", self.undefined_set)
 
+    def __getitem__(self, item: str) -> "UndefinedRecorder":
+        """Don't fail when called, remember instead."""
+        self.undefined_set.add(self.name)
+        return UndefinedRecorder(f"{self.name}.{item}", self.undefined_set)
+
     def __call__(self, *args: Any, **kwargs: Any) -> "UndefinedRecorder":
         """Don't fail when called unlike parent class."""
         return UndefinedRecorder(f"{self.name}()", self.undefined_set)
+
+    def __iter__(self) -> Iterator["UndefinedRecorder"]:
+        """Don't fail when iterated, remember instead."""
+        self.undefined_set.add(self.name)
+        yield UndefinedRecorder(f"iter({self.name})", self.undefined_set)
 
 
 class JinjaTemplater(PythonTemplater):
@@ -969,9 +979,9 @@ class JinjaTemplater(PythonTemplater):
                     # (here that is options[0]).
                     new_value = "True" if options[0] == branch + 1 else "False"
                     new_source = f"{{% {raw_file_slice.tag} {new_value} %}}"
-                    tracer_trace.raw_slice_info[raw_file_slice].alternate_code = (
-                        new_source
-                    )
+                    tracer_trace.raw_slice_info[
+                        raw_file_slice
+                    ].alternate_code = new_source
                     override_raw_slices.append(branch)
                     length_deltas[raw_file_slice.source_idx] = len(new_source) - len(
                         raw_file_slice.raw

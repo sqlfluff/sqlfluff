@@ -1715,29 +1715,32 @@ def test__templater_jinja_large_file_check():
 
 
 @pytest.mark.parametrize(
-    "ignore, expected_violation",
+    "in_str, ignore, expected_violation",
     [
         (
+            """WITH a AS ({{  b(c=d, e=f) }}) SELECT * FROM final""",
             "",
-            SQLTemplaterError(
-                "Undefined jinja template variable: 'test_event_cadence'"
-            ),
+            SQLTemplaterError("Undefined jinja template variable: 'b'"),
         ),
-        ("templating", None),
+        ("""WITH a AS ({{  b(c=d, e=f) }}) SELECT * FROM final""", "templating", None),
+        (
+            # https://github.com/sqlfluff/sqlfluff/issues/6360
+            """{% for tbl in tbl_list %}SELECT a FROM {{ tbl }};{% endfor %}""",
+            "",
+            SQLTemplaterError("Undefined jinja template variable: 'tbl_list'"),
+        ),
+        (
+            """SELECT a FROM {{ tbl['name'] }};""",
+            "",
+            SQLTemplaterError("Undefined jinja template variable: 'tbl'"),
+        ),
     ],
 )
-def test_jinja_undefined_callable(ignore, expected_violation):
+def test_jinja_undefined_callable(in_str, ignore, expected_violation):
     """Test undefined callable returns TemplatedFile and sensible error."""
     templater = JinjaTemplater()
     templated_file, violations = templater.process(
-        in_str="""WITH streams_cadence_test AS (
-{{  test_event_cadence(
-    model= ref('fct_recording_progression_stream'),
-    grouping_column='archive_id', time_column='timestamp',
-    date_part='minute', threshold=1) }}
-)
-SELECT * FROM final
-""",
+        in_str=in_str,
         fname="test.sql",
         config=FluffConfig(overrides={"dialect": "ansi", "ignore": ignore}),
     )
