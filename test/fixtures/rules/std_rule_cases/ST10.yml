@@ -4,7 +4,8 @@ test_fail_simple:
   fail_str: |
     select
         1
-    from b join c using(d)
+    from b
+    join c on b.x = c.x
 
 test_pass_single_table:
   # If there's only one table, even if not referenced, then
@@ -20,7 +21,7 @@ test_pass_values:
   pass_str: |
     select
         1
-    from (VALUES (1, 'one'), (2, 'two'), (3, 'three')) 
+    from (VALUES (1, 'one'), (2, 'two'), (3, 'three'))
 
 # If there are any unqualified references, we shouldn't raise
 # an issue until they're resolved.
@@ -42,33 +43,22 @@ test_pass_unqualified_group_by:
     from b join c using(d)
     group by e
 
-
-
-
 test_fail_unused_table_in_join:
   fail_str: |
-    with
-      widget as (
-        select * from some_widget_dbt_table
-      ),
-
-      inventor as (
-        select * from some_inventor_dbt_table
-      )
-
     select
       widget.id,
       widget.name,
-      inventor.name
     from
       widget
       left join inventor
         on widget.inventor_id = inventor.id
 
-  fix_str: |
+test_pass_unused_table_in_join:
+  pass_str: |
     select
       widget.id,
       widget.name,
+      inventor.id
     from
       widget
       left join inventor
