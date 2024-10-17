@@ -61,9 +61,8 @@ class UndefinedRecorder:
     """Similar to jinja2.StrictUndefined, but remembers, not fails."""
 
     # Tell Jinja this object is safe to call and does not alter data.
-    # https://jinja.palletsprojects.com/en/2.9.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
-    unsafe_callable = False
     # https://jinja.palletsprojects.com/en/3.0.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
+    unsafe_callable = False
     alters_data = False
 
     def __init__(self, name: str, undefined_set: Set[str]) -> None:
@@ -316,6 +315,11 @@ class JinjaTemplater(PythonTemplater):
 
         class RelationEmulator:
             """A class which emulates the `this` class from dbt."""
+
+            # Tell Jinja this object is safe to call and does not alter data.
+            # https://jinja.palletsprojects.com/en/3.0.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
+            unsafe_callable = False
+            alters_data = False
 
             identifier = "this_model"
             schema = "this_schema"
