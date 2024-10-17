@@ -23,7 +23,7 @@ test_noop_condition:
 
 test_noop_crossjoin:
   pass_str: |
-    SELECT foo.a, bar.b FROM foo CROSS JOIN bar
+    SELECT foo.a, bar.b FROM foo CROSS JOIN bar WHERE bar.x > 3
 
 test_noop_using:
   pass_str: |
@@ -41,10 +41,15 @@ test_noop_global_cross_join_clickhouse:
 
 test_noop_positional_join_duckdb:
   pass_str: |
-    SELECT foo.a, bar.b FROM foo POSITIONAL JOIN bar;
+    SELECT foo.a, bar.b FROM foo POSITIONAL JOIN bar WHERE bar.x > 3;
   configs:
     core:
       dialect: duckdb
+
+test_fail_unqualified:
+  # ambiguous, fail without fix
+  fail_str: |
+    SELECT foo.a, bar.b FROM foo JOIN bar WHERE a = b
 
 test_fail_missing_clause:
   fail_str: |
