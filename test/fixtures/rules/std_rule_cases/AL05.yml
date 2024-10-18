@@ -1177,3 +1177,50 @@ test_fail_redshift_qualify_does_not_follows_from:
   configs:
     core:
       dialect: redshift
+
+test_pass_postgres_jsonb_array_elements_text:
+  # https://github.com/sqlfluff/sqlfluff/issues/4623
+  pass_str: |
+    SELECT t
+    FROM jsonb_array_elements_text('["orange","banana","watermelon"]') AS t;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_json_array_elements:
+  # https://github.com/sqlfluff/sqlfluff/issues/4623
+  pass_str: |
+    SELECT a
+    FROM json_array_elements('[{"id": "a1"}]') AS a,
+        json_array_elements('[{"id": "A1"}, {"id": "A2"}]') AS b
+    WHERE lower(a ->> 'id') = lower(b ->> 'id');
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_bigquery_unnest:
+  # https://github.com/sqlfluff/sqlfluff/issues/4623
+  pass_str: |
+    with sequences as (
+        select [0, 1, 1, 2] as some_numbers
+        union all
+        select [2, 4, 8]
+    )
+
+    select num
+    from sequences as s
+    cross join unnest(s.some_numbers) as num
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_redshift_array_value:
+  # https://github.com/sqlfluff/sqlfluff/issues/4623
+  pass_str: |
+    SELECT
+        my_column,
+        my_array_value
+    FROM my_schema.my_table AS t, t.super_array AS my_array_value
+  configs:
+    core:
+      dialect: redshift

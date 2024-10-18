@@ -82,9 +82,19 @@ class UndefinedRecorder:
         self.undefined_set.add(self.name)
         return UndefinedRecorder(f"{self.name}.{item}", self.undefined_set)
 
+    def __getitem__(self, item: str) -> "UndefinedRecorder":
+        """Don't fail when called, remember instead."""
+        self.undefined_set.add(self.name)
+        return UndefinedRecorder(f"{self.name}.{item}", self.undefined_set)
+
     def __call__(self, *args: Any, **kwargs: Any) -> "UndefinedRecorder":
         """Don't fail when called unlike parent class."""
         return UndefinedRecorder(f"{self.name}()", self.undefined_set)
+
+    def __iter__(self) -> Iterator["UndefinedRecorder"]:
+        """Don't fail when iterated, remember instead."""
+        self.undefined_set.add(self.name)
+        yield UndefinedRecorder(f"iter({self.name})", self.undefined_set)
 
 
 class JinjaTemplater(PythonTemplater):
