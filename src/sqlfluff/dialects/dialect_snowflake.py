@@ -2436,7 +2436,7 @@ class AlterShareStatementSegment(BaseSegment):
                 ),
                 "ACCOUNTS",
                 Ref("EqualsSegment"),
-                Delimited(Ref("NakedIdentifierSegment")),
+                Delimited(Ref("ObjectReferenceSegment")),
                 Sequence(
                     "SHARE_RESTRICTIONS",
                     Ref("EqualsSegment"),
@@ -2448,7 +2448,7 @@ class AlterShareStatementSegment(BaseSegment):
                 "SET",
                 "ACCOUNTS",
                 Ref("EqualsSegment"),
-                Delimited(Ref("NakedIdentifierSegment")),
+                Delimited(Ref("ObjectReferenceSegment")),
                 Ref("CommentEqualsClauseSegment", optional=True),
             ),
             Sequence(

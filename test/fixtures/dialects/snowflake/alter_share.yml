@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 599ea38dd18bb92d1a5e4769ba772c97c5928c2251ca5937247bdfb075b8cf1c
+_hash: 1a90666f4e8dc0288c5a3f4230d681dc8c333ea6ee6e787ee8b78881e37399fe
 file:
 - statement:
     alter_share_statement:
@@ -14,7 +14,8 @@ file:
     - keyword: ACCOUNTS
     - comparison_operator:
         raw_comparison_operator: '='
-    - naked_identifier: my_account_1
+    - object_reference:
+        naked_identifier: my_account_1
 - statement_terminator: ;
 - statement:
     alter_share_statement:
@@ -27,7 +28,8 @@ file:
     - keyword: ACCOUNTS
     - comparison_operator:
         raw_comparison_operator: '='
-    - naked_identifier: my_account_1
+    - object_reference:
+        naked_identifier: my_account_1
 - statement_terminator: ;
 - statement:
     alter_share_statement:
@@ -38,7 +40,8 @@ file:
     - keyword: ACCOUNTS
     - comparison_operator:
         raw_comparison_operator: '='
-    - naked_identifier: my_account_1
+    - object_reference:
+        naked_identifier: my_account_1
 - statement_terminator: ;
 - statement:
     alter_share_statement:
@@ -49,9 +52,11 @@ file:
     - keyword: ACCOUNTS
     - comparison_operator:
         raw_comparison_operator: '='
-    - naked_identifier: my_account_1
+    - object_reference:
+        naked_identifier: my_account_1
     - comma: ','
-    - naked_identifier: my_account_2
+    - object_reference:
+        naked_identifier: my_account_2
 - statement_terminator: ;
 - statement:
     alter_share_statement:
@@ -62,11 +67,14 @@ file:
     - keyword: ACCOUNTS
     - comparison_operator:
         raw_comparison_operator: '='
-    - naked_identifier: my_account_1
+    - object_reference:
+        naked_identifier: my_account_1
     - comma: ','
-    - naked_identifier: my_account_2
+    - object_reference:
+        naked_identifier: my_account_2
     - comma: ','
-    - naked_identifier: my_account_3
+    - object_reference:
+        naked_identifier: my_account_3
 - statement_terminator: ;
 - statement:
     alter_share_statement:
@@ -144,7 +152,8 @@ file:
     - keyword: ACCOUNTS
     - comparison_operator:
         raw_comparison_operator: '='
-    - naked_identifier: my_account_1
+    - object_reference:
+        naked_identifier: my_account_1
     - keyword: SHARE_RESTRICTIONS
     - comparison_operator:
         raw_comparison_operator: '='
@@ -159,9 +168,11 @@ file:
     - keyword: ACCOUNTS
     - comparison_operator:
         raw_comparison_operator: '='
-    - naked_identifier: my_account_1
+    - object_reference:
+        naked_identifier: my_account_1
     - comma: ','
-    - naked_identifier: my_account_2
+    - object_reference:
+        naked_identifier: my_account_2
     - keyword: SHARE_RESTRICTIONS
     - comparison_operator:
         raw_comparison_operator: '='
@@ -176,7 +187,8 @@ file:
     - keyword: ACCOUNTS
     - comparison_operator:
         raw_comparison_operator: '='
-    - naked_identifier: my_account_1
+    - object_reference:
+        naked_identifier: my_account_1
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
@@ -194,12 +206,28 @@ file:
     - keyword: ACCOUNTS
     - comparison_operator:
         raw_comparison_operator: '='
-    - naked_identifier: my_account_1
+    - object_reference:
+        naked_identifier: my_account_1
     - comma: ','
-    - naked_identifier: my_account_2
+    - object_reference:
+        naked_identifier: my_account_2
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'my_comment'"
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: my_share
+    - keyword: ADD
+    - keyword: ACCOUNTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+      - naked_identifier: org
+      - dot: .
+      - naked_identifier: account
 - statement_terminator: ;
