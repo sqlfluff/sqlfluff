@@ -310,7 +310,6 @@ def identify_keyword_rebreak_spans(
             if elem.depth_info.stack_positions[key].idx > 1:
                 continue
             # If we found something at the 1st index, check that it is in fact an indent
-            # print(elem.depth_info.stack_depth)
             current_key_depth = next(
                 i
                 for i, k in enumerate(elem.depth_info.stack_positions.keys())
@@ -756,14 +755,7 @@ def rebreak_keywords_sequence(
 
             # Generate the text for any issues.
             pretty_name = loc.pretty_target_name()
-            if loc.strict:  # pragma: no cover
-                # TODO: The 'strict' option isn't widely tested yet.
-                desc = f"{pretty_name.capitalize()} should always start a new line."
-            else:
-                desc = (
-                    f"Found trailing {pretty_name}. Expected only leading "
-                    "near line breaks."
-                )
+            desc = f"The {pretty_name} should always start a new line."
 
             # Is it the simple case with no comments between the
             # old and new desired locations and only a single following
@@ -794,16 +786,7 @@ def rebreak_keywords_sequence(
 
             # Generate the text for any issues.
             pretty_name = loc.pretty_target_name()
-            if loc.strict:  # pragma: no cover
-                # TODO: The 'strict' option isn't widely tested yet.
-                desc = (
-                    f"{pretty_name.capitalize()} should always be at the end of a line."
-                )
-            else:
-                desc = (
-                    f"Found leading {pretty_name}. Expected only trailing "
-                    "near line breaks."
-                )
+            desc = f"The {pretty_name} should always be at the end of a line."
 
             # Is it the simple case with no comments between the
             # old and new desired locations and only one previous newline?
@@ -835,7 +818,7 @@ def rebreak_keywords_sequence(
             # Generate the text for any issues.
             pretty_name = loc.pretty_target_name()
             desc = (
-                f"{pretty_name.capitalize()}s should always have a line break "
+                f"The {pretty_name} should always have a line break "
                 "both before and after."
             )
 
