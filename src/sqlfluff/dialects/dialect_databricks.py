@@ -348,7 +348,63 @@ databricks_dialect.replace(
 )
 
 
-# Object References
+class IdentifierClauseSegment(BaseSegment):
+    """An `IDENTIFIER` clause segment.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-names-identifier-clause.html
+    """
+
+    type = "identifier_clause_segment"
+    match_grammar = Sequence(
+        "IDENTIFIER",
+        Bracketed(Ref("ExpressionSegment")),
+    )
+
+
+class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to an object."""
+
+    # Allow whitespace
+    match_grammar: Matchable = Delimited(
+        OneOf(Ref("SingleIdentifierGrammar"), Ref("IdentifierClauseSegment")),
+        delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+        terminators=[Ref("ObjectReferenceTerminatorGrammar")],
+        allow_gaps=False,
+    )
+
+
+class DatabaseReferenceSegment(ObjectReferenceSegment):
+    """A reference to a database."""
+
+    type = "database_reference"
+
+
+class TableReferenceSegment(ObjectReferenceSegment):
+    """A reference to an table, CTE, subquery or alias."""
+
+    type = "table_reference"
+
+
+class SchemaReferenceSegment(ObjectReferenceSegment):
+    """A reference to a schema."""
+
+    type = "schema_reference"
+
+
+class TableExpressionSegment(sparksql.TableExpressionSegment):
+    """The main table expression e.g. within a FROM clause.
+
+    Enhance to allow for additional clauses allowed in Spark and Delta Lake.
+    """
+
+    match_grammar = sparksql.TableExpressionSegment.match_grammar.copy(
+        insert=[
+            Ref("IdentifierClauseSegment"),
+        ],
+        before=Ref("ValuesClauseSegment"),
+    )
+
+
 class CatalogReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to a catalog.
 

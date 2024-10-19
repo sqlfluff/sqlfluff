@@ -75,3 +75,6 @@ CREATE TABLE clock (
 CREATE TABLE clock (
     which_time TIMESTAMP CONSTRAINT clock_pk PRIMARY KEY DEFAULT current_timestamp() NOT NULL
 );
+
+-- Creates a table using identifier
+CREATE TABLE IDENTIFIER('student') (id INT, name STRING, age INT);
