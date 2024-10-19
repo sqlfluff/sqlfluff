@@ -12,6 +12,7 @@
 [![ReadTheDocs](https://img.shields.io/readthedocs/sqlfluff?style=flat-square&logo=Read%20the%20Docs)](https://sqlfluff.readthedocs.io)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/psf/black)
 [![Docker Pulls](https://img.shields.io/docker/pulls/sqlfluff/sqlfluff?logo=docker&style=flat-square)](https://hub.docker.com/r/sqlfluff/sqlfluff)
+[![](https://img.shields.io/badge/Gurubase-Ask%20SQLFluff%20Guru-006BFF)](https://gurubase.io/g/sqlfluff)
 
 **SQLFluff** is a dialect-flexible and configurable SQL linter. Designed
 with ELT applications in mind, **SQLFluff** also works with Jinja templating
