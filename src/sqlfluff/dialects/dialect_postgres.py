@@ -3287,7 +3287,12 @@ class AlterDatabaseStatementSegment(BaseSegment):
                 OneOf(
                     Sequence(
                         OneOf("TO", Ref("EqualsSegment")),
-                        OneOf("DEFAULT", Ref("LiteralGrammar")),
+                        OneOf(
+                            "DEFAULT",
+                            Ref("LiteralGrammar"),
+                            Ref("NakedIdentifierSegment"),
+                            Ref("QuotedIdentifierSegment"),
+                        ),
                     ),
                     Sequence("FROM", "CURRENT"),
                 ),
