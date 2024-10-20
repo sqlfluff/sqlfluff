@@ -26,6 +26,8 @@ ALTER DATABASE db SET parameter1 = 1;
 ALTER DATABASE db SET parameter1 = 'some_value';
 ALTER DATABASE db SET parameter1 = DEFAULT;
 ALTER DATABASE db SET parameter1 FROM CURRENT;
+ALTER DATABASE db SET search_path TO my_schema;
+ALTER DATABASE db SET search_path TO "my_schema";
 
 ALTER USER some_user SET default_transaction_read_only = ON;
 
