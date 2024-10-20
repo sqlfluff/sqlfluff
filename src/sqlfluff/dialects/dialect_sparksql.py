@@ -2477,8 +2477,8 @@ class FileLiteralSegment(BaseSegment):
     """A path literal that isn't quoted.
 
     The regular expression will pickup any paths with a leading protocol, however to
-    prevent some division operators that may look like paths, we only parse them
-    after lexing here.
+    prevent some division operators that may look like paths, we only parse them here
+    **after** lexing.
     """
 
     type = "file_literal"
