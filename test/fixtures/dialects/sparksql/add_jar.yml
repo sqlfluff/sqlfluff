@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b7ba37b07b7588c894e6ad680fafcb954a373185f6623e703546834c8ad6990c
+_hash: 13da3d255c3b050efe435020197c5ed2042e917c230fbceff39062f3485b1967
 file:
 - statement:
     add_jar_statement:
@@ -58,23 +58,40 @@ file:
     add_jar_statement:
       keyword: ADD
       file_keyword: JAR
-      file_literal: ivy://group:module:version?exclude=group:module&transitive=true
+      file_literal:
+        literal: ivy://group:module:version?exclude=group:module&transitive=true
 - statement_terminator: ;
 - statement:
     add_jar_statement:
       keyword: ADD
       file_keyword: JAR
-      file_literal: /path/to/some.jar
+      file_literal:
+      - slash: /
+      - path_segment: path
+      - slash: /
+      - path_segment: to
+      - slash: /
+      - path_segment: some
+      - dot: .
+      - path_segment: jar
 - statement_terminator: ;
 - statement:
     add_jar_statement:
       keyword: ADD
       file_keyword: JAR
-      file_literal: path/to/some.jar
+      file_literal:
+      - path_segment: path
+      - slash: /
+      - path_segment: to
+      - slash: /
+      - path_segment: some
+      - dot: .
+      - path_segment: jar
 - statement_terminator: ;
 - statement:
     add_jar_statement:
       keyword: ADD
       file_keyword: JAR
-      file_literal: ivy://path/to/some.jar
+      file_literal:
+        literal: ivy://path/to/some.jar
 - statement_terminator: ;
