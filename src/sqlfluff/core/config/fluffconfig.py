@@ -37,7 +37,7 @@ from sqlfluff.core.helpers.string import (
     split_comma_separated_string,
 )
 from sqlfluff.core.plugin.host import get_plugin_manager
-from sqlfluff.core.types import ConfigMappingType
+from sqlfluff.core.types import ConfigMappingType, ConfigValueOrListType
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.templaters.base import RawTemplater
@@ -114,8 +114,9 @@ class FluffConfig:
         # Handle inputs which are potentially comma separated strings
         self._handle_comma_separated_values()
         # Dialect and Template selection.
-        dialect: Optional[str] = self._configs["core"]["dialect"]
-        self._initialise_dialect(dialect, require_dialect)
+        _dialect = self._configs["core"]["dialect"]
+        assert _dialect is None or isinstance(_dialect, str)
+        self._initialise_dialect(_dialect, require_dialect)
 
         self._configs["core"]["templater_obj"] = self.get_templater()
 
@@ -126,10 +127,10 @@ class FluffConfig:
             ("rules", "rule_allowlist"),
             ("exclude_rules", "rule_denylist"),
         ]:
-            if self._configs["core"].get(in_key, None):
-                self._configs["core"][out_key] = split_comma_separated_string(
-                    self._configs["core"][in_key]
-                )
+            in_value = self._configs["core"].get(in_key, None)
+            if in_value:
+                assert not isinstance(in_value, dict)
+                self._configs["core"][out_key] = split_comma_separated_string(in_value)
             else:
                 self._configs["core"][out_key] = []
 
@@ -140,9 +141,7 @@ class FluffConfig:
         from sqlfluff.core.dialects import dialect_selector
 
         if dialect is not None:
-            self._configs["core"]["dialect_obj"] = dialect_selector(
-                self._configs["core"]["dialect"]
-            )
+            self._configs["core"]["dialect_obj"] = dialect_selector(dialect)
         elif require_dialect:
             self.verify_dialect_specified()
 
@@ -154,8 +153,7 @@ class FluffConfig:
                 of the error contains user-facing instructions on what dialects
                 are available and how to set the dialect.
         """
-        dialect: Optional[str] = self._configs["core"]["dialect"]
-        if dialect is None:
+        if self._configs["core"].get("dialect", None) is None:
             # Get list of available dialects for the error message. We must
             # import here rather than at file scope in order to avoid a circular
             # import.
@@ -225,8 +223,8 @@ class FluffConfig:
         cls,
         extra_config_path: Optional[str] = None,
         ignore_local_config: bool = False,
-        overrides: Optional[Dict[str, Any]] = None,
-        **kw: Any,
+        overrides: Optional[ConfigMappingType] = None,
+        **kwargs: Any,
     ) -> FluffConfig:
         """Loads a config object just based on the root directory."""
         configs = load_config_up_to_path(
@@ -239,7 +237,7 @@ class FluffConfig:
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
             overrides=overrides,
-            **kw,
+            **kwargs,
         )
 
     @classmethod
@@ -248,7 +246,7 @@ class FluffConfig:
         config_string: str,
         extra_config_path: Optional[str] = None,
         ignore_local_config: bool = False,
-        overrides: Optional[Dict[str, Any]] = None,
+        overrides: Optional[ConfigMappingType] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
     ) -> FluffConfig:
         """Loads a config object from a single config string."""
@@ -266,7 +264,7 @@ class FluffConfig:
         *config_strings: str,
         extra_config_path: Optional[str] = None,
         ignore_local_config: bool = False,
-        overrides: Optional[Dict[str, Any]] = None,
+        overrides: Optional[ConfigMappingType] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
     ) -> FluffConfig:
         """Loads a config object given a series of nested config strings.
@@ -275,7 +273,7 @@ class FluffConfig:
         first element as the "root" config, and then later config strings
         will take precedence over any earlier values.
         """
-        config_state: Dict[str, Any] = {}
+        config_state: ConfigMappingType = {}
         for config_string in config_strings:
             config_state = load_config_string(config_string, configs=config_state)
         return cls(
@@ -362,6 +360,10 @@ class FluffConfig:
         }
         # Fetch the config value.
         templater_name = self._configs["core"].get("templater", "<no value set>")
+        assert isinstance(templater_name, str), (
+            "Config value `templater` expected to be a string. "
+            f"Not: {templater_name!r}"
+        )
         try:
             cls = templater_lookup[templater_name]
             # Return class. Do not instantiate yet. That happens in `get_templater()`
@@ -403,7 +405,7 @@ class FluffConfig:
             plugin_manager=self._plugin_manager,
         )
 
-    def diff_to(self, other: FluffConfig) -> Dict[str, Any]:
+    def diff_to(self, other: FluffConfig) -> ConfigMappingType:
         """Compare this config to another.
 
         This is primarily used in the CLI logs to indicate to the user
@@ -520,8 +522,8 @@ class FluffConfig:
         self._configs = dict_buff[0]
 
     def iter_vals(
-        self, cfg: Optional[Dict[str, Any]] = None
-    ) -> Iterable[Tuple[int, str, Any]]:
+        self, cfg: Optional[ConfigMappingType] = None
+    ) -> Iterable[Tuple[int, str, ConfigValueOrListType]]:
         """Return an iterable of tuples representing keys.
 
         Args:
@@ -541,20 +543,22 @@ class FluffConfig:
         keys = sorted(cfg.keys())
         # First iterate values (alphabetically):
         for k in keys:
+            value = cfg[k]
             if (
-                not isinstance(cfg[k], dict)
-                and cfg[k] is not None
+                not isinstance(value, dict)
+                and value is not None
                 and k not in self.private_vals
             ):
-                yield (0, k, cfg[k])
+                yield (0, k, value)
 
         # Then iterate dicts (alphabetically (but `core` comes first if it exists))
         for k in keys:
-            if isinstance(cfg[k], dict):
+            value = cfg[k]
+            if isinstance(value, dict):
                 # First yield the dict label
                 yield (0, k, "")
                 # Then yield its content
-                for idnt, key, val in self.iter_vals(cfg=cfg[k]):
+                for idnt, key, val in self.iter_vals(cfg=value):
                     yield (idnt + 1, key, val)
 
     def process_inline_config(self, config_line: str, fname: str) -> None:
