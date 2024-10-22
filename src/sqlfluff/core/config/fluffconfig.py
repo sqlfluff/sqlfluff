@@ -47,7 +47,26 @@ config_logger = logging.getLogger("sqlfluff.config")
 
 
 class FluffConfig:
-    """The class that actually gets passed around as a config object."""
+    """The persistent object for internal methods to access configuration.
+
+    This class is designed to be instantiated once for each file and then be
+    reused by each part of the process. For multiple files in the same path, a
+    parent object will be created for the each path and then variants of it
+    are created *for each file*. The object itself contains the references
+    to any long lived objects which might be used by multiple parts of the
+    codebase such as the dialect and the templater (both of which can be
+    resource intensive to load & instantiate), which allows (for example),
+    multiple files to reuse the same instance of the relevant dialect.
+
+    It is also designed to pickle well for use in parallel operations.
+
+    .. note::
+       Methods for accessing internal properties on the config are not particularly
+       standardised as the project currently assumes that few other tools are using
+       this interface directly. If you or your project would like more formally
+       supported methods for access to the config object, raise an issue on GitHub
+       with the kind of things you'd like to achieve.
+    """
 
     private_vals = "rule_denylist", "rule_allowlist", "dialect_obj", "templater_obj"
 
@@ -174,10 +193,14 @@ class FluffConfig:
         # processes.
 
     def copy(self) -> FluffConfig:
-        """Returns a copy of the FluffConfig.
+        """Create a copy of this ``FluffConfig``.
 
-        This creates a shallow copy of most of the config, but with a deep copy of the
-        `_configs` dictionary.
+        Copies created using this method can safely be modified without those
+        changes propagating back up to the object which was originally copied.
+
+        Returns:
+            :obj:`FluffConfig`: A shallow copy of this config object but with
+            a deep copy of the internal ``_configs`` dict.
         """
         configs_attribute_copy = deepcopy(self._configs)
         config_copy = copy(self)
@@ -318,11 +341,12 @@ class FluffConfig:
     def get_templater_class(self) -> Type["RawTemplater"]:
         """Get the configured templater class.
 
-        NOTE: This is mostly useful to call directly when rules want to determine
-        the *type* of a templater without (in particular to work out if it's a
-        derivative of the jinja templater), without needing to instantiate a
-        full templater. Instantiated templaters don't pickle well, so aren't
-        automatically passed around between threads/processes.
+        .. note::
+           This is mostly useful to call directly when rules want to determine
+           the *type* of a templater without (in particular to work out if it's a
+           derivative of the jinja templater), without needing to instantiate a
+           full templater. Instantiated templaters don't pickle well, so aren't
+           automatically passed around between threads/processes.
         """
         templater_lookup: Dict[str, Type["RawTemplater"]] = {
             templater.name: templater
@@ -366,15 +390,18 @@ class FluffConfig:
     def diff_to(self, other: FluffConfig) -> Dict[str, Any]:
         """Compare this config to another.
 
+        This is primarily used in the CLI logs to indicate to the user
+        what values have been changed for each file compared to the root
+        config for the project.
+
         Args:
             other (:obj:`FluffConfig`): Another config object to compare
                 against. We will return keys from *this* object that are
                 not in `other` or are different to those in `other`.
 
         Returns:
-            A filtered dict of items in this config that are not in the other
+            :obj:`dict`: A filtered dict of items in this config that are not in the other
             or are different to the other.
-
         """
         # We ignore some objects which are not meaningful in the comparison
         # e.g. dialect_obj, which is generated on the fly.
@@ -383,7 +410,32 @@ class FluffConfig:
     def get(
         self, val: str, section: Union[str, Iterable[str]] = "core", default: Any = None
     ) -> Any:
-        """Get a particular value from the config."""
+        """Get a particular value from the config.
+
+        Args:
+            val (str): The name of the config value to get.
+            section (str or iterable of str, optional): The "path" to the config
+                value. For values in the main ``[sqlfluff]`` section of the
+                config, which are stored in the ``core`` section of the config
+                this can be omitted.
+            default: The value to return if the config value was not found. If
+                no default is provided, then a ``KeyError`` will be raised if
+                no value was found.
+
+        The following examples show how to fetch various default values:
+
+        >>> FluffConfig().get("dialect")
+        'ansi'
+
+        >>> FluffConfig().get("tab_space_size", section="indentation")
+        4
+
+        >>> FluffConfig().get(
+        ...     "capitalisation_policy",
+        ...     section=["rules", "capitalisation.keywords"]
+        ... )
+        'consistent'
+        """
         section_dict = self.get_section(section)
         if section_dict is None:
             return default
@@ -416,7 +468,22 @@ class FluffConfig:
             return buff
 
     def set_value(self, config_path: Iterable[str], val: Any) -> None:
-        """Set a value at a given path."""
+        """Set a value at a given path.
+
+        Args:
+            config_path: An iterable of strings. Each should be
+                a one of the elements which is colon delimited in
+                a standard config file.
+            val: The value to set at the given path.
+
+        >>> cfg = FluffConfig().set_value(["dialect"], "postgres")
+        >>> cfg.get("dialect")
+        'postgres'
+
+        >>> cfg = FluffConfig().set_value(["indentation", "tab_space_size"], 2)
+        >>> cfg.get("tab_space_size", section="indentation")
+        2
+        """
         # Make the path a list so we can index on it
         config_path = list(config_path)
         # Coerce the value into something more useful.
@@ -468,7 +535,24 @@ class FluffConfig:
                     yield (idnt + 1, key, val)
 
     def process_inline_config(self, config_line: str, fname: str) -> None:
-        """Process an inline config command and update self."""
+        """Process an inline config command and update self.
+
+        Args:
+            config_line (str): The inline config section to be processed.
+                This should usually begin with ``-- sqlfluff:``.
+            fname (str): The name of the current file being processed. This
+                is used purely for logging purposes in the case that an
+                invalid config string is provided so that any error messages
+                can reference the file with the issue.
+
+        >>> cfg = FluffConfig()
+        >>> cfg.process_inline_config(
+        ...     "-- sqlfluff:dialect:postgres",
+        ...     "test.sql"
+        ... )
+        >>> cfg.get("dialect")
+        'postgres'
+        """
         # Strip preceding comment marks
         if config_line.startswith("--"):
             config_line = config_line[2:].strip()
@@ -499,7 +583,23 @@ class FluffConfig:
             self._initialise_dialect(dialect_value)
 
     def process_raw_file_for_config(self, raw_str: str, fname: str) -> None:
-        """Process a full raw file for inline config and update self."""
+        """Process a full raw file for inline config and update self.
+
+        Args:
+            raw_str (str): The full SQL script to evaluate for inline configs.
+            fname (str): The name of the current file being processed. This
+                is used purely for logging purposes in the case that an
+                invalid config string is provided so that any error messages
+                can reference the file with the issue.
+
+        >>> cfg = FluffConfig()
+        >>> cfg.process_raw_file_for_config(
+        ...     "SELECT 1 -- sqlfluff:dialect:postgres",
+        ...     "test.sql"
+        ... )
+        >>> cfg.get("dialect")
+        'postgres'
+        """
         # Scan the raw file for config commands.
         for raw_line in raw_str.splitlines():
             # With or without a space.
