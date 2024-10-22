@@ -310,6 +310,7 @@ def test_lint_path_parallel_wrapper_exception(patched_lint):
     ).run(
         ["test/fixtures/linter/passing.sql"],
         fix=False,
+        show_lint_violations=False
     ):
         assert isinstance(result, runner.DelayedException)
         with pytest.raises(ValueError):
