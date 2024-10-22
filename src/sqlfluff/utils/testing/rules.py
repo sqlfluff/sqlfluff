@@ -44,6 +44,15 @@ class RuleTestCase(NamedTuple):
     skip: Optional[str] = None
     line_numbers: List[int] = []
 
+    def evaluate(self) -> None:
+        """Evaluate the test case.
+
+        NOTE: This method is designed to be run in a pytest context and
+        will call methods such as `pytest.skip()` as part of it's execution.
+        It may not be suitable for other testing contexts.
+        """
+        rules__test_helper(self)
+
 
 def load_test_cases(
     test_cases_path: str,
@@ -284,6 +293,16 @@ def rules__test_helper(test_case: RuleTestCase) -> None:
         # If a `fixed` value is provided then check it matches
         if test_case.fix_str:
             assert res == test_case.fix_str
+            # Check that if it has made changes that this rule has set
+            # `is_fix_compatible` appropriately.
+            if res != test_case.fail_str:
+                rule = get_rule_from_set(
+                    test_case.rule, config=FluffConfig(configs=test_case.configs)
+                )
+                assert rule.is_fix_compatible, (
+                    f"Rule {test_case.rule} returned "
+                    "fixes but does not specify 'is_fix_compatible = True'."
+                )
             if test_case.violations_after_fix:
                 assert_violations_after_fix(test_case)
             else:

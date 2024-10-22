@@ -5,12 +5,9 @@ import os
 
 import pytest
 
-from sqlfluff.core.config import FluffConfig
 from sqlfluff.utils.testing.rules import (
     RuleTestCase,
-    get_rule_from_set,
     load_test_cases,
-    rules__test_helper,
 )
 
 
@@ -43,12 +40,7 @@ def test__rule_test_case(test_case: RuleTestCase, caplog):
     """
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules"):
         with caplog.at_level(logging.DEBUG, logger="sqlfluff.linter"):
-            res = rules__test_helper(test_case)
-            if res is not None and res != test_case.fail_str:
-                cfg = FluffConfig(configs=test_case.configs)
-                rule = get_rule_from_set(test_case.rule, config=cfg)
-                assert rule.is_fix_compatible, f"Rule {test_case.rule} returned "
-                'fixes but does not specify "is_fix_compatible = True".'
+            test_case.evaluate()
 
 
 def test__rule_test_global_config():
