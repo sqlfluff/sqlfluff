@@ -453,8 +453,8 @@ class FluffConfig:
                 not in `other` or are different to those in `other`.
 
         Returns:
-            :obj:`dict`: A filtered dict of items in this config that are not in the other
-            or are different to the other.
+            :obj:`dict`: A filtered dict of items in this config that are
+            not in the other or are different to the other.
         """
         # We ignore some objects which are not meaningful in the comparison
         # e.g. dialect_obj, which is generated on the fly.
