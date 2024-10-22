@@ -78,7 +78,7 @@ position, you will need to run SQLFluff directly.
    robust setup. If each is rooted in different paths if can be very
    difficult to achieve the same result, and the resulting behaviour
    can be difficult to debug.
-   
+
    To debug any issues relating to this setup, we recommend occasionally
    running ``sqlfluff`` directly using the main cli (i.e. calling
    :code:`sqlfluff lint my/project/path`) and check whether that route
