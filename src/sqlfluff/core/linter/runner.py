@@ -81,7 +81,7 @@ class BaseRunner(ABC):
             )
 
     @abstractmethod
-    def run(self, fnames: List[str], fix: bool) -> Iterator[LintedFile]:
+    def run(self, fnames: List[str], fix: bool, show_lint_violations: bool) -> Iterator[LintedFile]:
         """Run linting on the specified list of files."""
         ...
 
@@ -133,7 +133,7 @@ class ParallelRunner(BaseRunner):
         super().__init__(linter, config)
         self.processes = processes
 
-    def run(self, fnames: List[str], fix: bool) -> Iterator[LintedFile]:
+    def run(self, fnames: List[str], fix: bool, show_lint_violations: bool) -> Iterator[LintedFile]:
         """Parallel implementation.
 
         Note that the partials are generated one at a time then
