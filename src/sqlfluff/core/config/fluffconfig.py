@@ -147,7 +147,13 @@ class FluffConfig:
             self.verify_dialect_specified()
 
     def verify_dialect_specified(self) -> None:
-        """Check if the config specifies a dialect, raising an error if not."""
+        """Check if the config specifies a dialect, raising an error if not.
+
+        Raises:
+            SQLFluffUserError: If dialect config value is unset. The content
+                of the error contains user-facing instructions on what dialects
+                are available and how to set the dialect.
+        """
         dialect: Optional[str] = self._configs["core"]["dialect"]
         if dialect is None:
             # Get list of available dialects for the error message. We must
@@ -378,7 +384,17 @@ class FluffConfig:
         return self.get_templater_class()(**kwargs)
 
     def make_child_from_path(self, path: str) -> FluffConfig:
-        """Make a child config at a path but pass on overrides and extra_config_path."""
+        """Make a child config at a path but pass on overrides and extra_config_path.
+
+        Args:
+            path (str): The path to load the new config object from, inheriting
+                the content of the calling `FluffConfig` as base values.
+
+        Returns:
+            :obj:`FluffConfig`: A new config object which copies the current
+            config object, but overriding any values set by config values loaded
+            from the given path.
+        """
         return self.from_path(
             path,
             extra_config_path=self._extra_config_path,
@@ -505,12 +521,19 @@ class FluffConfig:
 
     def iter_vals(
         self, cfg: Optional[Dict[str, Any]] = None
-    ) -> Iterable[Tuple[Any, ...]]:
+    ) -> Iterable[Tuple[int, str, Any]]:
         """Return an iterable of tuples representing keys.
 
-        We show values before dicts, the tuple contains an indent
-        value to know what level of the dict we're in. Dict labels
-        will be returned as a blank value before their content.
+        Args:
+            cfg (optional): An optional config mapping to format instead.
+                If not provided, we use the internal config object of the
+                `FluffConfig`.
+
+        This is primarily to enable formatting of config objects in the CLI.
+
+        We show values before dicts, the tuple contains an indent value to
+        know what level of the dict we're in. Dict labels will be returned
+        as a blank value before their content.
         """
         cfg = cfg or self._configs
 
