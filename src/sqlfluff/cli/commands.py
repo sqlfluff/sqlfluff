@@ -914,6 +914,7 @@ def _paths_fix(
             # NOTE: This should enable us to limit the memory overhead of keeping
             # a large parsed project in memory unless necessary.
             retain_files=check,
+            show_lint_violations=show_lint_violations,
         )
 
     exit_code = _handle_unparsable(fix_even_unparsable, exit_code, result, formatter)

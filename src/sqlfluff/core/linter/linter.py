@@ -617,6 +617,7 @@ class Linter:
         fix: bool = False,
         formatter: Any = None,
         encoding: str = "utf8",
+        show_lint_violations: bool = False
     ) -> LintedFile:
         """Lint a ParsedString and return a LintedFile."""
         violations = parsed.violations
@@ -742,7 +743,7 @@ class Linter:
             formatter.dispatch_file_violations(
                 parsed.fname,
                 linted_file,
-                only_fixable=fix,
+                only_fixable=bool(fix and not show_lint_violations),
                 warn_unused_ignores=parsed.config.get("warn_unused_ignores"),
             )
 
@@ -783,6 +784,7 @@ class Linter:
         rule_pack: RulePack,
         fix: bool = False,
         formatter: Any = None,
+        show_lint_violations: bool = False
     ) -> LintedFile:
         """Take a RenderedFile and return a LintedFile."""
         parsed = cls.parse_rendered(rendered)
@@ -792,6 +794,7 @@ class Linter:
             fix=fix,
             formatter=formatter,
             encoding=rendered.encoding,
+            show_lint_violations=show_lint_violations,
         )
 
     # ### Instance Methods
@@ -958,6 +961,7 @@ class Linter:
         fix: bool = False,
         config: Optional[FluffConfig] = None,
         encoding: str = "utf8",
+        show_lint_violations: bool = False
     ) -> LintedFile:
         """Lint a string.
 
@@ -982,6 +986,7 @@ class Linter:
             fix=fix,
             formatter=self.formatter,
             encoding=encoding,
+            show_lint_violations=show_lint_violations,
         )
 
     def lint_string_wrapped(
@@ -1022,6 +1027,7 @@ class Linter:
         fixed_file_suffix: str = "",
         fix_even_unparsable: bool = False,
         retain_files: bool = True,
+        show_lint_violations: bool = True
     ) -> LintingResult:
         """Lint an iterable of paths."""
         # If no paths specified - assume local
@@ -1077,7 +1083,7 @@ class Linter:
             disable=files_count <= 1 or progress_bar_configuration.disable_progress_bar,
         )
 
-        for i, linted_file in enumerate(runner.run(expanded_paths, fix), start=1):
+        for i, linted_file in enumerate(runner.run(expanded_paths, fix, show_lint_violations), start=1):
             linted_dir = expanded_path_to_linted_dir[linted_file.path]
             linted_dir.add(linted_file)
             # If any fatal errors, then stop iteration.
