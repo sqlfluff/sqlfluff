@@ -2277,6 +2277,39 @@ def test__cli__fix_multiple_errors_show_errors():
     )
 
 
+def test__cli__fix_show_parse_errors():
+    """Test the fix --show-lint-violations option with parser error."""
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            fix,
+            [
+                "--show-lint-violations",
+                "test/fixtures/linter/parse_lex_error.sql",
+            ],
+        ],
+    )
+    check_a = "1 templating/parsing errors found"
+    assert check_a in result.output
+    assert "L:   9 | P:  21 |  PRS | Couldn't find closing bracket for opening bracket." in result.output
+    assert "L:   9 | P:  22 |  LXR | Unable to lex characters: " in result.output
+
+    # Calling without show-lint-violations
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            fix,
+            [
+                "test/fixtures/linter/parse_lex_error.sql",
+            ],
+        ],
+    )
+    check_a = "1 templating/parsing errors found"
+    assert check_a in result.output
+    assert "L:   9 | P:  21 |  PRS | Couldn't find closing bracket for opening bracket." not in result.output
+    assert "L:   9 | P:  22 |  LXR | Unable to lex characters: " not in result.output
+
+
 def test__cli__multiple_files__fix_multiple_errors_show_errors():
     """Basic check of lint ensures with multiple files, filenames are listed."""
     sql_path = "test/fixtures/linter/multiple_sql_errors.sql"
