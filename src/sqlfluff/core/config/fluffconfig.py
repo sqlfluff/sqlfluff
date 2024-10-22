@@ -224,9 +224,29 @@ class FluffConfig:
         extra_config_path: Optional[str] = None,
         ignore_local_config: bool = False,
         overrides: Optional[ConfigMappingType] = None,
-        **kwargs: Any,
+        require_dialect: bool = True,
     ) -> FluffConfig:
-        """Loads a config object just based on the root directory."""
+        """Loads a config object based on the root directory.
+
+        Args:
+            extra_config_path (str, optional): An optional additional path
+                to load config files from. These are loaded last if found
+                and take precedence over any pre-existing config values.
+            ignore_local_config (bool, optional, defaults to False): If set to
+                True, this skips loading configuration from the user home
+                directory (``~``) or ``appdir`` path.
+            overrides (ConfigMappingType, optional): A additional set of
+                configs to merge into the config object at the end. These
+                values take precedence over all other provided values and
+                are inherited by child configs. For example, override values
+                provided in the CLI use this method to apply to all files
+                in a linting operation.
+            require_dialect (bool, optional, default is True): When True
+                an error will be raise if the dialect config value is unset.
+
+        Returns:
+            :obj:`FluffConfig`: The loaded config object.
+        """
         configs = load_config_up_to_path(
             path=".",
             extra_config_path=extra_config_path,
@@ -237,37 +257,55 @@ class FluffConfig:
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
             overrides=overrides,
-            **kwargs,
+            require_dialect=require_dialect,
         )
 
     @classmethod
     def from_string(
         cls,
         config_string: str,
-        extra_config_path: Optional[str] = None,
-        ignore_local_config: bool = False,
         overrides: Optional[ConfigMappingType] = None,
-        plugin_manager: Optional[pluggy.PluginManager] = None,
     ) -> FluffConfig:
-        """Loads a config object from a single config string."""
+        """Loads a config object from a single config string.
+
+        Args:
+            config_string (str): The config string, assumed to be in ``ini``
+                format (like a ``.sqlfluff`` file).
+            overrides (ConfigMappingType, optional): A additional set of
+                configs to merge into the config object at the end. These
+                values take precedence over all other provided values and
+                are inherited by child configs. For example, override values
+                provided in the CLI use this method to apply to all files
+                in a linting operation.
+
+        Returns:
+            :obj:`FluffConfig`: The loaded config object.
+        """
         return cls(
             configs=load_config_string(config_string),
-            extra_config_path=extra_config_path,
-            ignore_local_config=ignore_local_config,
             overrides=overrides,
-            plugin_manager=plugin_manager,
         )
 
     @classmethod
     def from_strings(
         cls,
         *config_strings: str,
-        extra_config_path: Optional[str] = None,
-        ignore_local_config: bool = False,
         overrides: Optional[ConfigMappingType] = None,
-        plugin_manager: Optional[pluggy.PluginManager] = None,
     ) -> FluffConfig:
         """Loads a config object given a series of nested config strings.
+
+        Args:
+            *config_strings (str): An iterable of config strings, assumed
+                to be in ``ini`` format (like a ``.sqlfluff`` file).
+            overrides (ConfigMappingType, optional): A additional set of
+                configs to merge into the config object at the end. These
+                values take precedence over all other provided values and
+                are inherited by child configs. For example, override values
+                provided in the CLI use this method to apply to all files
+                in a linting operation.
+
+        Returns:
+            :obj:`FluffConfig`: The loaded config object.
 
         Config strings are incorporated from first to last, treating the
         first element as the "root" config, and then later config strings
@@ -278,10 +316,7 @@ class FluffConfig:
             config_state = load_config_string(config_string, configs=config_state)
         return cls(
             configs=config_state,
-            extra_config_path=extra_config_path,
-            ignore_local_config=ignore_local_config,
             overrides=overrides,
-            plugin_manager=plugin_manager,
         )
 
     @classmethod
