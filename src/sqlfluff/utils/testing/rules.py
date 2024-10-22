@@ -48,7 +48,12 @@ class RuleTestCase(NamedTuple):
 def load_test_cases(
     test_cases_path: str,
 ) -> Tuple[List[str], List[RuleTestCase]]:
-    """Load rule test cases from YAML files."""
+    """Load rule test cases from YAML files.
+
+    Args:
+        test_cases_path (str): A glob string specifying the files containing
+            test cases to load.
+    """
     ids = []
     test_cases = []
 
