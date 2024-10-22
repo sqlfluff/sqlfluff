@@ -21,8 +21,7 @@ Troubleshooting SQLFluff
 .. toctree::
    :maxdepth: 1
 
-   troubleshooting/how_to_troubleshoot
-   troubleshooting/common_errors
+   troubleshooting/how_to
 
 .. _development:
 
