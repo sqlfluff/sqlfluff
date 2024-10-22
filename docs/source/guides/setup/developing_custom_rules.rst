@@ -33,7 +33,7 @@ help you decide what to develop:
      parse structure of some example queries you'd want to handle by using
      ``sqlfluff parse my_file.sql`` to identify the right segment. This is
      then specified using the ``crawl_behaviour`` attribute on the rule.
-    
+
    * The *anchor* location: i.e. which position will show up in the CLI
      readout back to the user. To continue the example of above, while
      :sqlfluff:ref:`LT08` *triggers* on a ``WITH`` statement, it *anchors*
@@ -50,7 +50,7 @@ help you decide what to develop:
    complexity for handling how to automatically fix lots of edge cases,
    but for your organisation it's probably not worth the overhead unless
    you're a **very big team** or **come across a huge amount of poorly**
-   **formatted SQL**. 
+   **formatted SQL**.
 
    * Consider the information not just to *trigger*, but also whether a
      custom error message would be appropriate and how to get the information
@@ -71,10 +71,10 @@ help you decide what to develop:
 
    * Consider manually fixing any pre-existing issues in your project which
      would trigger the rule before rollout.
-    
+
    * Seek consensus on how strictly the rule will be enforced and what the
      step by step pathway is to strict enforcement.
-    
+
    * Consider *beta-testing* your new rule with a smaller group of users
      who are more engaged with SQLFluff or code quality in general.
 
@@ -117,7 +117,7 @@ the readout.
 
     1. Copy the code from the `SQLFluff example plugin`_ into a local
        folder.
-    
+
     2. Run `pip install -e /path/to/where/you/put/it`.
 
     3. Run `sqlfluff rules`, to confirm that the example plugin is present
