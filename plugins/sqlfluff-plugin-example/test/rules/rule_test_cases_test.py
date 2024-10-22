@@ -4,7 +4,11 @@ import os
 
 import pytest
 
-from sqlfluff.utils.testing.rules import load_test_cases, rules__test_helper
+from sqlfluff.utils.testing.rules import (
+    RuleTestCase,
+    load_test_cases,
+    rules__test_helper,
+)
 
 ids, test_cases = load_test_cases(
     test_cases_path=os.path.join(
@@ -14,6 +18,6 @@ ids, test_cases = load_test_cases(
 
 
 @pytest.mark.parametrize("test_case", test_cases, ids=ids)
-def test__rule_test_case(test_case):
+def test__rule_test_case(test_case: RuleTestCase):
     """Run the tests."""
     rules__test_helper(test_case)
