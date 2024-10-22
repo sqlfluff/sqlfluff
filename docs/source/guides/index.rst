@@ -13,13 +13,16 @@ Setting up SQLFluff
    :maxdepth: 1
 
    setup/teamrollout
+   setup/developing_custom_rules
 
-..
-    NOTE: Eventually we should add a troubleshooting section here too,
-    but that doesn't have any content yet.
+Troubleshooting SQLFluff
+------------------------
 
-    Troubleshooting SQLFluff
-    ------------------------
+.. toctree::
+   :maxdepth: 1
+
+   troubleshooting/how_to_troubleshoot
+   troubleshooting/common_errors
 
 .. _development:
 

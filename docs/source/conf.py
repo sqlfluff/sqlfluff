@@ -143,6 +143,7 @@ redirects = {
     "perma/releasenotes": "../reference/releasenotes.html",
     "perma/why": "../why_sqlfluff.html",
     "perma/plugin_dev": "../guides/contributing/plugins.html",
+    "perma/plugin_guide": "../guides/setup/developing_custom_rules.html",
     "perma/variables": "../configuration/templating/index.html",
     "perma/python_templating": "../configuration/templating/python.html",
     "perma/guides": "../guides/index.html",
