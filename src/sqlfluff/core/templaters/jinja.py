@@ -349,21 +349,47 @@ class JinjaTemplater(PythonTemplater):
             def __str__(self) -> str:
                 return self.identifier
 
+        class FunctionEmulator:
+            """Class to wrap a callable, for better error handling.
+
+            When called, it just delegates to the provided callable, but if
+            it is rendered as a string directly, it generates a templating
+            error.
+            """
+
+            def __init__(self, name, callable):
+                self._name = name
+                self._callable = callable
+
+            def __call__(self, *args, **kwargs):
+                return self._callable(*args, **kwargs)
+
+            def __str__(self):
+                raise SQLTemplaterError(
+                    f"Unable to render builtin callable {self._name!r} as a "
+                    "variable because it is defined as a function. To remove "
+                    "this function from the context, set `apply_dbt_builtins` "
+                    "to False."
+                )
+
         dbt_builtins = {
-            "ref": lambda *args, **kwargs: RelationEmulator(args[-1]),
+            "ref": FunctionEmulator(
+                "ref", lambda *args, **kwargs: RelationEmulator(args[-1])
+            ),
             # In case of a cross project ref in dbt, model_ref is the second
             # argument. Otherwise it is the only argument.
-            "source": lambda source_name, table: RelationEmulator(
-                f"{source_name}_{table}"
+            "source": FunctionEmulator(
+                "source",
+                lambda source_name, table: RelationEmulator(f"{source_name}_{table}"),
             ),
-            "config": lambda **kwargs: "",
-            "var": lambda variable, default="": "item",
+            "config": FunctionEmulator("config", lambda **kwargs: ""),
+            "var": FunctionEmulator("var", lambda variable, default="": "item"),
             # `is_incremental()` renders as True, always in this case.
             # TODO: This means we'll never parse other parts of the query,
             # that are only reachable when `is_incremental()` returns False.
             # We should try to find a solution to that. Perhaps forcing the file
             # to be parsed TWICE if it uses this variable.
-            "is_incremental": lambda: True,
+            "is_incremental": FunctionEmulator("is_incremental", lambda: True),
             "this": RelationEmulator(),
         }
         return dbt_builtins
@@ -979,9 +1005,9 @@ class JinjaTemplater(PythonTemplater):
                     # (here that is options[0]).
                     new_value = "True" if options[0] == branch + 1 else "False"
                     new_source = f"{{% {raw_file_slice.tag} {new_value} %}}"
-                    tracer_trace.raw_slice_info[raw_file_slice].alternate_code = (
-                        new_source
-                    )
+                    tracer_trace.raw_slice_info[
+                        raw_file_slice
+                    ].alternate_code = new_source
                     override_raw_slices.append(branch)
                     length_deltas[raw_file_slice.source_idx] = len(new_source) - len(
                         raw_file_slice.raw
