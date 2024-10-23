@@ -17,7 +17,7 @@ class Parser:
         self, config: Optional[FluffConfig] = None, dialect: Optional[str] = None
     ):
         if config and dialect:
-            raise ValueError(
+            raise ValueError(  # pragma: no cover
                 "Parser does not support setting both `config` and `dialect`."
             )
         # Use the provided config or create one from the dialect.

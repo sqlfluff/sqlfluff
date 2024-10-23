@@ -732,7 +732,7 @@ class Lexer:
         dialect: Optional[str] = None,
     ):
         if config and dialect:
-            raise ValueError(
+            raise ValueError(  # pragma: no cover
                 "Lexer does not support setting both `config` and `dialect`."
             )
         # Use the provided config or create one from the dialect.

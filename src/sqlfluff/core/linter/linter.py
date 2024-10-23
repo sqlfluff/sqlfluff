@@ -79,7 +79,7 @@ class Linter:
         exclude_rules: Optional[List[str]] = None,
     ) -> None:
         if config and (dialect or rules or exclude_rules):
-            raise ValueError(
+            raise ValueError(  # pragma: no cover
                 "Linter does not support setting both `config` and any of "
                 "`dialect`, `rules` or `exclude_rules`. The latter are "
                 "provided as convenience methods to avoid needing to "
