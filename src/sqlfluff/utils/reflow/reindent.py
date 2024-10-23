@@ -572,6 +572,7 @@ def _revise_templated_lines(
                 # We've got more than one option. To help narrow down, see whether
                 # we we can net outside the lines immediately inside.
                 check_lines = [group_lines[0] + 1, group_lines[-1] - 1]
+                fallback = max(lines[idx].initial_indent_balance for idx in check_lines)
                 for idx in check_lines:
                     # NOTE: It's important here that we've already called
                     # _revise_skipped_source_lines. We don't want to take
@@ -581,10 +582,17 @@ def _revise_templated_lines(
                         lines[idx].initial_indent_balance,
                     )
                     overlap.discard(lines[idx].initial_indent_balance)
-            best_indent = max(overlap)
-            reflow_logger.debug(
-                "    Case 2: Best: %s, Overlap: %s", best_indent, overlap
-            )
+            if not overlap:
+                best_indent = fallback
+                reflow_logger.debug(
+                    "      Using fallback since all overlaps were discarded: %s.",
+                    fallback,
+                )
+            else:
+                best_indent = max(overlap)
+                reflow_logger.debug(
+                    "    Case 2: Best: %s, Overlap: %s", best_indent, overlap
+                )
 
         # Set all the lines to this indent
         for idx in group_lines:
