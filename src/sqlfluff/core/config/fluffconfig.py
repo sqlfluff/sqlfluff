@@ -373,7 +373,6 @@ class FluffConfig:
     @classmethod
     def from_kwargs(
         cls,
-        config: Optional[FluffConfig] = None,
         dialect: Optional[str] = None,
         rules: Optional[List[str]] = None,
         exclude_rules: Optional[List[str]] = None,
@@ -385,14 +384,6 @@ class FluffConfig:
         like Linter(), Parser() and Lexer() can be instantiated with a
         FluffConfig or with the convenience kwargs: dialect & rules.
         """
-        if (dialect or rules) and config:  # pragma: no cover
-            raise ValueError(
-                "Cannot specify `config` with `dialect` or `rules`. Any config object "
-                "specifies its own dialect and rules."
-            )
-        elif config:
-            return config
-
         overrides: ConfigMappingType = {}
         if dialect:
             overrides["dialect"] = dialect

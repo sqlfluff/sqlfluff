@@ -78,9 +78,16 @@ class Linter:
         user_rules: Optional[List[Type[BaseRule]]] = None,
         exclude_rules: Optional[List[str]] = None,
     ) -> None:
-        # Store the config object
-        self.config = FluffConfig.from_kwargs(
-            config=config,
+        if config and (dialect or rules or exclude_rules):
+            raise ValueError(
+                "Linter does not support setting both `config` and any of "
+                "`dialect`, `rules` or `exclude_rules`. The latter are "
+                "provided as convenience methods to avoid needing to "
+                "set the `config` object. If using `config`, please "
+                "provide all the other values within that object."
+            )
+        # Use the provided config or create one from the kwargs.
+        self.config = config or FluffConfig.from_kwargs(
             dialect=dialect,
             rules=rules,
             exclude_rules=exclude_rules,
