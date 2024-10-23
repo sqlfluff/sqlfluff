@@ -60,6 +60,34 @@ class FluffConfig:
 
     It is also designed to pickle well for use in parallel operations.
 
+    Args:
+        configs (ConfigMappingType, optional): A nested dict of config
+            values from which to construct the config.
+        extra_config_path (str, optional): An optional additional path
+            to load config files from. These are loaded last if found
+            and take precedence over any pre-existing config values.
+            Note that when provided directly to the class, this path
+            is not loaded for the class in question (it's assumed that
+            has already been done, and the results are incorporated in
+            the `configs` argument), but it *is* passed onward to child
+            config instances, which will use it.
+        ignore_local_config (bool, optional, defaults to False): If set to
+            True, this skips loading configuration from the user home
+            directory (``~``) or ``appdir`` path.
+        overrides (ConfigMappingType, optional): A additional set of
+            configs to merge into the ``core`` section of the config
+            object at the end. These values take precedence over all
+            other provided values and are inherited by child configs.
+            For example, override values provided in the CLI use this
+            method to apply to all files in a linting operation. Note
+            that this mapping dict *only* applies to the ``core``
+            section and so cannot be used for all values.
+        plugin_manager (PluginManager, optional): Optional pre-loaded
+            config manager. Generally users should not need to provide
+            this, as the class will fetch it's own if not provided.
+            This argument is used when creating new class instances to
+            avoid reloading the manager.
+
     .. note::
        Methods for accessing internal properties on the config are not particularly
        standardised as the project currently assumes that few other tools are using
