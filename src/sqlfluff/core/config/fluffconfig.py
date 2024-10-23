@@ -477,13 +477,14 @@ class FluffConfig:
 
         The following examples show how to fetch various default values:
 
-        >>> FluffConfig().get("dialect")
+        >>> FluffConfig(overrides={"dialect": "ansi"}).get("dialect")
         'ansi'
 
-        >>> FluffConfig().get("tab_space_size", section="indentation")
+        >>> config = FluffConfig(overrides={"dialect": "ansi"})
+        >>> config.get("tab_space_size", section="indentation")
         4
 
-        >>> FluffConfig().get(
+        >>> FluffConfig(overrides={"dialect": "ansi"}).get(
         ...     "capitalisation_policy",
         ...     section=["rules", "capitalisation.keywords"]
         ... )
@@ -529,11 +530,13 @@ class FluffConfig:
                 a standard config file.
             val: The value to set at the given path.
 
-        >>> cfg = FluffConfig().set_value(["dialect"], "postgres")
+        >>> cfg = FluffConfig(overrides={"dialect": "ansi"})
+        >>> cfg.set_value(["dialect"], "postgres")
         >>> cfg.get("dialect")
         'postgres'
 
-        >>> cfg = FluffConfig().set_value(["indentation", "tab_space_size"], 2)
+        >>> cfg = FluffConfig(overrides={"dialect": "ansi"})
+        >>> cfg.set_value(["indentation", "tab_space_size"], 2)
         >>> cfg.get("tab_space_size", section="indentation")
         2
         """
@@ -607,7 +610,7 @@ class FluffConfig:
                 invalid config string is provided so that any error messages
                 can reference the file with the issue.
 
-        >>> cfg = FluffConfig()
+        >>> cfg = FluffConfig(overrides={"dialect": "ansi"})
         >>> cfg.process_inline_config(
         ...     "-- sqlfluff:dialect:postgres",
         ...     "test.sql"
@@ -654,9 +657,9 @@ class FluffConfig:
                 invalid config string is provided so that any error messages
                 can reference the file with the issue.
 
-        >>> cfg = FluffConfig()
+        >>> cfg = FluffConfig(overrides={"dialect": "ansi"})
         >>> cfg.process_raw_file_for_config(
-        ...     "SELECT 1 -- sqlfluff:dialect:postgres",
+        ...     "-- sqlfluff:dialect:postgres",
         ...     "test.sql"
         ... )
         >>> cfg.get("dialect")
