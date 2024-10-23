@@ -87,7 +87,7 @@ See :ref:`ignoreconfig`.
 Configuration Issues
 ^^^^^^^^^^^^^^^^^^^^
 
-If you're getting ether error unexpected behaviour with your config or errors
+If you're getting ether unexpected behaviour with your config, or errors
 because config values haven't been set correctly, it's often due to config
 file discovery (i.e. whether SQLFluff can find your config file, and what
 order it's combining config files).
