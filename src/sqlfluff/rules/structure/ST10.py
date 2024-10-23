@@ -7,7 +7,23 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
 class Rule_ST10(BaseRule):
-    """Const expression rule."""
+    """Const expression rule.
+
+    **Anti-pattern**
+
+    .. code-block:: sql
+
+         -- TODO
+        SELECT 1;
+
+    **Best practice**
+
+    .. code-block:: sql
+
+         -- TODO
+        SELECT 1;
+
+    """
 
     name = "structure.const_expression"
     aliases = ()
