@@ -1,0 +1,43 @@
+rule: ST10
+
+test_trivial:
+  pass_str: |
+    select * from foo where col = 3
+
+test_pass_join:
+  pass_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+    where foo.a = bar.a
+
+test_fail_const_expression:
+  fail_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+    where foo.a = foo.a
+
+test_pass_allowed_const_true:
+  # often used in code-generated SQL
+  pass_str: |
+    select col from foo WHERE 1=1 AND col2 = 'val2'
+
+test_pass_allowed_const_false:
+  # often used in code-generated SQL
+  pass_str: |
+    select col from foo WHERE 1=0 OR col2 = 'val2'
+
+test_pass_between:
+  # often used in code-generated SQL
+  pass_str: |
+    select col from foo WHERE score BETWEEN 1 and 10
+
+test_fail_bracketed:
+  # often used in code-generated SQL
+  fail_str: |
+    select col from foo WHERE cond=1 AND (score=score OR avg_score >= 3)
