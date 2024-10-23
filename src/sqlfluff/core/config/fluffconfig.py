@@ -356,7 +356,34 @@ class FluffConfig:
         overrides: Optional[ConfigMappingType] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
     ) -> FluffConfig:
-        """Loads a config object given a particular path."""
+        """Loads a config object given a particular path.
+
+        Args:
+            path (str): The target path to load config files from. Files
+                found between the working path and this path are also loaded
+                and nested with files closest to this target path taking
+                precedence.
+            extra_config_path (str, optional): An optional additional path
+                to load config files from. These are loaded last if found
+                and take precedence over any pre-existing config values.
+            ignore_local_config (bool, optional, defaults to False): If set to
+                True, this skips loading configuration from the user home
+                directory (``~``) or ``appdir`` path.
+            overrides (ConfigMappingType, optional): A additional set of
+                configs to merge into the ``core`` section of the config
+                object at the end. These values take precedence over all
+                other provided values and are inherited by child configs.
+                Note that this mapping dict *only* applies to the ``core``
+                section and so cannot be used for all values.
+            plugin_manager (PluginManager, optional): Optional pre-loaded
+                config manager. Generally users should not need to provide
+                this, as the class will fetch it's own if not provided.
+                This argument is used when creating new class instances to
+                avoid reloading the manager.
+
+        Returns:
+            :obj:`FluffConfig`: The loaded config object.
+        """
         configs = load_config_up_to_path(
             path=path,
             extra_config_path=extra_config_path,
@@ -378,11 +405,25 @@ class FluffConfig:
         exclude_rules: Optional[List[str]] = None,
         require_dialect: bool = True,
     ) -> FluffConfig:
-        """Instantiate a config from either an existing config or kwargs.
+        """Instantiate a config from a subset of common options.
+
+        Args:
+            dialect (str, optional): The name of the dialect to use.
+            rules (list of str, optional): A list of rules to include.
+                Rule specifiers can be codes, names, groups or aliases.
+                If not set, defaults to all rules.
+            exclude_rules (list of str, optional): A list of rules to
+                exclude. Rule specifiers can be codes, names, groups or
+                aliases. If not set, does not exclude any rules.
+            require_dialect (bool, optional, default is True): When True
+                an error will be raise if the dialect config value is unset.
+
+        Returns:
+            :obj:`FluffConfig`: The loaded config object.
 
         This is a convenience method for the ways that the public classes
-        like Linter(), Parser() and Lexer() can be instantiated with a
-        FluffConfig or with the convenience kwargs: dialect & rules.
+        like Linter(), Parser() and Lexer() allow a subset of attributes to
+        be set directly rather than requiring a pre-made `FluffConfig`.
         """
         overrides: ConfigMappingType = {}
         if dialect:
