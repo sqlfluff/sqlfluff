@@ -58,6 +58,7 @@ repos:
             pathspec,
             pytest,  # and by extension... pluggy
             click,
+            platformdirs
           ]
         files: ^src/sqlfluff/.*
         # The mypy pre-commit hook by default sets a few arguments that we don't normally

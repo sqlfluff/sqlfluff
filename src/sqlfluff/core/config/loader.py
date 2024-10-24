@@ -8,8 +8,6 @@ rather than the individual file caching in the `file` module.
 
 from __future__ import annotations
 
-import platformdirs.unix
-
 try:
     from importlib.resources import files
 except ImportError:  # pragma: no cover
