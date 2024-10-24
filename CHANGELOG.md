@@ -10,6 +10,45 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.2.5] - 2024-10-24
+
+## Highlights
+
+## What’s Changed
+
+* Guides for custom rules and for troubleshooting [#6379](https://github.com/sqlfluff/sqlfluff/pull/6379) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Documentation and small overhaul of parametrized rule test cases [#6380](https://github.com/sqlfluff/sqlfluff/pull/6380) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* TSQL: add missing unreserved keyword NULLS (#5212) [#6390](https://github.com/sqlfluff/sqlfluff/pull/6390) [@simonhoerdumbonde](https://github.com/simonhoerdumbonde)
+* Introducing SQLFluff Guru on Gurubase.io [#6373](https://github.com/sqlfluff/sqlfluff/pull/6373) [@kursataktas](https://github.com/kursataktas)
+* Improve heuristics for inline config [#6391](https://github.com/sqlfluff/sqlfluff/pull/6391) [@rogalski](https://github.com/rogalski)
+* Postgres: Handle expressions that occur in `IN` functions [#6393](https://github.com/sqlfluff/sqlfluff/pull/6393) [@keraion](https://github.com/keraion)
+* Snowflake: Support bracketed lambda functions without datatypes [#6394](https://github.com/sqlfluff/sqlfluff/pull/6394) [@keraion](https://github.com/keraion)
+* LT01: Add default config for `match_condition` to touch [#6395](https://github.com/sqlfluff/sqlfluff/pull/6395) [@keraion](https://github.com/keraion)
+* Snowflake: Allow for additional `CONNECT BY` expressions that may use `PRIOR` [#6396](https://github.com/sqlfluff/sqlfluff/pull/6396) [@keraion](https://github.com/keraion)
+* Details on debugging and setup for diff-quality [#6381](https://github.com/sqlfluff/sqlfluff/pull/6381) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix edge case in Jinja reindents [#6383](https://github.com/sqlfluff/sqlfluff/pull/6383) [@rogalski](https://github.com/rogalski)
+* Support identifier clause for Databricks [#6377](https://github.com/sqlfluff/sqlfluff/pull/6377) [@PaulBurridge](https://github.com/PaulBurridge)
+* Enable AM02 for snowflake and trino by default. [#6369](https://github.com/sqlfluff/sqlfluff/pull/6369) [@mchen-codaio](https://github.com/mchen-codaio)
+* Postgres: Support identifiers in `ALTER DATABASE SET` [#6376](https://github.com/sqlfluff/sqlfluff/pull/6376) [@keraion](https://github.com/keraion)
+* SparkSQL: Improved lexing and parsing of file literals [#6375](https://github.com/sqlfluff/sqlfluff/pull/6375) [@keraion](https://github.com/keraion)
+* Fix Snowflake alter share [#6372](https://github.com/sqlfluff/sqlfluff/pull/6372) [@greg-finley](https://github.com/greg-finley)
+* Resolve collision between ST02 and LT01 [#6366](https://github.com/sqlfluff/sqlfluff/pull/6366) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Prevent false positives with AL05 and array functions [#6365](https://github.com/sqlfluff/sqlfluff/pull/6365) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Handle iteration and getting undefined jinja variables [#6364](https://github.com/sqlfluff/sqlfluff/pull/6364) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Update documentation with new dialects [#6337](https://github.com/sqlfluff/sqlfluff/pull/6337) [@mchen-codaio](https://github.com/mchen-codaio)
+* enable default values when creating databricks tables [#6362](https://github.com/sqlfluff/sqlfluff/pull/6362) [@VictorAtIfInsurance](https://github.com/VictorAtIfInsurance)
+* Postgres :  Add `ALTER AGGREGATE` Statement [#6353](https://github.com/sqlfluff/sqlfluff/pull/6353) [@R3gardless](https://github.com/R3gardless)
+* Revise AL09 (self aliasing) - stricter case sensitivity [#6333](https://github.com/sqlfluff/sqlfluff/pull/6333) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Make dbt `RelationEmulator` safely callable [#6358](https://github.com/sqlfluff/sqlfluff/pull/6358) [@mroy-seedbox](https://github.com/mroy-seedbox)
+
+## New Contributors
+
+* [@VictorAtIfInsurance](https://github.com/VictorAtIfInsurance) made their first contribution in [#6362](https://github.com/sqlfluff/sqlfluff/pull/6362)
+* [@mchen-codaio](https://github.com/mchen-codaio) made their first contribution in [#6337](https://github.com/sqlfluff/sqlfluff/pull/6337)
+* [@PaulBurridge](https://github.com/PaulBurridge) made their first contribution in [#6377](https://github.com/sqlfluff/sqlfluff/pull/6377)
+* [@kursataktas](https://github.com/kursataktas) made their first contribution in [#6373](https://github.com/sqlfluff/sqlfluff/pull/6373)
+* [@simonhoerdumbonde](https://github.com/simonhoerdumbonde) made their first contribution in [#6390](https://github.com/sqlfluff/sqlfluff/pull/6390)
+
 ## [3.2.4] - 2024-10-14
 
 ## Highlights
