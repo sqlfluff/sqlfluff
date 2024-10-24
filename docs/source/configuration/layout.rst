@@ -763,6 +763,56 @@ available:
          UNION
          SELECT b;
 
+* **Keyword Line Position**: set using the :code:`keyword_line_position` option.
+   By default for most clauses this is unset, which implies no particular keyword
+   line position requirements. The available options are:
+
+   *  :code:`leading` and :code:`alone`, which are most common in the
+      placement of keywords. Both of these settings *also* allow the option
+      of a keyword to end on a line. By default we assume *leading* :code:`WHERE`
+      keywords, but if you (or your organisation) have settled on *alone*
+      :code:`WHERE` keywords then you should add the following section to your config:
+
+      .. code-block:: cfg
+
+         [sqlfluff:layout:type:where_clause]
+         keyword_line_position = alone
+
+   *  :code:`trailing`, which means there should be a line break after the
+      keyword. This is fairly uncommon but may apply to the :code:`ON` keyword after
+      a join. If you (or your organisation) have settled on *trailing* :code:`ON`
+      keywords then you should add the following section to your config:
+
+      .. code-block:: cfg
+
+         [sqlfluff:layout:type:join_on_condition]
+         keyword_line_position = trailing
+
+   *  The keyword positioning is valid across a number of different clauses. For example,
+      to apply the :code:`leading` directive to the :code:`PARTITION BY` clause you
+      would add the following configuration:
+
+      .. code-block:: cfg
+
+         [sqlfluff:layout:type:partitionby_clause]
+         keyword_line_position = leading
+
+   *  If you (or your organisation) would prefer to unset the :ref:`defaultconfig`
+      of some options, you may clear it by setting the configuration to :code:`none`.
+
+      .. code-block:: cfg
+
+         [sqlfluff:layout:type:where_clause]
+         keyword_line_position = none
+
+         [sqlfluff:layout:type:orderby_clause]
+         keyword_line_position = none
+
+         [sqlfluff:layout:type:groupby_clause]
+         keyword_line_position = none
+
+         [sqlfluff:layout:type:having_clause]
+         keyword_line_position = none
 
 .. _`C Preprocessor Directives`: https://www.cprogramming.com/reference/preprocessor/
 .. _`dbt Labs SQL style guide`: https://github.com/dbt-labs/corp/blob/main/dbt_style_guide.md

@@ -157,6 +157,13 @@ class ReflowBlock(ReflowElement):
     #: of the segment in this block.
     #: See :ref:`layoutspacingconfig`
     line_position_configs: Dict[int, str]
+    #: Desired line position for this block's keywords.
+    #: See :ref:`layoutspacingconfig`
+    keyword_line_position: Optional[str]
+    #: Desired keyword line position configurations for parent segments
+    #: of the segment in this block.
+    #: See :ref:`layoutspacingconfig`
+    keyword_line_position_configs: Dict[int, str]
 
     @classmethod
     def from_config(
@@ -175,6 +182,7 @@ class ReflowBlock(ReflowElement):
         block_config = config.get_block_config(cls._class_types(segments), depth_info)
         stack_spacing_configs = {}
         line_position_configs = {}
+        keyword_line_position_configs = {}
         for hash, class_types in zip(
             depth_info.stack_hashes, depth_info.stack_class_types
         ):
@@ -183,6 +191,8 @@ class ReflowBlock(ReflowElement):
                 stack_spacing_configs[hash] = cfg.spacing_within
             if cfg.line_position:
                 line_position_configs[hash] = cfg.line_position
+            if cfg.keyword_line_position:
+                keyword_line_position_configs[hash] = cfg.keyword_line_position
         return cls(
             segments=segments,
             spacing_before=block_config.spacing_before,
@@ -191,6 +201,8 @@ class ReflowBlock(ReflowElement):
             depth_info=depth_info,
             stack_spacing_configs=stack_spacing_configs,
             line_position_configs=line_position_configs,
+            keyword_line_position=block_config.keyword_line_position,
+            keyword_line_position_configs=keyword_line_position_configs,
         )
 
 

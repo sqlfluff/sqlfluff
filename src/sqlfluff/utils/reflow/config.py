@@ -20,6 +20,7 @@ class BlockConfig:
     spacing_after: str = "single"
     spacing_within: Optional[str] = None
     line_position: Optional[str] = None
+    keyword_line_position: Optional[str] = None
 
     def incorporate(
         self,
@@ -28,6 +29,7 @@ class BlockConfig:
         within: Optional[str] = None,
         line_position: Optional[str] = None,
         config: Optional[ConfigElementType] = None,
+        keyword_line_position: Optional[str] = None,
     ) -> None:
         """Mutate the config based on additional information."""
         config = config or {}
@@ -42,6 +44,11 @@ class BlockConfig:
         )
         self.line_position = (
             line_position or config.get("line_position", None) or self.line_position
+        )
+        self.keyword_line_position = (
+            keyword_line_position
+            or config.get("keyword_line_position", None)
+            or self.keyword_line_position
         )
 
 
