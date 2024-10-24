@@ -9,3 +9,5 @@ SELECT
     TRANSFORM("ident", j -> j) as sample_transform,
     some_other_function('unusual arguments', x -> 'still a lambda expression', true) as sample_other
 FROM ref;
+
+SELECT REDUCE([1,2,3], 0, (acc, val) -> acc + val);

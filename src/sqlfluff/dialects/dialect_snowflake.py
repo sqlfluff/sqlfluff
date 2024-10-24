@@ -8470,7 +8470,7 @@ class LambdaExpressionSegment(BaseSegment):
                 Delimited(
                     Sequence(
                         Ref("NakedIdentifierSegment"),
-                        Ref("DatatypeSegment"),
+                        Ref("DatatypeSegment", optional=True),
                     )
                 )
             ),
