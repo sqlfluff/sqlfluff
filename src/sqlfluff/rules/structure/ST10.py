@@ -24,6 +24,7 @@ class Rule_ST10(BaseRule):
     **Anti-pattern**
 
     .. code-block:: sql
+
         SELECT *
         FROM my_table
         -- This following WHERE clause is redundant.
@@ -32,6 +33,7 @@ class Rule_ST10(BaseRule):
     **Best practice**
 
     .. code-block:: sql
+
         SELECT *
         FROM my_table
         -- Replace with a condition that includes meaningful logic,
