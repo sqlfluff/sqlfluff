@@ -3,7 +3,7 @@
 from sqlfluff.core.errors import SQLTemplaterError
 
 
-class FunctionEmulator:
+class FunctionWrapper:
     """Class to wrap a callable, for better error handling.
 
     When called, it just delegates to the provided callable, but if

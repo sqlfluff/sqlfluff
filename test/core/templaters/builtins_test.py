@@ -1,4 +1,24 @@
+"""Test the templating builtins."""
+
+import pytest
+
+from sqlfluff.core.errors import SQLTemplaterError
+from sqlfluff.core.templaters.builtins.common import FunctionWrapper
 from sqlfluff.core.templaters.builtins.dbt import DBT_BUILTINS
+
+
+def test_function_emulator():
+    """Make sure the function wrapper works as expected."""
+
+    def func(x):
+        return "foo" + x
+
+    wrapped = FunctionWrapper("test_name", func)
+
+    assert str(wrapped("bar")) == "foobar"
+
+    with pytest.raises(SQLTemplaterError):
+        str(wrapped)
 
 
 def test_relation_emulator_magic_methods():

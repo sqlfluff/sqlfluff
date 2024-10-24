@@ -2,7 +2,7 @@
 
 from typing import Any, Union
 
-from sqlfluff.core.templaters.builtins.common import FunctionEmulator
+from sqlfluff.core.templaters.builtins.common import FunctionWrapper
 
 
 class RelationEmulator:
@@ -37,24 +37,24 @@ class RelationEmulator:
         return self.identifier
 
 
-# NOTE: we use `FunctionEmulator` on all of the callable builtins here
+# NOTE: we use `FunctionWrapper` on all of the callable builtins here
 # so that there's a sensible error message if someone tries to render
 # them directly.
 DBT_BUILTINS = {
-    "ref": FunctionEmulator("ref", lambda *args, **kwargs: RelationEmulator(args[-1])),
+    "ref": FunctionWrapper("ref", lambda *args, **kwargs: RelationEmulator(args[-1])),
     # In case of a cross project ref in dbt, model_ref is the second
     # argument. Otherwise it is the only argument.
-    "source": FunctionEmulator(
+    "source": FunctionWrapper(
         "source",
         lambda source_name, table: RelationEmulator(f"{source_name}_{table}"),
     ),
-    "config": FunctionEmulator("config", lambda **kwargs: ""),
-    "var": FunctionEmulator("var", lambda variable, default="": "item"),
+    "config": FunctionWrapper("config", lambda **kwargs: ""),
+    "var": FunctionWrapper("var", lambda variable, default="": "item"),
     # `is_incremental()` renders as True, always in this case.
     # TODO: This means we'll never parse other parts of the query,
     # that are only reachable when `is_incremental()` returns False.
     # We should try to find a solution to that. Perhaps forcing the file
     # to be parsed TWICE if it uses this variable.
-    "is_incremental": FunctionEmulator("is_incremental", lambda: True),
+    "is_incremental": FunctionWrapper("is_incremental", lambda: True),
     "this": RelationEmulator(),
 }
