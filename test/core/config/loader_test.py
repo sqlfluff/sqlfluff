@@ -5,7 +5,6 @@ import sys
 from contextlib import contextmanager
 from unittest.mock import call, patch
 
-import appdirs
 import pytest
 
 from sqlfluff.core import FluffConfig
@@ -176,7 +175,7 @@ def test__config__load_user_appdir_config(
 
     mock_path_exists.side_effect = path_exists
 
-    with patch.object(appdirs, attribute="system", new="darwin"):
+    with patch.object(sys, attribute="platform", new="darwin"):
         resolved_path = _get_user_config_dir_path()
         _load_user_appdir_config()
     assert resolved_path == os.path.expanduser("~/Library/Application Support/sqlfluff")

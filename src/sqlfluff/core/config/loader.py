@@ -8,6 +8,8 @@ rather than the individual file caching in the `file` module.
 
 from __future__ import annotations
 
+import platformdirs.unix
+
 try:
     from importlib.resources import files
 except ImportError:  # pragma: no cover
@@ -17,12 +19,13 @@ except ImportError:  # pragma: no cover
 import logging
 import os
 import os.path
+import sys
 from pathlib import Path
 from typing import (
     Optional,
 )
 
-import appdirs
+import platformdirs
 
 from sqlfluff.core.config.file import (
     cache,
@@ -62,13 +65,13 @@ def _get_user_config_dir_path() -> str:
     # On Mac OSX follow Linux XDG base dirs
     # https://github.com/sqlfluff/sqlfluff/issues/889
     user_config_dir_path = os.path.expanduser("~/.config/sqlfluff")
-    if appdirs.system == "darwin":
-        appdirs.system = "linux2"
-        user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
-        appdirs.system = "darwin"
+    if sys.platform == "darwin":
+        user_config_dir_path = platformdirs.unix.Unix(
+            appname=appname, appauthor=appauthor
+        ).user_config_dir()
 
     if not os.path.exists(user_config_dir_path):
-        user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
+        user_config_dir_path = platformdirs.user_config_dir(appname, appauthor)
 
     return user_config_dir_path
 

@@ -45,7 +45,6 @@ repos:
           [
             types-toml,
             types-chardet,
-            types-appdirs,
             types-colorama,
             types-pyyaml,
             types-regex,
