@@ -42,3 +42,16 @@ select
 from components c
 connect by prior c.parent_component_id = c.component_id AND PRIOR c.component_type = c.component_type
 order by quantity;
+
+with tbl as (
+    select 'A' as foo, 'B' as bar
+    union all
+    select 'B' as foo, 'C' as bar
+)
+
+select
+    *,
+    connect_by_root bar as connect_by_root,
+    sys_connect_by_path(bar, '') as path
+from tbl
+connect by prior foo = bar and not contains(prior path, bar);
