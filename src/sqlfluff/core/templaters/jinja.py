@@ -47,6 +47,7 @@ from sqlfluff.core.templaters.base import (
     TemplatedFileSlice,
     large_file_check,
 )
+from sqlfluff.core.templaters.builtins.dbt import DBT_BUILTINS
 from sqlfluff.core.templaters.python import PythonTemplater
 from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer, JinjaTrace
 
@@ -316,58 +317,6 @@ class JinjaTemplater(PythonTemplater):
         # remove magic methods from result
         return {k: v for k, v in libraries.__dict__.items() if not k.startswith("__")}
 
-    @staticmethod
-    def _generate_dbt_builtins() -> Dict[str, Any]:
-        """Generate the dbt builtins which are injected in the context."""
-        # This feels a bit wrong defining these here, they should probably
-        # be configurable somewhere sensible. But for now they're not.
-        # TODO: Come up with a better solution.
-
-        class RelationEmulator:
-            """A class which emulates the `this` class from dbt."""
-
-            # Tell Jinja this object is safe to call and does not alter data.
-            # https://jinja.palletsprojects.com/en/3.0.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
-            unsafe_callable = False
-            alters_data = False
-
-            identifier = "this_model"
-            schema = "this_schema"
-            database = "this_database"
-
-            def __init__(self, identifier: str = "this_model") -> None:
-                self.identifier = identifier
-
-            def __call__(self, *args: Any, **kwargs: Any) -> "RelationEmulator":
-                return self
-
-            def __getattr__(self, name: str) -> Union["RelationEmulator", bool]:
-                if name[0:3] == "is_":
-                    return True
-                return self
-
-            def __str__(self) -> str:
-                return self.identifier
-
-        dbt_builtins = {
-            "ref": lambda *args, **kwargs: RelationEmulator(args[-1]),
-            # In case of a cross project ref in dbt, model_ref is the second
-            # argument. Otherwise it is the only argument.
-            "source": lambda source_name, table: RelationEmulator(
-                f"{source_name}_{table}"
-            ),
-            "config": lambda **kwargs: "",
-            "var": lambda variable, default="": "item",
-            # `is_incremental()` renders as True, always in this case.
-            # TODO: This means we'll never parse other parts of the query,
-            # that are only reachable when `is_incremental()` returns False.
-            # We should try to find a solution to that. Perhaps forcing the file
-            # to be parsed TWICE if it uses this variable.
-            "is_incremental": lambda: True,
-            "this": RelationEmulator(),
-        }
-        return dbt_builtins
-
     @classmethod
     def _crawl_tree(
         cls, tree: jinja2.nodes.Node, variable_names: Set[str], raw: str
@@ -584,14 +533,10 @@ class JinjaTemplater(PythonTemplater):
                 env.filters.update(jinja_filters)
 
             if self._apply_dbt_builtins(config):
-                # This feels a bit wrong defining these here, they should probably
-                # be configurable somewhere sensible. But for now they're not.
-                # TODO: Come up with a better solution.
-                dbt_builtins = self._generate_dbt_builtins()
-                for name in dbt_builtins:
+                for name in DBT_BUILTINS:
                     # Only apply if it hasn't already been set at this stage.
                     if name not in live_context:
-                        live_context[name] = dbt_builtins[name]
+                        live_context[name] = DBT_BUILTINS[name]
 
         # Load macros from path (if applicable)
         if config:
