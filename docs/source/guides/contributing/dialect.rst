@@ -1,3 +1,5 @@
+.. _contributing_dialect_changes:
+
 Contributing dialect changes
 ============================
 
