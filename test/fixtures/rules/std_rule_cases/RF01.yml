@@ -328,3 +328,13 @@ test_pass_trino_lambda_expression:
   configs:
     core:
       dialect: trino
+
+test_athena_ignore_rule:
+  pass_str: |
+    select
+        a.complex.key,
+        a.complex.structure.val
+    from sch.t1
+  configs:
+    core:
+      dialect: athena

@@ -71,6 +71,7 @@ class Rule_RF01(BaseRule):
     # because they will more accurately process any internal references.
     crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
     _dialects_disabled_by_default = [
+        "athena",
         "bigquery",
         "databricks",
         "hive",
