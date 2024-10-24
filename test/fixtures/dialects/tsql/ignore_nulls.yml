@@ -1,0 +1,54 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2ddecced616ec907e50053da203d5e42d7c6867701a26a76b72336bfeb75d27e
+file:
+  batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: FIRST_VALUE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      quoted_identifier: '[entrypunt]'
+                  end_bracket: )
+              over_clause:
+              - keyword: IGNORE
+              - keyword: NULLS
+              - keyword: OVER
+              - bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - bracketed:
+                        start_bracket: (
+                        column_reference:
+                          quoted_identifier: '[reisnummer]'
+                        end_bracket: )
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                        quoted_identifier: '[reismutatie starttijdstip]'
+                  end_bracket: )
+            alias_expression:
+              keyword: AS
+              quoted_identifier: '[entrypunt]'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  quoted_identifier: '[reizen]'

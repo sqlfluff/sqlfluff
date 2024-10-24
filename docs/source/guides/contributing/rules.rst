@@ -29,12 +29,11 @@ only those tests:
 
 .. code-block:: sh
 
-   pytest -vv test/rules/yaml_test_cases_test.py --rule_id=RF01
    pytest -vv test/rules/ -k RF01
 
-The :code:`--rule_id` syntax relies on the name of the yaml file, and the :code:`-k`
-option simply searches for the content of the argument being in the name of the test.
-The latter is slightly less to type and so is generally the most frequently used.
+The :code:`-k` option simply searches for the content of the argument being in the name
+of the test, which will match any single or combo tests for that rule. By convention,
+any test cases for a rule should include the code for that rule.
 
 .. _`yaml`: https://yaml.org/
 .. _`yaml fixtures on github`: https://github.com/sqlfluff/sqlfluff/tree/main/test/fixtures/rules/std_rule_cases
