@@ -60,7 +60,8 @@ class Rule_ST10(BaseRule):
                     None,
                 )
                 if not lhs or not rhs:
-                    continue
+                    # Should be unreachable with correctly parsed tree
+                    continue  # pragma: no cover
                 if lhs.raw_normalized() != rhs.raw_normalized():
                     continue
 
