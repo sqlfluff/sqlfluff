@@ -2,7 +2,6 @@
 
 from copy import deepcopy
 from typing import (
-    Any,
     Dict,
     Iterable,
     Iterator,
@@ -12,10 +11,28 @@ from typing import (
     Tuple,
     TypeVar,
     Union,
+    cast,
 )
 
+T = TypeVar("T")
 
-def nested_combine(*dicts: Dict[str, Any]) -> Dict[str, Any]:
+NestedStringDict = Dict[str, Union[T, "NestedStringDict[T]"]]
+"""Nested dict, with keys as strings.
+
+All values of the dict are either values of the given type variable T, or
+are themselves dicts with the same nested properties. Variables of this type
+are used regularly in configuration methods and classes.
+"""
+
+NestedDictRecord = Tuple[Tuple[str, ...], T]
+"""Tuple form record of a setting in a NestedStringDict.
+
+The tuple of strings in the first element is the "address" in the NestedStringDict
+with the value as the second element on the tuple.
+"""
+
+
+def nested_combine(*dicts: NestedStringDict[T]) -> NestedStringDict[T]:
     """Combine an iterable of dictionaries.
 
     Each dictionary is combined into a result dictionary. For
@@ -43,12 +60,16 @@ def nested_combine(*dicts: Dict[str, Any]) -> Dict[str, Any]:
     >>> nested_combine({"a": {"b": "c"}}, {"a": {"b": "e"}})
     {'a': {'b': 'e'}}
     """
-    r: Dict[str, Any] = {}
+    r: NestedStringDict[T] = {}
     for d in dicts:
         for k in d:
             if k in r and isinstance(r[k], dict):
                 if isinstance(d[k], dict):
-                    r[k] = nested_combine(r[k], d[k])
+                    # NOTE: The cast functions here are to appease mypy which doesn't
+                    # pick up on the `isinstance` calls above.
+                    r[k] = nested_combine(
+                        cast(NestedStringDict[T], r[k]), cast(NestedStringDict[T], d[k])
+                    )
                 else:  # pragma: no cover
                     raise ValueError(
                         "Key {!r} is a dict in one config but not another! PANIC: "
@@ -66,8 +87,10 @@ def nested_combine(*dicts: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def dict_diff(
-    left: Dict[str, Any], right: Dict[str, Any], ignore: Optional[List[str]] = None
-) -> Dict[str, Any]:
+    left: NestedStringDict[T],
+    right: NestedStringDict[T],
+    ignore: Optional[List[str]] = None,
+) -> NestedStringDict[T]:
     """Work out the difference between two dictionaries.
 
     Returns a dictionary which represents elements in the `left`
@@ -99,7 +122,7 @@ def dict_diff(
     >>> dict_diff({"a": "b"}, {"a": "c"}, ["a"])
     {}
     """
-    buff: Dict[str, Any] = {}
+    buff: NestedStringDict[T] = {}
     for k in left:
         if ignore and k in ignore:
             continue
@@ -111,7 +134,11 @@ def dict_diff(
             continue
         # If it's not the same but both are dicts, then compare
         elif isinstance(left[k], dict) and isinstance(right[k], dict):
-            diff = dict_diff(left[k], right[k], ignore=ignore)
+            diff = dict_diff(
+                cast(NestedStringDict[T], left[k]),
+                cast(NestedStringDict[T], right[k]),
+                ignore=ignore,
+            )
             # Only include the difference if non-null.
             if diff:
                 buff[k] = diff
@@ -119,24 +146,6 @@ def dict_diff(
         else:
             buff[k] = left[k]
     return buff
-
-
-T = TypeVar("T")
-
-NestedStringDict = Dict[str, Union[T, "NestedStringDict[T]"]]
-"""Nested dict, with keys as strings.
-
-All values of the dict are either values of the given type variable T, or
-are themselves dicts with the same nested properties. Variables of this type
-are used regularly in configuration methods and classes.
-"""
-
-NestedDictRecord = Tuple[Tuple[str, ...], T]
-"""Tuple form record of a setting in a NestedStringDict.
-
-The tuple of strings in the first element is the "address" in the NestedStringDict
-with the value as the second element on the tuple.
-"""
 
 
 def records_to_nested_dict(

@@ -18,6 +18,7 @@ SQLFluff codebase on `GitHub`_.
 .. toctree::
    :maxdepth: 2
 
+   config
    rules
    functional
    reflow
