@@ -1,8 +1,13 @@
 rule: ST10
 
-test_trivial:
+test_pass_where:
   pass_str: |
     select * from foo where col = 3
+
+test_pass_select:
+  pass_str: |
+    select bar = baz AS are_equal
+    FROM foo
 
 test_pass_join:
   pass_str: |
@@ -11,33 +16,70 @@ test_pass_join:
         bar.b
     from foo
     left join bar
-    where foo.a = bar.a
+    on foo.a = bar.a
 
-test_fail_const_expression:
+test_fail_where:
+  fail_str: |
+    select * from foo where col = col
+
+test_fail_select:
+  fail_str: |
+    select bar = bar AS are_equal
+    FROM foo
+
+test_fail_join:
   fail_str: |
     select
         foo.a,
         bar.b
     from foo
     left join bar
-    where foo.a = foo.a
+    on foo.a = foo.a
 
-test_pass_allowed_const_true:
+test_pass_allowed_literal_true:
   # often used in code-generated SQL
   pass_str: |
-    select col from foo WHERE 1=1 AND col2 = 'val2'
+    select col from foo WHERE 1=1 AND col = 'val'
 
-test_pass_allowed_const_false:
+test_pass_allowed_literal_false:
   # often used in code-generated SQL
   pass_str: |
-    select col from foo WHERE 1=0 OR col2 = 'val2'
+    select col from foo WHERE 1=0 OR col = 'val'
 
-test_pass_between:
-  # often used in code-generated SQL
-  pass_str: |
-    select col from foo WHERE score BETWEEN 1 and 10
+test_fail_disallowed_literal_true:
+  # 'a'!='b' should be true (or match allow-list)
+  fail_str: |
+    select col from foo WHERE 'a'!='b' AND col = 'val'
 
-test_fail_bracketed:
+test_fail_disallowed_literal_false:
+  # 1 = 2 should be false (or match allow-list)
+  fail_str: |
+    select col from foo WHERE 1 = 2 OR col = 'val'
+
+test_pass_disallowed_literal_false2:
   # often used in code-generated SQL
   fail_str: |
+    select col from foo WHERE 1 <> 1 OR col = 'val'
+
+test_fail_bracketed:
+  # brackets produce nested subexpression which should be tested
+  fail_str: |
     select col from foo WHERE cond=1 AND (score=score OR avg_score >= 3)
+
+test_pass_bracketed:
+  # brackets produce nested subexpression which should be tested
+  pass_str: |
+    select col from foo WHERE ((c1 = 'x' OR c2 != 'y') AND (c3 <> 'z'))
+
+test_noop_true_literal:
+  pass_str: |
+    select * from foo where true and x > 3
+
+test_noop_false_literal:
+  pass_str: |
+    select * from foo where false OR x < 1 OR y != z
+
+test_noop_between:
+  # example of not-checked operator
+  pass_str: |
+    select col from foo WHERE score BETWEEN 1 and 10
