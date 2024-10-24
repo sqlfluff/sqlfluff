@@ -66,7 +66,7 @@ def _get_user_config_dir_path() -> str:
     if sys.platform == "darwin":
         user_config_dir_path = platformdirs.unix.Unix(
             appname=appname, appauthor=appauthor
-        ).user_config_dir()
+        ).user_config_dir
 
     if not os.path.exists(user_config_dir_path):
         user_config_dir_path = platformdirs.user_config_dir(appname, appauthor)
