@@ -17,12 +17,14 @@ except ImportError:  # pragma: no cover
 import logging
 import os
 import os.path
+import sys
 from pathlib import Path
 from typing import (
     Optional,
 )
 
-import appdirs
+import platformdirs
+import platformdirs.unix
 
 from sqlfluff.core.config.file import (
     cache,
@@ -55,20 +57,27 @@ ALLOWABLE_LAYOUT_CONFIG_KEYS = (
 )
 
 
-def _get_user_config_dir_path() -> str:
+def _get_user_config_dir_path(sys_platform: str) -> str:
+    """Get the user config dir for this system.
+
+    Args:
+        sys_platform (str): The result of ``sys.platform()``. Provided
+            as an argument here for ease of testing. In normal usage
+            it should only be  called with ``sys.platform()``.
+    """
     appname = "sqlfluff"
     appauthor = "sqlfluff"
 
     # On Mac OSX follow Linux XDG base dirs
     # https://github.com/sqlfluff/sqlfluff/issues/889
     user_config_dir_path = os.path.expanduser("~/.config/sqlfluff")
-    if appdirs.system == "darwin":
-        appdirs.system = "linux2"
-        user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
-        appdirs.system = "darwin"
+    if sys_platform == "darwin":
+        user_config_dir_path = platformdirs.unix.Unix(
+            appname=appname, appauthor=appauthor
+        ).user_config_dir
 
     if not os.path.exists(user_config_dir_path):
-        user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
+        user_config_dir_path = platformdirs.user_config_dir(appname, appauthor)
 
     return user_config_dir_path
 
@@ -164,7 +173,7 @@ def load_config_at_path(path: str) -> ConfigMappingType:
 
 def _load_user_appdir_config() -> ConfigMappingType:
     """Load the config from the user's OS specific appdir config directory."""
-    user_config_dir_path = _get_user_config_dir_path()
+    user_config_dir_path = _get_user_config_dir_path(sys.platform)
     if os.path.exists(user_config_dir_path):
         return load_config_at_path(user_config_dir_path)
     else:
