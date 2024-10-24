@@ -1,5 +1,7 @@
 """Common classes and functions for defining templating builtins."""
 
+from typing import Any, Callable
+
 from sqlfluff.core.errors import SQLTemplaterError
 
 
@@ -11,15 +13,15 @@ class FunctionWrapper:
     error.
     """
 
-    def __init__(self, name, callable):
+    def __init__(self, name: str, callable: Callable[..., Any]):
         self._name = name
         self._callable = callable
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """When the wrapper is called, call the internal function."""
         return self._callable(*args, **kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """If we try and render the wrapper directly, throw an error."""
         raise SQLTemplaterError(
             f"Unable to render builtin callable {self._name!r} as a "
