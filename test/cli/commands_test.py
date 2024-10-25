@@ -2290,7 +2290,7 @@ def test__cli__fix_show_parse_errors():
         ],
     )
     check_a = "1 templating/parsing errors found"
-    assert check_a in result.output
+    assert check_a not in result.output
     assert (
         "L:   9 | P:  21 |  PRS | Couldn't find closing bracket for opening bracket."
         in result.output
@@ -2307,7 +2307,6 @@ def test__cli__fix_show_parse_errors():
             ],
         ],
     )
-    check_a = "1 templating/parsing errors found"
     assert check_a in result.output
     assert (
         "L:   9 | P:  21 |  PRS | Couldn't find closing bracket for opening bracket."

@@ -91,12 +91,14 @@ class OutputStreamFormatter(FormatterInterface):
         verbosity: int = 0,
         filter_empty: bool = True,
         output_line_length: int = 80,
+        show_lint_violations: bool = False
     ):
         self._output_stream = output_stream
         self.plain_output = self.should_produce_plain_output(nocolor)
         self.verbosity = verbosity
         self._filter_empty = filter_empty
         self.output_line_length = output_line_length
+        self.show_lint_violations = show_lint_violations
 
     @staticmethod
     def should_produce_plain_output(nocolor: bool) -> bool:
@@ -262,7 +264,7 @@ class OutputStreamFormatter(FormatterInterface):
         s = self._format_file_violations(
             fname,
             linted_file.get_violations(
-                fixable=True if only_fixable else None,
+                fixable=True if bool(only_fixable and not self.show_lint_violations) else None,
                 filter_warning=False,
                 warn_unused_ignores=warn_unused_ignores,
             ),
@@ -606,7 +608,7 @@ class OutputStreamFormatter(FormatterInterface):
             force_stderr (bool): Whether to force the output onto stderr. By default
                 the output is on stdout if there are no errors, otherwise stderr.
         """
-        if total_errors:
+        if total_errors and not self.show_lint_violations:
             click.echo(
                 message=self.colorize(
                     f"  [{total_errors} templating/parsing errors found]", Color.red

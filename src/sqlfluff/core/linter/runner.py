@@ -57,7 +57,6 @@ class BaseRunner(ABC):
         self,
         fnames: List[str],
         fix: bool = False,
-        show_lint_violations: bool = False,
     ) -> Iterator[Tuple[str, PartialLintCallable]]:
         """Iterate through partials for linted files.
 
@@ -76,12 +75,11 @@ class BaseRunner(ABC):
                     # Formatters may or may not be passed. They don't pickle
                     # nicely so aren't appropriate in a multiprocessing world.
                     self.linter.formatter if self.pass_formatter else None,
-                    show_lint_violations,
                 ),
             )
 
     @abstractmethod
-    def run(self, fnames: List[str], fix: bool, show_lint_violations: bool) -> Iterator[LintedFile]:
+    def run(self, fnames: List[str], fix: bool) -> Iterator[LintedFile]:
         """Run linting on the specified list of files."""
         ...
 
@@ -110,9 +108,9 @@ To hide this warning, add the failing file to .sqlfluffignore
 class SequentialRunner(BaseRunner):
     """Simple runner that does sequential processing."""
 
-    def run(self, fnames: List[str], fix: bool, show_lint_violations: bool) -> Iterator[LintedFile]:
+    def run(self, fnames: List[str], fix: bool) -> Iterator[LintedFile]:
         """Sequential implementation."""
-        for fname, partial in self.iter_partials(fnames, fix=fix, show_lint_violations=show_lint_violations):
+        for fname, partial in self.iter_partials(fnames, fix=fix):
             try:
                 yield partial()
             except (bdb.BdbQuit, KeyboardInterrupt):  # pragma: no cover
@@ -133,7 +131,7 @@ class ParallelRunner(BaseRunner):
         super().__init__(linter, config)
         self.processes = processes
 
-    def run(self, fnames: List[str], fix: bool, show_lint_violations: bool) -> Iterator[LintedFile]:
+    def run(self, fnames: List[str], fix: bool) -> Iterator[LintedFile]:
         """Parallel implementation.
 
         Note that the partials are generated one at a time then
