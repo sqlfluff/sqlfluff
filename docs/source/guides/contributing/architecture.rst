@@ -121,8 +121,9 @@ Stage 4, the linter
 
 Given the complete parse tree, rule classes check for linting errors by
 traversing the tree, looking for segments and patterns of concern. If
-the rule discovers a violation, it returns a :code:`LintResult` pointing
-to the segment which caused the violation.
+the rule discovers a violation, it returns a
+:py:class:`~sqlfluff.core.rules.base.LintResult` pointing to the segment
+which caused the violation.
 
 Some rules are able to *fix* the problems they find. If this is the case,
 the rule will return a list of fixes, which describe changes to be made to

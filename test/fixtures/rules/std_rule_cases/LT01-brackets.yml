@@ -27,3 +27,36 @@ test_fail_parenthesis_block_not_isolated_templated:
 test_pass_parenthesis_function:
   pass_str: |
     SELECT foo(5) FROM T1;
+
+test_pass_snowflake_match_condition:
+  pass_str: |
+    select *
+    from table1
+    asof join table2 match_condition(t1 > t2) on pk1 = pk2;
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_match_condition:
+  fail_str: |
+    select
+        table1.pk1,
+        table1.t1
+    from table1
+        asof join
+        table2
+        match_condition
+        (t1 > t2)
+        on table1.pk1 = table2.pk2;
+  fix_str: |
+    select
+        table1.pk1,
+        table1.t1
+    from table1
+        asof join
+        table2
+        match_condition(t1 > t2)
+        on table1.pk1 = table2.pk2;
+  configs:
+    core:
+      dialect: snowflake
