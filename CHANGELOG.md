@@ -10,9 +10,27 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [3.2.5] - 2024-10-24
+## [3.2.5] - 2024-10-25
 
 ## Highlights
+
+This release is mostly bugfixes as dialect improvements. Notable changes
+when upgrading are:
+
+* Whitespace handling improvements to LT01 & LT02.
+* Better error messages around trying to iterate on missing jinja variables.
+* Better case sensitivity for AL09.
+* Improved handling of jinja context in inline config directives.
+* Enabling AM02 for Trino and Snowflake.
+* Handling potential collisions between ST02 & LT01.
+* Preventing false positives in AL05 with arrays.
+
+There's also a bunch of documentation improvements in this release, including
+guides on how to troubleshoot SQLFluff and hot to write custom rules. Check
+out https://docs.sqlfluff.com for more details.
+
+We also saw **five** new contributors to the project this month. Welcome to
+the project, and thanks for taking the time to contribute! 🎉🏆🎉
 
 ## What’s Changed
 
