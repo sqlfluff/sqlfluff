@@ -91,7 +91,7 @@ class OutputStreamFormatter(FormatterInterface):
         verbosity: int = 0,
         filter_empty: bool = True,
         output_line_length: int = 80,
-        show_lint_violations: bool = False
+        show_lint_violations: bool = False,
     ):
         self._output_stream = output_stream
         self.plain_output = self.should_produce_plain_output(nocolor)
@@ -264,7 +264,11 @@ class OutputStreamFormatter(FormatterInterface):
         s = self._format_file_violations(
             fname,
             linted_file.get_violations(
-                fixable=True if bool(only_fixable and not self.show_lint_violations) else None,
+                fixable=(
+                    True
+                    if bool(only_fixable and not self.show_lint_violations)
+                    else None
+                ),
                 filter_warning=False,
                 warn_unused_ignores=warn_unused_ignores,
             ),
