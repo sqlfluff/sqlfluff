@@ -373,3 +373,54 @@ test_athena_apply_rule_if_one_aliased_table:
   configs:
     core:
       dialect: athena
+
+test_sqlite_create_trigger_after_insert_reference:
+  # https://github.com/sqlfluff/sqlfluff/issues/6402
+  # https://www.sqlite.org/lang_createtrigger.html
+  pass_str: |
+    CREATE TRIGGER x
+    AFTER INSERT
+    ON y
+    BEGIN
+    SELECT 1 WHERE new.xyz = 3;
+    END
+  configs:
+    core:
+      dialect: sqlite
+
+test_sqlite_create_trigger_after_delete_reference:
+  # https://github.com/sqlfluff/sqlfluff/issues/6402
+  # https://www.sqlite.org/lang_createtrigger.html
+  pass_str: |
+    CREATE TRIGGER x
+    AFTER DELETE
+    ON y
+    BEGIN
+    SELECT 1 WHERE old.xyz = 3;
+    END
+  configs:
+    core:
+      dialect: sqlite
+
+test_sqlite_create_trigger_after_update_reference:
+  # https://github.com/sqlfluff/sqlfluff/issues/6402
+  # https://www.sqlite.org/lang_createtrigger.html
+  pass_str: |
+    CREATE TRIGGER x
+    AFTER UPDATE
+    ON y
+    BEGIN
+    SELECT 1 WHERE old.xyz != new.xyz;
+    END;
+  configs:
+    core:
+      dialect: sqlite
+
+test_sqlite_outside_of_trigger:
+  # https://github.com/sqlfluff/sqlfluff/issues/6402
+  # https://www.sqlite.org/lang_createtrigger.html
+  fail_str: |
+    SELECT foo FROM bar WHERE old.xyz != new.xyz;
+  configs:
+    core:
+      dialect: sqlite
