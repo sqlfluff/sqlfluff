@@ -70,26 +70,8 @@ class Rule_RF01(BaseRule):
     # If any of the parents would have also triggered the rule, don't fire
     # because they will more accurately process any internal references.
     crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
-    _dialects_disabled_by_default = [
-        "athena",
-        "bigquery",
-        "databricks",
-        "hive",
-        "redshift",
-        "soql",
-        "sparksql",
-    ]
 
     def _eval(self, context: RuleContext) -> List[LintResult]:
-        # Config type hints
-        self.force_enable: bool
-
-        if (
-            context.dialect.name in self._dialects_disabled_by_default
-            and not self.force_enable
-        ):
-            return []
-
         violations: List[LintResult] = []
         dml_target_table: Optional[Tuple[str, ...]] = None
         self.logger.debug("Trigger on: %s", context.segment)
@@ -210,7 +192,7 @@ class Rule_RF01(BaseRule):
 
     def _resolve_reference(
         self, r, tbl_refs, dml_target_table: Optional[Tuple[str, ...]], query: RF01Query
-    ):
+    ) -> Optional[LintResult]:
         # Does this query define the referenced table?
         possible_references = [tbl_ref[1] for tbl_ref in tbl_refs]
         targets = []
@@ -218,6 +200,17 @@ class Rule_RF01(BaseRule):
             targets += self._alias_info_as_tuples(alias)
         for standalone_alias in query.standalone_aliases:
             targets.append((standalone_alias.raw,))
+
+        if len(targets) == 1 and self._dialect_supports_dot_access(query.dialect):
+            self.force_enable: bool
+            if self.force_enable:
+                # Backwards compatibility.
+                # Nowadays "force_enable" is more of "strict" mode,
+                # for dialects with dot access.
+                pass
+            else:
+                return None
+
         if not object_ref_matches_table(possible_references, targets):
             # No. Check the parent query, if there is one.
             if query.parent:
@@ -236,3 +229,26 @@ class Rule_RF01(BaseRule):
                     "not found in the FROM clause or found in ancestor "
                     "statement.",
                 )
+
+        return None
+
+    @staticmethod
+    def _dialect_supports_dot_access(dialect: Dialect) -> bool:
+        # Athena:
+        # https://docs.aws.amazon.com/athena/latest/ug/filtering-with-dot.html
+        # BigQuery:
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/operators#field_access_operator
+        # Databricks:
+        # https://docs.databricks.com/en/sql/language-manual/functions/dotsign.html
+        # Redshift:
+        # https://docs.aws.amazon.com/redshift/latest/dg/query-super.html
+        # TODO: all doc links to all referenced dialects
+        return dialect.name in (
+            "athena",
+            "bigquery",
+            "databricks",
+            "hive",
+            "redshift",
+            "soql",
+            "sparksql",
+        )

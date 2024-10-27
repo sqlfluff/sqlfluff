@@ -329,12 +329,47 @@ test_pass_trino_lambda_expression:
     core:
       dialect: trino
 
-test_athena_ignore_rule:
+test_athena_ignore_rule_if_single_table:
   pass_str: |
     select
         a.complex.key,
         a.complex.structure.val
     from sch.t1
+  configs:
+    core:
+      dialect: athena
+
+test_athena_apply_rule_if_single_table_and_force_enable:
+  fail_str: |
+    select
+        a.complex.key,
+        a.complex.structure.val
+    from sch.t1
+  configs:
+    core:
+      dialect: athena
+    rules:
+      references.from:
+        force_enable: true
+
+test_athena_apply_rule_if_multiple_tables:
+  fail_str: |
+    select
+        a.complex.key,
+        a.complex.structure.val
+    from sch.table1 as t1
+    left join sch.table2 as t2
+    on t1.id = t2.id
+  configs:
+    core:
+      dialect: athena
+
+test_athena_apply_rule_if_one_aliased_table:
+  fail_str: |
+    select
+        a.complex.key,
+        a.complex.structure.val
+    from sch.table1 as t1
   configs:
     core:
       dialect: athena
