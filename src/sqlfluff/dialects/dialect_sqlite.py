@@ -1091,11 +1091,6 @@ class CreateVirtualTableStatementSegment(BaseSegment):
         "VIRTUAL",
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
-        Sequence(
-            Ref("SchemaReferenceSegment"),
-            Ref("DotSegment"),
-            optional=True,
-        ),
         Ref("TableReferenceSegment"),
         "USING",
         Ref("SingleIdentifierGrammar"),
