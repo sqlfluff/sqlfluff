@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0f94d2bdd6cb9b528654db6db7089ccddaf9cf20433b8060906ebdaa76da603a
+_hash: cd19e5900d8075f2534f3fd6226e73b95c095d468fb04f4280ac7ce1d584f914
 file:
   statement:
     alter_user_statement:
@@ -15,4 +15,8 @@ file:
     - parameter: USE_CACHED_RESULT
     - comma: ','
     - parameter: must_change_password
+    - comma: ','
+    - parameter: type
+    - comma: ','
+    - parameter: sfsdfd
   statement_terminator: ;

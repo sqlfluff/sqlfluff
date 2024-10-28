@@ -4995,6 +4995,14 @@ class CreateUserSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("ObjectReferenceSegment"),
             ),
+            Sequence(
+                "TYPE",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
             Ref("CommentEqualsClauseSegment"),
         ),
         Dedent,
