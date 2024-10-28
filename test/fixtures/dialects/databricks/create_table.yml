@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d505be32cbb519e6de1746ab542bd37646b0abf36f6dddb921b82b9e572878c9
+_hash: 4029920d6bd1cc9ca639b516a3fb2c9042037f0c04147bef26f878ca5c691a0a
 file:
 - statement:
     create_table_statement:
@@ -491,4 +491,164 @@ file:
           - table_reference:
               naked_identifier: TABLE2
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: name
+          data_type:
+            primitive_type:
+              keyword: STRING
+          keyword: DEFAULT
+          quoted_literal: "'bobby tables'"
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: name
+          data_type:
+            primitive_type:
+              keyword: STRING
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+          keyword: DEFAULT
+          quoted_literal: "'bobby tables'"
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: clock
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: which_time
+          data_type:
+            primitive_type:
+              keyword: TIMESTAMP
+          keyword: DEFAULT
+          function:
+            function_name:
+              function_name_identifier: current_timestamp
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: clock
+    - bracketed:
+        start_bracket: (
+        column_definition:
+        - column_reference:
+            naked_identifier: which_time
+        - data_type:
+            primitive_type:
+              keyword: TIMESTAMP
+        - column_constraint_segment:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: clock_pk
+          - keyword: PRIMARY
+          - keyword: KEY
+        - keyword: DEFAULT
+        - function:
+            function_name:
+              function_name_identifier: current_timestamp
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier_clause_segment:
+          keyword: IDENTIFIER
+          bracketed:
+            start_bracket: (
+            expression:
+              quoted_literal: "'student'"
+            end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
 - statement_terminator: ;

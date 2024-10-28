@@ -154,6 +154,25 @@ class Rule_AL05(BaseRule):
                 and self._followed_by_qualify(context, alias)
             ):
                 continue
+            # If the alias is for a _function_ rather than just a table, it's possible
+            # that it's an array function, like `unnest` or `jsonb_array_elements_text`
+            # So if that alias appears as what looks like a _column reference_ then
+            # also skip it.
+            # https://github.com/sqlfluff/sqlfluff/issues/4623
+            _table_expression = alias.from_expression_element.get_child(
+                "table_expression"
+            )
+            if _table_expression and _table_expression.get_child("function"):
+                # Case insensitive match for conservatism
+                if alias.ref_str.strip("\"'`[]").upper() in [
+                    seg.raw_upper.strip("\"'`[]")
+                    for seg in select_info.reference_buffer
+                ]:
+                    self.logger.debug(
+                        f"Alias for function {alias.ref_str} found as apparent "
+                        "column reference in select. Skipping"
+                    )
+                    continue
 
             if (
                 alias.aliased
@@ -195,8 +214,14 @@ class Rule_AL05(BaseRule):
     ) -> bool:
         """Given an alias, is it REQUIRED to be present?
 
-        Aliases are required in SOME, but not all dialects when there's a VALUES
-        clause.
+        There are a few circumstances where an alias is either required by the
+        dialect, or recommended by SQLFluff:
+
+        * Aliases are required in SOME, but not all dialects when there's a
+          VALUES clause.
+
+        * In the case of a nested SELECT, all dialect checked (MySQL, Postgres,
+          T-SQL) require an alias.
         """
         # Look for a table_expression (i.e. VALUES clause) as a descendant of
         # the FROM expression, potentially nested inside brackets. The reason we

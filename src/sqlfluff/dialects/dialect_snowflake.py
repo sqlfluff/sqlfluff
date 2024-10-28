@@ -685,6 +685,7 @@ snowflake_dialect.replace(
             # Allow use of CONNECT_BY_ROOT pseudo-columns.
             # https://docs.snowflake.com/en/sql-reference/constructs/connect-by.html#:~:text=Snowflake%20supports%20the%20CONNECT_BY_ROOT,the%20Examples%20section%20below.
             Sequence("CONNECT_BY_ROOT", Ref("ColumnReferenceSegment")),
+            Sequence("PRIOR", Ref("ColumnReferenceSegment")),
         ],
         before=Ref("LiteralGrammar"),
     ),
@@ -1165,27 +1166,13 @@ class ConnectByClauseSegment(BaseSegment):
             "CONNECT",
             "BY",
             Delimited(
-                Sequence(
-                    Ref.keyword("PRIOR", optional=True),
-                    Ref("ColumnReferenceSegment"),
-                    Ref("EqualsSegment"),
-                    Ref.keyword("PRIOR", optional=True),
-                    Ref("ColumnReferenceSegment"),
-                ),
+                OptionallyBracketed(Ref("ExpressionSegment")),
             ),
         ),
         Sequence(
             "CONNECT",
             "BY",
-            Delimited(
-                Sequence(
-                    Ref.keyword("PRIOR", optional=True),
-                    Ref("ColumnReferenceSegment"),
-                    Ref("EqualsSegment"),
-                    Ref("ColumnReferenceSegment"),
-                ),
-                delimiter="AND",
-            ),
+            OptionallyBracketed(Ref("ExpressionSegment")),
             Sequence(
                 "START",
                 "WITH",
@@ -2436,7 +2423,7 @@ class AlterShareStatementSegment(BaseSegment):
                 ),
                 "ACCOUNTS",
                 Ref("EqualsSegment"),
-                Delimited(Ref("NakedIdentifierSegment")),
+                Delimited(Ref("ObjectReferenceSegment")),
                 Sequence(
                     "SHARE_RESTRICTIONS",
                     Ref("EqualsSegment"),
@@ -2448,7 +2435,7 @@ class AlterShareStatementSegment(BaseSegment):
                 "SET",
                 "ACCOUNTS",
                 Ref("EqualsSegment"),
-                Delimited(Ref("NakedIdentifierSegment")),
+                Delimited(Ref("ObjectReferenceSegment")),
                 Ref("CommentEqualsClauseSegment", optional=True),
             ),
             Sequence(
@@ -8483,7 +8470,7 @@ class LambdaExpressionSegment(BaseSegment):
                 Delimited(
                     Sequence(
                         Ref("NakedIdentifierSegment"),
-                        Ref("DatatypeSegment"),
+                        Ref("DatatypeSegment", optional=True),
                     )
                 )
             ),

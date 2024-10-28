@@ -129,3 +129,9 @@ fail_bigquery_safe_prefix_function:
   configs:
     core:
       dialect: bigquery
+
+pass_sparksql_file_literal:
+  pass_str: ADD JAR path/to/some.jar;
+  configs:
+    core:
+      dialect: sparksql

@@ -301,8 +301,3 @@ def test_verbosity_level(request):
     Has a verbosity level of 0
     """
     return request.config.getoption("verbose")
-
-
-def pytest_addoption(parser):
-    """Allow to run test/rules/yaml_test_cases_test.py for a specific rule_id."""
-    parser.addoption("--rule_id", action="store", default="*", help="Rule id to run")

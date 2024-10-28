@@ -119,7 +119,10 @@ databricks_dialect.add(
     ),
     ColumnDefaultGrammar=Sequence(
         "DEFAULT",
-        Ref("LiteralGrammar"),
+        OneOf(
+            Ref("LiteralGrammar"),
+            Ref("FunctionSegment"),
+        ),
     ),
     ConstraintOptionGrammar=Sequence(
         Sequence("ENABLE", "NOVALIDATE", optional=True),
@@ -345,7 +348,63 @@ databricks_dialect.replace(
 )
 
 
-# Object References
+class IdentifierClauseSegment(BaseSegment):
+    """An `IDENTIFIER` clause segment.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-names-identifier-clause.html
+    """
+
+    type = "identifier_clause_segment"
+    match_grammar = Sequence(
+        "IDENTIFIER",
+        Bracketed(Ref("ExpressionSegment")),
+    )
+
+
+class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to an object."""
+
+    # Allow whitespace
+    match_grammar: Matchable = Delimited(
+        OneOf(Ref("SingleIdentifierGrammar"), Ref("IdentifierClauseSegment")),
+        delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+        terminators=[Ref("ObjectReferenceTerminatorGrammar")],
+        allow_gaps=False,
+    )
+
+
+class DatabaseReferenceSegment(ObjectReferenceSegment):
+    """A reference to a database."""
+
+    type = "database_reference"
+
+
+class TableReferenceSegment(ObjectReferenceSegment):
+    """A reference to an table, CTE, subquery or alias."""
+
+    type = "table_reference"
+
+
+class SchemaReferenceSegment(ObjectReferenceSegment):
+    """A reference to a schema."""
+
+    type = "schema_reference"
+
+
+class TableExpressionSegment(sparksql.TableExpressionSegment):
+    """The main table expression e.g. within a FROM clause.
+
+    Enhance to allow for additional clauses allowed in Spark and Delta Lake.
+    """
+
+    match_grammar = sparksql.TableExpressionSegment.match_grammar.copy(
+        insert=[
+            Ref("IdentifierClauseSegment"),
+        ],
+        before=Ref("ValuesClauseSegment"),
+    )
+
+
 class CatalogReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to a catalog.
 
@@ -579,6 +638,24 @@ class MaskStatementSegment(BaseSegment):
                 ),
             ),
             optional=True,
+        ),
+    )
+
+
+class ColumnFieldDefinitionSegment(ansi.ColumnDefinitionSegment):
+    """A column field definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    This supports the iceberg syntax and allows for iceberg syntax such
+    as ADD COLUMN a.b.
+    """
+
+    match_grammar: Matchable = Sequence(
+        Ref("ColumnReferenceSegment"),  # Column name
+        Ref("DatatypeSegment"),  # Column type
+        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+        AnyNumberOf(
+            Ref("ColumnConstraintSegment", optional=True),
+            Ref("ColumnDefaultGrammar", optional=True),  # For default values
         ),
     )
 

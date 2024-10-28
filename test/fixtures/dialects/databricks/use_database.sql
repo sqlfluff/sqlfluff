@@ -10,3 +10,9 @@ USE userdb1;
 USE DATABASE database_name;
 
 USE SCHEMA database_name;
+
+USE IDENTIFIER('database_name');
+
+USE DATABASE IDENTIFIER('database_name');
+
+USE SCHEMA IDENTIFIER('database_name');
