@@ -9,6 +9,7 @@ from sqlfluff.core import (
     SQLFluffUserError,
     dialect_selector,
 )
+from sqlfluff.core.types import ConfigMappingType
 
 
 def get_simple_config(
@@ -19,7 +20,7 @@ def get_simple_config(
 ) -> FluffConfig:
     """Get a config object from simple API arguments."""
     # Create overrides for simple API arguments.
-    overrides = {}
+    overrides: ConfigMappingType = {}
     if dialect is not None:
         # Check the requested dialect exists and is valid.
         try:
