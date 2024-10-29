@@ -403,10 +403,6 @@ def get_config(
             )
             sys.exit(EXIT_ERROR)
 
-    from_root_kwargs = {}
-    if "require_dialect" in kwargs:
-        from_root_kwargs["require_dialect"] = kwargs.pop("require_dialect")
-
     library_path = kwargs.pop("library_path", None)
 
     if not kwargs.get("warn_unused_ignores", True):
@@ -427,7 +423,7 @@ def get_config(
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
             overrides=overrides,
-            **from_root_kwargs,
+            require_dialect=kwargs.pop("require_dialect", True),
         )
     except SQLFluffUserError as err:  # pragma: no cover
         click.echo(

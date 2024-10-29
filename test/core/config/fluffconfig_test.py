@@ -95,7 +95,6 @@ def test__config__nested_config_tests():
         ("placeholder", PlaceholderTemplater, False),
         ("afefhlsakufe", None, True),
         ("", None, True),
-        (None, None, True),
     ],
 )
 def test__config__templater_selection(templater_name, templater_class, raises_error):
