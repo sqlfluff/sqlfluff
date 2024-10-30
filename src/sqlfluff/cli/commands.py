@@ -437,7 +437,9 @@ def get_config(
 
 
 def get_linter_and_formatter(
-    cfg: FluffConfig, output_stream: Optional[OutputStream] = None
+    cfg: FluffConfig,
+    output_stream: Optional[OutputStream] = None,
+    show_lint_violations: bool = False,
 ) -> Tuple[Linter, OutputStreamFormatter]:
     """Get a linter object given a config."""
     try:
@@ -454,6 +456,7 @@ def get_linter_and_formatter(
         nocolor=cfg.get("nocolor"),
         verbosity=cfg.get("verbose"),
         output_line_length=cfg.get("output_line_length"),
+        show_lint_violations=show_lint_violations,
     )
     return Linter(config=cfg, formatter=formatter), formatter
 
@@ -1094,7 +1097,9 @@ def fix(
     output_stream = make_output_stream(
         config, None, os.devnull if fixing_stdin else None
     )
-    lnt, formatter = get_linter_and_formatter(config, output_stream)
+    lnt, formatter = get_linter_and_formatter(
+        config, output_stream, show_lint_violations
+    )
 
     verbose = config.get("verbose")
     progress_bar_configuration.disable_progress_bar = disable_progress_bar
