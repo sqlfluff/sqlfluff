@@ -8,11 +8,15 @@ from sqlfluff.core.parser import (
     AnySetOf,
     BaseSegment,
     Bracketed,
+    CodeSegment,
     Delimited,
+    MultiStringParser,
     OneOf,
     OptionallyBracketed,
     Ref,
+    SegmentGenerator,
     Sequence,
+    StringParser,
 )
 from sqlfluff.dialects import dialect_mysql as mysql
 from sqlfluff.dialects.dialect_starrocks_keywords import (
@@ -58,9 +62,10 @@ starrocks_dialect.sets("table_properties").update(
         "storage_volume",
         "datacache.enable",
         "datacache.partition_duration",
-        "fast_schema_evolution"
+        "fast_schema_evolution",
     ]
 )
+
 
 class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
     """A `CREATE TABLE` statement.
@@ -258,41 +263,7 @@ class PartitionSegment(BaseSegment):
                 )
             ),
             # Expression partitioning - time function expressions
-            OneOf(
-                # date_trunc function
-                Sequence(
-                    "date_trunc",
-                    Bracketed(
-                        Delimited(
-                            OneOf(
-                                Ref("QuotedLiteralSegment"),  # time unit
-                                Ref("ColumnReferenceSegment")  # partition column
-                            )
-                        )
-                    )
-                ),
-                # time_slice function
-                Sequence(
-                    "time_slice",
-                    Bracketed(
-                        Delimited(
-                            Ref("ColumnReferenceSegment"),  # partition column
-                            Sequence(
-                                "INTERVAL",
-                                Ref("NumericLiteralSegment"),
-                                OneOf(
-                                    "YEAR",
-                                    "MONTH", 
-                                    "DAY",
-                                    "HOUR"
-                                )
-                            ),
-                            # Optional boundary parameter always defaults to floor
-                            Ref("QuotedLiteralSegment", optional=True)  # boundary
-                        )
-                    )
-                )
-            ),
+            Ref("FunctionSegment"),
             # Expression partitioning - column expressions
             Bracketed(
                 Delimited(
@@ -359,123 +330,53 @@ class IndexDefinitionSegment(BaseSegment):
     )
 
 class CreateRoutineLoadStatementSegment(BaseSegment):
-    """A `CREATE ROUTINE LOAD` statement for StarRocks.
-
-    Handles continuous data loading from Kafka into StarRocks, supporting CSV, JSON, and Avro formats.
-    """
+    """A `CREATE ROUTINE LOAD` statement for StarRocks."""
 
     type = "create_routine_load_statement"
     match_grammar = Sequence(
         "CREATE",
         "ROUTINE",
         "LOAD",
-        Sequence(
-            Ref("DatabaseReferenceSegment"),
-            Ref("DotSegment"),
-            optional=True
-        ),
         Ref("ObjectReferenceSegment"),  # job_name
         "ON",
         Ref("TableReferenceSegment"),  # table_name
-        # Load Properties section
-        AnySetOf(
-            # Column separator for CSV
-            Sequence(
-                "COLUMNS",
-                "TERMINATED",
-                "BY",
-                Ref("QuotedLiteralSegment")
-            ),
-            # Row separator for CSV
-            Sequence(
-                "ROWS",
-                "TERMINATED",
-                "BY",
-                Ref("QuotedLiteralSegment")
-            ),
-            # Column mapping
-            Sequence(
-                "COLUMNS",
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            # Simple column reference with optional backticks
-                            Ref("QuotedIdentifierSegment"),
-                            Ref("NakedIdentifierSegment"),
-                            # Column with expression
-                            Sequence(
-                                OneOf(
-                                    Ref("QuotedIdentifierSegment"),
-                                    Ref("NakedIdentifierSegment")
-                                ),
-                                Ref("EqualsSegment"),
-                                Ref("ExpressionSegment")
-                            )
-                        )
-                    )
-                ),
-            ),
-            # Filter conditions
-            Sequence(
-                "WHERE",
-                Ref("ExpressionSegment")
-            ),
-            # Target partitions
-            Sequence(
-                "PARTITION",
-                Bracketed(
-                    Delimited(
-                        Ref("ObjectReferenceSegment")
-                    )
-                )
-            ),
-            # Temporary partitions
-            Sequence(
-                "TEMPORARY",
-                "PARTITION",
-                Bracketed(
-                    Delimited(
-                        Ref("ObjectReferenceSegment")
-                    )
-                )
-            ),
-            optional=True
-        ),
-        # Job Properties section
+        # Column definitions
         Sequence(
-            "PROPERTIES",
+            "COLUMNS",
             Bracketed(
                 Delimited(
-                    Sequence(
-                        Ref("QuotedLiteralSegment"),  # property key
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment")   # property value
+                    OneOf(
+                        Ref("QuotedIdentifierSegment"),
+                        Ref("NakedIdentifierSegment"),
+                        Sequence(
+                            OneOf(
+                                Ref("QuotedIdentifierSegment"),
+                                Ref("NakedIdentifierSegment"),
+                            ),
+                            Ref("EqualsSegment"),
+                            Ref("ExpressionSegment"),
+                        ),
                     )
                 )
             ),
-            optional=True
+            optional=True,
         ),
-        # Data Source section
+        # Properties section using dedicated properties segment
+        Sequence(
+            "PROPERTIES",
+            Bracketed(Delimited(Ref("CreateRoutineLoadPropertiesSegment"))),
+            optional=True,
+        ),
+        # Data Source section using dedicated data source properties segment
         "FROM",
         "KAFKA",
-        Bracketed(
-            Delimited(
-                Sequence(
-                    Ref("QuotedLiteralSegment"),  # property key
-                    Ref("EqualsSegment"),
-                    Ref("QuotedLiteralSegment")   # property value
-                )
-            )
-        )
+        Bracketed(Delimited(Ref("CreateRoutineLoadDataSourcePropertiesSegment"))),
     )
 
-class CreateRoutineLoadPropertiesSegment(BaseSegment):
-    """Properties segment for CREATE ROUTINE LOAD statement."""
 
-    type = "routine_load_properties"
-
-    # Set of valid property keys
-    valid_properties = [
+# First add the property sets to the dialect
+starrocks_dialect.sets("routine_load_properties").update(
+    [
         "desired_concurrent_number",
         "max_batch_interval",
         "max_batch_rows",
@@ -492,16 +393,12 @@ class CreateRoutineLoadPropertiesSegment(BaseSegment):
         "json_root",
         "task_consume_second",
         "task_timeout_second",
-        "log_rejected_record_num"
+        "log_rejected_record_num",
     ]
+)
 
-class CreateRoutineLoadDataSourcePropertiesSegment(BaseSegment):
-    """Data source properties segment for CREATE ROUTINE LOAD statement."""
-
-    type = "routine_load_data_source_properties"
-
-    # Set of valid data source property keys
-    valid_properties = [
+starrocks_dialect.sets("routine_load_kafka_properties").update(
+    [
         "kafka_broker_list",
         "kafka_topic",
         "kafka_partitions",
@@ -515,19 +412,66 @@ class CreateRoutineLoadDataSourcePropertiesSegment(BaseSegment):
         "property.ssl.key.password",
         "property.sasl.mechanism",
         "property.sasl.username",
-        "property.sasl.password"
+        "property.sasl.password",
     ]
+)
+
+
+class RoutineLoadPropertySegment(BaseSegment):
+    """Property key segment for routine load properties."""
+
+    type = "routine_load_property"
+    match_grammar = SegmentGenerator(
+        lambda dialect: MultiStringParser(
+            dialect.sets("routine_load_properties"),
+            CodeSegment,
+            type="property_key",
+        )
+    )
+
+
+class KafkaPropertySegment(BaseSegment):
+    """Property key segment for Kafka properties."""
+
+    type = "kafka_property"
+    match_grammar = SegmentGenerator(
+        lambda dialect: MultiStringParser(
+            dialect.sets("routine_load_kafka_properties"),
+            CodeSegment,
+            type="property_key",
+        )
+    )
+
+
+class CreateRoutineLoadPropertiesSegment(BaseSegment):
+    """Properties segment for CREATE ROUTINE LOAD statement."""
+
+    type = "routine_load_properties"
+    match_grammar = Sequence(
+        Ref("QuotedLiteralSegment"), Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+    )
+
+
+class CreateRoutineLoadDataSourcePropertiesSegment(BaseSegment):
+    """Data source properties segment for CREATE ROUTINE LOAD statement."""
+
+    type = "routine_load_data_source_properties"
+    match_grammar = Sequence(
+        Ref("QuotedLiteralSegment"), Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+    )
+
 
 """Grammar for STOP ROUTINE LOAD statement in StarRocks."""
 
+
 class StopRoutineLoadStatementSegment(BaseSegment):
     """A `STOP ROUTINE LOAD` statement.
-    
+
     Stops a running routine load job.
-    
+
     STOP ROUTINE LOAD FOR [db_name.]<job_name>
     """
-    
+
     type = "stop_routine_load_statement"
     match_grammar = Sequence(
         "STOP",
@@ -539,19 +483,20 @@ class StopRoutineLoadStatementSegment(BaseSegment):
             Sequence(
                 Ref("DatabaseReferenceSegment"),
                 Ref("DotSegment"),
-                Ref("ObjectReferenceSegment")
+                Ref("ObjectReferenceSegment"),
             ),
             # job_name only format
-            Ref("ObjectReferenceSegment")
-        )
+            Ref("ObjectReferenceSegment"),
+        ),
     )
+
 
 class PauseRoutineLoadStatementSegment(BaseSegment):
     """A `PAUSE ROUTINE LOAD` statement.
-    
+
     Pauses a running routine load job.
     """
-    
+
     type = "pause_routine_load_statement"
     match_grammar = Sequence(
         "PAUSE",
@@ -562,11 +507,12 @@ class PauseRoutineLoadStatementSegment(BaseSegment):
             Sequence(
                 Ref("DatabaseNameSegment"),
                 Ref("DotSegment"),
-                Ref("ObjectReferenceSegment")
+                Ref("ObjectReferenceSegment"),
             ),
-            Ref("ObjectReferenceSegment")
-        )
+            Ref("ObjectReferenceSegment"),
+        ),
     )
+
 
 class ResumeRoutineLoadStatementSegment(BaseSegment):
     """A `RESUME ROUTINE LOAD` statement.
@@ -584,11 +530,12 @@ class ResumeRoutineLoadStatementSegment(BaseSegment):
             Sequence(
                 Ref("DatabaseNameSegment"),
                 Ref("DotSegment"),
-                Ref("ObjectReferenceSegment")
+                Ref("ObjectReferenceSegment"),
             ),
-            Ref("ObjectReferenceSegment")
-        )
+            Ref("ObjectReferenceSegment"),
+        ),
     )
+
 
 class StatementSegment(mysql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
@@ -598,6 +545,6 @@ class StatementSegment(mysql.StatementSegment):
             Ref("CreateRoutineLoadStatementSegment"),
             Ref("StopRoutineLoadStatementSegment"),
             Ref("PauseRoutineLoadStatementSegment"),
-            Ref("ResumeRoutineLoadStatementSegment")
-            ]
+            Ref("ResumeRoutineLoadStatementSegment"),
+        ]
     )
