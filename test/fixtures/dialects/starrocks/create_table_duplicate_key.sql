@@ -1,0 +1,21 @@
+CREATE TABLE example_db.table_range
+(
+    k1 DATE,
+    k2 INT,
+    k3 SMALLINT,
+    v1 VARCHAR(2048),
+    v2 DATETIME DEFAULT "2014-02-04 15:36:00"
+)
+ENGINE=olap
+DUPLICATE KEY(k1, k2, k3)
+PARTITION BY RANGE (k1)
+(
+    PARTITION p1 VALUES LESS THAN ("2014-01-01"),
+    PARTITION p2 VALUES LESS THAN ("2014-06-01"),
+    PARTITION p3 VALUES LESS THAN ("2014-12-01")
+)
+DISTRIBUTED BY HASH(k2)
+PROPERTIES(
+    "storage_medium" = "SSD",
+    "storage_cooldown_time" = "2015-06-04 00:00:00"
+);

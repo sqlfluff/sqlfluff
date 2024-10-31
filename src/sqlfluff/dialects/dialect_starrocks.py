@@ -66,6 +66,29 @@ starrocks_dialect.sets("table_properties").update(
     ]
 )
 
+# Add the engine types set
+starrocks_dialect.sets("engine_types").update([
+    "olap",
+    "mysql",
+    "elasticsearch",
+    "hive",
+    "hudi",
+    "iceberg",
+    "jdbc"
+])
+
+
+starrocks_dialect.add(
+    EngineTypeSegment = SegmentGenerator(
+        lambda dialect:
+        MultiStringParser(
+            dialect.sets("engine_types"),
+            CodeSegment,
+            type="engine_type",
+        )
+    )
+
+)
 
 class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
     """A `CREATE TABLE` statement.
@@ -101,16 +124,8 @@ class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
                 # StarRocks specific
                 Sequence(
                     "ENGINE",
-                    Ref("EqualsSegment", optional=True),
-                    OneOf(
-                        "olap",
-                        "mysql",
-                        "elasticsearch",
-                        "hive",
-                        "hudi",
-                        "iceberg",
-                        "jdbc"
-                    ),
+                    Ref("EqualsSegment"),
+                    Ref("EngineTypeSegment"),
                     optional=True
                 ),
                 # Key type
@@ -173,13 +188,13 @@ class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
 
 class PartitionSegment(BaseSegment):
     """A partition segment supporting StarRocks specific syntax.
-    
+
     Supports three types of partitioning:
     1. Range partitioning (PARTITION BY RANGE)
     2. Expression partitioning using time functions (date_trunc/time_slice)
     3. Expression partitioning using column expressions
     """
-    
+
     type = "partition_segment"
     match_grammar = Sequence(
         "PARTITION",
@@ -217,19 +232,19 @@ class PartitionSegment(BaseSegment):
                                     ),
                                     # Fixed range syntax
                                     Sequence(
-                                        "[",
                                         Bracketed(
-                                            Delimited(
-                                                Ref("LiteralGrammar")
-                                            )
-                                        ),
-                                        ",",
-                                        Bracketed(
-                                            Delimited(
-                                                Ref("LiteralGrammar")
-                                            )
-                                        ),
-                                        ")"
+                                            Bracketed(
+                                                Delimited(
+                                                    Ref("LiteralGrammar")
+                                                )
+                                            ),
+                                            ",",
+                                            Bracketed(
+                                                Delimited(
+                                                    Ref("LiteralGrammar")
+                                                )
+                                            ),
+                                        )
                                     )
                                 )
                             )
@@ -503,14 +518,7 @@ class PauseRoutineLoadStatementSegment(BaseSegment):
         "ROUTINE",
         "LOAD",
         "FOR",
-        OneOf(
-            Sequence(
-                Ref("DatabaseNameSegment"),
-                Ref("DotSegment"),
-                Ref("ObjectReferenceSegment"),
-            ),
-            Ref("ObjectReferenceSegment"),
-        ),
+        Ref("ObjectReferenceSegment"),
     )
 
 
@@ -526,14 +534,7 @@ class ResumeRoutineLoadStatementSegment(BaseSegment):
         "ROUTINE",
         "LOAD",
         "FOR",
-        OneOf(
-            Sequence(
-                Ref("DatabaseNameSegment"),
-                Ref("DotSegment"),
-                Ref("ObjectReferenceSegment"),
-            ),
-            Ref("ObjectReferenceSegment"),
-        ),
+        Ref("ObjectReferenceSegment"),
     )
 
 
