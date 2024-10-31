@@ -48,8 +48,6 @@ def get_parse_fixtures(
         # Ignore documentation
         if d.endswith(".md"):
             continue
-        if d != "starrocks":
-            continue
         # assume that d is now the name of a dialect
         dirlist = os.listdir(os.path.join("test", "fixtures", "dialects", d))
         for f in dirlist:

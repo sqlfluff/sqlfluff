@@ -5,7 +5,6 @@ This dialect extends MySQL grammar with specific StarRocks syntax features.
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
-    AnySetOf,
     BaseSegment,
     Bracketed,
     CodeSegment,
@@ -16,7 +15,6 @@ from sqlfluff.core.parser import (
     Ref,
     SegmentGenerator,
     Sequence,
-    StringParser,
 )
 from sqlfluff.dialects import dialect_mysql as mysql
 from sqlfluff.dialects.dialect_starrocks_keywords import (
@@ -67,28 +65,61 @@ starrocks_dialect.sets("table_properties").update(
 )
 
 # Add the engine types set
-starrocks_dialect.sets("engine_types").update([
-    "olap",
-    "mysql",
-    "elasticsearch",
-    "hive",
-    "hudi",
-    "iceberg",
-    "jdbc"
-])
+starrocks_dialect.sets("engine_types").update(
+    ["olap", "mysql", "elasticsearch", "hive", "hudi", "iceberg", "jdbc"]
+)
 
+starrocks_dialect.sets("routine_load_properties").update(
+    [
+        "desired_concurrent_number",
+        "max_batch_interval",
+        "max_batch_rows",
+        "max_error_number",
+        "max_filter_ratio",
+        "strict_mode",
+        "timezone",
+        "format",
+        "trim_space",
+        "enclose",
+        "escape",
+        "strip_outer_array",
+        "jsonpaths",
+        "json_root",
+        "task_consume_second",
+        "task_timeout_second",
+        "log_rejected_record_num",
+    ]
+)
+
+starrocks_dialect.sets("routine_load_kafka_properties").update(
+    [
+        "kafka_broker_list",
+        "kafka_topic",
+        "kafka_partitions",
+        "kafka_offsets",
+        "property.kafka_default_offsets",
+        "confluent.schema.registry.url",
+        "property.security.protocol",
+        "property.ssl.ca.location",
+        "property.ssl.certificate.location",
+        "property.ssl.key.location",
+        "property.ssl.key.password",
+        "property.sasl.mechanism",
+        "property.sasl.username",
+        "property.sasl.password",
+    ]
+)
 
 starrocks_dialect.add(
-    EngineTypeSegment = SegmentGenerator(
-        lambda dialect:
-        MultiStringParser(
+    EngineTypeSegment=SegmentGenerator(
+        lambda dialect: MultiStringParser(
             dialect.sets("engine_types"),
             CodeSegment,
             type="engine_type",
         )
     )
-
 )
+
 
 class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
     """A `CREATE TABLE` statement.
@@ -126,7 +157,7 @@ class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
                     "ENGINE",
                     Ref("EqualsSegment"),
                     Ref("EngineTypeSegment"),
-                    optional=True
+                    optional=True,
                 ),
                 # Key type
                 Sequence(
@@ -136,12 +167,8 @@ class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
                         Sequence("PRIMARY", "KEY"),
                         Sequence("DUPLICATE", "KEY"),
                     ),
-                    Bracketed(
-                        Delimited(
-                            Ref("ColumnReferenceSegment")
-                        )
-                    ),
-                    optional=True
+                    Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                    optional=True,
                 ),
                 Ref("CommentClauseSegment", optional=True),
                 # Partitioning
@@ -152,12 +179,8 @@ class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
                 Sequence(
                     "ORDER",
                     "BY",
-                    Bracketed(
-                        Delimited(
-                            Ref("ColumnReferenceSegment")
-                        )
-                    ),
-                    optional=True
+                    Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                    optional=True,
                 ),
                 Sequence(
                     "PROPERTIES",
@@ -166,18 +189,15 @@ class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
                             Sequence(
                                 Ref("QuotedLiteralSegment"),
                                 Ref("EqualsSegment"),
-                                Ref("QuotedLiteralSegment")
+                                Ref("QuotedLiteralSegment"),
                             )
                         )
                     ),
-                    optional=True
+                    optional=True,
                 ),
             ),
             # Create table like
-            Sequence(
-                "LIKE",
-                Ref("TableReferenceSegment")
-            ),
+            Sequence("LIKE", Ref("TableReferenceSegment")),
             # Create table as
             Sequence(
                 Ref.keyword("AS", optional=True),
@@ -185,6 +205,7 @@ class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
             ),
         ),
     )
+
 
 class PartitionSegment(BaseSegment):
     """A partition segment supporting StarRocks specific syntax.
@@ -203,11 +224,7 @@ class PartitionSegment(BaseSegment):
             # Range partitioning
             Sequence(
                 "RANGE",
-                Bracketed(
-                    Delimited(
-                        Ref("ColumnReferenceSegment")
-                    )
-                ),
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
                 OneOf(
                     # Fixed partitions
                     Bracketed(
@@ -223,30 +240,18 @@ class PartitionSegment(BaseSegment):
                                         "THAN",
                                         OneOf(
                                             "MAXVALUE",
-                                            Bracketed(
-                                                Delimited(
-                                                    Ref("LiteralGrammar")
-                                                )
-                                            )
-                                        )
+                                            Bracketed(Delimited(Ref("LiteralGrammar"))),
+                                        ),
                                     ),
                                     # Fixed range syntax
                                     Sequence(
                                         Bracketed(
-                                            Bracketed(
-                                                Delimited(
-                                                    Ref("LiteralGrammar")
-                                                )
-                                            ),
+                                            Bracketed(Delimited(Ref("LiteralGrammar"))),
                                             ",",
-                                            Bracketed(
-                                                Delimited(
-                                                    Ref("LiteralGrammar")
-                                                )
-                                            ),
+                                            Bracketed(Delimited(Ref("LiteralGrammar"))),
                                         )
-                                    )
-                                )
+                                    ),
+                                ),
                             )
                         )
                     ),
@@ -264,29 +269,21 @@ class PartitionSegment(BaseSegment):
                                     Sequence(
                                         "INTERVAL",
                                         Ref("NumericLiteralSegment"),
-                                        OneOf(
-                                            "YEAR",
-                                            "MONTH",
-                                            "DAY",
-                                            "HOUR"
-                                        )
-                                    )
+                                        OneOf("YEAR", "MONTH", "DAY", "HOUR"),
+                                    ),
                                 )
-                            )
+                            ),
                         )
-                    )
-                )
+                    ),
+                ),
             ),
             # Expression partitioning - time function expressions
             Ref("FunctionSegment"),
             # Expression partitioning - column expressions
-            Bracketed(
-                Delimited(
-                    Ref("ColumnReferenceSegment")
-                )
-            )
-        )
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+        ),
     )
+
 
 class DistributionSegment(BaseSegment):
     """A distribution segment supporting both hash and random distribution."""
@@ -298,27 +295,16 @@ class DistributionSegment(BaseSegment):
         OneOf(
             Sequence(
                 "HASH",
-                Bracketed(
-                    Delimited(
-                        Ref("ColumnReferenceSegment")
-                    )
-                ),
-                Sequence(
-                    "BUCKETS",
-                    Ref("NumericLiteralSegment"),
-                    optional=True
-                )
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                Sequence("BUCKETS", Ref("NumericLiteralSegment"), optional=True),
             ),
             Sequence(
                 "RANDOM",
-                Sequence(
-                    "BUCKETS",
-                    Ref("NumericLiteralSegment"),
-                    optional=True
-                )
-            )
-        )
+                Sequence("BUCKETS", Ref("NumericLiteralSegment"), optional=True),
+            ),
+        ),
     )
+
 
 class IndexDefinitionSegment(BaseSegment):
     """Bitmap index definition specific to StarRocks."""
@@ -327,22 +313,11 @@ class IndexDefinitionSegment(BaseSegment):
     match_grammar = Sequence(
         "INDEX",
         Ref("IndexReferenceSegment"),
-        Bracketed(
-            Delimited(
-                Ref("ColumnReferenceSegment")
-            )
-        ),
-        Sequence(
-            "USING",
-            "BITMAP",
-            optional=True
-        ),
-        Sequence(
-            "COMMENT",
-            Ref("QuotedLiteralSegment"),
-            optional=True
-        )
+        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+        Sequence("USING", "BITMAP", optional=True),
+        Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
     )
+
 
 class CreateRoutineLoadStatementSegment(BaseSegment):
     """A `CREATE ROUTINE LOAD` statement for StarRocks."""
@@ -387,49 +362,6 @@ class CreateRoutineLoadStatementSegment(BaseSegment):
         "KAFKA",
         Bracketed(Delimited(Ref("CreateRoutineLoadDataSourcePropertiesSegment"))),
     )
-
-
-# First add the property sets to the dialect
-starrocks_dialect.sets("routine_load_properties").update(
-    [
-        "desired_concurrent_number",
-        "max_batch_interval",
-        "max_batch_rows",
-        "max_error_number",
-        "max_filter_ratio",
-        "strict_mode",
-        "timezone",
-        "format",
-        "trim_space",
-        "enclose",
-        "escape",
-        "strip_outer_array",
-        "jsonpaths",
-        "json_root",
-        "task_consume_second",
-        "task_timeout_second",
-        "log_rejected_record_num",
-    ]
-)
-
-starrocks_dialect.sets("routine_load_kafka_properties").update(
-    [
-        "kafka_broker_list",
-        "kafka_topic",
-        "kafka_partitions",
-        "kafka_offsets",
-        "property.kafka_default_offsets",
-        "confluent.schema.registry.url",
-        "property.security.protocol",
-        "property.ssl.ca.location",
-        "property.ssl.certificate.location",
-        "property.ssl.key.location",
-        "property.ssl.key.password",
-        "property.sasl.mechanism",
-        "property.sasl.username",
-        "property.sasl.password",
-    ]
-)
 
 
 class RoutineLoadPropertySegment(BaseSegment):
