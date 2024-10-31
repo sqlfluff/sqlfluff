@@ -41,74 +41,14 @@ starrocks_dialect.update_keywords_set_from_multiline_string(
     "reserved_keywords", starrocks_reserved_keywords
 )
 
-# Set the table properties specific to StarRocks
-# These are used in PROPERTIES clause
-starrocks_dialect.sets("table_properties").update(
-    [
-        "storage_medium",
-        "storage_cooldown_time",
-        "storage_cooldown_ttl",
-        "replication_num",
-        "bloom_filter_columns",
-        "colocate_with",
-        "dynamic_partition.enable",
-        "dynamic_partition.time_unit",
-        "dynamic_partition.start",
-        "dynamic_partition.end",
-        "dynamic_partition.prefix",
-        "dynamic_partition.buckets",
-        "storage_volume",
-        "datacache.enable",
-        "datacache.partition_duration",
-        "fast_schema_evolution",
-    ]
-)
+
 
 # Add the engine types set
 starrocks_dialect.sets("engine_types").update(
     ["olap", "mysql", "elasticsearch", "hive", "hudi", "iceberg", "jdbc"]
 )
 
-starrocks_dialect.sets("routine_load_properties").update(
-    [
-        "desired_concurrent_number",
-        "max_batch_interval",
-        "max_batch_rows",
-        "max_error_number",
-        "max_filter_ratio",
-        "strict_mode",
-        "timezone",
-        "format",
-        "trim_space",
-        "enclose",
-        "escape",
-        "strip_outer_array",
-        "jsonpaths",
-        "json_root",
-        "task_consume_second",
-        "task_timeout_second",
-        "log_rejected_record_num",
-    ]
-)
 
-starrocks_dialect.sets("routine_load_kafka_properties").update(
-    [
-        "kafka_broker_list",
-        "kafka_topic",
-        "kafka_partitions",
-        "kafka_offsets",
-        "property.kafka_default_offsets",
-        "confluent.schema.registry.url",
-        "property.security.protocol",
-        "property.ssl.ca.location",
-        "property.ssl.certificate.location",
-        "property.ssl.key.location",
-        "property.ssl.key.password",
-        "property.sasl.mechanism",
-        "property.sasl.username",
-        "property.sasl.password",
-    ]
-)
 
 starrocks_dialect.add(
     EngineTypeSegment=SegmentGenerator(
@@ -117,7 +57,7 @@ starrocks_dialect.add(
             CodeSegment,
             type="engine_type",
         )
-    )
+    ),
 )
 
 
@@ -363,31 +303,6 @@ class CreateRoutineLoadStatementSegment(BaseSegment):
         Bracketed(Delimited(Ref("CreateRoutineLoadDataSourcePropertiesSegment"))),
     )
 
-
-class RoutineLoadPropertySegment(BaseSegment):
-    """Property key segment for routine load properties."""
-
-    type = "routine_load_property"
-    match_grammar = SegmentGenerator(
-        lambda dialect: MultiStringParser(
-            dialect.sets("routine_load_properties"),
-            CodeSegment,
-            type="property_key",
-        )
-    )
-
-
-class KafkaPropertySegment(BaseSegment):
-    """Property key segment for Kafka properties."""
-
-    type = "kafka_property"
-    match_grammar = SegmentGenerator(
-        lambda dialect: MultiStringParser(
-            dialect.sets("routine_load_kafka_properties"),
-            CodeSegment,
-            type="property_key",
-        )
-    )
 
 
 class CreateRoutineLoadPropertiesSegment(BaseSegment):
