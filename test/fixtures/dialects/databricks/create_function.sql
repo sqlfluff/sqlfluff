@@ -80,3 +80,17 @@ CREATE FUNCTION main.default.greet(s STRING)
 
     return greet(s) if s else None
   $$;
+
+-- Created Table Valued Function simple
+CREATE FUNCTION return_table()
+RETURNS TABLE 
+RETURN
+SELECT time FROM my_table
+;
+
+-- Created Table Valued Function with column spec
+CREATE FUNCTION return_table()
+RETURNS TABLE (col_a string, col_b string)
+RETURN
+SELECT col_a, col_b FROM my_table
+;

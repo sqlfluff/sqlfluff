@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 549280dea0939abccd4fe6aa8716cc4678ee689778b45477d86e44eec9bc4691
+_hash: 4efa838d79541cb54f7ba9731880015657bcf5adb627b08ebdda79ddaa4a85bb
 file:
 - statement:
     create_function_statement:
@@ -454,4 +454,79 @@ file:
       - keyword: AS
       - udf_body: "$$\n    def greet(name):\n      return \"Hello \" + name + \"!\"\
           \n\n    return greet(s) if s else None\n  $$"
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: return_table
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - function_definition:
+        keyword: RETURN
+        expression:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: time
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: return_table
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col_a
+      - data_type:
+          primitive_type:
+            keyword: string
+      - comma: ','
+      - column_reference:
+          naked_identifier: col_b
+      - data_type:
+          primitive_type:
+            keyword: string
+      - end_bracket: )
+    - function_definition:
+        keyword: RETURN
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: col_a
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: col_b
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
 - statement_terminator: ;
