@@ -33,7 +33,7 @@ CREATE EXTERNAL TABLE EXTERNAL_TABLES.TRIPS(
 
 
 CREATE EXTERNAL TABLE IF NOT EXISTS source_test.test (
-    yyyymmdd TEXT AS (PARSE_JSON(metadata$external_table_partition):YYYYMMDD::TEXT),
+    yyyymmdd TEXT AS (value:YYYYMMDD::TEXT),
     product TEXT AS (value:product::TEXT)
 )
 PARTITION BY (yyyymmdd)

@@ -5874,7 +5874,7 @@ class CreateExternalTableSegment(BaseSegment):
             Sequence(
                 "PARTITION_TYPE",
                 Ref("EqualsSegment"),
-                "USER_SPECIFIED"
+                "USER_SPECIFIED",
             ),
             Sequence(
                 Sequence("WITH", optional=True),
