@@ -88,9 +88,9 @@ RETURN
 SELECT time FROM my_table
 ;
 
--- Created Table Valued Function with column spec
+-- Created Table Valued Function with column spec + comment
 CREATE FUNCTION return_table()
-RETURNS TABLE (col_a string, col_b string)
+RETURNS TABLE (col_a string, col_b string comment "asdf")
 RETURN
 SELECT col_a, col_b FROM my_table
 ;
