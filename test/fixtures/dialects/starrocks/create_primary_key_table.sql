@@ -10,7 +10,7 @@ create table users (
     property1 tinyint NOT NULL,
     property2 tinyint NOT NULL,
     property3 tinyint NOT NULL
-) 
+)
 PRIMARY KEY (`user_id`)
 DISTRIBUTED BY HASH(`user_id`)
 ORDER BY(`address`,`last_active`)

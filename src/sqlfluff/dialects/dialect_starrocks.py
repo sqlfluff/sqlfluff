@@ -42,12 +42,10 @@ starrocks_dialect.update_keywords_set_from_multiline_string(
 )
 
 
-
 # Add the engine types set
 starrocks_dialect.sets("engine_types").update(
     ["olap", "mysql", "elasticsearch", "hive", "hudi", "iceberg", "jdbc"]
 )
-
 
 
 starrocks_dialect.add(
@@ -302,7 +300,6 @@ class CreateRoutineLoadStatementSegment(BaseSegment):
         "KAFKA",
         Bracketed(Delimited(Ref("CreateRoutineLoadDataSourcePropertiesSegment"))),
     )
-
 
 
 class CreateRoutineLoadPropertiesSegment(BaseSegment):
