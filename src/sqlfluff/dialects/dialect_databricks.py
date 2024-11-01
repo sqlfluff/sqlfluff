@@ -1133,7 +1133,7 @@ class CreateDatabricksFunctionStatementSegment(BaseSegment):
         Sequence(
             "RETURNS",
             OneOf(
-                Ref("DatatypeSegment"), 
+                Ref("DatatypeSegment"),
                 Sequence(
                     "TABLE",
                     Sequence(
@@ -1146,9 +1146,9 @@ class CreateDatabricksFunctionStatementSegment(BaseSegment):
                                 ),
                             ),
                         ),
-                    optional=True,
-                    )
-                )
+                        optional=True,
+                    ),
+                ),
             ),
             optional=True,
         ),
