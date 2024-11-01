@@ -333,6 +333,16 @@ class RuleMetaclass(type):
                 class_dict["groups"] = base.groups
                 break
 
+        # If the rule doesn't itself define `config_keywords`, check the parent
+        # classes for them. If we don't do this then they'll still be available to
+        # the rule, but they won't appear in the docs.
+        for base in reversed(bases):
+            if "config_keywords" in class_dict:
+                break
+            elif base.config_keywords:
+                class_dict["config_keywords"] = base.config_keywords
+                break
+
         class_dict = RuleMetaclass._populate_docstring(name, class_dict)
         # Don't try and infer code and description for the base classes
         if name not in ("BaseRule",):

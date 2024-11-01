@@ -1,8 +1,12 @@
 rule: CP04
 
-test_fail_inconsistent_boolean_capitalisation:
+test_fail_inconsistent_boolean_capitalisation_1:
   fail_str: SeLeCt true, FALSE, NULL
   fix_str: SeLeCt true, false, null
+
+test_fail_inconsistent_boolean_capitalisation_2:
+  fail_str: SeLeCt TRUE, false, NULL
+  fix_str: SeLeCt TRUE, FALSE, NULL
 
 test_pass_ignore_word:
   pass_str: SELECT true, FALSE, NULL
@@ -10,3 +14,19 @@ test_pass_ignore_word:
     rules:
       capitalisation.literals:
         ignore_words: true
+
+test_fail_upper_boolean_capitalisation:
+  fail_str: SeLeCt true, FALSE, NULL
+  fix_str: SeLeCt TRUE, FALSE, NULL
+  configs:
+    rules:
+      capitalisation.literals:
+        capitalisation_policy: upper
+
+test_fail_lower_boolean_capitalisation:
+  fail_str: SeLeCt TRUE, false, NULL
+  fix_str: SeLeCt true, false, null
+  configs:
+    rules:
+      capitalisation.literals:
+        capitalisation_policy: lower
