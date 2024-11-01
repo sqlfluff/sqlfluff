@@ -30,3 +30,14 @@ CREATE EXTERNAL TABLE EXTERNAL_TABLES.TRIPS(
  PARTITION BY (year)
  LOCATION = @external_tables.citibike_trips
  FILE_FORMAT = ( TYPE = 'CSV' FIELD_OPTIONALLY_ENCLOSED_BY = '"' );
+
+
+CREATE EXTERNAL TABLE IF NOT EXISTS source_test.test (
+    yyyymmdd TEXT AS (PARSE_JSON(metadata$external_table_partition):YYYYMMDD::TEXT),
+    product TEXT AS (value:product::TEXT)
+)
+PARTITION BY (yyyymmdd)
+PARTITION_TYPE = user_specified
+LOCATION = @public.test_stage
+FILE_FORMAT = public.parquet_format_convert_binary
+AUTO_REFRESH = false;
