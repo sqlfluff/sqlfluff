@@ -5872,6 +5872,11 @@ class CreateExternalTableSegment(BaseSegment):
                 "GRANTS",
             ),
             Sequence(
+                "PARTITION_TYPE",
+                Ref("EqualsSegment"),
+                "USER_SPECIFIED"
+            ),
+            Sequence(
                 Sequence("WITH", optional=True),
                 "ROW",
                 "ACCESS",
