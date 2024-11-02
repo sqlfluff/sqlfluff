@@ -1132,7 +1132,24 @@ class CreateDatabricksFunctionStatementSegment(BaseSegment):
         Ref("FunctionParameterListGrammarWithComments"),
         Sequence(
             "RETURNS",
-            Ref("DatatypeSegment"),
+            OneOf(
+                Ref("DatatypeSegment"),
+                Sequence(
+                    "TABLE",
+                    Sequence(
+                        Bracketed(
+                            Delimited(
+                                Sequence(
+                                    Ref("ColumnReferenceSegment"),
+                                    Ref("DatatypeSegment"),
+                                    Ref("CommentGrammar", optional=True),
+                                ),
+                            ),
+                        ),
+                        optional=True,
+                    ),
+                ),
+            ),
             optional=True,
         ),
         Ref("FunctionDefinitionGrammar"),
