@@ -11,7 +11,7 @@ from sqlfluff.cli.autocomplete import dialect_shell_complete
         ["an", ["ansi"]],
         ["d", ["databricks", "db2", "duckdb"]],
         ["g", ["greenplum"]],
-        ["s", ["snowflake", "soql", "sparksql", "sqlite"]],
+        ["s", ["snowflake", "soql", "sparksql", "sqlite", "starrocks"]],
         ["post", ["postgres"]],
     ],
 )

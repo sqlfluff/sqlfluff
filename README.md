@@ -59,6 +59,7 @@ currently supports the following SQL dialects (though perhaps not in full):
 - [SOQL](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql.htm)
 - [SparkSQL](https://spark.apache.org/docs/latest/)
 - [SQLite](https://www.sqlite.org/)
+- [StarRocks](https://www.starrocks.io)
 - [Teradata](https://www.teradata.com/)
 - [Transact-SQL](https://docs.microsoft.com/en-us/sql/t-sql/language-reference) (aka T-SQL)
 - [Trino](https://trino.io/)
