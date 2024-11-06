@@ -4995,6 +4995,14 @@ class CreateUserSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("ObjectReferenceSegment"),
             ),
+            Sequence(
+                "TYPE",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
             Ref("CommentEqualsClauseSegment"),
         ),
         Dedent,
@@ -5862,6 +5870,11 @@ class CreateExternalTableSegment(BaseSegment):
             Sequence(
                 "COPY",
                 "GRANTS",
+            ),
+            Sequence(
+                "PARTITION_TYPE",
+                Ref("EqualsSegment"),
+                "USER_SPECIFIED",
             ),
             Sequence(
                 Sequence("WITH", optional=True),
