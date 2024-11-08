@@ -305,7 +305,7 @@ class JinjaAnalyzer:
         self.stack: List[int] = []
         self.idx_raw: int = 0
 
-    __known_tag_configurations: ClassVar = {
+    __known_tag_configurations: ClassVar[dict[str, JinjaTagConfiguration]] = {
         # Conditional blocks: "if/elif/else/endif" blocks
         "if": JinjaTagConfiguration(
             block_type="block_start",
