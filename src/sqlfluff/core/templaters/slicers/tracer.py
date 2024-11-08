@@ -8,7 +8,17 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Callable, Dict, List, NamedTuple, Optional, Tuple, Union, cast
+from typing import (
+    Callable,
+    ClassVar,
+    Dict,
+    List,
+    NamedTuple,
+    Optional,
+    Tuple,
+    Union,
+    cast,
+)
 
 import regex
 from jinja2 import Environment
@@ -295,7 +305,7 @@ class JinjaAnalyzer:
         self.stack: List[int] = []
         self.idx_raw: int = 0
 
-    __known_tag_configurations = {
+    __known_tag_configurations: ClassVar = {
         # Conditional blocks: "if/elif/else/endif" blocks
         "if": JinjaTagConfiguration(
             block_type="block_start",
