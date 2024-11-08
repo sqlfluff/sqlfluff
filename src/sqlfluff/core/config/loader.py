@@ -71,14 +71,15 @@ def _get_user_config_dir_path(sys_platform: str) -> str:
     # On Mac OSX follow Linux XDG base dirs
     # https://github.com/sqlfluff/sqlfluff/issues/889
     user_config_dir_path = os.path.expanduser("~/.config/sqlfluff")
-    if sys_platform == "darwin":
+    # If the default config path doesn't exist, use the platform specific
+    # config path. Preferentially using the XDG config path if set on MacOS.
+    if sys_platform == "darwin" and not os.path.exists(user_config_dir_path):
         user_config_dir_path = platformdirs.unix.Unix(
             appname=appname, appauthor=appauthor
         ).user_config_dir
-
+    # And then fall back to the platform default.
     if not os.path.exists(user_config_dir_path):
         user_config_dir_path = platformdirs.user_config_dir(appname, appauthor)
-
     return user_config_dir_path
 
 
