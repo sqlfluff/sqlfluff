@@ -395,9 +395,8 @@ class JinjaAnalyzer:
         # Ideally, we should have a known configuration for this Jinja tag.  Derived
         # classes can override this method to provide additional information about the
         # tags they know about.
-        known_cfg = cls.__known_tag_configurations.get(tag, None)
-        if known_cfg:
-            return known_cfg
+        if tag in cls.__known_tag_configurations:
+            return cls.__known_tag_configurations[tag]
 
         # If we don't have a firm configuration for this tag that is most likely
         # provided by a Jinja extension, we'll try to make some guesses about it based
