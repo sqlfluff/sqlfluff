@@ -6422,9 +6422,9 @@ class ExpressionSegment(BaseSegment):
 
     Extended for TSQL to include the `NEXT VALUE FOR` segment.
     """
+
     type = "expression"
-    
+
     match_grammar: Matchable = OneOf(
-        Ref("Expression_A_Grammar"),
-        Ref("NextValueSequenceSegment")
+        Ref("Expression_A_Grammar"), Ref("NextValueSequenceSegment")
     )
