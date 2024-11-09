@@ -32,7 +32,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        job: [ 'linting', 'doclinting', 'docbuild', 'yamllint', 'mypy', 'doctests' ]
+        job:
+          [
+            "linting",
+            "doclinting",
+            "docbuild",
+            "yamllint",
+            "mypy",
+            "mypyc",
+            "doctests",
+          ]
         include:
           # Default to most recent python version
           - python-version: "3.13"

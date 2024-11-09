@@ -729,9 +729,8 @@ def _revise_comment_lines(
                     "  Comment Only Line: %s. Anchoring to %s", comment_line_idx, idx
                 )
                 # Mutate reference lines to match this one.
-                lines[comment_line_idx].initial_indent_balance = (
-                    line.initial_indent_balance
-                )
+                comment_line = lines[comment_line_idx]
+                comment_line.initial_indent_balance = line.initial_indent_balance
             # Reset the buffer
             comment_line_buffer = []
 
@@ -830,7 +829,7 @@ def _crawl_indent_points(
     TODO: Once this function *works*, there's definitely headroom
     for simplification and optimisation. We should do that.
     """
-    last_line_break_idx = None
+    last_line_break_idx: int | None = None
     indent_balance = 0
     untaken_indents: Tuple[int, ...] = ()
     cached_indent_stats: Optional[IndentStats] = None
@@ -2192,7 +2191,7 @@ def lint_line_length(
     line_buffer: ReflowSequenceType = []
     results: List[LintResult] = []
 
-    last_indent_idx = None
+    last_indent_idx: int | None = None
     for i, elem in enumerate(elem_buffer):
         # Are there newlines in the element?
         # If not, add it to the buffer and wait to evaluate the line.
