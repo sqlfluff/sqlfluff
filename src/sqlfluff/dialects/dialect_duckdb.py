@@ -13,6 +13,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     IdentifierSegment,
+    ImplicitIndent,
     Indent,
     Matchable,
     Nothing,
@@ -29,8 +30,6 @@ from sqlfluff.core.parser import (
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_postgres as postgres
-
-from src.sqlfluff.core.parser.segments.meta import ImplicitIndent
 
 ansi_dialect = load_raw_dialect("ansi")
 postgres_dialect = load_raw_dialect("postgres")

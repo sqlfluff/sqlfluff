@@ -15,6 +15,7 @@ from sqlfluff.core.parser import (
     CommentSegment,
     Dedent,
     Delimited,
+    ImplicitIndent,
     Indent,
     LiteralKeywordSegment,
     LiteralSegment,
@@ -42,8 +43,6 @@ from sqlfluff.dialects.dialect_exasol_keywords import (
     SYSTEM_PARAMETERS,
     UNRESERVED_KEYWORDS,
 )
-
-from src.sqlfluff.core.parser.segments.meta import ImplicitIndent
 
 ansi_dialect = load_raw_dialect("ansi")
 exasol_dialect = ansi_dialect.copy_as(
