@@ -890,18 +890,11 @@ sparksql_dialect.add(
             Ref("OptionsGrammar"),
             Ref("PartitionSpecGrammar"),
             Ref("BucketSpecGrammar"),
-            optional=True,
+            Ref("LocationGrammar"),
+            Ref("CommentGrammar"),
+            Ref("TablePropertiesGrammar"),
+            Sequence("CLUSTER", "BY", Ref("BracketedColumnReferenceListGrammar")),
         ),
-        Indent,
-        AnyNumberOf(
-            Ref("LocationGrammar", optional=True),
-            Ref("CommentGrammar", optional=True),
-            Ref("TablePropertiesGrammar", optional=True),
-        ),
-        Sequence(
-            "CLUSTER", "BY", Ref("BracketedColumnReferenceListGrammar"), optional=True
-        ),
-        Dedent,
         # Create AS syntax:
         Sequence(
             Ref.keyword("AS", optional=True),
