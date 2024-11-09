@@ -30,6 +30,8 @@ from sqlfluff.core.parser import (
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_postgres as postgres
 
+from src.sqlfluff.core.parser.segments.meta import ImplicitIndent
+
 ansi_dialect = load_raw_dialect("ansi")
 postgres_dialect = load_raw_dialect("postgres")
 duckdb_dialect = postgres_dialect.copy_as(
@@ -541,7 +543,7 @@ class QualifyClauseSegment(BaseSegment):
     type = "qualify_clause"
     match_grammar = Sequence(
         "QUALIFY",
-        Indent,
+        ImplicitIndent,
         OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )

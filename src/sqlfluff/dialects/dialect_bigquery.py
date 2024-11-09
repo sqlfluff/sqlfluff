@@ -42,6 +42,8 @@ from sqlfluff.dialects.dialect_bigquery_keywords import (
     bigquery_unreserved_keywords,
 )
 
+from src.sqlfluff.core.parser.segments.meta import ImplicitIndent
+
 ansi_dialect = load_raw_dialect("ansi")
 bigquery_dialect = ansi_dialect.copy_as(
     "bigquery",
@@ -431,7 +433,7 @@ class QualifyClauseSegment(BaseSegment):
     type = "qualify_clause"
     match_grammar = Sequence(
         "QUALIFY",
-        Indent,
+        ImplicitIndent,
         OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )

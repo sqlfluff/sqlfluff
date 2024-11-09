@@ -43,6 +43,8 @@ from sqlfluff.dialects.dialect_exasol_keywords import (
     UNRESERVED_KEYWORDS,
 )
 
+from src.sqlfluff.core.parser.segments.meta import ImplicitIndent
+
 ansi_dialect = load_raw_dialect("ansi")
 exasol_dialect = ansi_dialect.copy_as(
     "exasol",
@@ -574,7 +576,12 @@ class QualifyClauseSegment(BaseSegment):
     """`QUALIFY` clause within `SELECT`."""
 
     type = "qualify_clause"
-    match_grammar = Sequence("QUALIFY", Ref("ExpressionSegment"))
+    match_grammar = Sequence(
+        "QUALIFY",
+        ImplicitIndent,
+        Ref("ExpressionSegment"),
+        Dedent,
+    )
 
 
 class LimitClauseSegment(BaseSegment):

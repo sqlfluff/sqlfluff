@@ -42,6 +42,8 @@ from sqlfluff.dialects.dialect_snowflake_keywords import (
     snowflake_unreserved_keywords,
 )
 
+from src.sqlfluff.core.parser.segments.meta import ImplicitIndent
+
 ansi_dialect = load_raw_dialect("ansi")
 snowflake_dialect = ansi_dialect.copy_as(
     "snowflake",
@@ -1845,7 +1847,7 @@ class QualifyClauseSegment(BaseSegment):
     type = "qualify_clause"
     match_grammar = Sequence(
         "QUALIFY",
-        Indent,
+        ImplicitIndent,
         OneOf(
             Bracketed(
                 Ref("ExpressionSegment"),

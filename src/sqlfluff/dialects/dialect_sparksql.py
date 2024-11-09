@@ -51,6 +51,8 @@ from sqlfluff.dialects.dialect_sparksql_keywords import (
     UNRESERVED_KEYWORDS,
 )
 
+from src.sqlfluff.core.parser.segments.meta import ImplicitIndent
+
 ansi_dialect = load_raw_dialect("ansi")
 hive_dialect = load_raw_dialect("hive")
 sparksql_dialect = ansi_dialect.copy_as(
@@ -1085,7 +1087,7 @@ class QualifyClauseSegment(BaseSegment):
     type = "qualify_clause"
     match_grammar = Sequence(
         "QUALIFY",
-        Indent,
+        ImplicitIndent,
         OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )

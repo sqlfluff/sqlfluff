@@ -33,6 +33,8 @@ from sqlfluff.dialects.dialect_redshift_keywords import (
     redshift_unreserved_keywords,
 )
 
+from src.sqlfluff.core.parser.segments.meta import ImplicitIndent
+
 postgres_dialect = load_raw_dialect("postgres")
 ansi_dialect = load_raw_dialect("ansi")
 redshift_dialect = postgres_dialect.copy_as(
@@ -2665,7 +2667,7 @@ class QualifyClauseSegment(BaseSegment):
     type = "qualify_clause"
     match_grammar = Sequence(
         "QUALIFY",
-        Indent,
+        ImplicitIndent,
         Ref("ExpressionSegment"),
         Dedent,
     )
