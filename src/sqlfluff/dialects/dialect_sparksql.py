@@ -894,6 +894,7 @@ sparksql_dialect.add(
             Ref("CommentGrammar"),
             Ref("TablePropertiesGrammar"),
             Sequence("CLUSTER", "BY", Ref("BracketedColumnReferenceListGrammar")),
+            optional=True,
         ),
         # Create AS syntax:
         Sequence(
