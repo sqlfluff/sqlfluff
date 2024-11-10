@@ -1,7 +1,6 @@
 [build-system]
-requires = ["setuptools>=40.8.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
+requires = ["hatchling>=1.20.0"]
+build-backend = "hatchling.build"
 
 [project]
 name = "sqlfluff"
@@ -132,11 +131,28 @@ sqlfluff_rules_tsql = "sqlfluff.rules.tsql"
 stable_version = "3.2.5"
 
 
-[tool.setuptools.package-data]
-# `default_config.cfg` is loaded by sqlfluff as part of config resolution.
-# For more details on `py.typed` see https://peps.python.org/pep-0561/
-sqlfluff = ["core/default_config.cfg", "py.typed"]
+[tool.hatch.build.targets.wheel]
+only-include = ["src"]
+sources = ["src"]
 
+[tool.hatch.build.targets.wheel.hooks.mypyc]
+dependencies = [
+  "hatch-mypyc>=0.16.0",
+  # duplicated between requirements_dev.txt and here
+  "mypy[mypyc]",
+  "types-chardet",
+  "types-appdirs",
+  "types-colorama",
+  "types-pyyaml",
+  "types-regex",
+  "types-tqdm",
+]
+require-runtime-dependencies = true
+include = [
+  "src/sqlfluff/utils/reflow",
+]
+mypy-args = ["--ignore-missing-imports"]
+options = { debug_level = "0" }
 
 [tool.importlinter]
 root_package = "sqlfluff"
