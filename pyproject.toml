@@ -140,6 +140,7 @@ dependencies = [
   "hatch-mypyc>=0.16.0",
   # duplicated between requirements_dev.txt and here
   "mypy[mypyc]",
+  "types-toml",
   "types-chardet",
   "types-appdirs",
   "types-colorama",
