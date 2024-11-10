@@ -7933,6 +7933,7 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
         Delimited(
             Sequence(
                 OneOf(
+                    Ref("BooleanLiteralGrammar"),
                     Ref("ColumnReferenceSegment"),
                     # Can `ORDER BY 1`
                     Ref("NumericLiteralSegment"),
