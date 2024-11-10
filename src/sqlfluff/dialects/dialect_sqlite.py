@@ -483,18 +483,6 @@ class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
                     Ref("BareFunctionSegment"),
                     Ref("LiteralGrammar"),
                 ),
-                # AnyNumberOf(
-                #     Sequence(
-                #         OneOf(
-                #             Ref("ColumnPathOperatorSegment"),
-                #             Ref("InlinePathOperatorSegment"),
-                #         ),
-                #         OneOf(
-                #             Ref("LiteralGrammar"),
-                #             Ref("QuotedIdentifierSegment"),
-                #         ),
-                #     )
-                # ),
             ),
         ]
     )
