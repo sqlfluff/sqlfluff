@@ -4054,7 +4054,12 @@ class CopyOptionsSegment(BaseSegment):
         Sequence(
             "MATCH_BY_COLUMN_NAME",
             Ref("EqualsSegment"),
-            OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE", "NONE"),
+            OneOf(
+                "CASE_SENSITIVE",
+                "CASE_INSENSITIVE",
+                "NONE",
+                Ref("QuotedLiteralSegment"),
+            ),
         ),
         Sequence(
             "INCLUDE_METADATA",
