@@ -106,6 +106,18 @@ test_allow_unqualified_references_in_sparksql_lambdas:
     core:
       dialect: sparksql
 
+test_pass_databricks_lambdas:
+  pass_str: |
+    select
+        i.*,
+        aggregate(i.some_column, 0, (acc, x) -> acc + x) as y
+    from some_table as o
+    inner join some_other_table as i
+        on o.id = i.id;
+  configs:
+    core:
+      dialect: databricks
+
 test_allow_unqualified_references_in_athena_lambdas:
   pass_str: |
     select
