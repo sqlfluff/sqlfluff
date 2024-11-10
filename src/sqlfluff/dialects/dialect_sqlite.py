@@ -536,6 +536,10 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     OneOf("VARYING", "NATIVE"),
                     OneOf("CHARACTER"),
                 ),
+                Sequence(
+                    OneOf("CHARACTER"),
+                    OneOf("VARYING", "NATIVE"),
+                ),
                 Ref("DatatypeIdentifierSegment"),
             ),
             Ref("BracketedArguments", optional=True),
