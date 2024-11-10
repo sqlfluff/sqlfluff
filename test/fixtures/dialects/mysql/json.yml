@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cadae1c616686a0f4f018b1b299e471a96997250ca16d251d36958171baf25eb
+_hash: 026dd56f2e5866ab3be47c3e6425246b47e9df269672641dcfd2870f93dc4827
 file:
 - statement:
     create_table_statement:
@@ -49,10 +49,11 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            naked_identifier: sentence
+          expression:
+            column_reference:
+              naked_identifier: sentence
             column_path_operator: ->
-            json_path: '"$.mascot"'
+            quoted_literal: '"$.mascot"'
       from_clause:
         keyword: FROM
         from_expression:
@@ -66,10 +67,11 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            naked_identifier: sentence
+          expression:
+            column_reference:
+              naked_identifier: sentence
             column_path_operator: ->
-            json_path: "'$.mascot'"
+            quoted_literal: "'$.mascot'"
       from_clause:
         keyword: FROM
         from_expression:
@@ -83,10 +85,11 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            naked_identifier: sentence
+          expression:
+            column_reference:
+              naked_identifier: sentence
             column_path_operator: ->>
-            json_path: '"$.mascot"'
+            quoted_literal: '"$.mascot"'
       from_clause:
         keyword: FROM
         from_expression:
@@ -100,10 +103,11 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            naked_identifier: sentence
+          expression:
+            column_reference:
+              naked_identifier: sentence
             column_path_operator: ->>
-            json_path: "'$.mascot'"
+            quoted_literal: "'$.mascot'"
       from_clause:
         keyword: FROM
         from_expression:
@@ -138,8 +142,8 @@ file:
                 expression:
                   column_reference:
                     naked_identifier: sentence
-                    column_path_operator: ->
-                    json_path: '"$.mascot"'
+                  column_path_operator: ->
+                  quoted_literal: '"$.mascot"'
                 end_bracket: )
           comparison_operator:
             raw_comparison_operator: '='
@@ -164,8 +168,8 @@ file:
         expression:
           column_reference:
             naked_identifier: sentence
-            column_path_operator: ->
-            json_path: '"$.mascot"'
+          column_path_operator: ->
+          quoted_literal: '"$.mascot"'
           keyword: IS
           null_literal: 'NULL'
 - statement_terminator: ;
