@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c667932554dd99405cd329846504296aa7e39d0c8309d43abf91399de5af4e9
+_hash: 3764b2f327435897bc418cc9f255a1ac748670db020f99ce704f3da49cb82de8
 file:
 - batch:
     statement:
@@ -667,5 +667,68 @@ file:
             - numeric_literal: '10'
             - end_bracket: )
       - statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      create_trigger:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - trigger_reference:
+          naked_identifier: reminder
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: person
+        - dot: .
+        - naked_identifier: address
+      - keyword: AFTER
+      - keyword: UPDATE
+      - keyword: AS
+      - statement:
+          if_then_statement:
+            if_clause:
+              keyword: IF
+              expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                  - function:
+                      function_name:
+                        function_name_identifier: UPDATE
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: stateprovinceid
+                          end_bracket: )
+                  - binary_operator: OR
+                  - function:
+                      function_name:
+                        function_name_identifier: UPDATE
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: postalcode
+                          end_bracket: )
+                  end_bracket: )
+            statement:
+              begin_end_block:
+              - keyword: BEGIN
+              - statement:
+                  raiserror_statement:
+                    keyword: RAISERROR
+                    bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '50009'
+                    - comma: ','
+                    - numeric_literal: '16'
+                    - comma: ','
+                    - numeric_literal: '10'
+                    - end_bracket: )
+              - keyword: END
+            statement_terminator: ;
 - go_statement:
     keyword: GO

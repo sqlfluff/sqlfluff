@@ -44,11 +44,25 @@ class RuleTestCase(NamedTuple):
     skip: Optional[str] = None
     line_numbers: List[int] = []
 
+    def evaluate(self) -> None:
+        """Evaluate the test case.
+
+        NOTE: This method is designed to be run in a pytest context and
+        will call methods such as `pytest.skip()` as part of it's execution.
+        It may not be suitable for other testing contexts.
+        """
+        rules__test_helper(self)
+
 
 def load_test_cases(
     test_cases_path: str,
 ) -> Tuple[List[str], List[RuleTestCase]]:
-    """Load rule test cases from YAML files."""
+    """Load rule test cases from YAML files.
+
+    Args:
+        test_cases_path (str): A glob string specifying the files containing
+            test cases to load.
+    """
     ids = []
     test_cases = []
 
@@ -95,7 +109,24 @@ def assert_rule_fail_in_sql(
     configs: Optional[ConfigMappingType] = None,
     line_numbers: Optional[List[int]] = None,
 ) -> Tuple[str, List[SQLBaseError]]:
-    """Assert that a given rule does fail on the given sql."""
+    """Assert that a given rule does fail on the given sql.
+
+    Args:
+        code (str): The code of the rule to test.
+        sql (str): The SQL text to check against.
+        configs (:obj:`ConfigMappingType`, optional): A config dict
+            object containing any overrides.
+        line_numbers (list of int, optional): The line numbers which
+            we want to test that errors occurred on.
+
+    Returns:
+        Tuple: values(fixed_sql (str), violations (list))
+            fixed_sql (str): The fixed string after linting. Note that for
+                testing purposes, `.lint_string()` is always called with
+                `fix` set to `True`.
+            violations (list of SQLBaseError): the violations found during
+                linting.
+    """
     print("# Asserting Rule Fail in SQL")
     # Set up the config to only use the rule we are testing.
     cfg = _setup_config(code, configs)
@@ -130,8 +161,18 @@ def assert_rule_fail_in_sql(
                     line_numbers, actual_line_numbers
                 )
             )
-    fixed, _ = linted.fix_string()
-    return fixed, linted.violations
+    fixed_sql, _ = linted.fix_string()
+
+    # Check that if it has made changes that this rule has set
+    # `is_fix_compatible` appropriately.
+    if fixed_sql != sql:
+        rule = get_rule_from_set(code, config=cfg)
+        assert rule.is_fix_compatible, (
+            f"Rule {code} returned fixes but does not specify "
+            "'is_fix_compatible = True'."
+        )
+
+    return fixed_sql, linted.violations
 
 
 def assert_rule_pass_in_sql(

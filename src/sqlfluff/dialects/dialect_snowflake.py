@@ -685,6 +685,7 @@ snowflake_dialect.replace(
             # Allow use of CONNECT_BY_ROOT pseudo-columns.
             # https://docs.snowflake.com/en/sql-reference/constructs/connect-by.html#:~:text=Snowflake%20supports%20the%20CONNECT_BY_ROOT,the%20Examples%20section%20below.
             Sequence("CONNECT_BY_ROOT", Ref("ColumnReferenceSegment")),
+            Sequence("PRIOR", Ref("ColumnReferenceSegment")),
         ],
         before=Ref("LiteralGrammar"),
     ),
@@ -1165,27 +1166,13 @@ class ConnectByClauseSegment(BaseSegment):
             "CONNECT",
             "BY",
             Delimited(
-                Sequence(
-                    Ref.keyword("PRIOR", optional=True),
-                    Ref("ColumnReferenceSegment"),
-                    Ref("EqualsSegment"),
-                    Ref.keyword("PRIOR", optional=True),
-                    Ref("ColumnReferenceSegment"),
-                ),
+                OptionallyBracketed(Ref("ExpressionSegment")),
             ),
         ),
         Sequence(
             "CONNECT",
             "BY",
-            Delimited(
-                Sequence(
-                    Ref.keyword("PRIOR", optional=True),
-                    Ref("ColumnReferenceSegment"),
-                    Ref("EqualsSegment"),
-                    Ref("ColumnReferenceSegment"),
-                ),
-                delimiter="AND",
-            ),
+            OptionallyBracketed(Ref("ExpressionSegment")),
             Sequence(
                 "START",
                 "WITH",
@@ -1893,7 +1880,7 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
         insert=[
             Sequence(
                 Ref("SystemFunctionName"),
-                Bracketed(Ref("QuotedLiteralSegment")),
+                Bracketed(Delimited(Ref("LiteralGrammar"))),
             )
         ],
         before=Ref("WildcardExpressionSegment"),
@@ -2436,7 +2423,7 @@ class AlterShareStatementSegment(BaseSegment):
                 ),
                 "ACCOUNTS",
                 Ref("EqualsSegment"),
-                Delimited(Ref("NakedIdentifierSegment")),
+                Delimited(Ref("ObjectReferenceSegment")),
                 Sequence(
                     "SHARE_RESTRICTIONS",
                     Ref("EqualsSegment"),
@@ -2448,7 +2435,7 @@ class AlterShareStatementSegment(BaseSegment):
                 "SET",
                 "ACCOUNTS",
                 Ref("EqualsSegment"),
-                Delimited(Ref("NakedIdentifierSegment")),
+                Delimited(Ref("ObjectReferenceSegment")),
                 Ref("CommentEqualsClauseSegment", optional=True),
             ),
             Sequence(
@@ -4067,7 +4054,12 @@ class CopyOptionsSegment(BaseSegment):
         Sequence(
             "MATCH_BY_COLUMN_NAME",
             Ref("EqualsSegment"),
-            OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE", "NONE"),
+            OneOf(
+                "CASE_SENSITIVE",
+                "CASE_INSENSITIVE",
+                "NONE",
+                Ref("QuotedLiteralSegment"),
+            ),
         ),
         Sequence(
             "INCLUDE_METADATA",
@@ -5008,6 +5000,14 @@ class CreateUserSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("ObjectReferenceSegment"),
             ),
+            Sequence(
+                "TYPE",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
             Ref("CommentEqualsClauseSegment"),
         ),
         Dedent,
@@ -5875,6 +5875,11 @@ class CreateExternalTableSegment(BaseSegment):
             Sequence(
                 "COPY",
                 "GRANTS",
+            ),
+            Sequence(
+                "PARTITION_TYPE",
+                Ref("EqualsSegment"),
+                "USER_SPECIFIED",
             ),
             Sequence(
                 Sequence("WITH", optional=True),
@@ -7933,6 +7938,7 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
         Delimited(
             Sequence(
                 OneOf(
+                    Ref("BooleanLiteralGrammar"),
                     Ref("ColumnReferenceSegment"),
                     # Can `ORDER BY 1`
                     Ref("NumericLiteralSegment"),
@@ -8483,7 +8489,7 @@ class LambdaExpressionSegment(BaseSegment):
                 Delimited(
                     Sequence(
                         Ref("NakedIdentifierSegment"),
-                        Ref("DatatypeSegment"),
+                        Ref("DatatypeSegment", optional=True),
                     )
                 )
             ),

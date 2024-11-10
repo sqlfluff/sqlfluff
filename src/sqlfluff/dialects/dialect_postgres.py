@@ -480,12 +480,14 @@ postgres_dialect.replace(
                 Ref("QuotedLiteralSegment"),
                 Ref("SingleIdentifierGrammar"),
                 Ref("ColumnReferenceSegment"),
+                Ref("ExpressionSegment"),
             ),
             "IN",
             OneOf(
                 Ref("QuotedLiteralSegment"),
                 Ref("SingleIdentifierGrammar"),
                 Ref("ColumnReferenceSegment"),
+                Ref("ExpressionSegment"),
             ),
         ),
         Ref("IgnoreRespectNullsGrammar"),
@@ -1084,6 +1086,49 @@ class CreateAggregateStatementSegment(BaseSegment):
             Anything(),
         ),
         Ref("FunctionParameterListGrammar"),
+    )
+
+
+class AlterAggregateStatementSegment(BaseSegment):
+    """A `ALTER AGGREGATE` statement.
+
+    https://www.postgresql.org/docs/current/sql-alteraggregate.html
+    """
+
+    type = "alter_aggregate_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "AGGREGATE",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            OneOf(
+                Ref("FunctionParameterListGrammar"),
+                Anything(),
+                Ref("StarSegment"),
+            )
+        ),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("FunctionNameSegment"),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+            Sequence(
+                "SET",
+                "SCHEMA",
+                Ref("SchemaReferenceSegment"),
+            ),
+        ),
     )
 
 
@@ -3244,7 +3289,12 @@ class AlterDatabaseStatementSegment(BaseSegment):
                 OneOf(
                     Sequence(
                         OneOf("TO", Ref("EqualsSegment")),
-                        OneOf("DEFAULT", Ref("LiteralGrammar")),
+                        OneOf(
+                            "DEFAULT",
+                            Ref("LiteralGrammar"),
+                            Ref("NakedIdentifierSegment"),
+                            Ref("QuotedIdentifierSegment"),
+                        ),
                     ),
                     Sequence("FROM", "CURRENT"),
                 ),
@@ -4682,6 +4732,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateForeignTableStatementSegment"),
             Ref("DropAggregateStatementSegment"),
             Ref("CreateAggregateStatementSegment"),
+            Ref("AlterAggregateStatementSegment"),
             Ref("CreateStatisticsStatementSegment"),
             Ref("AlterStatisticsStatementSegment"),
             Ref("DropStatisticsStatementSegment"),

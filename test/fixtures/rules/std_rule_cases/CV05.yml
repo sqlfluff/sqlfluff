@@ -112,3 +112,10 @@ test_exclude_constraint:
   configs:
     core:
       dialect: postgres
+
+test_mysql_system_variable:
+  pass_str: |
+    SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+  configs:
+    core:
+      dialect: mysql

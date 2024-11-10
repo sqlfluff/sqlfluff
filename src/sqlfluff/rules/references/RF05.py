@@ -126,6 +126,19 @@ class Rule_RF05(BaseRule):
             ):
                 return LintResult(memory=context.memory)
 
+            # PostgreSQL Extension allows the use of extensions.
+            #
+            # These extensions are often qutoed identifiers.
+            # (https://www.postgresql.org/docs/current/contrib.html)
+            #
+            # Allow quoted identifiers in extension references
+            if (
+                context.dialect.name in ["postgres"]
+                and context.parent_stack
+                and context.parent_stack[-1].is_type("extension_reference")
+            ):
+                return None
+
             # BigQuery table references are quoted in back ticks so allow dots
             #
             # It also allows a star at the end of table_references for wildcards

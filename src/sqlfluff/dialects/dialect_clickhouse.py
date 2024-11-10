@@ -43,7 +43,16 @@ ansi_dialect = load_raw_dialect("ansi")
 clickhouse_dialect = ansi_dialect.copy_as(
     "clickhouse",
     formatted_name="ClickHouse",
-    docstring="The dialect for `ClickHouse <https://clickhouse.com/>`_.",
+    docstring="""**Default Casing**: Clickhouse is case sensitive throughout,
+regardless of quoting. An unquoted reference to an object using the wrong
+case will raise an :code:`UNKNOWN_IDENTIFIER` error.
+
+**Quotes**: String Literals: ``''``, Identifiers: ``""`` or |back_quotes|.
+Note as above, that because identifiers are always resolved case sensitively, the
+only reason for quoting identifiers is when they contain invalid characters or
+reserved keywords.
+
+The dialect for `ClickHouse <https://clickhouse.com/>`_.""",
 )
 clickhouse_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
@@ -209,7 +218,8 @@ clickhouse_dialect.replace(
             type="quoted_literal",
         ),
     ),
-    # Drop casefold from ANSI
+    # Drop casefold from ANSI, clickhouse is always case sensitive, even when
+    # unquoted.
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
@@ -252,6 +262,12 @@ clickhouse_dialect.replace(
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIME", "TIMESTAMP"),
         TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
+    ),
+    AlterTableDropColumnGrammar=Sequence(
+        "DROP",
+        Ref.keyword("COLUMN"),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
     ),
 )
 

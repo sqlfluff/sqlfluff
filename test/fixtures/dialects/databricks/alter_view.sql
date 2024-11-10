@@ -3,6 +3,8 @@
 
 ALTER VIEW tempsc1.v1 RENAME TO tempsc1.v2;
 
+ALTER VIEW IDENTIFIER('tempsc1.v1') RENAME TO IDENTIFIER('tempsc1.v2');
+
 ALTER VIEW tempsc1.v2 SET TBLPROPERTIES ('created.by.user' = "John", 'created.date' = '01-01-2001' );
 
 ALTER VIEW tempsc1.v2 UNSET TBLPROPERTIES (`created`.`by`.`user`, created.date);

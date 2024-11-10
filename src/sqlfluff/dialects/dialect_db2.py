@@ -104,6 +104,12 @@ db2_dialect.replace(
         Ref("LabeledDurationGrammar"),
     ),
     BracketedSetExpressionGrammar=Bracketed(Ref("SetExpressionSegment")),
+    AlterTableDropColumnGrammar=Sequence(
+        "DROP",
+        Ref.keyword("COLUMN", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        Ref("DropBehaviorGrammar", optional=True),
+    ),
 )
 
 

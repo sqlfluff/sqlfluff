@@ -36,7 +36,11 @@ ansi_dialect = load_raw_dialect("ansi")
 trino_dialect = ansi_dialect.copy_as(
     "trino",
     formatted_name="Trino",
-    docstring="""**Default Casing**: ``UPPERCASE``
+    docstring="""**Default Casing**: ``lowercase``, although the case
+of a reference is used in the result set column label. If a column is defined
+using :code:`CREATE TEMPORARY TABLE foo (COL1 int)`, then :code:`SELECT * FROM foo`
+returns a column labelled :code:`col1`, however :code:`SELECT COL1 FROM foo`
+returns a column labelled :code:`COL1`.
 
 **Quotes**: String Literals: ``''``, Identifiers: ``""``
 
@@ -262,6 +266,7 @@ trino_dialect.replace(
         Ref("LambdaExpressionSegment"),
         Ref("ExpressionSegment"),
     ),
+    TemporaryTransientGrammar=Nothing(),
 )
 
 

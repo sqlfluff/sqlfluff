@@ -466,7 +466,7 @@ tsql_dialect.replace(
             type="function_name_identifier",
             anti_template=r"^("
             + r"|".join(
-                dialect.sets("reserved_keywords")
+                dialect.sets("reserved_keywords").difference({"UPDATE"})
                 | dialect.sets("future_reserved_keywords")
             )
             + r")$",
@@ -1830,13 +1830,11 @@ class ReferencesConstraintGrammar(BaseSegment):
         Ref("TableReferenceSegment"),
         # Foreign columns making up FOREIGN KEY constraint
         Ref("BracketedColumnReferenceListGrammar", optional=True),
-        Sequence(
-            "ON",
-            OneOf("DELETE", "UPDATE"),
-            Ref("ReferentialActionGrammar"),
-            optional=True,
+        AnySetOf(
+            Sequence("ON", "DELETE", Ref("ReferentialActionGrammar")),
+            Sequence("ON", "UPDATE", Ref("ReferentialActionGrammar")),
+            Sequence("NOT", "FOR", "REPLICATION"),
         ),
-        Sequence("NOT", "FOR", "REPLICATION", optional=True),
     )
 
 
@@ -2481,71 +2479,78 @@ class ColumnConstraintSegment(BaseSegment):
     type = "column_constraint_segment"
     # Column constraint from
     # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql
-    match_grammar = Sequence(
+    match_grammar = OneOf(
         Sequence(
-            "CONSTRAINT",
-            Ref("ObjectReferenceSegment"),  # Constraint name
-            optional=True,
-        ),
-        OneOf(
-            "FILESTREAM",
             Sequence(
-                "COLLATE", Ref("CollationReferenceSegment")
-            ),  # [COLLATE collation_name]
-            "SPARSE",
-            Sequence(
-                "MASKED",
-                "WITH",
-                Bracketed("FUNCTION", Ref("EqualsSegment"), Ref("LiteralGrammar")),
+                "CONSTRAINT",
+                Ref("ObjectReferenceSegment"),  # Constraint name
+                optional=True,
             ),
-            Sequence(
+            OneOf(
+                "FILESTREAM",
                 Sequence(
-                    "CONSTRAINT",
-                    Ref("ObjectReferenceSegment"),  # Constraint name
-                    optional=True,
+                    "COLLATE", Ref("CollationReferenceSegment")
+                ),  # [COLLATE collation_name]
+                "SPARSE",
+                Sequence(
+                    "MASKED",
+                    "WITH",
+                    Bracketed("FUNCTION", Ref("EqualsSegment"), Ref("LiteralGrammar")),
                 ),
-                # DEFAULT <value>
-                "DEFAULT",
-                OptionallyBracketed(
-                    OneOf(
-                        OptionallyBracketed(Ref("LiteralGrammar")),  # ((-1))
-                        Ref("BareFunctionSegment"),
-                        Ref("FunctionSegment"),
-                        Ref("NextValueSequenceSegment"),
+                Sequence(
+                    Sequence(
+                        "CONSTRAINT",
+                        Ref("ObjectReferenceSegment"),  # Constraint name
+                        optional=True,
+                    ),
+                    # DEFAULT <value>
+                    "DEFAULT",
+                    OptionallyBracketed(
+                        OneOf(
+                            OptionallyBracketed(Ref("LiteralGrammar")),  # ((-1))
+                            Ref("BareFunctionSegment"),
+                            Ref("FunctionSegment"),
+                            Ref("NextValueSequenceSegment"),
+                        ),
                     ),
                 ),
-            ),
-            Ref("IdentityGrammar"),
-            Sequence("NOT", "FOR", "REPLICATION"),
-            Sequence(
-                Sequence("GENERATED", "ALWAYS", "AS"),
-                OneOf("ROW", "TRANSACTION_ID", "SEQUENCE_NUMBER"),
-                OneOf("START", "END"),
-                Ref.keyword("HIDDEN", optional=True),
-            ),
-            Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
-            "ROWGUIDCOL",
-            Ref("EncryptedWithGrammar"),
-            Ref("PrimaryKeyGrammar"),
-            Ref("RelationalIndexOptionsSegment"),
-            Ref("OnPartitionOrFilegroupOptionSegment"),
-            "UNIQUE",  # UNIQUE #can be removed as included in PrimaryKeyGrammar?
-            Ref("ForeignKeyGrammar"),
-            Ref("ReferencesConstraintGrammar"),
-            Ref("CheckConstraintGrammar"),
-            Ref("FilestreamOnOptionSegment", optional=True),
-            # column_index
-            Sequence(
-                "INDEX",
-                Ref("ObjectReferenceSegment"),  # index name
-                OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
+                Ref("IdentityGrammar"),
+                Sequence("NOT", "FOR", "REPLICATION"),
+                Sequence(
+                    Sequence("GENERATED", "ALWAYS", "AS"),
+                    OneOf("ROW", "TRANSACTION_ID", "SEQUENCE_NUMBER"),
+                    OneOf("START", "END"),
+                    Ref.keyword("HIDDEN", optional=True),
+                ),
+                Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
+                "ROWGUIDCOL",
+                Ref("EncryptedWithGrammar"),
+                # Primary Key without a column list
+                Ref("PrimaryKeyGrammar"),
+                Ref("RelationalIndexOptionsSegment"),
+                Ref("OnPartitionOrFilegroupOptionSegment"),
+                # Foreign Key without a column list
+                Ref("ForeignKeyGrammar"),
+                Ref("ReferencesConstraintGrammar"),
+                Ref("CheckConstraintGrammar"),
+                Ref("FilestreamOnOptionSegment", optional=True),
+                # column_index
+                Sequence(
+                    "INDEX",
+                    Ref("ObjectReferenceSegment"),  # index name
+                    OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
+                    # other optional blocks (RelationalIndexOptionsSegment,
+                    # OnIndexOptionSegment,FilestreamOnOptionSegment) are mentioned
+                    # above
+                ),
                 # other optional blocks (RelationalIndexOptionsSegment,
-                # OnIndexOptionSegment,FilestreamOnOptionSegment) are mentioned above
+                # OnIndexOptionSegment, ReferencesConstraintGrammar,
+                # CheckConstraintGrammar) are mentioned above
             ),
-            # other optional blocks (RelationalIndexOptionsSegment,
-            # OnIndexOptionSegment, ReferencesConstraintGrammar, CheckConstraintGrammar)
-            # are mentioned above
         ),
+        # This is used where a PK or FK may have a column list plus additional
+        # options set.
+        Ref("TableConstraintSegment"),
     )
 
 
@@ -6409,4 +6414,17 @@ class DropMasterKeySegment(BaseSegment):
         "DROP",
         "MASTER",
         "KEY",
+    )
+
+
+class ExpressionSegment(BaseSegment):
+    """An expression, either arithmetic or boolean.
+
+    Extended for TSQL to include the `NEXT VALUE FOR` segment.
+    """
+
+    type = "expression"
+
+    match_grammar: Matchable = OneOf(
+        Ref("Expression_A_Grammar"), Ref("NextValueSequenceSegment")
     )

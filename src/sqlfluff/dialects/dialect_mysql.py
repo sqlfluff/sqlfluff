@@ -318,7 +318,7 @@ mysql_dialect.add(
         type="at_sign_literal",
     ),
     SystemVariableSegment=RegexParser(
-        r"@@(session|global)\.[A-Za-z0-9_]+",
+        r"@@((session|global)\.)?[A-Za-z0-9_]+",
         CodeSegment,
         type="system_variable",
     ),
@@ -1763,6 +1763,7 @@ class SetAssignmentStatementSegment(BaseSegment):
                     Ref("QuotedLiteralSegment"),
                     Ref("DoubleQuotedLiteralSegment"),
                     Ref("SessionVariableNameSegment"),
+                    Ref("SystemVariableSegment"),
                     # Match boolean keywords before local variables.
                     Ref("BooleanDynamicSystemVariablesGrammar"),
                     Ref("LocalVariableNameSegment"),

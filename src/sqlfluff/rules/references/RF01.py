@@ -29,6 +29,7 @@ class RF01Query(Query):
 
     aliases: List[AliasInfo] = field(default_factory=list)
     standalone_aliases: List[BaseSegment] = field(default_factory=list)
+    parent_stack: Tuple[BaseSegment, ...] = field(default_factory=tuple)
 
 
 class Rule_RF01(BaseRule):
@@ -70,25 +71,8 @@ class Rule_RF01(BaseRule):
     # If any of the parents would have also triggered the rule, don't fire
     # because they will more accurately process any internal references.
     crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
-    _dialects_disabled_by_default = [
-        "bigquery",
-        "databricks",
-        "hive",
-        "redshift",
-        "soql",
-        "sparksql",
-    ]
 
     def _eval(self, context: RuleContext) -> List[LintResult]:
-        # Config type hints
-        self.force_enable: bool
-
-        if (
-            context.dialect.name in self._dialects_disabled_by_default
-            and not self.force_enable
-        ):
-            return []
-
         violations: List[LintResult] = []
         dml_target_table: Optional[Tuple[str, ...]] = None
         self.logger.debug("Trigger on: %s", context.segment)
@@ -104,7 +88,8 @@ class Rule_RF01(BaseRule):
         self.logger.debug("DML Reference Table: %s", dml_target_table)
         # Verify table references in any SELECT statements found in or
         # below context.segment in the parser tree.
-        query = RF01Query.from_segment(context.segment, context.dialect)
+        query: RF01Query = RF01Query.from_segment(context.segment, context.dialect)
+        query.parent_stack = context.parent_stack
         self._analyze_table_references(
             query, dml_target_table, context.dialect, violations
         )
@@ -209,7 +194,7 @@ class Rule_RF01(BaseRule):
 
     def _resolve_reference(
         self, r, tbl_refs, dml_target_table: Optional[Tuple[str, ...]], query: RF01Query
-    ):
+    ) -> Optional[LintResult]:
         # Does this query define the referenced table?
         possible_references = [tbl_ref[1] for tbl_ref in tbl_refs]
         targets = []
@@ -217,6 +202,19 @@ class Rule_RF01(BaseRule):
             targets += self._alias_info_as_tuples(alias)
         for standalone_alias in query.standalone_aliases:
             targets.append((standalone_alias.raw,))
+
+        if len(targets) == 1 and self._dialect_supports_dot_access(query.dialect):
+            self.force_enable: bool
+            if self.force_enable:
+                # Backwards compatibility.
+                # Nowadays "force_enable" is more of "strict" mode,
+                # for dialects with dot access.
+                pass
+            else:
+                return None
+
+        targets += self._get_implicit_targets(query)
+
         if not object_ref_matches_table(possible_references, targets):
             # No. Check the parent query, if there is one.
             if query.parent:
@@ -235,3 +233,51 @@ class Rule_RF01(BaseRule):
                     "not found in the FROM clause or found in ancestor "
                     "statement.",
                 )
+
+        return None
+
+    @staticmethod
+    def _get_implicit_targets(query: RF01Query) -> List[Tuple[str, ...]]:
+        if query.dialect.name == "sqlite":
+            maybe_create_trigger: Optional[BaseSegment] = next(
+                (
+                    seg
+                    for seg in reversed(query.parent_stack)
+                    if seg.is_type("create_trigger")
+                ),
+                None,
+            )
+            if not maybe_create_trigger:
+                return []
+            for seg in maybe_create_trigger.segments:
+                if seg.is_type("keyword") and seg.raw_normalized() == "INSERT":
+                    return [("new",)]
+                elif seg.is_type("keyword") and seg.raw_normalized() == "UPDATE":
+                    return [("new",), ("old",)]
+                elif seg.is_type("keyword") and seg.raw_normalized() == "DELETE":
+                    return [("old",)]
+                else:
+                    pass  # pragma: no cover
+
+        return []
+
+    @staticmethod
+    def _dialect_supports_dot_access(dialect: Dialect) -> bool:
+        # Athena:
+        # https://docs.aws.amazon.com/athena/latest/ug/filtering-with-dot.html
+        # BigQuery:
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/operators#field_access_operator
+        # Databricks:
+        # https://docs.databricks.com/en/sql/language-manual/functions/dotsign.html
+        # Redshift:
+        # https://docs.aws.amazon.com/redshift/latest/dg/query-super.html
+        # TODO: all doc links to all referenced dialects
+        return dialect.name in (
+            "athena",
+            "bigquery",
+            "databricks",
+            "hive",
+            "redshift",
+            "soql",
+            "sparksql",
+        )

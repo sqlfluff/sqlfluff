@@ -27,13 +27,13 @@ python test/generate_parse_fixture_yml.py [--dialect <dialect>] [--filter <glob_
 Or via `tox`:
 
 ```
-tox generate-fixture-yml
+tox -e generate-fixture-yml
 ```
 
 Or via `tox` with arguments:
 
 ```
-tox generate-fixture-yml -- --dialect <dialect>
+tox -e generate-fixture-yml -- --dialect <dialect>
 ```
 
 This will regenerate all the parsed structure yml files, or a subset based on the given filters.

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5e12d4826b7072fddd53e9e4c040cd96ae651d7999d1230aac1ae9466599d511
+_hash: 9fb033c7be6f39ac2f59ae9dc3797a52adf82ae1db6ecce433fe5cc7503a7021
 file:
 - statement:
     add_file_statement:
@@ -35,4 +35,14 @@ file:
     - file_keyword: FILES
     - quoted_literal: '"/path with space/cde.txt"'
     - quoted_literal: "'/path with space/fgh.txt'"
+- statement_terminator: ;
+- statement:
+    add_file_statement:
+      keyword: ADD
+      file_keyword: FILE
+      file_literal:
+      - slash: /
+      - path_segment: tmp
+      - slash: /
+      - path_segment: test
 - statement_terminator: ;

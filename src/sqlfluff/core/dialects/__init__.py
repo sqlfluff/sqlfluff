@@ -40,6 +40,7 @@ _dialect_lookup = {
     "soql": ("dialect_soql", "soql_dialect"),
     "sparksql": ("dialect_sparksql", "sparksql_dialect"),
     "sqlite": ("dialect_sqlite", "sqlite_dialect"),
+    "starrocks": ("dialect_starrocks", "starrocks_dialect"),
     "teradata": ("dialect_teradata", "teradata_dialect"),
     "trino": ("dialect_trino", "trino_dialect"),
     "tsql": ("dialect_tsql", "tsql_dialect"),

@@ -734,12 +734,20 @@ ansi_dialect.add(
                 optional=True,
             ),
         ),
+        # Drop
+        Ref("AlterTableDropColumnGrammar"),
         # Rename
         Sequence(
             "RENAME",
             OneOf("AS", "TO", optional=True),
             Ref("TableReferenceSegment"),
         ),
+    ),
+    AlterTableDropColumnGrammar=Sequence(
+        "DROP",
+        Ref.keyword("COLUMN", optional=True),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
     ),
     OrderNoOrderGrammar=OneOf("ORDER", "NOORDER"),
     ColumnsExpressionNameGrammar=Nothing(),

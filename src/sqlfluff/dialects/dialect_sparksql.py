@@ -42,6 +42,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_hive as hive
@@ -193,7 +194,7 @@ sparksql_dialect.insert_lexer_matchers(
         RegexLexer(
             "file_literal",
             (
-                r"[a-zA-Z0-9]*:?([a-zA-Z0-9\-_\.]*(\/|\\)){2,}"
+                r"[a-zA-Z0-9]+:([a-zA-Z0-9\-_\.]*(\/|\\)){2,}"
                 r"((([a-zA-Z0-9\-_\.]*(:|\?|=|&)[a-zA-Z0-9\-_\.]*)+)"
                 r"|([a-zA-Z0-9\-_\.]*\.[a-z]+))"
             ),
@@ -472,7 +473,6 @@ sparksql_dialect.replace(
 )
 
 sparksql_dialect.add(
-    FileLiteralSegment=TypedParser("file_literal", LiteralSegment, type="file_literal"),
     BackQuotedIdentifierSegment=TypedParser(
         "back_quote",
         IdentifierSegment,
@@ -1968,19 +1968,7 @@ class HintFunctionSegment(BaseSegment):
 
     match_grammar = Sequence(
         Ref("FunctionNameSegment"),
-        Bracketed(
-            Delimited(
-                AnyNumberOf(
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("NumericLiteralSegment"),
-                    Ref("TableReferenceSegment"),
-                    Ref("ColumnReferenceSegment"),
-                    min_times=1,
-                ),
-            ),
-            # May be Bare Function unique to Hints, i.e. REBALANCE
-            optional=True,
-        ),
+        Ref("FunctionContentsSegment", optional=True),
     )
 
 
@@ -2469,7 +2457,32 @@ class AddFileSegment(BaseSegment):
     match_grammar = Sequence(
         "ADD",
         Ref("FileKeywordSegment"),
-        AnyNumberOf(Ref("QuotedLiteralSegment")),
+        AnyNumberOf(Ref("QuotedLiteralSegment"), Ref("FileLiteralSegment")),
+    )
+
+
+class FileLiteralSegment(BaseSegment):
+    """A path literal that isn't quoted.
+
+    The regular expression will pickup any paths with a leading protocol, however to
+    prevent some division operators that may look like paths, we only parse them here
+    **after** lexing.
+    """
+
+    type = "file_literal"
+    match_grammar: Matchable = OneOf(
+        TypedParser("file_literal", LiteralSegment),
+        Sequence(
+            Ref("SlashSegment", optional=True),
+            Delimited(
+                Delimited(
+                    TypedParser("word", WordSegment, type="path_segment"),
+                    delimiter=Ref("DotSegment"),
+                ),
+                delimiter=Ref("SlashSegment"),
+                allow_gaps=False,
+            ),
+        ),
     )
 
 
@@ -2619,7 +2632,7 @@ class ListFileSegment(BaseSegment):
     match_grammar = Sequence(
         "LIST",
         Ref("FileKeywordSegment"),
-        AnyNumberOf(Ref("QuotedLiteralSegment")),
+        AnyNumberOf(Ref("QuotedLiteralSegment"), Ref("FileLiteralSegment")),
     )
 
 
@@ -2634,7 +2647,7 @@ class ListJarSegment(BaseSegment):
     match_grammar = Sequence(
         "LIST",
         Ref("JarKeywordSegment"),
-        AnyNumberOf(Ref("QuotedLiteralSegment")),
+        AnyNumberOf(Ref("QuotedLiteralSegment"), Ref("FileLiteralSegment")),
     )
 
 

@@ -58,6 +58,9 @@ sparksql:
 sqlite:
   - "/(sqlite)/i"
 
+starrocks:
+  - "/(starrocks)/i"
+
 t-sql:
   - "/(t-sql|tsql)/i"
 

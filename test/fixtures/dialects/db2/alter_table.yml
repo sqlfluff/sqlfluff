@@ -1,0 +1,68 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 46d1387ec78ed51b3e8a3463c6a4c5966c5a221943d7077ab1b747a2155f71af
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: DROP
+    - keyword: COLUMN
+    - naked_identifier: y
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - parameter: DROP
+    - naked_identifier: y
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: DROP
+    - keyword: COLUMN
+    - naked_identifier: y
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: DROP
+    - naked_identifier: y
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: DROP
+    - keyword: COLUMN
+    - naked_identifier: y
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: DROP
+    - naked_identifier: y
+    - keyword: RESTRICT
+- statement_terminator: ;

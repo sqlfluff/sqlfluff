@@ -20,3 +20,11 @@ select notify from foo;
 select
     coalesce(do.a, do.b) as value
 from delivery_override as do
+;
+
+SELECT
+      t.id
+    , TRUE AS test
+FROM mytable t
+ORDER BY TRUE
+;
