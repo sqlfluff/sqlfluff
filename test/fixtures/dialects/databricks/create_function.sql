@@ -83,7 +83,7 @@ CREATE FUNCTION main.default.greet(s STRING)
 
 -- Created Table Valued Function simple
 CREATE FUNCTION return_table()
-RETURNS TABLE 
+RETURNS TABLE
 RETURN
 SELECT time FROM my_table
 ;

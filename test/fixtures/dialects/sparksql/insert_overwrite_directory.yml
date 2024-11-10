@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b19c5c1de0e98b801765c0fc5e50a61d9540e3ce8037ee021284b4fbd6d8bf1d
+_hash: 1a1d483f184ec0255394fd87cfc6cec2e5ee976d93fcb404ace2e41d2e76116c
 file:
 - statement:
     insert_overwrite_directory_statement:
@@ -242,10 +242,12 @@ file:
                 hint_function:
                   function_name:
                     function_name_identifier: COALESCE
-                  bracketed:
-                    start_bracket: (
-                    numeric_literal: '1'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '1'
+                      end_bracket: )
                 end_hint: '*/'
             select_clause_element:
               wildcard_expression:
