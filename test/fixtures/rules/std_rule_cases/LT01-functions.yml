@@ -26,3 +26,14 @@ test_pass_drop_function_go:
   configs:
     core:
       dialect: tsql
+
+test_pass_select_hint:
+  pass_str: |
+    select /*+ repartition(200) */
+        one,
+        two
+    from
+        mytable
+  configs:
+    core:
+      dialect: sparksql

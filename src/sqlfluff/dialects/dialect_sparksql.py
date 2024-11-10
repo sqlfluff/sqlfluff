@@ -1968,19 +1968,7 @@ class HintFunctionSegment(BaseSegment):
 
     match_grammar = Sequence(
         Ref("FunctionNameSegment"),
-        Bracketed(
-            Delimited(
-                AnyNumberOf(
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("NumericLiteralSegment"),
-                    Ref("TableReferenceSegment"),
-                    Ref("ColumnReferenceSegment"),
-                    min_times=1,
-                ),
-            ),
-            # May be Bare Function unique to Hints, i.e. REBALANCE
-            optional=True,
-        ),
+        Ref("FunctionContentsSegment", optional=True),
     )
 
 
