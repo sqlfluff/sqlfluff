@@ -278,6 +278,9 @@ class ReflowSequence:
                     break
             # Capture one more after the whitespace.
             post_idx += 1
+        if pre_idx < 0:
+            # Boundary guard needed for mypy
+            pre_idx = 0
         segments = all_raws[pre_idx:post_idx]
         reflow_logger.debug(
             "Generating ReflowSequence.from_around_target(). idx: %s. "
