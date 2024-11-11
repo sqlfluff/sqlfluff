@@ -1034,7 +1034,7 @@ def _paths_fix(
 @click.option(
     "-x",
     "--fixed-suffix",
-    default=None,
+    default="",
     help="An optional suffix to add to fixed files.",
 )
 @click.option(
