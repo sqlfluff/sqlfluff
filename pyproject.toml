@@ -150,6 +150,7 @@ dependencies = [
 require-runtime-dependencies = true
 include = [
   "src/sqlfluff/utils/reflow",
+  "src/sqlfluff/core/linter",
 ]
 mypy-args = ["--ignore-missing-imports"]
 options = { debug_level = "0" }

@@ -1,6 +1,7 @@
 """Helpers for generating patches to fix files."""
 
 import logging
+from builtins import slice
 from dataclasses import dataclass
 from typing import (
     Iterator,
