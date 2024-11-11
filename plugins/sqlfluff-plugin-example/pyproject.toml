@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 # Change this name in your plugin, e.g. company name or plugin purpose.
 name = "sqlfluff-plugin-example"
 version = "1.0.0"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dependencies = [
     "sqlfluff>=0.4.0"
 ]

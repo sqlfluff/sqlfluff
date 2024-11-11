@@ -8,15 +8,10 @@ rather than the individual file caching in the `file` module.
 
 from __future__ import annotations
 
-try:
-    from importlib.resources import files
-except ImportError:  # pragma: no cover
-    # fallback for python <=3.8
-    from importlib_resources import files  # type: ignore
-
 import logging
 import os
 import os.path
+from importlib.resources import files
 from pathlib import Path
 from typing import (
     Optional,
