@@ -28,6 +28,9 @@ greenplum:
 hive:
   - "/(hive)/i"
 
+impala:
+  - "/(impala)/i"
+
 mariadb:
   - "/(mariadb)/i"
 
