@@ -91,6 +91,8 @@ dependencies = [
     "toml; python_version < '3.11'",
     # For handling progress bars
     "tqdm",
+    # mypyc boilerplate
+    "mypy-extensions",
 ]
 
 [project.urls]

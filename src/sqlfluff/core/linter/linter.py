@@ -19,6 +19,7 @@ from typing import (
 )
 
 import regex
+from mypy_extensions import mypyc_attr
 from tqdm import tqdm
 
 from sqlfluff.core.config import FluffConfig, progress_bar_configuration
@@ -64,6 +65,7 @@ RuleTimingsType = List[Tuple[str, str, float]]
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
 
+@mypyc_attr(allow_interpreted_subclasses=True)
 class Linter:
     """The interface class to interact with the linter."""
 

@@ -26,7 +26,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.segments.base import BaseSegment
 
 
-def sum_dicts(d1: Mapping[str, int], d2: Mapping[str, int]) -> Dict[str, int]:
+def sum_dicts(d1: Mapping[str, float], d2: Mapping[str, float]) -> Dict[str, float]:
     """Take the keys of two dictionaries and add their values."""
     keys = set(d1.keys()) | set(d2.keys())
     return {key: d1.get(key, 0) + d2.get(key, 0) for key in keys}
@@ -113,7 +113,7 @@ class LintingResult:
         # Add up all the counts for each file.
         # NOTE: Having a more strictly typed dict for the counts also helps with
         # typing later in this method.
-        counts: Dict[str, int] = dict(files=0, clean=0, unclean=0, violations=0)
+        counts: Dict[str, float] = dict(files=0, clean=0, unclean=0, violations=0)
         for path in self.paths:
             counts = sum_dicts(path.stats(), counts)
         # Set up the overall dictionary.
