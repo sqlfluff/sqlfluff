@@ -97,7 +97,7 @@ templated_file_2 = TemplatedFile(
         # Nested literal edit example
         (
             BaseSegment(
-                [
+                (
                     RawSegment(
                         "a",
                         PositionMarker(slice(0, 1), slice(0, 1), templated_file_1),
@@ -113,7 +113,7 @@ templated_file_2 = TemplatedFile(
                         PositionMarker(slice(2, 3), slice(2, 3), templated_file_1),
                         "code",
                     ),
-                ]
+                )
             ),
             templated_file_1,
             [FixPatch(slice(0, 3), "abz", "literal", slice(0, 3), "abc", "abc")],
@@ -121,7 +121,7 @@ templated_file_2 = TemplatedFile(
         # More complicated templating example
         (
             BaseSegment(
-                [
+                (
                     TemplateSegment(
                         PositionMarker(slice(0, 10), slice(0, 0), templated_file_2),
                         "{# blah #}",
@@ -142,7 +142,7 @@ templated_file_2 = TemplatedFile(
                         PositionMarker(slice(20, 21), slice(2, 3), templated_file_2),
                         "code",
                     ),
-                ]
+                )
             ),
             templated_file_2,
             [FixPatch(slice(2, 3), "z", "literal", slice(20, 21), "c", "c")],
@@ -150,7 +150,7 @@ templated_file_2 = TemplatedFile(
         # Templating example with fixes
         (
             BaseSegment(
-                [
+                (
                     TemplateSegment(
                         PositionMarker(slice(0, 10), slice(0, 0), templated_file_2),
                         "{# blah #}",
@@ -177,7 +177,7 @@ templated_file_2 = TemplatedFile(
                         PositionMarker(slice(20, 21), slice(2, 3), templated_file_2),
                         "code",
                     ),
-                ]
+                )
             ),
             templated_file_2,
             [
