@@ -122,7 +122,6 @@ class SequentialRunner(BaseRunner):
 class ParallelRunner(BaseRunner):
     """Base class for parallel runner implementations (process or thread)."""
 
-    POOL_TYPE: Callable[..., multiprocessing.pool.Pool]
     # Don't pass the formatter in a parallel world, they
     # don't pickle well.
     pass_formatter = False
@@ -130,6 +129,11 @@ class ParallelRunner(BaseRunner):
     def __init__(self, linter: Linter, config: FluffConfig, processes: int) -> None:
         super().__init__(linter, config)
         self.processes = processes
+
+    @classmethod
+    @abstractmethod
+    def _get_pool_type(cls) -> Callable[..., multiprocessing.pool.Pool]:
+        raise NotImplementedError
 
     def run(self, fnames: List[str], fix: bool) -> Iterator[LintedFile]:
         """Parallel implementation.
@@ -197,7 +201,7 @@ class ParallelRunner(BaseRunner):
     def _create_pool(
         cls, processes: int, initializer: Callable[[], None]
     ) -> multiprocessing.pool.Pool:
-        return cls.POOL_TYPE(processes=processes, initializer=initializer)
+        return cls._get_pool_type()(processes=processes, initializer=initializer)
 
     @classmethod
     @abstractmethod
@@ -219,14 +223,16 @@ class ParallelRunner(BaseRunner):
 class MultiProcessRunner(ParallelRunner):
     """Runner that does parallel processing using multiple processes."""
 
-    # NOTE: Python 3.13 deprecates calling `Pool` without first setting
-    # the context. The default was already "spawn" for MacOS and Windows
-    # but was previously "fork" for other Linux platforms. From python
-    # 3.14 onwards, the default will not be "fork" anymore.
-    # In testing we've found no significant difference between "fork"
-    # and "spawn", and so settle on "spawn" for all operating system.
-    # https://docs.python.org/3/library/multiprocessing.html#contexts-and-start-methods
-    POOL_TYPE = multiprocessing.get_context("spawn").Pool
+    @classmethod
+    def _get_pool_type(cls) -> Callable[..., multiprocessing.pool.Pool]:
+        # NOTE: Python 3.13 deprecates calling `Pool` without first setting
+        # the context. The default was already "spawn" for MacOS and Windows
+        # but was previously "fork" for other Linux platforms. From python
+        # 3.14 onwards, the default will not be "fork" anymore.
+        # In testing we've found no significant difference between "fork"
+        # and "spawn", and so settle on "spawn" for all operating system.
+        # https://docs.python.org/3/library/multiprocessing.html#contexts-and-start-methods
+        return multiprocessing.get_context("spawn").Pool
 
     @classmethod
     def _init_global(cls) -> None:  # pragma: no cover
@@ -262,7 +268,9 @@ class MultiThreadRunner(ParallelRunner):
     Used only by automated tests.
     """
 
-    POOL_TYPE = multiprocessing.dummy.Pool
+    @classmethod
+    def _get_pool_type(cls) -> Callable[..., multiprocessing.pool.Pool]:
+        return multiprocessing.dummy.Pool
 
     @classmethod
     def _map(
