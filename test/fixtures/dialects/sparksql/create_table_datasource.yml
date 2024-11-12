@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5bc3f9f743008498f010caf756e019fd94e291ae34b442841ec58512d149e6ca
+_hash: 42a6bbcae0324aa0b2d7c7256c7fe61e894c5948ec2dc94c2bc7985135eb189d
 file:
 - statement:
     create_table_statement:
@@ -398,4 +398,45 @@ file:
     - keyword: STORED
     - keyword: AS
     - keyword: PARQUET
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - keyword: if
+    - keyword: not
+    - keyword: exists
+    - table_reference:
+      - naked_identifier: my_table_space
+      - dot: .
+      - naked_identifier: my_test_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: test_value
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: activity_date_partition
+          data_type:
+            primitive_type:
+              keyword: date
+      - end_bracket: )
+    - using_clause:
+        keyword: using
+        data_source_format:
+          keyword: DELTA
+    - keyword: location
+    - quoted_literal: "'s3://some-bucket/test-data/'"
+    - keyword: partitioned
+    - keyword: by
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: activity_date_partition
+        end_bracket: )
 - statement_terminator: ;
