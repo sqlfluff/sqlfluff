@@ -101,6 +101,6 @@ create or replace function `catalog`.`schema`.`name` (
     param int
 )
 returns int
-return 
+return
 select param
 ;
