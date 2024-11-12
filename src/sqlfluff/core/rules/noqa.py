@@ -242,7 +242,7 @@ class IgnoreMask:
         - Sorted in ascending order by line number
         """
         ignore = False
-        last_ignore = None
+        last_ignore: Optional[NoQaDirective] = None
         for idx, ignore_rule in enumerate(ignore_rules):
             if ignore_rule.line_no > line_no:
                 # Peak at the next rule to see if it's a matching disable

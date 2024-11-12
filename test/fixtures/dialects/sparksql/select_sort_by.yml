@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0123e607c738aa6e9bd1cc1d75eeaaf8d0f32ad4646bbe82e8ef2e7781a69915
+_hash: ac53a271e7f933adb38da8d484ae968ce808e415ab41a629cc1e5b326cfd5f1a
 file:
 - statement:
     select_statement:
@@ -15,10 +15,13 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: REPARTITION
-              bracketed:
-                start_bracket: (
-                naked_identifier: zip_code
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: zip_code
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -82,10 +85,13 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: REPARTITION
-              bracketed:
-                start_bracket: (
-                naked_identifier: zip_code
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: zip_code
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -147,10 +153,13 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: REPARTITION
-              bracketed:
-                start_bracket: (
-                naked_identifier: zip_code
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: zip_code
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -218,10 +227,13 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: REPARTITION
-              bracketed:
-                start_bracket: (
-                naked_identifier: zip_code
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: zip_code
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -287,10 +299,13 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: REPARTITION
-              bracketed:
-                start_bracket: (
-                naked_identifier: zip_code
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: zip_code
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -360,10 +375,13 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: REPARTITION
-              bracketed:
-                start_bracket: (
-                naked_identifier: zip_code
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: zip_code
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:

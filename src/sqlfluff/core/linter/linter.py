@@ -49,6 +49,7 @@ from sqlfluff.core.linter.linting_result import LintingResult
 from sqlfluff.core.parser import Lexer, Parser
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
+from sqlfluff.core.rules.fix import LintFix
 from sqlfluff.core.rules.noqa import IgnoreMask
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -384,7 +385,7 @@ class Linter:
         # the fixes themselves.
         initial_linting_errors = []
         # A placeholder for the fixes we had on the previous loop
-        last_fixes = None
+        last_fixes: Optional[List[LintFix]] = None
         # Keep a set of previous versions to catch infinite loops.
         previous_versions: Set[Tuple[str, Tuple["SourceFix", ...]]] = {(tree.raw, ())}
         # Keep a buffer for recording rule timings.

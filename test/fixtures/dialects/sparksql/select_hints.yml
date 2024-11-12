@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 17d210004cf1b2cc4a9861681dd50739ed79ac4a0172ae16ad8a18fd885c03cd
+_hash: b7a5f1a6d838148caf30c0057a70f0d07683f9d092086886c7001c28048731e3
 file:
 - statement:
     select_statement:
@@ -15,10 +15,12 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: COALESCE
-              bracketed:
-                start_bracket: (
-                numeric_literal: '3'
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '3'
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -49,10 +51,12 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: REPARTITION
-              bracketed:
-                start_bracket: (
-                numeric_literal: '3'
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '3'
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -83,10 +87,13 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: REPARTITION
-              bracketed:
-                start_bracket: (
-                naked_identifier: c
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: c
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -117,12 +124,16 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: REPARTITION
-              bracketed:
-                start_bracket: (
-                numeric_literal: '3'
-                comma: ','
-                naked_identifier: c
-                end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    numeric_literal: '3'
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: c
+                - end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -153,10 +164,13 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: REPARTITION_BY_RANGE
-              bracketed:
-                start_bracket: (
-                naked_identifier: c
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: c
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -187,12 +201,16 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: REPARTITION_BY_RANGE
-              bracketed:
-                start_bracket: (
-                numeric_literal: '3'
-                comma: ','
-                naked_identifier: c
-                end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    numeric_literal: '3'
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: c
+                - end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -253,10 +271,13 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: REBALANCE
-              bracketed:
-                start_bracket: (
-                naked_identifier: c
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: c
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -287,28 +308,36 @@ file:
           - hint_function:
               function_name:
                 function_name_identifier: REPARTITION
-              bracketed:
-                start_bracket: (
-                numeric_literal: '100'
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '100'
+                  end_bracket: )
           - comma: ','
           - hint_function:
               function_name:
                 function_name_identifier: COALESCE
-              bracketed:
-                start_bracket: (
-                numeric_literal: '500'
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '500'
+                  end_bracket: )
           - comma: ','
           - hint_function:
               function_name:
                 function_name_identifier: REPARTITION_BY_RANGE
-              bracketed:
-                start_bracket: (
-                numeric_literal: '3'
-                comma: ','
-                naked_identifier: c
-                end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    numeric_literal: '3'
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: c
+                - end_bracket: )
           - end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -339,10 +368,13 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: BROADCAST
-              bracketed:
-                start_bracket: (
-                naked_identifier: t1
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: t1
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -399,10 +431,13 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: BROADCASTJOIN
-              bracketed:
-                start_bracket: (
-                naked_identifier: t1
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: t1
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -459,10 +494,13 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: MAPJOIN
-              bracketed:
-                start_bracket: (
-                naked_identifier: t2
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: t2
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -519,10 +557,13 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: SHUFFLE_MERGE
-              bracketed:
-                start_bracket: (
-                naked_identifier: t1
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: t1
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -579,10 +620,13 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: MERGEJOIN
-              bracketed:
-                start_bracket: (
-                naked_identifier: t2
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: t2
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -639,10 +683,13 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: MERGE
-              bracketed:
-                start_bracket: (
-                naked_identifier: t1
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: t1
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -699,10 +746,13 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: SHUFFLE_HASH
-              bracketed:
-                start_bracket: (
-                naked_identifier: t1
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: t1
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -759,10 +809,13 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: SHUFFLE_REPLICATE_NL
-              bracketed:
-                start_bracket: (
-                naked_identifier: t1
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: t1
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -819,20 +872,28 @@ file:
           - hint_function:
               function_name:
                 function_name_identifier: BROADCAST
-              bracketed:
-                start_bracket: (
-                naked_identifier: t1
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: t1
+                  end_bracket: )
           - comma: ','
           - hint_function:
               function_name:
                 function_name_identifier: MERGE
-              bracketed:
-              - start_bracket: (
-              - naked_identifier: t1
-              - comma: ','
-              - naked_identifier: t2
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: t1
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: t2
+                - end_bracket: )
           - end_hint: '*/'
       - select_clause_element:
           column_reference:
@@ -889,13 +950,15 @@ file:
             hint_function:
               function_name:
                 function_name_identifier: BROADCAST
-              bracketed:
-                start_bracket: (
-                table_reference:
-                - naked_identifier: db
-                - dot: .
-                - naked_identifier: t1
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: db
+                    - dot: .
+                    - naked_identifier: t1
+                  end_bracket: )
             end_hint: '*/'
       - select_clause_element:
           column_reference:
