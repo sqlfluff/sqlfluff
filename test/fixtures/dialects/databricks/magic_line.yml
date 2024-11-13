@@ -3,22 +3,12 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f1cafde889d19e15076ec4ac9f91422fe0d24ff3d6125ad98fd5ad0137ad0f01
+_hash: e2d50f62c11ce3de4f424c3fe61da8f64a44f9fd0c0928468ebfa3b4462e04cd
 file:
 - statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          column_reference:
-            naked_identifier: COL1
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: TABLE1
+    magic_cell_segment:
+      magic_start: "-- MAGIC %md\n"
+      magic_line: '-- MAGIC # Dummy Notebook'
 - statement_terminator: "\n\n-- COMMAND ----------\n"
 - statement:
     select_statement:
@@ -26,14 +16,20 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            naked_identifier: COL2
+            naked_identifier: x
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                naked_identifier: TABLE2
+                naked_identifier: y
+- statement_terminator: "\n\n-- COMMAND ----------\n"
+- statement:
+    magic_cell_segment:
+    - magic_start: "-- MAGIC %python\n"
+    - magic_line: "-- MAGIC foo = 'bar'"
+    - magic_line: -- MAGIC print(foo)
 - statement_terminator: "\n\n-- COMMAND ----------\n"
 - statement:
     select_statement:
@@ -41,27 +37,17 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            naked_identifier: COL3
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                naked_identifier: TABLE3
+                naked_identifier: b
 - statement_terminator: ;
+- statement_terminator: "\n\n-- COMMAND ----------\n"
 - statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          column_reference:
-            naked_identifier: COL4
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: TABLE4
-- statement_terminator: ;
+    magic_cell_segment:
+      magic_start: "-- MAGIC %sh\n"
+      magic_line: -- MAGIC echo heloworld
