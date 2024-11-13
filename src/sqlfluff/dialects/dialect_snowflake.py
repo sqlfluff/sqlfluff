@@ -4054,7 +4054,12 @@ class CopyOptionsSegment(BaseSegment):
         Sequence(
             "MATCH_BY_COLUMN_NAME",
             Ref("EqualsSegment"),
-            OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE", "NONE"),
+            OneOf(
+                "CASE_SENSITIVE",
+                "CASE_INSENSITIVE",
+                "NONE",
+                Ref("QuotedLiteralSegment"),
+            ),
         ),
         Sequence(
             "INCLUDE_METADATA",
@@ -5870,6 +5875,11 @@ class CreateExternalTableSegment(BaseSegment):
             Sequence(
                 "COPY",
                 "GRANTS",
+            ),
+            Sequence(
+                "PARTITION_TYPE",
+                Ref("EqualsSegment"),
+                "USER_SPECIFIED",
             ),
             Sequence(
                 Sequence("WITH", optional=True),
@@ -7928,6 +7938,7 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
         Delimited(
             Sequence(
                 OneOf(
+                    Ref("BooleanLiteralGrammar"),
                     Ref("ColumnReferenceSegment"),
                     # Can `ORDER BY 1`
                     Ref("NumericLiteralSegment"),

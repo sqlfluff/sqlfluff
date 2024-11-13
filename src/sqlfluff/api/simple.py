@@ -52,10 +52,10 @@ class APIParsingError(ValueError):
 
     def __init__(self, violations: List[SQLBaseError], *args: Any):
         self.violations = violations
-        self.msg = f"Found {len(violations)} issues while parsing string."
+        msg = f"Found {len(violations)} issues while parsing string."
         for viol in violations:
-            self.msg += f"\n{viol!s}"
-        super().__init__(self.msg, *args)
+            msg += f"\n{viol!s}"
+        super().__init__(msg, *args)
 
 
 def lint(

@@ -212,7 +212,13 @@ def _get_pivot_table_columns(
 def _get_lambda_argument_columns(
     segment: BaseSegment, dialect: Optional[Dialect]
 ) -> List[BaseSegment]:
-    if not dialect or dialect.name not in ["athena", "sparksql", "duckdb", "trino"]:
+    if not dialect or dialect.name not in [
+        "athena",
+        "sparksql",
+        "duckdb",
+        "trino",
+        "databricks",
+    ]:
         # Only athena and sparksql are known to have lambda expressions,
         # so all other dialects will have zero lambda columns
         return []

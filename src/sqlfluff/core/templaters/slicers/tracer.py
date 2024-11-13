@@ -8,7 +8,17 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Callable, Dict, List, NamedTuple, Optional, Tuple, Union, cast
+from typing import (
+    Callable,
+    ClassVar,
+    Dict,
+    List,
+    NamedTuple,
+    Optional,
+    Tuple,
+    Union,
+    cast,
+)
 
 import regex
 from jinja2 import Environment
@@ -295,7 +305,7 @@ class JinjaAnalyzer:
         self.stack: List[int] = []
         self.idx_raw: int = 0
 
-    __known_tag_configurations = {
+    __known_tag_configurations: ClassVar[dict[str, JinjaTagConfiguration]] = {
         # Conditional blocks: "if/elif/else/endif" blocks
         "if": JinjaTagConfiguration(
             block_type="block_start",
@@ -385,9 +395,8 @@ class JinjaAnalyzer:
         # Ideally, we should have a known configuration for this Jinja tag.  Derived
         # classes can override this method to provide additional information about the
         # tags they know about.
-        known_cfg = cls.__known_tag_configurations.get(tag, None)
-        if known_cfg:
-            return known_cfg
+        if tag in cls.__known_tag_configurations:
+            return cls.__known_tag_configurations[tag]
 
         # If we don't have a firm configuration for this tag that is most likely
         # provided by a Jinja extension, we'll try to make some guesses about it based
