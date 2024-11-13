@@ -74,7 +74,8 @@ databricks_dialect.insert_lexer_matchers(
 
 databricks_dialect.insert_lexer_matchers(
     # Databricks Notebook Start:
-    # needed to insert "so early" to avoid magic + notebook start to be interpreted as inline comments
+    # needed to insert "so early" to avoid magic + notebook
+    # start to be interpreted as inline comments
     # https://learn.microsoft.com/en-us/azure/databricks/notebooks/notebooks-code#language-magic
     [
         RegexLexer(
@@ -1538,7 +1539,8 @@ class CommentOnStatementSegment(BaseSegment):
 class MagicCellStatementSegment(BaseSegment):
     """Treat -- MAGIC %md/py/sh/... Cells as their own segments.
 
-    N.B. This is a workaround, to make databricks notebooks with leading parsable by sqlfluff.
+    N.B. This is a workaround, to make databricks notebooks
+    with leading parsable by sqlfluff.
 
     https://learn.microsoft.com/en-us/azure/databricks/notebooks/notebooks-code#language-magic
     """
