@@ -46,6 +46,7 @@ keywords = [
     "exasol",
     "greenplum",
     "hive",
+    "impala",
     "materialize",
     "mariadb",
     "mysql",
