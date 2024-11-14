@@ -42,6 +42,7 @@ class StatementSegment(hive.StatementSegment):
 
     match_grammar = hive.StatementSegment.match_grammar.copy(
         insert=[
+            Ref("CreateTableAsSelectStatementSegment"),
             Ref("ComputeStatsStatementSegment"),
             Ref("InsertStatementSegment"),
         ]
@@ -146,6 +147,77 @@ class CreateTableStatementSegment(hive.CreateTableStatementSegment):
                 optional=True,
             ),
             Ref("TablePropertiesGrammar", optional=True),
+        ),
+    )
+
+
+class CreateTableAsSelectStatementSegment(BaseSegment):
+    """A `CREATE TABLE ... AS SELECT ...` statement.
+
+    Full Apache Impala reference here:
+    https://impala.apache.org/docs/build/html/topics/impala_create_table.html
+
+    Unlike Hive, `AS SELECT ...` cannot be appended to any other SELECT statement,
+    so this is implemented as a separate segment.
+    """
+
+    type = "create_table_as_select_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref.keyword("EXTERNAL", optional=True),
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Sequence(
+            Sequence(
+                "PARTITIONED",
+                "BY",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            OneOf(
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("SingleIdentifierGrammar"),
+                            ),
+                            Ref("CommentGrammar", optional=True),
+                        ),
+                    ),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "SORT",
+                "BY",
+                Bracketed(Delimited(Sequence(Ref("ColumnReferenceSegment")))),
+                optional=True,
+            ),
+            Ref("CommentGrammar", optional=True),
+            Ref("RowFormatClauseSegment", optional=True),
+            Ref("SerdePropertiesGrammar", optional=True),
+            Ref("StoredAsGrammar", optional=True),
+            Ref("LocationGrammar", optional=True),
+            Sequence(
+                OneOf(
+                    Sequence(
+                        "CACHED",
+                        "IN",
+                        Delimited(Ref("PoolNameReferenceSegment")),
+                        Sequence(
+                            "WITH",
+                            "REPLICATION",
+                            "=",
+                            Ref("NumericLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    Ref.keyword("UNCACHED"),
+                ),
+                optional=True,
+            ),
+            Ref("TablePropertiesGrammar", optional=True),
+            "AS",
+            Ref("SelectableGrammar"),
         ),
     )
 
