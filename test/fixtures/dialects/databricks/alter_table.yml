@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1c15950c914999e7b08a95812ab5ea0a0510a07bc0ca024b8dedae1457c954bd
+_hash: 03f768cfcb2f61768ed9558a86a0084ac2900341415c8b041889f9386970f3b9
 file:
 - statement:
     alter_table_statement:
@@ -716,7 +716,7 @@ file:
         naked_identifier: rock
     - comma: ','
     - column_reference:
-        naked_identifier: age
+        naked_identifier: loc
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -732,7 +732,7 @@ file:
         naked_identifier: rock
     - comma: ','
     - column_reference:
-        naked_identifier: age
+        naked_identifier: loc
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -750,6 +750,6 @@ file:
           naked_identifier: rock
       - comma: ','
       - column_reference:
-          naked_identifier: age
+          naked_identifier: loc
       - end_bracket: )
 - statement_terminator: ;
