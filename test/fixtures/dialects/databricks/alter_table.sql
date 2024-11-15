@@ -85,3 +85,11 @@ ALTER TABLE persons DROP CONSTRAINT persons_pk RESTRICT;
 ALTER TABLE pets DROP FOREIGN KEY IF EXISTS  (owner_first_name, owner_last_name);
 
 ALTER TABLE persons DROP PRIMARY KEY CASCADE;
+
+ALTER TABLE rocks DROP COLUMN rock;
+
+ALTER TABLE rocks DROP COLUMN rock, loc;
+
+ALTER TABLE rocks DROP COLUMN IF EXISTS rock, loc;
+
+ALTER TABLE rocks DROP COLUMN IF EXISTS (rock, loc);

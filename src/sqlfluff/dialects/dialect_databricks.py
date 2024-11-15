@@ -826,7 +826,12 @@ class AlterTableStatementSegment(sparksql.AlterTableStatementSegment):
                 "DROP",
                 OneOf("COLUMN", "COLUMNS", optional=True),
                 Ref("IfExistsGrammar", optional=True),
-                Bracketed(
+                OneOf(
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                    ),
                     Delimited(
                         Ref("ColumnReferenceSegment"),
                     ),
