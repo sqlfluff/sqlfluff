@@ -27,6 +27,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_sparksql as sparksql
@@ -365,6 +366,10 @@ databricks_dialect.replace(
     NotNullGrammar=Sequence(
         "NOT",
         "NULL",
+    ),
+    FunctionNameIdentifierSegment=OneOf(
+        TypedParser("word", WordSegment, type="function_name_identifier"),
+        Ref("BackQuotedIdentifierSegment"),
     ),
 )
 
@@ -1533,6 +1538,25 @@ class CommentOnStatementSegment(BaseSegment):
         ),
         "IS",
         OneOf(Ref("QuotedLiteralSegment"), "NULL"),
+    )
+
+
+class FunctionNameSegment(BaseSegment):
+    """Function name, including any prefix bits, e.g. project or schema."""
+
+    type = "function_name"
+    match_grammar: Matchable = Sequence(
+        # Project name, schema identifier, etc.
+        AnyNumberOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DotSegment"),
+            ),
+            terminators=[Ref("BracketedSegment")],
+        ),
+        # Base function name
+        Ref("FunctionNameIdentifierSegment", terminators=[Ref("BracketedSegment")]),
+        allow_gaps=False,
     )
 
 

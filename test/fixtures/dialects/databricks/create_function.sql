@@ -94,3 +94,13 @@ RETURNS TABLE (col_a string, col_b string comment "asdf")
 RETURN
 SELECT col_a, col_b FROM my_table
 ;
+
+
+-- backticked identifier
+create or replace function `catalog`.`schema`.`name` (
+    param int
+)
+returns int
+return
+select param
+;
