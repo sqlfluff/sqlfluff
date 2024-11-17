@@ -87,67 +87,65 @@ class CreateTableStatementSegment(hive.CreateTableStatementSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("TableConstraintSegment", optional=True),
+                    Sequence(
+                        Ref("ColumnDefinitionSegment"),
+                        Ref("CommentGrammar", optional=True),
+                    ),
+                ),
+                bracket_pairs_set="angle_bracket_pairs",
+            ),
+            optional=True,
+        ),
         Sequence(
+            "PARTITIONED",
+            "BY",
             Bracketed(
                 Delimited(
-                    OneOf(
-                        Ref("TableConstraintSegment", optional=True),
-                        Sequence(
-                            Ref("ColumnDefinitionSegment"),
-                            Ref("CommentGrammar", optional=True),
-                        ),
-                    ),
-                    bracket_pairs_set="angle_bracket_pairs",
-                ),
-                optional=True,
-            ),
-            Sequence(
-                "PARTITIONED",
-                "BY",
-                Bracketed(
-                    Delimited(
-                        Sequence(
-                            OneOf(
-                                Ref("ColumnDefinitionSegment"),
-                                Ref("SingleIdentifierGrammar"),
-                            ),
-                            Ref("CommentGrammar", optional=True),
-                        ),
-                    ),
-                ),
-                optional=True,
-            ),
-            Sequence(
-                "SORT",
-                "BY",
-                Bracketed(Delimited(Sequence(Ref("ColumnReferenceSegment")))),
-                optional=True,
-            ),
-            Ref("CommentGrammar", optional=True),
-            Ref("RowFormatClauseSegment", optional=True),
-            Ref("SerdePropertiesGrammar", optional=True),
-            Ref("StoredAsGrammar", optional=True),
-            Ref("LocationGrammar", optional=True),
-            Sequence(
-                OneOf(
                     Sequence(
-                        "CACHED",
-                        "IN",
-                        Delimited(Ref("PoolNameReferenceSegment")),
-                        Sequence(
-                            "WITH",
-                            "REPLICATION",
-                            "=",
-                            Ref("NumericLiteralSegment"),
-                            optional=True,
+                        OneOf(
+                            Ref("ColumnDefinitionSegment"),
+                            Ref("SingleIdentifierGrammar"),
                         ),
+                        Ref("CommentGrammar", optional=True),
                     ),
-                    Ref.keyword("UNCACHED"),
                 ),
-                optional=True,
             ),
-            Ref("TablePropertiesGrammar", optional=True),
+            optional=True,
         ),
+        Sequence(
+            "SORT",
+            "BY",
+            Bracketed(Delimited(Sequence(Ref("ColumnReferenceSegment")))),
+            optional=True,
+        ),
+        Ref("CommentGrammar", optional=True),
+        Ref("RowFormatClauseSegment", optional=True),
+        Ref("SerdePropertiesGrammar", optional=True),
+        Ref("StoredAsGrammar", optional=True),
+        Ref("LocationGrammar", optional=True),
+        Sequence(
+            OneOf(
+                Sequence(
+                    "CACHED",
+                    "IN",
+                    Delimited(Ref("PoolNameReferenceSegment")),
+                    Sequence(
+                        "WITH",
+                        "REPLICATION",
+                        "=",
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                ),
+                Ref.keyword("UNCACHED"),
+            ),
+            optional=True,
+        ),
+        Ref("TablePropertiesGrammar", optional=True),
     )
 
 
@@ -170,55 +168,53 @@ class CreateTableAsSelectStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         Sequence(
-            Sequence(
-                "PARTITIONED",
-                "BY",
-                Bracketed(
-                    Delimited(
-                        Sequence(
-                            OneOf(
-                                Ref("ColumnDefinitionSegment"),
-                                Ref("SingleIdentifierGrammar"),
-                            ),
-                            Ref("CommentGrammar", optional=True),
-                        ),
-                    ),
-                ),
-                optional=True,
-            ),
-            Sequence(
-                "SORT",
-                "BY",
-                Bracketed(Delimited(Sequence(Ref("ColumnReferenceSegment")))),
-                optional=True,
-            ),
-            Ref("CommentGrammar", optional=True),
-            Ref("RowFormatClauseSegment", optional=True),
-            Ref("SerdePropertiesGrammar", optional=True),
-            Ref("StoredAsGrammar", optional=True),
-            Ref("LocationGrammar", optional=True),
-            Sequence(
-                OneOf(
+            "PARTITIONED",
+            "BY",
+            Bracketed(
+                Delimited(
                     Sequence(
-                        "CACHED",
-                        "IN",
-                        Delimited(Ref("PoolNameReferenceSegment")),
-                        Sequence(
-                            "WITH",
-                            "REPLICATION",
-                            "=",
-                            Ref("NumericLiteralSegment"),
-                            optional=True,
+                        OneOf(
+                            Ref("ColumnDefinitionSegment"),
+                            Ref("SingleIdentifierGrammar"),
                         ),
+                        Ref("CommentGrammar", optional=True),
                     ),
-                    Ref.keyword("UNCACHED"),
                 ),
-                optional=True,
             ),
-            Ref("TablePropertiesGrammar", optional=True),
-            "AS",
-            Ref("SelectableGrammar"),
+            optional=True,
         ),
+        Sequence(
+            "SORT",
+            "BY",
+            Bracketed(Delimited(Sequence(Ref("ColumnReferenceSegment")))),
+            optional=True,
+        ),
+        Ref("CommentGrammar", optional=True),
+        Ref("RowFormatClauseSegment", optional=True),
+        Ref("SerdePropertiesGrammar", optional=True),
+        Ref("StoredAsGrammar", optional=True),
+        Ref("LocationGrammar", optional=True),
+        Sequence(
+            OneOf(
+                Sequence(
+                    "CACHED",
+                    "IN",
+                    Delimited(Ref("PoolNameReferenceSegment")),
+                    Sequence(
+                        "WITH",
+                        "REPLICATION",
+                        "=",
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                ),
+                Ref.keyword("UNCACHED"),
+            ),
+            optional=True,
+        ),
+        Ref("TablePropertiesGrammar", optional=True),
+        "AS",
+        Ref("SelectableGrammar"),
     )
 
 
