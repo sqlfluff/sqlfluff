@@ -1,0 +1,160 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 08db1c90117ac7e42e905f533d92262860c54d61abf9b2d0de23467e9a4372fd
+file:
+- statement:
+    create_table_as_select_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: foo
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: db
+                - dot: .
+                - naked_identifier: foo1
+- statement_terminator: ;
+- statement:
+    create_table_as_select_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: foo
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            expression:
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: col1
+              - comma: ','
+              - column_reference:
+                  naked_identifier: col2
+              - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: db
+                - dot: .
+                - naked_identifier: foo1
+- statement_terminator: ;
+- statement:
+    create_table_as_select_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: foo
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        naked_identifier: col1
+        end_bracket: )
+    - keyword: SORT
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col2
+        end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: "'table_comment'"
+    - row_format_clause:
+      - keyword: ROW
+      - keyword: FORMAT
+      - keyword: DELIMITED
+    - keyword: WITH
+    - keyword: SERDEPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'key1'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value1'"
+      - comma: ','
+      - quoted_literal: "'key2'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value2'"
+      - end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: LOCATION
+    - quoted_literal: "'hdfs://host/path/to/location'"
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'key1'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value1'"
+      - comma: ','
+      - quoted_literal: "'key2'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value2'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col3
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col4
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: db
+                - dot: .
+                - naked_identifier: baz
+- statement_terminator: ;
