@@ -1320,7 +1320,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             Sequence(
                 "REPLACE",
                 "COLUMNS",
-                Bracketed(
+                OptionallyBracketed(
                     Delimited(
                         Sequence(
                             Ref("ColumnDefinitionSegment"),
@@ -1333,12 +1333,6 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             # https://docs.delta.io/2.0.0/delta-batch.html#drop-columns
             Sequence(
                 "DROP",
-                OneOf(
-                    Sequence(
-                        "COLUMN",
-                        Ref("IfExistsGrammar", optional=True),
-                        Ref("ColumnReferenceSegment"),
-                    ),
                     Sequence(
                         "COLUMNS",
                         Ref("IfExistsGrammar", optional=True),
