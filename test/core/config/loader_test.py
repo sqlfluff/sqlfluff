@@ -62,16 +62,29 @@ def test__config__load_nested():
     cfg = load_config_up_to_path(
         os.path.join(
             "test", "fixtures", "config", "inheritance_a", "nested", "blah.sql"
-        )
+        ),
+        extra_config_path=os.path.join(
+            "test",
+            "fixtures",
+            "config",
+            "inheritance_a",
+            "extra",
+            "this_can_have_any_name.cfg",
+        ),
     )
     assert cfg == {
         "core": {
+            # Outer .sqlfluff defines dialect & testing_val and not overriden.
             "dialect": "mysql",
             "testing_val": "foobar",
+            # tesing_int is defined in many. Inner pyproject.toml takes precedence.
             "testing_int": 1,
+            # testing_bar is defined only in setup.cfg
             "testing_bar": 7.698,
         },
-        "bar": {"foo": "foobar"},
+        # bar is defined in a few, but the extra_config takes precedence.
+        "bar": {"foo": "foobarextra"},
+        # fnarr is defined in a few. Inner tox.ini takes precedence.
         "fnarr": {"fnarr": {"foo": "foobar"}},
     }
 
