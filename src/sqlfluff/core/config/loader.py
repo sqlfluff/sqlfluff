@@ -24,6 +24,7 @@ from typing import (
 )
 
 import platformdirs
+import platformdirs.macos
 import platformdirs.unix
 
 from sqlfluff.core.config.file import (
@@ -63,24 +64,39 @@ def _get_user_config_dir_path(sys_platform: str) -> str:
     Args:
         sys_platform (str): The result of ``sys.platform()``. Provided
             as an argument here for ease of testing. In normal usage
-            it should only be  called with ``sys.platform()``.
+            it should only be  called with ``sys.platform()``. This
+            argument only applies to switching between linux and macos.
+            Win32 detection still uses the underlying ``sys.platform()``
+            methods.
     """
     appname = "sqlfluff"
     appauthor = "sqlfluff"
 
-    # On Mac OSX follow Linux XDG base dirs
+    # First try the default SQLFluff specific cross-platform config path.
+    cross_platform_path = os.path.expanduser("~/.config/sqlfluff")
+    if os.path.exists(cross_platform_path):
+        return cross_platform_path
+
+    # Then try the platform specific paths, for MacOS, we check
+    # the unix variant first to preferentially use the XDG config path if set.
     # https://github.com/sqlfluff/sqlfluff/issues/889
-    user_config_dir_path = os.path.expanduser("~/.config/sqlfluff")
-    # If the default config path doesn't exist, use the platform specific
-    # config path. Preferentially using the XDG config path if set on MacOS.
-    if sys_platform == "darwin" and not os.path.exists(user_config_dir_path):
-        user_config_dir_path = platformdirs.unix.Unix(
+    if sys_platform == "darwin":
+        unix_config_path = platformdirs.unix.Unix(
             appname=appname, appauthor=appauthor
         ).user_config_dir
-    # And then fall back to the platform default.
-    if not os.path.exists(user_config_dir_path):
-        user_config_dir_path = platformdirs.user_config_dir(appname, appauthor)
-    return user_config_dir_path
+        if os.path.exists(unix_config_path):
+            return unix_config_path
+        # Technically we could just delegate to the generic `user_config_dir`
+        # method, but for testing it's convenient to explicitly call the macos
+        # methods here.
+        return platformdirs.macos.MacOS(
+            appname=appname, appauthor=appauthor
+        ).user_config_dir
+
+    # Defer to the self-detecting paths.
+    # NOTE: On Windows this means that the `sys_platform` argument is not
+    # applied.
+    return platformdirs.user_config_dir(appname, appauthor)
 
 
 def load_config_file(
