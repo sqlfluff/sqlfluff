@@ -17,6 +17,7 @@ from sqlfluff.core.config import (
 from sqlfluff.core.config.loader import (
     _get_user_config_dir_path,
 )
+from sqlfluff.core.errors import SQLFluffUserError
 
 config_a = {
     "core": {"testing_val": "foobar", "testing_int": 4, "dialect": "mysql"},
@@ -55,6 +56,15 @@ def test__config__load_file_f():
         os.path.join("test", "fixtures", "config", "inheritance_a", "testing.sql")
     )
     assert cfg == config_a
+
+
+def test__config__load_file_missing_extra():
+    """Test loading config from a file path if extra path is not found."""
+    with pytest.raises(SQLFluffUserError):
+        load_config_up_to_path(
+            os.path.join("test", "fixtures", "config", "inheritance_a", "testing.sql"),
+            extra_config_path="non/existant/path",
+        )
 
 
 def test__config__load_nested():
