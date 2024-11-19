@@ -16,7 +16,6 @@ from sqlfluff.core.config import (
 )
 from sqlfluff.core.config.loader import (
     _get_user_config_dir_path,
-    _load_user_appdir_config,
 )
 
 config_a = {
@@ -182,22 +181,32 @@ def test__config__load_user_appdir_config(
     # macOS specific default one.
     assert resolved_path == os.path.expanduser("~/Library/Application Support/sqlfluff")
     # At this stage, the function should have checked the default sqlfluff
-    # config path and the XDG config path to see if either of them exist first.
+    # config path AND importantly the XDG config path to see if either of them existed
+    # first. If the latter did it should have been returned.
     mock_path_exists.assert_has_calls(
         [
             call(os.path.expanduser("~/.config/sqlfluff")),
             call(xdg_config_path),
         ]
     )
-    # Making a call to load the appdir config should trigger a check of the
-    # default config path, the XDG config path and the macOS specific one.
+
+    # Set up an alternative situation, where the XDG path DOES exist.
+    def path_exists(x):
+        if x == os.path.expanduser("~/.config/sqlfluff"):
+            return False
+        else:
+            return True
+
     mock_path_exists.reset_mock()
-    _load_user_appdir_config()
+    mock_path_exists.side_effect = path_exists
+    # Get the config path as though we are on macOS. If the exits function is patched
+    # to say the XDG paths do exist, then they should be returned as the config path.
+    resolved_path = _get_user_config_dir_path("darwin")
+    assert resolved_path == xdg_config_path
     mock_path_exists.assert_has_calls(
         [
             call(os.path.expanduser("~/.config/sqlfluff")),
             call(xdg_config_path),
-            call(os.path.expanduser("~/Library/Application Support/sqlfluff")),
         ]
     )
 
