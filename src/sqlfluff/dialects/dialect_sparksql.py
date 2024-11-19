@@ -2803,6 +2803,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateWidgetStatementSegment"),
             Ref("RemoveWidgetStatementSegment"),
             Ref("ReplaceTableStatementSegment"),
+            Ref("SetVariableStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
@@ -3556,4 +3557,35 @@ class FrameClauseSegment(ansi.FrameClauseSegment):
     match_grammar: Matchable = Sequence(
         Ref("FrameClauseUnitGrammar"),
         OneOf(_frame_extent, Sequence("BETWEEN", _frame_extent, "AND", _frame_extent)),
+    )
+
+
+class SetVariableStatementSegment(BaseSegment):
+    """A `SET VARIABLE` statement used to set session variables.
+
+    https://spark.apache.org/docs/4.0.0-preview2/sql-ref-syntax-aux-set-var.html
+    """
+
+    type = "set_variable_statement"
+
+    match_grammar = Sequence(
+        "SET",
+        OneOf(
+            "VAR",
+            "VARIABLE",
+        ),
+        OptionallyBracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+        Ref("EqualsSegment"),
+        OneOf(
+            "DEFAULT",
+            OptionallyBracketed(
+                Ref("ExpressionSegment")
+                # OneOf(
+                #    Ref("SelectStatementSegment"),
+                #    Ref("QuotedLiteralSegment"),
+                #    Ref("NumericLiteralSegment"),
+            ),
+            # ),
+        ),
+        allow_gaps=True,
     )

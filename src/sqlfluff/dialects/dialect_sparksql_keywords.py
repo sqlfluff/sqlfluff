@@ -278,6 +278,8 @@ UNRESERVED_KEYWORDS = [
     "UPDATE",
     "USE",
     "VALUES",
+    "VAR",
+    "VARIABLE",
     "VARIANT",
     "VIEW",
     "VIEWS",
