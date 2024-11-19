@@ -244,14 +244,15 @@ def load_config_up_to_path(
         config_paths = iter_intermediate_paths(Path(path).absolute(), Path.cwd())
         config_stack = [load_config_at_path(str(p.resolve())) for p in config_paths]
 
-    # 4) Extra config paths
+    # 4) Extra config paths.
+    # When calling `load_config_file_as_dict` we resolve the path first so that caching
+    # is more efficient.
     extra_config = {}
     if extra_config_path:
         if not os.path.exists(extra_config_path):
             raise SQLFluffUserError(
                 f"Extra config path '{extra_config_path}' does not exist."
             )
-        # Resolve the path so that the caching is accurate.
         extra_config = load_config_file_as_dict(str(Path(extra_config_path).resolve()))
 
     return nested_combine(
