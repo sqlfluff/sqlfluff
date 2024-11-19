@@ -84,7 +84,7 @@ def _get_user_config_dir_path(sys_platform: str) -> str:
         unix_config_path = platformdirs.unix.Unix(
             appname=appname, appauthor=appauthor
         ).user_config_dir
-        if os.path.exists(unix_config_path):
+        if os.path.exists(os.path.expanduser(unix_config_path)):
             return unix_config_path
         # Technically we could just delegate to the generic `user_config_dir`
         # method, but for testing it's convenient to explicitly call the macos
@@ -92,7 +92,12 @@ def _get_user_config_dir_path(sys_platform: str) -> str:
         return platformdirs.macos.MacOS(
             appname=appname, appauthor=appauthor
         ).user_config_dir
-
+    # NOTE: We could delegate to the generic `user_config_dir` method here,
+    # but for testing it's convenient to explicitly call the linux methods.
+    elif sys_platform == "linux":
+        return platformdirs.unix.Unix(
+            appname=appname, appauthor=appauthor
+        ).user_config_dir
     # Defer to the self-detecting paths.
     # NOTE: On Windows this means that the `sys_platform` argument is not
     # applied.
