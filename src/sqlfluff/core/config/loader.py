@@ -249,11 +249,14 @@ def load_config_up_to_path(
     # is more efficient.
     extra_config = {}
     if extra_config_path:
-        if not os.path.exists(extra_config_path):
+        try:
+            extra_config = load_config_file_as_dict(
+                str(Path(extra_config_path).resolve())
+            )
+        except FileNotFoundError:
             raise SQLFluffUserError(
                 f"Extra config path '{extra_config_path}' does not exist."
             )
-        extra_config = load_config_file_as_dict(str(Path(extra_config_path).resolve()))
 
     return nested_combine(
         user_appdir_config,
