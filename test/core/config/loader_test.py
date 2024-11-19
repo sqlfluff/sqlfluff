@@ -63,7 +63,7 @@ def test__config__load_file_missing_extra():
     with pytest.raises(SQLFluffUserError):
         load_config_up_to_path(
             os.path.join("test", "fixtures", "config", "inheritance_a", "testing.sql"),
-            extra_config_path="non/existant/path",
+            extra_config_path="non/existent/path",
         )
 
 
@@ -84,7 +84,7 @@ def test__config__load_nested():
     )
     assert cfg == {
         "core": {
-            # Outer .sqlfluff defines dialect & testing_val and not overriden.
+            # Outer .sqlfluff defines dialect & testing_val and not overridden.
             "dialect": "mysql",
             "testing_val": "foobar",
             # tesing_int is defined in many. Inner pyproject.toml takes precedence.
