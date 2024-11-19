@@ -168,7 +168,13 @@ def test__config__load_placeholder_cfg():
         # In this case, neither actually exist and so what matters is that both
         # are either checked or used - rather than one in particular being the
         # end result.
-        ("linux", False, False, "~/.config/my/special/path/sqlfluff", ["~/.config/sqlfluff"]),
+        (
+            "linux",
+            False,
+            False,
+            "~/.config/my/special/path/sqlfluff",
+            ["~/.config/sqlfluff"],
+        ),
         # On MacOS, if the default config path and the XDG path don't exist, then
         # we should resolve config to the default MacOS config path.
         (
@@ -215,7 +221,10 @@ def test__config__load_user_appdir_config(
             is `False` and the path passed is the XDG config path.
         """
         resolved_path = os.path.expanduser(check_path)
-        if resolved_path == os.path.expanduser("~/.config/sqlfluff") and not default_exists:
+        if (
+            resolved_path == os.path.expanduser("~/.config/sqlfluff")
+            and not default_exists
+        ):
             return False
         if resolved_path == os.path.expanduser(xdg_config_path) and not xdg_exists:
             return False
