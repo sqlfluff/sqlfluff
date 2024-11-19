@@ -153,11 +153,51 @@ def test__config__load_placeholder_cfg():
     }
 
 
+@pytest.mark.parametrize(
+    "sys_platform,xdg_exists,default_exists,resolved_config_path,paths_checked",
+    [
+        # On linux, if the default path exists, it should be the only path we check
+        # and the chosen config path.
+        ("linux", True, True, "~/.config/sqlfluff", ["~/.config/sqlfluff"]),
+        # On linux, if the default path doesn't exist, then it should STILL
+        # be the same as the previous test. The "cross platform" config location
+        # is actually the same as the default linux location.
+        ("linux", False, False, "~/.config/sqlfluff", ["~/.config/sqlfluff"]),
+        # On MacOS, if the default config path and the XDG path don't exist, then
+        # we should resolve config to the default MacOS config path.
+        (
+            "darwin",
+            False,
+            False,
+            "~/Library/Application Support/sqlfluff",
+            ["~/.config/sqlfluff", "~/.config/my/special/path/sqlfluff"],
+        ),
+        # However, if XDG_CONFIG_HOME is set, and the path exists then that should
+        # be resolved _ahead of_ the default MacOS config path (as demonstrated
+        # by us not checking the presence of that path in the process).
+        # https://github.com/sqlfluff/sqlfluff/issues/889
+        (
+            "darwin",
+            True,
+            False,
+            "~/.config/my/special/path/sqlfluff",
+            ["~/.config/sqlfluff", "~/.config/my/special/path/sqlfluff"],
+        ),
+    ],
+)
 @patch("os.path.exists")
 @patch("os.listdir")
 @pytest.mark.skipif(sys.platform == "win32", reason="Not applicable on Windows")
 def test__config__load_user_appdir_config(
-    mock_listdir, mock_path_exists, mock_xdg_home
+    sys_platform,
+    xdg_exists,
+    default_exists,
+    resolved_config_path,
+    paths_checked,
+    not_exist_paths,
+    mock_listdir,
+    mock_path_exists,
+    mock_xdg_home,
 ):
     """Test loading config from user appdir."""
     xdg_home = os.environ.get("XDG_CONFIG_HOME")
@@ -165,9 +205,16 @@ def test__config__load_user_appdir_config(
     xdg_config_path = xdg_home + "/sqlfluff"
 
     def path_exists(x):
-        if x == os.path.expanduser("~/.config/sqlfluff"):
+        """Patch for os.path.exists which depends on test parameters.
+
+        Returns:
+            True, unless `default_exists` is `False` and the path passed to
+            the function is the default config path, or unless `xdg_exists`
+            is `False` and the path passed is the XDG config path.
+        """
+        if x == os.path.expanduser("~/.config/sqlfluff") and not default_exists:
             return False
-        if x == xdg_config_path:
+        if x == xdg_config_path and not xdg_exists:
             return False
         else:
             return True
@@ -175,39 +222,16 @@ def test__config__load_user_appdir_config(
     mock_path_exists.side_effect = path_exists
 
     # Get the config path as though we are on macOS.
-    resolved_path = _get_user_config_dir_path("darwin")
+    resolved_path = _get_user_config_dir_path(sys_platform)
     # Because we're mocking the path_exists function to say the XDG
     # config path doesn't exist, we expect the resolved path to be the
     # macOS specific default one.
-    assert resolved_path == os.path.expanduser("~/Library/Application Support/sqlfluff")
+    assert resolved_path == os.path.expanduser(resolved_config_path)
     # At this stage, the function should have checked the default sqlfluff
     # config path AND importantly the XDG config path to see if either of them existed
     # first. If the latter did it should have been returned.
     mock_path_exists.assert_has_calls(
-        [
-            call(os.path.expanduser("~/.config/sqlfluff")),
-            call(xdg_config_path),
-        ]
-    )
-
-    # Set up an alternative situation, where the XDG path DOES exist.
-    def path_exists(x):
-        if x == os.path.expanduser("~/.config/sqlfluff"):
-            return False
-        else:
-            return True
-
-    mock_path_exists.reset_mock()
-    mock_path_exists.side_effect = path_exists
-    # Get the config path as though we are on macOS. If the exits function is patched
-    # to say the XDG paths do exist, then they should be returned as the config path.
-    resolved_path = _get_user_config_dir_path("darwin")
-    assert resolved_path == xdg_config_path
-    mock_path_exists.assert_has_calls(
-        [
-            call(os.path.expanduser("~/.config/sqlfluff")),
-            call(xdg_config_path),
-        ]
+        [call(os.path.expanduser(path)) for path in paths_checked]
     )
 
 

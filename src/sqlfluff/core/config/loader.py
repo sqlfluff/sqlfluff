@@ -240,12 +240,11 @@ def load_config_up_to_path(
         config_stack = [load_config_at_path(str(p.resolve())) for p in config_paths]
 
     # 4) Extra config paths
-    if not extra_config_path:
-        extra_config = {}
-    else:
+    extra_config = {}
+    if extra_config_path:
         if not os.path.exists(extra_config_path):
             raise SQLFluffUserError(
-                f"Extra config '{extra_config_path}' does not exist."
+                f"Extra config path '{extra_config_path}' does not exist."
             )
         # Resolve the path so that the caching is accurate.
         extra_config = load_config_file_as_dict(str(Path(extra_config_path).resolve()))
