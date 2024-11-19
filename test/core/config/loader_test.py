@@ -16,6 +16,7 @@ from sqlfluff.core.config import (
 )
 from sqlfluff.core.config.loader import (
     _get_user_config_dir_path,
+    _load_user_appdir_config,
 )
 from sqlfluff.core.errors import SQLFluffUserError
 
@@ -261,6 +262,23 @@ def test__config__load_user_appdir_config(
     mock_path_exists.assert_has_calls(
         [call(os.path.expanduser(path)) for path in paths_checked]
     )
+
+
+@patch("os.path.exists")
+@patch("sqlfluff.core.config.loader.load_config_at_path")
+def test__config__load_user_appdir_config(mock_load_config, mock_path_exists):
+    """Test _load_user_appdir_config.
+
+    NOTE: We mock `load_config_at_path()` so we can be really focussed with this test
+    and also not need to actually interact with local home directories.
+    """
+    mock_load_config.side_effect = lambda x: {}
+    mock_path_exists.side_effect = lambda x: True
+    _load_user_appdir_config()
+    # It will check that the default config path exists...
+    mock_path_exists.assert_has_calls([call(os.path.expanduser("~/.config/sqlfluff"))])
+    # ...and assuming it does, it will try and load config files at that path.
+    mock_load_config.assert_has_calls([call(os.path.expanduser("~/.config/sqlfluff"))])
 
 
 def test__config__toml_list_config():
