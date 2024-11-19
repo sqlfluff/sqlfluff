@@ -1601,7 +1601,7 @@ class SetVariableStatementSegment(BaseSegment):
         )
     )
     # set var (v1,v2) = (values(100,200))
-    set_brackted = Sequence(
+    set_bracketed = Sequence(
         Bracketed(
             Ref("VariableNameIdentifierSegment"),
         ),
@@ -1622,7 +1622,7 @@ class SetVariableStatementSegment(BaseSegment):
         ),
         OneOf(
             set_kv_pair,
-            set_brackted,
+            set_bracketed,
         ),
         allow_gaps=True,
     )
