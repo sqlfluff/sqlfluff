@@ -12,6 +12,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    CommentSegment,
     Dedent,
     Delimited,
     IdentifierSegment,
@@ -26,6 +27,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_sparksql as sparksql
@@ -61,6 +63,7 @@ databricks_dialect.insert_lexer_matchers(
     before="equals",
 )
 
+
 databricks_dialect.insert_lexer_matchers(
     # Notebook Cell Delimiter:
     # https://learn.microsoft.com/en-us/azure/databricks/notebooks/notebook-export-import#sql-1
@@ -69,6 +72,22 @@ databricks_dialect.insert_lexer_matchers(
     ],
     before="newline",
 )
+
+databricks_dialect.insert_lexer_matchers(
+    # Databricks Notebook Start:
+    # needed to insert "so early" to avoid magic + notebook
+    # start to be interpreted as inline comments
+    # https://learn.microsoft.com/en-us/azure/databricks/notebooks/notebooks-code#language-magic
+    [
+        RegexLexer(
+            "notebook_start", r"-- Databricks notebook source(\r?\n){1}", CommentSegment
+        ),
+        RegexLexer("magic_line", r"(-- MAGIC)( [^%]{1})([^\n]*)", CodeSegment),
+        RegexLexer("magic_start", r"(-- MAGIC %)([^\n]{2,})(\r?\n)", CodeSegment),
+    ],
+    before="inline_comment",
+)
+
 
 databricks_dialect.add(
     CommandCellSegment=TypedParser("command", CodeSegment, type="statement_terminator"),
@@ -215,6 +234,9 @@ databricks_dialect.add(
             optional=True,
         ),
     ),
+    NotebookStart=TypedParser("notebook_start", CommentSegment, type="notebook_start"),
+    MagicLineGrammar=TypedParser("magic_line", CodeSegment, type="magic_line"),
+    MagicStartGrammar=TypedParser("magic_start", CodeSegment, type="magic_start"),
 )
 
 databricks_dialect.replace(
@@ -344,6 +366,10 @@ databricks_dialect.replace(
     NotNullGrammar=Sequence(
         "NOT",
         "NULL",
+    ),
+    FunctionNameIdentifierSegment=OneOf(
+        TypedParser("word", WordSegment, type="function_name_identifier"),
+        Ref("BackQuotedIdentifierSegment"),
     ),
 )
 
@@ -1042,6 +1068,8 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("FunctionParameterListGrammarWithComments"),
             Ref("DeclareOrReplaceVariableStatementSegment"),
             Ref("CommentOnStatementSegment"),
+            # Notebook grammar
+            Ref("MagicCellStatementSegment"),
         ]
     )
 
@@ -1132,7 +1160,24 @@ class CreateDatabricksFunctionStatementSegment(BaseSegment):
         Ref("FunctionParameterListGrammarWithComments"),
         Sequence(
             "RETURNS",
-            Ref("DatatypeSegment"),
+            OneOf(
+                Ref("DatatypeSegment"),
+                Sequence(
+                    "TABLE",
+                    Sequence(
+                        Bracketed(
+                            Delimited(
+                                Sequence(
+                                    Ref("ColumnReferenceSegment"),
+                                    Ref("DatatypeSegment"),
+                                    Ref("CommentGrammar", optional=True),
+                                ),
+                            ),
+                        ),
+                        optional=True,
+                    ),
+                ),
+            ),
             optional=True,
         ),
         Ref("FunctionDefinitionGrammar"),
@@ -1493,4 +1538,42 @@ class CommentOnStatementSegment(BaseSegment):
         ),
         "IS",
         OneOf(Ref("QuotedLiteralSegment"), "NULL"),
+    )
+
+
+class FunctionNameSegment(BaseSegment):
+    """Function name, including any prefix bits, e.g. project or schema."""
+
+    type = "function_name"
+    match_grammar: Matchable = Sequence(
+        # Project name, schema identifier, etc.
+        AnyNumberOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DotSegment"),
+            ),
+            terminators=[Ref("BracketedSegment")],
+        ),
+        # Base function name
+        Ref("FunctionNameIdentifierSegment", terminators=[Ref("BracketedSegment")]),
+        allow_gaps=False,
+    )
+
+
+class MagicCellStatementSegment(BaseSegment):
+    """Treat -- MAGIC %md/py/sh/... Cells as their own segments.
+
+    N.B. This is a workaround, to make databricks notebooks
+    with leading parsable by sqlfluff.
+
+    https://learn.microsoft.com/en-us/azure/databricks/notebooks/notebooks-code#language-magic
+    """
+
+    type = "magic_cell_segment"
+    match_grammar = Sequence(
+        Ref("NotebookStart", optional=True),
+        Ref("MagicStartGrammar"),
+        AnyNumberOf(Ref("MagicLineGrammar"), optional=True),
+        terminators=[Ref("CommandCellSegment", optional=True)],
+        reset_terminators=True,
     )

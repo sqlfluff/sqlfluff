@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d7f125183a06e5dd101887af97594d6c8e23f4793108c4feea0eda167a37ec92
+_hash: af1fdb881a022f6f6bec2571f4b574d401dcd138387945902d4e14b7e181c247
 file:
 - statement:
     create_external_table_statement:
@@ -524,4 +524,81 @@ file:
               raw_comparison_operator: '='
           - quoted_literal: "'\"'"
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: source_test
+      - dot: .
+      - naked_identifier: test
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: yyyymmdd
+      - data_type:
+          data_type_identifier: TEXT
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: value
+              semi_structured_expression:
+                colon: ':'
+                semi_structured_element: YYYYMMDD
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: TEXT
+          end_bracket: )
+      - comma: ','
+      - naked_identifier: product
+      - data_type:
+          data_type_identifier: TEXT
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: value
+              semi_structured_expression:
+                colon: ':'
+                semi_structured_element: product
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: TEXT
+          end_bracket: )
+      - end_bracket: )
+    - keyword: PARTITION
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        naked_identifier: yyyymmdd
+        end_bracket: )
+    - keyword: PARTITION_TYPE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: user_specified
+    - keyword: LOCATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - stage_path: '@public.test_stage'
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        object_reference:
+        - naked_identifier: public
+        - dot: .
+        - naked_identifier: parquet_format_convert_binary
+    - keyword: AUTO_REFRESH
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'false'
 - statement_terminator: ;

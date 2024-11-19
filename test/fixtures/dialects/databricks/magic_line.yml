@@ -1,0 +1,53 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e2d50f62c11ce3de4f424c3fe61da8f64a44f9fd0c0928468ebfa3b4462e04cd
+file:
+- statement:
+    magic_cell_segment:
+      magic_start: "-- MAGIC %md\n"
+      magic_line: '-- MAGIC # Dummy Notebook'
+- statement_terminator: "\n\n-- COMMAND ----------\n"
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: x
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: y
+- statement_terminator: "\n\n-- COMMAND ----------\n"
+- statement:
+    magic_cell_segment:
+    - magic_start: "-- MAGIC %python\n"
+    - magic_line: "-- MAGIC foo = 'bar'"
+    - magic_line: -- MAGIC print(foo)
+- statement_terminator: "\n\n-- COMMAND ----------\n"
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: b
+- statement_terminator: ;
+- statement_terminator: "\n\n-- COMMAND ----------\n"
+- statement:
+    magic_cell_segment:
+      magic_start: "-- MAGIC %sh\n"
+      magic_line: -- MAGIC echo heloworld

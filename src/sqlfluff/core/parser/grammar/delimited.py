@@ -1,6 +1,6 @@
 """Definitions for Grammar."""
 
-from typing import Optional, Sequence, Union
+from typing import Optional, Sequence, Tuple, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar import Ref
@@ -22,7 +22,7 @@ class Delimited(OneOf):
     as different options of what can be delimited, rather than a sequence.
     """
 
-    equality_kwargs = (
+    equality_kwargs: Tuple[str, ...] = (
         "_elements",
         "optional",
         "allow_gaps",

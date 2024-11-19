@@ -25,6 +25,7 @@ from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
+    ClassVar,
     DefaultDict,
     Dict,
     Iterator,
@@ -166,13 +167,15 @@ class RuleMetaclass(type):
     """
 
     # Precompile the regular expressions
-    _doc_search_regex = re.compile(
+    _doc_search_regex: ClassVar = re.compile(
         "(\\s{4}\\*\\*Anti-pattern\\*\\*|\\s{4}\\.\\. note::|"
         "\\s\\s{4}\\*\\*Configuration\\*\\*)",
         flags=re.MULTILINE,
     )
-    _valid_classname_regex = regex.compile(r"Rule_?([A-Z]{1}[a-zA-Z]+)?_([A-Z0-9]{4})")
-    _valid_rule_name_regex = regex.compile(r"[a-z][a-z\.\_]+")
+    _valid_classname_regex: ClassVar = regex.compile(
+        r"Rule_?([A-Z]{1}[a-zA-Z]+)?_([A-Z0-9]{4})"
+    )
+    _valid_rule_name_regex: ClassVar = regex.compile(r"[a-z][a-z\.\_]+")
 
     @staticmethod
     def _populate_code_and_description(
@@ -331,6 +334,16 @@ class RuleMetaclass(type):
                 break
             elif base.groups:
                 class_dict["groups"] = base.groups
+                break
+
+        # If the rule doesn't itself define `config_keywords`, check the parent
+        # classes for them. If we don't do this then they'll still be available to
+        # the rule, but they won't appear in the docs.
+        for base in reversed(bases):
+            if "config_keywords" in class_dict:
+                break
+            elif base.config_keywords:
+                class_dict["config_keywords"] = base.config_keywords
                 break
 
         class_dict = RuleMetaclass._populate_docstring(name, class_dict)

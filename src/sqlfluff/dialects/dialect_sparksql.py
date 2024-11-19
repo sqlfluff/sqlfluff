@@ -890,18 +890,12 @@ sparksql_dialect.add(
             Ref("OptionsGrammar"),
             Ref("PartitionSpecGrammar"),
             Ref("BucketSpecGrammar"),
+            Ref("LocationGrammar"),
+            Ref("CommentGrammar"),
+            Ref("TablePropertiesGrammar"),
+            Sequence("CLUSTER", "BY", Ref("BracketedColumnReferenceListGrammar")),
             optional=True,
         ),
-        Indent,
-        AnyNumberOf(
-            Ref("LocationGrammar", optional=True),
-            Ref("CommentGrammar", optional=True),
-            Ref("TablePropertiesGrammar", optional=True),
-        ),
-        Sequence(
-            "CLUSTER", "BY", Ref("BracketedColumnReferenceListGrammar"), optional=True
-        ),
-        Dedent,
         # Create AS syntax:
         Sequence(
             Ref.keyword("AS", optional=True),
@@ -1968,19 +1962,7 @@ class HintFunctionSegment(BaseSegment):
 
     match_grammar = Sequence(
         Ref("FunctionNameSegment"),
-        Bracketed(
-            Delimited(
-                AnyNumberOf(
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("NumericLiteralSegment"),
-                    Ref("TableReferenceSegment"),
-                    Ref("ColumnReferenceSegment"),
-                    min_times=1,
-                ),
-            ),
-            # May be Bare Function unique to Hints, i.e. REBALANCE
-            optional=True,
-        ),
+        Ref("FunctionContentsSegment", optional=True),
     )
 
 

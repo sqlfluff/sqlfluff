@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sqlfluff"
-version = "3.2.4"
+version = "3.2.5"
 description = "The SQL Linter for Humans"
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.8"
@@ -48,6 +48,7 @@ keywords = [
     "exasol",
     "greenplum",
     "hive",
+    "impala",
     "materialize",
     "mariadb",
     "mysql",
@@ -57,6 +58,7 @@ keywords = [
     "soql",
     "sparksql",
     "sqlite",
+    "starrocks",
     "teradata",
     "trino",
     "tsql",
@@ -128,7 +130,7 @@ sqlfluff_rules_tsql = "sqlfluff.rules.tsql"
 
 [tool.sqlfluff_docs]
 # NOTE: Stable version is used by docs/conf.py
-stable_version = "3.2.4"
+stable_version = "3.2.5"
 
 
 [tool.setuptools.package-data]
