@@ -46,6 +46,8 @@ KNOWN_STYLES = {
     "percent": regex.compile(r"(?<![:\w\x5c])%s", regex.UNICODE),
     # e.g. WHERE bla = &s or WHERE bla = &{s} or USE DATABASE {ENV}_MARKETING
     "ampersand": regex.compile(r"(?<!&)&{?(?P<param_name>[\w]+)}?", regex.UNICODE),
+
+    "brace": regex.compile(r"{(?P<param_name>[\w]+)}", regex.UNICODE),
 }
 
 
