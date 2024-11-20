@@ -323,6 +323,8 @@ bigquery_dialect.replace(
         Ref("SemiStructuredAccessorSegment"),
     ),
     BracketedSetExpressionGrammar=Bracketed(Ref("SetExpressionSegment")),
+    NotEnforcedGrammar=Sequence("NOT", "ENFORCED"),
+    ReferenceMatchGrammar=Nothing(),
 )
 
 
