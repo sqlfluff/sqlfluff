@@ -221,7 +221,7 @@ def test__config__load_placeholder_cfg():
         ),
     ],
 )
-def test__config__load_user_appdir_config(
+def test__config__get_user_config_dir_path(
     mock_listdir,
     mock_path_exists,
     mock_xdg_home,
