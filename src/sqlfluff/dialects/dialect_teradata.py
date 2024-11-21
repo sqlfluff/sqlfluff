@@ -105,7 +105,7 @@ teradata_dialect.sets("unreserved_keywords").update(
     ]
 )
 
-teradata_dialect.sets("reserved_keywords").update(["UNION", "TIMESTAMP"])
+teradata_dialect.sets("reserved_keywords").update(["UNION", "TIMESTAMP", "REPLACE"])
 
 teradata_dialect.sets("bare_functions").update(["DATE"])
 
@@ -675,6 +675,23 @@ class CreateTableStatementSegment(BaseSegment):
         ),
         # PRIMARY INDEX( COD_TARJETA, COD_EST, IND_TIPO_TARJETA, FEC_ANIO_MES )
         OneOf(Ref("TdTableConstraints"), optional=True),
+    )
+
+
+class CreateViewStatementSegment(BaseSegment):
+    """A `[CREATE | REPLACE] VIEW` statement."""
+
+    type = "create_view_statement"
+    match_grammar: Matchable = Sequence(
+        OneOf("CREATE", "REPLACE"),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        # Optional list of column names
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        "AS",
+        OptionallyBracketed(Ref("SelectableGrammar")),
+        Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
 
 
