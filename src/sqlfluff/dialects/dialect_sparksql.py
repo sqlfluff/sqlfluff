@@ -3578,14 +3578,7 @@ class SetVariableStatementSegment(BaseSegment):
         Ref("EqualsSegment"),
         OneOf(
             "DEFAULT",
-            OptionallyBracketed(
-                Ref("ExpressionSegment")
-                # OneOf(
-                #    Ref("SelectStatementSegment"),
-                #    Ref("QuotedLiteralSegment"),
-                #    Ref("NumericLiteralSegment"),
-            ),
-            # ),
+            OptionallyBracketed(Ref("ExpressionSegment")),
         ),
         allow_gaps=True,
     )
