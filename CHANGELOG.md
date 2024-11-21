@@ -10,6 +10,52 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.2.6] - 2024-11-21
+
+## Highlights
+
+## What’s Changed
+
+* Switch from `appdirs` to `platformdirs` [#6399](https://github.com/sqlfluff/sqlfluff/pull/6399) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Impala: support CREATE TABLE AS SELECT [#6458](https://github.com/sqlfluff/sqlfluff/pull/6458) [@mrebaker](https://github.com/mrebaker)
+* Databricks Dialect: Backticked function identifiers now parsable [#6453](https://github.com/sqlfluff/sqlfluff/pull/6453) [@fstg1992](https://github.com/fstg1992)
+* Issue #6417: Leading -- MAGIC Cells don't break parsing of notebooks [#6454](https://github.com/sqlfluff/sqlfluff/pull/6454) [@fstg1992](https://github.com/fstg1992)
+* Add "target_path" configuration to the dbt templater [#6423](https://github.com/sqlfluff/sqlfluff/pull/6423) [@wircho](https://github.com/wircho)
+* Sparksql: Fix ordering of create table options [#6441](https://github.com/sqlfluff/sqlfluff/pull/6441) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Dialect: Impala [#6445](https://github.com/sqlfluff/sqlfluff/pull/6445) [@mrebaker](https://github.com/mrebaker)
+* RF02: Allows for lambda functions in Databricks [#6444](https://github.com/sqlfluff/sqlfluff/pull/6444) [@keraion](https://github.com/keraion)
+* SQLite: Support any order of VARYING/NATIVE in CHAR types [#6443](https://github.com/sqlfluff/sqlfluff/pull/6443) [@keraion](https://github.com/keraion)
+* Snowflake: Allow literals in match_by_column_name [#6442](https://github.com/sqlfluff/sqlfluff/pull/6442) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Trino: Remove TemporaryTransientGrammar [#6440](https://github.com/sqlfluff/sqlfluff/pull/6440) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Mysql: Fix parsing of system variables [#6439](https://github.com/sqlfluff/sqlfluff/pull/6439) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Sparksql: Fix hint function for proper spacing [#6437](https://github.com/sqlfluff/sqlfluff/pull/6437) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Snowflake: Support ORDER BY boolean [#6435](https://github.com/sqlfluff/sqlfluff/pull/6435) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* TSQL: allow `NEXT VALUE FOR` use as expression [#6431](https://github.com/sqlfluff/sqlfluff/pull/6431) [@timz-st](https://github.com/timz-st)
+* Prework for introducing mypyc [#6433](https://github.com/sqlfluff/sqlfluff/pull/6433) [@rogalski](https://github.com/rogalski)
+* Fix pre-commit on main branch [#6432](https://github.com/sqlfluff/sqlfluff/pull/6432) [@rogalski](https://github.com/rogalski)
+* Initial support for Starrocks dialect [#6415](https://github.com/sqlfluff/sqlfluff/pull/6415) [@maver1ck](https://github.com/maver1ck)
+* Databricks: Parse Table Valued Functions [#6417](https://github.com/sqlfluff/sqlfluff/pull/6417) [@fstg1992](https://github.com/fstg1992)
+* Snowflake: Support `PARTITION_TYPE` for `CREATE EXTERNAL TABLE` [#6422](https://github.com/sqlfluff/sqlfluff/pull/6422) [@ninazacharia-toast](https://github.com/ninazacharia-toast)
+* Fix docs for CP04 config and add test cases [#6416](https://github.com/sqlfluff/sqlfluff/pull/6416) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix: Parse violations not being shown when run `fix` command with `--show-lint-violations` [#6382](https://github.com/sqlfluff/sqlfluff/pull/6382) [@joaopamaral](https://github.com/joaopamaral)
+* RF01: refine support for dialects with dot access syntax [#6400](https://github.com/sqlfluff/sqlfluff/pull/6400) [@rogalski](https://github.com/rogalski)
+* Add new `TYPE` property to Snowflake users [#6411](https://github.com/sqlfluff/sqlfluff/pull/6411) [@mroy-seedbox](https://github.com/mroy-seedbox)
+* Document the config API [#6384](https://github.com/sqlfluff/sqlfluff/pull/6384) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Error handling for trying to render callable builtins #5463 [#6388](https://github.com/sqlfluff/sqlfluff/pull/6388) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* SQLite : Add `CREATE VIRTUAL TABLE`  Statement [#6406](https://github.com/sqlfluff/sqlfluff/pull/6406) [@R3gardless](https://github.com/R3gardless)
+* Updated README with Table Of Contents [#6407](https://github.com/sqlfluff/sqlfluff/pull/6407) [@27Jashshah](https://github.com/27Jashshah)
+
+## New Contributors
+
+* [@27Jashshah](https://github.com/27Jashshah) made their first contribution in [#6407](https://github.com/sqlfluff/sqlfluff/pull/6407)
+* [@joaopamaral](https://github.com/joaopamaral) made their first contribution in [#6382](https://github.com/sqlfluff/sqlfluff/pull/6382)
+* [@ninazacharia-toast](https://github.com/ninazacharia-toast) made their first contribution in [#6422](https://github.com/sqlfluff/sqlfluff/pull/6422)
+* [@fstg1992](https://github.com/fstg1992) made their first contribution in [#6417](https://github.com/sqlfluff/sqlfluff/pull/6417)
+* [@maver1ck](https://github.com/maver1ck) made their first contribution in [#6415](https://github.com/sqlfluff/sqlfluff/pull/6415)
+* [@timz-st](https://github.com/timz-st) made their first contribution in [#6431](https://github.com/sqlfluff/sqlfluff/pull/6431)
+* [@mrebaker](https://github.com/mrebaker) made their first contribution in [#6445](https://github.com/sqlfluff/sqlfluff/pull/6445)
+* [@wircho](https://github.com/wircho) made their first contribution in [#6423](https://github.com/sqlfluff/sqlfluff/pull/6423)
+
 ## [3.2.5] - 2024-10-25
 
 ## Highlights
