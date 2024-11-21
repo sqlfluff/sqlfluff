@@ -228,8 +228,8 @@ def test__cli__command_extra_config_fail():
             ],
         ],
         assert_output_contains=(
-            "Extra config 'test/fixtures/cli/extra_configs/.sqlfluffsdfdfdfsfd' does "
-            "not exist."
+            "Extra config path 'test/fixtures/cli/extra_configs/.sqlfluffsdfdfdfsfd' "
+            "does not exist."
         ),
     )
 
