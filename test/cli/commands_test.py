@@ -830,6 +830,33 @@ def test__cli__command_lint_warning():
     )
 
 
+def test__cli__command_lint_warning_name_rule():
+    """Test that configuring warnings works.
+
+    For this test the warnings are configured using
+    inline config in the file. That's more for simplicity
+    however the code paths should be the same if it's
+    configured in a file.
+    """
+    runner = CliRunner()
+    result = runner.invoke(
+        lint,
+        [
+            "test/fixtures/cli/warning_name_a.sql",
+        ],
+    )
+    # Because we're only warning. The command should pass.
+    assert result.exit_code == 0
+    # The output should still say PASS.
+    assert "PASS" in result.output.strip()
+    # But should also contain the warnings.
+    # NOTE: Not including the whole description because it's too long.
+    assert (
+        "L:   4 | P:   9 | LT01 | WARNING: Expected single whitespace"
+        in result.output.strip()
+    )
+
+
 def test__cli__command_versioning():
     """Check version command."""
     # Get the package version info
