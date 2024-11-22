@@ -750,7 +750,6 @@ class StatementSegment(ansi.StatementSegment):
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
-            Ref("LockingClauseSegment"),
             Ref("TdCollectStatisticsStatementSegment"),
             Ref("BteqStatementSegment"),
             Ref("TdRenameStatementSegment"),
@@ -826,6 +825,17 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     match_grammar = match_grammar_with_qualify_clause.copy(
         insert=[Ref("LockingClauseSegment", optional=True)],
         before=Ref("SelectClauseSegment"),
+    )
+
+
+class WithCompoundStatementSegment(ansi.WithCompoundStatementSegment):
+    """A `SELECT` statement preceded by a selection of `WITH` clauses.
+
+    `WITH tab (col1,col2) AS (SELECT a,b FROM x)`
+    """
+
+    match_grammar = ansi.WithCompoundStatementSegment.match_grammar.copy(
+        insert=[Ref("LockingClauseSegment", optional=True)], at=0
     )
 
 

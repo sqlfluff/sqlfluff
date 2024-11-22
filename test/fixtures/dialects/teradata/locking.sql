@@ -6,3 +6,9 @@ SELECT a FROM table_name;
 
 LOCK ROW FOR WRITE
 SELECT a FROM table_name;
+
+LOCKING VIEW v FOR EXCLUSIVE
+WITH cte AS (
+    SELECT a FROM v
+)
+SELECT a FROM cte;
