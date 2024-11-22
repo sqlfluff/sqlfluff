@@ -72,6 +72,7 @@ teradata_dialect.sets("unreserved_keywords").update(
         "DEL",
         "DUAL",
         "ERRORCODE",
+        "EXCL",
         "EXPORT",
         "FALLBACK",
         "FORMAT",
@@ -87,6 +88,7 @@ teradata_dialect.sets("unreserved_keywords").update(
         "MEETS",
         "MERGEBLOCKRATIO",
         "NONE",
+        "OVERRIDE",
         "PERCENT",
         "PROFILE",
         "PROTECTION",
@@ -106,7 +108,9 @@ teradata_dialect.sets("unreserved_keywords").update(
     ]
 )
 
-teradata_dialect.sets("reserved_keywords").update(["UNION", "REPLACE", "TIMESTAMP"])
+teradata_dialect.sets("reserved_keywords").update(
+    ["LOCKING", "UNION", "REPLACE", "TIMESTAMP"]
+)
 
 teradata_dialect.sets("bare_functions").update(["DATE"])
 
@@ -746,6 +750,7 @@ class StatementSegment(ansi.StatementSegment):
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
+            Ref("LockingClauseSegment"),
             Ref("TdCollectStatisticsStatementSegment"),
             Ref("BteqStatementSegment"),
             Ref("TdRenameStatementSegment"),
@@ -770,15 +775,57 @@ class QualifyClauseSegment(BaseSegment):
     )
 
 
+class LockingClauseSegment(BaseSegment):
+    """A `LOCKING` clause for Teradata.
+
+    https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Manipulation-Language/Statement-Syntax/LOCKING-Request-Modifier
+    """
+
+    type = "locking_clause"
+    match_grammar = Sequence(
+        OneOf(
+            "LOCKING",
+            "LOCK",
+        ),
+        OneOf(
+            "ROW",
+            Sequence("TABLE", Ref("ObjectReferenceSegment", optional=True)),
+            Sequence("VIEW", Ref("ObjectReferenceSegment", optional=True)),
+            Sequence("DATABASE", Ref("ObjectReferenceSegment", optional=True)),
+        ),
+        OneOf(
+            "FOR",
+            "IN",
+        ),
+        OneOf(
+            "ACCESS",
+            "WRITE",
+            "EXCLUSIVE",
+            "EXCL",
+            Sequence("READ", Sequence("OVERRIDE", optional=True)),
+            "SHARE",
+            "CHECKSUM",
+            Sequence("LOAD", "COMMITTED"),
+        ),
+        Sequence("MODE", optional=True),
+        Sequence("NOWAIT", optional=True),
+    )
+
+
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """A `SELECT` statement.
 
     https://dev.mysql.com/doc/refman/5.7/en/select.html
     """
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
+    match_grammar_with_qualify_clause = ansi.SelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
+    )
+
+    match_grammar = match_grammar_with_qualify_clause.copy(
+        insert=[Ref("LockingClauseSegment", optional=True)],
+        before=Ref("SelectClauseSegment"),
     )
 
 
