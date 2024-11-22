@@ -14,4 +14,3 @@ REPLACE VIEW vw_appt_latest AS (
       )
   SELECT * from most_current
 );
-
