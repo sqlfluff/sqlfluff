@@ -19,6 +19,7 @@ from sqlfluff.core.parser import (
     Indent,
     Matchable,
     OneOf,
+    OptionallyBracketed,
     Ref,
     RegexLexer,
     RegexParser,
@@ -831,7 +832,7 @@ class AlterTableStatementSegment(sparksql.AlterTableStatementSegment):
                 "DROP",
                 OneOf("COLUMN", "COLUMNS", optional=True),
                 Ref("IfExistsGrammar", optional=True),
-                Bracketed(
+                OptionallyBracketed(
                     Delimited(
                         Ref("ColumnReferenceSegment"),
                     ),

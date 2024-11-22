@@ -14,7 +14,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     IdentifierSegment,
-    Indent,
+    ImplicitIndent,
     Matchable,
     Nothing,
     OneOf,
@@ -2665,7 +2665,7 @@ class QualifyClauseSegment(BaseSegment):
     type = "qualify_clause"
     match_grammar = Sequence(
         "QUALIFY",
-        Indent,
+        ImplicitIndent,
         Ref("ExpressionSegment"),
         Dedent,
     )
