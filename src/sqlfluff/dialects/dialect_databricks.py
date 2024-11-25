@@ -238,6 +238,10 @@ databricks_dialect.add(
     NotebookStart=TypedParser("notebook_start", CommentSegment, type="notebook_start"),
     MagicLineGrammar=TypedParser("magic_line", CodeSegment, type="magic_line"),
     MagicStartGrammar=TypedParser("magic_start", CodeSegment, type="magic_start"),
+    VariableNameIdentifierSegment=OneOf(
+        Ref("NakedIdentifierSegment"),
+        Ref("BackQuotedIdentifierSegment"),
+    ),
 )
 
 databricks_dialect.replace(
@@ -1577,4 +1581,48 @@ class MagicCellStatementSegment(BaseSegment):
         AnyNumberOf(Ref("MagicLineGrammar"), optional=True),
         terminators=[Ref("CommandCellSegment", optional=True)],
         reset_terminators=True,
+    )
+
+
+class SetVariableStatementSegment(BaseSegment):
+    """A `SET VARIABLE` statement used to set session variables.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-set-variable.html
+    """
+
+    type = "set_variable_statement"
+
+    # set var v1=val, v2=val2;
+    set_kv_pair = Sequence(
+        Delimited(
+            Ref("VariableNameIdentifierSegment"),
+            Ref("EqualsSegment"),
+            OneOf("DEFAULT", OptionallyBracketed(Ref("ExpressionSegment"))),
+        )
+    )
+    # set var (v1,v2) = (values(100,200))
+    set_bracketed = Sequence(
+        Bracketed(
+            Ref("VariableNameIdentifierSegment"),
+        ),
+        Ref("EqualsSegment"),
+        Bracketed(
+            OneOf(
+                Ref("SelectStatementSegment"),
+                Ref("ValuesClauseSegment"),
+            )
+        ),
+    )
+
+    match_grammar = Sequence(
+        "SET",
+        OneOf(
+            "VAR",
+            "VARIABLE",
+        ),
+        OneOf(
+            set_kv_pair,
+            set_bracketed,
+        ),
+        allow_gaps=True,
     )
