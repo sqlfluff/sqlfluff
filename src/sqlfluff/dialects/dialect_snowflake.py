@@ -2335,7 +2335,7 @@ class AlterTableConstraintActionSegment(BaseSegment):
         # Add Column
         Sequence(
             "ADD",
-            Ref("ConstraintPropertiesSegment"),
+            Ref("OutOfLineConstraintPropertiesSegment"),
         ),
         Sequence(
             "DROP",
@@ -3934,10 +3934,56 @@ class WarehouseObjectParamsSegment(BaseSegment):
     )
 
 
-class ConstraintPropertiesSegment(BaseSegment):
-    """CONSTRAINT clause for CREATE TABLE or ALTER TABLE command.
+class InlineConstraintPropertiesSegment(BaseSegment):
+    """In Line CONSTRAINT clause for CREATE TABLE or ALTER TABLE command.
 
-    https://docs.snowflake.com/en/sql-reference/constraints-properties.html
+    https://docs.snowflake.com/sql-reference/sql/create-table-constraint#syntax-for-inline-constraints
+    """
+
+    type = "constraint_properties_segment"
+    match_grammar = Sequence(
+        Sequence(
+            "CONSTRAINT",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+        OneOf(
+            Sequence(
+                OneOf(
+                    Ref("PrimaryKeyGrammar"),
+                    Ref("UniqueKeyGrammar"),
+                ),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                    # For use in CREATE TABLE as a part of
+                    # ColumnDefinitionSegment.ColumnConstraintSegment
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                Sequence(
+                    Ref("ForeignKeyGrammar"),
+                ),
+                "REFERENCES",
+                Ref("TableReferenceSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                ),
+                Ref("ForeignKeyConstraintGrammar", optional=True),
+            ),
+        ),
+        Ref("InlineConstraintGrammar", optional=True),
+    )
+
+
+class OutOfLineConstraintPropertiesSegment(BaseSegment):
+    """Our of Line CONSTRAINT clause for CREATE TABLE or ALTER TABLE command.
+
+    https://docs.snowflake.com/sql-reference/sql/create-table-constraint#syntax-for-out-of-line-constraints
     """
 
     type = "constraint_properties_segment"
@@ -3968,7 +4014,7 @@ class ConstraintPropertiesSegment(BaseSegment):
                     Bracketed(
                         Delimited(
                             Ref("ColumnReferenceSegment"),
-                        )
+                        ),
                     ),
                 ),
                 "REFERENCES",
@@ -4032,7 +4078,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
             ),
         ),
         Ref("TagBracketedEqualsSegment", optional=True),
-        Ref("ConstraintPropertiesSegment"),
+        Ref("InlineConstraintPropertiesSegment"),
         Sequence("DEFAULT", Ref("QuotedLiteralSegment")),
         Sequence("CHECK", Bracketed(Ref("ExpressionSegment"))),
         Sequence(  # DEFAULT <value>
@@ -4388,7 +4434,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     https://docs.snowflake.com/en/sql-reference/sql/create-dynamic-table
     """
 
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryTransientGrammar", optional=True),
@@ -4427,7 +4473,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                     Delimited(
                         Sequence(
                             OneOf(
-                                Ref("ConstraintPropertiesSegment"),
+                                Ref("OutOfLineConstraintPropertiesSegment"),
                                 Ref("ColumnDefinitionSegment"),
                                 Ref("SingleIdentifierGrammar"),
                                 Sequence(
@@ -5839,7 +5885,7 @@ class CreateExternalTableSegment(BaseSegment):
                     OptionallyBracketed(
                         Sequence(
                             Ref("ExpressionSegment"),
-                            Ref("ConstraintPropertiesSegment", optional=True),
+                            Ref("InlineConstraintPropertiesSegment", optional=True),
                             Sequence(
                                 Ref.keyword("NOT", optional=True), "NULL", optional=True
                             ),
