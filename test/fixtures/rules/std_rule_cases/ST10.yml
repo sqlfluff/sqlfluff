@@ -56,7 +56,7 @@ test_fail_disallowed_literal_false:
   fail_str: |
     select col from foo WHERE 1 = 2 OR col = 'val'
 
-test_pass_disallowed_literal_false2:
+test_fail_disallowed_literal_false2:
   # often used in code-generated SQL
   fail_str: |
     select col from foo WHERE 1 <> 1 OR col = 'val'
