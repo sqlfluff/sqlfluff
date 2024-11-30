@@ -2300,7 +2300,7 @@ ansi_dialect.add(
                 Ref("StarSegment"),
             ),
             Sequence(
-                OneOf(Ref("StructTypeSegment"),Ref("MapTypeSegment")),
+                OneOf(Ref("StructTypeSegment"), Ref("MapTypeSegment")),
                 Bracketed(Delimited(Ref("ExpressionSegment"))),
             ),
             Sequence(
