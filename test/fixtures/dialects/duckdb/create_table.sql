@@ -100,3 +100,5 @@ CREATE TABLE t (
         )
     )
 );
+
+CREATE TABLE map (tags MAP(VARCHAR, VARCHAR));
