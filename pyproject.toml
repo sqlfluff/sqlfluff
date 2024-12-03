@@ -48,6 +48,7 @@ keywords = [
     "exasol",
     "greenplum",
     "hive",
+    "impala",
     "materialize",
     "mariadb",
     "mysql",
@@ -66,7 +67,7 @@ keywords = [
 ]
 dependencies = [
     # Used for finding os-specific application config dirs
-    "appdirs",
+    "platformdirs",
     # To get the encoding of files.
     "chardet",
     "click",

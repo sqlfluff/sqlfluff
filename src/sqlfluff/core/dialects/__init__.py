@@ -30,6 +30,7 @@ _dialect_lookup = {
     "exasol": ("dialect_exasol", "exasol_dialect"),
     "greenplum": ("dialect_greenplum", "greenplum_dialect"),
     "hive": ("dialect_hive", "hive_dialect"),
+    "impala": ("dialect_impala", "impala_dialect"),
     "materialize": ("dialect_materialize", "materialize_dialect"),
     "mariadb": ("dialect_mariadb", "mariadb_dialect"),
     "mysql": ("dialect_mysql", "mysql_dialect"),

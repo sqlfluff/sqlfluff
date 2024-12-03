@@ -833,6 +833,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
             Ref("WellKnownTextGeometrySegment"),
             Ref("DateTimeTypeIdentifier"),
             Ref("StructTypeSegment"),
+            Ref("MapTypeSegment"),
             Sequence(
                 OneOf(
                     # numeric types
@@ -1670,6 +1671,26 @@ class ForClauseSegment(BaseSegment):
     )
 
 
+class FetchClauseSegment(ansi.FetchClauseSegment):
+    """A `FETCH` clause like in `SELECT."""
+
+    type = "fetch_clause"
+    match_grammar: Matchable = Sequence(
+        "FETCH",
+        OneOf(
+            "FIRST",
+            "NEXT",
+        ),
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("ExpressionSegment", exclude=Ref.keyword("ROW")),
+            optional=True,
+        ),
+        OneOf("ROW", "ROWS"),
+        OneOf("ONLY", Sequence("WITH", "TIES")),
+    )
+
+
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Overrides ANSI Statement, to allow for SELECT INTO statements."""
 
@@ -1688,19 +1709,20 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
-    """Overrides ANSI as the parse grammar copy needs to be reapplied."""
+    """Overrides ANSI as the parse grammar copy needs to be reapplied.
+
+    As per https://www.postgresql.org/docs/current/sql-select.html
+    """
 
     # Inherit most of the parse grammar from the unordered version.
     match_grammar: Matchable = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
+            Ref("NamedWindowSegment", optional=True),
             Ref("OrderByClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
-            Ref("NamedWindowSegment", optional=True),
-        ]
-    ).copy(
-        insert=[Ref("ForClauseSegment", optional=True)],
-        before=Ref("LimitClauseSegment", optional=True),
-        # Overwrite the terminators, because we want to remove some.
+            Ref("FetchClauseSegment", optional=True),
+            Ref("ForClauseSegment", optional=True),
+        ],
         replace_terminators=True,
         terminators=[
             Ref("SetOperatorSegment"),
