@@ -122,7 +122,7 @@ class Rule_ST11(BaseRule):
         # Tables which exist in the query
         joined_tables = []
         # Tables which are referred to elsewhere.
-        # NOTE: We populate this here if a table is referred to in the the
+        # NOTE: We populate this here if a table is referred to in the
         # join clause for a *different* table.
         referenced_tables = []
         # Extract the information from any FROM clauses.
