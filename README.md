@@ -12,11 +12,25 @@
 [![ReadTheDocs](https://img.shields.io/readthedocs/sqlfluff?style=flat-square&logo=Read%20the%20Docs)](https://sqlfluff.readthedocs.io)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/psf/black)
 [![Docker Pulls](https://img.shields.io/docker/pulls/sqlfluff/sqlfluff?logo=docker&style=flat-square)](https://hub.docker.com/r/sqlfluff/sqlfluff)
+[![Gurubase](https://img.shields.io/badge/Gurubase-Ask%20SQLFluff%20Guru-006BFF?style=flat-square)](https://gurubase.io/g/sqlfluff)
 
 **SQLFluff** is a dialect-flexible and configurable SQL linter. Designed
 with ELT applications in mind, **SQLFluff** also works with Jinja templating
 and dbt. **SQLFluff** will auto-fix most linting errors, allowing you to focus
 your time on what matters.
+
+## Table of Contents
+
+1. [Dialects Supported](#dialects-supported)
+2. [Templates Supported](#templates-supported)
+3. [VS Code Extension](#vs-code-extension)
+4. [Getting Started](#getting-started)
+5. [Documentation](#documentation)
+6. [Releases](#releases)
+7. [SQLFluff on Slack](#sqlfluff-on-slack)
+8. [SQLFluff on Twitter](#sqlfluff-on-twitter)
+9. [Contributing](#contributing)
+10. [Sponsors](#sponsors)
 
 ## Dialects Supported
 
@@ -36,6 +50,7 @@ currently supports the following SQL dialects (though perhaps not in full):
 - [Exasol](https://www.exasol.com/)
 - [Greenplum](https://greenplum.org/)
 - [Hive](https://hive.apache.org/)
+- [Impala](https://impala.apache.org/)
 - [Materialize](https://materialize.com/)
 - [MySQL](https://www.mysql.com/)
 - [Oracle](https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/index.html)
@@ -45,6 +60,7 @@ currently supports the following SQL dialects (though perhaps not in full):
 - [SOQL](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql.htm)
 - [SparkSQL](https://spark.apache.org/docs/latest/)
 - [SQLite](https://www.sqlite.org/)
+- [StarRocks](https://www.starrocks.io)
 - [Teradata](https://www.teradata.com/)
 - [Transact-SQL](https://docs.microsoft.com/en-us/sql/t-sql/language-reference) (aka T-SQL)
 - [Trino](https://trino.io/)

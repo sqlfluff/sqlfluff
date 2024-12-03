@@ -62,4 +62,4 @@ Advanced API reference
 
 
 .. automodule:: sqlfluff.core
-   :members: Linter, Lexer, Parser, FluffConfig
+   :members: Linter, Lexer, Parser

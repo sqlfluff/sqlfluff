@@ -1,4 +1,5 @@
 create user user1
+    type = person
     password='abc123'
     default_role = myrole
     display_name = user1
@@ -12,6 +13,7 @@ create user user1
     must_change_password = true;
 
 create user user2
+    type = 'service'
     password='abc123'
     default_role = 'myrole'
     display_name = 'user 2'

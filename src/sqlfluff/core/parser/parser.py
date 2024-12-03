@@ -16,8 +16,12 @@ class Parser:
     def __init__(
         self, config: Optional[FluffConfig] = None, dialect: Optional[str] = None
     ):
-        # Allow optional config and dialect
-        self.config = FluffConfig.from_kwargs(config=config, dialect=dialect)
+        if config and dialect:
+            raise ValueError(  # pragma: no cover
+                "Parser does not support setting both `config` and `dialect`."
+            )
+        # Use the provided config or create one from the dialect.
+        self.config = config or FluffConfig.from_kwargs(dialect=dialect)
         self.RootSegment: Type[BaseFileSegment] = self.config.get(
             "dialect_obj"
         ).get_root_segment()

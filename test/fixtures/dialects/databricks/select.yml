@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bf986346fed8101687984158446015a57adda6a314601c4bd98977bd5a5c3a8b
+_hash: 0678165c2b0bedcb90c5fa9111f2781b0859e1542842787af143ce34567fa044
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -22,4 +22,50 @@ file:
               - naked_identifier: shopify_cz
               - dot: .
               - naked_identifier: order
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              identifier_clause_segment:
+                keyword: IDENTIFIER
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'table_name'"
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              identifier_clause_segment:
+                keyword: IDENTIFIER
+                bracketed:
+                  start_bracket: (
+                  expression:
+                  - quoted_literal: "'schema_name'"
+                  - binary_operator:
+                    - pipe: '|'
+                    - pipe: '|'
+                  - quoted_literal: "'.table_name'"
+                  end_bracket: )
+- statement_terminator: ;

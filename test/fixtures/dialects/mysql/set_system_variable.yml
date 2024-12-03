@@ -1,0 +1,46 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2664ea25dc8f7322ca49054b9e069ad196504e1fb40df67d452f36b89df210d7
+file:
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: '@OLD_UNIQUE_CHECKS'
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - system_variable: '@@UNIQUE_CHECKS'
+    - comma: ','
+    - variable: UNIQUE_CHECKS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - variable: '0'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: '@OLD_FOREIGN_KEY_CHECKS'
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - system_variable: '@@FOREIGN_KEY_CHECKS'
+    - comma: ','
+    - variable: FOREIGN_KEY_CHECKS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - variable: '0'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: '@OLD_SQL_MODE'
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - system_variable: '@@SQL_MODE'
+    - comma: ','
+    - variable: SQL_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'"
+- statement_terminator: ;

@@ -56,6 +56,7 @@ class DbtConfigArgs:
     profiles_dir: Optional[str] = None
     profile: Optional[str] = None
     target: Optional[str] = None
+    target_path: Optional[str] = None
     threads: int = 1
     single_threaded: bool = False
     # dict in 1.5.x onwards, json string before.
@@ -282,6 +283,7 @@ class DbtTemplater(JinjaTemplater):
                 project_dir=self.project_dir,
                 profiles_dir=self.profiles_dir,
                 profile=self._get_profile(),
+                target_path=self._get_target_path(),
                 vars=cli_vars,
                 threads=1,
             ),
@@ -293,6 +295,7 @@ class DbtTemplater(JinjaTemplater):
                 profiles_dir=self.profiles_dir,
                 profile=self._get_profile(),
                 target=self._get_target(),
+                target_path=self._get_target_path(),
                 vars=cli_vars,
                 threads=1,
             )
@@ -433,6 +436,12 @@ class DbtTemplater(JinjaTemplater):
         """Get a dbt target name from the configuration."""
         return self.sqlfluff_config.get_section(
             (self.templater_selector, self.name, "target")
+        )
+
+    def _get_target_path(self):
+        """Get a dbt target path from the configuration."""
+        return self.sqlfluff_config.get_section(
+            (self.templater_selector, self.name, "target_path")
         )
 
     def _get_cli_vars(self) -> dict:

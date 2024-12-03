@@ -403,10 +403,6 @@ def get_config(
             )
             sys.exit(EXIT_ERROR)
 
-    from_root_kwargs = {}
-    if "require_dialect" in kwargs:
-        from_root_kwargs["require_dialect"] = kwargs.pop("require_dialect")
-
     library_path = kwargs.pop("library_path", None)
 
     if not kwargs.get("warn_unused_ignores", True):
@@ -427,7 +423,7 @@ def get_config(
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
             overrides=overrides,
-            **from_root_kwargs,
+            require_dialect=kwargs.pop("require_dialect", True),
         )
     except SQLFluffUserError as err:  # pragma: no cover
         click.echo(
@@ -441,7 +437,9 @@ def get_config(
 
 
 def get_linter_and_formatter(
-    cfg: FluffConfig, output_stream: Optional[OutputStream] = None
+    cfg: FluffConfig,
+    output_stream: Optional[OutputStream] = None,
+    show_lint_violations: bool = False,
 ) -> Tuple[Linter, OutputStreamFormatter]:
     """Get a linter object given a config."""
     try:
@@ -458,6 +456,7 @@ def get_linter_and_formatter(
         nocolor=cfg.get("nocolor"),
         verbosity=cfg.get("verbose"),
         output_line_length=cfg.get("output_line_length"),
+        show_lint_violations=show_lint_violations,
     )
     return Linter(config=cfg, formatter=formatter), formatter
 
@@ -1098,7 +1097,9 @@ def fix(
     output_stream = make_output_stream(
         config, None, os.devnull if fixing_stdin else None
     )
-    lnt, formatter = get_linter_and_formatter(config, output_stream)
+    lnt, formatter = get_linter_and_formatter(
+        config, output_stream, show_lint_violations
+    )
 
     verbose = config.get("verbose")
     progress_bar_configuration.disable_progress_bar = disable_progress_bar

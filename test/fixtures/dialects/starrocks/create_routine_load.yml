@@ -1,0 +1,82 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 265b2058f355ff817173142eb8ddfd5407d2b81f7c53657d2e3230c569f9ef7a
+file:
+  statement:
+    create_routine_load_statement:
+    - keyword: CREATE
+    - keyword: ROUTINE
+    - keyword: LOAD
+    - object_reference:
+      - naked_identifier: example_db
+      - dot: .
+      - naked_identifier: example_tbl4_ordertest2
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: example_tbl4
+    - keyword: COLUMNS
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: commodity_id
+      - comma: ','
+      - naked_identifier: customer_name
+      - comma: ','
+      - naked_identifier: country
+      - comma: ','
+      - naked_identifier: pay_time
+      - comma: ','
+      - naked_identifier: pay_dt
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: from_unixtime
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: pay_time
+              - comma: ','
+              - expression:
+                  quoted_literal: "'%Y%m%d'"
+              - end_bracket: )
+      - comma: ','
+      - naked_identifier: price
+      - end_bracket: )
+    - keyword: PROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - routine_load_properties:
+        - quoted_literal: '"format"'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"json"'
+      - comma: ','
+      - routine_load_properties:
+        - quoted_literal: '"jsonpaths"'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"[\"$.commodity_id\",\"$.customer_name\",\"$.country\",\"$.pay_time\",\"$.price\"]"'
+      - end_bracket: )
+    - keyword: FROM
+    - keyword: KAFKA
+    - bracketed:
+      - start_bracket: (
+      - routine_load_data_source_properties:
+        - quoted_literal: '"kafka_broker_list"'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"<kafka_broker1_ip>:<kafka_broker1_port>,<kafka_broker2_ip>:<kafka_broker2_port>"'
+      - comma: ','
+      - routine_load_data_source_properties:
+        - quoted_literal: '"kafka_topic"'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"ordertest2"'
+      - end_bracket: )
+  statement_terminator: ;

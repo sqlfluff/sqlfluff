@@ -454,6 +454,7 @@ UNRESERVED_KEYWORDS = [
     "NORMAL",
     "NOWAIT",
     "NTILE",
+    "NULLS",
     "NUMERIC_ROUNDABORT",
     "OBJECT",
     "OFFSET",

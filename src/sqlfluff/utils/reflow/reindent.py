@@ -572,6 +572,7 @@ def _revise_templated_lines(
                 # We've got more than one option. To help narrow down, see whether
                 # we we can net outside the lines immediately inside.
                 check_lines = [group_lines[0] + 1, group_lines[-1] - 1]
+                fallback = max(lines[idx].initial_indent_balance for idx in check_lines)
                 for idx in check_lines:
                     # NOTE: It's important here that we've already called
                     # _revise_skipped_source_lines. We don't want to take
@@ -581,10 +582,17 @@ def _revise_templated_lines(
                         lines[idx].initial_indent_balance,
                     )
                     overlap.discard(lines[idx].initial_indent_balance)
-            best_indent = max(overlap)
-            reflow_logger.debug(
-                "    Case 2: Best: %s, Overlap: %s", best_indent, overlap
-            )
+            if not overlap:
+                best_indent = fallback
+                reflow_logger.debug(
+                    "      Using fallback since all overlaps were discarded: %s.",
+                    fallback,
+                )
+            else:
+                best_indent = max(overlap)
+                reflow_logger.debug(
+                    "    Case 2: Best: %s, Overlap: %s", best_indent, overlap
+                )
 
         # Set all the lines to this indent
         for idx in group_lines:
@@ -721,9 +729,8 @@ def _revise_comment_lines(
                     "  Comment Only Line: %s. Anchoring to %s", comment_line_idx, idx
                 )
                 # Mutate reference lines to match this one.
-                lines[comment_line_idx].initial_indent_balance = (
-                    line.initial_indent_balance
-                )
+                comment_line = lines[comment_line_idx]
+                comment_line.initial_indent_balance = line.initial_indent_balance
             # Reset the buffer
             comment_line_buffer = []
 
@@ -822,7 +829,7 @@ def _crawl_indent_points(
     TODO: Once this function *works*, there's definitely headroom
     for simplification and optimisation. We should do that.
     """
-    last_line_break_idx = None
+    last_line_break_idx: int | None = None
     indent_balance = 0
     untaken_indents: Tuple[int, ...] = ()
     cached_indent_stats: Optional[IndentStats] = None
@@ -2184,7 +2191,7 @@ def lint_line_length(
     line_buffer: ReflowSequenceType = []
     results: List[LintResult] = []
 
-    last_indent_idx = None
+    last_indent_idx: int | None = None
     for i, elem in enumerate(elem_buffer):
         # Are there newlines in the element?
         # If not, add it to the buffer and wait to evaluate the line.

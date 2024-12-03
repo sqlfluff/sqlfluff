@@ -49,6 +49,7 @@ from sqlfluff.core.linter.linting_result import LintingResult
 from sqlfluff.core.parser import Lexer, Parser
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
+from sqlfluff.core.rules.fix import LintFix
 from sqlfluff.core.rules.noqa import IgnoreMask
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -78,9 +79,16 @@ class Linter:
         user_rules: Optional[List[Type[BaseRule]]] = None,
         exclude_rules: Optional[List[str]] = None,
     ) -> None:
-        # Store the config object
-        self.config = FluffConfig.from_kwargs(
-            config=config,
+        if config and (dialect or rules or exclude_rules):
+            raise ValueError(  # pragma: no cover
+                "Linter does not support setting both `config` and any of "
+                "`dialect`, `rules` or `exclude_rules`. The latter are "
+                "provided as convenience methods to avoid needing to "
+                "set the `config` object. If using `config`, please "
+                "provide all the other values within that object."
+            )
+        # Use the provided config or create one from the kwargs.
+        self.config = config or FluffConfig.from_kwargs(
             dialect=dialect,
             rules=rules,
             exclude_rules=exclude_rules,
@@ -377,7 +385,7 @@ class Linter:
         # the fixes themselves.
         initial_linting_errors = []
         # A placeholder for the fixes we had on the previous loop
-        last_fixes = None
+        last_fixes: Optional[List[LintFix]] = None
         # Keep a set of previous versions to catch infinite loops.
         previous_versions: Set[Tuple[str, Tuple["SourceFix", ...]]] = {(tree.raw, ())}
         # Keep a buffer for recording rule timings.

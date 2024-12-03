@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 14321de384783dc7ad2bc136679d798bd154f1146fef04e38031e968867f558e
+_hash: 03f768cfcb2f61768ed9558a86a0084ac2900341415c8b041889f9386970f3b9
 file:
 - statement:
     alter_table_statement:
@@ -692,4 +692,64 @@ file:
     - keyword: PRIMARY
     - keyword: KEY
     - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: rocks
+    - keyword: DROP
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: rock
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: rocks
+    - keyword: DROP
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: rock
+    - comma: ','
+    - column_reference:
+        naked_identifier: loc
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: rocks
+    - keyword: DROP
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - column_reference:
+        naked_identifier: rock
+    - comma: ','
+    - column_reference:
+        naked_identifier: loc
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: rocks
+    - keyword: DROP
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: rock
+      - comma: ','
+      - column_reference:
+          naked_identifier: loc
+      - end_bracket: )
 - statement_terminator: ;

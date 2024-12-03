@@ -556,6 +556,7 @@ ansi_dialect.add(
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
     ForeignKeyGrammar=Sequence("FOREIGN", "KEY"),
     UniqueKeyGrammar=Sequence("UNIQUE"),
+    NotEnforcedGrammar=Nothing(),
     # Odd syntax, but prevents eager parameters being confused for data types
     FunctionParameterGrammar=OneOf(
         Sequence(
@@ -665,20 +666,20 @@ ansi_dialect.add(
         Ref("FunctionSegment"),
         Ref("BareFunctionSegment"),
     ),
+    ReferenceMatchGrammar=Sequence(
+        "MATCH",
+        OneOf(
+            "FULL",
+            "PARTIAL",
+            "SIMPLE",
+        ),
+    ),
     ReferenceDefinitionGrammar=Sequence(
         "REFERENCES",
         Ref("TableReferenceSegment"),
         # Foreign columns making up FOREIGN KEY constraint
         Ref("BracketedColumnReferenceListGrammar", optional=True),
-        Sequence(
-            "MATCH",
-            OneOf(
-                "FULL",
-                "PARTIAL",
-                "SIMPLE",
-            ),
-            optional=True,
-        ),
+        Ref("ReferenceMatchGrammar", optional=True),
         AnySetOf(
             # ON DELETE clause, e.g. ON DELETE NO ACTION
             Sequence(
@@ -860,6 +861,16 @@ class StructTypeSegment(BaseSegment):
     """
 
     type = "struct_type"
+    match_grammar: Matchable = Nothing()
+
+
+class MapTypeSegment(BaseSegment):
+    """Expression to construct a MAP datatype.
+
+    (Used in DuckDB for example)
+    """
+
+    type = "map_type"
     match_grammar: Matchable = Nothing()
 
 
@@ -2289,7 +2300,7 @@ ansi_dialect.add(
                 Ref("StarSegment"),
             ),
             Sequence(
-                Ref("StructTypeSegment"),
+                OneOf(Ref("StructTypeSegment"), Ref("MapTypeSegment")),
                 Bracketed(Delimited(Ref("ExpressionSegment"))),
             ),
             Sequence(
@@ -3130,10 +3141,15 @@ class ColumnConstraintSegment(BaseSegment):
                 "DEFAULT",
                 Ref("ColumnConstraintDefaultGrammar"),
             ),
-            Ref("PrimaryKeyGrammar"),
+            Sequence(
+                Ref("PrimaryKeyGrammar"), Ref("NotEnforcedGrammar", optional=True)
+            ),
             Ref("UniqueKeyGrammar"),  # UNIQUE
             Ref("AutoIncrementGrammar"),
-            Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]x
+            Sequence(
+                Ref("ReferenceDefinitionGrammar"),
+                Ref("NotEnforcedGrammar", optional=True),
+            ),  # REFERENCES reftable [ ( refcolumn) ]x
             Ref("CommentClauseSegment"),
             Sequence(
                 "COLLATE", Ref("CollationReferenceSegment")

@@ -706,6 +706,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("MsckRepairTableStatementSegment"),
             Ref("MsckTableStatementSegment"),
             Ref("SetStatementSegment"),
+            Ref("AlterViewStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
@@ -1085,4 +1086,26 @@ class SortByClauseSegment(ansi.OrderByClauseSegment):
             terminators=["LIMIT", Ref("FrameClauseUnitGrammar")],
         ),
         Dedent,
+    )
+
+
+class AlterViewStatementSegment(BaseSegment):
+    """A `ALTER VIEW` statement to change the view schema or properties.
+
+    https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-Create/Drop/AlterView
+    """
+
+    type = "alter_view_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence("SET", Ref("TablePropertiesGrammar")),
+            Sequence(
+                "AS",
+                OptionallyBracketed(Ref("SelectStatementSegment")),
+            ),
+        ),
     )

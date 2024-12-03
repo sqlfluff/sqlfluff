@@ -1,0 +1,169 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: febbfaa5d5e7156ca3b9bf06e923cfde3f62aafb1e4a654985062f5eb155b753
+file:
+- statement:
+    set_variable_statement:
+    - keyword: SET
+    - keyword: VAR
+    - expression:
+        column_reference:
+          naked_identifier: var1
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    set_variable_statement:
+    - keyword: SET
+    - keyword: VARIABLE
+    - expression:
+        column_reference:
+          naked_identifier: var1
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: max
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: c1
+                      end_bracket: )
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    values_clause:
+                    - keyword: VALUES
+                    - bracketed:
+                        start_bracket: (
+                        expression:
+                          numeric_literal: '1'
+                        end_bracket: )
+                    - comma: ','
+                    - bracketed:
+                        start_bracket: (
+                        expression:
+                          numeric_literal: '2'
+                        end_bracket: )
+                    - alias_expression:
+                        keyword: AS
+                        naked_identifier: t
+                        bracketed:
+                          start_bracket: (
+                          identifier_list:
+                            naked_identifier: c1
+                          end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_variable_statement:
+    - keyword: SET
+    - keyword: VAR
+    - expression:
+      - column_reference:
+          naked_identifier: var1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - column_reference:
+          naked_identifier: DEFAULT
+- statement_terminator: ;
+- statement:
+    set_variable_statement:
+    - keyword: SET
+    - keyword: VAR
+    - expression:
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: var1
+        - comma: ','
+        - column_reference:
+            naked_identifier: var2
+        - comma: ','
+        - column_reference:
+            naked_identifier: var3
+        - end_bracket: )
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+          start_bracket: (
+          values_clause:
+            keyword: VALUES
+            bracketed:
+            - start_bracket: (
+            - expression:
+                numeric_literal: '100'
+            - comma: ','
+            - expression:
+                quoted_literal: "'x123'"
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: DEFAULT
+            - end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_variable_statement:
+    - keyword: SET
+    - keyword: VARIABLE
+    - expression:
+        column_reference:
+          quoted_identifier: '`foo`'
+        comparison_operator:
+          raw_comparison_operator: '='
+        select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              quoted_literal: "'bar'"
+- statement_terminator: ;
+- statement:
+    set_variable_statement:
+    - keyword: set
+    - keyword: var
+    - expression:
+        column_reference:
+          naked_identifier: tz
+        comparison_operator:
+          raw_comparison_operator: '='
+        function:
+          function_name:
+            function_name_identifier: current_timezone
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_variable_statement:
+    - keyword: set
+    - keyword: var
+    - expression:
+        column_reference:
+          naked_identifier: x1
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '12'
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: x2
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'helloworld'"
+- statement_terminator: ;
