@@ -1,4 +1,4 @@
-"""Implementation of Rule ST10."""
+"""Implementation of Rule ST11."""
 
 from typing import Iterator, List, Tuple, cast
 
@@ -12,7 +12,7 @@ class UnqualifiedReferenceError(ValueError):
     """Custom exception for signalling when a reference is unqualified."""
 
 
-class Rule_ST10(BaseRule):
+class Rule_ST11(BaseRule):
     """Joined table not referenced in query.
 
     This rule will check if there are any tables that are referenced in the

@@ -1,4 +1,4 @@
-rule: ST10
+rule: ST11
 
 test_fail_simple:
   fail_str: |
