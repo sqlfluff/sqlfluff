@@ -5,7 +5,7 @@ test_fail_simple:
     select
         1
     from b
-    join c on b.x = c.x
+    left join c on b.x = c.x
 
 test_pass_single_table:
   # If there's only one table, even if not referenced, then
@@ -29,20 +29,23 @@ test_pass_unqualified_select:
   pass_str: |
     select
         a
-    from b join c using(d)
+    from b
+    left join c using(d)
 
 test_pass_unqualified_where:
   pass_str: |
     select
         1
-    from b join c using(d)
+    from b
+    left join c using(d)
     where e
 
 test_pass_unqualified_group_by:
   pass_str: |
     select
         1
-    from b join c using(d)
+    from b
+    left join c using(d)
     group by e
 
 test_fail_unused_table_in_join:
@@ -66,34 +69,35 @@ test_pass_unused_table_in_join:
       left join inventor
         on widget.inventor_id = inventor.id
 
-test_pass_default_inner_unreferenced:
-  # The default config should set "inner" as an allowed keyword to
-  # be used in join clauses which are unreferenced. In the following
-  # example, "b" is being used as a filter.
+test_pass_inner_unreferenced:
+  # In the following example, "b" is being used as a filter, and the rule
+  # should only trigger if it's an explicit left, right or full join.
   pass_str: |
     select
         a.*
     from a
     inner join b using(x)
-
-test_fail_default_right_unreferenced:
-  # By default, right joins which are unreferenced are should flag.
-  fail_str: |
-    select
-        a.*
-    from a
-    right join c using(x)
-
-test_pass_config_right_unreferenced:
-  # As a test of the allowlist config, this test is the same as above, but
-  # we allow right joins in the config.
+  
+test_pass_unqualified_unreferenced:
+  # Same as above, but an implicit INNER (unqualified joins are usually
+  # interpreted as inner joins).
   pass_str: |
     select
         a.*
     from a
-    right join c using(x)
-  configs:
-    rules:
-      structure.unused_join:
-        # NOTE: Different case, to test case insensitivity
-        allowlist_join_keywords: inner,RIGHT
+    join b using(x)
+
+test_fail_left_unreferenced:
+  fail_str: |
+    select
+        a.*
+    from a
+    left join c using(x)
+
+test_fail_right_unreferenced:
+  fail_str: |
+    select
+        a.*
+    from a
+    right join d using(x)
+

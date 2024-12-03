@@ -18,6 +18,10 @@ class Rule_ST11(BaseRule):
     This rule will check if there are any tables that are referenced in the
     ``FROM`` or ``JOIN`` clause of a ``SELECT`` statement, but where no
     columns from that table are referenced in the any of the other clauses.
+    Because some types of join are often used as filters, or to otherwise
+    control granularity without being referenced (e.g. ``INNER`` and ``CROSS``),
+    this rule only applies to explicit ``OUTER`` joins (i.e. ``LEFT``, ``RIGHT``
+    and ``FULL`` joins).
 
     This rule relies on all of the column references in the ``SELECT``
     statement being qualified with at least the table name, and so is
@@ -75,7 +79,6 @@ class Rule_ST11(BaseRule):
     name = "structure.unused_join"
     aliases = ()
     groups: Tuple[str, ...] = ("all", "structure")
-    config_keywords = ["allowlist_join_keywords"]
     crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
     is_fix_compatible = False
 
@@ -119,8 +122,6 @@ class Rule_ST11(BaseRule):
     def _extract_references_from_select(
         self, segment: BaseSegment
     ) -> List[Tuple[str, BaseSegment]]:
-        self.allowlist_join_keywords: str
-        _allowlist_join_keywords = set(self.allowlist_join_keywords.upper().split(","))
         assert segment.is_type("select_statement")
         # Tables which exist in the query
         joined_tables = []
@@ -153,7 +154,9 @@ class Rule_ST11(BaseRule):
                     "from_expression_element"
                 ):
                     ref = self._extract_references_from_expression(from_expression_elem)
-                    if ref and not join_keywords.intersection(_allowlist_join_keywords):
+                    # Only mark it as a possible issue if it's an explicit LEFT, RIGHT
+                    # or FULL join.
+                    if ref and join_keywords.intersection({"FULL", "LEFT", "RIGHT"}):
                         joined_tables.append((ref, from_expression_elem))
                         _this_clause_refs.append(ref)
 
