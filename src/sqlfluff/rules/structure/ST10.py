@@ -55,6 +55,11 @@ class Rule_ST10(BaseRule):
         assert context.segment.is_type("expression")
         subsegments = context.segment.segments
         count_subsegments = len(subsegments)
+        # The following literal expressions are allowable because they're
+        # often included in auto-generated code.
+        # NOTE: In future this could become a configuration option.
+        allowable_literal_expressions = {"1 = 1", "1 = 0"}
+
         for idx, seg in enumerate(context.segment.segments):
             if seg.is_type("comparison_operator"):
                 if seg.raw not in ("=", "!=", "<>"):
@@ -82,7 +87,7 @@ class Rule_ST10(BaseRule):
                 # literals need explicit handling (due to well-defined allow-list)
                 if lhs.is_type("literal") and rhs.is_type("literal"):
                     expr_s = f"{lhs.raw_normalized()} {seg.raw} {rhs.raw_normalized()}"
-                    if expr_s in ("1 = 1", "1 = 0"):
+                    if expr_s in allowable_literal_expressions:
                         # ignore based on allowlist
                         continue
                 else:
