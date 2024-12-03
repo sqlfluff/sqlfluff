@@ -18,6 +18,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     IdentifierSegment,
+    ImplicitIndent,
     Indent,
     LiteralSegment,
     Matchable,
@@ -323,6 +324,8 @@ bigquery_dialect.replace(
         Ref("SemiStructuredAccessorSegment"),
     ),
     BracketedSetExpressionGrammar=Bracketed(Ref("SetExpressionSegment")),
+    NotEnforcedGrammar=Sequence("NOT", "ENFORCED"),
+    ReferenceMatchGrammar=Nothing(),
 )
 
 
@@ -431,7 +434,7 @@ class QualifyClauseSegment(BaseSegment):
     type = "qualify_clause"
     match_grammar = Sequence(
         "QUALIFY",
-        Indent,
+        ImplicitIndent,
         OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )

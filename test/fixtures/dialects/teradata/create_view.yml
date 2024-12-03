@@ -1,0 +1,111 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b07ff71a9b1c95969b2134fde83b968a608b52c5a23cd0f1f101390df9ad2d3f
+file:
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: a
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: c
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table1
+            join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: table2
+            - join_on_condition:
+                keyword: 'ON'
+                bracketed:
+                  start_bracket: (
+                  expression:
+                  - column_reference:
+                    - naked_identifier: table1
+                    - dot: .
+                    - naked_identifier: id
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - column_reference:
+                    - naked_identifier: table2
+                    - dot: .
+                    - naked_identifier: id
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: vw_appt_latest
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        with_compound_statement:
+          keyword: WITH
+          common_table_expression:
+            naked_identifier: most_current
+            keyword: as
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    wildcard_expression:
+                      wildcard_identifier:
+                        naked_identifier: da
+                        dot: .
+                        star: '*'
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: dim_appt
+                      alias_expression:
+                        naked_identifier: da
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                    column_reference:
+                    - naked_identifier: da
+                    - dot: .
+                    - naked_identifier: current_appt_id
+                    keyword: IS
+                    null_literal: 'NULL'
+              end_bracket: )
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: most_current
+        end_bracket: )
+- statement_terminator: ;

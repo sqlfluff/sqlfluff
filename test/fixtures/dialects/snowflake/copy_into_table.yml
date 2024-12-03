@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c66235d23458e18428aca8c525fb3575b4c9fac1fe207f2008f4b9dea6b251b3
+_hash: 040e7069446054b29b50495660eaf946f067ce1ef76fdbdb0654ff313f51fb2b
 file:
 - statement:
     copy_into_table_statement:
@@ -463,4 +463,28 @@ file:
           raw_comparison_operator: '='
       - keyword: METADATA$FILENAME
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: test
+      - dot: .
+      - naked_identifier: transactions_all
+    - keyword: FROM
+    - storage_location:
+        stage_path: '@rawdata.STITCH_STAGE_NETSUITE/transactions/'
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        object_reference:
+        - naked_identifier: rawdata
+        - dot: .
+        - naked_identifier: json_format
+    - keyword: MATCH_BY_COLUMN_NAME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'case_insensitive'"
 - statement_terminator: ;

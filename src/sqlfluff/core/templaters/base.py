@@ -211,7 +211,7 @@ class TemplatedFile:
         )
 
         # Consistency check templated string and slices.
-        previous_slice = None
+        previous_slice: Optional[TemplatedFileSlice] = None
         tfs: Optional[TemplatedFileSlice] = None
         for tfs in self.sliced_file:
             if previous_slice:
@@ -291,7 +291,7 @@ class TemplatedFile:
         NB: the last_idx is exclusive, as the intent is to use this as a slice.
         """
         start_idx = start_idx or 0
-        first_idx = None
+        first_idx: Optional[int] = None
         last_idx = start_idx
         # Work through the sliced file, starting at the start_idx if given
         # as an optimisation hint. The sliced_file is a list of TemplatedFileSlice

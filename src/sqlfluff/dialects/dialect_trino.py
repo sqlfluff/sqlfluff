@@ -266,6 +266,7 @@ trino_dialect.replace(
         Ref("LambdaExpressionSegment"),
         Ref("ExpressionSegment"),
     ),
+    TemporaryTransientGrammar=Nothing(),
 )
 
 

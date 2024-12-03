@@ -171,7 +171,7 @@ class PythonTemplater(RawTemplater):
     """
 
     name = "python"
-    config_subsection = ("context",)
+    config_subsection: Tuple[str, ...] = ("context",)
 
     def __init__(self, override_context: Optional[Dict[str, Any]] = None) -> None:
         self.default_context = dict(test_value="__test__")

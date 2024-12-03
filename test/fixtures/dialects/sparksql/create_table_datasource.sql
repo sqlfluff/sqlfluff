@@ -49,3 +49,11 @@ USING CSV
 COMMENT "this is a comment"
 PARTITIONED BY (age)
 STORED AS PARQUET;
+
+create table if not exists my_table_space.my_test_table (
+    test_value string,
+    activity_date_partition date
+)
+using DELTA
+location 's3://some-bucket/test-data/'
+partitioned by (activity_date_partition);

@@ -283,7 +283,7 @@ def _determine_aligned_inline_spacing(
         return desired_space
 
     # Work out the current spacing before each.
-    last_code = None
+    last_code: Optional[RawSegment] = None
     max_desired_line_pos = 0
     for seg in parent_segment.raw_segments:
         for sibling in siblings:

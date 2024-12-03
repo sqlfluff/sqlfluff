@@ -21,6 +21,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     IdentifierSegment,
+    ImplicitIndent,
     Indent,
     Matchable,
     OneOf,
@@ -71,6 +72,7 @@ teradata_dialect.sets("unreserved_keywords").update(
         "DEL",
         "DUAL",
         "ERRORCODE",
+        "EXCL",
         "EXPORT",
         "FALLBACK",
         "FORMAT",
@@ -86,6 +88,7 @@ teradata_dialect.sets("unreserved_keywords").update(
         "MEETS",
         "MERGEBLOCKRATIO",
         "NONE",
+        "OVERRIDE",
         "PERCENT",
         "PROFILE",
         "PROTECTION",
@@ -105,7 +108,9 @@ teradata_dialect.sets("unreserved_keywords").update(
     ]
 )
 
-teradata_dialect.sets("reserved_keywords").update(["UNION", "TIMESTAMP"])
+teradata_dialect.sets("reserved_keywords").update(
+    ["LOCKING", "UNION", "REPLACE", "TIMESTAMP"]
+)
 
 teradata_dialect.sets("bare_functions").update(["DATE"])
 
@@ -678,6 +683,23 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
 
+class CreateViewStatementSegment(BaseSegment):
+    """A `[CREATE | REPLACE] VIEW` statement."""
+
+    type = "create_view_statement"
+    match_grammar: Matchable = Sequence(
+        OneOf("CREATE", "REPLACE"),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        # Optional list of column names
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        "AS",
+        OptionallyBracketed(Ref("SelectableGrammar")),
+        Ref("WithNoSchemaBindingClauseSegment", optional=True),
+    )
+
+
 # Update
 class UpdateStatementSegment(BaseSegment):
     """A `Update from` statement.
@@ -746,9 +768,46 @@ class QualifyClauseSegment(BaseSegment):
     type = "qualify_clause"
     match_grammar = Sequence(
         "QUALIFY",
-        Indent,
+        ImplicitIndent,
         OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
+    )
+
+
+class LockingClauseSegment(BaseSegment):
+    """A `LOCKING` clause for Teradata.
+
+    https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Manipulation-Language/Statement-Syntax/LOCKING-Request-Modifier
+    """
+
+    type = "locking_clause"
+    match_grammar = Sequence(
+        OneOf(
+            "LOCKING",
+            "LOCK",
+        ),
+        OneOf(
+            "ROW",
+            Sequence("TABLE", Ref("ObjectReferenceSegment", optional=True)),
+            Sequence("VIEW", Ref("ObjectReferenceSegment", optional=True)),
+            Sequence("DATABASE", Ref("ObjectReferenceSegment", optional=True)),
+        ),
+        OneOf(
+            "FOR",
+            "IN",
+        ),
+        OneOf(
+            "ACCESS",
+            "WRITE",
+            "EXCLUSIVE",
+            "EXCL",
+            Sequence("READ", Sequence("OVERRIDE", optional=True)),
+            "SHARE",
+            "CHECKSUM",
+            Sequence("LOAD", "COMMITTED"),
+        ),
+        Sequence("MODE", optional=True),
+        Sequence("NOWAIT", optional=True),
     )
 
 
@@ -758,9 +817,25 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     https://dev.mysql.com/doc/refman/5.7/en/select.html
     """
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
+    match_grammar_with_qualify_clause = ansi.SelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
+    )
+
+    match_grammar = match_grammar_with_qualify_clause.copy(
+        insert=[Ref("LockingClauseSegment", optional=True)],
+        before=Ref("SelectClauseSegment"),
+    )
+
+
+class WithCompoundStatementSegment(ansi.WithCompoundStatementSegment):
+    """A `SELECT` statement preceded by a selection of `WITH` clauses.
+
+    `WITH tab (col1,col2) AS (SELECT a,b FROM x)`
+    """
+
+    match_grammar = ansi.WithCompoundStatementSegment.match_grammar.copy(
+        insert=[Ref("LockingClauseSegment", optional=True)], at=0
     )
 
 

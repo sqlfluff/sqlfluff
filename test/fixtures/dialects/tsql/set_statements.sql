@@ -29,3 +29,7 @@ SET @param1 += 1,
     @param5 &= 7,
     @param5 |= 8
 ;
+
+-- Param with sequence in expression
+SET @param1 = (NEXT VALUE FOR [dbo].[SEQUENCE_NAME])
+;

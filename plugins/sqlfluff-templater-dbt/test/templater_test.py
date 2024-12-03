@@ -48,6 +48,7 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):
                     "profiles_dir": "~/.dbt",
                     "profile": "default",
                     "target": "dev",
+                    "target_path": "target",
                 }
             },
         },
@@ -59,6 +60,7 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):
     )
     assert dbt_templater._get_profile() == "default"
     assert dbt_templater._get_target() == "dev"
+    assert dbt_templater._get_target_path() == "target"
 
 
 @pytest.mark.parametrize(

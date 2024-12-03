@@ -19,3 +19,8 @@ CREATE TABLE t_table1
     _other STRING
 )
 ;
+
+CREATE TABLE `some_dataset.some_table` (
+    id STRING NOT NULL PRIMARY KEY NOT ENFORCED,
+    other_field STRING REFERENCES other_table(other_field) NOT ENFORCED
+);
