@@ -78,8 +78,9 @@ SELECT col1, col2
 FROM mytable1
 JOIN mytable2 ON col1 = col2
 ORDER BY sync_time ASC
+LIMIT 1
 FOR SHARE OF mytable1, mytable2 SKIP LOCKED
-LIMIT 1;
+;
 
 Select * from foo TABLESAMPLE SYSTEM (10);
 
@@ -94,3 +95,14 @@ SELECT 1 /* hi hi /* foo */ ho ho */ AS bar;
 
 -- escape double quotes
 SELECT """t".col1 FROM tbl1 AS """t";
+
+SELECT
+    film_id,
+    title
+FROM
+    film
+ORDER BY
+    title
+FETCH FIRST 10 ROW ONLY;
+
+SELECT foo FROM bar LIMIT 1 FOR UPDATE;

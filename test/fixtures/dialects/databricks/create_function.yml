@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c7fd23d8ea56a8c725428da4f9bdd9de8bad2ec478e2eab071d3b59619ecafdc
+_hash: 7e5781c29eaa44b8bb421d8d0a7068936d45bb38348594cec7ea258026ed015e
 file:
 - statement:
     create_function_statement:
@@ -531,4 +531,38 @@ file:
                 table_expression:
                   table_reference:
                     naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: function
+    - function_name:
+      - quoted_identifier: '`catalog`'
+      - dot: .
+      - quoted_identifier: '`schema`'
+      - dot: .
+      - quoted_identifier: '`name`'
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          parameter: param
+          data_type:
+            primitive_type:
+              keyword: int
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        primitive_type:
+          keyword: int
+    - function_definition:
+        keyword: return
+        expression:
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                column_reference:
+                  naked_identifier: param
 - statement_terminator: ;

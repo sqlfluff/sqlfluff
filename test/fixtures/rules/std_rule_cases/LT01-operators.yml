@@ -135,3 +135,9 @@ pass_sparksql_file_literal:
   configs:
     core:
       dialect: sparksql
+
+pass_sqlite_column_path_operator:
+  pass_str: SELECT a -> 'b';
+  configs:
+    core:
+      dialect: sqlite

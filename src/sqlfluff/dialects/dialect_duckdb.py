@@ -13,6 +13,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     IdentifierSegment,
+    ImplicitIndent,
     Indent,
     Matchable,
     Nothing,
@@ -62,6 +63,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "ANTI",
         "ASOF",
         "MACRO",
+        "MAP",
         "POSITIONAL",
         "SEMI",
         "STRUCT",
@@ -201,6 +203,26 @@ class StructTypeSchemaSegment(BaseSegment):
                     ),
                 ),
             ),
+        ),
+    )
+
+
+class MapTypeSegment(ansi.MapTypeSegment):
+    """Expression to construct a MAP datatype."""
+
+    match_grammar = Sequence(
+        "MAP",
+        Ref("MapTypeSchemaSegment", optional=True),
+    )
+
+
+class MapTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a MAP datatype."""
+
+    type = "map_type_schema"
+    match_grammar = Bracketed(
+        Delimited(
+            Ref("DatatypeSegment"),
         ),
     )
 
@@ -541,7 +563,7 @@ class QualifyClauseSegment(BaseSegment):
     type = "qualify_clause"
     match_grammar = Sequence(
         "QUALIFY",
-        Indent,
+        ImplicitIndent,
         OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )

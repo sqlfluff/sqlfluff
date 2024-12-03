@@ -17,12 +17,15 @@ except ImportError:  # pragma: no cover
 import logging
 import os
 import os.path
+import sys
 from pathlib import Path
 from typing import (
     Optional,
 )
 
-import appdirs
+import platformdirs
+import platformdirs.macos
+import platformdirs.unix
 
 from sqlfluff.core.config.file import (
     cache,
@@ -55,22 +58,50 @@ ALLOWABLE_LAYOUT_CONFIG_KEYS = (
 )
 
 
-def _get_user_config_dir_path() -> str:
+def _get_user_config_dir_path(sys_platform: str) -> str:
+    """Get the user config dir for this system.
+
+    Args:
+        sys_platform (str): The result of ``sys.platform()``. Provided
+            as an argument here for ease of testing. In normal usage
+            it should only be  called with ``sys.platform()``. This
+            argument only applies to switching between linux and macos.
+            Win32 detection still uses the underlying ``sys.platform()``
+            methods.
+    """
     appname = "sqlfluff"
     appauthor = "sqlfluff"
 
-    # On Mac OSX follow Linux XDG base dirs
+    # First try the default SQLFluff specific cross-platform config path.
+    cross_platform_path = os.path.expanduser("~/.config/sqlfluff")
+    if os.path.exists(cross_platform_path):
+        return cross_platform_path
+
+    # Then try the platform specific paths, for MacOS, we check
+    # the unix variant first to preferentially use the XDG config path if set.
     # https://github.com/sqlfluff/sqlfluff/issues/889
-    user_config_dir_path = os.path.expanduser("~/.config/sqlfluff")
-    if appdirs.system == "darwin":
-        appdirs.system = "linux2"
-        user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
-        appdirs.system = "darwin"
-
-    if not os.path.exists(user_config_dir_path):
-        user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
-
-    return user_config_dir_path
+    if sys_platform == "darwin":
+        unix_config_path = platformdirs.unix.Unix(
+            appname=appname, appauthor=appauthor
+        ).user_config_dir
+        if os.path.exists(os.path.expanduser(unix_config_path)):
+            return unix_config_path
+        # Technically we could just delegate to the generic `user_config_dir`
+        # method, but for testing it's convenient to explicitly call the macos
+        # methods here.
+        return platformdirs.macos.MacOS(
+            appname=appname, appauthor=appauthor
+        ).user_config_dir
+    # NOTE: We could delegate to the generic `user_config_dir` method here,
+    # but for testing it's convenient to explicitly call the linux methods.
+    elif sys_platform == "linux":
+        return platformdirs.unix.Unix(
+            appname=appname, appauthor=appauthor
+        ).user_config_dir
+    # Defer to the self-detecting paths.
+    # NOTE: On Windows this means that the `sys_platform` argument is not
+    # applied.
+    return platformdirs.user_config_dir(appname, appauthor)
 
 
 def load_config_file(
@@ -218,7 +249,7 @@ def load_config_at_path(path: str) -> ConfigMappingType:
 
 def _load_user_appdir_config() -> ConfigMappingType:
     """Load the config from the user's OS specific appdir config directory."""
-    user_config_dir_path = _get_user_config_dir_path()
+    user_config_dir_path = _get_user_config_dir_path(sys.platform)
     if os.path.exists(user_config_dir_path):
         return load_config_at_path(user_config_dir_path)
     else:
@@ -283,16 +314,19 @@ def load_config_up_to_path(
         config_paths = iter_intermediate_paths(Path(path).absolute(), Path.cwd())
         config_stack = [load_config_at_path(str(p.resolve())) for p in config_paths]
 
-    # 4) Extra config paths
-    if not extra_config_path:
-        extra_config = {}
-    else:
-        if not os.path.exists(extra_config_path):
-            raise SQLFluffUserError(
-                f"Extra config '{extra_config_path}' does not exist."
+    # 4) Extra config paths.
+    # When calling `load_config_file_as_dict` we resolve the path first so that caching
+    # is more efficient.
+    extra_config = {}
+    if extra_config_path:
+        try:
+            extra_config = load_config_file_as_dict(
+                str(Path(extra_config_path).resolve())
             )
-        # Resolve the path so that the caching is accurate.
-        extra_config = load_config_file_as_dict(str(Path(extra_config_path).resolve()))
+        except FileNotFoundError:
+            raise SQLFluffUserError(
+                f"Extra config path '{extra_config_path}' does not exist."
+            )
 
     return nested_combine(
         user_appdir_config,
