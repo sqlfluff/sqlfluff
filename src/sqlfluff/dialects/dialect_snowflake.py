@@ -602,6 +602,22 @@ snowflake_dialect.add(
         OneOf("VALIDATE", "NOVALIDATE"),
         OneOf("RELY", "NORELY"),
     ),
+    ForeignKeyConstraintGrammar=AnySetOf(
+        Sequence("MATCH", OneOf("FULL", "SIMPLE", "PARTIAL")),
+        Sequence(
+            AnyNumberOf(
+                "ON",
+                OneOf("UPDATE", "DELETE"),
+                OneOf(
+                    "CASCADE",
+                    Sequence(Ref.keyword("SET"), Ref.keyword("NULL")),
+                    Sequence(Ref.keyword("SET"), Ref.keyword("DEFAULT")),
+                    "RESTRICT",
+                    Sequence("NO", "ACTION"),
+                ),
+            )
+        ),
+    ),
 )
 
 snowflake_dialect.replace(
@@ -3963,6 +3979,7 @@ class ConstraintPropertiesSegment(BaseSegment):
                     ),
                     optional=True,
                 ),
+                Ref("ForeignKeyConstraintGrammar", optional=True),
             ),
         ),
         Ref("InlineConstraintGrammar", optional=True),
