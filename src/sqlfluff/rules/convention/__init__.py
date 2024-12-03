@@ -79,6 +79,7 @@ def get_rules() -> List[Type[BaseRule]]:
     from sqlfluff.rules.convention.CV09 import Rule_CV09
     from sqlfluff.rules.convention.CV10 import Rule_CV10
     from sqlfluff.rules.convention.CV11 import Rule_CV11
+    from sqlfluff.rules.convention.CV12 import Rule_CV12
 
     return [
         Rule_CV01,
@@ -92,4 +93,5 @@ def get_rules() -> List[Type[BaseRule]]:
         Rule_CV09,
         Rule_CV10,
         Rule_CV11,
+        Rule_CV12,
     ]
