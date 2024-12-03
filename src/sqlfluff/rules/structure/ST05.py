@@ -472,10 +472,10 @@ def _is_child(maybe_parent: Segments, maybe_child: Segments) -> bool:
     child_markers = maybe_child[0].pos_marker
     parent_pos = maybe_parent[0].pos_marker
     assert parent_pos and child_markers
-    if child_markers < parent_pos.start_point_marker():
+    if child_markers.start_point_marker() < parent_pos.start_point_marker():
         return False  # pragma: no cover
 
-    if child_markers > parent_pos.end_point_marker():
+    if child_markers.end_point_marker() > parent_pos.end_point_marker():
         return False
 
     return True
