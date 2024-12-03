@@ -30,12 +30,14 @@ test_pass_unqualified_select:
     select
         a
     from b join c using(d)
+
 test_pass_unqualified_where:
   pass_str: |
     select
         1
     from b join c using(d)
     where e
+
 test_pass_unqualified_group_by:
   pass_str: |
     select
@@ -63,3 +65,35 @@ test_pass_unused_table_in_join:
       widget
       left join inventor
         on widget.inventor_id = inventor.id
+
+test_pass_default_inner_unreferenced:
+  # The default config should set "inner" as an allowed keyword to
+  # be used in join clauses which are unreferenced. In the following
+  # example, "b" is being used as a filter.
+  pass_str: |
+    select
+        a.*
+    from a
+    inner join b using(x)
+
+test_fail_default_right_unreferenced:
+  # By default, right joins which are unreferenced are should flag.
+  fail_str: |
+    select
+        a.*
+    from a
+    right join c using(x)
+
+test_pass_config_right_unreferenced:
+  # As a test of the allowlist config, this test is the same as above, but
+  # we allow right joins in the config.
+  pass_str: |
+    select
+        a.*
+    from a
+    right join c using(x)
+  configs:
+    rules:
+      structure.unused_join:
+        # NOTE: Different case, to test case insensitivity
+        allowlist_join_keywords: inner,RIGHT

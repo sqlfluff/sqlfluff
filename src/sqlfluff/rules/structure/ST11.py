@@ -75,6 +75,7 @@ class Rule_ST11(BaseRule):
     name = "structure.unused_join"
     aliases = ()
     groups: Tuple[str, ...] = ("all", "structure")
+    config_keywords = ["allowlist_join_keywords"]
     crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
     is_fix_compatible = False
 
@@ -118,6 +119,8 @@ class Rule_ST11(BaseRule):
     def _extract_references_from_select(
         self, segment: BaseSegment
     ) -> List[Tuple[str, BaseSegment]]:
+        self.allowlist_join_keywords: str
+        _allowlist_join_keywords = set(self.allowlist_join_keywords.upper().split(","))
         assert segment.is_type("select_statement")
         # Tables which exist in the query
         joined_tables = []
@@ -139,12 +142,18 @@ class Rule_ST11(BaseRule):
 
             # Then handle any join clauses.
             for join_clause in from_expression.get_children("join_clause"):
+                # Extract the join keywords used so we can exclude any which are
+                # configured. For example, INNER joins are often used as filters
+                # without being referenced.
+                join_keywords = set(
+                    keyword.raw_upper for keyword in join_clause.get_children("keyword")
+                )
                 _this_clause_refs = []
                 for from_expression_elem in join_clause.get_children(
                     "from_expression_element"
                 ):
                     ref = self._extract_references_from_expression(from_expression_elem)
-                    if ref:
+                    if ref and not join_keywords.intersection(_allowlist_join_keywords):
                         joined_tables.append((ref, from_expression_elem))
                         _this_clause_refs.append(ref)
 
