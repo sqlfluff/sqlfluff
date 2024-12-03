@@ -144,7 +144,6 @@ class Rule_CV12(BaseRule):
                         if "dot" in col_ref.descendant_type_set
                     ]
                     if len(qualified_column_references) > 1 and all(
-                        # TODO: check with maintainers correctness of condition
                         col_ref.raw_upper.startswith(
                             tuple(
                                 f"{table_ref}." for table_ref in encountered_references
