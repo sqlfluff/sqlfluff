@@ -17,7 +17,7 @@ from sqlfluff.core.rules.fix import LintFix
 
 
 class Rule_CV12(BaseRule):
-    """Prefer join on clause.
+    """Use `JOIN ... ON ...` instead of `WHERE ...` for join conditions.
 
     **Anti-pattern**
 
