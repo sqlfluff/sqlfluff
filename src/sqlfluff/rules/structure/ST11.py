@@ -94,7 +94,7 @@ class Rule_ST11(BaseRule):
         # Otherwise if no alias, we need the name of the object we're
         # referencing.
         for table_reference in segment.recursive_crawl(
-            "table_reference", no_recursive_seg_type="statement"
+            "table_reference", no_recursive_seg_type="select_statement"
         ):
             return table_reference.raw_upper
         # If we can't find a reference, just return an empty string
@@ -106,9 +106,8 @@ class Rule_ST11(BaseRule):
     def _extract_referenced_tables(
         self, segment: BaseSegment, allow_unqualified: bool = False
     ) -> Iterator[str]:
-        for ref in segment.recursive_crawl(
-            "object_reference", no_recursive_seg_type="statement"
-        ):
+        # NOTE: Here we _may_ recurse into subqueries to find references.
+        for ref in segment.recursive_crawl("column_reference"):
             obj_ref = cast(ObjectReferenceSegment, ref)
             parts = list(obj_ref.iter_raw_references())
             if len(parts) < 2:
@@ -134,6 +133,7 @@ class Rule_ST11(BaseRule):
         if not from_clause:  # No from, no joins, no worries
             return []
         for from_expression in from_clause.get_children("from_expression"):
+            # Handle the main FROM expression.
             for from_expression_elem in from_expression.get_children(
                 "from_expression_element"
             ):
@@ -141,7 +141,7 @@ class Rule_ST11(BaseRule):
                 if ref:
                     joined_tables.append((ref, from_expression_elem))
 
-            # Then handle any join clauses.
+            # Then handle any JOIN clauses.
             for join_clause in from_expression.get_children("join_clause"):
                 # Extract the join keywords used so we can exclude any which are
                 # configured. For example, INNER joins are often used as filters
@@ -170,9 +170,12 @@ class Rule_ST11(BaseRule):
                         if tbl_ref not in _this_clause_refs:
                             referenced_tables.append(tbl_ref)
 
+        # NOTE: For the following debug message, it's important to note that if tables
+        # are brought in with join type which isn't covered - (e.g. an INNER JOIN), then
+        # they won't be shown as "in scope".
         self.logger.debug(
-            f"Analysed brough into SELECT clause.\nJoined: {joined_tables}\n"
-            f"Referenced in other joins: {referenced_tables}"
+            f"Processed SELECT statement.\nJoined tables in scope: {joined_tables}\n"
+            f"...of which referenced in non-self join clauses: {referenced_tables}"
         )
         # If there's only a single table in this SELECT, we don't return
         # *ANY*. That's to shortcut this rule to not consider single table
@@ -209,6 +212,7 @@ class Rule_ST11(BaseRule):
 
         joined_tables = self._extract_references_from_select(context.segment)
         if not joined_tables:  # No from, no joins, no worries
+            self.logger.debug("No tables found in scope.")
             return []
         # We should now have a list of joined tables (or aliases) which
         # aren't otherwise referred to in the FROM clause. Now we work
@@ -219,6 +223,7 @@ class Rule_ST11(BaseRule):
                 for tbl_ref in self._extract_referenced_tables(
                     other_clause, allow_unqualified=False
                 ):
+                    self.logger.debug(f"    {tbl_ref!r} referenced in {other_clause}")
                     table_references.add(tbl_ref)
             except UnqualifiedReferenceError as err:
                 self.logger.debug(

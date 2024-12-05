@@ -100,3 +100,14 @@ test_fail_right_unreferenced:
         a.*
     from a
     right join d using(x)
+
+test_pass_subquery:
+  pass_str: |
+    SELECT a.col1
+    FROM a
+    LEFT JOIN JOIN b ON a.id = b.a_id
+    WHERE a.some_column IN (
+        SELECT c.some_column
+        FROM c
+        WHERE c.other_column = b.col
+    )
