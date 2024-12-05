@@ -10,12 +10,61 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [3.3.0] - 2024-11-28
+## [3.3.0] - 2024-12-05
 
 ## Highlights
 
+This release brings a few more significant changes. Especially given the introduction
+of several new rules, we highly recommend testing this release on your project before
+upgrading to make sure they are configured appropriately for your project style guide.
+As always, we have tried to make sure that the defaults for all new rules are both
+widely applicable, and fairly light touch. While all have been tested on some existing
+larger codebases which the maintainers have access to - do still report any bugs you
+might find on GitHub in the usual manner.
+
+* We've dropped the `appdirs` package as a dependency (as an abandoned project)
+  and instead added `platformdirs` instead. Users should not notice any functionality
+  changes beyond the different dependency.
+* *TWO* new dialects: _Impala_ and _StarRocks_.
+* *FIVE* new rules:
+  * `AM08` (`ambiguous.join_condition`), which detects `JOIN` clauses without
+    conditions (i.e. without an `ON` or `USING` clause). These are often typos
+    and can result in significant row count increases if unintended.
+  * `CV12` (`convention.join_condition`), which is related to `AM08` and detects
+    cases where users have used a `WHERE` clause instead of a `JOIN ... ON ...`
+    clause to do their join conditions. The join condition is a form of metadata
+    and should communicate to the end user how the table should be joined. By
+    mixing this information into the `WHERE` clause it makes the SQL harder to
+    understand.
+  * `LT14` (`layout.keyword_newline`), which allows certain keywords to trigger
+    line breaks in queries. Primarily this forces the main `SELECT` statement
+    clauses like `WHERE`, `GROUP BY` etc. onto new lines. This rule has been
+    designed to be highly configurable, but with sensible light-touch defaults.
+    Check out the docs to adapt it to the conventions of your project.
+  * `ST10` (`structure.constant_expression`), some SQL users include redundant
+    expressions in their code (e.g. `WHERE tbl.col = tbl.col`). These conditions
+    always evaluate to a constant outcome (i.e. always evaluate as `TRUE` or
+    `FALSE`) as so add no functionality or meaning to the query. This rule catches
+    them.
+  * `ST11` (`structure.unused_join`), which detects unused joins in SQL statements,
+    and is designed to catch tables that were once used, but where the column
+    references have since been removed and now the table is unnecessary.
+
+Beyond these changes, we've seen a whole host of dialect improvements to almost
+*all* of the supported dialects and several bugfixes which are combined into this
+release.
+
+We also welcome **ELEVEN** new contributors to the project in this release. Thanks
+to all of them for their hard work 🚀🏆🚀.
+
 ## What’s Changed
 
+* Snowflake: alter table on delete and update support [#6473](https://github.com/sqlfluff/sqlfluff/pull/6473) [@WobblyRobbly](https://github.com/WobblyRobbly)
+* New Rules AM08 + CV12: Detect implicit cross joins [#6239](https://github.com/sqlfluff/sqlfluff/pull/6239) [@rogalski](https://github.com/rogalski)
+* New Rule ST10: const expression checker [#6392](https://github.com/sqlfluff/sqlfluff/pull/6392) [@rogalski](https://github.com/rogalski)
+* DuckDB: Support MAP data type [#6478](https://github.com/sqlfluff/sqlfluff/pull/6478) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Hive: Add 'ALTER VIEW' query grammar [#6479](https://github.com/sqlfluff/sqlfluff/pull/6479) [@mrebaker](https://github.com/mrebaker)
+* Standardise json operator spacing between dialects [#6447](https://github.com/sqlfluff/sqlfluff/pull/6447) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * fixes #6463: Set Variable Parsing for SparkSQL and Databricks [#6464](https://github.com/sqlfluff/sqlfluff/pull/6464) [@fstg1992](https://github.com/fstg1992)
 * Teradata: support REPLACE VIEW and LOCKING ... FOR ... syntax [#6467](https://github.com/sqlfluff/sqlfluff/pull/6467) [@V-D-L-P](https://github.com/V-D-L-P)
 * Rule names in warnings logic [#6459](https://github.com/sqlfluff/sqlfluff/pull/6459) [@LuigiCerone](https://github.com/LuigiCerone)
@@ -52,8 +101,8 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * SQLite : Add `CREATE VIRTUAL TABLE`  Statement [#6406](https://github.com/sqlfluff/sqlfluff/pull/6406) [@R3gardless](https://github.com/R3gardless)
 * Updated README with Table Of Contents [#6407](https://github.com/sqlfluff/sqlfluff/pull/6407) [@27Jashshah](https://github.com/27Jashshah)
 
-## New Contributors
 
+## New Contributors
 * [@27Jashshah](https://github.com/27Jashshah) made their first contribution in [#6407](https://github.com/sqlfluff/sqlfluff/pull/6407)
 * [@joaopamaral](https://github.com/joaopamaral) made their first contribution in [#6382](https://github.com/sqlfluff/sqlfluff/pull/6382)
 * [@ninazacharia-toast](https://github.com/ninazacharia-toast) made their first contribution in [#6422](https://github.com/sqlfluff/sqlfluff/pull/6422)
@@ -64,6 +113,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * [@wircho](https://github.com/wircho) made their first contribution in [#6423](https://github.com/sqlfluff/sqlfluff/pull/6423)
 * [@LuigiCerone](https://github.com/LuigiCerone) made their first contribution in [#6459](https://github.com/sqlfluff/sqlfluff/pull/6459)
 * [@V-D-L-P](https://github.com/V-D-L-P) made their first contribution in [#6467](https://github.com/sqlfluff/sqlfluff/pull/6467)
+* [@WobblyRobbly](https://github.com/WobblyRobbly) made their first contribution in [#6473](https://github.com/sqlfluff/sqlfluff/pull/6473)
 
 ## [3.2.5] - 2024-10-25
 
