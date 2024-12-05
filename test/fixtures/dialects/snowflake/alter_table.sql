@@ -63,4 +63,3 @@ ALTER TABLE table1 ADD CONSTRAINT constraint1 FOREIGN KEY (address) REFERENCES a
 ALTER TABLE table1 ADD CONSTRAINT constraint1 FOREIGN KEY (address) REFERENCES addresses (address) MATCH SIMPLE;
 
 ALTER TABLE table1 ADD CONSTRAINT constraint1 FOREIGN KEY (address) REFERENCES addresses (address) MATCH PARTIAL;
-
