@@ -102,12 +102,25 @@ test_fail_right_unreferenced:
     right join d using(x)
 
 test_pass_subquery:
+  # "b" is referenced in the subquery, so not unused.
   pass_str: |
     SELECT a.col1
     FROM a
-    LEFT JOIN JOIN b ON a.id = b.a_id
+    LEFT JOIN b ON a.id = b.a_id
     WHERE a.some_column IN (
         SELECT c.some_column
         FROM c
         WHERE c.other_column = b.col
+    )
+
+test_fail_subquery:
+  # "b" is not referenced outside it's join (despite subquery), so unused.
+  fail_str: |
+    SELECT a.col1
+    FROM a
+    LEFT JOIN b ON a.id = b.a_id
+    WHERE a.some_column IN (
+        SELECT c.some_column
+        FROM c
+        WHERE c.other_column = a.col
     )
