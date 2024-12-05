@@ -5,7 +5,6 @@ import sys
 from contextlib import contextmanager
 from unittest.mock import call, patch
 
-import appdirs
 import pytest
 
 from sqlfluff.core import FluffConfig
@@ -19,6 +18,7 @@ from sqlfluff.core.config.loader import (
     _get_user_config_dir_path,
     _load_user_appdir_config,
 )
+from sqlfluff.core.errors import SQLFluffUserError
 
 config_a = {
     "core": {"testing_val": "foobar", "testing_int": 4, "dialect": "mysql"},
@@ -59,21 +59,43 @@ def test__config__load_file_f():
     assert cfg == config_a
 
 
+def test__config__load_file_missing_extra():
+    """Test loading config from a file path if extra path is not found."""
+    with pytest.raises(SQLFluffUserError):
+        load_config_up_to_path(
+            os.path.join("test", "fixtures", "config", "inheritance_a", "testing.sql"),
+            extra_config_path="non/existent/path",
+        )
+
+
 def test__config__load_nested():
     """Test nested overwrite and order of precedence of config files."""
     cfg = load_config_up_to_path(
         os.path.join(
             "test", "fixtures", "config", "inheritance_a", "nested", "blah.sql"
-        )
+        ),
+        extra_config_path=os.path.join(
+            "test",
+            "fixtures",
+            "config",
+            "inheritance_a",
+            "extra",
+            "this_can_have_any_name.cfg",
+        ),
     )
     assert cfg == {
         "core": {
+            # Outer .sqlfluff defines dialect & testing_val and not overridden.
             "dialect": "mysql",
             "testing_val": "foobar",
+            # tesing_int is defined in many. Inner pyproject.toml takes precedence.
             "testing_int": 1,
+            # testing_bar is defined only in setup.cfg
             "testing_bar": 7.698,
         },
-        "bar": {"foo": "foobar"},
+        # bar is defined in a few, but the extra_config takes precedence.
+        "bar": {"foo": "foobarextra"},
+        # fnarr is defined in a few. Inner tox.ini takes precedence.
         "fnarr": {"fnarr": {"foo": "foobar"}},
     }
 
@@ -158,35 +180,105 @@ def test__config__load_placeholder_cfg():
 @patch("os.path.exists")
 @patch("os.listdir")
 @pytest.mark.skipif(sys.platform == "win32", reason="Not applicable on Windows")
-def test__config__load_user_appdir_config(
-    mock_listdir, mock_path_exists, mock_xdg_home
+@pytest.mark.parametrize(
+    "sys_platform,xdg_exists,default_exists,resolved_config_path,paths_checked",
+    [
+        # On linux, if the default path exists, it should be the only path we check
+        # and the chosen config path.
+        ("linux", True, True, "~/.config/sqlfluff", ["~/.config/sqlfluff"]),
+        # On linux, if the default path doesn't exist, then (because for this
+        # test case we set XDG_CONFIG_HOME) it will check the default path
+        # but then on finding it to not exist it will then try the XDG path.
+        # In this case, neither actually exist and so what matters is that both
+        # are either checked or used - rather than one in particular being the
+        # end result.
+        (
+            "linux",
+            False,
+            False,
+            "~/.config/my/special/path/sqlfluff",
+            ["~/.config/sqlfluff"],
+        ),
+        # On MacOS, if the default config path and the XDG path don't exist, then
+        # we should resolve config to the default MacOS config path.
+        (
+            "darwin",
+            False,
+            False,
+            "~/Library/Application Support/sqlfluff",
+            ["~/.config/sqlfluff", "~/.config/my/special/path/sqlfluff"],
+        ),
+        # However, if XDG_CONFIG_HOME is set, and the path exists then that should
+        # be resolved _ahead of_ the default MacOS config path (as demonstrated
+        # by us not checking the presence of that path in the process).
+        # https://github.com/sqlfluff/sqlfluff/issues/889
+        (
+            "darwin",
+            True,
+            False,
+            "~/.config/my/special/path/sqlfluff",
+            ["~/.config/sqlfluff", "~/.config/my/special/path/sqlfluff"],
+        ),
+    ],
+)
+def test__config__get_user_config_dir_path(
+    mock_listdir,
+    mock_path_exists,
+    mock_xdg_home,
+    sys_platform,
+    xdg_exists,
+    default_exists,
+    resolved_config_path,
+    paths_checked,
 ):
     """Test loading config from user appdir."""
     xdg_home = os.environ.get("XDG_CONFIG_HOME")
     assert xdg_home, "XDG HOME should be set by the mock. Something has gone wrong."
     xdg_config_path = xdg_home + "/sqlfluff"
 
-    def path_exists(x):
-        if x == os.path.expanduser("~/.config/sqlfluff"):
+    def path_exists(check_path):
+        """Patch for os.path.exists which depends on test parameters.
+
+        Returns:
+            True, unless `default_exists` is `False` and the path passed to
+            the function is the default config path, or unless `xdg_exists`
+            is `False` and the path passed is the XDG config path.
+        """
+        resolved_path = os.path.expanduser(check_path)
+        if (
+            resolved_path == os.path.expanduser("~/.config/sqlfluff")
+            and not default_exists
+        ):
             return False
-        if x == xdg_config_path:
+        if resolved_path == os.path.expanduser(xdg_config_path) and not xdg_exists:
             return False
-        else:
-            return True
+        return True
 
     mock_path_exists.side_effect = path_exists
 
-    with patch.object(appdirs, attribute="system", new="darwin"):
-        resolved_path = _get_user_config_dir_path()
-        _load_user_appdir_config()
-    assert resolved_path == os.path.expanduser("~/Library/Application Support/sqlfluff")
-
+    # Get the config path as though we are on macOS.
+    resolved_path = _get_user_config_dir_path(sys_platform)
+    assert os.path.expanduser(resolved_path) == os.path.expanduser(resolved_config_path)
     mock_path_exists.assert_has_calls(
-        [
-            call(xdg_config_path),
-            call(os.path.expanduser("~/Library/Application Support/sqlfluff")),
-        ]
+        [call(os.path.expanduser(path)) for path in paths_checked]
     )
+
+
+@patch("os.path.exists")
+@patch("sqlfluff.core.config.loader.load_config_at_path")
+def test__config__load_user_appdir_config(mock_load_config, mock_path_exists):
+    """Test _load_user_appdir_config.
+
+    NOTE: We mock `load_config_at_path()` so we can be really focussed with this test
+    and also not need to actually interact with local home directories.
+    """
+    mock_load_config.side_effect = lambda x: {}
+    mock_path_exists.side_effect = lambda x: True
+    _load_user_appdir_config()
+    # It will check that the default config path exists...
+    mock_path_exists.assert_has_calls([call(os.path.expanduser("~/.config/sqlfluff"))])
+    # ...and assuming it does, it will try and load config files at that path.
+    mock_load_config.assert_has_calls([call(os.path.expanduser("~/.config/sqlfluff"))])
 
 
 def test__config__toml_list_config():

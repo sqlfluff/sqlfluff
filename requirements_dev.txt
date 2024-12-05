@@ -28,7 +28,7 @@ pytest-xdist
 # ----
 # `types-*` dependencies here should be the same as in `.pre-commit-config.yaml`.
 # If you update these dependencies, make sure to update those too.
-mypy
+mypy[mypyc]
 types-toml
 types-chardet
 types-appdirs

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b5ca029c5ff1a0e82e534f264dfe874a5dadb9863c930dc8118f51b94e818f3b
+_hash: 6930f3b7548edd340ea078833ff2846a5c77fd88c8f4352d9623a9348ebe7ff6
 file:
 - statement:
     alter_database_statement:
@@ -277,6 +277,28 @@ file:
     - parameter: parameter1
     - keyword: FROM
     - keyword: CURRENT
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: SET
+    - parameter: search_path
+    - keyword: TO
+    - naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: SET
+    - parameter: search_path
+    - keyword: TO
+    - quoted_identifier: '"my_schema"'
 - statement_terminator: ;
 - statement:
     alter_role_statement:

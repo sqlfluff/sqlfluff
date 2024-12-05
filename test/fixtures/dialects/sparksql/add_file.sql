@@ -8,5 +8,4 @@ ADD FILE "/path/to/some/directory";
 
 ADD FILES "/path with space/cde.txt" '/path with space/fgh.txt';
 
--- NB: Non-quoted paths are not supported in SQLFluff currently
---ADD FILE /tmp/test;
+ADD FILE /tmp/test;

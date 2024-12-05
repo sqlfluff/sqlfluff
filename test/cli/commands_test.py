@@ -228,8 +228,8 @@ def test__cli__command_extra_config_fail():
             ],
         ],
         assert_output_contains=(
-            "Extra config 'test/fixtures/cli/extra_configs/.sqlfluffsdfdfdfsfd' does "
-            "not exist."
+            "Extra config path 'test/fixtures/cli/extra_configs/.sqlfluffsdfdfdfsfd' "
+            "does not exist."
         ),
     )
 
@@ -816,6 +816,33 @@ def test__cli__command_lint_warning():
         lint,
         [
             "test/fixtures/cli/warning_a.sql",
+        ],
+    )
+    # Because we're only warning. The command should pass.
+    assert result.exit_code == 0
+    # The output should still say PASS.
+    assert "PASS" in result.output.strip()
+    # But should also contain the warnings.
+    # NOTE: Not including the whole description because it's too long.
+    assert (
+        "L:   4 | P:   9 | LT01 | WARNING: Expected single whitespace"
+        in result.output.strip()
+    )
+
+
+def test__cli__command_lint_warning_name_rule():
+    """Test that configuring warnings works.
+
+    For this test the warnings are configured using
+    inline config in the file. That's more for simplicity
+    however the code paths should be the same if it's
+    configured in a file.
+    """
+    runner = CliRunner()
+    result = runner.invoke(
+        lint,
+        [
+            "test/fixtures/cli/warning_name_a.sql",
         ],
     )
     # Because we're only warning. The command should pass.
@@ -2275,6 +2302,44 @@ def test__cli__fix_multiple_errors_show_errors():
         "L:  42 | P:  45 | RF02 | Unqualified reference 'owner_id' found in "
         "select with more than" in result.output
     )
+
+
+def test__cli__fix_show_parse_errors():
+    """Test the fix --show-lint-violations option with parser error."""
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            fix,
+            [
+                "--show-lint-violations",
+                "test/fixtures/linter/parse_lex_error.sql",
+            ],
+        ],
+    )
+    check_a = "1 templating/parsing errors found"
+    assert check_a not in result.output
+    assert (
+        "L:   9 | P:  21 |  PRS | Couldn't find closing bracket for opening bracket."
+        in result.output
+    )
+    assert "L:   9 | P:  22 |  LXR | Unable to lex characters: " in result.output
+
+    # Calling without show-lint-violations
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            fix,
+            [
+                "test/fixtures/linter/parse_lex_error.sql",
+            ],
+        ],
+    )
+    assert check_a in result.output
+    assert (
+        "L:   9 | P:  21 |  PRS | Couldn't find closing bracket for opening bracket."
+        not in result.output
+    )
+    assert "L:   9 | P:  22 |  LXR | Unable to lex characters: " not in result.output
 
 
 def test__cli__multiple_files__fix_multiple_errors_show_errors():

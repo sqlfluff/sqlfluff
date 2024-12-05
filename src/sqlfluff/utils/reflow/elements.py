@@ -311,7 +311,7 @@ class ReflowPoint(ReflowElement):
         NOTE: This only returns _untemplated_ indents. If templated
         newline or whitespace segments are found they are skipped.
         """
-        indent = None
+        indent: Optional[RawSegment] = None
         for seg in reversed(self.segments):
             if seg.pos_marker and not seg.pos_marker.is_literal():
                 # Skip any templated elements.

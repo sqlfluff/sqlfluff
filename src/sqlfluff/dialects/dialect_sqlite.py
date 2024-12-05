@@ -247,6 +247,12 @@ sqlite_dialect.replace(
     MLTableExpressionSegment=Nothing(),
     MergeIntoLiteralGrammar=Nothing(),
     SamplingExpressionSegment=Nothing(),
+    BinaryOperatorGrammar=ansi_dialect.get_grammar("BinaryOperatorGrammar").copy(
+        insert=[
+            Ref("ColumnPathOperatorSegment"),
+            Ref("InlinePathOperatorSegment"),
+        ]
+    ),
     OrderByClauseTerminators=OneOf(
         "LIMIT",
         # For window functions
@@ -477,18 +483,6 @@ class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
                     Ref("BareFunctionSegment"),
                     Ref("LiteralGrammar"),
                 ),
-                AnyNumberOf(
-                    Sequence(
-                        OneOf(
-                            Ref("ColumnPathOperatorSegment"),
-                            Ref("InlinePathOperatorSegment"),
-                        ),
-                        OneOf(
-                            Ref("LiteralGrammar"),
-                            Ref("QuotedIdentifierSegment"),
-                        ),
-                    )
-                ),
             ),
         ]
     )
@@ -535,6 +529,10 @@ class DatatypeSegment(ansi.DatatypeSegment):
                 Sequence(
                     OneOf("VARYING", "NATIVE"),
                     OneOf("CHARACTER"),
+                ),
+                Sequence(
+                    OneOf("CHARACTER"),
+                    OneOf("VARYING", "NATIVE"),
                 ),
                 Ref("DatatypeIdentifierSegment"),
             ),
@@ -1079,6 +1077,34 @@ class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
     )
 
 
+class CreateVirtualTableStatementSegment(BaseSegment):
+    """A `CREATE VIRTUAL TABLE` statement.
+
+    As per https://www.sqlite.org/lang_createvtab.html
+    """
+
+    type = "create_virtual_table_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "VIRTUAL",
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        "USING",
+        Ref("SingleIdentifierGrammar"),
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("SingleIdentifierGrammar"),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -1086,6 +1112,7 @@ class StatementSegment(ansi.StatementSegment):
         Ref("AlterTableStatementSegment"),
         Ref("CreateIndexStatementSegment"),
         Ref("CreateTableStatementSegment"),
+        Ref("CreateVirtualTableStatementSegment"),
         Ref("CreateTriggerStatementSegment"),
         Ref("CreateViewStatementSegment"),
         Ref("DeleteStatementSegment"),

@@ -15,14 +15,14 @@ test_fail_reindent_first_line_1:
       end_line_pos: 6
       end_file_pos: 5
       fixes:
-      - edit: ''
-        end_file_pos: 5
-        end_line_no: 1
-        end_line_pos: 6
-        start_file_pos: 0
-        start_line_no: 1
-        start_line_pos: 1
-        type: delete
+        - edit: ""
+          end_file_pos: 5
+          end_line_no: 1
+          end_line_pos: 6
+          start_file_pos: 0
+          start_line_no: 1
+          start_line_pos: 1
+          type: delete
 
 test_fail_reindent_first_line_2:
   # Github Bug #99. Python2 Issues with fixing LT02
@@ -82,14 +82,14 @@ test_fail_tab_indentation:
       end_line_pos: 2
       end_file_pos: 12
       fixes:
-      - edit: "\n\t"
-        end_file_pos: 11
-        end_line_no: 3
-        end_line_pos: 1
-        start_file_pos: 10
-        start_line_no: 2
-        start_line_pos: 4
-        type: replace
+        - edit: "\n\t"
+          end_file_pos: 11
+          end_line_no: 3
+          end_line_pos: 1
+          start_file_pos: 10
+          start_line_no: 2
+          start_line_pos: 4
+          type: replace
 
 test_pass_indented_joins_default:
   # Configurable indents work.
@@ -145,14 +145,14 @@ test_fail_indented_joins_true_fix:
       end_line_pos: 5
       end_file_pos: 31
       fixes:
-      - edit: "\n    "
-        end_file_pos: 27
-        end_line_no: 3
-        end_line_pos: 1
-        start_file_pos: 26
-        start_line_no: 2
-        start_line_pos: 12
-        type: replace
+        - edit: "\n    "
+          end_file_pos: 27
+          end_line_no: 3
+          end_line_pos: 1
+          start_file_pos: 26
+          start_line_no: 2
+          start_line_pos: 12
+          type: replace
 
 test_fail_indented_joins_false_fix:
   # e) specific False, and failing
@@ -2475,3 +2475,36 @@ test_fail_tsql_update:
   configs:
     core:
       dialect: tsql
+
+test_jinja_value_error_6378:
+  # https://github.com/sqlfluff/sqlfluff/issues/6378
+  pass_str: |
+    CREATE OR REPLACE TRANSIENT TABLE TEST AS
+    WITH abc AS (
+        SELECT
+            spine.some_id AS some_id
+            {% for cols in each_table_cols -%}
+            {%- set src_loop = loop -%}
+            {%- for c in cols -%}
+            , t{{ src_loop.index }}."{{ c }}"
+            {% endfor %}
+            {%- endfor %}
+        FROM tbl AS spine
+        {% for t in tables %}
+        LEFT JOIN {{ t }} AS t{{ loop.index }}
+            ON spine.some_id = t{{ loop.index }}.some_id
+        {% endfor %}
+    )
+
+    SELECT * FROM abc;
+  configs:
+    core:
+      templater: jinja
+    indentation:
+      template_blocks_indent: false
+    templater:
+      jinja:
+        context:
+          tables: ["tbl_a", "tbl_b", "tbl_c"]
+          each_table_cols:
+            [["aa", "ab", "ac"], ["ba", "bb", "bc"], ["ca", "cb", "cc"]]

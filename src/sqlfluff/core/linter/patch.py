@@ -5,12 +5,14 @@ from dataclasses import dataclass
 from typing import (
     Iterator,
     List,
+    Optional,
     Tuple,
 )
 
 from sqlfluff.core.parser import (
     BaseSegment,
 )
+from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.templaters import TemplatedFile
 
 linter_logger = logging.getLogger("sqlfluff.linter")
@@ -121,7 +123,7 @@ def _iter_templated_patches(
         source_idx = segment.pos_marker.source_slice.start
         templated_idx = segment.pos_marker.templated_slice.start
         insert_buff = ""
-        first_segment_pos = None
+        first_segment_pos: Optional[PositionMarker] = None
         for seg in segments:
             # First check for insertions.
             # At this stage, everything should have a position.

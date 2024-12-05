@@ -95,7 +95,6 @@ def test__config__nested_config_tests():
         ("placeholder", PlaceholderTemplater, False),
         ("afefhlsakufe", None, True),
         ("", None, True),
-        (None, None, True),
     ],
 )
 def test__config__templater_selection(templater_name, templater_class, raises_error):
@@ -339,6 +338,14 @@ def test__process_inline_config():
     # Check that Windows paths don't get mangled
     cfg.process_inline_config("-- sqlfluff:jinja:my_path:c:\\foo", "test.sql")
     assert cfg.get("my_path", section="jinja") == "c:\\foo"
+
+    # Check that JSON objects are not mangled
+    cfg.process_inline_config('-- sqlfluff:jinja:my_dict:{"k":"v"}', "test.sql")
+    assert cfg.get("my_dict", section="jinja") == '{"k":"v"}'
+
+    # Check that JSON arrays are not mangled
+    cfg.process_inline_config('-- sqlfluff:jinja:my_dict:[{"k":"v"}]', "test.sql")
+    assert cfg.get("my_dict", section="jinja") == '[{"k":"v"}]'
 
 
 @pytest.mark.parametrize(
