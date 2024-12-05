@@ -77,7 +77,7 @@ test_pass_inner_unreferenced:
         a.*
     from a
     inner join b using(x)
-  
+
 test_pass_unqualified_unreferenced:
   # Same as above, but an implicit INNER (unqualified joins are usually
   # interpreted as inner joins).
@@ -100,4 +100,3 @@ test_fail_right_unreferenced:
         a.*
     from a
     right join d using(x)
-
