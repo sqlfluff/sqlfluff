@@ -864,6 +864,16 @@ class StructTypeSegment(BaseSegment):
     match_grammar: Matchable = Nothing()
 
 
+class MapTypeSegment(BaseSegment):
+    """Expression to construct a MAP datatype.
+
+    (Used in DuckDB for example)
+    """
+
+    type = "map_type"
+    match_grammar: Matchable = Nothing()
+
+
 class StructLiteralSegment(BaseSegment):
     """An array literal segment.
 
@@ -2290,7 +2300,7 @@ ansi_dialect.add(
                 Ref("StarSegment"),
             ),
             Sequence(
-                Ref("StructTypeSegment"),
+                OneOf(Ref("StructTypeSegment"), Ref("MapTypeSegment")),
                 Bracketed(Delimited(Ref("ExpressionSegment"))),
             ),
             Sequence(

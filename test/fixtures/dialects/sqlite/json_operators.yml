@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eff30e30bae7b32c67734b7def65d8b5a248fa36fed14e34481c1b102ea82083
+_hash: b524b0d670b1517bea87f9b60f90d34fd5fab741612b4d276c14e67e80ebee4c
 file:
 - statement:
     select_statement:
@@ -24,13 +24,12 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-          column_reference:
-            quoted_identifier: "'{\"x\": \"y\"}'"
-            column_path_operator: ->>
-            quoted_literal: "'$.x'"
-          comparison_operator:
+        - quoted_literal: "'{\"x\": \"y\"}'"
+        - column_path_operator: ->>
+        - quoted_literal: "'$.x'"
+        - comparison_operator:
             raw_comparison_operator: '='
-          quoted_literal: "'y'"
+        - quoted_literal: "'y'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -51,99 +50,99 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-          column_reference:
-            function:
-              function_name:
-                function_name_identifier: Upper
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    quoted_literal: "'{\"x\": \"y\"}'"
-                  end_bracket: )
-            column_path_operator: ->>
-            quoted_literal: "'$.x'"
-          comparison_operator:
+        - function:
+            function_name:
+              function_name_identifier: Upper
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'{\"x\": \"y\"}'"
+                end_bracket: )
+        - column_path_operator: ->>
+        - quoted_literal: "'$.x'"
+        - comparison_operator:
             raw_comparison_operator: '='
-          quoted_literal: "'y'"
+        - quoted_literal: "'y'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            quoted_identifier: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
-            column_path_operator: ->
-            quoted_literal: "'$'"
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          column_reference:
-          - quoted_identifier: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
+          expression:
+          - quoted_literal: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
           - column_path_operator: ->
-          - quoted_identifier: '"$"'
+          - quoted_literal: "'$'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            quoted_identifier: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
+          expression:
+            quoted_literal: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
             column_path_operator: ->
-            quoted_literal: "'$.c'"
+            column_reference:
+              quoted_identifier: '"$"'
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            quoted_identifier: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
-            column_path_operator: ->
-            quoted_literal: "'c'"
+          expression:
+          - quoted_literal: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
+          - column_path_operator: ->
+          - quoted_literal: "'$.c'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            quoted_identifier: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
-            column_path_operator: ->
-            quoted_literal: "'$.c[2]'"
+          expression:
+          - quoted_literal: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
+          - column_path_operator: ->
+          - quoted_literal: "'c'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            quoted_identifier: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
-            column_path_operator: ->
-            quoted_literal: "'$.c[2].f'"
+          expression:
+          - quoted_literal: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
+          - column_path_operator: ->
+          - quoted_literal: "'$.c[2]'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            quoted_identifier: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
-            column_path_operator: ->>
-            quoted_literal: "'$.c[2].f'"
+          expression:
+          - quoted_literal: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
+          - column_path_operator: ->
+          - quoted_literal: "'$.c[2].f'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-          - quoted_identifier: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
+          expression:
+          - quoted_literal: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
+          - column_path_operator: ->>
+          - quoted_literal: "'$.c[2].f'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
           - column_path_operator: ->
           - quoted_literal: "'c'"
           - column_path_operator: ->
@@ -156,28 +155,28 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            quoted_identifier: "'{\"a\":2,\"c\":[4,5],\"f\":7}'"
-            column_path_operator: ->
-            quoted_literal: "'$.c[#-1]'"
+          expression:
+          - quoted_literal: "'{\"a\":2,\"c\":[4,5],\"f\":7}'"
+          - column_path_operator: ->
+          - quoted_literal: "'$.c[#-1]'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            quoted_identifier: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
-            column_path_operator: ->
-            quoted_literal: "'$.x'"
+          expression:
+          - quoted_literal: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
+          - column_path_operator: ->
+          - quoted_literal: "'$.x'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            quoted_identifier: "'[11,22,33,44]'"
+          expression:
+            quoted_literal: "'[11,22,33,44]'"
             column_path_operator: ->
             numeric_literal: '3'
 - statement_terminator: ;
@@ -186,8 +185,8 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            quoted_identifier: "'[11,22,33,44]'"
+          expression:
+            quoted_literal: "'[11,22,33,44]'"
             column_path_operator: ->>
             numeric_literal: '3'
 - statement_terminator: ;
@@ -196,38 +195,38 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            quoted_identifier: "'{\"a\":\"xyz\"}'"
-            column_path_operator: ->
-            quoted_literal: "'$.a'"
+          expression:
+          - quoted_literal: "'{\"a\":\"xyz\"}'"
+          - column_path_operator: ->
+          - quoted_literal: "'$.a'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            quoted_identifier: "'{\"a\":\"xyz\"}'"
-            column_path_operator: ->>
-            quoted_literal: "'$.a'"
+          expression:
+          - quoted_literal: "'{\"a\":\"xyz\"}'"
+          - column_path_operator: ->>
+          - quoted_literal: "'$.a'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            quoted_identifier: "'{\"a\":null}'"
-            column_path_operator: ->
-            quoted_literal: "'$.a'"
+          expression:
+          - quoted_literal: "'{\"a\":null}'"
+          - column_path_operator: ->
+          - quoted_literal: "'$.a'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            quoted_identifier: "'{\"a\":null}'"
-            column_path_operator: ->>
-            quoted_literal: "'$.a'"
+          expression:
+          - quoted_literal: "'{\"a\":null}'"
+          - column_path_operator: ->>
+          - quoted_literal: "'$.a'"
 - statement_terminator: ;

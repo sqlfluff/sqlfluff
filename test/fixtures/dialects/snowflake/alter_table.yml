@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ada0d609193b5419d527f7d46552d7e3dc1c97b81521e3f7b1916aa28bfa6b38
+_hash: c555c5ff9e9236bfb928b18744b10efa151afd24845fdd04698dbebb5721ecc3
 file:
 - statement:
     alter_table_statement:
@@ -527,4 +527,190 @@ file:
     - parameter: COMMENT
     - comma: ','
     - parameter: DATA_RETENTION_TIME_IN_DAYS
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: constraint1
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: address
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: addresses
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: address
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: DELETE
+        - keyword: RESTRICT
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table2
+    - alter_table_constraint_action:
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: constraint2
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: address
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: addresses
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: address
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: DELETE
+        - keyword: 'NO'
+        - keyword: ACTION
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: SET
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table3
+    - alter_table_constraint_action:
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: constraint3
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: address
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: addresses
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: address
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: DELETE
+        - keyword: SET
+        - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: constraint1
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: address
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: addresses
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: address
+            end_bracket: )
+        - keyword: MATCH
+        - keyword: FULL
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: constraint1
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: address
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: addresses
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: address
+            end_bracket: )
+        - keyword: MATCH
+        - keyword: SIMPLE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: constraint1
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: address
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: addresses
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: address
+            end_bracket: )
+        - keyword: MATCH
+        - keyword: PARTIAL
 - statement_terminator: ;

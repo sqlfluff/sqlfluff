@@ -1,0 +1,93 @@
+rule: CV12
+
+test_noop_select_comma:
+  # this syntax is currently not covered by CV12
+  pass_str: |
+    SELECT a.*, b.* FROM a, b
+
+test_noop_no_where_clause:
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo JOIN bar
+
+test_noop_delete:
+  pass_str: |
+    DELETE t1, t2 FROM t1 JOIN t2 JOIN t3
+    WHERE t1.id=t2.id AND t2.id=t3.id;
+  configs:
+    core:
+      dialect: mysql
+
+test_noop_condition:
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo LEFT JOIN bar ON foo.x = bar.x
+
+test_noop_crossjoin:
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo CROSS JOIN bar WHERE bar.x > 3
+
+test_noop_using:
+  pass_str: |
+    SELECT foo.id, bar.id FROM foo LEFT JOIN bar USING (id)
+  configs:
+    core:
+      dialect: snowflake
+
+test_noop_global_cross_join_clickhouse:
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo GLOBAL CROSS JOIN bar;
+  configs:
+    core:
+      dialect: clickhouse
+
+test_noop_positional_join_duckdb:
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo POSITIONAL JOIN bar WHERE bar.x > 3;
+  configs:
+    core:
+      dialect: duckdb
+
+test_fail_unqualified:
+  # ambiguous, fail without fix
+  fail_str: |
+    SELECT foo.a, bar.b FROM foo JOIN bar WHERE a = b
+
+test_fail_missing_clause:
+  fail_str: |
+    SELECT foo.a, bar.b FROM foo JOIN bar WHERE foo.x = bar.y
+  fix_str: |
+    SELECT foo.a, bar.b FROM foo JOIN bar ON foo.x = bar.y
+
+test_fail_missing_clause_and_stmt:
+  fail_str: |
+    SELECT foo.a, bar.b FROM foo JOIN bar WHERE foo.x = bar.y AND foo.x = 3
+  fix_str: |
+    SELECT foo.a, bar.b FROM foo JOIN bar ON foo.x = bar.y WHERE foo.x = 3
+
+test_fail_missing_clause_and_stmt_bracketed:
+  fail_str: |
+    SELECT foo.a, bar.b FROM foo JOIN bar WHERE (foo.x = bar.y) AND foo.t = 3
+  fix_str: |
+    SELECT foo.a, bar.b FROM foo JOIN bar ON (foo.x = bar.y) WHERE foo.t = 3
+
+test_fail_missing_clause_two_joins:
+  fail_str: |
+    SELECT foo.a, bar.b FROM foo JOIN bar JOIN baz WHERE foo.x = bar.y AND foo.x = baz.t AND foo.c = 3
+  fix_str: |
+    SELECT foo.a, bar.b FROM foo JOIN bar ON foo.x = bar.y JOIN baz ON foo.x = baz.t WHERE foo.c = 3
+
+test_fail_not_simplifable:
+  # Fail without fix
+  fail_str: |
+    SELECT foo.a, bar.b FROM foo JOIN bar WHERE (foo.x = bar.y) OR foo.x != foo.z
+
+test_fail_missing_clause_and_stmt_subquery:
+  fail_str: |
+    SELECT foo.a, bar.b FROM (SELECT a, x FROM t1) AS foo JOIN (SELECT b, y FROM t2) AS bar WHERE foo.x = bar.y AND foo.x = 3
+  fix_str: |
+    SELECT foo.a, bar.b FROM (SELECT a, x FROM t1) AS foo JOIN (SELECT b, y FROM t2) AS bar ON foo.x = bar.y WHERE foo.x = 3
+
+test_fail_missing_clause_and_stmt_qualified:
+  fail_str: |
+    SELECT foo.a, bar.b FROM schema.foo JOIN schema.bar WHERE schema.foo.x = schema.bar.y AND schema.foo.x = 3
+  fix_str: |
+    SELECT foo.a, bar.b FROM schema.foo JOIN schema.bar ON schema.foo.x = schema.bar.y WHERE schema.foo.x = 3
