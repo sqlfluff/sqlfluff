@@ -508,3 +508,11 @@ test_pass_none_where_clause:
       type:
         where_clause:
           keyword_line_position: none
+
+test_pass_single_line_set:
+  # A single line set expression should be possible without forcing a newline.
+  pass_str: |
+    SET increment_key = (SELECT MAX(COALESCE(date_key, '2021-01-01') - 1) AS increment_key FROM foo.bar);
+  configs:
+    core:
+      dialect: snowflake
