@@ -21,17 +21,6 @@ def get_configs_info() -> Dict[str, Any]:
                 "Defaults to ``earlier``."
             ),
         },
-        "allowlist_join_keywords": {
-            "definition": (
-                "This comma separated list of keywords are checked before "
-                "marking a table as unused. If any of these are found, then "
-                "this rule does not trigger. e.g. INNER and CROSS joins are "
-                "often used to control granularity or filter without being "
-                "referenced. ANTI and SEMI joins are used to exclude rows "
-                "and so we should not expect them to be referenced. This "
-                "configuration value is used case-insensitively."
-            )
-        },
     }
 
 

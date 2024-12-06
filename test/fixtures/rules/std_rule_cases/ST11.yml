@@ -114,7 +114,7 @@ test_pass_subquery:
     )
 
 test_fail_subquery:
-  # "b" is not referenced outside it's join (despite subquery), so unused.
+  # "b" is not referenced outside its join (despite subquery), so unused.
   fail_str: |
     SELECT a.col1
     FROM a

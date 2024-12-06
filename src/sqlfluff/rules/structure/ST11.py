@@ -26,7 +26,9 @@ class Rule_ST11(BaseRule):
     This rule relies on all of the column references in the ``SELECT``
     statement being qualified with at least the table name, and so is
     designed to work alongside :sqlfluff:ref:`references.qualification`
-    (:sqlfluff:ref:`RF02`).
+    (:sqlfluff:ref:`RF02`). This is because without the knowledge of what
+    columns exist in each upstream table, the rule is unable to resolve
+    which table an unqualified column reference is pulled from.
 
     This rule does not propose a fix, because it assumes that it an unused
     table is a mistake, but doesn't know whether the mistake was the join,
