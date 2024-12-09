@@ -269,6 +269,19 @@ clickhouse_dialect.replace(
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
     ),
+    PostFunctionGrammar=AnyNumberOf(
+        Bracketed(
+            Delimited(
+                Ref("ColumnReferenceSegment"),
+            )
+        ),
+        # Optional OVER suffix for window functions.
+        # This is supported in bigquery & postgres (and its derivatives)
+        # and so is included here for now.
+        Ref("OverClauseSegment"),
+        # Filter clause supported by both Postgres and SQLite
+        Ref("FilterClauseGrammar"),
+    ),
 )
 
 # Set the datetime units
