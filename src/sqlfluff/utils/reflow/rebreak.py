@@ -292,11 +292,11 @@ def identify_keyword_rebreak_spans(
             if elem.depth_info.stack_positions[key].idx > 1:
                 continue
 
-            # If we found something at the 1st index, check that it is in fact an indent.
-            # First check how deep the current element is with respect to the element which
-            # is configured. If we're operating at a deeper depth than the configuration is
-            # applied to, then this keyword cannot be the leading keyword for that segment.
-            # In that case continue, because we're not looking at the trigger keyword.
+            # Next check how deep the current element is with respect to the
+            # element which is configured. If we're operating at a deeper depth than
+            # the configuration is applied to, then this keyword cannot be the leading
+            # keyword for that segment. In that case continue, because we're not
+            # looking at the trigger keyword.
             configured_depth = elem.depth_info.stack_hashes.index(key)
             if elem.depth_info.stack_depth > configured_depth + 1:
                 continue
