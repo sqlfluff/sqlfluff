@@ -11,7 +11,8 @@ select
     {#- Attributes #}
     products.product_id,
     products.valid_date_local,
-    products._fivetran_deleted
+    products._fivetran_deleted,
+    dispensaries.id
 from products
 inner join dispensaries
     on

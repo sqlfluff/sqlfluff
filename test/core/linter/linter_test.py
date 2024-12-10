@@ -96,7 +96,7 @@ def test__linter__lint_string_vs_file(path):
 
 
 @pytest.mark.parametrize(
-    "rules,num_violations", [(None, 6), ("CP01", 2), (("LT01", "LT12"), 1)]
+    "rules,num_violations", [(None, 7), ("CP01", 2), (("LT01", "LT12"), 1)]
 )
 def test__linter__get_violations_filter_rules(rules, num_violations):
     """Test filtering violations by which rules were violated."""

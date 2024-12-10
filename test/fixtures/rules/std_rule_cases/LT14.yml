@@ -1,0 +1,518 @@
+rule: LT14
+
+test_pass_leading_from_clause:
+  pass_str: |
+    SELECT foo
+    FROM bar
+  configs:
+    layout:
+      type:
+        from_clause:
+          keyword_line_position: leading
+
+test_pass_alone_from_clause:
+  pass_str: |
+    SELECT foo
+    FROM
+      bar
+  configs:
+    layout:
+      type:
+        from_clause:
+          keyword_line_position: alone
+
+test_fail_leading_from_clause:
+  fail_str: |
+    SELECT foo FROM bar
+  fix_str: |
+    SELECT foo
+    FROM bar
+  configs:
+    layout:
+      type:
+        from_clause:
+          keyword_line_position: leading
+
+test_fail_alone_from_clause:
+  fail_str: |
+    SELECT foo FROM bar
+  fix_str: |
+    SELECT foo
+    FROM
+    bar
+  configs:
+    layout:
+      type:
+        from_clause:
+          keyword_line_position: alone
+
+test_pass_leading_join_clause:
+  pass_str: |
+    SELECT foo
+    FROM bar a
+    JOIN baz b
+      ON a.id = b.id
+    INNER JOIN qux c
+      ON a.id = c.id
+    LEFT OUTER JOIN quux d
+      ON a.id = d.id
+  configs:
+    layout:
+      type:
+        join_clause:
+          keyword_line_position: leading
+
+test_fail_leading_join_clause:
+  fail_str: |
+    SELECT foo
+    FROM bar a JOIN baz b
+    ON a.id = b.id INNER JOIN qux c
+    ON a.id = c.id LEFT OUTER JOIN quux d
+    ON a.id = d.id
+  fix_str: |
+    SELECT foo
+    FROM bar a
+    JOIN baz b
+    ON a.id = b.id
+    INNER JOIN qux c
+    ON a.id = c.id
+    LEFT OUTER JOIN quux d
+    ON a.id = d.id
+  configs:
+    layout:
+      type:
+        join_clause:
+          keyword_line_position: leading
+
+test_pass_alone_join_clause:
+  pass_str: |
+    SELECT foo
+    FROM bar a
+    JOIN
+    baz b
+      ON a.id = b.id
+  configs:
+    layout:
+      type:
+        join_clause:
+          keyword_line_position: alone
+
+test_fail_alone_join_clause:
+  fail_str: |
+    SELECT foo
+    FROM bar a JOIN baz b
+    ON a.id = b.id INNER JOIN qux c
+    ON a.id = c.id LEFT OUTER JOIN quux d
+    ON a.id = d.id
+  fix_str: |
+    SELECT foo
+    FROM bar a
+    JOIN
+    baz b
+    ON a.id = b.id
+    INNER JOIN
+    qux c
+    ON a.id = c.id
+    LEFT OUTER JOIN
+    quux d
+    ON a.id = d.id
+  configs:
+    layout:
+      type:
+        join_clause:
+          keyword_line_position: alone
+
+
+test_pass_leading_join_clause_on_condition:
+  pass_str: |
+    SELECT foo
+    FROM bar a
+    JOIN baz b
+    ON a.id = b.id
+  configs:
+    layout:
+      type:
+        join_clause:
+          keyword_line_position: leading
+        join_on_condition:
+          keyword_line_position: leading
+
+test_fail_leading_join_clause_on_condition:
+  fail_str: |
+    SELECT foo
+    FROM bar a JOIN baz b ON a.id = b.id
+  fix_str: |
+    SELECT foo
+    FROM bar a
+    JOIN baz b
+    ON a.id = b.id
+  configs:
+    layout:
+      type:
+        join_clause:
+          keyword_line_position: leading
+        join_on_condition:
+          keyword_line_position: leading
+
+test_pass_alone_join_clause_on_condition:
+  pass_str: |
+    SELECT foo
+    FROM bar a
+    JOIN
+    baz b
+    ON
+    a.id = b.id
+  configs:
+    layout:
+      type:
+        join_clause:
+          keyword_line_position: alone
+        join_on_condition:
+          keyword_line_position: alone
+
+test_pass_leading_join_clause_trailing_on_condition:
+  pass_str: |
+    SELECT foo
+    FROM bar a
+    JOIN baz b ON
+    a.id = b.id
+  configs:
+    layout:
+      type:
+        join_clause:
+          keyword_line_position: leading
+        join_on_condition:
+          keyword_line_position: trailing
+
+test_fail_leading_join_clause_trailing_on_condition:
+  fail_str: |
+    SELECT foo
+    FROM bar a JOIN baz b ON a.id = b.id
+  fix_str: |
+    SELECT foo
+    FROM bar a
+    JOIN baz b ON
+    a.id = b.id
+  configs:
+    layout:
+      type:
+        join_clause:
+          keyword_line_position: leading
+        join_on_condition:
+          keyword_line_position: trailing
+
+test_fail_alone_join_clause_on_condition:
+  fail_str: |
+    SELECT foo
+    FROM bar a
+    JOIN baz b
+    ON a.id = b.id
+  fix_str: |
+    SELECT foo
+    FROM bar a
+    JOIN
+    baz b
+    ON
+    a.id = b.id
+  configs:
+    layout:
+      type:
+        join_clause:
+          keyword_line_position: alone
+        join_on_condition:
+          keyword_line_position: alone
+
+test_pass_leading_window_function:
+  pass_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (
+    PARTITION BY c
+    ORDER BY d
+    ) AS e
+    FROM f
+    JOIN g
+    ON g.h = f.h
+  configs:
+    layout:
+      type:
+        partitionby_clause:
+          keyword_line_position: leading
+        orderby_clause:
+          keyword_line_position: leading
+
+test_pass_leading_window_comment_function:
+  pass_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER ( /* comment here */
+      PARTITION BY c
+    ORDER BY d
+    ) AS e
+    FROM f
+    JOIN g
+    ON g.h = f.h
+  configs:
+    layout:
+      type:
+        partitionby_clause:
+          keyword_line_position: leading
+        orderby_clause:
+          keyword_line_position: leading
+
+test_fail_leading_window_function:
+  fail_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) AS e
+    FROM f
+    JOIN g
+    ON g.h = f.h
+  fix_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (
+    PARTITION BY c
+    ORDER BY d) AS e
+    FROM f
+    JOIN g
+    ON g.h = f.h
+  configs:
+    layout:
+      type:
+        partitionby_clause:
+          keyword_line_position: leading
+        orderby_clause:
+          keyword_line_position: leading
+
+test_pass_alone_window_function:
+  pass_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (
+    PARTITION BY
+    c
+    ORDER BY
+    d
+    ) AS e
+    FROM f
+    JOIN g
+    ON g.h = f.h
+  configs:
+    layout:
+      type:
+        partitionby_clause:
+          keyword_line_position: alone
+        orderby_clause:
+          keyword_line_position: alone
+
+test_fail_alone_window_function:
+  fail_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) AS e
+    FROM f
+    JOIN g
+    ON g.h = f.h
+  fix_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (
+    PARTITION BY
+    c
+    ORDER BY
+    d) AS e
+    FROM f
+    JOIN g
+    ON g.h = f.h
+  configs:
+    layout:
+      type:
+        partitionby_clause:
+          keyword_line_position: alone
+        orderby_clause:
+          keyword_line_position: alone
+
+test_pass_leading_qualify:
+  pass_str: |
+    SELECT
+    a,
+    b
+    FROM f
+    JOIN g
+    ON g.h = f.h
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY c
+    ORDER BY d) = 1
+  configs:
+    core:
+      dialect: duckdb
+    layout:
+      type:
+        qualify_clause:
+          keyword_line_position: leading
+
+test_pass_alone_qualify:
+  pass_str: |
+    SELECT
+    a,
+    b
+    FROM f
+    JOIN g
+    ON g.h = f.h
+    QUALIFY
+    ROW_NUMBER() OVER (PARTITION BY c
+    ORDER BY d) = 1
+  configs:
+    core:
+      dialect: duckdb
+    layout:
+      type:
+        qualify_clause:
+          keyword_line_position: alone
+
+test_fail_leading_qualify:
+  fail_str: |
+    SELECT
+    a,
+    b
+    FROM f
+    JOIN g
+    ON g.h = f.h QUALIFY ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) = 1
+  fix_str: |
+    SELECT
+    a,
+    b
+    FROM f
+    JOIN g
+    ON g.h = f.h
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY c
+    ORDER BY d) = 1
+  configs:
+    core:
+      dialect: duckdb
+    layout:
+      type:
+        qualify_clause:
+          keyword_line_position: leading
+
+test_fail_alone_qualify:
+  fail_str: |
+    SELECT
+    a,
+    b
+    FROM f
+    JOIN g
+    ON g.h = f.h
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY c
+    ORDER BY d) = 1
+  fix_str: |
+    SELECT
+    a,
+    b
+    FROM f
+    JOIN g
+    ON g.h = f.h
+    QUALIFY
+    ROW_NUMBER() OVER (PARTITION BY c
+    ORDER BY d) = 1
+  configs:
+    core:
+      dialect: duckdb
+    layout:
+      type:
+        qualify_clause:
+          keyword_line_position: alone
+
+test_fail_cte_selects_3419:
+  fail_str: |
+    WITH some_cte AS (SELECT
+        column1,
+        column2
+        FROM some_table
+    ) SELECT
+      column1,
+      column2
+    FROM some_cte
+  fix_str: |
+    WITH some_cte AS (
+        SELECT
+        column1,
+        column2
+        FROM some_table
+    )
+      SELECT
+      column1,
+      column2
+    FROM some_cte
+  configs:
+    layout:
+      type:
+        select_clause:
+          keyword_line_position: alone
+
+test_fail_all_keyword_segment:
+  # This is a bit strange, but handles for a case where the
+  # segment is all keywords.
+  fail_str: |
+    CREATE TABLE t (c1 DOUBLE PRECISION NOT NULL)
+  fix_str: |
+    CREATE TABLE t (c1
+    DOUBLE PRECISION
+    NOT NULL)
+  configs:
+    layout:
+      type:
+        data_type:
+          keyword_line_position: alone
+
+test_pass_leading_non_indent_first_segment:
+  # a window_specification doesn't have a leading keyword,
+  # this rule should have no effect on it. For now.
+  pass_str: |
+    select a, sum(b) over (named_window partition by c) as sum_b
+    from t window named_window as (partition by e)
+  configs:
+    layout:
+      type:
+        window_specification:
+          keyword_line_position: leading
+
+
+test_pass_templated_leading_from_clause:
+  pass_str: |
+    {% macro join_type(expression) %}
+      {{ expression }}
+    {% endmacro %}
+
+    SELECT a.foo, b.bar FROM baz a
+    {{ join_type("LEFT") }} JOIN tab b
+    ON a.col = b.col
+  configs:
+    layout:
+      type:
+        join_clause:
+          keyword_line_position: alone
+
+test_pass_none_where_clause:
+  pass_str: |
+    SELECT a, b FROM tabx WHERE b = 2;
+  configs:
+    layout:
+      type:
+        where_clause:
+          keyword_line_position: none
+
+test_pass_single_line_set:
+  # A single line set expression should be possible without forcing a newline.
+  pass_str: |
+    SET increment_key = (SELECT MAX(COALESCE(date_key, '2021-01-01') - 1) AS increment_key FROM foo.bar);
+  configs:
+    core:
+      dialect: snowflake

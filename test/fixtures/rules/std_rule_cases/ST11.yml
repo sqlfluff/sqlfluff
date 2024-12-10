@@ -1,0 +1,126 @@
+rule: ST11
+
+test_fail_simple:
+  fail_str: |
+    select
+        1
+    from b
+    left join c on b.x = c.x
+
+test_pass_single_table:
+  # If there's only one table, even if not referenced, then
+  # don't raise an error.
+  pass_str: |
+    select
+        1
+    from foo
+
+test_pass_values:
+  # If there's only one table, even if not referenced, then
+  # don't raise an error.
+  pass_str: |
+    select
+        1
+    from (VALUES (1, 'one'), (2, 'two'), (3, 'three'))
+
+# If there are any unqualified references, we shouldn't raise
+# an issue until they're resolved.
+test_pass_unqualified_select:
+  pass_str: |
+    select
+        a
+    from b
+    left join c using(d)
+
+test_pass_unqualified_where:
+  pass_str: |
+    select
+        1
+    from b
+    left join c using(d)
+    where e
+
+test_pass_unqualified_group_by:
+  pass_str: |
+    select
+        1
+    from b
+    left join c using(d)
+    group by e
+
+test_fail_unused_table_in_join:
+  fail_str: |
+    select
+      widget.id,
+      widget.name,
+    from
+      widget
+      left join inventor
+        on widget.inventor_id = inventor.id
+
+test_pass_unused_table_in_join:
+  pass_str: |
+    select
+      widget.id,
+      widget.name,
+      inventor.id
+    from
+      widget
+      left join inventor
+        on widget.inventor_id = inventor.id
+
+test_pass_inner_unreferenced:
+  # In the following example, "b" is being used as a filter, and the rule
+  # should only trigger if it's an explicit left, right or full join.
+  pass_str: |
+    select
+        a.*
+    from a
+    inner join b using(x)
+
+test_pass_unqualified_unreferenced:
+  # Same as above, but an implicit INNER (unqualified joins are usually
+  # interpreted as inner joins).
+  pass_str: |
+    select
+        a.*
+    from a
+    join b using(x)
+
+test_fail_left_unreferenced:
+  fail_str: |
+    select
+        a.*
+    from a
+    left join c using(x)
+
+test_fail_right_unreferenced:
+  fail_str: |
+    select
+        a.*
+    from a
+    right join d using(x)
+
+test_pass_subquery:
+  # "b" is referenced in the subquery, so not unused.
+  pass_str: |
+    SELECT a.col1
+    FROM a
+    LEFT JOIN b ON a.id = b.a_id
+    WHERE a.some_column IN (
+        SELECT c.some_column
+        FROM c
+        WHERE c.other_column = b.col
+    )
+
+test_fail_subquery:
+  # "b" is not referenced outside its join (despite subquery), so unused.
+  fail_str: |
+    SELECT a.col1
+    FROM a
+    LEFT JOIN b ON a.id = b.a_id
+    WHERE a.some_column IN (
+        SELECT c.some_column
+        FROM c
+        WHERE c.other_column = a.col
+    )
