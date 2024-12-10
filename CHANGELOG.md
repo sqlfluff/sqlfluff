@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [3.3.0] - 2024-12-05
+## [3.3.0] - 2024-12-10
 
 ## Highlights
 
@@ -54,11 +54,15 @@ Beyond these changes, we've seen a whole host of dialect improvements to almost
 *all* of the supported dialects and several bugfixes which are combined into this
 release.
 
-We also welcome **ELEVEN** new contributors to the project in this release. Thanks
+We also welcome **TWELVE** new contributors to the project in this release. Thanks
 to all of them for their hard work 🚀🏆🚀.
 
 ## What’s Changed
 
+* New Rule LT14: Keyword line positioning [#6213](https://github.com/sqlfluff/sqlfluff/pull/6213) [@keraion](https://github.com/keraion)
+* New Rule ST11: Detect unused tables in join [#5266](https://github.com/sqlfluff/sqlfluff/pull/5266) [@danparizher](https://github.com/danparizher)
+* Snowflake Create Table allow inline foreign key with on delete … [#6486](https://github.com/sqlfluff/sqlfluff/pull/6486) [@WobblyRobbly](https://github.com/WobblyRobbly)
+* Fix minor linting error in CI [#6483](https://github.com/sqlfluff/sqlfluff/pull/6483) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Snowflake: alter table on delete and update support [#6473](https://github.com/sqlfluff/sqlfluff/pull/6473) [@WobblyRobbly](https://github.com/WobblyRobbly)
 * New Rules AM08 + CV12: Detect implicit cross joins [#6239](https://github.com/sqlfluff/sqlfluff/pull/6239) [@rogalski](https://github.com/rogalski)
 * New Rule ST10: const expression checker [#6392](https://github.com/sqlfluff/sqlfluff/pull/6392) [@rogalski](https://github.com/rogalski)
@@ -114,6 +118,7 @@ to all of them for their hard work 🚀🏆🚀.
 * [@LuigiCerone](https://github.com/LuigiCerone) made their first contribution in [#6459](https://github.com/sqlfluff/sqlfluff/pull/6459)
 * [@V-D-L-P](https://github.com/V-D-L-P) made their first contribution in [#6467](https://github.com/sqlfluff/sqlfluff/pull/6467)
 * [@WobblyRobbly](https://github.com/WobblyRobbly) made their first contribution in [#6473](https://github.com/sqlfluff/sqlfluff/pull/6473)
+* [@danparizher](https://github.com/danparizher) made their first contribution in [#5266](https://github.com/sqlfluff/sqlfluff/pull/5266)
 
 ## [3.2.5] - 2024-10-25
 
