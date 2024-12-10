@@ -263,25 +263,6 @@ def identify_rebreak_spans(
     return spans
 
 
-def _is_leading_with_keyword(
-    stack_index: int, element_buffer: ReflowSequenceType, idx: int, key_delta: int
-):
-    if stack_index > 1 or key_delta > 1:
-        return False
-    elif stack_index == 0:
-        return element_buffer[idx].segments and element_buffer[idx].segments[0].is_type(
-            "keyword"
-        )
-    else:  # pragma: no cover
-        # TODO: get working coverage test case
-        return (
-            element_buffer[idx].segments
-            and element_buffer[idx].segments[0].is_type("keyword")
-            and element_buffer[idx - 1].segments
-            and element_buffer[idx - 1].segments[-1].is_type("indent")
-        )
-
-
 def identify_keyword_rebreak_spans(
     element_buffer: ReflowSequenceType,
 ) -> List[_RebreakSpan]:
@@ -305,23 +286,27 @@ def identify_keyword_rebreak_spans(
             # it here.
             if elem.keyword_line_position_configs[key].lower() == "none":
                 continue
+
             # If we're not at the start of the segment, then pass. Some keywords might
             # be at an index of 1 due to a leading indent so check for both 0 and 1.
             if elem.depth_info.stack_positions[key].idx > 1:
                 continue
-            # If we found something at the 1st index, check that it is in fact an indent
-            current_key_depth = next(
-                i
-                for i, k in enumerate(elem.depth_info.stack_positions.keys())
-                if k == key
-            )
-            if not _is_leading_with_keyword(
-                elem.depth_info.stack_positions[key].idx,
-                element_buffer,
-                idx,
-                elem.depth_info.stack_depth - current_key_depth,
-            ):
+
+            # If we found something at the 1st index, check that it is in fact an indent.
+            # First check how deep the current element is with respect to the element which
+            # is configured. If we're operating at a deeper depth than the configuration is
+            # applied to, then this keyword cannot be the leading keyword for that segment.
+            # In that case continue, because we're not looking at the trigger keyword.
+            configured_depth = elem.depth_info.stack_hashes.index(key)
+            if elem.depth_info.stack_depth > configured_depth + 1:
                 continue
+
+            # Then make sure it's actually a keyword.
+            if not element_buffer[idx].segments or not element_buffer[idx].segments[
+                0
+            ].is_type("keyword"):
+                continue
+
             # Can we find the end?
             # NOTE: It's safe to look right to the end here rather than up to
             # -2 because we're going to end up stepping back by two in the
