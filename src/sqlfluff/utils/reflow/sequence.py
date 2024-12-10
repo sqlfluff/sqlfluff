@@ -2,7 +2,7 @@
 
 import logging
 from itertools import chain
-from typing import Iterator, List, Optional, Sequence, Tuple, Type, cast
+from typing import Iterator, List, Literal, Optional, Sequence, Tuple, Type, cast
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser import BaseSegment, RawSegment
@@ -16,7 +16,7 @@ from sqlfluff.utils.reflow.elements import (
     get_consumed_whitespace,
 )
 from sqlfluff.utils.reflow.helpers import fixes_from_results
-from sqlfluff.utils.reflow.rebreak import rebreak_sequence
+from sqlfluff.utils.reflow.rebreak import rebreak_keywords_sequence, rebreak_sequence
 from sqlfluff.utils.reflow.reindent import (
     construct_single_indent,
     lint_indent_points,
@@ -533,7 +533,9 @@ class ReflowSequence:
             lint_results=lint_results,
         )
 
-    def rebreak(self) -> "ReflowSequence":
+    def rebreak(
+        self, rebreak_type: Literal["lines", "keywords"] = "lines"
+    ) -> "ReflowSequence":
         """Returns a new :obj:`ReflowSequence` corrected line breaks.
 
         This intentionally **does not handle indentation**,
@@ -552,7 +554,16 @@ class ReflowSequence:
             )
 
         # Delegate to the rebreak algorithm
-        elem_buff, lint_results = rebreak_sequence(self.elements, self.root_segment)
+        if rebreak_type == "lines":
+            elem_buff, lint_results = rebreak_sequence(self.elements, self.root_segment)
+        elif rebreak_type == "keywords":
+            elem_buff, lint_results = rebreak_keywords_sequence(
+                self.elements, self.root_segment
+            )
+        else:  # pragma: no cover
+            raise NotImplementedError(
+                f"Rebreak type of `{rebreak_type}` is not supported."
+            )
 
         return ReflowSequence(
             elements=elem_buff,
