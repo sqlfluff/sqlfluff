@@ -15,7 +15,7 @@
 [![Gurubase](https://img.shields.io/badge/Gurubase-Ask%20SQLFluff%20Guru-006BFF?style=flat-square)](https://gurubase.io/g/sqlfluff)
 
 **SQLFluff** is a dialect-flexible and configurable SQL linter. Designed
-with ELT applications in mind, **SQLFluff** also works with Jinja templating
+with ETL applications in mind, **SQLFluff** also works with Jinja templating
 and dbt. **SQLFluff** will auto-fix most linting errors, allowing you to focus
 your time on what matters.
 
