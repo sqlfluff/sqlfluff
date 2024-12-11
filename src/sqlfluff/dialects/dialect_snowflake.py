@@ -618,7 +618,6 @@ snowflake_dialect.add(
             )
         ),
     ),
-    OrAlterGrammar=Sequence("OR", "ALTER"),
     AlterOrReplaceGrammar=OneOf(Sequence("OR", "ALTER"), Ref("OrReplaceGrammar")),
 )
 
