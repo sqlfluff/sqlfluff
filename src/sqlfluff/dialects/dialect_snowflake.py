@@ -4695,8 +4695,6 @@ class CreateStatementSegment(BaseSegment):
             Sequence("NETWORK", "POLICY"),
             Sequence("RESOURCE", "MONITOR"),
             "SHARE",
-            "ROLE",
-            "USER",
             "TAG",
             "WAREHOUSE",
             Sequence("NOTIFICATION", "INTEGRATION"),
