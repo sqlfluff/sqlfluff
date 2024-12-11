@@ -95,4 +95,6 @@ AS
     CALL SCH.MY_SPROC();
 
 CREATE OR ALTER TASK mytask
-    WAREHOUSE = mywh;
+    WAREHOUSE = mywh
+AS
+    CALL SCH.MY_SPROC();
