@@ -93,3 +93,6 @@ WHEN
     AND 1=1
 AS
     CALL SCH.MY_SPROC();
+
+CREATE OR ALTER TASK mytask
+    WAREHOUSE = mywh;

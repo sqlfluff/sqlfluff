@@ -10,3 +10,5 @@ create warehouse my_wh
     comment = 'comment'
     auto_suspend = 60
 ;
+
+CREATE OR ALTER WAREHOUSE my_wh;
