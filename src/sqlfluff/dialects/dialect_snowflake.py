@@ -4688,25 +4688,28 @@ class CreateStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Ref(
-            "AlterOrReplaceGrammar", optional=True
-        ),  # TODO: I don't think this is valid for all of these.
         OneOf(
-            Sequence("NETWORK", "POLICY"),
-            Sequence("RESOURCE", "MONITOR"),
-            "SHARE",
-            "TAG",
-            "WAREHOUSE",
-            Sequence("NOTIFICATION", "INTEGRATION"),
-            Sequence("SECURITY", "INTEGRATION"),
-            Sequence("STORAGE", "INTEGRATION"),
-            Sequence("MATERIALIZED", "VIEW"),
-            Sequence("MASKING", "POLICY"),
-            "PIPE",
-            Sequence("EXTERNAL", "FUNCTION"),
-            # Objects that also support clone
-            "DATABASE",
-            "SEQUENCE",
+            Sequence(
+                Ref("OrReplaceGrammar", optional=True),
+                OneOf(
+                    Sequence("NETWORK", "POLICY"),
+                    Sequence("RESOURCE", "MONITOR"),
+                    "SHARE",
+                    "TAG",
+                    Sequence("NOTIFICATION", "INTEGRATION"),
+                    Sequence("SECURITY", "INTEGRATION"),
+                    Sequence("STORAGE", "INTEGRATION"),
+                    Sequence("MATERIALIZED", "VIEW"),
+                    Sequence("MASKING", "POLICY"),
+                    "PIPE",
+                    Sequence("EXTERNAL", "FUNCTION"),
+                    "SEQUENCE",
+                ),
+            ),
+            Sequence(
+                Ref("AlterOrReplaceGrammar", optional=True),
+                OneOf("WAREHOUSE", "DATABASE"),
+            ),
         ),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
