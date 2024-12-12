@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b9e46f73078146cac98637bc2868a0f0978302ce24dc58d36793a3baf4a30a9d
+_hash: 3eab60ef429df6fbba1b03306b4474806b4e1cfd54dc11d73c2b4ef8b8265145
 file:
 - statement:
     create_role_statement:
@@ -34,3 +34,13 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - quoted_literal: "'this is a fake role'"
+- statement_terminator: ;
+- statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: MY_ROLE
+- statement_terminator: ;

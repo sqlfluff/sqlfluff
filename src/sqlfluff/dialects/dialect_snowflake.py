@@ -618,6 +618,7 @@ snowflake_dialect.add(
             )
         ),
     ),
+    AlterOrReplaceGrammar=OneOf(Sequence("OR", "ALTER"), Ref("OrReplaceGrammar")),
 )
 
 snowflake_dialect.replace(
@@ -4168,7 +4169,7 @@ class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
     type = "create_schema_statement"
     match_grammar = Sequence(
         "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
+        Ref("AlterOrReplaceGrammar", optional=True),
         Ref("TemporaryTransientGrammar", optional=True),
         "SCHEMA",
         Ref("IfNotExistsGrammar", optional=True),
@@ -4436,7 +4437,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
 
     match_grammar: Matchable = Sequence(
         "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
+        Ref("AlterOrReplaceGrammar", optional=True),
         Ref("TemporaryTransientGrammar", optional=True),
         Ref.keyword("DYNAMIC", optional=True),
         "TABLE",
@@ -4583,7 +4584,7 @@ class CreateTaskSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
+        Ref("AlterOrReplaceGrammar", optional=True),
         "TASK",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
@@ -4687,25 +4688,28 @@ class CreateStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
         OneOf(
-            Sequence("NETWORK", "POLICY"),
-            Sequence("RESOURCE", "MONITOR"),
-            "SHARE",
-            "ROLE",
-            "USER",
-            "TAG",
-            "WAREHOUSE",
-            Sequence("NOTIFICATION", "INTEGRATION"),
-            Sequence("SECURITY", "INTEGRATION"),
-            Sequence("STORAGE", "INTEGRATION"),
-            Sequence("MATERIALIZED", "VIEW"),
-            Sequence("MASKING", "POLICY"),
-            "PIPE",
-            Sequence("EXTERNAL", "FUNCTION"),
-            # Objects that also support clone
-            "DATABASE",
-            "SEQUENCE",
+            Sequence(
+                Ref("OrReplaceGrammar", optional=True),
+                OneOf(
+                    Sequence("NETWORK", "POLICY"),
+                    Sequence("RESOURCE", "MONITOR"),
+                    "SHARE",
+                    "TAG",
+                    Sequence("NOTIFICATION", "INTEGRATION"),
+                    Sequence("SECURITY", "INTEGRATION"),
+                    Sequence("STORAGE", "INTEGRATION"),
+                    Sequence("MATERIALIZED", "VIEW"),
+                    Sequence("MASKING", "POLICY"),
+                    "PIPE",
+                    Sequence("EXTERNAL", "FUNCTION"),
+                    "SEQUENCE",
+                ),
+            ),
+            Sequence(
+                Ref("AlterOrReplaceGrammar", optional=True),
+                OneOf("WAREHOUSE", "DATABASE"),
+            ),
         ),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
@@ -5086,7 +5090,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
+        Ref("AlterOrReplaceGrammar", optional=True),
         AnySetOf(
             "SECURE",
             "RECURSIVE",
@@ -6388,7 +6392,7 @@ class CreateStageSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
+        Ref("AlterOrReplaceGrammar", optional=True),
         Ref.keyword("TEMPORARY", optional=True),
         "STAGE",
         Ref("IfNotExistsGrammar", optional=True),
@@ -7046,7 +7050,7 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
+        Ref("AlterOrReplaceGrammar", optional=True),
         "ROLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("RoleReferenceSegment"),
@@ -7069,7 +7073,7 @@ class CreateDatabaseRoleStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref(
-            "OrReplaceGrammar",
+            "AlterOrReplaceGrammar",
             optional=True,
         ),
         "DATABASE",

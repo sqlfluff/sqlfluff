@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5a9390d386601e8170fb44ef5557139f8a441339b6b5f600928a4ee6c503d84b
+_hash: 484923027896e629133bd0b887bad687e36dd8c8f0b162c4c566ed216efd5f81
 file:
 - statement:
     create_task_statement:
@@ -507,6 +507,33 @@ file:
         - comparison_operator:
             raw_comparison_operator: '='
         - numeric_literal: '1'
+    - keyword: AS
+    - statement:
+        call_segment:
+          keyword: CALL
+          function:
+            function_name:
+              naked_identifier: SCH
+              dot: .
+              function_name_identifier: MY_SPROC
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: mytask
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
     - keyword: AS
     - statement:
         call_segment:
