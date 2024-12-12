@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1ffcc0256a5274974fd04cd7253440768191ec4960b720bcf047fbac7db08da0
+_hash: d84900379c288e45f3c186e8c124c367889a0d5c4e2a2e678cefaf40ec272b9d
 file:
 - statement:
     access_statement:
@@ -495,6 +495,22 @@ file:
     - keyword: ROLE
     - object_reference:
         naked_identifier: DIFFERENT_ROLE
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: imported
+    - keyword: privileges
+    - keyword: 'on'
+    - keyword: schema
+    - object_reference:
+      - naked_identifier: mydb
+      - dot: .
+      - naked_identifier: myschema
+    - keyword: to
+    - keyword: application
+    - role_reference:
+        naked_identifier: my_app
 - statement_terminator: ;
 - statement:
     access_statement:

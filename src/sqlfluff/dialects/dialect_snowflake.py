@@ -2998,7 +2998,14 @@ class AccessStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
             ),
             "TO",
-            OneOf("USER", "ROLE", "SHARE", Sequence("DATABASE", "ROLE"), optional=True),
+            OneOf(
+                "APPLICATION",
+                "USER",
+                "ROLE",
+                "SHARE",
+                Sequence("DATABASE", "ROLE"),
+                optional=True,
+            ),
             Delimited(
                 OneOf(
                     Ref("RoleReferenceSegment"),

@@ -47,6 +47,8 @@ revoke reference_usage on database database2 from share share1;
 
 REVOKE OWNERSHIP ON ROLE TEST_ROLE FROM ROLE DIFFERENT_ROLE;
 
+grant imported privileges on schema mydb.myschema to application my_app;
+
 grant operate on warehouse report_wh to role analyst;
 grant operate on warehouse report_wh to role analyst with grant option;
 grant operate on future dynamic tables in schema mydb.myschema to role analyst;
