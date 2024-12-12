@@ -100,3 +100,10 @@ CREATE OR REPLACE VIEW IF NOT EXISTS view_with_column_tags
     COL2
   FROM my_table
 );
+
+CREATE OR ALTER VIEW view_with_column_comment
+(
+    col1
+)
+AS SELECT col1
+FROM src_table;

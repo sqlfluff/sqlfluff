@@ -3351,7 +3351,7 @@ class AlterTableStatementSegment(BaseSegment):
                     "DROP",
                     "COLUMN",
                     Ref("IfExistsGrammar", optional=True),
-                    Ref("ColumnReferenceSegment"),
+                    Delimited(Ref("ColumnReferenceSegment")),
                 ),
                 Sequence(
                     "ADD",
