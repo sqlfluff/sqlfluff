@@ -87,6 +87,7 @@ grant apply row access policy on account to role my_role;
 grant apply session policy on account to role my_role;
 grant apply tag on account to role my_role;
 grant attach policy on account to role my_role;
+grant execute alert on account to role my_role;
 grant execute task on account to role my_role;
 grant import share on account to role my_role;
 grant manage grants on account to role my_role;
