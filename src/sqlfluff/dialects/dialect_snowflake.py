@@ -2928,6 +2928,7 @@ class AccessStatementSegment(BaseSegment):
                 _schema_object_types,
                 Sequence(
                     "ALL",
+                    OneOf("DYNAMIC", optional=True),
                     OneOf(
                         _schema_object_types_plural,
                         Sequence("MATERIALIZED", "VIEWS"),
@@ -2973,6 +2974,7 @@ class AccessStatementSegment(BaseSegment):
                         terminators=["ON"],
                     ),
                     "ON",
+                    # <--- Fix goes here
                     _objects,
                 ),
                 Sequence("ROLE", Ref("ObjectReferenceSegment")),

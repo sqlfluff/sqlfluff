@@ -49,6 +49,7 @@ REVOKE OWNERSHIP ON ROLE TEST_ROLE FROM ROLE DIFFERENT_ROLE;
 
 grant operate on warehouse report_wh to role analyst;
 grant operate on warehouse report_wh to role analyst with grant option;
+grant operate on all dynamic tables in schema mydb.myschema to role analyst;
 grant select on all tables in schema mydb.myschema to role analyst;
 grant all privileges on function mydb.myschema.add5(number) to role analyst;
 grant all privileges on function mydb.myschema.add5(string) to role analyst;
