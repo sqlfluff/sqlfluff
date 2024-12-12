@@ -98,6 +98,7 @@ grant override share restrictions on account to role my_role;
 grant create account on account to role my_role;
 grant create share on account to role my_role;
 grant create network policy on account to role my_role;
+grant create tag on schema my_schema to role my_role;
 grant create data exchange listing on account to role my_role;
 
 GRANT MANAGE ACCOUNT SUPPORT CASES ON ACCOUNT TO ROLE my_role;
