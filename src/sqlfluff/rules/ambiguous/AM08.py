@@ -90,6 +90,17 @@ class Rule_AM08(BaseRule):
             # This can happen in T-SQL CROSS APPLY / OUTER APPLY
             return None
 
+        # Skip if join is part of flattening logic
+        maybe_from_expression_element = join_clause.get_child("from_expression_element")
+        if maybe_from_expression_element:
+            for (
+                function_name_identifier
+            ) in maybe_from_expression_element.recursive_crawl(
+                "function_name_identifier"
+            ):
+                if function_name_identifier.raw_normalized() == "UNNEST":
+                    return None
+
         return LintResult(join_clause)
 
     @staticmethod
