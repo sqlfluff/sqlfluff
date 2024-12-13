@@ -101,7 +101,7 @@ class Rule_ST10(BaseRule):
                     # Should be unreachable with correctly parsed tree
                     continue  # pragma: no cover
 
-                if lhs.is_templated() or rhs.is_templated():
+                if lhs.is_templated or rhs.is_templated:
                     continue
 
                 # literals need explicit handling (due to well-defined allow-list)
