@@ -62,11 +62,12 @@ class Rule_AM08(BaseRule):
         ]
 
         if any(
-            kw.raw_upper in ("CROSS", "POSITIONAL", "USING")
+            kw.raw_upper in ("CROSS", "POSITIONAL", "USING", "NATURAL")
             for kw in join_clause_keywords
         ):
             # If explicit CROSS JOIN is used, disregard lack of condition
             # If explicit POSITIONAL JOIN is used, disregard lack of condition
+            # If explicit NATURAL JOIN is used, disregard lack of condition
             # If explicit JOIN USING is used, disregard lack of condition
             return None
 

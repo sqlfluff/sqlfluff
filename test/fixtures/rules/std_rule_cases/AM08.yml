@@ -156,3 +156,12 @@ test_pass_unnest:
   configs:
     core:
       dialect: bigquery
+
+test_pass_natural_join:
+  pass_str: |
+    select foo.x
+    from foo
+    natural join bar
+  configs:
+    core:
+      dialect: redshift
