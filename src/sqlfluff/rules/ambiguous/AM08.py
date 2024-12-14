@@ -62,11 +62,12 @@ class Rule_AM08(BaseRule):
         ]
 
         if any(
-            kw.raw_upper in ("CROSS", "POSITIONAL", "USING")
+            kw.raw_upper in ("CROSS", "POSITIONAL", "USING", "NATURAL")
             for kw in join_clause_keywords
         ):
             # If explicit CROSS JOIN is used, disregard lack of condition
             # If explicit POSITIONAL JOIN is used, disregard lack of condition
+            # If explicit NATURAL JOIN is used, disregard lack of condition
             # If explicit JOIN USING is used, disregard lack of condition
             return None
 
@@ -89,6 +90,17 @@ class Rule_AM08(BaseRule):
         if len(join_keywords) != 1:
             # This can happen in T-SQL CROSS APPLY / OUTER APPLY
             return None
+
+        # Skip if join is part of flattening logic
+        maybe_from_expression_element = join_clause.get_child("from_expression_element")
+        if maybe_from_expression_element:
+            for (
+                function_name_identifier
+            ) in maybe_from_expression_element.recursive_crawl(
+                "function_name_identifier"
+            ):
+                if function_name_identifier.raw_normalized() == "UNNEST":
+                    return None
 
         return LintResult(join_clause)
 

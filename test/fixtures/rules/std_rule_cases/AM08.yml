@@ -128,3 +128,40 @@ test_noop_outer_apply:
   configs:
     core:
       dialect: tsql
+
+test_pass_unnest:
+  pass_str: |
+    WITH
+    Races AS (
+      SELECT
+        "800M" AS Race,
+        [
+          STRUCT("Rudisha" AS `Name`, [23.4, 26.3, 26.4, 26.1] AS Laps),
+          STRUCT("Makhloufi" AS `Name`, [24.5, 25.4, 26.6, 26.1] AS Laps),
+          STRUCT("Murphy" AS `Name`, [23.9, 26.0, 27.0, 26.0] AS Laps),
+          STRUCT("Bosse" AS `Name`, [23.6, 26.2, 26.5, 27.1] AS Laps),
+          STRUCT("Rotich" AS `Name`, [24.7, 25.6, 26.9, 26.4] AS Laps),
+          STRUCT("Lewandowski" AS `Name`, [25.0, 25.7, 26.3, 27.2] AS Laps),
+          STRUCT("Kipketer" AS `Name`, [23.2, 26.1, 27.3, 29.4] AS Laps),
+          STRUCT("Berian" AS `Name`, [23.7, 26.1, 27.0, 29.3] AS Laps)
+        ] AS Participants,
+    )
+
+    SELECT
+      Race,
+      Participant,
+    FROM Races AS R
+    INNER JOIN UNNEST(R.Participants) AS Participant;
+
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_natural_join:
+  pass_str: |
+    select foo.x
+    from foo
+    natural join bar
+  configs:
+    core:
+      dialect: redshift
