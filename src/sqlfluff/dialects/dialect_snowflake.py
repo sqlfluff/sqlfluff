@@ -6420,9 +6420,14 @@ class CreateStageSegment(BaseSegment):
                     "URL",
                     Ref("EqualsSegment"),
                     OneOf(
+                        Ref("S3Path"),
+                        Ref("GCSPath"),
+                        Ref("AzureBlobStoragePath"),
+                        Ref("ReferencedVariableNameSegment"),
+                    ),
+                    OneOf(
                         # External S3 stage
                         Sequence(
-                            Ref("S3Path"),
                             Ref("S3ExternalStageParameters", optional=True),
                             Sequence(
                                 "DIRECTORY",
@@ -6445,7 +6450,6 @@ class CreateStageSegment(BaseSegment):
                         ),
                         # External GCS stage
                         Sequence(
-                            Ref("GCSPath"),
                             Ref("GCSExternalStageParameters", optional=True),
                             Sequence(
                                 "DIRECTORY",
@@ -6477,11 +6481,9 @@ class CreateStageSegment(BaseSegment):
                         ),
                         # External Azure Blob Storage stage
                         Sequence(
-                            OneOf(
-                                Ref("AzureBlobStoragePath"),
-                                Ref("ReferencedVariableNameSegment"),
+                            Ref(
+                                "AzureBlobStorageExternalStageParameters", optional=True
                             ),
-                            Ref("AzureBlobStorageExternalStageParameters", optional=True),
                             Sequence(
                                 "DIRECTORY",
                                 Ref("EqualsSegment"),
@@ -6510,6 +6512,7 @@ class CreateStageSegment(BaseSegment):
                                 optional=True,
                             ),
                         ),
+                        optional=True,
                     ),
                 ),
                 Sequence(
@@ -6569,7 +6572,9 @@ class CreateStageSegment(BaseSegment):
                         ),
                         # External Azure Blob Storage stage
                         Sequence(
-                            Ref("AzureBlobStorageExternalStageParameters", optional=True),
+                            Ref(
+                                "AzureBlobStorageExternalStageParameters", optional=True
+                            ),
                             Sequence(
                                 "DIRECTORY",
                                 Ref("EqualsSegment"),
@@ -6608,7 +6613,7 @@ class CreateStageSegment(BaseSegment):
                             Ref("AzureBlobStoragePath"),
                             Ref("ReferencedVariableNameSegment"),
                         ),
-                    )
+                    ),
                 ),
             ),
             optional=True,
