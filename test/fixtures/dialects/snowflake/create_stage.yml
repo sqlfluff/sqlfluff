@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3e2f4328a97af8154b0d1d246e31a7bc0b646fb5c8198113c172cb13f96fc9e1
+_hash: 6361abebdf53f8e6c3ffa44656d3e52e80c3420ab28fa001526b88d46671a06b
 file:
 - statement:
     create_stage_statement:
@@ -664,4 +664,23 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - bucket_path: "'s3://foobar'"
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+      - naked_identifier: foo
+      - dot: .
+      - naked_identifier: bar
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          variable: $your_variable
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - variable: $your_variable
 - statement_terminator: ;
