@@ -2928,21 +2928,8 @@ class AccessStatementSegment(BaseSegment):
                 Sequence("ALL", "SCHEMAS", "IN", "DATABASE"),
                 Sequence("FUTURE", "SCHEMAS", "IN", "DATABASE"),
                 _schema_object_types,
-                # CONSIDER DEBUPPING
                 Sequence(
-                    "ALL",
-                    OneOf("DYNAMIC", optional=True),
-                    OneOf(
-                        _schema_object_types_plural,
-                        Sequence("MATERIALIZED", "VIEWS"),
-                        Sequence("EXTERNAL", "TABLES"),
-                        Sequence("FILE", "FORMATS"),
-                    ),
-                    "IN",
-                    OneOf("SCHEMA", "DATABASE"),
-                ),
-                Sequence(
-                    "FUTURE",
+                    OneOf("ALL", "FUTURE"),
                     OneOf("DYNAMIC", optional=True),
                     OneOf(
                         _schema_object_types_plural,
@@ -2953,7 +2940,6 @@ class AccessStatementSegment(BaseSegment):
                     "IN",
                     OneOf("DATABASE", "SCHEMA"),
                 ),
-                # CONSIDER DEBUPPING END
                 Sequence("DATABASE", "ROLE"),
                 optional=True,
             ),
