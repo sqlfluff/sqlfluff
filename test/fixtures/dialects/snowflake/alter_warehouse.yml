@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4c934979dd5ee1b2407751137f6f8e93ca0c2e020a91674a8c4746ca4e2cb8fd
+_hash: d344875035294d0bbe5caab0d51d147ae2894f75f85cb1e1b5fdc33d19df8abe
 file:
 - statement:
     alter_warehouse_statement:
@@ -424,4 +424,45 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         numeric_literal: '30'
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: SET
+    - warehouse_object_properties:
+      - keyword: WAIT_FOR_COMPLETION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: WAREHOUSE_SIZE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - warehouse_size: LARGE
+      - keyword: MIN_CLUSTER_COUNT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - keyword: MAX_CLUSTER_COUNT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '4'
+      - keyword: AUTO_SUSPEND
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '600'
+      - keyword: AUTO_RESUME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: ENABLE_QUERY_ACCELERATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - keyword: QUERY_ACCELERATION_MAX_SCALE_FACTOR
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '4'
 - statement_terminator: ;
