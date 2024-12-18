@@ -112,3 +112,5 @@ grant select on table dbname.schemaname.tablename to database role dbname.rolena
 grant select on table dbname.schemaname.tablename to database role dbrolename;
 revoke select on table dbname.schemaname.tablename from database role dbname.rolename;
 revoke select on table dbname.schemaname.tablename from database role dbrolename;
+
+GRANT APPLICATION ROLE dbrolename TO ROLE public;
