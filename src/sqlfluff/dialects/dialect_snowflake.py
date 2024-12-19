@@ -2820,6 +2820,7 @@ class AccessStatementSegment(BaseSegment):
                 "DATABASE",
                 "INTEGRATION",
                 "SHARE",
+                "TAG",
                 Sequence("DATA", "EXCHANGE", "LISTING"),
                 Sequence("NETWORK", "POLICY"),
             ),
@@ -2829,7 +2830,7 @@ class AccessStatementSegment(BaseSegment):
         Sequence("APPLY", "SESSION", "POLICY"),
         Sequence("APPLY", "TAG"),
         Sequence("ATTACH", "POLICY"),
-        Sequence("EXECUTE", "TASK"),
+        Sequence("EXECUTE", OneOf("ALERT", "TASK")),
         Sequence("IMPORT", "SHARE"),
         Sequence(
             "MANAGE",
@@ -2928,18 +2929,8 @@ class AccessStatementSegment(BaseSegment):
                 Sequence("FUTURE", "SCHEMAS", "IN", "DATABASE"),
                 _schema_object_types,
                 Sequence(
-                    "ALL",
-                    OneOf(
-                        _schema_object_types_plural,
-                        Sequence("MATERIALIZED", "VIEWS"),
-                        Sequence("EXTERNAL", "TABLES"),
-                        Sequence("FILE", "FORMATS"),
-                    ),
-                    "IN",
-                    OneOf("SCHEMA", "DATABASE"),
-                ),
-                Sequence(
-                    "FUTURE",
+                    OneOf("ALL", "FUTURE"),
+                    OneOf("DYNAMIC", optional=True),
                     OneOf(
                         _schema_object_types_plural,
                         Sequence("MATERIALIZED", "VIEWS"),
@@ -2994,7 +2985,14 @@ class AccessStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
             ),
             "TO",
-            OneOf("USER", "ROLE", "SHARE", Sequence("DATABASE", "ROLE"), optional=True),
+            OneOf(
+                "APPLICATION",
+                "USER",
+                "ROLE",
+                "SHARE",
+                Sequence("DATABASE", "ROLE"),
+                optional=True,
+            ),
             Delimited(
                 OneOf(
                     Ref("RoleReferenceSegment"),
