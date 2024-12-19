@@ -136,3 +136,7 @@ test_pass_templated_queries:
       placeholder:
         param_style: colon
         a: a
+
+test_pass_array_access:
+  pass_str: |
+    SELECT my_array[1] = [1] FROM t

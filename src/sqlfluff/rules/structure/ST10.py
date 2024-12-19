@@ -111,6 +111,8 @@ class Rule_ST10(BaseRule):
                         # ignore based on allowlist
                         continue
                 else:
+                    if lhs.type != rhs.type:
+                        continue
                     if lhs.raw_normalized() != rhs.raw_normalized():
                         continue
 
