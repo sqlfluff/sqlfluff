@@ -1621,6 +1621,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                 Delimited(
                     Sequence(
                         Ref("ColumnReferenceSegment"),
+                        Ref("DatatypeSegment", optional=True),
                         Ref("CommentGrammar", optional=True),
                     ),
                     Ref("ConstraintStatementSegment", optional=True),
