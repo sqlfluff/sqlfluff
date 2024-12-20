@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4c934979dd5ee1b2407751137f6f8e93ca0c2e020a91674a8c4746ca4e2cb8fd
+_hash: ee62134e1bed823cb611164d1e391c53b887f3b2a1a82a4e1dda2a15770febbd
 file:
 - statement:
     alter_warehouse_statement:
@@ -424,4 +424,21 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         numeric_literal: '30'
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: SET
+    - warehouse_object_properties:
+      - keyword: ENABLE_QUERY_ACCELERATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - keyword: QUERY_ACCELERATION_MAX_SCALE_FACTOR
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '4'
 - statement_terminator: ;
