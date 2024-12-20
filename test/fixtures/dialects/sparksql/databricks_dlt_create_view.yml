@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b889567ee4b0fb35f3b1224c0e7805cdbfeaf8d554f5124f8cd88c4f736f990b
+_hash: f36d16d30c197b10791439499817254b69537e909beb8ad80955a3645acba275
 file:
 - statement:
     create_view_statement:
@@ -161,4 +161,54 @@ file:
             alias_expression:
               keyword: AS
               naked_identifier: ID
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: dlt_view
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - data_type:
+          primitive_type:
+            keyword: STRING
+      - keyword: COMMENT
+      - quoted_literal: "'a'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - data_type:
+          primitive_type:
+            keyword: TIMESTAMP
+      - keyword: COMMENT
+      - quoted_literal: "'b'"
+      - end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: "'DLT materialized view'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: live
+                - dot: .
+                - naked_identifier: dlt_bronze
 - statement_terminator: ;
