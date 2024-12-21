@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 74de85b93e5227b9ab1271d01a558b6ca2e844a1d05659c33297c0d5e51b08a9
+_hash: 2555fe6f5fba6f89b64877716efd8c9dacaede86f1d0648ead3d45e0dd5dba90
 file:
 - statement:
     create_table_statement:
@@ -1757,4 +1757,188 @@ file:
           keyword: COMMENT
           quoted_literal: "'The date and time of the other event'"
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        comma: ','
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: MY_FK
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: another_table
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+        - keyword: MATCH
+        - keyword: SIMPLE
+        - keyword: 'ON'
+        - keyword: DELETE
+        - keyword: RESTRICT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        comma: ','
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: MY_FK
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: another_table
+        - keyword: MATCH
+        - keyword: FULL
+        - keyword: 'ON'
+        - keyword: DELETE
+        - keyword: RESTRICT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: ID
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+          - constraint_properties_segment:
+            - keyword: CONSTRAINT
+            - naked_identifier: MY_FK
+            - keyword: FOREIGN
+            - keyword: KEY
+            - keyword: REFERENCES
+            - table_reference:
+                naked_identifier: another_table
+            - bracketed:
+                start_bracket: (
+                column_reference:
+                  naked_identifier: id
+                end_bracket: )
+            - keyword: MATCH
+            - keyword: PARTIAL
+            - keyword: 'ON'
+            - keyword: DELETE
+            - keyword: RESTRICT
+            - keyword: 'ON'
+            - keyword: UPDATE
+            - keyword: SET
+            - keyword: DEFAULT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: ID
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        comma: ','
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: MY_FK
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: ID
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: another_table
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+        - keyword: MATCH
+        - keyword: SIMPLE
+        - keyword: 'ON'
+        - keyword: DELETE
+        - keyword: CASCADE
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        end_bracket: )
 - statement_terminator: ;

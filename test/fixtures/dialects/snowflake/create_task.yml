@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5a9390d386601e8170fb44ef5557139f8a441339b6b5f600928a4ee6c503d84b
+_hash: b51f809acffccdd7e1ec6605cef635ea166270c76ba1277811d16239ae47581b
 file:
 - statement:
     create_task_statement:
@@ -520,4 +520,66 @@ file:
               bracketed:
                 start_bracket: (
                 end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: mytask
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - statement:
+        call_segment:
+          keyword: CALL
+          function:
+            function_name:
+              naked_identifier: SCH
+              dot: .
+              function_name_identifier: MY_SPROC
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: task5
+    - keyword: AFTER
+    - object_reference:
+        naked_identifier: task2
+    - comma: ','
+    - object_reference:
+        naked_identifier: task3
+    - comma: ','
+    - object_reference:
+        naked_identifier: task4
+    - keyword: AS
+    - statement:
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: t1
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: ts
+            end_bracket: )
+        - values_clause:
+            keyword: VALUES
+            bracketed:
+              start_bracket: (
+              expression:
+                bare_function: CURRENT_TIMESTAMP
+              end_bracket: )
 - statement_terminator: ;

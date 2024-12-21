@@ -1,0 +1,167 @@
+rule: AM08
+
+test_pass_select_comma:
+  # this syntax is currently not covered by AM08
+  pass_str: |
+    SELECT a.*, b.* FROM a, b
+
+test_fail_missing_clause:
+  fail_str: |
+    SELECT foo.a, bar.b FROM foo INNER JOIN bar
+
+test_fail_missing_clause_lowercase_default:
+  fail_str: |
+    SELECT foo.a, bar.b FROM foo left join bar
+
+test_fail_missing_multiple_joins:
+  fail_str: |
+    SELECT foo.a, bar.b FROM foo left join bar on 1=2 left join baz;
+
+test_fail_missing_multiple_joins_mixed_types:
+  fail_str: |
+    SELECT foo.a, bar.b FROM foo left join bar on foo.x = bar.y left join baz;
+
+test_fail_missing_multiple_joins_not_last:
+  fail_str: |
+    SELECT foo.a, bar.b FROM foo left join bar left join baz on foo.x = bar.y;
+
+test_noop_join_where:
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo left join bar where foo.x = bar.y;
+
+test_pass_cross_join_with_complex_where_clause_not_simplifiable:
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo JOIN bar WHERE foo.a = bar.a OR foo.x = 3;
+
+test_pass_cross_join_with_complex_where_clause_and_subqueries:
+  pass_str: |
+    SELECT foo.a, bar.b FROM (SELECT * FROM abc) foo JOIN (SELECT * FROM def WHERE x = 3) bar WHERE foo.a = bar.a;
+
+test_pass_inner_join_default:
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo INNER JOIN bar ON 1=1;
+
+test_pass_left_join_default:
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo LEFT JOIN bar ON 1=1;
+
+test_pass_right_join_default:
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo RIGHT JOIN bar ON 1=1;
+
+test_pass_full_join_default:
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo FULL JOIN bar ON 1=1;
+
+test_pass_left_outer_join_default:
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo LEFT OUTER JOIN bar ON 1=1;
+
+test_pass_right_outer_join_default:
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo RIGHT OUTER JOIN bar ON 1=1;
+
+test_pass_full_outer_join_default:
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo FULL OUTER JOIN bar ON 1=1;
+
+test_pass_using:
+  pass_str: |
+    SELECT foo.id, bar.id FROM foo LEFT JOIN bar USING (id)
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_cross_join_default:
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo CROSS JOIN bar;
+
+test_pass_global_cross_join_clickhouse:
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo GLOBAL CROSS JOIN bar;
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_positional_join_duckdb:
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo POSITIONAL JOIN bar;
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_cross_join_where_clickhouse:
+  pass_str: |
+    SELECT m.name AS name, g.genre AS genre FROM movies AS m CROSS JOIN genres AS g WHERE m.id = g.movie_id;
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_asof_join_clickhouse:
+  pass_str: |
+    SELECT t.*, q.* FROM trades t ASOF LEFT JOIN quotes q ON t.symbol = q.symbol AND t.time >= q.time;
+  configs:
+    core:
+      dialect: clickhouse
+
+test_noop_delete:
+  pass_str: |
+    DELETE t1, t2 FROM t1 JOIN t2 JOIN t3
+    WHERE t1.id=t2.id AND t2.id=t3.id;
+  configs:
+    core:
+      dialect: mysql
+
+test_noop_cross_apply:
+  pass_str: |
+    SELECT DeptID, DeptName, DeptMgrID, EmpID, EmpLastName, EmpSalary
+    FROM Departments d
+    CROSS APPLY dbo.GetReports(d.DeptMgrID);
+  configs:
+    core:
+      dialect: tsql
+
+test_noop_outer_apply:
+  pass_str: |
+    SELECT * FROM Department D
+    OUTER APPLY dbo.fn_GetAllEmployeeOfADepartment(D.DepartmentID);
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_unnest:
+  pass_str: |
+    WITH
+    Races AS (
+      SELECT
+        "800M" AS Race,
+        [
+          STRUCT("Rudisha" AS `Name`, [23.4, 26.3, 26.4, 26.1] AS Laps),
+          STRUCT("Makhloufi" AS `Name`, [24.5, 25.4, 26.6, 26.1] AS Laps),
+          STRUCT("Murphy" AS `Name`, [23.9, 26.0, 27.0, 26.0] AS Laps),
+          STRUCT("Bosse" AS `Name`, [23.6, 26.2, 26.5, 27.1] AS Laps),
+          STRUCT("Rotich" AS `Name`, [24.7, 25.6, 26.9, 26.4] AS Laps),
+          STRUCT("Lewandowski" AS `Name`, [25.0, 25.7, 26.3, 27.2] AS Laps),
+          STRUCT("Kipketer" AS `Name`, [23.2, 26.1, 27.3, 29.4] AS Laps),
+          STRUCT("Berian" AS `Name`, [23.7, 26.1, 27.0, 29.3] AS Laps)
+        ] AS Participants,
+    )
+
+    SELECT
+      Race,
+      Participant,
+    FROM Races AS R
+    INNER JOIN UNNEST(R.Participants) AS Participant;
+
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_natural_join:
+  pass_str: |
+    select foo.x
+    from foo
+    natural join bar
+  configs:
+    core:
+      dialect: redshift

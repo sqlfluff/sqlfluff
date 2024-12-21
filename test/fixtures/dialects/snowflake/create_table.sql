@@ -212,3 +212,34 @@ CREATE TABLE some_schema.some_table
   , some_event_date_time_utc VARCHAR AS (TO_TIMESTAMP(SUBSTR(some_text_value, 5, 13)))
   , some_other_event_date_time_utc TIMESTAMP AS (IFF(is_condition_true AND TRY_TO_NUMBER(some_text_value) IS NOT NULL, TO_TIMESTAMP(SUBSTR(some_text_value, 5, 13)), '1900-01-01')) COMMENT 'The date and time of the other event'
 );
+
+
+CREATE OR REPLACE TABLE some_table (
+  id INTEGER NOT NULL,
+  CONSTRAINT MY_FK FOREIGN KEY (id) REFERENCES another_table(id) MATCH SIMPLE ON DELETE RESTRICT
+);
+
+CREATE OR REPLACE TABLE some_table (
+  id INTEGER NOT NULL,
+  CONSTRAINT MY_FK FOREIGN KEY (id) REFERENCES another_table MATCH FULL ON DELETE RESTRICT
+);
+
+
+CREATE OR REPLACE TABLE some_table (
+    ID INTEGER NOT NULL CONSTRAINT MY_FK
+    FOREIGN KEY REFERENCES another_table (id)
+    MATCH PARTIAL
+    ON DELETE RESTRICT
+    ON UPDATE SET DEFAULT
+);
+
+CREATE OR REPLACE TABLE some_table (
+    ID INTEGER NOT NULL,
+    CONSTRAINT MY_FK FOREIGN KEY (ID) REFERENCES another_table (id)
+    MATCH SIMPLE
+    ON DELETE CASCADE
+);
+
+CREATE OR ALTER TABLE some_table (
+  id INTEGER NOT NULL
+);

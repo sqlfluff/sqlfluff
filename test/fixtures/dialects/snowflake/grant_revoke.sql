@@ -47,8 +47,12 @@ revoke reference_usage on database database2 from share share1;
 
 REVOKE OWNERSHIP ON ROLE TEST_ROLE FROM ROLE DIFFERENT_ROLE;
 
+grant imported privileges on schema mydb.myschema to application my_app;
+
 grant operate on warehouse report_wh to role analyst;
 grant operate on warehouse report_wh to role analyst with grant option;
+grant operate on future dynamic tables in schema mydb.myschema to role analyst;
+grant operate on all dynamic tables in schema mydb.myschema to role analyst;
 grant select on all tables in schema mydb.myschema to role analyst;
 grant all privileges on function mydb.myschema.add5(number) to role analyst;
 grant all privileges on function mydb.myschema.add5(string) to role analyst;
@@ -85,6 +89,7 @@ grant apply row access policy on account to role my_role;
 grant apply session policy on account to role my_role;
 grant apply tag on account to role my_role;
 grant attach policy on account to role my_role;
+grant execute alert on account to role my_role;
 grant execute task on account to role my_role;
 grant import share on account to role my_role;
 grant manage grants on account to role my_role;
@@ -96,6 +101,7 @@ grant override share restrictions on account to role my_role;
 grant create account on account to role my_role;
 grant create share on account to role my_role;
 grant create network policy on account to role my_role;
+grant create tag on schema my_schema to role my_role;
 grant create data exchange listing on account to role my_role;
 
 GRANT MANAGE ACCOUNT SUPPORT CASES ON ACCOUNT TO ROLE my_role;
@@ -112,3 +118,5 @@ grant select on table dbname.schemaname.tablename to database role dbname.rolena
 grant select on table dbname.schemaname.tablename to database role dbrolename;
 revoke select on table dbname.schemaname.tablename from database role dbname.rolename;
 revoke select on table dbname.schemaname.tablename from database role dbrolename;
+
+GRANT APPLICATION ROLE dbrolename TO ROLE public;
