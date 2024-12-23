@@ -2062,11 +2062,6 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 "ADD",
                 Ref("PrimaryKeyGrammar"),
                 Bracketed(Delimited(Ref("ColumnReferenceSegment"), optional=True)),
-                Sequence(
-                    "NOT",
-                    "NULL",
-                    optional=True,
-                ),
             ),
             Ref("AlterTableTableColumnActionSegment"),
             # @TODO: Set/unset TAG
