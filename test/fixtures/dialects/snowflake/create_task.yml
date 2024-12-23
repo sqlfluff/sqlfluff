@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 484923027896e629133bd0b887bad687e36dd8c8f0b162c4c566ed216efd5f81
+_hash: b51f809acffccdd7e1ec6605cef635ea166270c76ba1277811d16239ae47581b
 file:
 - statement:
     create_task_statement:
@@ -547,4 +547,39 @@ file:
               bracketed:
                 start_bracket: (
                 end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: task5
+    - keyword: AFTER
+    - object_reference:
+        naked_identifier: task2
+    - comma: ','
+    - object_reference:
+        naked_identifier: task3
+    - comma: ','
+    - object_reference:
+        naked_identifier: task4
+    - keyword: AS
+    - statement:
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: t1
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: ts
+            end_bracket: )
+        - values_clause:
+            keyword: VALUES
+            bracketed:
+              start_bracket: (
+              expression:
+                bare_function: CURRENT_TIMESTAMP
+              end_bracket: )
 - statement_terminator: ;

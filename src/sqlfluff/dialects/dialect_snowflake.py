@@ -2978,6 +2978,7 @@ class AccessStatementSegment(BaseSegment):
                     "SCHEMA",
                     Ref("SchemaReferenceSegment"),
                 ),
+                Sequence("APPLICATION", "ROLE", Ref("ObjectReferenceSegment")),
                 # In the case where a role is granted non-explicitly,
                 # e.g. GRANT ROLE_NAME TO OTHER_ROLE_NAME
                 # See https://docs.snowflake.com/en/sql-reference/sql/grant-role.html
@@ -4634,7 +4635,7 @@ class CreateTaskSegment(BaseSegment):
         ),
         Sequence(
             "AFTER",
-            Ref("ObjectReferenceSegment"),
+            Delimited(Ref("ObjectReferenceSegment")),
             optional=True,
         ),
         Dedent,
@@ -7404,8 +7405,8 @@ class AlterTaskStatementSegment(BaseSegment):
         OneOf(
             "RESUME",
             "SUSPEND",
-            Sequence("REMOVE", "AFTER", Ref("ObjectReferenceSegment")),
-            Sequence("ADD", "AFTER", Ref("ObjectReferenceSegment")),
+            Sequence("REMOVE", "AFTER", Delimited(Ref("ObjectReferenceSegment"))),
+            Sequence("ADD", "AFTER", Delimited(Ref("ObjectReferenceSegment"))),
             Ref("AlterTaskSpecialSetClauseSegment"),
             Ref("AlterTaskSetClauseSegment"),
             Ref("AlterTaskUnsetClauseSegment"),
