@@ -1421,6 +1421,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreatePasswordPolicyStatementSegment"),
             Ref("AlterPasswordPolicyStatementSegment"),
             Ref("DropPasswordPolicyStatementSegment"),
+            Ref("AlterTagStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -8704,4 +8705,57 @@ class DropPasswordPolicyStatementSegment(BaseSegment):
         "POLICY",
         Ref("IfExistsGrammar", optional=True),
         Ref("PasswordPolicyReferenceSegment"),
+    )
+
+
+class AlterTagStatementSegment(BaseSegment):
+    """Drop Password Policy Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/drop-password-policy
+    """
+
+    type = "alter_tag_statement"
+    # breakpoint()
+    match_grammar = Sequence(
+        "ALTER",
+        "TAG",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("FunctionNameSegment"),
+            ),
+            Sequence(
+                OneOf(
+                    "SET",
+                    "UNSET",
+                ),
+                Delimited(
+                    Sequence(
+                        "MASKING",
+                        "POLICY",
+                        Ref("ParameterNameSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "SET",
+                "COMMENT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence("UNSET", "COMMENT"),
+            Sequence(
+                OneOf(
+                    "ADD",
+                    "DROP",
+                ),
+                "ALLOWED_VALUES",
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+        ),
     )
