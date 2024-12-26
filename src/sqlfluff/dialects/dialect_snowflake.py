@@ -8757,5 +8757,6 @@ class AlterTagStatementSegment(BaseSegment):
                     Ref("QuotedLiteralSegment"),
                 ),
             ),
+            Sequence("UNSET", "ALLOWED_VALUES"),
         ),
     )
