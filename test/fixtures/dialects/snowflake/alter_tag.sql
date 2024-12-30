@@ -1,6 +1,8 @@
-ALTER TAG my_tag SET MASKING POLICY policy_name;
+ALTER TAG my_tag RENAME TO your_tag;
 
-ALTER TAG IF EXISTS my_tag SET MASKING POLICY policy_name;
+ALTER TAG IF EXISTS my_tag RENAME TO your_tag;
+
+ALTER TAG my_tag SET MASKING POLICY policy_name;
 
 ALTER TAG my_tag SET MASKING POLICY policy_name, MASKING POLICY policy_name_2, MASKING POLICY policy_name_3;
 

@@ -3,18 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 77adae3d481ee55d7ebde2346e40fd640efd9f000068270cf018d9498e2c2132
+_hash: 7b9e5f58760c35358fe11c2fb3a57d0d6bf04160c13d3a842964a094a0f02e26
 file:
 - statement:
     alter_tag_statement:
     - keyword: ALTER
     - keyword: TAG
-    - function_name:
-        function_name_identifier: my_tag
-    - keyword: SET
-    - keyword: MASKING
-    - keyword: POLICY
-    - parameter: policy_name
+    - object_reference:
+        naked_identifier: my_tag
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: your_tag
 - statement_terminator: ;
 - statement:
     alter_tag_statement:
@@ -22,8 +22,19 @@ file:
     - keyword: TAG
     - keyword: IF
     - keyword: EXISTS
-    - function_name:
-        function_name_identifier: my_tag
+    - object_reference:
+        naked_identifier: my_tag
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: your_tag
+- statement_terminator: ;
+- statement:
+    alter_tag_statement:
+    - keyword: ALTER
+    - keyword: TAG
+    - object_reference:
+        naked_identifier: my_tag
     - keyword: SET
     - keyword: MASKING
     - keyword: POLICY
@@ -33,8 +44,8 @@ file:
     alter_tag_statement:
     - keyword: ALTER
     - keyword: TAG
-    - function_name:
-        function_name_identifier: my_tag
+    - object_reference:
+        naked_identifier: my_tag
     - keyword: SET
     - keyword: MASKING
     - keyword: POLICY
@@ -52,8 +63,8 @@ file:
     alter_tag_statement:
     - keyword: ALTER
     - keyword: TAG
-    - function_name:
-        function_name_identifier: my_tag
+    - object_reference:
+        naked_identifier: my_tag
     - keyword: SET
     - keyword: COMMENT
     - comparison_operator:
@@ -64,8 +75,8 @@ file:
     alter_tag_statement:
     - keyword: ALTER
     - keyword: TAG
-    - function_name:
-        function_name_identifier: my_tag
+    - object_reference:
+        naked_identifier: my_tag
     - keyword: UNSET
     - keyword: COMMENT
 - statement_terminator: ;
@@ -73,8 +84,8 @@ file:
     alter_tag_statement:
     - keyword: ALTER
     - keyword: TAG
-    - function_name:
-        function_name_identifier: my_tag
+    - object_reference:
+        naked_identifier: my_tag
     - keyword: ADD
     - keyword: ALLOWED_VALUES
     - quoted_literal: "'my_value'"
@@ -83,8 +94,8 @@ file:
     alter_tag_statement:
     - keyword: ALTER
     - keyword: TAG
-    - function_name:
-        function_name_identifier: my_tag
+    - object_reference:
+        naked_identifier: my_tag
     - keyword: ADD
     - keyword: ALLOWED_VALUES
     - quoted_literal: "'my_value'"
@@ -95,8 +106,8 @@ file:
     alter_tag_statement:
     - keyword: ALTER
     - keyword: TAG
-    - function_name:
-        function_name_identifier: my_tag
+    - object_reference:
+        naked_identifier: my_tag
     - keyword: DROP
     - keyword: ALLOWED_VALUES
     - quoted_literal: "'my_value'"
@@ -105,8 +116,8 @@ file:
     alter_tag_statement:
     - keyword: ALTER
     - keyword: TAG
-    - function_name:
-        function_name_identifier: my_tag
+    - object_reference:
+        naked_identifier: my_tag
     - keyword: DROP
     - keyword: ALLOWED_VALUES
     - quoted_literal: "'my_value'"
@@ -117,8 +128,8 @@ file:
     alter_tag_statement:
     - keyword: ALTER
     - keyword: TAG
-    - function_name:
-        function_name_identifier: my_tag
+    - object_reference:
+        naked_identifier: my_tag
     - keyword: UNSET
     - keyword: ALLOWED_VALUES
 - statement_terminator: ;

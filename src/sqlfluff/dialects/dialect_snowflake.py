@@ -8720,12 +8720,12 @@ class AlterTagStatementSegment(BaseSegment):
         "ALTER",
         "TAG",
         Ref("IfExistsGrammar", optional=True),
-        Ref("FunctionNameSegment"),
+        Ref("ObjectReferenceSegment"),
         OneOf(
             Sequence(
                 "RENAME",
                 "TO",
-                Ref("FunctionNameSegment"),
+                Ref("ObjectReferenceSegment"),
             ),
             Sequence(
                 OneOf(
