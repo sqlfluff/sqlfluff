@@ -8709,9 +8709,9 @@ class DropPasswordPolicyStatementSegment(BaseSegment):
 
 
 class AlterTagStatementSegment(BaseSegment):
-    """Drop Password Policy Statement.
+    """A Snowflake Alter Tag Statement.
 
-    As per https://docs.snowflake.com/en/sql-reference/sql/drop-password-policy
+    As per https://docs.snowflake.com/en/sql-reference/sql/alter-tag
     """
 
     type = "alter_tag_statement"
