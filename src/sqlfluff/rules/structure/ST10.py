@@ -64,6 +64,23 @@ class Rule_ST10(BaseRule):
             if seg.is_type("comparison_operator"):
                 if seg.raw not in ("=", "!=", "<>"):
                     continue
+
+                has_other_operators_on_lhs = any(
+                    subsegments[i]
+                    for i in range(idx - 1, -1, -1)
+                    if subsegments[i].is_type("comparison_operator", "binary_operator")
+                )
+
+                has_other_operators_on_rhs = any(
+                    subsegments[i]
+                    for i in range(idx - 1, -1, -1)
+                    if subsegments[i].is_type("comparison_operator", "binary_operator")
+                )
+
+                if has_other_operators_on_lhs or has_other_operators_on_rhs:
+                    # Figuring our precedence of different operators is outside of scope
+                    continue
+
                 lhs = next(
                     (
                         subsegments[i]
@@ -84,6 +101,9 @@ class Rule_ST10(BaseRule):
                     # Should be unreachable with correctly parsed tree
                     continue  # pragma: no cover
 
+                if lhs.is_templated or rhs.is_templated:
+                    continue
+
                 # literals need explicit handling (due to well-defined allow-list)
                 if lhs.is_type("literal") and rhs.is_type("literal"):
                     expr_s = f"{lhs.raw_normalized()} {seg.raw} {rhs.raw_normalized()}"
@@ -91,6 +111,8 @@ class Rule_ST10(BaseRule):
                         # ignore based on allowlist
                         continue
                 else:
+                    if lhs.type != rhs.type:
+                        continue
                     if lhs.raw_normalized() != rhs.raw_normalized():
                         continue
 
