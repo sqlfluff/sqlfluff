@@ -3,5 +3,137 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fdda373cd9cd649f82a9c5cf7ba9e290375c0ceae29477b0bad5a25f24a52ae3
-file: null
+_hash: 24a3233344b6f94aa976619365a5181339bff14d6df62adcd5e327ffc87fd037
+file:
+- statement:
+    alter_row_access_policy_statement:
+    - keyword: ALTER
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_access_policy
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: other_access_policy
+- statement_terminator: ;
+- statement:
+    alter_row_access_policy_statement:
+    - keyword: ALTER
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_access_policy
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: other_access_policy
+- statement_terminator: ;
+- statement:
+    alter_row_access_policy_statement:
+    - keyword: ALTER
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_access_policy
+    - keyword: SET
+    - keyword: BODY
+    - function_assigner: ->
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: EXISTS
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: some_val
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_row_access_policy_statement:
+    - keyword: ALTER
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_access_policy
+    - keyword: SET
+    - tag_equals:
+        keyword: TAG
+        tag_reference:
+          naked_identifier: tag_name
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'tag_value'"
+- statement_terminator: ;
+- statement:
+    alter_row_access_policy_statement:
+    - keyword: ALTER
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_access_policy
+    - keyword: SET
+    - tag_equals:
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: tag_name
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'tag_value'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: tag_name
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'tag_value'"
+- statement_terminator: ;
+- statement:
+    alter_row_access_policy_statement:
+    - keyword: ALTER
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_access_policy
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: tag_name
+    - comma: ','
+    - tag_reference:
+        naked_identifier: tag_name
+- statement_terminator: ;
+- statement:
+    alter_row_access_policy_statement:
+    - keyword: ALTER
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_access_policy
+    - keyword: SET
+    - keyword: COMMENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    alter_row_access_policy_statement:
+    - keyword: ALTER
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_access_policy
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;

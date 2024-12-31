@@ -1421,7 +1421,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreatePasswordPolicyStatementSegment"),
             Ref("AlterPasswordPolicyStatementSegment"),
             Ref("DropPasswordPolicyStatementSegment"),
-            # Ref("AlterRowAccessPolicyStatmentSegment"),
+            Ref("AlterRowAccessPolicyStatmentSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
