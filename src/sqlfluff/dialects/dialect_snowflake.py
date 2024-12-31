@@ -8408,7 +8408,6 @@ class AlterMaskingPolicySegment(BaseSegment):
     https://docs.snowflake.com/en/sql-reference/sql/alter-masking-policy
     """
 
-    # this
     type = "alter_masking_policy"
 
     match_grammar = Sequence(
