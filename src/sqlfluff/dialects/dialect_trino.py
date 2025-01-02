@@ -357,10 +357,7 @@ class SemiStructuredAccessorSegment(BaseSegment):
         AnyNumberOf(
             Sequence(
                 Ref("DotSegment"),
-                OneOf(
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("StarSegment"),
-                ),
+                Ref("SingleIdentifierGrammar"),
                 allow_gaps=True,
             ),
             Ref("ArrayAccessorSegment", optional=True),
