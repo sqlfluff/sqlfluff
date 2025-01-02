@@ -258,6 +258,11 @@ trino_dialect.replace(
         # Add arrow operators for functions (e.g. regexp_replace)
         Ref("RightArrowOperator"),
     ),
+    AccessorGrammar=AnyNumberOf(
+        Ref("ArrayAccessorSegment"),
+        # Add in semi structured expressions
+        Ref("SemiStructuredAccessorSegment"),
+    ),
     # match ANSI's naked identifier casefold, trino is case-insensitive.
     QuotedIdentifierSegment=TypedParser(
         "double_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
@@ -344,6 +349,26 @@ class RowTypeSchemaSegment(BaseSegment):
         )
     )
 
+class SemiStructuredAccessorSegment(BaseSegment):
+    """A semi-structured data accessor segment."""
+
+    type = "semi_structured_expression"
+    match_grammar = Sequence(
+        AnyNumberOf(
+            Sequence(
+                Ref("DotSegment"),
+                OneOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("StarSegment"),
+                ),
+                allow_gaps=True,
+            ),
+            Ref("ArrayAccessorSegment", optional=True),
+            allow_gaps=True,
+            min_times=1,
+        ),
+        allow_gaps=True,
+    )
 
 class OverlapsClauseSegment(BaseSegment):
     """An `OVERLAPS` clause like in `SELECT."""
