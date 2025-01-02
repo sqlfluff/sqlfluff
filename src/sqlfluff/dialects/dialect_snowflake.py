@@ -1421,6 +1421,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreatePasswordPolicyStatementSegment"),
             Ref("AlterPasswordPolicyStatementSegment"),
             Ref("DropPasswordPolicyStatementSegment"),
+            Ref("CreateRowAccessPolicyStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -8705,4 +8706,28 @@ class DropPasswordPolicyStatementSegment(BaseSegment):
         "POLICY",
         Ref("IfExistsGrammar", optional=True),
         Ref("PasswordPolicyReferenceSegment"),
+    )
+
+
+class CreateRowAccessPolicyStatementSegment(BaseSegment):
+    """Create Row Access Policy.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/create-row-access-policy
+    """
+
+    type = "create_row_access_policy_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "ROW",
+        "ACCESS",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("NakedIdentifierSegment"),
+        "AS",
+        Ref("FunctionParameterListGrammar"),
+        "RETURNS",
+        "BOOLEAN",
+        Ref("FunctionAssignerSegment"),
     )
