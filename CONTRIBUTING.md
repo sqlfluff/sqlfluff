@@ -83,10 +83,10 @@ changes.
 
 #### Requirements
 
-If you plan on working with a particular dbt plugin, you will need 
-to ensure your python version is high enough to support it. For example, 
-the instructions below use `python3.8` but if you are working with 
-`dbt-snowflake` 1.9.0 you will need python at least 3.9. 
+If you plan on working with a particular dbt plugin, you will need
+to ensure your python version is high enough to support it. For example,
+the instructions below use `python3.8` but if you are working with
+`dbt-snowflake` 1.9.0 you will need python at least 3.9.
 
 The simplest way to set up a development environment is to use `tox`.
 
@@ -104,10 +104,10 @@ Python version (though this may be be coming in tox 4!).
 
 #### Creating a virtual environment
 
-A virtual environment can then be created and activated. For the 
+A virtual environment can then be created and activated. For the
 various versions currently available you can check the `tox.ini` file.
 The numbers correspond to the dbt core version; dbt180 will install
-dbt 1.8.0. 
+dbt 1.8.0.
 
 To build and activate the virtual environment:
 ```shell
@@ -122,14 +122,14 @@ To be able to run all tests including the dbt templater,
 choose one of the dbt environments.)
 
 Windows users should call `.venv\Scripts\activate` rather than `source .venv/bin/activate`.
-They may also want to substitute `winpy` for `py` in the commands above. 
+They may also want to substitute `winpy` for `py` in the commands above.
 
 This virtual environment will already have the package installed in editable
 mode for you, as well as `requirements_dev.txt` and `plugins/sqlfluff-plugin-example`.
 Additionally if a dbt virtual environment was specified, you will also have
 `dbt-core`, `dbt-postgres`, and `plugins/sqlfluff-templater-dbt` available.
 A different dbt plugin can be selected by changing the appropriate file under `constraints`
-for the desired package and version. 
+for the desired package and version.
 
 ### Wiki
 
