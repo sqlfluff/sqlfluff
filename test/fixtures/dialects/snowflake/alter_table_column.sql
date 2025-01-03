@@ -100,3 +100,5 @@ ALTER TABLE some_schema.some_table ADD some_column_upr VARCHAR AS UPPER(some_col
 ALTER TABLE some_schema.some_table ADD column IF NOT EXISTS some_other_column_upr VARCHAR AS UPPER(some_column) || 'some characters' || LOWER(some_column);
 ALTER TABLE some_schema.some_table ADD column IF NOT EXISTS some_column_upr VARCHAR AS (UPPER(some_column));
 ALTER TABLE some_schema.some_table ADD column IF NOT EXISTS some_event_date_time_utc TIMESTAMP AS (IFF(is_condition_true AND TRY_TO_NUMBER(some_text_value) IS NOT NULL, TO_TIMESTAMP(SUBSTR(some_text_value, 5, 13)), '1900-01-01'));
+
+ALTER TABLE IF EXISTS table1 ADD COLUMN IF NOT EXISTS some_column INTEGER NOT NULL;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e8cff0c6e9a5a485ce01b7d111bde77e1c5d289980acbe73d286abe4591fb97d
+_hash: 2778fc1463742858e0eb2ecc26ef0b3145149229e859f006b30330f09ea73470
 file:
 - statement:
     alter_table_statement:
@@ -28,18 +28,17 @@ file:
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
-      - column_definition:
+      - column_reference:
           naked_identifier: my_column
-          data_type:
-            data_type_identifier: VARCHAR
-            bracketed_arguments:
-              bracketed:
-                start_bracket: (
-                numeric_literal: '5000'
-                end_bracket: )
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
+      - data_type:
+          data_type_identifier: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5000'
+              end_bracket: )
+      - keyword: NOT
+      - keyword: 'NULL'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1030,4 +1029,25 @@ file:
                       quoted_literal: "'1900-01-01'"
                   - end_bracket: )
             end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: some_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: NOT
+      - keyword: 'NULL'
 - statement_terminator: ;

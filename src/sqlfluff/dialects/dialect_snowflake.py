@@ -2106,6 +2106,7 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                     Ref("IfNotExistsGrammar", optional=True),
                     Ref("ColumnReferenceSegment"),
                     Ref("DatatypeSegment"),
+                    Sequence("NOT", "NULL", optional=True),
                     OneOf(
                         # Default & AS (virtual columns)
                         Sequence(
