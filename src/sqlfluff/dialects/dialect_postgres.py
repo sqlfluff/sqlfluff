@@ -145,6 +145,12 @@ postgres_dialect.insert_lexer_matchers(
             r"[bBxX]'[0-9a-fA-F]*'",
             CodeSegment,
         ),
+        RegexLexer(
+            # https://www.postgresql.org/docs/current/functions-textsearch.html
+            "full_text_search_operator",
+            r"!!",
+            SymbolSegment,
+        ),
     ],
     before="like_operator",
 )
@@ -388,6 +394,9 @@ postgres_dialect.add(
     CreateForeignTableGrammar=Sequence("CREATE", "FOREIGN", "TABLE"),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
     WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
+    FullTextSearchOperatorSegment=TypedParser(
+        "full_text_search_operator", LiteralSegment, type="full_text_search_operator"
+    ),
 )
 
 postgres_dialect.replace(
@@ -423,7 +432,13 @@ postgres_dialect.replace(
     ),
     Expression_C_Grammar=Sequence(
         Ref("WalrusOperatorSegment", optional=True),
-        ansi_dialect.get_grammar("Expression_C_Grammar"),
+        OneOf(
+            ansi_dialect.get_grammar("Expression_C_Grammar"),
+            Sequence(
+                Ref("FullTextSearchOperatorSegment", optional=True),
+                Ref("ShorthandCastSegment"),
+            ),
+        ),
     ),
     ParameterNameSegment=RegexParser(
         r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, type="parameter"
