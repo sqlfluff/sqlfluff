@@ -3,12 +3,12 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dbacf385e0fb479407d6131eac2f4426980a664462ae47a6d350179bc9e116dd
+_hash: 2ea60f6943f16c260123e678dc8ec29433a13cd657484991939d8d56fe42d5e4
 file:
   statement:
     describe_statement:
-      keyword: DESCRIBE
-      table_reference:
-        naked_identifier: VOLUME
-      naked_identifier: VACCINE_VOLUME
+    - keyword: DESCRIBE
+    - keyword: VOLUME
+    - volume_reference:
+        naked_identifier: VACCINE_VOLUME
   statement_terminator: ;

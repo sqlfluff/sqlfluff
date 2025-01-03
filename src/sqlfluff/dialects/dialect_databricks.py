@@ -253,7 +253,8 @@ databricks_dialect.replace(
                 "VOLUME",
                 Ref("VolumeReferenceSegment"),
             ),
-        ]
+        ],
+        at=0,
     ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),
