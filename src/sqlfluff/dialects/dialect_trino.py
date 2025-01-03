@@ -349,11 +349,15 @@ class RowTypeSchemaSegment(BaseSegment):
         )
     )
 
+
 class SemiStructuredAccessorSegment(BaseSegment):
     """A semi-structured data accessor segment."""
 
     type = "semi_structured_expression"
     match_grammar = Sequence(
+        Ref("DotSegment"),
+        Ref("SingleIdentifierGrammar"),
+        Ref("ArrayAccessorSegment", optional=True),
         AnyNumberOf(
             Sequence(
                 Ref("DotSegment"),
@@ -362,10 +366,10 @@ class SemiStructuredAccessorSegment(BaseSegment):
             ),
             Ref("ArrayAccessorSegment", optional=True),
             allow_gaps=True,
-            min_times=1,
         ),
         allow_gaps=True,
     )
+
 
 class OverlapsClauseSegment(BaseSegment):
     """An `OVERLAPS` clause like in `SELECT."""
