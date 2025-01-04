@@ -1,0 +1,322 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a18fce8d814bca67618a5787cdcf93b7d1b0cfe3bfc8a6862513639650d31241
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - cast_expression:
+              quoted_literal: "'a fat cat sat on a mat and ate a fat rat'"
+              casting_operator: '::'
+              data_type:
+                keyword: tsvector
+          - binary_operator: '@@'
+          - cast_expression:
+              quoted_literal: "'cat & rat'"
+              casting_operator: '::'
+              data_type:
+                keyword: tsquery
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - cast_expression:
+              quoted_literal: "'fat & cow'"
+              casting_operator: '::'
+              data_type:
+                keyword: tsquery
+          - binary_operator: '@@'
+          - cast_expression:
+              quoted_literal: "'a fat cat sat on a mat and ate a fat rat'"
+              casting_operator: '::'
+              data_type:
+                keyword: tsvector
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - function:
+              function_name:
+                function_name_identifier: to_tsvector
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'fat cats ate fat rats'"
+                  end_bracket: )
+          - binary_operator: '@@'
+          - function:
+              function_name:
+                function_name_identifier: to_tsquery
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'fat & rat'"
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'fat cats ate fat rats'"
+              casting_operator: '::'
+              data_type:
+                keyword: tsvector
+            binary_operator: '@@'
+            function:
+              function_name:
+                function_name_identifier: to_tsquery
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'fat & rat'"
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'fat cats ate fat rats'"
+              casting_operator: '::'
+              data_type:
+                keyword: tsvector
+            binary_operator: '@@'
+            function:
+              function_name:
+                function_name_identifier: to_tsquery
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'fat & rat'"
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - function:
+              function_name:
+                function_name_identifier: to_tsvector
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'error is not fatal'"
+                  end_bracket: )
+          - binary_operator: '@@'
+          - function:
+              function_name:
+                function_name_identifier: to_tsquery
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'fatal <-> error'"
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: phraseto_tsquery
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'cats ate rats'"
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: phraseto_tsquery
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'the cats ate the rats'"
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - cast_expression:
+              quoted_literal: "'a:1 b:2'"
+              casting_operator: '::'
+              data_type:
+                keyword: tsvector
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - cast_expression:
+              quoted_literal: "'c:1 d:2 b:3'"
+              casting_operator: '::'
+              data_type:
+                keyword: tsvector
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - cast_expression:
+              quoted_literal: "'fat | rat'"
+              casting_operator: '::'
+              data_type:
+                keyword: tsquery
+          - comparison_operator:
+            - ampersand: '&'
+            - ampersand: '&'
+          - cast_expression:
+              quoted_literal: "'cat'"
+              casting_operator: '::'
+              data_type:
+                keyword: tsquery
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - cast_expression:
+              quoted_literal: "'fat | rat'"
+              casting_operator: '::'
+              data_type:
+                keyword: tsquery
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - cast_expression:
+              quoted_literal: "'cat'"
+              casting_operator: '::'
+              data_type:
+                keyword: tsquery
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - function:
+              function_name:
+                function_name_identifier: to_tsquery
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'fat'"
+                  end_bracket: )
+          - binary_operator: <->
+          - function:
+              function_name:
+                function_name_identifier: to_tsquery
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'rat'"
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - cast_expression:
+              quoted_literal: "'cat'"
+              casting_operator: '::'
+              data_type:
+                keyword: tsquery
+          - binary_operator: '@>'
+          - cast_expression:
+              quoted_literal: "'cat & rat'"
+              casting_operator: '::'
+              data_type:
+                keyword: tsquery
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - cast_expression:
+              quoted_literal: "'cat'"
+              casting_operator: '::'
+              data_type:
+                keyword: tsquery
+          - binary_operator: <@
+          - cast_expression:
+              quoted_literal: "'cat & rat'"
+              casting_operator: '::'
+              data_type:
+                keyword: tsquery
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - cast_expression:
+              quoted_literal: "'cat'"
+              casting_operator: '::'
+              data_type:
+                keyword: tsquery
+          - binary_operator: <@
+          - cast_expression:
+              quoted_literal: "'!cat & rat'"
+              casting_operator: '::'
+              data_type:
+                keyword: tsquery
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            full_text_search_operator: '!!'
+            cast_expression:
+              quoted_literal: "'cat'"
+              casting_operator: '::'
+              data_type:
+                keyword: tsquery
+- statement_terminator: ;
