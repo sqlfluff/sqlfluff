@@ -3903,6 +3903,16 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
             Ref("EqualsSegment"),
             Ref("NakedIdentifierSegment"),
         ),
+        Sequence(
+            "ENABLE_QUERY_ACCELERATION",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "QUERY_ACCELERATION_MAX_SCALE_FACTOR",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
     )
 
 

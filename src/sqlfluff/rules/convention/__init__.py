@@ -50,7 +50,7 @@ def get_configs_info() -> Dict[str, Any]:
             "validation": ["consistent", "single_quotes", "double_quotes"],
             "definition": (
                 "Preferred quoting style to use for the quoted literals. If set to "
-                "``consistent`` quoting style is derived from the first quoted literal"
+                "``consistent`` quoting style is derived from the first quoted literal "
                 "in the file."
             ),
         },
