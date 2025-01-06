@@ -8730,4 +8730,11 @@ class CreateRowAccessPolicyStatementSegment(BaseSegment):
         "RETURNS",
         "BOOLEAN",
         Ref("FunctionAssignerSegment"),
+        Ref("ExpressionSegment"),
+        Sequence(
+            "COMMENT",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
     )
