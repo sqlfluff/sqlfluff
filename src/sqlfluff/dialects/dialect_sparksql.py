@@ -1620,11 +1620,11 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
             Bracketed(
                 Delimited(
                     Sequence(
-                        Ref("ColumnReferenceSegment"),  # Reference to the column name
-                        Ref("DatatypeSegment", optional=True),  # Optional data type of the column
-                        Ref("CommentGrammar", optional=True),  # Optional comment on the column
+                        Ref("ColumnReferenceSegment"),
+                        Ref("DatatypeSegment", optional=True),
+                        Ref("CommentGrammar", optional=True),
                     ),
-                    Ref("ConstraintStatementSegment", optional=True),  # Optional constraints
+                    Ref("ConstraintStatementSegment", optional=True),
                 ),
             ),
             optional=True,
