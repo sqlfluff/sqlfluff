@@ -1421,6 +1421,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreatePasswordPolicyStatementSegment"),
             Ref("AlterPasswordPolicyStatementSegment"),
             Ref("DropPasswordPolicyStatementSegment"),
+            Ref("AlterRowAccessPolicyStatmentSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -2106,6 +2107,7 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                     Ref("IfNotExistsGrammar", optional=True),
                     Ref("ColumnReferenceSegment"),
                     Ref("DatatypeSegment"),
+                    Sequence("NOT", "NULL", optional=True),
                     OneOf(
                         # Default & AS (virtual columns)
                         Sequence(
@@ -2820,6 +2822,7 @@ class AccessStatementSegment(BaseSegment):
                 "DATABASE",
                 "INTEGRATION",
                 "SHARE",
+                "TAG",
                 Sequence("DATA", "EXCHANGE", "LISTING"),
                 Sequence("NETWORK", "POLICY"),
             ),
@@ -2829,7 +2832,7 @@ class AccessStatementSegment(BaseSegment):
         Sequence("APPLY", "SESSION", "POLICY"),
         Sequence("APPLY", "TAG"),
         Sequence("ATTACH", "POLICY"),
-        Sequence("EXECUTE", "TASK"),
+        Sequence("EXECUTE", OneOf("ALERT", "TASK")),
         Sequence("IMPORT", "SHARE"),
         Sequence(
             "MANAGE",
@@ -2928,18 +2931,8 @@ class AccessStatementSegment(BaseSegment):
                 Sequence("FUTURE", "SCHEMAS", "IN", "DATABASE"),
                 _schema_object_types,
                 Sequence(
-                    "ALL",
-                    OneOf(
-                        _schema_object_types_plural,
-                        Sequence("MATERIALIZED", "VIEWS"),
-                        Sequence("EXTERNAL", "TABLES"),
-                        Sequence("FILE", "FORMATS"),
-                    ),
-                    "IN",
-                    OneOf("SCHEMA", "DATABASE"),
-                ),
-                Sequence(
-                    "FUTURE",
+                    OneOf("ALL", "FUTURE"),
+                    OneOf("DYNAMIC", optional=True),
                     OneOf(
                         _schema_object_types_plural,
                         Sequence("MATERIALIZED", "VIEWS"),
@@ -2987,13 +2980,21 @@ class AccessStatementSegment(BaseSegment):
                     "SCHEMA",
                     Ref("SchemaReferenceSegment"),
                 ),
+                Sequence("APPLICATION", "ROLE", Ref("ObjectReferenceSegment")),
                 # In the case where a role is granted non-explicitly,
                 # e.g. GRANT ROLE_NAME TO OTHER_ROLE_NAME
                 # See https://docs.snowflake.com/en/sql-reference/sql/grant-role.html
                 Ref("ObjectReferenceSegment"),
             ),
             "TO",
-            OneOf("USER", "ROLE", "SHARE", Sequence("DATABASE", "ROLE"), optional=True),
+            OneOf(
+                "APPLICATION",
+                "USER",
+                "ROLE",
+                "SHARE",
+                Sequence("DATABASE", "ROLE"),
+                optional=True,
+            ),
             Delimited(
                 OneOf(
                     Ref("RoleReferenceSegment"),
@@ -3904,6 +3905,16 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
             Ref("EqualsSegment"),
             Ref("NakedIdentifierSegment"),
         ),
+        Sequence(
+            "ENABLE_QUERY_ACCELERATION",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "QUERY_ACCELERATION_MAX_SCALE_FACTOR",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
     )
 
 
@@ -4636,7 +4647,7 @@ class CreateTaskSegment(BaseSegment):
         ),
         Sequence(
             "AFTER",
-            Ref("ObjectReferenceSegment"),
+            Delimited(Ref("ObjectReferenceSegment")),
             optional=True,
         ),
         Dedent,
@@ -7301,8 +7312,8 @@ class AlterTaskStatementSegment(BaseSegment):
         OneOf(
             "RESUME",
             "SUSPEND",
-            Sequence("REMOVE", "AFTER", Ref("ObjectReferenceSegment")),
-            Sequence("ADD", "AFTER", Ref("ObjectReferenceSegment")),
+            Sequence("REMOVE", "AFTER", Delimited(Ref("ObjectReferenceSegment"))),
+            Sequence("ADD", "AFTER", Delimited(Ref("ObjectReferenceSegment"))),
             Ref("AlterTaskSpecialSetClauseSegment"),
             Ref("AlterTaskSetClauseSegment"),
             Ref("AlterTaskUnsetClauseSegment"),
@@ -8706,4 +8717,37 @@ class DropPasswordPolicyStatementSegment(BaseSegment):
         "POLICY",
         Ref("IfExistsGrammar", optional=True),
         Ref("PasswordPolicyReferenceSegment"),
+    )
+
+
+class AlterRowAccessPolicyStatmentSegment(BaseSegment):
+    """Alter Row Access Policy Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/alter-row-access-policy
+    """
+
+    type = "alter_row_access_policy_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "ROW",
+        "ACCESS",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "SET",
+                "BODY",
+                Ref("FunctionAssignerSegment"),
+                Ref("ExpressionSegment"),
+            ),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence(
+                "SET", "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+            ),
+            Sequence("UNSET", "COMMENT"),
+        ),
     )

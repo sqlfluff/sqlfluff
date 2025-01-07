@@ -83,3 +83,60 @@ test_noop_between:
   # example of not-checked operator
   pass_str: |
     select col from foo WHERE score BETWEEN 1 and 10
+
+test_other_operators_with_unknown_precedence:
+  pass_str: |
+    with
+    cte as (
+        select 1 as num
+        union all
+        select 2 as num
+        union all
+        select 3 as num
+        union all
+        select 4 as num
+    )
+
+    select
+        *,
+        case
+            when num % 2 = 0 then 1
+            else 2
+        end as test
+    from cte
+
+test_other_operators_with_bracketed_precedence:
+  pass_str: |
+    with
+    cte as (
+        select 1 as num
+        union all
+        select 2 as num
+        union all
+        select 3 as num
+        union all
+        select 4 as num
+    )
+
+    select
+        *,
+        case
+            when (num % 2) = 0 then 1
+            else 2
+        end as test
+    from cte
+
+test_pass_templated_queries:
+  pass_str: |
+    SELECT a, col FROM t WHERE a = :a
+  configs:
+    core:
+      templater: placeholder
+    templater:
+      placeholder:
+        param_style: colon
+        a: a
+
+test_pass_array_access:
+  pass_str: |
+    SELECT my_array[1] = [1] FROM t

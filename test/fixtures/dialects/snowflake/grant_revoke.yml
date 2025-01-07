@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0690310e2a4a48fecf5d8d49f8582c255f4213bdee32884a53db83c73b2baa08
+_hash: a774f849f9017a3d54105d613cae5c5b9c19819799ef0e2fbeb9e7e3070132dc
 file:
 - statement:
     access_statement:
@@ -499,6 +499,22 @@ file:
 - statement:
     access_statement:
     - keyword: grant
+    - keyword: imported
+    - keyword: privileges
+    - keyword: 'on'
+    - keyword: schema
+    - object_reference:
+      - naked_identifier: mydb
+      - dot: .
+      - naked_identifier: myschema
+    - keyword: to
+    - keyword: application
+    - role_reference:
+        naked_identifier: my_app
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
     - keyword: operate
     - keyword: 'on'
     - keyword: warehouse
@@ -524,6 +540,44 @@ file:
     - keyword: with
     - keyword: grant
     - keyword: option
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: operate
+    - keyword: 'on'
+    - keyword: future
+    - keyword: dynamic
+    - keyword: tables
+    - keyword: in
+    - keyword: schema
+    - object_reference:
+      - naked_identifier: mydb
+      - dot: .
+      - naked_identifier: myschema
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: operate
+    - keyword: 'on'
+    - keyword: all
+    - keyword: dynamic
+    - keyword: tables
+    - keyword: in
+    - keyword: schema
+    - object_reference:
+      - naked_identifier: mydb
+      - dot: .
+      - naked_identifier: myschema
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: analyst
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -1030,6 +1084,18 @@ file:
     access_statement:
     - keyword: grant
     - keyword: execute
+    - keyword: alert
+    - keyword: 'on'
+    - keyword: account
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: execute
     - keyword: task
     - keyword: 'on'
     - keyword: account
@@ -1157,6 +1223,20 @@ file:
     - keyword: policy
     - keyword: 'on'
     - keyword: account
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: create
+    - keyword: tag
+    - keyword: 'on'
+    - keyword: schema
+    - object_reference:
+        naked_identifier: my_schema
     - keyword: to
     - keyword: role
     - role_reference:
@@ -1360,4 +1440,16 @@ file:
     - keyword: role
     - object_reference:
         naked_identifier: dbrolename
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: dbrolename
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: public
 - statement_terminator: ;
