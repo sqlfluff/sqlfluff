@@ -1422,6 +1422,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterPasswordPolicyStatementSegment"),
             Ref("DropPasswordPolicyStatementSegment"),
             Ref("CreateRowAccessPolicyStatementSegment"),
+            Ref("AlterRowAccessPolicyStatmentSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -2107,6 +2108,7 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                     Ref("IfNotExistsGrammar", optional=True),
                     Ref("ColumnReferenceSegment"),
                     Ref("DatatypeSegment"),
+                    Sequence("NOT", "NULL", optional=True),
                     OneOf(
                         # Default & AS (virtual columns)
                         Sequence(
@@ -3903,6 +3905,16 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
             "RESOURCE_MONITOR",
             Ref("EqualsSegment"),
             Ref("NakedIdentifierSegment"),
+        ),
+        Sequence(
+            "ENABLE_QUERY_ACCELERATION",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "QUERY_ACCELERATION_MAX_SCALE_FACTOR",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
         ),
     )
 
@@ -8736,5 +8748,38 @@ class CreateRowAccessPolicyStatementSegment(BaseSegment):
             Ref("EqualsSegment"),
             Ref("QuotedLiteralSegment"),
             optional=True,
+        ),
+    )
+
+
+class AlterRowAccessPolicyStatmentSegment(BaseSegment):
+    """Alter Row Access Policy Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/alter-row-access-policy
+    """
+
+    type = "alter_row_access_policy_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "ROW",
+        "ACCESS",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "SET",
+                "BODY",
+                Ref("FunctionAssignerSegment"),
+                Ref("ExpressionSegment"),
+            ),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence(
+                "SET", "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+            ),
+            Sequence("UNSET", "COMMENT"),
         ),
     )
