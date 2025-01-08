@@ -8716,7 +8716,6 @@ class AlterTagStatementSegment(BaseSegment):
     """
 
     type = "alter_tag_statement"
-    # breakpoint()
     match_grammar = Sequence(
         "ALTER",
         "TAG",
