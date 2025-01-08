@@ -170,7 +170,7 @@ postgres_dialect.insert_lexer_matchers(
             # them. In future we may want to enhance this to actually parse them to
             # ensure they are valid meta commands.
             "meta_command",
-            r"\\([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
+            r"\\(?!gset|gexec)([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
             CommentSegment,
         ),
         RegexLexer(
@@ -182,6 +182,14 @@ postgres_dialect.insert_lexer_matchers(
             "dollar_numeric_literal",
             r"\$\d+",
             LiteralSegment,
+        ),
+        RegexLexer(
+            # For now we'll just treat meta syntax like comments and so just ignore
+            # them. In future we may want to enhance this to actually parse them to
+            # ensure they are valid meta commands.
+            "meta_command_query_buffer",
+            r"\\([^\\\r\n])+((\\g(set|exec))|(?=\n)|(?=\r\n))?",
+            SymbolSegment,
         ),
     ],
     before="word",  # Final thing to search for - as psql specific
@@ -388,6 +396,9 @@ postgres_dialect.add(
     CreateForeignTableGrammar=Sequence("CREATE", "FOREIGN", "TABLE"),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
     WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
+    MetaCommandQueryBufferSegment=TypedParser(
+        "meta_command_query_buffer", SymbolSegment, type="meta_command"
+    ),
 )
 
 postgres_dialect.replace(
@@ -623,6 +634,7 @@ postgres_dialect.replace(
         "LIMIT",
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
+        Ref("MetaCommandQueryBufferSegment"),
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
@@ -1704,6 +1716,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
             Sequence("ON", "CONFLICT"),
             Ref.keyword("RETURNING"),
             Ref("WithCheckOptionSegment"),
+            Ref("MetaCommandQueryBufferSegment"),
         ],
     )
 
@@ -1731,6 +1744,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Sequence("ON", "CONFLICT"),
             Ref.keyword("RETURNING"),
             Ref("WithCheckOptionSegment"),
+            Ref("MetaCommandQueryBufferSegment"),
         ],
     )
 
@@ -1759,6 +1773,7 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
             Ref("SetOperatorSegment"),
             Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
             Ref("WithCheckOptionSegment"),
+            Ref("MetaCommandQueryBufferSegment"),
         ],
         parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
@@ -4761,6 +4776,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ShowStatementSegment"),
             Ref("SetConstraintsStatementSegment"),
             Ref("CreateForeignDataWrapperStatementSegment"),
+            Ref("MetaCommandQueryBufferStatement"),
         ],
     )
 
@@ -6391,4 +6407,22 @@ class ShowStatementSegment(BaseSegment):
             "SERVER_VERSION",
             Ref("ParameterNameSegment"),
         ),
+    )
+
+
+class MetaCommandQueryBufferStatement(BaseSegment):
+    """A statement that uses meta-commands to change query buffer (e.g. gset and gexec).
+
+    https://www.postgresql.org/docs/current/app-psql.html#APP-PSQL-META-COMMAND-GEXEC
+    """
+
+    type = "meta_command_statement"
+
+    match_grammar = Sequence(
+        AnyNumberOf(
+            Sequence(
+                Ref("SelectStatementSegment"),
+                Ref("MetaCommandQueryBufferSegment", optional=True),
+            )
+        )
     )
