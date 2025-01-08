@@ -215,7 +215,7 @@ class BaseGrammar(Matchable):
             for k in self.equality_kwargs
         )
 
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self, other: Any) -> bool:  # pragma: no cover
         """Two grammars are not equal if their elements or types are not equal.
 
         NOTE: This is to handle some conflicts with dunder methods in mypyc.
