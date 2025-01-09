@@ -28,7 +28,7 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 def cached_method_for_parse_context(
-    func: Callable[[Any, ParseContext, Optional[Tuple[str]]], SimpleHintType]
+    func: Callable[[Any, ParseContext, Optional[Tuple[str]]], SimpleHintType],
 ) -> Callable[..., SimpleHintType]:
     """A decorator to cache the output of this method for a given parse context.
 
@@ -214,6 +214,13 @@ class BaseGrammar(Matchable):
             getattr(self, k, None) == getattr(other, k, None)
             for k in self.equality_kwargs
         )
+
+    def __ne__(self, other: Any) -> bool:  # pragma: no cover
+        """Two grammars are not equal if their elements or types are not equal.
+
+        NOTE: This is to handle some conflicts with dunder methods in mypyc.
+        """
+        return not self.__eq__(other)
 
     def copy(
         self: T,
