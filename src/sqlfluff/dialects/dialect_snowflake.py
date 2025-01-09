@@ -1423,6 +1423,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropPasswordPolicyStatementSegment"),
             Ref("CreateRowAccessPolicyStatementSegment"),
             Ref("AlterRowAccessPolicyStatmentSegment"),
+            Ref("AlterTagStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -8886,5 +8887,58 @@ class AlterRowAccessPolicyStatmentSegment(BaseSegment):
                 "SET", "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
             ),
             Sequence("UNSET", "COMMENT"),
+        ),
+    )
+
+
+class AlterTagStatementSegment(BaseSegment):
+    """A Snowflake Alter Tag Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/alter-tag
+    """
+
+    type = "alter_tag_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "TAG",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                OneOf(
+                    "SET",
+                    "UNSET",
+                ),
+                Delimited(
+                    Sequence(
+                        "MASKING",
+                        "POLICY",
+                        Ref("ParameterNameSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "SET",
+                "COMMENT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence("UNSET", "COMMENT"),
+            Sequence(
+                OneOf(
+                    "ADD",
+                    "DROP",
+                ),
+                "ALLOWED_VALUES",
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            Sequence("UNSET", "ALLOWED_VALUES"),
         ),
     )
