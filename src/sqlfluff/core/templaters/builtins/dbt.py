@@ -57,4 +57,6 @@ DBT_BUILTINS = {
     # to be parsed TWICE if it uses this variable.
     "is_incremental": FunctionWrapper("is_incremental", lambda: True),
     "this": RelationEmulator(),
+    "zip_strict": zip,
+    "zip": lambda *args, default=None: zip(*args) if all(hasattr(arg, '__iter__') for arg in args) else default
 }
