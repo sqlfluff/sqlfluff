@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 18bb8898c12b56df1d5444a075784ef943a500aa96652408f8047750fa26cd2e
+_hash: aebe7c883fd1accaed1dc7de8d30eb1df5fa6972af9ec015f498c09b50c9a0b9
 file:
 - statement:
     access_statement:
@@ -345,4 +345,67 @@ file:
     - comma: ','
     - role_reference:
         naked_identifier: my_other_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: EXECUTE
+    - keyword: 'ON'
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: test
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: a
+        - keyword: IN
+        - data_type:
+            keyword: TEXT
+        - comma: ','
+        - parameter: b
+        - keyword: OUT
+        - data_type:
+            keyword: TEXT
+        - comma: ','
+        - keyword: INOUT
+        - parameter: c
+        - data_type:
+            keyword: TEXT
+        - comma: ','
+        - keyword: VARIADIC
+        - parameter: d
+        - data_type:
+            keyword: TEXT
+        - end_bracket: )
+    - keyword: TO
+    - role_reference:
+        naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: EXECUTE
+    - keyword: 'ON'
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: test
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: a
+        - data_type:
+            keyword: TEXT
+        - comma: ','
+        - parameter: b
+        - column_type_reference:
+            column_reference:
+            - naked_identifier: my_table
+            - dot: .
+            - naked_identifier: my_column
+            binary_operator: '%'
+            keyword: type
+        - end_bracket: )
+    - keyword: TO
+    - role_reference:
+        naked_identifier: my_user
 - statement_terminator: ;

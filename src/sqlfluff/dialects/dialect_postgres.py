@@ -599,7 +599,11 @@ postgres_dialect.replace(
         OneOf("IN", "OUT", "INOUT", "VARIADIC", optional=True),
         OneOf(
             Ref("DatatypeSegment"),
-            Sequence(Ref("ParameterNameSegment"), Ref("DatatypeSegment")),
+            Sequence(
+                Ref("ParameterNameSegment"),
+                OneOf("IN", "OUT", "INOUT", "VARIADIC", optional=True),
+                OneOf(Ref("DatatypeSegment"), Ref("ColumnTypeReferenceSegment")),
+            ),
         ),
         Sequence(
             OneOf("DEFAULT", Ref("EqualsSegment"), Ref("WalrusOperatorSegment")),
@@ -6412,4 +6416,16 @@ class DropForeignTableStatement(BaseSegment):
             Ref("TableReferenceSegment"),
         ),
         Ref("CascadeRestrictGrammar", optional=True),
+
+
+class ColumnTypeReferenceSegment(BaseSegment):
+    """A column type reference segment (e.g. `table_name.column_name%type`).
+
+    https://www.postgresql.org/docs/current/sql-createfunction.html
+    """
+
+    type = "column_type_reference"
+
+    match_grammar = Sequence(
+        Ref("ColumnReferenceSegment"), Ref("ModuloSegment"), "TYPE"
     )
