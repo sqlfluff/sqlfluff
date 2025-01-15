@@ -4459,7 +4459,10 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Sequence(
             "TARGET_LAG",
             Ref("EqualsSegment"),
-            Ref("DynamicTableTargetLagSegment"),
+            OneOf(
+                Ref("DynamicTableTargetLagSegment"),
+                Ref("SingleQuotedIdentifierSegment"),
+            ),
             optional=True,
         ),
         Sequence(

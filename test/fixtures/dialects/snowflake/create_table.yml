@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2555fe6f5fba6f89b64877716efd8c9dacaede86f1d0648ead3d45e0dd5dba90
+_hash: c62881f9238a58a33be2fa4def5151418f1c40e710f7e32a6a17b07eed3fad85
 file:
 - statement:
     create_table_statement:
@@ -1464,6 +1464,40 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - dynamic_table_lag_interval_segment: "'5 days'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_MULTIPLE_DAYS_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_identifier: "'${my_time_variable}'"
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
