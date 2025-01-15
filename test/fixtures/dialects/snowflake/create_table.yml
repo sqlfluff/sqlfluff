@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c62881f9238a58a33be2fa4def5151418f1c40e710f7e32a6a17b07eed3fad85
+_hash: b20aa68ec23c4b454eb11fe1811ae035f7afbb15ef9e88ac2a68d4e9c04fd58d
 file:
 - statement:
     create_table_statement:
@@ -1497,7 +1497,7 @@ file:
     - keyword: TARGET_LAG
     - comparison_operator:
         raw_comparison_operator: '='
-    - quoted_identifier: "'${my_time_variable}'"
+    - dynamic_table_lag_interval_segment: "'${my_time_variable}'"
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
