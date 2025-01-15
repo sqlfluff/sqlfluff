@@ -5598,34 +5598,19 @@ class TemporalQuerySegment(ansi.TemporalQuerySegment):
             Sequence(
                 "AS",
                 "OF",
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("ParameterNameSegment")
-                )
+                OneOf(Ref("QuotedLiteralSegment"), Ref("ParameterNameSegment")),
             ),
             Sequence(
                 "FROM",
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("ParameterNameSegment")
-                ),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("ParameterNameSegment")),
                 "TO",
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("ParameterNameSegment")
-                ),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("ParameterNameSegment")),
             ),
             Sequence(
                 "BETWEEN",
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("ParameterNameSegment")
-                ),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("ParameterNameSegment")),
                 "AND",
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("ParameterNameSegment")
-                ),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("ParameterNameSegment")),
             ),
             Sequence(
                 "CONTAINED",
