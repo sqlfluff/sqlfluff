@@ -145,12 +145,7 @@ postgres_dialect.insert_lexer_matchers(
             r"[bBxX]'[0-9a-fA-F]*'",
             CodeSegment,
         ),
-        RegexLexer(
-            # https://www.postgresql.org/docs/current/functions-textsearch.html
-            "full_text_search_operator",
-            r"!!",
-            SymbolSegment,
-        ),
+        StringLexer("full_text_search_operator", "!!", SymbolSegment),
     ],
     before="like_operator",
 )
