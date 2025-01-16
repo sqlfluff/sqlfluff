@@ -36,7 +36,7 @@ test_pass_object_referenced_3:
     SELECT * FROM db.sc.tbl2
     WHERE a NOT IN (SELECT tbl2.a FROM db.sc.tbl1)
 
-test_pass_object_referenced_4:
+test_pass_object_referenced_4a:
   # Test ambiguous column reference caused by use of BigQuery structure fields.
   # Here, 'et2' could either be a schema name or a table name.
   # https://github.com/sqlfluff/sqlfluff/issues/1079
@@ -49,6 +49,17 @@ test_pass_object_referenced_4:
     rules:
       references.from:
         force_enable: true
+
+test_pass_object_referenced_4b:
+  # DuckDB allows dot-access to its MAP objects, which requires special handling
+  # to ensure `ex.x` is not interpreted as `{table}.{field}` instead of
+  # `{schema}.{table}`. The following returns `'there'` if executed.
+  pass_str: |
+    SELECT ex.x.hi
+    FROM (SELECT { 'hi': 'there' } AS x) AS ex
+  configs:
+    core:
+      dialect: duckdb
 
 test_pass_object_referenced_5a:
   # Test ambiguous column reference caused by use of BigQuery structure fields.

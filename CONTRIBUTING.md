@@ -83,7 +83,13 @@ changes.
 
 #### Requirements
 
+If you plan on working with a particular dbt plugin, you will need
+to ensure your python version is high enough to support it. For example,
+the instructions below use `python3.8` but if you are working with
+`dbt-snowflake` 1.9.0 you will need python at least 3.9.
+
 The simplest way to set up a development environment is to use `tox`.
+
 First ensure that you have tox installed:
 ```shell
 python3.8 -m pip install -U tox
@@ -98,25 +104,32 @@ Python version (though this may be be coming in tox 4!).
 
 #### Creating a virtual environment
 
-A virtual environment can then be created and activated by running (check
-the [requirements](#requirements) before running this):
+A virtual environment can then be created and activated. For the
+various versions currently available you can check the `tox.ini` file.
+The numbers correspond to the dbt core version; dbt180 will install
+dbt 1.8.0.
+
+To build and activate the virtual environment:
 ```shell
-tox -e dbt021-py38 --devenv .venv
+tox -e dbt180 --devenv .venv
 source .venv/bin/activate
 ```
-(The `dbt021-py38` environment is a good default choice.
-However any version can be installed by replacing `dbt021-py38` with
-`py`, `py37`, `py39`, `dbt020-py38`, etc.
+(The `dbt180` environment is a good default choice.
+However any version can be installed by replacing `dbt180` with
+`py`, `py38` through `py313`, `dbt140` through `dbt190`, etc.
 `py` defaults to the python version that was used to install tox.
-However, to be able to run all tests including the dbt templater,
+To be able to run all tests including the dbt templater,
 choose one of the dbt environments.)
 
 Windows users should call `.venv\Scripts\activate` rather than `source .venv/bin/activate`.
+They may also want to substitute `winpy` for `py` in the commands above.
 
 This virtual environment will already have the package installed in editable
 mode for you, as well as `requirements_dev.txt` and `plugins/sqlfluff-plugin-example`.
 Additionally if a dbt virtual environment was specified, you will also have
 `dbt-core`, `dbt-postgres`, and `plugins/sqlfluff-templater-dbt` available.
+A different dbt plugin can be selected by changing the appropriate file under `constraints`
+for the desired package and version.
 
 ### Wiki
 

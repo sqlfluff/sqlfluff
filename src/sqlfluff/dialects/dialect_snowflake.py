@@ -1423,6 +1423,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropPasswordPolicyStatementSegment"),
             Ref("CreateRowAccessPolicyStatementSegment"),
             Ref("AlterRowAccessPolicyStatmentSegment"),
+            Ref("AlterTagStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -4455,30 +4456,6 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        Sequence(
-            "TARGET_LAG",
-            Ref("EqualsSegment"),
-            Ref("DynamicTableTargetLagSegment"),
-            optional=True,
-        ),
-        Sequence(
-            "REFRESH_MODE",
-            Ref("EqualsSegment"),
-            Ref("RefreshModeType"),
-            optional=True,
-        ),
-        Sequence(
-            "INITIALIZE",
-            Ref("EqualsSegment"),
-            Ref("InitializeType"),
-            optional=True,
-        ),
-        Sequence(
-            "WAREHOUSE",
-            Ref("EqualsSegment"),
-            Ref("ObjectReferenceSegment"),
-            optional=True,
-        ),
         # Columns and comment syntax:
         AnySetOf(
             Sequence(
@@ -4572,6 +4549,35 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             OneOf(
                 # Create AS syntax:
                 Sequence(
+                    AnySetOf(
+                        Sequence(
+                            "TARGET_LAG",
+                            Ref("EqualsSegment"),
+                            Ref("DynamicTableTargetLagSegment"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "REFRESH_MODE",
+                            Ref("EqualsSegment"),
+                            Ref("RefreshModeType"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "INITIALIZE",
+                            Ref("EqualsSegment"),
+                            Ref("InitializeType"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "WAREHOUSE",
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                Ref("ObjectReferenceSegment"),
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                            optional=True,
+                        ),
+                    ),
                     "AS",
                     OptionallyBracketed(Ref("SelectableGrammar")),
                 ),
@@ -8781,5 +8787,58 @@ class AlterRowAccessPolicyStatmentSegment(BaseSegment):
                 "SET", "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
             ),
             Sequence("UNSET", "COMMENT"),
+        ),
+    )
+
+
+class AlterTagStatementSegment(BaseSegment):
+    """A Snowflake Alter Tag Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/alter-tag
+    """
+
+    type = "alter_tag_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "TAG",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                OneOf(
+                    "SET",
+                    "UNSET",
+                ),
+                Delimited(
+                    Sequence(
+                        "MASKING",
+                        "POLICY",
+                        Ref("ParameterNameSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "SET",
+                "COMMENT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence("UNSET", "COMMENT"),
+            Sequence(
+                OneOf(
+                    "ADD",
+                    "DROP",
+                ),
+                "ALLOWED_VALUES",
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            Sequence("UNSET", "ALLOWED_VALUES"),
         ),
     )
