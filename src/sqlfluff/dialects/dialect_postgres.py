@@ -301,7 +301,20 @@ postgres_dialect.sets("datetime_units").update(
 
 # Set the bare functions
 postgres_dialect.sets("bare_functions").update(
-    ["CURRENT_TIMESTAMP", "CURRENT_TIME", "CURRENT_DATE", "LOCALTIME", "LOCALTIMESTAMP"]
+    [
+        "CURRENT_TIMESTAMP",
+        "CURRENT_TIME",
+        "CURRENT_DATE",
+        "LOCALTIME",
+        "LOCALTIMESTAMP",
+        "CURRENT_CATALOG",
+        "CURRENT_ROLE",
+        "CURRENT_SCHEMA",
+        "CURRENT_USER",
+        "SESSION_USER",
+        "SYSTEM_USER",
+        "USER",
+    ]
 )
 
 # Postgres doesn't have a dateadd function
