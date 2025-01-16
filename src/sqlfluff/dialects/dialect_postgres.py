@@ -4775,6 +4775,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ShowStatementSegment"),
             Ref("SetConstraintsStatementSegment"),
             Ref("CreateForeignDataWrapperStatementSegment"),
+            Ref("DropForeignTableStatement"),
         ],
     )
 
@@ -6405,6 +6406,26 @@ class ShowStatementSegment(BaseSegment):
             "SERVER_VERSION",
             Ref("ParameterNameSegment"),
         ),
+    )
+
+
+class DropForeignTableStatement(BaseSegment):
+    """A `DROP FOREIGN TABLE` Statement.
+
+    https://www.postgresql.org/docs/current/sql-dropforeigntable.html
+    """
+
+    type = "drop_foreign_table_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "FOREIGN",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(
+            Ref("TableReferenceSegment"),
+        ),
+        Ref("CascadeRestrictGrammar", optional=True),
     )
 
 
