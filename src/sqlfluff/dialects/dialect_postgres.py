@@ -6416,6 +6416,7 @@ class DropForeignTableStatement(BaseSegment):
             Ref("TableReferenceSegment"),
         ),
         Ref("CascadeRestrictGrammar", optional=True),
+    )
 
 
 class ColumnTypeReferenceSegment(BaseSegment):
