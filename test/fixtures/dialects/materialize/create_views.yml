@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 84c87cf3d6cfb84985e7d46dcc37c3314ce9f0f4da6f0dcf1283388c1dc9604a
+_hash: 54559e3869d4c173f0d2ead79d4bba77f3f723c19fbf741d0ee2247cd7abd8b6
 file:
 - statement:
     create_materialized_view_statement:
@@ -160,8 +160,7 @@ file:
             - keyword: JOIN
             - from_expression_element:
                 table_expression:
-                  table_reference:
-                    naked_identifier: user
+                  bare_function: user
             - join_on_condition:
                 keyword: 'ON'
                 expression:

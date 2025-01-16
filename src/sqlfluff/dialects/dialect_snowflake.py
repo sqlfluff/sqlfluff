@@ -4456,30 +4456,6 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        Sequence(
-            "TARGET_LAG",
-            Ref("EqualsSegment"),
-            Ref("DynamicTableTargetLagSegment"),
-            optional=True,
-        ),
-        Sequence(
-            "REFRESH_MODE",
-            Ref("EqualsSegment"),
-            Ref("RefreshModeType"),
-            optional=True,
-        ),
-        Sequence(
-            "INITIALIZE",
-            Ref("EqualsSegment"),
-            Ref("InitializeType"),
-            optional=True,
-        ),
-        Sequence(
-            "WAREHOUSE",
-            Ref("EqualsSegment"),
-            Ref("ObjectReferenceSegment"),
-            optional=True,
-        ),
         # Columns and comment syntax:
         AnySetOf(
             Sequence(
@@ -4573,6 +4549,35 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             OneOf(
                 # Create AS syntax:
                 Sequence(
+                    AnySetOf(
+                        Sequence(
+                            "TARGET_LAG",
+                            Ref("EqualsSegment"),
+                            Ref("DynamicTableTargetLagSegment"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "REFRESH_MODE",
+                            Ref("EqualsSegment"),
+                            Ref("RefreshModeType"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "INITIALIZE",
+                            Ref("EqualsSegment"),
+                            Ref("InitializeType"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "WAREHOUSE",
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                Ref("ObjectReferenceSegment"),
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                            optional=True,
+                        ),
+                    ),
                     "AS",
                     OptionallyBracketed(Ref("SelectableGrammar")),
                 ),
