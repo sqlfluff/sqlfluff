@@ -4789,6 +4789,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SetConstraintsStatementSegment"),
             Ref("CreateForeignDataWrapperStatementSegment"),
             Ref("DropForeignTableStatement"),
+            Ref("CreateOperatorStatementSegment"),
         ],
     )
 
@@ -6452,4 +6453,59 @@ class ColumnTypeReferenceSegment(BaseSegment):
 
     match_grammar = Sequence(
         Ref("ColumnReferenceSegment"), Ref("ModuloSegment"), "TYPE"
+    )
+
+
+class CreateOperatorStatementSegment(BaseSegment):
+    """A `CREATE OPERATOR` statement.
+
+    As specified in https://www.postgresql.org/docs/17/sql-createoperator.html
+    """
+
+    type = "create_operator_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "OPERATOR",
+        AnyNumberOf(
+            RegexParser(r"^[+\-*/<>=~!@#%^&|`?]+$", SymbolSegment, "commutator"),
+        ),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf("LEFTARG", "RIGHTARG"),
+                    Ref("EqualsSegment"),
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    "COMMUTATOR",
+                    Ref("EqualsSegment"),
+                    AnyNumberOf(
+                        RegexParser(
+                            r"^[+\-*/<>=~!@#%^&|`?]+$", SymbolSegment, "commutator"
+                        ),
+                    ),
+                    optional=True,
+                ),
+                Sequence(
+                    "NEGATOR",
+                    Ref("EqualsSegment"),
+                    AnyNumberOf(
+                        RegexParser(
+                            r"^[+\-*/<>=~!@#%^&|`?]+$", SymbolSegment, "negator"
+                        ),
+                    ),
+                    optional=True,
+                ),
+                Sequence(
+                    OneOf("RESTRICT", "JOIN", OneOf("PROCEDURE", "FUNCTION")),
+                    Ref("EqualsSegment"),
+                    Ref("FunctionNameSegment"),
+                    optional=True,
+                ),
+                Ref.keyword("HASHES", optional=True),
+                Ref.keyword("MERGES", optional=True),
+            )
+        ),
     )
