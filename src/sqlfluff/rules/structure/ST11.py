@@ -6,10 +6,14 @@ from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
+from sqlfluff.utils.analysis.query import Query
 
 
 class UnqualifiedReferenceError(ValueError):
     """Custom exception for signalling when a reference is unqualified."""
+
+
+_START_TYPES = ["select_statement"]
 
 
 class Rule_ST11(BaseRule):
@@ -81,7 +85,7 @@ class Rule_ST11(BaseRule):
     name = "structure.unused_join"
     aliases = ()
     groups: Tuple[str, ...] = ("all", "structure")
-    crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
+    crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
     is_fix_compatible = False
 
     def _extract_references_from_expression(self, segment: BaseSegment) -> str:
@@ -139,9 +143,14 @@ class Rule_ST11(BaseRule):
             for from_expression_elem in from_expression.get_children(
                 "from_expression_element"
             ):
+                # TODO: handle comma joins, these are CROSS joins
                 ref = self._extract_references_from_expression(from_expression_elem)
                 if ref:
                     joined_tables.append((ref, from_expression_elem))
+                if len(joined_tables) > 1:
+                    # We had an implicit cross join, don't add any FROM tables to check.
+                    joined_tables.clear()
+                    break
 
             # Then handle any JOIN clauses.
             for join_clause in from_expression.get_children("join_clause"):
@@ -161,6 +170,13 @@ class Rule_ST11(BaseRule):
                     if ref and join_keywords.intersection({"FULL", "LEFT", "RIGHT"}):
                         joined_tables.append((ref, from_expression_elem))
                         _this_clause_refs.append(ref)
+                    # If we have functions in the table_expression, we referenced them,
+                    # add them to the list.
+                    for tbl_ref in self._extract_referenced_tables(
+                        from_expression_elem, allow_unqualified=True
+                    ):
+                        if tbl_ref not in _this_clause_refs:
+                            referenced_tables.append(tbl_ref)
 
                 # Look for any references in the ON clause to other tables.
                 for join_on_condition in join_clause.get_children("join_on_condition"):
@@ -232,6 +248,11 @@ class Rule_ST11(BaseRule):
                     f"Found an unqualified ref '{err}'. Aborting for this SELECT."
                 )
                 return []
+
+        query: Query = Query.from_segment(context.segment, context.dialect)
+        for selectable in query.selectables:
+            for wcinfo in selectable.get_wildcard_info():
+                table_references |= {t.upper() for t in wcinfo.tables}
 
         results: List[LintResult] = []
         self.logger.debug(
