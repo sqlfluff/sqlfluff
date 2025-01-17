@@ -125,6 +125,16 @@ test_fail_subquery:
         WHERE c.other_column = a.col
     )
 
+test_fail_inner_subquery:
+  fail_str: |
+    SELECT *
+    FROM (
+        SELECT t1.col1
+        FROM db1.t1
+        LEFT JOIN t2
+            ON t1.id = t2.id
+    );
+
 test_pass_table_with_schema_6496:
   pass_str: |
     SELECT

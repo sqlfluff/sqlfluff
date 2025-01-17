@@ -13,9 +13,6 @@ class UnqualifiedReferenceError(ValueError):
     """Custom exception for signalling when a reference is unqualified."""
 
 
-_START_TYPES = ["select_statement"]
-
-
 class Rule_ST11(BaseRule):
     """Joined table not referenced in query.
 
@@ -85,7 +82,7 @@ class Rule_ST11(BaseRule):
     name = "structure.unused_join"
     aliases = ()
     groups: Tuple[str, ...] = ("all", "structure")
-    crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
+    crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
     is_fix_compatible = False
 
     def _extract_references_from_expression(self, segment: BaseSegment) -> str:
