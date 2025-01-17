@@ -102,7 +102,7 @@ class Rule_ST11(BaseRule):
         for table_reference in segment.recursive_crawl(
             "table_reference", no_recursive_seg_type="select_statement"
         ):
-            return table_reference.raw_upper
+            return table_reference.segments[-1].raw_upper
         # If we can't find a reference, just return an empty string
         # to signal that there isn't one. This could be a case of a
         # VALUES clause, or anything else selectable which hasn't
@@ -143,7 +143,6 @@ class Rule_ST11(BaseRule):
             for from_expression_elem in from_expression.get_children(
                 "from_expression_element"
             ):
-                # TODO: handle comma joins, these are CROSS joins
                 ref = self._extract_references_from_expression(from_expression_elem)
                 if ref:
                     joined_tables.append((ref, from_expression_elem))
@@ -262,7 +261,6 @@ class Rule_ST11(BaseRule):
         )
         for tbl_ref, segment in joined_tables:
             if tbl_ref not in table_references:
-                # if segment.is_type()
                 results.append(
                     LintResult(
                         anchor=segment,
