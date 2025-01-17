@@ -37,7 +37,7 @@ class Rule_RF01(BaseRule):
 
     .. note::
 
-       This rule is disabled by default for BigQuery, Databricks, Hive,
+       This rule is disabled by default for Athena, BigQuery, Databricks, DuckDB, Hive,
        Redshift, SOQL and SparkSQL due to the support of things like
        structs and lateral views which trigger false positives. It can be
        enabled with the ``force_enable = True`` flag.
@@ -269,6 +269,8 @@ class Rule_RF01(BaseRule):
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/operators#field_access_operator
         # Databricks:
         # https://docs.databricks.com/en/sql/language-manual/functions/dotsign.html
+        # DuckDB:
+        # https://duckdb.org/docs/sql/data_types/struct#retrieving-from-structs
         # Redshift:
         # https://docs.aws.amazon.com/redshift/latest/dg/query-super.html
         # TODO: all doc links to all referenced dialects
@@ -276,6 +278,7 @@ class Rule_RF01(BaseRule):
             "athena",
             "bigquery",
             "databricks",
+            "duckdb",
             "hive",
             "redshift",
             "soql",
