@@ -898,3 +898,137 @@ test_fail_set_subquery_in_second_query_join:
     rules:
       structure.subquery:
         forbid_subquery_in: both
+
+test_fail_order_4782:
+  fail_str: |
+    WITH
+    cte_1 AS (
+        SELECT
+            subquery_a.field_a,
+            subquery_a.field_b
+        FROM (
+            SELECT
+                subquery_b.field_a,
+                alias_a.field_d,
+                alias_a.field_b,
+                alias_b.field_c
+            FROM table_b AS alias_a
+            INNER JOIN
+                (SELECT * FROM table_a) AS subquery_b
+                ON subquery_b.field_a >= alias_a.field_d
+            LEFT OUTER JOIN table_b AS alias_b ON alias_a.field_b = alias_b.field_c
+        ) AS subquery_a
+    ),
+
+    cte_2 AS (
+        SELECT *
+        FROM table_c
+        WHERE field_a > 0
+        ORDER BY field_b DESC
+    ),
+
+    join_ctes AS (
+        SELECT * FROM cte_1 LEFT OUTER JOIN cte_2 ON cte_1.field_a = cte_2.field_a
+    )
+
+    SELECT *
+    FROM join_ctes;
+  fix_str: |
+    WITH subquery_b AS (SELECT * FROM table_a),
+    subquery_a AS (
+            SELECT
+                subquery_b.field_a,
+                alias_a.field_d,
+                alias_a.field_b,
+                alias_b.field_c
+            FROM table_b AS alias_a
+            INNER JOIN
+                subquery_b
+                ON subquery_b.field_a >= alias_a.field_d
+            LEFT OUTER JOIN table_b AS alias_b ON alias_a.field_b = alias_b.field_c
+        ),
+    cte_1 AS (
+        SELECT
+            subquery_a.field_a,
+            subquery_a.field_b
+        FROM subquery_a
+    ),
+    cte_2 AS (
+        SELECT *
+        FROM table_c
+        WHERE field_a > 0
+        ORDER BY field_b DESC
+    ),
+    join_ctes AS (
+        SELECT * FROM cte_1 LEFT OUTER JOIN cte_2 ON cte_1.field_a = cte_2.field_a
+    )
+    SELECT *
+    FROM join_ctes;
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+test_fail_order_5265:
+  violations_after_fix:
+    - description: select_statement clauses should not contain subqueries. Use CTEs instead
+      name: structure.subquery
+      warning: false
+      fixes: []
+      start_line_no: 18
+      start_line_pos: 15
+      start_file_pos: 343
+      end_line_no: 18
+      end_line_pos: 16
+      end_file_pos: 344
+  fail_str: |
+    WITH
+    cte1 AS (
+        SELECT COUNT(*) AS qty
+        FROM some_table AS st
+        LEFT JOIN (
+            SELECT 'first' AS id
+        ) AS oops
+        ON st.id = oops.id
+    ),
+    cte2 AS (
+        SELECT COUNT(*) AS other_qty
+        FROM other_table AS sot
+        LEFT JOIN (
+            SELECT 'middle' AS id
+        ) AS another
+        ON sot.id = another.id
+        LEFT JOIN (
+            SELECT 'last' AS id
+        ) AS oops
+        ON sot.id = oops.id
+    )
+    SELECT CURRENT_DATE();
+  fix_str: |
+    WITH oops AS (
+            SELECT 'first' AS id
+        ),
+    cte1 AS (
+        SELECT COUNT(*) AS qty
+        FROM some_table AS st
+        LEFT JOIN oops
+        ON st.id = oops.id
+    ),
+    another AS (
+            SELECT 'middle' AS id
+        ),
+    cte2 AS (
+        SELECT COUNT(*) AS other_qty
+        FROM other_table AS sot
+        LEFT JOIN another
+        ON sot.id = another.id
+        LEFT JOIN (
+            SELECT 'last' AS id
+        ) AS oops
+        ON sot.id = oops.id
+    )
+    SELECT CURRENT_DATE();
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
