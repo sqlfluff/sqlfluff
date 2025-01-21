@@ -4008,10 +4008,13 @@ class OpenRowSetSegment(BaseSegment):
                     Ref("CommaSegment"),
                     OneOf(
                         Sequence(
-                            "FORMATFILE",
-                            Ref("EqualsSegment"),
-                            Ref("QuotedLiteralSegmentOptWithN"),
-                            Ref("CommaSegment"),
+                            Sequence(
+                                "FORMATFILE",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegmentOptWithN"),
+                                Ref("CommaSegment"),
+                                optional=True
+                            ),
                             Delimited(
                                 AnyNumberOf(
                                     Sequence(
