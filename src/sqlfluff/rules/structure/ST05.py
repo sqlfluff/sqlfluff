@@ -154,7 +154,7 @@ class Rule_ST05(BaseRule):
             clone_map=clone_map,
         )
 
-        lint_results: List[Tuple[LintResult, BaseSegment, str, BaseSegment, bool]] = []
+        results_list: List[Tuple[LintResult, BaseSegment, str, BaseSegment, bool]] = []
         for result in results:
             (
                 lint_result,
@@ -166,12 +166,17 @@ class Rule_ST05(BaseRule):
             assert any(
                 from_expression is seg for seg in subquery_parent.recursive_crawl_all()
             )
-            lint_results.append(result)
+            results_list.append(result)
             if not is_fixable:
                 continue
             this_seg_clone = clone_map[from_expression]
             new_table_ref = _create_table_ref(alias_name, context.dialect)
-            this_seg_clone.segments = (new_table_ref,)
+            # Add positions to the new table reference, other rules may need a position
+            # but the clone is not a typical "fix".
+            assert this_seg_clone.pos_marker
+            this_seg_clone.segments = this_seg_clone._position_segments(
+                (new_table_ref,), this_seg_clone.pos_marker
+            )
             ctes.replace_with_clone(subquery_parent, clone_map)
 
         for (
@@ -180,7 +185,7 @@ class Rule_ST05(BaseRule):
             alias_name,
             subquery_parent,
             is_fixable,
-        ) in lint_results:
+        ) in results_list:
             if bracketed_ctas or is_recursive or not is_fixable:
                 continue
             # Compute fix.
@@ -198,7 +203,7 @@ class Rule_ST05(BaseRule):
                 )
             ]
             lint_result.fixes += fixes
-        return [lint_result[0] for lint_result in lint_results]
+        return [lint_result[0] for lint_result in results_list]
 
     def _nested_subqueries(
         self, query: Query, dialect: Dialect
@@ -264,10 +269,25 @@ class Rule_ST05(BaseRule):
             # If we have duplicate CTE names just don't fix anything
             # Return the lint warnings anyway
             is_fixable = alias_name not in ctes.list_used_names()
+
+            # if the subquery is table_expression, get the bracketed child instead.
+            if anchor.is_type("table_expression"):
+                bracket_anchor = anchor.get_child("bracketed")
+                assert (
+                    bracket_anchor
+                ), "table_expression should have a bracketed segment"
+            else:
+                bracket_anchor = anchor
+
+            # we can't create a CTE from a nested subquery here, ignore it.
+            if not bracket_anchor.is_type("bracketed") or bracket_anchor.get_child(
+                "table_expression"
+            ):
+                is_fixable = False
             if is_fixable:
                 new_cte = _create_cte_seg(  # 'prep_1 as (select ...)'
                     alias_name=alias_name,
-                    subquery=clone_map[anchor],
+                    subquery=clone_map[bracket_anchor],
                     case_preference=case_preference,
                     dialect=dialect,
                 )
@@ -513,7 +533,7 @@ def _create_cte_seg(
             _segmentify("AS", casing=case_preference),
             WhitespaceSegment(),
             # Return the bracketed segment instead of the table expression
-            subquery.segments[0],
+            subquery,
         )
     )
     return element

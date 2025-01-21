@@ -1032,3 +1032,22 @@ test_fail_order_5265:
     rules:
       structure.subquery:
         forbid_subquery_in: both
+
+test_fail_no_fix_nested_subquery_join:
+  fail_str: |
+    SELECT
+        x.a,
+        w2.b
+    FROM x
+    LEFT JOIN (
+        (
+            SELECT
+                w.a,
+                w.b,
+                w.c
+            FROM w
+        ) AS w2
+        LEFT JOIN y
+            ON w2.a = y.a
+    )
+        ON x.a = w2.a;
