@@ -4013,7 +4013,7 @@ class OpenRowSetSegment(BaseSegment):
                                 Ref("EqualsSegment"),
                                 Ref("QuotedLiteralSegmentOptWithN"),
                                 Ref("CommaSegment"),
-                                optional=True
+                                optional=True,
                             ),
                             Delimited(
                                 AnyNumberOf(
