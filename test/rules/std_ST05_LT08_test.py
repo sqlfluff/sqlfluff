@@ -6,8 +6,9 @@ from sqlfluff.core import FluffConfig, Linter
 def test__rules__std_ST05_LT08_5265() -> None:
     """Tests observed conflict between ST05 & LT08.
 
-    In this case, the moved `t2` table was created after the first usage.
-    https://github.com/sqlfluff/sqlfluff/issues/4137
+    In this case, the moved `oops` and `another` table was created after
+    the first usage. The `oops` from the `cte2` is no longer deleted.
+    https://github.com/sqlfluff/sqlfluff/issues/5265
     """
     sql = """
 WITH
