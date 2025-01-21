@@ -4241,7 +4241,19 @@ class GroupByClauseSegment(BaseSegment):
                 Ref("ExpressionSegment"),
             ),
         ),
+        Ref("WithRollupClauseSegment", optional=True),
         Dedent,
+    )
+
+
+class WithRollupClauseSegment(BaseSegment):
+    """A `WITH ROLLUP` clause after the `GROUP BY` clause."""
+
+    type = "with_rollup_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        "ROLLUP",
     )
 
 
