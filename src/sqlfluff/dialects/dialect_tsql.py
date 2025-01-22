@@ -390,6 +390,11 @@ tsql_dialect.add(
     # Here we add a special case for a DotSegment where we don't want to apply
     # LT01's respace rule.
     LeadingDotSegment=StringParser(".", SymbolSegment, type="leading_dot"),
+    HexadecimalLiteralSegment=RegexParser(
+        r"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+)",
+        LiteralSegment,
+        type="numeric_literal",
+    ),
 )
 
 tsql_dialect.replace(
@@ -2511,6 +2516,7 @@ class ColumnConstraintSegment(BaseSegment):
                             Ref("BareFunctionSegment"),
                             Ref("FunctionSegment"),
                             Ref("NextValueSequenceSegment"),
+                            Ref("HexadecimalLiteralSegment"),
                         ),
                     ),
                 ),

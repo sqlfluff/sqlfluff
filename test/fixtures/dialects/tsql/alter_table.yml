@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f606f74d7b808f0cf561ee3fc2dd73eb40aba5c3c89c79e10be017c36cd6c9b9
+_hash: 9ebe2d2c8d99be58567cbf5ae629e6c241925eae84846ee54c84222778a6de7b
 file:
 - batch:
     statement:
@@ -995,3 +995,93 @@ file:
       - column_reference:
           naked_identifier: StrSerial
   - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[UserData]'
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            quoted_identifier: '[strUserId]'
+            data_type:
+              data_type_identifier: '[char]'
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '21'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            quoted_identifier: '[strItem]'
+            data_type:
+              data_type_identifier: '[binary]'
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '400'
+                  end_bracket: )
+            column_constraint_segment:
+              keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            quoted_identifier: '[strSkill]'
+            data_type:
+              data_type_identifier: '[binary]'
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '400'
+                  end_bracket: )
+            column_constraint_segment:
+              keyword: 'NULL'
+        - comma: ','
+        - table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: PK_UserData
+          - keyword: PRIMARY
+          - keyword: KEY
+          - keyword: CLUSTERED
+          - bracketed_index_column_list_grammar:
+              bracketed:
+                start_bracket: (
+                index_column_definition:
+                  quoted_identifier: '[strUserId]'
+                  keyword: ASC
+                end_bracket: )
+        - end_bracket: )
+      - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[UserData]'
+      - keyword: ADD
+      - column_constraint_segment:
+        - keyword: CONSTRAINT
+        - object_reference:
+            quoted_identifier: '[DF_UserData_strSkill]'
+        - keyword: DEFAULT
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '0x00'
+            end_bracket: )
+      - keyword: FOR
+      - column_reference:
+          quoted_identifier: '[strSkill]'
+  - statement_terminator: ;
+- go_statement:
+    keyword: GO
