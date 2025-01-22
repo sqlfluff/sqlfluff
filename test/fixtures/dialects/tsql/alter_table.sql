@@ -117,3 +117,8 @@ FOREIGN KEY ([JobId])
 REFERENCES [HangFire].[Job] ([Id])
 ON UPDATE CASCADE
 ON DELETE CASCADE; GO
+
+-- Drop multiple columns in one statement
+ALTER TABLE UserData DROP COLUMN [StrSkill], [StrItem], [StrSerial];
+ALTER TABLE UserData DROP COLUMN StrSkill, StrItem, StrSerial;
+ALTER TABLE [UserData] DROP COLUMN StrSkill, StrItem, StrSerial;

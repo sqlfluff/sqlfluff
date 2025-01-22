@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d788dbfbeaf65337c5ad5d8914093c4be2db4ffa389f349383e6ddafc2d3622a
+_hash: f606f74d7b808f0cf561ee3fc2dd73eb40aba5c3c89c79e10be017c36cd6c9b9
 file:
 - batch:
     statement:
@@ -943,3 +943,55 @@ file:
     statement_terminator: ;
 - go_statement:
     keyword: GO
+- batch:
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: UserData
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+          quoted_identifier: '[StrSkill]'
+      - comma: ','
+      - column_reference:
+          quoted_identifier: '[StrItem]'
+      - comma: ','
+      - column_reference:
+          quoted_identifier: '[StrSerial]'
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: UserData
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: StrSkill
+      - comma: ','
+      - column_reference:
+          naked_identifier: StrItem
+      - comma: ','
+      - column_reference:
+          naked_identifier: StrSerial
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          quoted_identifier: '[UserData]'
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: StrSkill
+      - comma: ','
+      - column_reference:
+          naked_identifier: StrItem
+      - comma: ','
+      - column_reference:
+          naked_identifier: StrSerial
+  - statement_terminator: ;
