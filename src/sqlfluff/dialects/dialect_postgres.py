@@ -1505,8 +1505,11 @@ class WellKnownTextGeometrySegment(BaseSegment):
                     "POINT",
                     Sequence(
                         OneOf(*_geometry_type_keywords, "GEOMETRY", "GEOGRAPHY"),
-                        Ref("CommaSegment"),
-                        Ref("NumericLiteralSegment"),
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Ref("NumericLiteralSegment"),
+                            optional=True,
+                        ),
                     ),
                 )
             ),
