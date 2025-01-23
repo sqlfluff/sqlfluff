@@ -3359,6 +3359,7 @@ class AlterTableStatementSegment(BaseSegment):
                     "FOR",
                     Ref("ColumnReferenceSegment"),
                 ),
+                Sequence(OneOf("ADD", "DROP"), Ref("PeriodSegment")),
                 Sequence(
                     Sequence(
                         "WITH",
@@ -5702,6 +5703,7 @@ class PeriodSegment(BaseSegment):
                 Ref("ColumnReferenceSegment"),
                 Ref("ColumnReferenceSegment"),
             ),
+            optional=True,
         ),
     )
 
