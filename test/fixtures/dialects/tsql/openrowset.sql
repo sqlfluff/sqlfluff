@@ -37,3 +37,8 @@ FROM OPENROWSET(BULK N'D:\XChange\test-csv.csv',
     FIRSTROW=2,
     FORMAT='CSV') AS cars;
 GO
+
+SELECT TOP 10 *
+from OPENROWSET(BULK 'https://pandemicdatalake.blob.core.windows.net/public/curated/covid-19/ecdc_cases/latest/ecdc_cases.parquet',
+    FORMAT = 'PARQUET') as rows
+GO

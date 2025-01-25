@@ -230,6 +230,7 @@ oracle_dialect.replace(
     ).copy(
         insert=[
             Ref("ConnectByRootGrammar"),
+            Ref("SqlplusSubstitutionVariableSegment"),
         ]
     ),
     Expression_D_Grammar=Sequence(
@@ -289,6 +290,7 @@ oracle_dialect.replace(
                 ),
             ),
             Ref("LocalAliasSegment"),
+            Ref("SqlplusSubstitutionVariableSegment"),
             terminators=[Ref("CommaSegment")],
         ),
         Ref("AccessorGrammar", optional=True),
@@ -305,6 +307,11 @@ oracle_dialect.replace(
     PreTableFunctionKeywordsGrammar=OneOf("LATERAL"),
     ConditionalCrossJoinKeywordsGrammar=Nothing(),
     UnconditionalCrossJoinKeywordsGrammar=Ref.keyword("CROSS"),
+    SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
+        insert=[
+            Ref("SqlplusSubstitutionVariableSegment"),
+        ]
+    ),
 )
 
 
@@ -982,4 +989,29 @@ class FunctionNameSegment(BaseSegment):
             delimiter=Ref("AtSignSegment"),
         ),
         allow_gaps=False,
+    )
+
+
+class SqlplusSubstitutionVariableSegment(BaseSegment):
+    """SQLPlus Substitution Variables &thing.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqpug/using-substitution-variables-sqlplus.html
+    """
+
+    type = "sqlplus_variable"
+
+    match_grammar = Sequence(
+        Ref("AmpersandSegment"),
+        Ref("AmpersandSegment", optional=True),
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
+class TableExpressionSegment(ansi.TableExpressionSegment):
+    """The main table expression e.g. within a FROM clause."""
+
+    match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
+        insert=[
+            Ref("SqlplusSubstitutionVariableSegment"),
+        ]
     )

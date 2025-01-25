@@ -234,7 +234,8 @@ class Rule_ST09(BaseRule):
                                 ],
                             )
                         ]
-                        if raw_comparison_operators[0].raw
+                        if raw_comparison_operators
+                        and raw_comparison_operators[0].raw
                         in raw_comparison_operator_opposites
                         and [r.raw for r in raw_comparison_operators] != ["<", ">"]
                         else []
@@ -242,7 +243,7 @@ class Rule_ST09(BaseRule):
                 )
 
         # STEP 5.a.
-        if fixes == []:
+        if not fixes:
             return None
 
         # STEP 5.b.

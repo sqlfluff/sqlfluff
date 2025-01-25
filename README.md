@@ -51,6 +51,7 @@ currently supports the following SQL dialects (though perhaps not in full):
 - [Greenplum](https://greenplum.org/)
 - [Hive](https://hive.apache.org/)
 - [Impala](https://impala.apache.org/)
+- [MariaDB](https://www.mariadb.com/)
 - [Materialize](https://materialize.com/)
 - [MySQL](https://www.mysql.com/)
 - [Oracle](https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/index.html)

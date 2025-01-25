@@ -57,7 +57,7 @@ class Rule_ST03(BaseRule):
         # Work through all the references in the file, checking off CTES as the
         # are referenced.
         for reference in context.segment.recursive_crawl("table_reference"):
-            remaining_ctes.pop(reference.raw.upper(), None)
+            remaining_ctes.pop(reference.raw_normalized(False).upper(), None)
 
         # For any left un-referenced at the end. Raise an issue about them.
         for name in remaining_ctes.values():

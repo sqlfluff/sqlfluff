@@ -423,3 +423,39 @@ test_pass_nested_with_cte:
 
     SELECT *
     FROM container_cte
+
+test_pass_bigquery_quoted_cte_unquoted_ref:
+  pass_str: |
+    with `tabx` as (
+      select 1
+    )
+
+    select *
+    from tabx;
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_quoted_cte_quoted_ref:
+  pass_str: |
+    with `tabx` as (
+      select 1
+    )
+
+    select *
+    from `tabx`;
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_unquoted_cte_quoted_ref:
+  pass_str: |
+    with tabx as (
+      select 1
+    )
+
+    select *
+    from `tabx`;
+  configs:
+    core:
+      dialect: bigquery
