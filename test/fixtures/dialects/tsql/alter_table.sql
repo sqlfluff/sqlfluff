@@ -120,8 +120,7 @@ ON DELETE CASCADE; GO
 
 -- Drop multiple columns in one statement
 ALTER TABLE UserData DROP COLUMN [StrSkill], [StrItem], [StrSerial];
-ALTER TABLE UserData DROP COLUMN StrSkill, StrItem, StrSerial;
-ALTER TABLE [UserData] DROP COLUMN StrSkill, StrItem, StrSerial;
+ALTER TABLE UserData DROP COLUMN IF EXISTS StrSkill, StrItem, StrSerial;
 
 -- Check hexadecimal defaults in constraints
 CREATE TABLE [dbo].[UserData] (
