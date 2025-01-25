@@ -547,6 +547,7 @@ UNRESERVED_KEYWORDS = [
     "RETURNS",
     "ROBUST",
     "ROLE",
+    "ROLLUP",
     "ROOT",
     "ROUND_ROBIN",  # Azure Synapse Analytics specific
     "ROW_NUMBER",
