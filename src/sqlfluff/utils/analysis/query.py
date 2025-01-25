@@ -326,7 +326,7 @@ class Query(Generic[T]):
 
         selectables = []
         subqueries = []
-        cte_defs = []
+        cte_defs: List[BaseSegment] = []
         query_type = QueryType.Simple
 
         if segment.is_type("select_statement", *SUBSELECT_TYPES):
@@ -387,7 +387,7 @@ class Query(Generic[T]):
             # is the name, but it's the same functionality we've run with for
             # a while.
             name_seg = cte.segments[0]
-            name = name_seg.raw_upper
+            name = name_seg.raw_normalized(False).upper()
             # Get the query out of it, just stop on the first one we find.
             try:
                 inner_qry = next(
