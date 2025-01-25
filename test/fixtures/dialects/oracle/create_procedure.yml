@@ -1,0 +1,609 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9ce7b67ac56b8e4b47ab72c712f9a97688c68c526c67bb3be193ec6f5f428ca3
+file:
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - function_name:
+        function_name_identifier: remove_emp
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: employee_id
+          data_type:
+            data_type_identifier: NUMBER
+          end_bracket: )
+    - keyword: AS
+    - declare_segment:
+        naked_identifier: tot_emps
+        data_type:
+          data_type_identifier: NUMBER
+        statement_terminator: ;
+    - begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          delete_statement:
+            keyword: DELETE
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: employees
+            where_clause:
+              keyword: WHERE
+              expression:
+              - column_reference:
+                - naked_identifier: employees
+                - dot: .
+                - naked_identifier: employee_id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: remove_emp
+                - dot: .
+                - naked_identifier: employee_id
+      - statement_terminator: ;
+      - statement:
+          assignment_segment:
+            object_reference:
+              naked_identifier: tot_emps
+            colon: ':'
+            comparison_operator:
+              raw_comparison_operator: '='
+            expression:
+              column_reference:
+                naked_identifier: tot_emps
+              binary_operator: '-'
+              numeric_literal: '1'
+            statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- binary_operator: /
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: top_protected_proc
+    - keyword: ACCESSIBLE
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        keyword: PROCEDURE
+        function_name:
+          function_name_identifier: top_trusted_proc
+        end_bracket: )
+    - keyword: AS
+    - begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          function:
+            function_name:
+              naked_identifier: DBMS_OUTPUT
+              dot: .
+              function_name_identifier: PUT_LINE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'Processed top_protected_proc.'"
+                end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- binary_operator: /
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            data_type_identifier: BOOLEAN
+          end_bracket: )
+    - keyword: AUTHID
+    - keyword: DEFINER
+    - keyword: AS
+    - begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          if_then_statement:
+          - if_clause:
+            - keyword: IF
+            - expression:
+                column_reference:
+                  naked_identifier: x
+            - keyword: THEN
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'x is true'"
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: IF
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- binary_operator: /
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: sales
+        - data_type:
+            data_type_identifier: NUMBER
+        - comma: ','
+        - parameter: quota
+        - data_type:
+            data_type_identifier: NUMBER
+        - comma: ','
+        - parameter: emp_id
+        - data_type:
+            data_type_identifier: NUMBER
+        - end_bracket: )
+    - keyword: IS
+    - declare_segment:
+        naked_identifier: bonus
+        data_type:
+          data_type_identifier: NUMBER
+        colon: ':'
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          numeric_literal: '0'
+        statement_terminator: ;
+    - declare_segment:
+        naked_identifier: updated
+        data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+        colon: ':'
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          quoted_literal: "'No'"
+        statement_terminator: ;
+    - begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          if_then_statement:
+          - if_clause:
+            - keyword: IF
+            - expression:
+                column_reference:
+                  naked_identifier: sales
+                comparison_operator:
+                  raw_comparison_operator: '>'
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: quota
+                    binary_operator: +
+                    numeric_literal: '200'
+                  end_bracket: )
+            - keyword: THEN
+          - statement:
+              assignment_segment:
+                object_reference:
+                  naked_identifier: bonus
+                colon: ':'
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                    - column_reference:
+                        naked_identifier: sales
+                    - binary_operator: '-'
+                    - column_reference:
+                        naked_identifier: quota
+                    end_bracket: )
+                  binary_operator: /
+                  numeric_literal: '4'
+                statement_terminator: ;
+          - statement:
+              update_statement:
+                keyword: UPDATE
+                table_reference:
+                  naked_identifier: employees
+                set_clause_list:
+                  keyword: SET
+                  set_clause:
+                    column_reference:
+                      naked_identifier: salary
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    expression:
+                    - column_reference:
+                        naked_identifier: salary
+                    - binary_operator: +
+                    - column_reference:
+                        naked_identifier: bonus
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                  - column_reference:
+                      naked_identifier: employee_id
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - column_reference:
+                      naked_identifier: emp_id
+          - statement_terminator: ;
+          - statement:
+              assignment_segment:
+                object_reference:
+                  naked_identifier: updated
+                colon: ':'
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  quoted_literal: "'Yes'"
+                statement_terminator: ;
+          - keyword: END
+          - keyword: IF
+      - statement_terminator: ;
+      - statement:
+          function:
+            function_name:
+              naked_identifier: DBMS_OUTPUT
+              dot: .
+              function_name_identifier: PUT_LINE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                - quoted_literal: "'Table updated?  '"
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - column_reference:
+                    naked_identifier: updated
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - quoted_literal: "', '"
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - quoted_literal: "'bonus = '"
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - column_reference:
+                    naked_identifier: bonus
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - quoted_literal: "'.'"
+                end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- binary_operator: /
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: sales
+        - data_type:
+            data_type_identifier: NUMBER
+        - comma: ','
+        - parameter: quota
+        - data_type:
+            data_type_identifier: NUMBER
+        - comma: ','
+        - parameter: emp_id
+        - data_type:
+            data_type_identifier: NUMBER
+        - end_bracket: )
+    - keyword: IS
+    - declare_segment:
+        naked_identifier: bonus
+        data_type:
+          data_type_identifier: NUMBER
+        colon: ':'
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          numeric_literal: '0'
+        statement_terminator: ;
+    - begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          if_then_statement:
+          - if_clause:
+            - keyword: IF
+            - expression:
+                column_reference:
+                  naked_identifier: sales
+                comparison_operator:
+                  raw_comparison_operator: '>'
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: quota
+                    binary_operator: +
+                    numeric_literal: '200'
+                  end_bracket: )
+            - keyword: THEN
+          - statement:
+              assignment_segment:
+                object_reference:
+                  naked_identifier: bonus
+                colon: ':'
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                    - column_reference:
+                        naked_identifier: sales
+                    - binary_operator: '-'
+                    - column_reference:
+                        naked_identifier: quota
+                    end_bracket: )
+                  binary_operator: /
+                  numeric_literal: '4'
+                statement_terminator: ;
+          - keyword: ELSE
+          - statement:
+              if_then_statement:
+              - if_clause:
+                - keyword: IF
+                - expression:
+                  - column_reference:
+                      naked_identifier: sales
+                  - comparison_operator:
+                      raw_comparison_operator: '>'
+                  - column_reference:
+                      naked_identifier: quota
+                - keyword: THEN
+              - statement:
+                  assignment_segment:
+                    object_reference:
+                      naked_identifier: bonus
+                    colon: ':'
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    expression:
+                      numeric_literal: '50'
+                    statement_terminator: ;
+              - keyword: ELSE
+              - statement:
+                  assignment_segment:
+                    object_reference:
+                      naked_identifier: bonus
+                    colon: ':'
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    expression:
+                      numeric_literal: '0'
+                    statement_terminator: ;
+              - keyword: END
+              - keyword: IF
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: IF
+      - statement_terminator: ;
+      - statement:
+          function:
+            function_name:
+              naked_identifier: DBMS_OUTPUT
+              dot: .
+              function_name_identifier: PUT_LINE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'bonus = '"
+                  binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                  column_reference:
+                    naked_identifier: bonus
+                end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          update_statement:
+            keyword: UPDATE
+            table_reference:
+              naked_identifier: employees
+            set_clause_list:
+              keyword: SET
+              set_clause:
+                column_reference:
+                  naked_identifier: salary
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                - column_reference:
+                    naked_identifier: salary
+                - binary_operator: +
+                - column_reference:
+                    naked_identifier: bonus
+            where_clause:
+              keyword: WHERE
+              expression:
+              - column_reference:
+                  naked_identifier: employee_id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                  naked_identifier: emp_id
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- binary_operator: /
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: create_email
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: name1
+        - data_type:
+            data_type_identifier: VARCHAR2
+        - comma: ','
+        - parameter: name2
+        - data_type:
+            data_type_identifier: VARCHAR2
+        - comma: ','
+        - parameter: company
+        - data_type:
+            data_type_identifier: VARCHAR2
+        - end_bracket: )
+    - keyword: IS
+    - declare_segment:
+        naked_identifier: error_message
+        data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '30'
+              end_bracket: )
+        colon: ':'
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          quoted_literal: "'Email address is too long.'"
+        statement_terminator: ;
+    - begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          assignment_segment:
+            object_reference:
+              naked_identifier: email
+            colon: ':'
+            comparison_operator:
+              raw_comparison_operator: '='
+            expression:
+            - column_reference:
+                naked_identifier: name1
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - quoted_literal: "'.'"
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - column_reference:
+                naked_identifier: name2
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - quoted_literal: "'@'"
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - column_reference:
+                naked_identifier: company
+            statement_terminator: ;
+      - keyword: EXCEPTION
+      - keyword: WHEN
+      - naked_identifier: VALUE_ERROR
+      - keyword: THEN
+      - statement:
+          function:
+            function_name:
+              naked_identifier: DBMS_OUTPUT
+              dot: .
+              function_name_identifier: PUT_LINE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: error_message
+                end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- binary_operator: /
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - keyword: IS
+    - begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          function:
+            function_name:
+              naked_identifier: DBMS_OUTPUT
+              dot: .
+              function_name_identifier: PUT_LINE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'Inside p'"
+                end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          return_segment:
+            keyword: RETURN
+            statement_terminator: ;
+      - statement:
+          function:
+            function_name:
+              naked_identifier: DBMS_OUTPUT
+              dot: .
+              function_name_identifier: PUT_LINE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'Unreachable statement.'"
+                end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- binary_operator: /

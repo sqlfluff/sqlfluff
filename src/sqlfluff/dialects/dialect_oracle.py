@@ -16,8 +16,10 @@ from sqlfluff.core.parser import (
     CodeSegment,
     CommentSegment,
     CompositeComparisonOperatorSegment,
+    Dedent,
     Delimited,
     IdentifierSegment,
+    Indent,
     LiteralSegment,
     Matchable,
     Nothing,
@@ -66,6 +68,12 @@ oracle_dialect.sets("reserved_keywords").update(
         "PIVOT",
         "FOR",
         "UNPIVOT",
+        "NOCOPY",
+        "SHARING",
+        "AUTHID",
+        "ACCESSIBLE",
+        "PACKAGE",
+        "ELSIF",
     ]
 )
 
@@ -175,6 +183,14 @@ oracle_dialect.add(
         ),
     ),
     UnpivotNullsGrammar=Sequence(OneOf("INCLUDE", "EXCLUDE"), "NULLS"),
+    StatementAndDelimiterGrammar=Sequence(
+        Ref("StatementSegment"),
+        Ref("DelimiterGrammar", optional=True),
+    ),
+    OneOrMoreStatementsGrammar=AnyNumberOf(
+        Ref("StatementAndDelimiterGrammar"),
+        min_times=1,
+    ),
 )
 
 oracle_dialect.replace(
@@ -305,6 +321,31 @@ oracle_dialect.replace(
     PreTableFunctionKeywordsGrammar=OneOf("LATERAL"),
     ConditionalCrossJoinKeywordsGrammar=Nothing(),
     UnconditionalCrossJoinKeywordsGrammar=Ref.keyword("CROSS"),
+    FunctionParameterGrammar=Sequence(
+        Ref("ParameterNameSegment"),
+        OneOf(
+            Sequence(
+                Ref.keyword("IN", optional=True),
+                Ref("DatatypeSegment"),
+                Sequence(
+                    OneOf(
+                        Sequence(Ref("ColonSegment"), Ref("EqualsSegment")), "DEFAULT"
+                    ),
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                Ref.keyword("IN", optional=True),
+                "OUT",
+                Ref.keyword("NOCOPY", optional=True),
+                Ref("DatatypeSegment"),
+            ),
+        ),
+    ),
+    DelimiterGrammar=Sequence(
+        Ref("SemicolonSegment"), Ref("DivideSegment", optional=True)
+    ),
 )
 
 
@@ -498,6 +539,12 @@ class StatementSegment(ansi.StatementSegment):
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("CommentStatementSegment"),
+            Ref("BeginEndSegment"),
+            Ref("CreateProcedureStatementSegment"),
+            Ref("AssignmentStatementSegment"),
+            Ref("FunctionSegment"),
+            Ref("IfExpressionStatement"),
+            Ref("ReturnStatementSegment"),
         ],
     )
 
@@ -983,3 +1030,202 @@ class FunctionNameSegment(BaseSegment):
         ),
         allow_gaps=False,
     )
+
+
+class TransactionStatementSegment(BaseSegment):
+    """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement."""
+
+    type = "transaction_statement"
+    match_grammar: Matchable = Sequence(
+        # COMMIT [ WORK ] [ AND [ NO ] CHAIN ]
+        # ROLLBACK [ WORK ] [ AND [ NO ] CHAIN ]
+        # BEGIN | END TRANSACTION | WORK
+        # NOTE: "TO SAVEPOINT" is not yet supported
+        # https://docs.snowflake.com/en/sql-reference/sql/begin.html
+        # https://www.postgresql.org/docs/current/sql-end.html
+        OneOf("START", "COMMIT", "ROLLBACK"),
+        OneOf("TRANSACTION", "WORK", optional=True),
+        Sequence("NAME", Ref("SingleIdentifierGrammar"), optional=True),
+        Sequence("AND", Ref.keyword("NO", optional=True), "CHAIN", optional=True),
+    )
+
+
+class BeginEndSegment(BaseSegment):
+    """A `BEGIN/END` block.
+
+    Encloses multiple statements into a single statement object.
+    """
+
+    type = "begin_end_block"
+    match_grammar = Sequence(
+        "BEGIN",
+        Indent,
+        Ref("OneOrMoreStatementsGrammar"),
+        Sequence(
+            "EXCEPTION",
+            "WHEN",
+            OneOf(
+                "OTHERS",
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    AnyNumberOf(
+                        Sequence(
+                            "OR",
+                            Ref("SingleIdentifierGrammar"),
+                        )
+                    ),
+                ),
+            ),
+            "THEN",
+            Ref("OneOrMoreStatementsGrammar"),
+            optional=True,
+        ),
+        Dedent,
+        "END",
+    )
+
+
+class CreateProcedureStatementSegment(BaseSegment):
+    """A `CREATE OR ALTER PROCEDURE` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CREATE-PROCEDURE-statement.html
+    """
+
+    type = "create_procedure_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        OneOf("EDITIONABLE", "NONEDITIONABLE", optional=True),
+        "PROCEDURE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Delimited(Ref("FunctionParameterListGrammar"), optional=True),
+        Sequence("SHARING", OneOf("METADATA", "NONE"), optional=True),
+        AnyNumberOf(
+            Sequence("DEFAULT", "COLLATION", Ref("NakedIdentifierSegment")),
+            Sequence("AUTHID", OneOf("CURRENT_USER", "DEFINER")),
+            Sequence(
+                "ACCESSIBLE",
+                "BY",
+                Delimited(
+                    Bracketed(
+                        Sequence(
+                            OneOf(
+                                "FUNCTION",
+                                "PROCEDURE",
+                                "PACKAGE",
+                                "TRIGGER",
+                                "TYPE",
+                                optional=True,
+                            ),
+                            Ref("FunctionNameSegment"),
+                        )
+                    )
+                ),
+            ),
+            optional=True,
+        ),
+        OneOf("IS", "AS"),
+        AnyNumberOf(Ref("DeclareStatementSegment"), optional=True),
+        Ref("BeginEndSegment", optional=True),
+        Ref("FunctionNameSegment", optional=True),
+    )
+
+
+class DeclareStatementSegment(BaseSegment):
+    """A declaration segment in PL/SQL.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/block.html#GUID-9ACEB9ED-567E-4E1A-A16A-B8B35214FC9D__CJAIABJJ
+    """
+
+    type = "declare_segment"
+
+    match_grammar = Sequence(
+        Delimited(
+            Sequence(
+                Ref.keyword("DECLARE", optional=True),
+                Ref("SingleIdentifierGrammar"),
+                Ref("DatatypeSegment"),
+                Sequence("NOT", "NULL", optional=True),
+                Sequence(
+                    OneOf(
+                        Sequence(Ref("ColonSegment"), Ref("EqualsSegment")), "DEFAULT"
+                    ),
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+                Ref("DelimiterGrammar"),
+            ),
+            delimiter=Ref("DelimiterGrammar"),
+            terminators=["BEGIN"],
+        )
+    )
+
+
+class ReturnStatementSegment(BaseSegment):
+    """A RETURN statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/RETURN-statement.html
+    """
+
+    type = "return_segment"
+    match_grammar = Sequence(
+        "RETURN",
+        Ref("ExpressionSegment", optional=True),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class AssignmentStatementSegment(BaseSegment):
+    """A assignment segment in PL/SQL.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/assignment-statement.html
+    """
+
+    type = "assignment_segment"
+
+    match_grammar = Sequence(
+        Ref("ObjectReferenceSegment"),
+        Ref("ColonSegment"),
+        Ref("EqualsSegment"),
+        Ref("ExpressionSegment"),
+        Ref("DelimiterGrammar"),
+    )
+
+
+class IfExpressionStatement(BaseSegment):
+    """IF-ELSE statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/IF-statement.html
+    """
+
+    type = "if_then_statement"
+
+    match_grammar = Sequence(
+        Ref("IfClauseSegment"),
+        Ref("OneOrMoreStatementsGrammar"),
+        AnyNumberOf(
+            Sequence(
+                "ELSIF",
+                Ref("ExpressionSegment"),
+                "THEN",
+                Ref("OneOrMoreStatementsGrammar"),
+            ),
+        ),
+        Sequence(
+            "ELSE",
+            Ref("OneOrMoreStatementsGrammar"),
+            optional=True,
+        ),
+        "END",
+        "IF",
+    )
+
+
+class IfClauseSegment(BaseSegment):
+    """IF clause."""
+
+    type = "if_clause"
+
+    match_grammar = Sequence("IF", Ref("ExpressionSegment"), "THEN")
