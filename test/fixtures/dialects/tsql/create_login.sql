@@ -1,0 +1,35 @@
+CREATE LOGIN [MyUserName]
+WITH PASSWORD = '<enterStrongPasswordHere>';
+
+CREATE LOGIN [MyUserName]
+WITH PASSWORD = '<enterStrongPasswordHere>' MUST_CHANGE;
+
+CREATE LOGIN [MyUserName]
+WITH PASSWORD = '<enterStrongPasswordHere>', CHECK_EXPIRATION = ON;
+
+CREATE LOGIN [MyUserName] WITH PASSWORD = '<enterStrongPasswordHere>'
+MUST_CHANGE, CHECK_EXPIRATION = ON;
+
+CREATE LOGIN [MyUserName]
+WITH PASSWORD = '<enterStrongPasswordHere>',
+DEFAULT_DATABASE = 'TestDb';
+
+CREATE LOGIN [MyUserName]
+WITH PASSWORD = '<enterStrongPasswordHere>',
+SID = 0x241C11948AEEB749B0D22646DB1A19F2;
+
+CREATE LOGIN [MyUserName]
+WITH PASSWORD = '<enterStrongPasswordHere>'
+FROM WINDOWS;
+
+CREATE LOGIN [MyUserName]
+WITH PASSWORD = '<enterStrongPasswordHere>',
+CHECK_EXPIRATION = ON,
+CHECK_POLICY = ON,
+CREDENTIAL = [MyCredential];
+
+CREATE LOGIN [myapp] FROM EXTERNAL PROVIDER;
+
+CREATE LOGIN [myapp] FROM CERTIFICATE [MyCert];
+
+CREATE LOGIN [myapp] FROM ASYMMETRIC KEY [MyAsymKey];

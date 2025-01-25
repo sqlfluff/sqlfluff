@@ -134,6 +134,16 @@ class Rule_ST05(BaseRule):
                 )
             )
 
+        # Issue 3617: In T-SQL (and possibly other dialects) the automated fix
+        # leaves parentheses in a location that causes a syntax error. This is an
+        # unusual corner case. For simplicity, we still generate the lint warning
+        # but don't try to generate a fix. Someone could look at this later (a
+        # correct fix would involve removing the parentheses.)
+        bracketed_ctas = [seg.type for seg in parent_stack[-2:]] == [
+            "create_table_statement",
+            "bracketed",
+        ]
+
         # If there are offending elements calculate fixes
         clone_map = SegmentCloneMap(segment[0])
         results = self._lint_query(
@@ -144,38 +154,40 @@ class Rule_ST05(BaseRule):
             clone_map=clone_map,
         )
 
-        lint_results: List[LintResult] = []
-        is_fixable = True
+        results_list: List[Tuple[LintResult, BaseSegment, str, BaseSegment, bool]] = []
         for result in results:
-            lint_result, from_expression, alias_name, subquery_parent = result
+            (
+                lint_result,
+                from_expression,
+                alias_name,
+                subquery_parent,
+                is_fixable,
+            ) = result
             assert any(
                 from_expression is seg for seg in subquery_parent.recursive_crawl_all()
             )
+            results_list.append(result)
+            if not is_fixable:
+                continue
             this_seg_clone = clone_map[from_expression]
             new_table_ref = _create_table_ref(alias_name, context.dialect)
-            this_seg_clone.segments = (new_table_ref,)
+            # Add positions to the new table reference, other rules may need a position
+            # but the clone is not a typical "fix".
+            assert this_seg_clone.pos_marker
+            this_seg_clone.segments = this_seg_clone._position_segments(
+                (new_table_ref,), this_seg_clone.pos_marker
+            )
             ctes.replace_with_clone(subquery_parent, clone_map)
 
-            # Issue 3617: In T-SQL (and possibly other dialects) the automated fix
-            # leaves parentheses in a location that causes a syntax error. This is an
-            # unusual corner case. For simplicity, we still generate the lint warning
-            # but don't try to generate a fix. Someone could look at this later (a
-            # correct fix would involve removing the parentheses.)
-            bracketed_ctas = [seg.type for seg in parent_stack[-2:]] == [
-                "create_table_statement",
-                "bracketed",
-            ]
-            if bracketed_ctas or ctes.has_duplicate_aliases() or is_recursive:
-                # If we have duplicate CTE names just don't fix anything
-                # Return the lint warnings anyway
-                is_fixable = False
-            lint_results.append(lint_result)
-
-        # All lint_results visited, now return if not fixable.
-        if not is_fixable:
-            return lint_results
-
-        for lint_result in lint_results:
+        for (
+            lint_result,
+            from_expression,
+            alias_name,
+            subquery_parent,
+            is_fixable,
+        ) in results_list:
+            if bracketed_ctas or is_recursive or not is_fixable:
+                continue
             # Compute fix.
             output_select_clone = clone_map[output_select[0]]
             fixes = ctes.ensure_space_after_from(
@@ -191,7 +203,7 @@ class Rule_ST05(BaseRule):
                 )
             ]
             lint_result.fixes += fixes
-        return lint_results
+        return [lint_result[0] for lint_result in results_list]
 
     def _nested_subqueries(
         self, query: Query, dialect: Dialect
@@ -247,20 +259,39 @@ class Rule_ST05(BaseRule):
         ctes: "_CTEBuilder",
         case_preference: str,
         clone_map,
-    ) -> Iterator[Tuple[LintResult, BaseSegment, str, BaseSegment]]:
+    ) -> Iterator[Tuple[LintResult, BaseSegment, str, BaseSegment, bool]]:
         """Given the root query, compute lint warnings."""
         nsq: _NestedSubQuerySummary
         for nsq in self._nested_subqueries(query, dialect):
             alias_name, _ = ctes.create_cte_alias(nsq.table_alias)
             # 'anchor' is the TableExpressionSegment we fix/replace w/CTE name.
             anchor = nsq.table_alias.from_expression_element.segments[0]
-            new_cte = _create_cte_seg(  # 'prep_1 as (select ...)'
-                alias_name=alias_name,
-                subquery=clone_map[anchor],
-                case_preference=case_preference,
-                dialect=dialect,
-            )
-            ctes.insert_cte(new_cte)
+            # If we have duplicate CTE names just don't fix anything
+            # Return the lint warnings anyway
+            is_fixable = alias_name not in ctes.list_used_names()
+
+            # if the subquery is table_expression, get the bracketed child instead.
+            if anchor.is_type("table_expression"):
+                bracket_anchor = anchor.get_child("bracketed")
+                assert (
+                    bracket_anchor
+                ), "table_expression should have a bracketed segment"
+            else:
+                bracket_anchor = anchor
+
+            # we can't create a CTE from a nested subquery here, ignore it.
+            if not bracket_anchor.is_type("bracketed") or bracket_anchor.get_child(
+                "table_expression"
+            ):
+                is_fixable = False
+            if is_fixable:
+                new_cte = _create_cte_seg(  # 'prep_1 as (select ...)'
+                    alias_name=alias_name,
+                    subquery=clone_map[bracket_anchor],
+                    case_preference=case_preference,
+                    dialect=dialect,
+                )
+                ctes.insert_cte(new_cte)
 
             # Grab the first keyword or symbol in the subquery to
             # use as the anchor. This makes the lint warning less
@@ -280,6 +311,7 @@ class Rule_ST05(BaseRule):
                 alias_name,  # Name of CTE we're creating from the nested query
                 # Query with the subquery: 'select a from (select x from b)'
                 nsq.selectable.selectable,
+                is_fixable,
             )
 
 
@@ -335,10 +367,6 @@ class _CTEBuilder:
             used_names.append(cte_name)
         return used_names
 
-    def has_duplicate_aliases(self) -> bool:
-        used_names = self.list_used_names()
-        return len(set(used_names)) != len(used_names)
-
     def insert_cte(self, cte: CTEDefinitionSegment) -> None:
         """Add a new CTE to the list as late as possible but before all its parents."""
         # This should still have the position markers of its true position
@@ -373,7 +401,7 @@ class _CTEBuilder:
         """Return a valid list of CTES with required padding segments."""
         cte_segments: List[BaseSegment] = []
         for cte in self.ctes:
-            cte_segments = cte_segments + [
+            cte_segments += [
                 cte,
                 SymbolSegment(",", type="comma"),
                 NewlineSegment(),
@@ -472,10 +500,10 @@ def _is_child(maybe_parent: Segments, maybe_child: Segments) -> bool:
     child_markers = maybe_child[0].pos_marker
     parent_pos = maybe_parent[0].pos_marker
     assert parent_pos and child_markers
-    if child_markers < parent_pos.start_point_marker():
+    if child_markers.start_point_marker() < parent_pos.start_point_marker():
         return False  # pragma: no cover
 
-    if child_markers > parent_pos.end_point_marker():
+    if child_markers.end_point_marker() > parent_pos.end_point_marker():
         return False
 
     return True
@@ -504,6 +532,7 @@ def _create_cte_seg(
             WhitespaceSegment(),
             _segmentify("AS", casing=case_preference),
             WhitespaceSegment(),
+            # Return the bracketed segment instead of the table expression
             subquery,
         )
     )

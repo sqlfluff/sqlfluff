@@ -9,6 +9,7 @@ from sqlfluff.core.parser import (
     Bracketed,
     CodeSegment,
     Delimited,
+    Matchable,
     MultiStringParser,
     OneOf,
     OptionallyBracketed,
@@ -142,6 +143,15 @@ class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
                 OptionallyBracketed(Ref("SelectableGrammar")),
             ),
         ),
+    )
+
+
+class ColumnConstraintSegment(mysql.ColumnConstraintSegment):
+    """A column option; each CREATE TABLE column can have 0 or more."""
+
+    match_grammar: Matchable = OneOf(
+        mysql.ColumnConstraintSegment.match_grammar,
+        Sequence("AS", Ref("ExpressionSegment")),
     )
 
 
