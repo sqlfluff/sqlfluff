@@ -74,6 +74,7 @@ oracle_dialect.sets("reserved_keywords").update(
         "ACCESSIBLE",
         "PACKAGE",
         "ELSIF",
+        "ROWTYPE",
     ]
 )
 
@@ -326,7 +327,7 @@ oracle_dialect.replace(
         OneOf(
             Sequence(
                 Ref.keyword("IN", optional=True),
-                Ref("DatatypeSegment"),
+                OneOf(Ref("DatatypeSegment"), Ref("ColumnTypeReferenceSegment")),
                 Sequence(
                     OneOf(
                         Sequence(Ref("ColonSegment"), Ref("EqualsSegment")), "DEFAULT"
@@ -339,12 +340,22 @@ oracle_dialect.replace(
                 Ref.keyword("IN", optional=True),
                 "OUT",
                 Ref.keyword("NOCOPY", optional=True),
-                Ref("DatatypeSegment"),
+                OneOf(Ref("DatatypeSegment"), Ref("ColumnTypeReferenceSegment")),
             ),
         ),
     ),
     DelimiterGrammar=Sequence(
         Ref("SemicolonSegment"), Ref("DivideSegment", optional=True)
+    ),
+    SelectClauseTerminatorGrammar=OneOf(
+        "INTO",
+        "FROM",
+        "WHERE",
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "OVERLAPS",
+        Ref("SetOperatorSegment"),
+        "FETCH",
     ),
 )
 
@@ -891,6 +902,11 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
             Ref("PivotSegment", optional=True),
             Ref("UnpivotSegment", optional=True),
         ],
+    ).copy(
+        insert=[
+            Ref("IntoClauseSegment", optional=True),
+        ],
+        before=Ref("FromClauseSegment", optional=True),
     )
 
 
@@ -899,6 +915,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
 
     match_grammar: Matchable = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
+            Ref("IntoClauseSegment", optional=True),
             Ref("OrderByClauseSegment", optional=True),
             Ref("FetchClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
@@ -1146,7 +1163,11 @@ class DeclareStatementSegment(BaseSegment):
             Sequence(
                 Ref.keyword("DECLARE", optional=True),
                 Ref("SingleIdentifierGrammar"),
-                Ref("DatatypeSegment"),
+                OneOf(
+                    Ref("DatatypeSegment"),
+                    Ref("ColumnTypeReferenceSegment"),
+                    Ref("RowTypeReferenceSegment"),
+                ),
                 Sequence("NOT", "NULL", optional=True),
                 Sequence(
                     OneOf(
@@ -1229,3 +1250,71 @@ class IfClauseSegment(BaseSegment):
     type = "if_clause"
 
     match_grammar = Sequence("IF", Ref("ExpressionSegment"), "THEN")
+
+
+class ColumnTypeReferenceSegment(BaseSegment):
+    """A column type reference segment (e.g. `table_name.column_name%type`)."""
+
+    type = "column_type_reference"
+
+    match_grammar = Sequence(
+        Ref("ColumnReferenceSegment"), Ref("ModuloSegment"), "TYPE"
+    )
+
+
+class RowTypeReferenceSegment(BaseSegment):
+    """A column type reference segment (e.g. `table_name%rowtype`)."""
+
+    type = "row_type_reference"
+
+    match_grammar = Sequence(
+        Ref("TableReferenceSegment"), Ref("ModuloSegment"), "ROWTYPE"
+    )
+
+
+class IntoClauseSegment(BaseSegment):
+    """Into Clause Segment.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/lnpls/RETURNING-INTO-clause.html#GUID-38F735B9-1100-45AF-AE71-18FB74A899BE__CJAJDJHC
+    """
+
+    type = "into_clause"
+
+    match_grammar = Sequence(
+        "INTO",
+        Delimited(Ref("SingleIdentifierGrammar")),
+    )
+
+
+class MergeUpdateClauseSegment(BaseSegment):
+    """`UPDATE` clause within the `MERGE` statement."""
+
+    type = "merge_update_clause"
+    match_grammar: Matchable = Sequence(
+        "UPDATE",
+        Indent,
+        Ref("SetClauseListSegment"),
+        Dedent,
+        Ref("WhereClauseSegment", optional=True),
+    )
+
+
+class InsertStatementSegment(BaseSegment):
+    """An `INSERT` statement."""
+
+    type = "insert_statement"
+    match_grammar: Matchable = Sequence(
+        "INSERT",
+        Ref.keyword("OVERWRITE", optional=True),
+        "INTO",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Ref("SelectableGrammar"),
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref("SelectableGrammar"),
+            ),
+            Ref("DefaultValuesGrammar"),
+            Sequence("VALUES", Ref("SingleIdentifierGrammar"), optional=True),
+        ),
+    )
