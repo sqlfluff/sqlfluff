@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ad0814659a8258c79cbd4ff066216c7f4d839397e4f567760a5bf98387b5c454
+_hash: 185300b83b1779585e6206cc559146785c004722e829ea7e464a52efed7de5ac
 file:
   batch:
   - statement:
@@ -76,3 +76,49 @@ file:
       - table_reference:
           hash_identifier: '#n'
       - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: st
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: count
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  star: '*'
+                  end_bracket: )
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: count
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  keyword: DISTINCT
+                  expression:
+                    column_reference:
+                      naked_identifier: id
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  hash_identifier: '#3'
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: st
+        - with_rollup_clause:
+          - keyword: WITH
+          - keyword: ROLLUP
+        statement_terminator: ;

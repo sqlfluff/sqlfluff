@@ -301,7 +301,20 @@ postgres_dialect.sets("datetime_units").update(
 
 # Set the bare functions
 postgres_dialect.sets("bare_functions").update(
-    ["CURRENT_TIMESTAMP", "CURRENT_TIME", "CURRENT_DATE", "LOCALTIME", "LOCALTIMESTAMP"]
+    [
+        "CURRENT_TIMESTAMP",
+        "CURRENT_TIME",
+        "CURRENT_DATE",
+        "LOCALTIME",
+        "LOCALTIMESTAMP",
+        "CURRENT_CATALOG",
+        "CURRENT_ROLE",
+        "CURRENT_SCHEMA",
+        "CURRENT_USER",
+        "SESSION_USER",
+        "SYSTEM_USER",
+        "USER",
+    ]
 )
 
 # Postgres doesn't have a dateadd function
@@ -4775,6 +4788,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ShowStatementSegment"),
             Ref("SetConstraintsStatementSegment"),
             Ref("CreateForeignDataWrapperStatementSegment"),
+            Ref("DropForeignTableStatement"),
+            Ref("CreateOperatorStatementSegment"),
         ],
     )
 
@@ -6408,6 +6423,26 @@ class ShowStatementSegment(BaseSegment):
     )
 
 
+class DropForeignTableStatement(BaseSegment):
+    """A `DROP FOREIGN TABLE` Statement.
+
+    https://www.postgresql.org/docs/current/sql-dropforeigntable.html
+    """
+
+    type = "drop_foreign_table_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "FOREIGN",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(
+            Ref("TableReferenceSegment"),
+        ),
+        Ref("CascadeRestrictGrammar", optional=True),
+    )
+
+
 class ColumnTypeReferenceSegment(BaseSegment):
     """A column type reference segment (e.g. `table_name.column_name%type`).
 
@@ -6418,4 +6453,59 @@ class ColumnTypeReferenceSegment(BaseSegment):
 
     match_grammar = Sequence(
         Ref("ColumnReferenceSegment"), Ref("ModuloSegment"), "TYPE"
+    )
+
+
+class CreateOperatorStatementSegment(BaseSegment):
+    """A `CREATE OPERATOR` statement.
+
+    As specified in https://www.postgresql.org/docs/17/sql-createoperator.html
+    """
+
+    type = "create_operator_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "OPERATOR",
+        AnyNumberOf(
+            RegexParser(r"^[+\-*/<>=~!@#%^&|`?]+$", SymbolSegment, "commutator"),
+        ),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf("LEFTARG", "RIGHTARG"),
+                    Ref("EqualsSegment"),
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    "COMMUTATOR",
+                    Ref("EqualsSegment"),
+                    AnyNumberOf(
+                        RegexParser(
+                            r"^[+\-*/<>=~!@#%^&|`?]+$", SymbolSegment, "commutator"
+                        ),
+                    ),
+                    optional=True,
+                ),
+                Sequence(
+                    "NEGATOR",
+                    Ref("EqualsSegment"),
+                    AnyNumberOf(
+                        RegexParser(
+                            r"^[+\-*/<>=~!@#%^&|`?]+$", SymbolSegment, "negator"
+                        ),
+                    ),
+                    optional=True,
+                ),
+                Sequence(
+                    OneOf("RESTRICT", "JOIN", OneOf("PROCEDURE", "FUNCTION")),
+                    Ref("EqualsSegment"),
+                    Ref("FunctionNameSegment"),
+                    optional=True,
+                ),
+                Ref.keyword("HASHES", optional=True),
+                Ref.keyword("MERGES", optional=True),
+            )
+        ),
     )

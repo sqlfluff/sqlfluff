@@ -406,3 +406,18 @@ test_fail_later_table_first_quoted_table_and_column:
     from "foo"
     left join "bar"
         on "foo"."a" = "bar"."a"
+
+test_fail_sparksql_lt_eq_gt_operator:
+  fail_str: |
+    SELECT bt.test
+    FROM base_table AS bt
+    INNER JOIN second_table AS st
+      ON st.test <=> bt.test
+  fix_str: |
+    SELECT bt.test
+    FROM base_table AS bt
+    INNER JOIN second_table AS st
+      ON bt.test <=> st.test
+  configs:
+    core:
+      dialect: sparksql

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d309eb326e6b2b8e0e1085cf53af53d74c58a044cd6c07018108ff32a2878991
+_hash: 8a944e866b893a63dd7b9b9bde71ea77c6227b68b52398d9728406651d0b04dc
 file:
 - statement:
     create_policy_statement:
@@ -146,11 +146,10 @@ file:
     - bracketed:
         start_bracket: (
         expression:
-        - column_reference:
+          column_reference:
             naked_identifier: username
-        - comparison_operator:
+          comparison_operator:
             raw_comparison_operator: '='
-        - column_reference:
-            naked_identifier: current_user
+          bare_function: current_user
         end_bracket: )
 - statement_terminator: ;

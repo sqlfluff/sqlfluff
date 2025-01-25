@@ -134,3 +134,6 @@ CREATE TABLE [dbo].[UserData] (
 ALTER TABLE [dbo].[UserData]
 ADD CONSTRAINT [DF_UserData_strSkill] DEFAULT (0x00) FOR [strSkill];
 GO
+
+ALTER TABLE [TestTable] DROP PERIOD FOR SYSTEM_TIME;
+ALTER TABLE [TestTable] ADD PERIOD FOR SYSTEM_TIME (StartDate, EndDate);
