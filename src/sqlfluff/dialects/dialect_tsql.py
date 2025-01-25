@@ -2517,6 +2517,7 @@ class ColumnConstraintSegment(BaseSegment):
                             Ref("BareFunctionSegment"),
                             Ref("FunctionSegment"),
                             Ref("NextValueSequenceSegment"),
+                            Ref("HexadecimalLiteralSegment"),
                         ),
                     ),
                 ),
