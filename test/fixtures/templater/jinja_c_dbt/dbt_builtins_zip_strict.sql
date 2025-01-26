@@ -1,12 +1,7 @@
 {% set cols = ['c1', 'c2'] %}
-{% set tables = ['t1', 't2'] %}
+{% set aliases = ['a1', 'a2'] %}
 
-{% for (c, t) in zip(cols, tables) %}
 select
-  {{ c }} as col
-from
-  {{ t }}
-{% if not loop.last %}
-  union all
-{% endif %}
+{% for (col, alias) in zip_strict(cols, aliases) %}
+  {{ col }} as {{ alias }}{% if not loop.last %},{% endif %}
 {% endfor %}

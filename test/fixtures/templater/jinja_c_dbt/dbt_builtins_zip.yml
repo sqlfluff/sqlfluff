@@ -1,37 +1,8 @@
 file:
   - statement:
-      set_expression:
-      - select_statement:
-          select_clause:
-            keyword: select
-            select_clause_element:
-              column_reference:
-                naked_identifier: c
-              alias_expression:
-                keyword: as
-                naked_identifier: col
-          from_clause:
-            keyword: from
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: t1
-      - set_operator:
-        - keyword: union
-        - keyword: all
-      - select_statement:
-          select_clause:
-            keyword: select
-            select_clause_element:
-              numeric_literal: '1'
-              alias_expression:
-                keyword: as
-                naked_identifier: col
-          from_clause:
-            keyword: from
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: t2
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+              naked_identifier: None

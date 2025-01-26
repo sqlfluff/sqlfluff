@@ -1,12 +1,6 @@
-{% set cols = 'c1' %}
-{% set tables = ['t1', 't2'] %}
+{% set not_iterable = 1 %}
+{% set iterable = ['a1', 'a2'] %}
+{% set result = zip(not_iterable, iterable) %}
 
-{% for (c, t) in zip(cols, tables) %}
 select
-  {{ c }} as col
-from
-  {{ t }}
-{% if not loop.last %}
-  union all
-{% endif %}
-{% endfor %}
+  {{ result }}
