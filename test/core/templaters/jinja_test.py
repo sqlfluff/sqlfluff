@@ -759,7 +759,7 @@ def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
 
     assert_structure(
         yaml_loader,
-        "/home/phong/Projects/sqlfluff/test/fixtures/templater/" + subpath,
+        "test/fixtures/templater/" + subpath,
         code_only=code_only,
         include_meta=include_meta,
     )
