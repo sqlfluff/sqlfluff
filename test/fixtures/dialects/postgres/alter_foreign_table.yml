@@ -1,0 +1,120 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: fb422bdb80c2368243abf4fbb79459993e69af838ddeb700d926c046c16da370
+file:
+- statement:
+    alter_foreign_table_statement:
+    - keyword: ALTER
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: distributors
+    - alter_foreign_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: street
+      - keyword: SET
+      - keyword: NOT
+      - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_foreign_table_statement:
+    - keyword: ALTER
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_user
+    - alter_foreign_table_action_segment:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          keyword: text
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: bar_fdw
+      - dot: .
+      - naked_identifier: foo
+    - alter_table_action_segment:
+        keyword: ADD
+        column_reference:
+          naked_identifier: test
+        data_type:
+          keyword: varchar
+        column_constraint_segment:
+          keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_foreign_table_statement:
+    - keyword: ALTER
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: myschema
+      - dot: .
+      - naked_identifier: distributors
+    - alter_foreign_table_action_segment:
+        keyword: OPTIONS
+        bracketed:
+        - start_bracket: (
+        - keyword: ADD
+        - naked_identifier: opt1
+        - quoted_literal: "'value'"
+        - comma: ','
+        - keyword: SET
+        - naked_identifier: opt2
+        - quoted_literal: "'value2'"
+        - comma: ','
+        - keyword: DROP
+        - naked_identifier: opt3
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_foreign_table_statement:
+    - keyword: ALTER
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test
+    - alter_foreign_table_action_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          keyword: SET
+          naked_identifier: table
+          quoted_literal: $$(select my_column from my_table)$$
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_foreign_table_statement:
+    - keyword: ALTER
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test
+    - alter_foreign_table_action_segment:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: new_column
+      - data_type:
+          keyword: int8
+    - comma: ','
+    - alter_foreign_table_action_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          keyword: SET
+          naked_identifier: table
+          quoted_literal: $$(select my_column from my_table)$$
+          end_bracket: )
+- statement_terminator: ;

@@ -4790,6 +4790,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateForeignDataWrapperStatementSegment"),
             Ref("DropForeignTableStatement"),
             Ref("CreateOperatorStatementSegment"),
+            Ref("AlterForeignTableStatementSegment"),
         ],
     )
 
@@ -6508,4 +6509,67 @@ class CreateOperatorStatementSegment(BaseSegment):
                 Ref.keyword("MERGES", optional=True),
             )
         ),
+    )
+
+
+class AlterForeignTableStatementSegment(BaseSegment):
+    """An `ALTER TABLE` statement.
+
+    https://www.postgresql.org/docs/17/sql-alterforeigntable.html
+    """
+
+    type = "alter_foreign_table_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "FOREIGN",
+        "TABLE",
+        Sequence(
+            Ref("IfExistsGrammar", optional=True),
+            Ref.keyword("ONLY", optional=True),
+            Ref("TableReferenceSegment"),
+            Ref("StarSegment", optional=True),
+            OneOf(
+                Delimited(Ref("AlterForeignTableActionSegment")),
+                Sequence(
+                    "RENAME",
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("ColumnReferenceSegment"),
+                    "TO",
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+class AlterForeignTableActionSegment(AlterTableActionSegment):
+    """Alter Foreign Table Action Segment.
+
+    https://www.postgresql.org/docs/17/sql-alterforeigntable.html
+    """
+
+    type = "alter_foreign_table_action_segment"
+
+    match_grammar = AlterTableActionSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Sequence(
+                    "ALTER",
+                    Ref("COLUMN", optional=True),
+                    Ref("ColumnReferenceSegment"),
+                    optional=True,
+                ),
+                "OPTIONS",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            OneOf("ADD", "SET", "DROP", optional=True),
+                            Ref("SingleIdentifierGrammar"),
+                            Ref("QuotedLiteralSegment", optional=True),
+                        )
+                    )
+                ),
+            )
+        ]
     )
