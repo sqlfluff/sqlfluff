@@ -16,9 +16,11 @@ from sqlfluff.core.parser import (
     CodeSegment,
     CommentSegment,
     CompositeComparisonOperatorSegment,
+    Conditional,
     Dedent,
     Delimited,
     IdentifierSegment,
+    ImplicitIndent,
     Indent,
     LiteralSegment,
     Matchable,
@@ -75,6 +77,16 @@ oracle_dialect.sets("reserved_keywords").update(
         "PACKAGE",
         "ELSIF",
         "ROWTYPE",
+        "REVERSE",
+        "CROSSEDITION",
+        "FOLLOWS",
+        "PRECEDES",
+        "INSERTING",
+        "UPDATING",
+        "DELETING",
+        "NESTED",
+        "PRAGMA",
+        "PARENT",
     ]
 )
 
@@ -556,6 +568,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("FunctionSegment"),
             Ref("IfExpressionStatement"),
             Ref("ReturnStatementSegment"),
+            Ref("CreateTriggerStatementSegment"),
+            Ref("CaseExpressionSegment"),
         ],
     )
 
@@ -819,6 +833,7 @@ class SqlplusVariableGrammar(BaseSegment):
         OptionallyBracketed(
             Ref("ColonSegment"),
             Ref("ParameterNameSegment"),
+            Sequence(Ref("DotSegment"), Ref("ParameterNameSegment"), optional=True),
         )
     )
 
@@ -1075,6 +1090,7 @@ class BeginEndSegment(BaseSegment):
 
     type = "begin_end_block"
     match_grammar = Sequence(
+        Ref("DeclareStatementSegment", optional=True),
         "BEGIN",
         Indent,
         Ref("OneOrMoreStatementsGrammar"),
@@ -1099,6 +1115,7 @@ class BeginEndSegment(BaseSegment):
         ),
         Dedent,
         "END",
+        Ref("ObjectReferenceSegment", optional=True),
     )
 
 
@@ -1159,28 +1176,39 @@ class DeclareStatementSegment(BaseSegment):
     type = "declare_segment"
 
     match_grammar = Sequence(
-        Delimited(
-            Sequence(
-                Ref.keyword("DECLARE", optional=True),
-                Ref("SingleIdentifierGrammar"),
-                OneOf(
-                    Ref("DatatypeSegment"),
-                    Ref("ColumnTypeReferenceSegment"),
-                    Ref("RowTypeReferenceSegment"),
-                ),
-                Sequence("NOT", "NULL", optional=True),
+        Ref.keyword("DECLARE", optional=True),
+        AnyNumberOf(
+            Delimited(
                 Sequence(
                     OneOf(
-                        Sequence(Ref("ColonSegment"), Ref("EqualsSegment")), "DEFAULT"
+                        Sequence(
+                            Ref("SingleIdentifierGrammar"),
+                            OneOf(
+                                Ref("DatatypeSegment"),
+                                Ref("ColumnTypeReferenceSegment"),
+                                Ref("RowTypeReferenceSegment"),
+                            ),
+                        ),
+                        Sequence(
+                            "PRAGMA",
+                            Ref("FunctionSegment"),
+                        ),
                     ),
-                    Ref("ExpressionSegment"),
-                    optional=True,
+                    Sequence("NOT", "NULL", optional=True),
+                    Sequence(
+                        OneOf(
+                            Sequence(Ref("ColonSegment"), Ref("EqualsSegment")),
+                            "DEFAULT",
+                        ),
+                        Ref("ExpressionSegment"),
+                        optional=True,
+                    ),
+                    Ref("DelimiterGrammar"),
                 ),
-                Ref("DelimiterGrammar"),
-            ),
-            delimiter=Ref("DelimiterGrammar"),
-            terminators=["BEGIN"],
-        )
+                delimiter=Ref("DelimiterGrammar"),
+                terminators=["BEGIN"],
+            )
+        ),
     )
 
 
@@ -1317,4 +1345,203 @@ class InsertStatementSegment(BaseSegment):
             Ref("DefaultValuesGrammar"),
             Sequence("VALUES", Ref("SingleIdentifierGrammar"), optional=True),
         ),
+    )
+
+
+class CreateTriggerStatementSegment(BaseSegment):
+    """Create Trigger Statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CREATE-TRIGGER-statement.html
+    """
+
+    type = "create_trigger"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        OneOf("EDITIONABLE", "NONEDITIONABLE", optional=True),
+        "TRIGGER",
+        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("TriggerReferenceSegment"),
+        Sequence("SHARING", OneOf("METADATA", "NONE"), optional=True),
+        Sequence("DEFAULT", "COLLATION", Ref("NakedIdentifierSegment"), optional=True),
+        Sequence(
+            OneOf(OneOf("BEFORE", "AFTER"), Sequence("INSTEAD", "OF"), "FOR"),
+            Ref("DmlEventClauseSegment"),
+        ),
+        Ref("ReferencingClauseSegment", optional=True),
+        Sequence("FOR", "EACH", "ROW", optional=True),
+        Sequence(
+            OneOf("FORWARD", "REVERSE", optional=True), "CROSSEDITION", optional=True
+        ),
+        Sequence(
+            OneOf("FOLLOWS", "PRECEDES"),
+            Delimited(Ref("TriggerReferenceSegment")),
+            optional=True,
+        ),
+        OneOf("ENABLE", "DISABLE", optional=True),
+        Sequence("WHEN", Bracketed(Ref("ExpressionSegment")), optional=True),
+        Ref("OneOrMoreStatementsGrammar"),
+    )
+
+
+class DmlEventClauseSegment(BaseSegment):
+    """DML event clause.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CREATE-TRIGGER-statement.html#GUID-AF9E33F1-64D1-4382-A6A4-EC33C36F237B__BABGDFBI
+    """
+
+    type = "dml_event_clause"
+
+    match_grammar: Matchable = Sequence(
+        OneOf(
+            "DELETE",
+            "INSERT",
+            Sequence(
+                "UPDATE",
+                Sequence("OF", Delimited(Ref("ColumnReferenceSegment")), optional=True),
+            ),
+        ),
+        AnyNumberOf(
+            Sequence(
+                "OR",
+                OneOf(
+                    "DELETE",
+                    "INSERT",
+                    Sequence(
+                        "UPDATE",
+                        Sequence(
+                            "OF",
+                            Delimited(Ref("ColumnReferenceSegment")),
+                            optional=True,
+                        ),
+                    ),
+                ),
+            )
+        ),
+        "ON",
+        Sequence("NESTED", "TABLE", Ref("ColumnReferenceSegment"), "OF", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
+class ReferencingClauseSegment(BaseSegment):
+    """`REFERENCING` clause.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CREATE-TRIGGER-statement.html#GUID-AF9E33F1-64D1-4382-A6A4-EC33C36F237B__BABEBAAB
+    """
+
+    type = "referencing_clause"
+
+    match_grammar: Matchable = Sequence(
+        "REFERENCING",
+        AnyNumberOf(
+            Sequence(
+                OneOf("OLD", "NEW", "PARENT"),
+                Ref.keyword("AS", optional=True),
+                Ref("NakedIdentifierSegment"),
+            )
+        ),
+    )
+
+
+class CaseExpressionSegment(BaseSegment):
+    """A `CASE WHEN` clause."""
+
+    type = "case_expression"
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            "CASE",
+            ImplicitIndent,
+            AnyNumberOf(
+                Ref("WhenClauseSegment"),
+                reset_terminators=True,
+                terminators=[Ref.keyword("ELSE"), Ref.keyword("END")],
+            ),
+            Ref(
+                "ElseClauseSegment",
+                optional=True,
+                reset_terminators=True,
+                terminators=[Ref.keyword("END")],
+            ),
+            Dedent,
+            "END",
+            Ref.keyword("CASE", optional=True),
+            Ref("SingleIdentifierGrammar", optional=True),
+        ),
+        Sequence(
+            "CASE",
+            OneOf(
+                Ref("ExpressionSegment"),
+                "INSERTING",
+                Sequence(
+                    "UPDATING", Bracketed(Ref("QuotedLiteralSegment"), optional=True)
+                ),
+                "DELETING",
+            ),
+            ImplicitIndent,
+            AnyNumberOf(
+                Ref("WhenClauseSegment"),
+                reset_terminators=True,
+                terminators=[Ref.keyword("ELSE"), Ref.keyword("END")],
+            ),
+            Ref(
+                "ElseClauseSegment",
+                optional=True,
+                reset_terminators=True,
+                terminators=[Ref.keyword("END")],
+            ),
+            Dedent,
+            "END",
+            Ref.keyword("CASE", optional=True),
+            Ref("SingleIdentifierGrammar", optional=True),
+        ),
+        terminators=[
+            Ref("ComparisonOperatorGrammar"),
+            Ref("CommaSegment"),
+            Ref("BinaryOperatorGrammar"),
+        ],
+    )
+
+
+class WhenClauseSegment(BaseSegment):
+    """A 'WHEN' clause for a 'CASE' statement."""
+
+    type = "when_clause"
+    match_grammar: Matchable = Sequence(
+        "WHEN",
+        # NOTE: The nested sequence here is to ensure the correct
+        # placement of the meta segments when templated elements
+        # are present.
+        # https://github.com/sqlfluff/sqlfluff/issues/3988
+        Sequence(
+            ImplicitIndent,
+            OneOf(
+                Ref("ExpressionSegment"),
+                "INSERTING",
+                Sequence(
+                    "UPDATING", Bracketed(Ref("QuotedLiteralSegment"), optional=True)
+                ),
+                "DELETING",
+            ),
+            Dedent,
+        ),
+        Conditional(Indent, indented_then=True),
+        "THEN",
+        Conditional(ImplicitIndent, indented_then_contents=True),
+        OneOf(Ref("ExpressionSegment"), Ref("OneOrMoreStatementsGrammar")),
+        Conditional(Dedent, indented_then_contents=True),
+        Conditional(Dedent, indented_then=True),
+    )
+
+
+class ElseClauseSegment(BaseSegment):
+    """An 'ELSE' clause for a 'CASE' statement."""
+
+    type = "else_clause"
+    match_grammar: Matchable = Sequence(
+        "ELSE",
+        ImplicitIndent,
+        OneOf(Ref("ExpressionSegment"), Ref("OneOrMoreStatementsGrammar")),
+        Dedent,
     )
