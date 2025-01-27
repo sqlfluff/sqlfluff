@@ -6524,21 +6524,19 @@ class AlterForeignTableStatementSegment(BaseSegment):
         "ALTER",
         "FOREIGN",
         "TABLE",
-        OneOf(
-            Sequence(
-                Ref("IfExistsGrammar", optional=True),
-                Ref.keyword("ONLY", optional=True),
-                Ref("TableReferenceSegment"),
-                Ref("StarSegment", optional=True),
-                OneOf(
-                    Delimited(Ref("AlterForeignTableActionSegment")),
-                    Sequence(
-                        "RENAME",
-                        Ref.keyword("COLUMN", optional=True),
-                        Ref("ColumnReferenceSegment"),
-                        "TO",
-                        Ref("ColumnReferenceSegment"),
-                    ),
+        Sequence(
+            Ref("IfExistsGrammar", optional=True),
+            Ref.keyword("ONLY", optional=True),
+            Ref("TableReferenceSegment"),
+            Ref("StarSegment", optional=True),
+            OneOf(
+                Delimited(Ref("AlterForeignTableActionSegment")),
+                Sequence(
+                    "RENAME",
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("ColumnReferenceSegment"),
+                    "TO",
+                    Ref("ColumnReferenceSegment"),
                 ),
             ),
         ),
@@ -6565,10 +6563,10 @@ class AlterForeignTableActionSegment(AlterTableActionSegment):
                 "OPTIONS",
                 Bracketed(
                     Delimited(
-                        AnyNumberOf(
-                            OneOf("ADD", "SET", "DROP"),
+                        Sequence(
+                            OneOf("ADD", "SET", "DROP", optional=True),
                             Ref("SingleIdentifierGrammar"),
-                            Ref("QuotedLiteralSegment"),
+                            Ref("QuotedLiteralSegment", optional=True),
                         )
                     )
                 ),
