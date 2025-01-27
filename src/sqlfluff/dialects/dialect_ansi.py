@@ -3770,12 +3770,7 @@ class SetClauseListSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "SET",
         Indent,
-        Ref("SetClauseSegment"),
-        # set clause
-        AnyNumberOf(
-            Ref("CommaSegment"),
-            Ref("SetClauseSegment"),
-        ),
+        Delimited(Ref("SetClauseSegment")),
         Dedent,
     )
 
