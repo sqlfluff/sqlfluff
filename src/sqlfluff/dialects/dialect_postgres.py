@@ -6456,7 +6456,7 @@ class MetaCommandQueryBufferStatement(BaseSegment):
         )
     )
 
-    
+
 class DropForeignTableStatement(BaseSegment):
     """A `DROP FOREIGN TABLE` Statement.
 
