@@ -80,6 +80,20 @@ class Rule_AL04(BaseRule):
         NB: Subclasses of this error should override this function.
 
         """
+        if parent_select:
+            parent_select_info = get_select_statement_info(
+                parent_select, rule_context.dialect
+            )
+            if parent_select_info:
+                # If we are looking at a subquery, include any table references
+                for table_alias in parent_select_info.table_aliases:
+                    if table_alias.from_expression_element.path_to(
+                        rule_context.segment
+                    ):
+                        # Skip the subquery alias itself
+                        continue
+                    table_aliases.append(table_alias)
+
         # Are any of the aliases the same?
         duplicate = set()
         for a1, a2 in itertools.combinations(table_aliases, 2):
