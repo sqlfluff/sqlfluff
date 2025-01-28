@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b20aa68ec23c4b454eb11fe1811ae035f7afbb15ef9e88ac2a68d4e9c04fd58d
+_hash: ececc9a52bdfca961cdedde69a22d8242bea3857aba4d7e76ce3a6148903c371
 file:
 - statement:
     create_table_statement:
@@ -1459,7 +1459,7 @@ file:
     - keyword: DYNAMIC
     - keyword: TABLE
     - table_reference:
-        naked_identifier: DT_WITH_MULTIPLE_DAYS_LAG
+        naked_identifier: my_table
     - keyword: TARGET_LAG
     - comparison_operator:
         raw_comparison_operator: '='
@@ -1493,7 +1493,7 @@ file:
     - keyword: DYNAMIC
     - keyword: TABLE
     - table_reference:
-        naked_identifier: DT_WITH_MULTIPLE_DAYS_LAG
+        naked_identifier: my_table
     - keyword: TARGET_LAG
     - comparison_operator:
         raw_comparison_operator: '='
