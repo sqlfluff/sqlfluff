@@ -1,0 +1,8 @@
+file:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+              naked_identifier: None
