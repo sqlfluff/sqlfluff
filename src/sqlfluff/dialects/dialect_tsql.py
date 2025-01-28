@@ -6309,15 +6309,90 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
     https://learn.microsoft.com/en-us/sql/t-sql/statements/create-user-transact-sql#syntax
     """
 
+    _allow_encrypted_value = Sequence(
+        "ALLOW_ENCRYPTED_VALUE_MODIFICATIONS",
+        Ref("EqualsSegment"),
+        OneOf("ON", "OFF"),
+    )
+
+    _default_schema = Sequence(
+        "DEFAULT_SCHEMA",
+        Ref("EqualsSegment"),
+        Ref("ObjectReferenceSegment"),
+    )
+
+    _default_language = Sequence(
+        "DEFAULT_LANGUAGE",
+        Ref("EqualsSegment"),
+        Ref("ObjectReferenceSegment"),
+    )
+
+    _external_provider = Sequence(
+        "FROM",
+        "EXTERNAL",
+        "PROVIDER",
+        Sequence(
+            "WITH",
+            "OBJECT_ID",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        optional=True,
+    )
+
+    _limited_option_list = Sequence(
+        "WITH",
+        Delimited(
+            _default_schema,
+            _default_language,
+            _allow_encrypted_value,
+        ),
+        optional=True,
+    )
+
+    _options_list = Delimited(
+        _default_schema,
+        _default_language,
+        Sequence(
+            "SID",
+            Ref("EqualsSegment"),
+            Ref("HexadecimalLiteralSegment"),
+        ),
+        _allow_encrypted_value,
+        Sequence(
+            "PASSWORD",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+    )
+
     match_grammar = Sequence(
         "CREATE",
         "USER",
         Ref("RoleReferenceSegment"),
-        Sequence(
-            OneOf("FROM", "FOR"),
-            "LOGIN",
-            Ref("ObjectReferenceSegment"),
-            optional=True,
+        AnyNumberOf(
+            Sequence("WITH", _options_list),
+            Sequence(
+                OneOf("FROM", "FOR"),
+                "LOGIN",
+                Ref("ObjectReferenceSegment"),
+                _limited_option_list,
+            ),
+            Sequence(
+                OneOf("FROM", "FOR"),
+                OneOf(
+                    "CERTIFICATE",
+                    Sequence("ASYMMETRIC", "KEY"),
+                ),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "WITHOUT",
+                "LOGIN",
+                _limited_option_list,
+            ),
+            _external_provider,
         ),
     )
 
