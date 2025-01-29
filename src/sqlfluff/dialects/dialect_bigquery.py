@@ -2534,7 +2534,7 @@ class MergeNotMatchedBySourceClauseSegment(ansi.MergeMatchedClauseSegment):
     """The `WHEN MATCHED BY SOURCE` clause within a `MERGE` statement.
 
     It inherits from `ansi.MergeMatchedClauseSegment` because NotMatchedBySource clause
-    is conceptionally more close to a Matched clause than to NotMatched clause, i.e.
+    is conceptually more close to a Matched clause than to NotMatched clause, i.e.
     it gets combined with an UPDATE or DELETE, not with an INSERT.
     """
 
