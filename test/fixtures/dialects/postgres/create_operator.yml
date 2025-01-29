@@ -1,0 +1,98 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: af864a956638301b5fa8963592619d134b96ecc672ce013ee911fa0e8fc96a41
+file:
+- statement:
+    create_operator_statement:
+    - keyword: CREATE
+    - keyword: OPERATOR
+    - commutator: '>'
+    - commutator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: LEFTARG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: semantic_version
+      - comma: ','
+      - keyword: RIGHTARG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: semantic_version
+      - comma: ','
+      - keyword: PROCEDURE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - function_name:
+          function_name_identifier: semantic_version_ge
+      - comma: ','
+      - keyword: COMMUTATOR
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - commutator: <
+      - commutator: '='
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_operator_statement:
+    - keyword: CREATE
+    - keyword: OPERATOR
+    - commutator: '='
+    - commutator: '='
+    - commutator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: LEFTARG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: box
+      - comma: ','
+      - keyword: RIGHTARG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: box
+      - comma: ','
+      - keyword: FUNCTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - function_name:
+          function_name_identifier: area_equal_function
+      - comma: ','
+      - keyword: COMMUTATOR
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - commutator: '='
+      - commutator: '='
+      - commutator: '='
+      - comma: ','
+      - keyword: NEGATOR
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - negator: '!'
+      - negator: '='
+      - negator: '='
+      - comma: ','
+      - keyword: RESTRICT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - function_name:
+          function_name_identifier: area_restriction_function
+      - comma: ','
+      - keyword: JOIN
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - function_name:
+          function_name_identifier: area_join_function
+      - comma: ','
+      - keyword: HASHES
+      - comma: ','
+      - keyword: MERGES
+      - end_bracket: )
+- statement_terminator: ;

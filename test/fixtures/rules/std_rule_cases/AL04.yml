@@ -51,3 +51,27 @@ test_pass_tsql_table_variable:
   configs:
     core:
       dialect: tsql
+
+test_fail_subquery_same_alias:
+  fail_str: |
+    SELECT *
+    FROM tbl AS t
+    WHERE t.val IN (SELECT t.val FROM tbl2 AS t)
+
+test_fail_subquery_alias_matches_base_table:
+  fail_str: |
+    SELECT *
+    FROM tbl
+    WHERE val IN (SELECT tbl.val FROM tbl2 AS tbl)
+
+test_fail_subquery_table_matches_base_table:
+  fail_str: |
+    SELECT *
+    FROM tbl
+    WHERE val IN (SELECT tbl.val FROM tbl)
+
+test_fail_subquery_join_matches_base_table:
+  fail_str: |
+    SELECT tbl.val
+    FROM tbl
+    LEFT JOIN (SELECT tbl.val FROM tbl2 AS tbl);

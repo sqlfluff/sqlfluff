@@ -124,3 +124,59 @@ test_fail_subquery:
         FROM c
         WHERE c.other_column = a.col
     )
+
+test_fail_inner_subquery:
+  fail_str: |
+    SELECT *
+    FROM (
+        SELECT t1.col1
+        FROM db1.t1
+        LEFT JOIN t2
+            ON t1.id = t2.id
+    );
+
+test_pass_table_with_schema_6496:
+  pass_str: |
+    SELECT
+        t1.col1,
+        t2.col2
+    FROM
+        db1.t1
+    LEFT JOIN
+        t2
+        ON
+            t1.id = t2.id
+
+test_pass_wildcard_6511:
+  pass_str: |
+    select
+        simulation_source_data_reference.*,
+        sourcings.* exclude sourcing_job_id
+    from simulation_source_data_reference
+    left join sourcings
+        on simulation_source_data_reference.sourcing_job_id = sourcings.sourcing_job_id;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_cross_join_6511:
+  pass_str: |
+    select
+        cast(fpids.value as integer) as party_id
+    from kyc_dossiers as kds,
+        lateral flatten(input => kds.party_ids) as fpids;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_table_expression_function_6558:
+  pass_str: |
+    SELECT
+        ft.id,
+        n.generic_field
+    FROM fact_table AS ft
+    LEFT JOIN UNNEST(ft.generic_array) AS g
+    LEFT JOIN UNNEST(g.nested_array) AS n;
+  configs:
+    core:
+      dialect: bigquery

@@ -390,6 +390,11 @@ tsql_dialect.add(
     # Here we add a special case for a DotSegment where we don't want to apply
     # LT01's respace rule.
     LeadingDotSegment=StringParser(".", SymbolSegment, type="leading_dot"),
+    HexadecimalLiteralSegment=RegexParser(
+        r"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+)",
+        LiteralSegment,
+        type="numeric_literal",
+    ),
 )
 
 tsql_dialect.replace(
@@ -696,6 +701,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateMasterKeySegment"),
             Ref("AlterMasterKeySegment"),
             Ref("DropMasterKeySegment"),
+            Ref("CreateLoginStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -2511,6 +2517,7 @@ class ColumnConstraintSegment(BaseSegment):
                             Ref("BareFunctionSegment"),
                             Ref("FunctionSegment"),
                             Ref("NextValueSequenceSegment"),
+                            Ref("HexadecimalLiteralSegment"),
                         ),
                     ),
                 ),
@@ -3359,6 +3366,7 @@ class AlterTableStatementSegment(BaseSegment):
                     "FOR",
                     Ref("ColumnReferenceSegment"),
                 ),
+                Sequence(OneOf("ADD", "DROP"), Ref("PeriodSegment")),
                 Sequence(
                     Sequence(
                         "WITH",
@@ -4008,10 +4016,13 @@ class OpenRowSetSegment(BaseSegment):
                     Ref("CommaSegment"),
                     OneOf(
                         Sequence(
-                            "FORMATFILE",
-                            Ref("EqualsSegment"),
-                            Ref("QuotedLiteralSegmentOptWithN"),
-                            Ref("CommaSegment"),
+                            Sequence(
+                                "FORMATFILE",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegmentOptWithN"),
+                                Ref("CommaSegment"),
+                                optional=True,
+                            ),
                             Delimited(
                                 AnyNumberOf(
                                     Sequence(
@@ -4241,7 +4252,19 @@ class GroupByClauseSegment(BaseSegment):
                 Ref("ExpressionSegment"),
             ),
         ),
+        Ref("WithRollupClauseSegment", optional=True),
         Dedent,
+    )
+
+
+class WithRollupClauseSegment(BaseSegment):
+    """A `WITH ROLLUP` clause after the `GROUP BY` clause."""
+
+    type = "with_rollup_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        "ROLLUP",
     )
 
 
@@ -5598,19 +5621,19 @@ class TemporalQuerySegment(ansi.TemporalQuerySegment):
             Sequence(
                 "AS",
                 "OF",
-                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("ParameterNameSegment")),
             ),
             Sequence(
                 "FROM",
-                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("ParameterNameSegment")),
                 "TO",
-                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("ParameterNameSegment")),
             ),
             Sequence(
                 "BETWEEN",
-                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("ParameterNameSegment")),
                 "AND",
-                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("ParameterNameSegment")),
             ),
             Sequence(
                 "CONTAINED",
@@ -5699,6 +5722,7 @@ class PeriodSegment(BaseSegment):
                 Ref("ColumnReferenceSegment"),
                 Ref("ColumnReferenceSegment"),
             ),
+            optional=True,
         ),
     )
 
@@ -6064,6 +6088,90 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
     )
 
 
+class CreateLoginStatementSegment(BaseSegment):
+    """A `CREATE LOGIN` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-login-transact-sql
+    """
+
+    type = "create_login_statement"
+
+    _default_database = Sequence(
+        "DEFAULT_DATABASE",
+        Ref("EqualsSegment"),
+        Ref("QuotedLiteralSegment"),
+    )
+
+    _default_language = Sequence(
+        "DEFAULT_LANGUAGE",
+        Ref("EqualsSegment"),
+        Ref("QuotedLiteralSegment"),
+    )
+
+    _option_list_2 = AnyNumberOf(
+        Sequence(
+            "SID",
+            Ref("EqualsSegment"),
+            Ref("HexadecimalLiteralSegment"),
+        ),
+        _default_database,
+        _default_language,
+        Sequence(
+            "CHECK_EXPIRATION",
+            Ref("EqualsSegment"),
+            OneOf(
+                "ON",
+                "OFF",
+            ),
+        ),
+        Sequence(
+            "CHECK_POLICY",
+            Ref("EqualsSegment"),
+            OneOf(
+                "ON",
+                "OFF",
+            ),
+        ),
+        Sequence(
+            "CREDENTIAL",
+            Ref("EqualsSegment"),
+            Ref("ObjectReferenceSegment"),
+        ),
+    )
+    _option_list_1 = Sequence(
+        "PASSWORD",
+        Ref("EqualsSegment"),
+        Ref("QuotedLiteralSegment"),
+        Ref.keyword("MUST_CHANGE", optional=True),
+        Ref("CommaSegment", optional=True),
+        Delimited(_option_list_2, optional=True),
+    )
+
+    _windows_options = AnyNumberOf(
+        _default_database,
+        _default_language,
+    )
+    _sources = OneOf(
+        "WINDOWS",
+        Sequence("EXTERNAL", "PROVIDER"),
+        Sequence("CERTIFICATE", Ref("ObjectReferenceSegment")),
+        Sequence(
+            Sequence("ASYMMETRIC", "KEY"),
+            Ref("ObjectReferenceSegment"),
+        ),
+    )
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "LOGIN",
+        Ref("ObjectReferenceSegment"),
+        AnyNumberOf(
+            Sequence("FROM", _sources),
+            Sequence("WITH", _option_list_1),
+        ),
+    )
+
+
 class DropExternalTableStatementSegment(BaseSegment):
     """A `DROP EXTERNAL TABLE ...` statement.
 
@@ -6201,15 +6309,90 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
     https://learn.microsoft.com/en-us/sql/t-sql/statements/create-user-transact-sql#syntax
     """
 
+    _allow_encrypted_value = Sequence(
+        "ALLOW_ENCRYPTED_VALUE_MODIFICATIONS",
+        Ref("EqualsSegment"),
+        OneOf("ON", "OFF"),
+    )
+
+    _default_schema = Sequence(
+        "DEFAULT_SCHEMA",
+        Ref("EqualsSegment"),
+        Ref("ObjectReferenceSegment"),
+    )
+
+    _default_language = Sequence(
+        "DEFAULT_LANGUAGE",
+        Ref("EqualsSegment"),
+        Ref("ObjectReferenceSegment"),
+    )
+
+    _external_provider = Sequence(
+        "FROM",
+        "EXTERNAL",
+        "PROVIDER",
+        Sequence(
+            "WITH",
+            "OBJECT_ID",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        optional=True,
+    )
+
+    _limited_option_list = Sequence(
+        "WITH",
+        Delimited(
+            _default_schema,
+            _default_language,
+            _allow_encrypted_value,
+        ),
+        optional=True,
+    )
+
+    _options_list = Delimited(
+        _default_schema,
+        _default_language,
+        Sequence(
+            "SID",
+            Ref("EqualsSegment"),
+            Ref("HexadecimalLiteralSegment"),
+        ),
+        _allow_encrypted_value,
+        Sequence(
+            "PASSWORD",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+    )
+
     match_grammar = Sequence(
         "CREATE",
         "USER",
         Ref("RoleReferenceSegment"),
-        Sequence(
-            OneOf("FROM", "FOR"),
-            "LOGIN",
-            Ref("ObjectReferenceSegment"),
-            optional=True,
+        AnyNumberOf(
+            Sequence("WITH", _options_list),
+            Sequence(
+                OneOf("FROM", "FOR"),
+                "LOGIN",
+                Ref("ObjectReferenceSegment"),
+                _limited_option_list,
+            ),
+            Sequence(
+                OneOf("FROM", "FOR"),
+                OneOf(
+                    "CERTIFICATE",
+                    Sequence("ASYMMETRIC", "KEY"),
+                ),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "WITHOUT",
+                "LOGIN",
+                _limited_option_list,
+            ),
+            _external_provider,
         ),
     )
 
