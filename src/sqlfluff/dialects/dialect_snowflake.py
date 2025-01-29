@@ -259,6 +259,11 @@ snowflake_dialect.add(
         CodeSegment,
         type="variable",
     ),
+    SnowflakeVariableNameSegment=RegexParser(
+        r":[a-zA-Z0-9_]*",
+        CodeSegment,
+        type="variable",
+    ),
     ReferencedVariableNameSegment=RegexParser(
         r"\$[A-Z_][A-Z0-9_]*",
         CodeSegment,
@@ -698,12 +703,19 @@ snowflake_dialect.replace(
     ),
     BaseExpressionElementGrammar=ansi_dialect.get_grammar(
         "BaseExpressionElementGrammar"
-    ).copy(
+    )
+    .copy(
         insert=[
             # Allow use of CONNECT_BY_ROOT pseudo-columns.
             # https://docs.snowflake.com/en/sql-reference/constructs/connect-by.html#:~:text=Snowflake%20supports%20the%20CONNECT_BY_ROOT,the%20Examples%20section%20below.
             Sequence("CONNECT_BY_ROOT", Ref("ColumnReferenceSegment")),
             Sequence("PRIOR", Ref("ColumnReferenceSegment")),
+        ],
+        before=Ref("LiteralGrammar"),
+    )
+    .copy(
+        insert=[
+            Ref("SnowflakeVariableNameSegment"),
         ],
         before=Ref("LiteralGrammar"),
     ),
