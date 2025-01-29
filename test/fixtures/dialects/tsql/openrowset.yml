@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3711edeb255f7411613a876ef888e2da9cab67a2a5f15523df1a0e9fc71ec47c
+_hash: c4e80150f24711897ab28de979a8fbef9f20561f721e2158a8d6a30a6af1a49e
 file:
 - batch:
     statement:
@@ -242,5 +242,40 @@ file:
                 keyword: AS
                 naked_identifier: cars
           statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_modifier:
+            keyword: TOP
+            expression:
+              numeric_literal: '10'
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openrowset_segment:
+                  keyword: OPENROWSET
+                  bracketed:
+                  - start_bracket: (
+                  - keyword: BULK
+                  - quoted_literal: "'https://pandemicdatalake.blob.core.windows.net/public/curated/covid-19/ecdc_cases/latest/ecdc_cases.parquet'"
+                  - comma: ','
+                  - keyword: FORMAT
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'PARQUET'"
+                  - end_bracket: )
+              alias_expression:
+                keyword: as
+                naked_identifier: rows
 - go_statement:
     keyword: GO
