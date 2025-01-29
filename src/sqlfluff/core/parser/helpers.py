@@ -32,7 +32,7 @@ def check_still_complete(
 
 
 def trim_non_code_segments(
-    segments: Tuple["BaseSegment", ...]
+    segments: Tuple["BaseSegment", ...],
 ) -> Tuple[
     Tuple["BaseSegment", ...], Tuple["BaseSegment", ...], Tuple["BaseSegment", ...]
 ]:
