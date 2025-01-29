@@ -99,7 +99,7 @@ def auto_fix_test(dialect, folder, caplog):
                 for line in source_file:
                     dest_file.write(line)
     except FileNotFoundError:
-        # No config file? No biggie
+        # No config file? No big deal
         print("## No Config File Found.")
         pass
     print(f"## Input file:\n{print_buff}")
