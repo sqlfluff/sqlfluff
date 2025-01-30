@@ -523,6 +523,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DeclareStatementSegment"),
             Ref("SetStatementSegment"),
             Ref("ExportStatementSegment"),
+            Ref("LoadDataStatementSegment"),
             Ref("CreateExternalTableStatementSegment"),
             Ref("CreateSnapshotTableStatementSegment"),
             Ref("ExecuteImmediateSegment"),
@@ -2680,6 +2681,83 @@ class ExportStatementSegment(BaseSegment):
         ),
         "AS",
         Ref("SelectableGrammar"),
+    )
+
+
+class LoadDataStatementSegment(BaseSegment):
+    """`LOAD DATA` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/load-statements
+    """
+
+    type = "load_data_statement"
+    match_grammar: Matchable = Sequence(
+        "LOAD",
+        "DATA",
+        OneOf("INTO", "OVERWRITE"),
+        Sequence(
+            Ref("TemporaryGrammar"),
+            "TABLE",
+            optional=True,
+        ),
+        Ref("TableReferenceSegment"),
+        Sequence(
+            Bracketed(
+                Delimited(
+                    Ref("ColumnDefinitionSegment"),
+                    Ref("TableConstraintSegment"),
+                    allow_trailing=True,
+                )
+            ),
+            optional=True,
+        ),
+        Sequence(
+            Sequence("OVERWRITE", optional=True),
+            "PARTITIONS",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("BaseExpressionElementGrammar"),
+                    )
+                )
+            ),
+            optional=True,
+        ),
+        Ref("PartitionBySegment", optional=True),
+        Ref("ClusterBySegment", optional=True),
+        Ref("OptionsSegment", optional=True),
+        Sequence(
+            "FROM",
+            "FILES",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("BaseExpressionElementGrammar"),
+                    )
+                )
+            ),
+        ),
+        Sequence(
+            "WITH",
+            "PARTITION",
+            "COLUMNS",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),  # Column name
+                        Ref("DatatypeSegment"),
+                    ),
+                    allow_trailing=True,
+                ),
+                optional=True,
+            ),
+            optional=True,
+        ),
+        Sequence("WITH", "CONNECTION", Ref("ObjectReferenceSegment"), optional=True),
     )
 
 
