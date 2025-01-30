@@ -70,7 +70,7 @@ oracle_dialect.sets("reserved_keywords").update(
 )
 
 oracle_dialect.sets("unreserved_keywords").update(
-    ["EDITIONABLE", "EDITIONING", "NONEDITIONABLE", "KEEP"]
+    ["EDITIONABLE", "EDITIONING", "NONEDITIONABLE", "KEEP", "NOMINVALUE", "NOMAXVALUE"]
 )
 
 oracle_dialect.sets("bare_functions").clear()
@@ -311,6 +311,14 @@ oracle_dialect.replace(
         insert=[
             Ref("SqlplusSubstitutionVariableSegment"),
         ]
+    ),
+    SequenceMinValueGrammar=OneOf(
+        Sequence("MINVALUE", Ref("NumericLiteralSegment")),
+        "NOMINVALUE",
+    ),
+    SequenceMaxValueGrammar=OneOf(
+        Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
+        "NOMAXVALUE",
     ),
 )
 

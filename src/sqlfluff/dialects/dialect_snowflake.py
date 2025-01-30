@@ -259,6 +259,11 @@ snowflake_dialect.add(
         CodeSegment,
         type="variable",
     ),
+    SnowflakeVariableNameSegment=RegexParser(
+        r":[a-zA-Z0-9_]*",
+        CodeSegment,
+        type="variable",
+    ),
     ReferencedVariableNameSegment=RegexParser(
         r"\$[A-Z_][A-Z0-9_]*",
         CodeSegment,
@@ -355,7 +360,7 @@ snowflake_dialect.add(
         type="copy_on_error_option",
     ),
     DynamicTableLagIntervalSegment=RegexParser(
-        r"'((DOWNSTREAM)|([1-9]\d*\s+(?:SECOND|MINUTE|HOUR|DAY)S?))'",
+        r"DYNAMIC|'.*'",
         LiteralSegment,
         type="dynamic_table_lag_interval_segment",
     ),
@@ -698,12 +703,19 @@ snowflake_dialect.replace(
     ),
     BaseExpressionElementGrammar=ansi_dialect.get_grammar(
         "BaseExpressionElementGrammar"
-    ).copy(
+    )
+    .copy(
         insert=[
             # Allow use of CONNECT_BY_ROOT pseudo-columns.
             # https://docs.snowflake.com/en/sql-reference/constructs/connect-by.html#:~:text=Snowflake%20supports%20the%20CONNECT_BY_ROOT,the%20Examples%20section%20below.
             Sequence("CONNECT_BY_ROOT", Ref("ColumnReferenceSegment")),
             Sequence("PRIOR", Ref("ColumnReferenceSegment")),
+        ],
+        before=Ref("LiteralGrammar"),
+    )
+    .copy(
+        insert=[
+            Ref("SnowflakeVariableNameSegment"),
         ],
         before=Ref("LiteralGrammar"),
     ),
