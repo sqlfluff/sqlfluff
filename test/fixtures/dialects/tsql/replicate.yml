@@ -1,0 +1,132 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: cbf4289dcc8331d80476fd346acaace6b8aa7810cfdca1c0315541c0f973b104
+file:
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            expression:
+              function:
+                function_name:
+                  keyword: REPLICATE
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'0'"
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '3'
+                      binary_operator: '-'
+                      function:
+                        function_name:
+                          function_name_identifier: DATALENGTH
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: c1
+                            end_bracket: )
+                  - end_bracket: )
+              binary_operator: +
+              column_reference:
+                naked_identifier: c1
+            alias_expression:
+              keyword: AS
+              quoted_identifier: "'Varchar Column'"
+        - comma: ','
+        - select_clause_element:
+            expression:
+              function:
+                function_name:
+                  keyword: REPLICATE
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'0'"
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '3'
+                      binary_operator: '-'
+                      function:
+                        function_name:
+                          function_name_identifier: DATALENGTH
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: c2
+                            end_bracket: )
+                  - end_bracket: )
+              binary_operator: +
+              column_reference:
+                naked_identifier: c2
+            alias_expression:
+              keyword: AS
+              quoted_identifier: "'Char Column'"
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t1
+          statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@BinVar'
+        data_type:
+          data_type_identifier: varbinary
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '128'
+              end_bracket: )
+        statement_terminator: ;
+  - statement:
+      set_segment:
+        keyword: SET
+        parameter: '@BinVar'
+        assignment_operator:
+          raw_comparison_operator: '='
+        expression:
+          function:
+            function_name:
+              keyword: CAST
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      keyword: REPLICATE
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        numeric_literal: '0x20'
+                        comma: ','
+                        expression:
+                          numeric_literal: '128'
+                        end_bracket: )
+                keyword: AS
+                data_type:
+                  data_type_identifier: varbinary
+                  bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '128'
+                      end_bracket: )
+                end_bracket: )
+        statement_terminator: ;
