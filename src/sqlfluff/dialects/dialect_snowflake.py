@@ -360,7 +360,7 @@ snowflake_dialect.add(
         type="copy_on_error_option",
     ),
     DynamicTableLagIntervalSegment=RegexParser(
-        r"'((DOWNSTREAM)|([1-9]\d*\s+(?:SECOND|MINUTE|HOUR|DAY)S?))'",
+        r"DYNAMIC|'.*'",
         LiteralSegment,
         type="dynamic_table_lag_interval_segment",
     ),
