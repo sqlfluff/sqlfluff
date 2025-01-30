@@ -87,6 +87,12 @@ oracle_dialect.sets("reserved_keywords").update(
         "NESTED",
         "PRAGMA",
         "PARENT",
+        "COMPOUND",
+        "CONSTANT",
+        "MUTABLE",
+        "INDICES",
+        "FORALL",
+        "PAIRS",
     ]
 )
 
@@ -203,6 +209,10 @@ oracle_dialect.add(
     OneOrMoreStatementsGrammar=AnyNumberOf(
         Ref("StatementAndDelimiterGrammar"),
         min_times=1,
+    ),
+    TimingPointGrammar=Sequence(
+        OneOf("BEFORE", "AFTER", Sequence("INSTEAD", "OF")),
+        OneOf("STATEMENT", Sequence("EACH", "ROW")),
     ),
 )
 
@@ -570,6 +580,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ReturnStatementSegment"),
             Ref("CreateTriggerStatementSegment"),
             Ref("CaseExpressionSegment"),
+            Ref("CompoundTriggerBlock"),
+            Ref("ForLoopStatementSegment"),
+            Ref("ForAllStatementSegment"),
         ],
     )
 
@@ -1183,6 +1196,7 @@ class DeclareStatementSegment(BaseSegment):
                     OneOf(
                         Sequence(
                             Ref("SingleIdentifierGrammar"),
+                            Ref.keyword("CONSTANT", optional=True),
                             OneOf(
                                 Ref("DatatypeSegment"),
                                 Ref("ColumnTypeReferenceSegment"),
@@ -1193,6 +1207,7 @@ class DeclareStatementSegment(BaseSegment):
                             "PRAGMA",
                             Ref("FunctionSegment"),
                         ),
+                        Ref("CollectionTypeDefinitionSegment"),
                     ),
                     Sequence("NOT", "NULL", optional=True),
                     Sequence(
@@ -1236,6 +1251,7 @@ class AssignmentStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         Ref("ObjectReferenceSegment"),
+        Bracketed(Ref("ObjectReferenceSegment"), optional=True),
         Ref("ColonSegment"),
         Ref("EqualsSegment"),
         Ref("ExpressionSegment"),
@@ -1381,7 +1397,9 @@ class CreateTriggerStatementSegment(BaseSegment):
         ),
         OneOf("ENABLE", "DISABLE", optional=True),
         Sequence("WHEN", Bracketed(Ref("ExpressionSegment")), optional=True),
-        Ref("OneOrMoreStatementsGrammar"),
+        OneOf(Ref("CompoundTriggerBlock"), Ref("OneOrMoreStatementsGrammar")),
+        Ref.keyword("END", optional=True),
+        Ref("ObjectReferenceSegment", optional=True),
     )
 
 
@@ -1544,4 +1562,182 @@ class ElseClauseSegment(BaseSegment):
         ImplicitIndent,
         OneOf(Ref("ExpressionSegment"), Ref("OneOrMoreStatementsGrammar")),
         Dedent,
+    )
+
+
+class CompoundTriggerBlock(BaseSegment):
+    """A compound trigger block.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CREATE-TRIGGER-statement.html#GUID-AF9E33F1-64D1-4382-A6A4-EC33C36F237B__CJACFCDJ
+    """
+
+    type = "compound_trigger_statement"
+
+    match_grammar: Matchable = Sequence(
+        "COMPOUND",
+        "TRIGGER",
+        Ref("DeclareStatementSegment", optional=True),
+        AnyNumberOf(Ref("TimingPointSectionSegment")),
+    )
+
+
+class TimingPointSectionSegment(BaseSegment):
+    """A timing point section.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CREATE-TRIGGER-statement.html#GUID-AF9E33F1-64D1-4382-A6A4-EC33C36F237B__GUID-2CD49225-7507-458B-8BDF-21C56AFC3527
+    """
+
+    type = "timing_point_section"
+
+    match_grammar: Matchable = Sequence(
+        Ref("TimingPointGrammar"),
+        "IS",
+        "BEGIN",
+        Ref("OneOrMoreStatementsGrammar"),
+        Sequence("END", Ref("TimingPointGrammar")),
+    )
+
+
+class CollectionTypeDefinitionSegment(BaseSegment):
+    """A collection type definition.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/collection-variable.html
+    """
+
+    type = "collection_type"
+
+    match_grammar = Sequence(
+        "TYPE",
+        Ref("SingleIdentifierGrammar"),
+        "IS",
+        Sequence("TABLE", "OF", optional=True),
+        OneOf(
+            Ref("DatatypeSegment"),
+            Ref("ColumnTypeReferenceSegment"),
+            Ref("RowTypeReferenceSegment"),
+        ),
+        Sequence("OF", Ref("DatatypeSegment"), optional=True),
+        Sequence("NOT", "NULL", optional=True),
+        Sequence("INDEX", "BY", Ref("DatatypeSegment"), optional=True),
+    )
+
+
+class ForLoopStatementSegment(BaseSegment):
+    """A `FOR LOOP` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/FOR-LOOP-statement.html
+    """
+
+    type = "for_loop_statement"
+
+    match_grammar: Matchable = Sequence(
+        "FOR",
+        Delimited(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                OneOf("MUTABLE", "IMMUTABLE", optional=True),
+            )
+        ),
+        "IN",
+        Delimited(
+            Sequence(
+                Ref.keyword("REVERSE", optional=True),
+                OneOf(
+                    Sequence(
+                        OneOf(
+                            Ref("NumericLiteralSegment"),
+                            Ref("SingleIdentifierGrammar"),
+                            Sequence(
+                                Ref("SingleIdentifierGrammar"),
+                                Ref("DotSegment"),
+                                Ref("SingleIdentifierGrammar"),
+                            ),
+                        ),
+                        Ref("DotSegment"),
+                        Ref("DotSegment"),
+                        OneOf(
+                            Ref("NumericLiteralSegment"),
+                            Ref("SingleIdentifierGrammar"),
+                            Sequence(
+                                Ref("SingleIdentifierGrammar"),
+                                Ref("DotSegment"),
+                                Ref("SingleIdentifierGrammar"),
+                            ),
+                        ),
+                    ),
+                    Sequence(
+                        "VALUES",
+                        "OF",
+                        Ref("SingleIdentifierGrammar"),
+                    ),
+                    Sequence(
+                        "INDICES",
+                        "OF",
+                        Ref("SingleIdentifierGrammar"),
+                    ),
+                    Sequence(
+                        "PAIRS",
+                        "OF",
+                        Ref("SingleIdentifierGrammar"),
+                    ),
+                    Bracketed(Ref("SelectStatementSegment")),
+                ),
+            )
+        ),
+        "LOOP",
+        Ref("OneOrMoreStatementsGrammar"),
+        "END",
+        "LOOP",
+        Ref("SingleIdentifierGrammar", optional=True),
+    )
+
+
+class ForAllStatementSegment(BaseSegment):
+    """A `FORALL` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/FORALL-statement.html
+    """
+
+    type = "forall_statement"
+
+    match_grammar = Sequence(
+        "FORALL",
+        Ref("NakedIdentifierSegment"),
+        "IN",
+        OneOf(
+            Sequence(
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    Ref("SingleIdentifierGrammar"),
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DotSegment"),
+                        Ref("SingleIdentifierGrammar"),
+                    ),
+                ),
+                Ref("DotSegment"),
+                Ref("DotSegment"),
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    Ref("SingleIdentifierGrammar"),
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DotSegment"),
+                        Ref("SingleIdentifierGrammar"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "VALUES",
+                "OF",
+                Ref("SingleIdentifierGrammar"),
+            ),
+        ),
+        Sequence("SAVE", "EXCEPTIONS", optional=True),
+        OneOf(
+            Ref("DeleteStatementSegment"),
+            Ref("InsertStatementSegment"),
+            Ref("SelectStatementSegment"),
+            Ref("UpdateStatementSegment"),
+        ),
     )
