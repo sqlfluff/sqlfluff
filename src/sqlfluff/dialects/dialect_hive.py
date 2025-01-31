@@ -265,6 +265,22 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
     )
 
 
+class EqualsSegment(ansi.EqualsSegment):
+    """Equals operator.
+
+    Hive allows double equals:
+    https://cwiki.apache.org/confluence/display/Hive/Hive+Operators
+    """
+
+    match_grammar: Matchable = OneOf(
+        Ref("RawEqualsSegment"),
+        Sequence(
+            Ref("RawEqualsSegment"),
+            Ref("RawEqualsSegment"),
+        ),
+    )
+
+
 class StructTypeSegment(ansi.StructTypeSegment):
     """Expression to construct a STRUCT datatype."""
 
