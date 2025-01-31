@@ -94,6 +94,11 @@ oracle_dialect.sets("reserved_keywords").update(
         "FORALL",
         "PAIRS",
         "RAISE",
+        "SHARD_ENABLE",
+        "PARALLEL_ENABLE",
+        "RESULT_CACHE",
+        "PIPELINED",
+        "SQL_MACRO",
     ]
 )
 
@@ -1229,6 +1234,7 @@ class DeclareStatementSegment(BaseSegment):
                         Ref("DelimiterGrammar"),
                     ),
                     Ref("CreateProcedureStatementSegment"),
+                    Ref("CreateFunctionStatementSegment"),
                 ),
                 delimiter=Ref("DelimiterGrammar"),
                 terminators=["BEGIN"],
@@ -1775,4 +1781,109 @@ class RaiseStatementSegment(BaseSegment):
         "RAISE",
         Ref("SingleIdentifierGrammar", optional=True),
         Ref("DelimiterGrammar"),
+    )
+
+
+class CreateFunctionStatementSegment(BaseSegment):
+    """A `CREATE OR ALTER FUNCTION` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CREATE-FUNCTION-statement.html
+    """
+
+    type = "create_function_statement"
+
+    match_grammar = Sequence(
+        Ref.keyword("CREATE", optional=True),
+        Sequence("OR", "REPLACE", optional=True),
+        OneOf("EDITIONABLE", "NONEDITIONABLE", optional=True),
+        "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Delimited(Ref("FunctionParameterListGrammar"), optional=True),
+        "RETURN",
+        Ref("DatatypeSegment"),
+        Sequence("SHARING", OneOf("METADATA", "NONE"), optional=True),
+        AnyNumberOf(
+            Sequence("DEFAULT", "COLLATION", Ref("NakedIdentifierSegment")),
+            Sequence("AUTHID", OneOf("CURRENT_USER", "DEFINER")),
+            Sequence(
+                "ACCESSIBLE",
+                "BY",
+                Delimited(
+                    Bracketed(
+                        Sequence(
+                            OneOf(
+                                "FUNCTION",
+                                "PROCEDURE",
+                                "PACKAGE",
+                                "TRIGGER",
+                                "TYPE",
+                                optional=True,
+                            ),
+                            Ref("FunctionNameSegment"),
+                        )
+                    )
+                ),
+            ),
+            "DETERMINISTIC",
+            "SHARD_ENABLE",
+            Sequence(
+                "PARALLEL_ENABLE",
+                Sequence(
+                    Bracketed(
+                        "PARTITION",
+                        Ref("SingleIdentifierGrammar"),
+                        "BY",
+                        OneOf(
+                            "ANY",
+                            Sequence(
+                                OneOf("HASH", "RANGE"),
+                                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                                Sequence(
+                                    OneOf("ORDER", "CLUSTER"),
+                                    Ref("ExpressionSegment"),
+                                    "BY",
+                                    Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                                    optional=True,
+                                ),
+                            ),
+                            Sequence("VALUE", Bracketed(Ref("ColumnReferenceSegment"))),
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "RESULT_CACHE",
+                Sequence(
+                    "RELIES_ON",
+                    Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+                    optional=True,
+                ),
+            ),
+            Sequence("AGGREGATE", "USING", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "PIPELINED",
+                OneOf(
+                    Sequence("USING", Ref("ObjectReferenceSegment"), optional=True),
+                    Sequence(
+                        OneOf("ROW", "TABLE"),
+                        "POLYMORPHIC",
+                        Sequence("USING", Ref("ObjectReferenceSegment"), optional=True),
+                    ),
+                ),
+            ),
+            Sequence(
+                "SQL_MACRO",
+                Bracketed(
+                    Sequence("TYPE", Ref("RightArrowSegment")),
+                    OneOf("SCALAR", "TABLE"),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+        OneOf("IS", "AS"),
+        AnyNumberOf(Ref("DeclareStatementSegment"), optional=True),
+        Ref("BeginEndSegment", optional=True),
     )
