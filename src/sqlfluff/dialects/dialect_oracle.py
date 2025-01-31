@@ -93,6 +93,7 @@ oracle_dialect.sets("reserved_keywords").update(
         "INDICES",
         "FORALL",
         "PAIRS",
+        "RAISE",
     ]
 )
 
@@ -134,6 +135,11 @@ oracle_dialect.patch_lexer_matchers(
                 "quoted_value": (r'"((?:[^"]|"")*)"', 1),
                 "escape_replacements": [(r'""', '"')],
             },
+        ),
+        RegexLexer(
+            "numeric_literal",
+            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\d+)(\.?[eE][+-]?\d+)?((?<!\.)|(?=\b))",
+            LiteralSegment,
         ),
     ]
 )
@@ -583,6 +589,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CompoundTriggerBlock"),
             Ref("ForLoopStatementSegment"),
             Ref("ForAllStatementSegment"),
+            Ref("RaiseStatementSegment"),
         ],
     )
 
@@ -1234,10 +1241,11 @@ class ReturnStatementSegment(BaseSegment):
     """
 
     type = "return_segment"
+
     match_grammar = Sequence(
         "RETURN",
         Ref("ExpressionSegment", optional=True),
-        Ref("DelimiterGrammar", optional=True),
+        Ref("DelimiterGrammar"),
     )
 
 
@@ -1740,4 +1748,19 @@ class ForAllStatementSegment(BaseSegment):
             Ref("SelectStatementSegment"),
             Ref("UpdateStatementSegment"),
         ),
+    )
+
+
+class RaiseStatementSegment(BaseSegment):
+    """A `RAISE` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/RAISE-statement.html
+    """
+
+    type = "raise_segment"
+
+    match_grammar = Sequence(
+        "RAISE",
+        Ref("SingleIdentifierGrammar", optional=True),
+        Ref("DelimiterGrammar"),
     )

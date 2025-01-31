@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 02f14947b9489ca8af2049e2eaac30c315688a43a1d57b5a321e1ff85aaf5a4e
+_hash: 5e417be9e473565f87496ffccd4d85f1840d166e07a621978ee8811b5ca93d91
 file:
 - statement:
     begin_end_block:
@@ -466,5 +466,325 @@ file:
           keyword: COMMIT
     - statement_terminator: ;
     - keyword: END
+- statement_terminator: ;
+- binary_operator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - collection_type:
+        - keyword: TYPE
+        - naked_identifier: NumList
+        - keyword: IS
+        - data_type:
+            data_type_identifier: VARRAY
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '10'
+                end_bracket: )
+        - keyword: OF
+        - data_type:
+            data_type_identifier: NUMBER
+      - statement_terminator: ;
+      - naked_identifier: depts
+      - data_type:
+          data_type_identifier: NumList
+      - colon: ':'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: NumList
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '5'
+              - comma: ','
+              - expression:
+                  numeric_literal: '10'
+              - comma: ','
+              - expression:
+                  numeric_literal: '20'
+              - comma: ','
+              - expression:
+                  numeric_literal: '30'
+              - comma: ','
+              - expression:
+                  numeric_literal: '50'
+              - comma: ','
+              - expression:
+                  numeric_literal: '55'
+              - comma: ','
+              - expression:
+                  numeric_literal: '57'
+              - comma: ','
+              - expression:
+                  numeric_literal: '60'
+              - comma: ','
+              - expression:
+                  numeric_literal: '70'
+              - comma: ','
+              - expression:
+                  numeric_literal: '75'
+              - end_bracket: )
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        forall_statement:
+        - keyword: FORALL
+        - naked_identifier: j
+        - keyword: IN
+        - numeric_literal: '4'
+        - dot: .
+        - dot: .
+        - numeric_literal: '7'
+        - delete_statement:
+            keyword: DELETE
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: employees_temp
+            where_clause:
+              keyword: WHERE
+              expression:
+                column_reference:
+                  naked_identifier: department_id
+                comparison_operator:
+                  raw_comparison_operator: '='
+                function:
+                  function_name:
+                    function_name_identifier: depts
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: j
+                      end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- binary_operator: /
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - keyword: AUTHID
+    - keyword: DEFINER
+    - keyword: AS
+    - declare_segment:
+      - collection_type:
+        - keyword: TYPE
+        - naked_identifier: NumList
+        - keyword: IS
+        - keyword: TABLE
+        - keyword: OF
+        - data_type:
+            data_type_identifier: NUMBER
+      - statement_terminator: ;
+      - naked_identifier: depts
+      - data_type:
+          data_type_identifier: NumList
+      - colon: ':'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: NumList
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '10'
+              - comma: ','
+              - expression:
+                  numeric_literal: '20'
+              - comma: ','
+              - expression:
+                  numeric_literal: '30'
+              - end_bracket: )
+      - statement_terminator: ;
+      - naked_identifier: error_message
+      - data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
+      - statement_terminator: ;
+    - begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          insert_statement:
+          - keyword: INSERT
+          - keyword: INTO
+          - table_reference:
+              naked_identifier: emp_temp
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: deptno
+            - comma: ','
+            - column_reference:
+                naked_identifier: job
+            - end_bracket: )
+          - values_clause:
+              keyword: VALUES
+              bracketed:
+                start_bracket: (
+                numeric_literal: '10'
+                comma: ','
+                quoted_literal: "'Clerk'"
+                end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          insert_statement:
+          - keyword: INSERT
+          - keyword: INTO
+          - table_reference:
+              naked_identifier: emp_temp
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: deptno
+            - comma: ','
+            - column_reference:
+                naked_identifier: job
+            - end_bracket: )
+          - values_clause:
+              keyword: VALUES
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                comma: ','
+                quoted_literal: "'Bookkeeper'"
+                end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          insert_statement:
+          - keyword: INSERT
+          - keyword: INTO
+          - table_reference:
+              naked_identifier: emp_temp
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: deptno
+            - comma: ','
+            - column_reference:
+                naked_identifier: job
+            - end_bracket: )
+          - values_clause:
+              keyword: VALUES
+              bracketed:
+                start_bracket: (
+                numeric_literal: '30'
+                comma: ','
+                quoted_literal: "'Analyst'"
+                end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          transaction_statement:
+            keyword: COMMIT
+      - statement_terminator: ;
+      - statement:
+          forall_statement:
+          - keyword: FORALL
+          - naked_identifier: j
+          - keyword: IN
+          - naked_identifier: depts
+          - dot: .
+          - naked_identifier: FIRST
+          - dot: .
+          - dot: .
+          - naked_identifier: depts
+          - dot: .
+          - naked_identifier: LAST
+          - update_statement:
+              keyword: UPDATE
+              table_reference:
+                naked_identifier: emp_temp
+              set_clause_list:
+                keyword: SET
+                set_clause:
+                  column_reference:
+                    naked_identifier: job
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    column_reference:
+                      naked_identifier: job
+                    binary_operator:
+                    - pipe: '|'
+                    - pipe: '|'
+                    quoted_literal: "' (Senior)'"
+              where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                    naked_identifier: deptno
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  function:
+                    function_name:
+                      function_name_identifier: depts
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: j
+                        end_bracket: )
+      - statement_terminator: ;
+      - keyword: EXCEPTION
+      - keyword: WHEN
+      - keyword: OTHERS
+      - keyword: THEN
+      - statement:
+          assignment_segment:
+            object_reference:
+              naked_identifier: error_message
+            colon: ':'
+            comparison_operator:
+              raw_comparison_operator: '='
+            expression:
+              column_reference:
+                naked_identifier: SQLERRM
+            statement_terminator: ;
+      - statement:
+          function:
+            function_name:
+              naked_identifier: DBMS_OUTPUT
+              dot: .
+              function_name_identifier: PUT_LINE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: error_message
+                end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          transaction_statement:
+            keyword: COMMIT
+      - statement_terminator: ;
+      - statement:
+          raise_segment:
+            keyword: RAISE
+            statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;
 - binary_operator: /
