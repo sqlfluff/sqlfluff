@@ -1136,6 +1136,7 @@ class BeginEndSegment(BaseSegment):
         Dedent,
         "END",
         Ref("ObjectReferenceSegment", optional=True),
+        Ref("DelimiterGrammar"),
     )
 
 
@@ -1148,7 +1149,7 @@ class CreateProcedureStatementSegment(BaseSegment):
     type = "create_procedure_statement"
 
     match_grammar = Sequence(
-        "CREATE",
+        Ref.keyword("CREATE", optional=True),
         Sequence("OR", "REPLACE", optional=True),
         OneOf("EDITIONABLE", "NONEDITIONABLE", optional=True),
         "PROCEDURE",
@@ -1183,7 +1184,6 @@ class CreateProcedureStatementSegment(BaseSegment):
         OneOf("IS", "AS"),
         AnyNumberOf(Ref("DeclareStatementSegment"), optional=True),
         Ref("BeginEndSegment", optional=True),
-        Ref("FunctionNameSegment", optional=True),
     )
 
 
@@ -1199,33 +1199,36 @@ class DeclareStatementSegment(BaseSegment):
         Ref.keyword("DECLARE", optional=True),
         AnyNumberOf(
             Delimited(
-                Sequence(
-                    OneOf(
-                        Sequence(
-                            Ref("SingleIdentifierGrammar"),
-                            Ref.keyword("CONSTANT", optional=True),
-                            OneOf(
-                                Ref("DatatypeSegment"),
-                                Ref("ColumnTypeReferenceSegment"),
-                                Ref("RowTypeReferenceSegment"),
-                            ),
-                        ),
-                        Sequence(
-                            "PRAGMA",
-                            Ref("FunctionSegment"),
-                        ),
-                        Ref("CollectionTypeDefinitionSegment"),
-                    ),
-                    Sequence("NOT", "NULL", optional=True),
+                OneOf(
                     Sequence(
                         OneOf(
-                            Sequence(Ref("ColonSegment"), Ref("EqualsSegment")),
-                            "DEFAULT",
+                            Sequence(
+                                Ref("SingleIdentifierGrammar"),
+                                Ref.keyword("CONSTANT", optional=True),
+                                OneOf(
+                                    Ref("DatatypeSegment"),
+                                    Ref("ColumnTypeReferenceSegment"),
+                                    Ref("RowTypeReferenceSegment"),
+                                ),
+                            ),
+                            Sequence(
+                                "PRAGMA",
+                                Ref("FunctionSegment"),
+                            ),
+                            Ref("CollectionTypeDefinitionSegment"),
                         ),
-                        Ref("ExpressionSegment"),
-                        optional=True,
+                        Sequence("NOT", "NULL", optional=True),
+                        Sequence(
+                            OneOf(
+                                Sequence(Ref("ColonSegment"), Ref("EqualsSegment")),
+                                "DEFAULT",
+                            ),
+                            Ref("ExpressionSegment"),
+                            optional=True,
+                        ),
+                        Ref("DelimiterGrammar"),
                     ),
-                    Ref("DelimiterGrammar"),
+                    Ref("CreateProcedureStatementSegment"),
                 ),
                 delimiter=Ref("DelimiterGrammar"),
                 terminators=["BEGIN"],
@@ -1258,8 +1261,11 @@ class AssignmentStatementSegment(BaseSegment):
     type = "assignment_segment"
 
     match_grammar = Sequence(
-        Ref("ObjectReferenceSegment"),
-        Bracketed(Ref("ObjectReferenceSegment"), optional=True),
+        AnyNumberOf(
+            Ref("ObjectReferenceSegment"),
+            Bracketed(Ref("ObjectReferenceSegment"), optional=True),
+            Ref("DotSegment", optional=True),
+        ),
         Ref("ColonSegment"),
         Ref("EqualsSegment"),
         Ref("ExpressionSegment"),
@@ -1367,7 +1373,12 @@ class InsertStatementSegment(BaseSegment):
                 Ref("SelectableGrammar"),
             ),
             Ref("DefaultValuesGrammar"),
-            Sequence("VALUES", Ref("SingleIdentifierGrammar"), optional=True),
+            Sequence(
+                "VALUES",
+                Ref("SingleIdentifierGrammar"),
+                Bracketed(Ref("SingleIdentifierGrammar"), optional=True),
+                optional=True,
+            ),
         ),
     )
 
@@ -1603,6 +1614,7 @@ class TimingPointSectionSegment(BaseSegment):
         "BEGIN",
         Ref("OneOrMoreStatementsGrammar"),
         Sequence("END", Ref("TimingPointGrammar")),
+        Ref("DelimiterGrammar"),
     )
 
 

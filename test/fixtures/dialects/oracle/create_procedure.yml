@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3fe2afc2b8588c1915b1e1d0d51162077167ef35838073f9abaca6eeefdbb051
+_hash: ecafee792955087d8b613707bfed26c6ff3444e6ec0436b9e9019ef448d72cb4
 file:
 - statement:
     create_procedure_statement:
@@ -67,8 +67,8 @@ file:
               numeric_literal: '1'
             statement_terminator: ;
       - keyword: END
-- statement_terminator: ;
-- binary_operator: /
+      - statement_terminator: ;
+      - binary_operator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -100,8 +100,8 @@ file:
                 end_bracket: )
       - statement_terminator: ;
       - keyword: END
-- statement_terminator: ;
-- binary_operator: /
+      - statement_terminator: ;
+      - binary_operator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -147,8 +147,8 @@ file:
           - keyword: IF
       - statement_terminator: ;
       - keyword: END
-- statement_terminator: ;
-- binary_operator: /
+      - statement_terminator: ;
+      - binary_operator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -312,8 +312,8 @@ file:
                 end_bracket: )
       - statement_terminator: ;
       - keyword: END
-- statement_terminator: ;
-- binary_operator: /
+      - statement_terminator: ;
+      - binary_operator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -409,17 +409,18 @@ file:
                     expression:
                       numeric_literal: '50'
                     statement_terminator: ;
-              - keyword: ELSE
               - statement:
                   assignment_segment:
-                    object_reference:
+                  - object_reference:
+                      naked_identifier: ELSE
+                  - object_reference:
                       naked_identifier: bonus
-                    colon: ':'
-                    comparison_operator:
+                  - colon: ':'
+                  - comparison_operator:
                       raw_comparison_operator: '='
-                    expression:
+                  - expression:
                       numeric_literal: '0'
-                    statement_terminator: ;
+                  - statement_terminator: ;
               - keyword: END
               - keyword: IF
           - statement_terminator: ;
@@ -473,8 +474,8 @@ file:
                   naked_identifier: emp_id
       - statement_terminator: ;
       - keyword: END
-- statement_terminator: ;
-- binary_operator: /
+      - statement_terminator: ;
+      - binary_operator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -562,8 +563,8 @@ file:
                 end_bracket: )
       - statement_terminator: ;
       - keyword: END
-- statement_terminator: ;
-- binary_operator: /
+      - statement_terminator: ;
+      - binary_operator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -604,5 +605,5 @@ file:
                 end_bracket: )
       - statement_terminator: ;
       - keyword: END
-- statement_terminator: ;
-- binary_operator: /
+      - statement_terminator: ;
+      - binary_operator: /

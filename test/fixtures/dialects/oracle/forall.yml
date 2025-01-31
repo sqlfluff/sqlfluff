@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5e417be9e473565f87496ffccd4d85f1840d166e07a621978ee8811b5ca93d91
+_hash: da63788970db2264955c3bc0679749489f449efdcee88a2ca777196b4e8e8d24
 file:
 - statement:
     begin_end_block:
@@ -89,8 +89,8 @@ file:
                       end_bracket: )
     - statement_terminator: ;
     - keyword: END
-- statement_terminator: ;
-- binary_operator: /
+    - statement_terminator: ;
+    - binary_operator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -466,8 +466,8 @@ file:
           keyword: COMMIT
     - statement_terminator: ;
     - keyword: END
-- statement_terminator: ;
-- binary_operator: /
+    - statement_terminator: ;
+    - binary_operator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -569,8 +569,8 @@ file:
                       end_bracket: )
     - statement_terminator: ;
     - keyword: END
-- statement_terminator: ;
-- binary_operator: /
+    - statement_terminator: ;
+    - binary_operator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -748,21 +748,25 @@ file:
                             naked_identifier: j
                         end_bracket: )
       - statement_terminator: ;
-      - keyword: EXCEPTION
-      - keyword: WHEN
-      - keyword: OTHERS
-      - keyword: THEN
       - statement:
           assignment_segment:
-            object_reference:
+          - object_reference:
+              naked_identifier: EXCEPTION
+          - object_reference:
+              naked_identifier: WHEN
+          - object_reference:
+              naked_identifier: OTHERS
+          - object_reference:
+              naked_identifier: THEN
+          - object_reference:
               naked_identifier: error_message
-            colon: ':'
-            comparison_operator:
+          - colon: ':'
+          - comparison_operator:
               raw_comparison_operator: '='
-            expression:
+          - expression:
               column_reference:
                 naked_identifier: SQLERRM
-            statement_terminator: ;
+          - statement_terminator: ;
       - statement:
           function:
             function_name:
@@ -786,5 +790,5 @@ file:
             keyword: RAISE
             statement_terminator: ;
       - keyword: END
-- statement_terminator: ;
-- binary_operator: /
+      - statement_terminator: ;
+      - binary_operator: /

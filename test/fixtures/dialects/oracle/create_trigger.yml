@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1d37343531c537e9f509e63d4908b849fddac1d7092328eca110b6fc3f151256
+_hash: 896d87d388653ba836a190f642b2ff6ec64355daab21152bdf02a2a14e5696d8
 file:
   statement:
     create_trigger:
@@ -125,8 +125,8 @@ file:
             - keyword: CASE
         - statement_terminator: ;
         - keyword: END
-    - statement_terminator: ;
-    - binary_operator: /
+        - statement_terminator: ;
+        - binary_operator: /
     - statement:
         create_trigger:
         - keyword: CREATE
@@ -277,8 +277,8 @@ file:
             - keyword: END
             - object_reference:
                 naked_identifier: order_info_insert
-        - statement_terminator: ;
-        - binary_operator: /
+            - statement_terminator: ;
+            - binary_operator: /
         - statement:
             create_trigger:
             - keyword: CREATE
@@ -392,5 +392,293 @@ file:
                         - end_bracket: )
                 - statement_terminator: ;
                 - keyword: END
+                - statement_terminator: ;
+                - binary_operator: /
+            - statement:
+                create_trigger:
+                - keyword: CREATE
+                - keyword: OR
+                - keyword: REPLACE
+                - keyword: TRIGGER
+                - trigger_reference:
+                    naked_identifier: maintain_employee_salaries
+                - keyword: FOR
+                - dml_event_clause:
+                  - keyword: UPDATE
+                  - keyword: OF
+                  - column_reference:
+                      naked_identifier: salary
+                  - keyword: 'ON'
+                  - table_reference:
+                      naked_identifier: employees
+                - compound_trigger_statement:
+                  - keyword: COMPOUND
+                  - keyword: TRIGGER
+                  - declare_segment:
+                    - naked_identifier: threshhold
+                    - keyword: CONSTANT
+                    - data_type:
+                        data_type_identifier: SIMPLE_INTEGER
+                    - colon: ':'
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - expression:
+                        numeric_literal: '7'
+                    - statement_terminator: ;
+                    - collection_type:
+                      - keyword: TYPE
+                      - naked_identifier: salaries_t
+                      - keyword: IS
+                      - keyword: TABLE
+                      - keyword: OF
+                      - row_type_reference:
+                          table_reference:
+                            naked_identifier: employee_salaries
+                          binary_operator: '%'
+                          keyword: ROWTYPE
+                      - keyword: INDEX
+                      - keyword: BY
+                      - data_type:
+                          data_type_identifier: SIMPLE_INTEGER
+                    - statement_terminator: ;
+                    - naked_identifier: salaries
+                    - data_type:
+                        data_type_identifier: salaries_t
+                    - statement_terminator: ;
+                    - naked_identifier: idx
+                    - data_type:
+                        data_type_identifier: SIMPLE_INTEGER
+                    - colon: ':'
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - expression:
+                        numeric_literal: '0'
+                    - statement_terminator: ;
+                    - create_procedure_statement:
+                      - keyword: PROCEDURE
+                      - function_name:
+                          function_name_identifier: flush_array
+                      - keyword: IS
+                      - declare_segment:
+                          naked_identifier: n
+                          keyword: CONSTANT
+                          data_type:
+                            data_type_identifier: SIMPLE_INTEGER
+                          colon: ':'
+                          comparison_operator:
+                            raw_comparison_operator: '='
+                          expression:
+                            function:
+                              function_name:
+                                naked_identifier: salaries
+                                dot: .
+                                function_name_identifier: count
+                              function_contents:
+                                bracketed:
+                                  start_bracket: (
+                                  end_bracket: )
+                          statement_terminator: ;
+                      - begin_end_block:
+                        - keyword: BEGIN
+                        - statement:
+                            forall_statement:
+                            - keyword: FORALL
+                            - naked_identifier: j
+                            - keyword: IN
+                            - numeric_literal: '1'
+                            - dot: .
+                            - dot: .
+                            - naked_identifier: n
+                            - insert_statement:
+                              - keyword: INSERT
+                              - keyword: INTO
+                              - table_reference:
+                                  naked_identifier: employee_salaries
+                              - keyword: VALUES
+                              - naked_identifier: salaries
+                              - bracketed:
+                                  start_bracket: (
+                                  naked_identifier: j
+                                  end_bracket: )
+                        - statement_terminator: ;
+                        - statement:
+                            function:
+                              function_name:
+                                naked_identifier: salaries
+                                dot: .
+                                function_name_identifier: delete
+                              function_contents:
+                                bracketed:
+                                  start_bracket: (
+                                  end_bracket: )
+                        - statement_terminator: ;
+                        - statement:
+                            assignment_segment:
+                              object_reference:
+                                naked_identifier: idx
+                              colon: ':'
+                              comparison_operator:
+                                raw_comparison_operator: '='
+                              expression:
+                                numeric_literal: '0'
+                              statement_terminator: ;
+                        - statement:
+                            function:
+                              function_name:
+                                naked_identifier: DBMS_OUTPUT
+                                dot: .
+                                function_name_identifier: PUT_LINE
+                              function_contents:
+                                bracketed:
+                                  start_bracket: (
+                                  expression:
+                                  - quoted_literal: "'Flushed '"
+                                  - binary_operator:
+                                    - pipe: '|'
+                                    - pipe: '|'
+                                  - column_reference:
+                                      naked_identifier: n
+                                  - binary_operator:
+                                    - pipe: '|'
+                                    - pipe: '|'
+                                  - quoted_literal: "' rows'"
+                                  end_bracket: )
+                        - statement_terminator: ;
+                        - keyword: END
+                        - object_reference:
+                            naked_identifier: flush_array
+                        - statement_terminator: ;
+                  - timing_point_section:
+                    - keyword: AFTER
+                    - keyword: EACH
+                    - keyword: ROW
+                    - keyword: IS
+                    - keyword: BEGIN
+                    - statement:
+                        assignment_segment:
+                          object_reference:
+                            naked_identifier: idx
+                          colon: ':'
+                          comparison_operator:
+                            raw_comparison_operator: '='
+                          expression:
+                            column_reference:
+                              naked_identifier: idx
+                            binary_operator: +
+                            numeric_literal: '1'
+                          statement_terminator: ;
+                    - statement:
+                        assignment_segment:
+                        - object_reference:
+                            naked_identifier: salaries
+                        - bracketed:
+                            start_bracket: (
+                            object_reference:
+                              naked_identifier: idx
+                            end_bracket: )
+                        - dot: .
+                        - object_reference:
+                            naked_identifier: employee_id
+                        - colon: ':'
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - expression:
+                            sqlplus_variable:
+                            - colon: ':'
+                            - parameter: NEW
+                            - dot: .
+                            - parameter: employee_id
+                        - statement_terminator: ;
+                    - statement:
+                        assignment_segment:
+                        - object_reference:
+                            naked_identifier: salaries
+                        - bracketed:
+                            start_bracket: (
+                            object_reference:
+                              naked_identifier: idx
+                            end_bracket: )
+                        - dot: .
+                        - object_reference:
+                            naked_identifier: change_date
+                        - colon: ':'
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - expression:
+                            bare_function: SYSTIMESTAMP
+                        - statement_terminator: ;
+                    - statement:
+                        assignment_segment:
+                        - object_reference:
+                            naked_identifier: salaries
+                        - bracketed:
+                            start_bracket: (
+                            object_reference:
+                              naked_identifier: idx
+                            end_bracket: )
+                        - dot: .
+                        - object_reference:
+                            naked_identifier: salary
+                        - colon: ':'
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - expression:
+                            sqlplus_variable:
+                            - colon: ':'
+                            - parameter: NEW
+                            - dot: .
+                            - parameter: salary
+                        - statement_terminator: ;
+                    - statement:
+                        if_then_statement:
+                        - if_clause:
+                          - keyword: IF
+                          - expression:
+                            - column_reference:
+                                naked_identifier: idx
+                            - comparison_operator:
+                              - raw_comparison_operator: '>'
+                              - raw_comparison_operator: '='
+                            - column_reference:
+                                naked_identifier: threshhold
+                          - keyword: THEN
+                        - statement:
+                            function:
+                              function_name:
+                                function_name_identifier: flush_array
+                              function_contents:
+                                bracketed:
+                                  start_bracket: (
+                                  end_bracket: )
+                        - statement_terminator: ;
+                        - keyword: END
+                        - keyword: IF
+                    - statement_terminator: ;
+                    - keyword: END
+                    - keyword: AFTER
+                    - keyword: EACH
+                    - keyword: ROW
+                    - statement_terminator: ;
+                  - timing_point_section:
+                    - keyword: AFTER
+                    - keyword: STATEMENT
+                    - keyword: IS
+                    - keyword: BEGIN
+                    - statement:
+                        function:
+                          function_name:
+                            function_name_identifier: flush_array
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              end_bracket: )
+                    - statement_terminator: ;
+                    - keyword: END
+                    - keyword: AFTER
+                    - keyword: STATEMENT
+                    - statement_terminator: ;
+                - keyword: END
+                - object_reference:
+                    naked_identifier: maintain_employee_salaries
             - statement_terminator: ;
             - binary_operator: /
