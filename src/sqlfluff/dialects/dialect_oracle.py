@@ -99,6 +99,9 @@ oracle_dialect.sets("reserved_keywords").update(
         "RESULT_CACHE",
         "PIPELINED",
         "SQL_MACRO",
+        "COMPILE",
+        "DEBUG",
+        "REUSE",
     ]
 )
 
@@ -595,6 +598,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ForLoopStatementSegment"),
             Ref("ForAllStatementSegment"),
             Ref("RaiseStatementSegment"),
+            Ref("CreateFunctionStatementSegment"),
+            Ref("AlterFunctionStatementSegment"),
+            Ref("AlterTriggerStatementSegment"),
         ],
     )
 
@@ -1886,4 +1892,69 @@ class CreateFunctionStatementSegment(BaseSegment):
         OneOf("IS", "AS"),
         AnyNumberOf(Ref("DeclareStatementSegment"), optional=True),
         Ref("BeginEndSegment", optional=True),
+    )
+
+
+class AlterFunctionStatementSegment(BaseSegment):
+    """An `ALTER FUNCTION` or `ALTER PROCEDURE` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/ALTER-FUNCTION-statement.html
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/ALTER-PROCEDURE-statement.html
+    """
+
+    type = "alter_function"
+
+    match_grammar = Sequence(
+        "ALTER",
+        OneOf("FUNCTION", "PROCEDURE"),
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("FunctionNameSegment"),
+        OneOf(
+            Sequence(
+                "COMPILE",
+                Ref.keyword("DEBUG", optional=True),
+                Delimited(
+                    Ref("ParameterNameSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("NakedIdentifierSegment"),
+                    optional=True,
+                ),
+                Sequence("REUSE", "SETTINGS", optional=True),
+            ),
+            OneOf("EDITIONABLE", "NONEDITIONABLE"),
+        ),
+        Ref("DelimiterGrammar"),
+    )
+
+
+class AlterTriggerStatementSegment(BaseSegment):
+    """An `ALTER TRIGGER` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/ALTER-TRIGGER-statement.html
+    """
+
+    type = "alter_trigger"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "TRIGGER",
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("FunctionNameSegment"),
+        OneOf(
+            Sequence(
+                "COMPILE",
+                Ref.keyword("DEBUG", optional=True),
+                Delimited(
+                    Ref("ParameterNameSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("NakedIdentifierSegment"),
+                    optional=True,
+                ),
+                Sequence("REUSE", "SETTINGS", optional=True),
+            ),
+            OneOf("ENABLE", "DISABLE"),
+            Sequence("RENAME", "TO", Ref("FunctionNameSegment")),
+            OneOf("EDITIONABLE", "NONEDITIONABLE"),
+        ),
+        Ref("DelimiterGrammar"),
     )
