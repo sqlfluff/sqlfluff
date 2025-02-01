@@ -85,19 +85,17 @@ changes.
 
 If you plan on working with a particular dbt plugin, you will need
 to ensure your python version is high enough to support it. For example,
-the instructions below use `python3.8` but if you are working with
-`dbt-snowflake` 1.9.0 you will need python at least 3.9.
+the instructions below use `python3.12`, and we support as low as `python3.8`
+but if you are working with `dbt-snowflake` 1.9.0 you will need python at least 3.9.
 
 The simplest way to set up a development environment is to use `tox`.
 
 First ensure that you have tox installed:
 ```shell
-python3.8 -m pip install -U tox
+python3.12 -m pip install -U tox
 ```
-**IMPORTANT:** `tox` must be installed with a minimum of Python 3.8 as
-the `mypy` checks are incompatible with 3.7. Those using newer versions of
-Python may replace `python3.8` as necessary (the test suite runs primarily
-under 3.12 for example).
+**IMPORTANT:** Python 3.8 is the minimum version we support. Feel free
+to test on anything between `python3.8` and `python3.13`.
 
 Note: Unfortunately tox does not currently support setting just a minimum
 Python version (though this may be be coming in tox 4!).
