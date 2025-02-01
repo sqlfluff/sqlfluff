@@ -3,4 +3,4 @@ SELECT
 FROM
     t
 WHERE
-    t.a = = t.b
+    t.a == t.b
