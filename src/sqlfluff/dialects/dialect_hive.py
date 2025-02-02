@@ -272,12 +272,9 @@ class EqualsSegment(ansi.EqualsSegment):
     https://cwiki.apache.org/confluence/display/Hive/Hive+Operators
     """
 
-    match_grammar: Matchable = OneOf(
+    match_grammar: Matchable = Sequence(
         Ref("RawEqualsSegment"),
-        Sequence(
-            Ref("RawEqualsSegment"),
-            Ref("RawEqualsSegment"),
-        ),
+        Ref("RawEqualsSegment", optional=True),
     )
 
 
