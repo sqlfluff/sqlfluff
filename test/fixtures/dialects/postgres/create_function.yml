@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 78702e8fd1ef49681cd89975211bd603a52bc92a5371ca1b83d2e289ea978510
+_hash: 1a72c5c062d1ff06784f3a902bfa78bbe3efee8a2ecb8c52569da7e429ed660d
 file:
 - statement:
     create_function_statement:
@@ -1449,4 +1449,54 @@ file:
                     end_bracket: )
       - statement_terminator: ;
       - keyword: END
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: function
+    - function_name:
+        function_name_identifier: test
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: _pt
+          data_type:
+            wkt_geometry_type:
+              keyword: geography
+              bracketed:
+                start_bracket: (
+                keyword: point
+                end_bracket: )
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        keyword: numeric
+    - function_definition:
+      - language_clause:
+          keyword: language
+          naked_identifier: sql
+      - keyword: begin
+      - keyword: atomic
+      - select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: st_x
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      cast_expression:
+                        column_reference:
+                          naked_identifier: _pt
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                    end_bracket: )
+      - statement_terminator: ;
+      - keyword: end
 - statement_terminator: ;
