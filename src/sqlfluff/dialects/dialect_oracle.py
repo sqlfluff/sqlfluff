@@ -54,6 +54,7 @@ oracle_dialect.sets("reserved_keywords").update(
     [
         "ACCESSIBLE",
         "AUTHID",
+        "BODY",
         "COMMENT",
         "COMPILE",
         "COMPOUND",
@@ -76,12 +77,14 @@ oracle_dialect.sets("reserved_keywords").update(
         "MUTABLE",
         "NESTED",
         "NOCOPY",
+        "OID",
         "ON",
         "OVERFLOW",
         "PACKAGE",
         "PAIRS",
         "PARALLEL_ENABLE",
         "PARENT",
+        "PERSISTABLE",
         "PIPELINED",
         "PIVOT",
         "PRAGMA",
@@ -101,6 +104,7 @@ oracle_dialect.sets("reserved_keywords").update(
         "UNPIVOT",
         "UPDATE",
         "UPDATING",
+        "VARRAY",
     ]
 )
 
@@ -318,6 +322,24 @@ oracle_dialect.add(
                 "POLYMORPHIC",
                 Sequence("USING", Ref("ObjectReferenceSegment"), optional=True),
             ),
+        ),
+    ),
+    ElementSpecificationGrammar=Sequence(
+        AnyNumberOf(
+            Sequence(
+                Ref.keyword("NOT"),
+                OneOf("OVERRIDING", "FINAL", "INSTANTIABLE"),
+            ),
+            optional=True,
+        ),
+        AnyNumberOf(
+            Sequence(
+                OneOf("MEMBER", "STATIC"),
+                OneOf(
+                    Ref("CreateFunctionStatementSegment"),
+                    Ref("CreateProcedureStatementSegment"),
+                ),
+            )
         ),
     ),
 )
@@ -693,6 +715,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateFunctionStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
             Ref("AlterTriggerStatementSegment"),
+            Ref("CreateTypeStatementSegment"),
+            Ref("CreateTypeBodyStatementSegment"),
+            Ref("DeclareCursorVariableSegment"),
         ],
     )
 
@@ -1220,7 +1245,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         "PROCEDURE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
-        Delimited(Ref("FunctionParameterListGrammar"), optional=True),
+        Ref("FunctionParameterListGrammar", optional=True),
         Ref("SharingClauseGrammar", optional=True),
         AnyNumberOf(
             Ref("DefaultCollationClauseGrammar"),
@@ -1303,6 +1328,7 @@ class DeclareStatementSegment(BaseSegment):
                                 Ref("FunctionSegment"),
                             ),
                             Ref("CollectionTypeDefinitionSegment"),
+                            Ref("DeclareCursorVariableSegment"),
                         ),
                         Sequence("NOT", "NULL", optional=True),
                         Sequence(
@@ -1838,7 +1864,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         "FUNCTION",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
-        Delimited(Ref("FunctionParameterListGrammar"), optional=True),
+        Ref("FunctionParameterListGrammar", optional=True),
         "RETURN",
         Ref("DatatypeSegment"),
         Ref("SharingClauseGrammar", optional=True),
@@ -1862,7 +1888,7 @@ class CreateFunctionStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-        OneOf("IS", "AS"),
+        OneOf("IS", "AS", optional=True),
         AnyNumberOf(Ref("DeclareStatementSegment"), optional=True),
         Ref("BeginEndSegment", optional=True),
     )
@@ -1930,4 +1956,173 @@ class AlterTriggerStatementSegment(BaseSegment):
             OneOf("EDITIONABLE", "NONEDITIONABLE"),
         ),
         Ref("DelimiterGrammar"),
+    )
+
+
+class CreateTypeStatementSegment(BaseSegment):
+    """A `CREATE TYPE` declaration.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CREATE-TYPE-statement.html
+    """
+
+    type = "create_type"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        OneOf("EDITIONABLE", "NONEDITIONABLE", optional=True),
+        "TYPE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref.keyword("FORCE", optional=True),
+        Sequence(
+            "OID",
+            Ref("SingleQuotedIdentifierSegment"),
+            Ref("ObjectReferenceSegment"),
+            Ref("SingleQuotedIdentifierSegment"),
+            optional=True,
+        ),
+        Ref("SharingClauseGrammar", optional=True),
+        Ref("DefaultCollationClauseGrammar", optional=True),
+        AnyNumberOf(
+            Ref("InvokerRightsClauseGrammar"),
+            Ref("AccessibleByClauseGrammar"),
+            optional=True,
+        ),
+        OneOf(
+            Sequence(
+                OneOf("IS", "AS"),
+                OneOf(
+                    Sequence(
+                        "OBJECT",
+                        Bracketed(
+                            Delimited(
+                                OneOf(
+                                    Sequence(
+                                        Ref("SingleIdentifierGrammar"),
+                                        Ref("DatatypeSegment"),
+                                    ),
+                                    Ref("ElementSpecificationGrammar"),
+                                )
+                            ),
+                            optional=True,
+                        ),
+                        AnyNumberOf(
+                            Sequence(
+                                Ref.keyword("NOT", optional=True),
+                                OneOf("FINAL", "INSTANTIABLE", "PERSISTABLE"),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        OneOf(
+                            Sequence(
+                                OneOf(
+                                    "VARRAY",
+                                    Sequence(
+                                        Ref.keyword("VARYING", optional=True), "ARRAY"
+                                    ),
+                                ),
+                                Bracketed(Ref("NumericLiteralSegment")),
+                            ),
+                            "TABLE",
+                        ),
+                        "OF",
+                        OneOf(
+                            Sequence(
+                                Ref("StartBracketSegment", optional=True),
+                                Ref("DatatypeSegment"),
+                                Sequence("NOT", "NULL", optional=True),
+                                Ref("EndBracketSegment", optional=True),
+                            ),
+                            Sequence(
+                                Bracketed(
+                                    Sequence(
+                                        Ref("DatatypeSegment"),
+                                        Sequence("NOT", "NULL", optional=True),
+                                    )
+                                ),
+                                Ref.keyword("NOT", optional=True),
+                                Ref.keyword("PERSISTABLE", optional=True),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            Sequence(
+                "UNDER",
+                Ref("ObjectReferenceSegment"),
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Sequence(
+                                Ref("SingleIdentifierGrammar"),
+                                Ref("DatatypeSegment"),
+                            ),
+                            Ref("ElementSpecificationGrammar"),
+                        )
+                    ),
+                    optional=True,
+                ),
+                AnyNumberOf(
+                    Sequence(
+                        Ref.keyword("NOT", optional=True),
+                        OneOf("FINAL", "INSTANTIABLE"),
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+        Ref("DelimiterGrammar"),
+    )
+
+
+class CreateTypeBodyStatementSegment(BaseSegment):
+    """A `CREATE TYPE BODY` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CREATE-TYPE-BODY-statement.html
+    """
+
+    type = "create_procedure_statement"
+
+    match_grammar = Sequence(
+        Ref.keyword("CREATE", optional=True),
+        Sequence("OR", "REPLACE", optional=True),
+        OneOf("EDITIONABLE", "NONEDITIONABLE", optional=True),
+        "TYPE",
+        "BODY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref("SharingClauseGrammar", optional=True),
+        OneOf("IS", "AS"),
+        Ref("ElementSpecificationGrammar"),
+        "END",
+        Ref("DelimiterGrammar"),
+    )
+
+
+class DeclareCursorVariableSegment(BaseSegment):
+    """A `CURSOR` declaration.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/cursor-variable-declaration.html
+    """
+
+    type = "cursor_variable"
+
+    match_grammar = Sequence(
+        "TYPE",
+        Ref("SingleIdentifierGrammar"),
+        "IS",
+        "REF",
+        "CURSOR",
+        Sequence(
+            "RETURN",
+            OneOf(
+                Ref("RowTypeReferenceSegment"),
+                Ref("ColumnTypeReferenceSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            optional=True,
+        ),
     )
