@@ -109,3 +109,30 @@ CREATE OR ALTER STAGE foo.bar
 CREATE STAGE foo.bar
   STORAGE_INTEGRATION=$your_variable
   URL=$your_variable;
+
+CREATE OR REPLACE STAGE foo.bar
+  STORAGE_INTEGRATION = foo
+  URL = 's3://foobar'
+  FILE_FORMAT = (
+    TYPE = CSV
+    PARSE_HEADER = TRUE
+  );
+
+CREATE STAGE my_ext_stage
+  STORAGE_INTEGRATION = myint
+  URL='azure://myaccount.blob.core.windows.net/load/files/';
+
+CREATE STAGE mystage
+  CREDENTIALS=(AZURE_SAS_TOKEN='?sv=2016-05-31&ss=b&srt=sco&sp=rwdl&se=2018-06-27T10:05:50Z&st=2017-06-27T02:05:50Z&spr=https,http&sig=bgqQwoXwxzuD2GJfagRg7VOS8hzNr3QLT7rhS8OFRLQ%3D')
+  ENCRYPTION=(TYPE='AZURE_CSE' MASTER_KEY = 'kPxX0jzYfIamtnJEUTHwq80Au6NbSgPH5r4BDDwOaO8=')
+  URL='azure://myaccount.blob.core.windows.net/mycontainer/files/'
+  FILE_FORMAT = my_csv_format;
+
+CREATE STAGE mystage
+  STORAGE_INTEGRATION = my_storage_int
+  DIRECTORY = (
+    ENABLE = true
+    AUTO_REFRESH = true
+    NOTIFICATION_INTEGRATION = 'MY_NOTIFICATION_INT'
+  )
+  URL='azure://myaccount.blob.core.windows.net/load/files/';
