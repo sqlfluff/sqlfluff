@@ -1528,17 +1528,14 @@ class WellKnownTextGeometrySegment(BaseSegment):
         Sequence(
             OneOf("GEOMETRY", "GEOGRAPHY"),
             Bracketed(
-                OneOf(
-                    "POINT",
+                Sequence(
+                    OneOf(*_geometry_type_keywords, "GEOMETRY", "GEOGRAPHY"),
                     Sequence(
-                        OneOf(*_geometry_type_keywords, "GEOMETRY", "GEOGRAPHY"),
-                        Sequence(
-                            Ref("CommaSegment"),
-                            Ref("NumericLiteralSegment"),
-                            optional=True,
-                        ),
+                        Ref("CommaSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
                     ),
-                )
+                ),
             ),
         ),
     )
