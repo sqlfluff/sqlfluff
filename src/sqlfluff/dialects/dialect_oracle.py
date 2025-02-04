@@ -361,6 +361,59 @@ oracle_dialect.add(
             "BULK_EXCEPTIONS",
         ),
     ),
+    ObjectTypeAndSubtypeDefGrammar=Sequence(
+        OneOf("OBJECT", Sequence("UNDER", Ref("ObjectReferenceSegment"))),
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DatatypeSegment"),
+                    ),
+                    Ref("ElementSpecificationGrammar"),
+                )
+            ),
+            optional=True,
+        ),
+        AnyNumberOf(
+            Sequence(
+                Ref.keyword("NOT", optional=True),
+                OneOf("FINAL", "INSTANTIABLE", "PERSISTABLE"),
+            ),
+            optional=True,
+        ),
+    ),
+    VarrayAndNestedTypeSpecGrammar=Sequence(
+        OneOf(
+            Sequence(
+                OneOf(
+                    "VARRAY",
+                    Sequence(Ref.keyword("VARYING", optional=True), "ARRAY"),
+                ),
+                Bracketed(Ref("NumericLiteralSegment")),
+            ),
+            "TABLE",
+        ),
+        "OF",
+        OneOf(
+            Sequence(
+                Ref("StartBracketSegment", optional=True),
+                Ref("DatatypeSegment"),
+                Sequence("NOT", "NULL", optional=True),
+                Ref("EndBracketSegment", optional=True),
+            ),
+            Sequence(
+                Bracketed(
+                    Sequence(
+                        Ref("DatatypeSegment"),
+                        Sequence("NOT", "NULL", optional=True),
+                    )
+                ),
+                Ref.keyword("NOT", optional=True),
+                Ref.keyword("PERSISTABLE", optional=True),
+            ),
+        ),
+    ),
 )
 
 oracle_dialect.replace(
@@ -1245,12 +1298,6 @@ class TransactionStatementSegment(BaseSegment):
 
     type = "transaction_statement"
     match_grammar: Matchable = Sequence(
-        # COMMIT [ WORK ] [ AND [ NO ] CHAIN ]
-        # ROLLBACK [ WORK ] [ AND [ NO ] CHAIN ]
-        # BEGIN | END TRANSACTION | WORK
-        # NOTE: "TO SAVEPOINT" is not yet supported
-        # https://docs.snowflake.com/en/sql-reference/sql/begin.html
-        # https://www.postgresql.org/docs/current/sql-end.html
         OneOf("START", "COMMIT", "ROLLBACK"),
         OneOf("TRANSACTION", "WORK", optional=True),
         Sequence("NAME", Ref("SingleIdentifierGrammar"), optional=True),
@@ -2035,90 +2082,10 @@ class CreateTypeStatementSegment(BaseSegment):
             Ref("AccessibleByClauseGrammar"),
             optional=True,
         ),
+        OneOf("IS", "AS", optional=True),
         OneOf(
-            Sequence(
-                OneOf("IS", "AS"),
-                OneOf(
-                    Sequence(
-                        "OBJECT",
-                        Bracketed(
-                            Delimited(
-                                OneOf(
-                                    Sequence(
-                                        Ref("SingleIdentifierGrammar"),
-                                        Ref("DatatypeSegment"),
-                                    ),
-                                    Ref("ElementSpecificationGrammar"),
-                                )
-                            ),
-                            optional=True,
-                        ),
-                        AnyNumberOf(
-                            Sequence(
-                                Ref.keyword("NOT", optional=True),
-                                OneOf("FINAL", "INSTANTIABLE", "PERSISTABLE"),
-                            ),
-                            optional=True,
-                        ),
-                    ),
-                    Sequence(
-                        OneOf(
-                            Sequence(
-                                OneOf(
-                                    "VARRAY",
-                                    Sequence(
-                                        Ref.keyword("VARYING", optional=True), "ARRAY"
-                                    ),
-                                ),
-                                Bracketed(Ref("NumericLiteralSegment")),
-                            ),
-                            "TABLE",
-                        ),
-                        "OF",
-                        OneOf(
-                            Sequence(
-                                Ref("StartBracketSegment", optional=True),
-                                Ref("DatatypeSegment"),
-                                Sequence("NOT", "NULL", optional=True),
-                                Ref("EndBracketSegment", optional=True),
-                            ),
-                            Sequence(
-                                Bracketed(
-                                    Sequence(
-                                        Ref("DatatypeSegment"),
-                                        Sequence("NOT", "NULL", optional=True),
-                                    )
-                                ),
-                                Ref.keyword("NOT", optional=True),
-                                Ref.keyword("PERSISTABLE", optional=True),
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-            Sequence(
-                "UNDER",
-                Ref("ObjectReferenceSegment"),
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            Sequence(
-                                Ref("SingleIdentifierGrammar"),
-                                Ref("DatatypeSegment"),
-                            ),
-                            Ref("ElementSpecificationGrammar"),
-                        )
-                    ),
-                    optional=True,
-                ),
-                AnyNumberOf(
-                    Sequence(
-                        Ref.keyword("NOT", optional=True),
-                        OneOf("FINAL", "INSTANTIABLE"),
-                    ),
-                    optional=True,
-                ),
-            ),
+            Ref("ObjectTypeAndSubtypeDefGrammar"),
+            Ref("VarrayAndNestedTypeSpecGrammar"),
         ),
         Ref("DelimiterGrammar"),
     )
