@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 344b02814cfad058078cc5a9c3582a4f4f32a6ec243a8eff4cbdc16d20057108
+_hash: 19ff0bc29ff43c826b69f19b39c54db3943bf976c758e86634eb7b9c7ba7d81c
 file:
 - statement:
     create_function_statement:
@@ -448,45 +448,46 @@ file:
         - dot: .
         - dot: .
         - numeric_literal: '3'
-        - keyword: LOOP
-        - statement:
-            function:
-              function_name:
-                naked_identifier: DBMS_OUTPUT
-                dot: .
-                function_name_identifier: PUT_LINE
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                  - quoted_literal: "'f('"
-                  - binary_operator:
-                    - pipe: '|'
-                    - pipe: '|'
-                  - column_reference:
-                      naked_identifier: i
-                  - binary_operator:
-                    - pipe: '|'
-                    - pipe: '|'
-                  - quoted_literal: "') = '"
-                  - binary_operator:
-                    - pipe: '|'
-                    - pipe: '|'
-                  - function:
-                      function_name:
-                        function_name_identifier: f
-                      function_contents:
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            column_reference:
-                              naked_identifier: i
-                          end_bracket: )
-                  end_bracket: )
-        - statement_terminator: ;
-        - keyword: END
-        - keyword: LOOP
-    - statement_terminator: ;
+        - loop_statement:
+          - keyword: LOOP
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                    - quoted_literal: "'f('"
+                    - binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                    - column_reference:
+                        naked_identifier: i
+                    - binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                    - quoted_literal: "') = '"
+                    - binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                    - function:
+                        function_name:
+                          function_name_identifier: f
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: i
+                            end_bracket: )
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+          - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - binary_operator: /

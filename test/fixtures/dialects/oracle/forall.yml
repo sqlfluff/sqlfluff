@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: da63788970db2264955c3bc0679749489f449efdcee88a2ca777196b4e8e8d24
+_hash: 963ee44c8d606bee99dce4f780a8cb84e5c167930a763b0eb5f916edcd4b644a
 file:
 - statement:
     begin_end_block:
@@ -171,54 +171,55 @@ file:
         - dot: .
         - dot: .
         - naked_identifier: iterations
-        - keyword: LOOP
-        - statement:
-            assignment_segment:
-              object_reference:
-                naked_identifier: pnums
-              bracketed:
-                start_bracket: (
+        - loop_statement:
+          - keyword: LOOP
+          - statement:
+              assignment_segment:
                 object_reference:
-                  naked_identifier: j
-                end_bracket: )
-              colon: ':'
-              comparison_operator:
-                raw_comparison_operator: '='
-              expression:
-                column_reference:
-                  naked_identifier: j
-              statement_terminator: ;
-        - statement:
-            assignment_segment:
-              object_reference:
-                naked_identifier: pnames
-              bracketed:
-                start_bracket: (
+                  naked_identifier: pnums
+                bracketed:
+                  start_bracket: (
+                  object_reference:
+                    naked_identifier: j
+                  end_bracket: )
+                colon: ':'
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  column_reference:
+                    naked_identifier: j
+                statement_terminator: ;
+          - statement:
+              assignment_segment:
                 object_reference:
-                  naked_identifier: j
-                end_bracket: )
-              colon: ':'
-              comparison_operator:
-                raw_comparison_operator: '='
-              expression:
-                quoted_literal: "'Part No. '"
-                binary_operator:
-                - pipe: '|'
-                - pipe: '|'
-                function:
-                  function_name:
-                    function_name_identifier: TO_CHAR
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: j
-                      end_bracket: )
-              statement_terminator: ;
-        - keyword: END
-        - keyword: LOOP
-    - statement_terminator: ;
+                  naked_identifier: pnames
+                bracketed:
+                  start_bracket: (
+                  object_reference:
+                    naked_identifier: j
+                  end_bracket: )
+                colon: ':'
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  quoted_literal: "'Part No. '"
+                  binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                  function:
+                    function_name:
+                      function_name_identifier: TO_CHAR
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: j
+                        end_bracket: )
+                statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+          - statement_terminator: ;
     - statement:
         assignment_segment:
           object_reference:
@@ -241,53 +242,54 @@ file:
         - dot: .
         - dot: .
         - naked_identifier: iterations
-        - keyword: LOOP
-        - statement:
-            insert_statement:
-            - keyword: INSERT
-            - keyword: INTO
-            - table_reference:
-                naked_identifier: parts1
-            - bracketed:
-              - start_bracket: (
-              - column_reference:
-                  naked_identifier: pnum
-              - comma: ','
-              - column_reference:
-                  naked_identifier: pname
-              - end_bracket: )
-            - values_clause:
-                keyword: VALUES
-                bracketed:
+        - loop_statement:
+          - keyword: LOOP
+          - statement:
+              insert_statement:
+              - keyword: INSERT
+              - keyword: INTO
+              - table_reference:
+                  naked_identifier: parts1
+              - bracketed:
                 - start_bracket: (
-                - expression:
-                    function:
-                      function_name:
-                        function_name_identifier: pnums
-                      function_contents:
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            column_reference:
-                              naked_identifier: i
-                          end_bracket: )
+                - column_reference:
+                    naked_identifier: pnum
                 - comma: ','
-                - expression:
-                    function:
-                      function_name:
-                        function_name_identifier: pnames
-                      function_contents:
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            column_reference:
-                              naked_identifier: i
-                          end_bracket: )
+                - column_reference:
+                    naked_identifier: pname
                 - end_bracket: )
-        - statement_terminator: ;
-        - keyword: END
-        - keyword: LOOP
-    - statement_terminator: ;
+              - values_clause:
+                  keyword: VALUES
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: pnums
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: i
+                            end_bracket: )
+                  - comma: ','
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: pnames
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: i
+                            end_bracket: )
+                  - end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+          - statement_terminator: ;
     - statement:
         assignment_segment:
           object_reference:
@@ -748,25 +750,21 @@ file:
                             naked_identifier: j
                         end_bracket: )
       - statement_terminator: ;
+      - keyword: EXCEPTION
+      - keyword: WHEN
+      - keyword: OTHERS
+      - keyword: THEN
       - statement:
           assignment_segment:
-          - object_reference:
-              naked_identifier: EXCEPTION
-          - object_reference:
-              naked_identifier: WHEN
-          - object_reference:
-              naked_identifier: OTHERS
-          - object_reference:
-              naked_identifier: THEN
-          - object_reference:
+            object_reference:
               naked_identifier: error_message
-          - colon: ':'
-          - comparison_operator:
+            colon: ':'
+            comparison_operator:
               raw_comparison_operator: '='
-          - expression:
+            expression:
               column_reference:
                 naked_identifier: SQLERRM
-          - statement_terminator: ;
+            statement_terminator: ;
       - statement:
           function:
             function_name:

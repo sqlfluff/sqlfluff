@@ -1,0 +1,552 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 513b1b529d2cfb43893799d557d35e0443b41ff4323afc087e5c45cdee8437c8
+file:
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - naked_identifier: cv
+      - data_type:
+          data_type_identifier: SYS_REFCURSOR
+      - statement_terminator: ;
+      - naked_identifier: v_lastname
+      - column_type_reference:
+          column_reference:
+          - naked_identifier: employees
+          - dot: .
+          - naked_identifier: last_name
+          binary_operator: '%'
+          keyword: TYPE
+      - statement_terminator: ;
+      - naked_identifier: v_jobid
+      - column_type_reference:
+          column_reference:
+          - naked_identifier: employees
+          - dot: .
+          - naked_identifier: job_id
+          binary_operator: '%'
+          keyword: TYPE
+      - statement_terminator: ;
+      - naked_identifier: query_2
+      - data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '200'
+              end_bracket: )
+      - colon: ':'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          quoted_literal: "'SELECT * FROM employees\n    WHERE REGEXP_LIKE (job_id,\
+            \ ''[ACADFIMKSA]_M[ANGR]'')\n    ORDER BY job_id'"
+      - statement_terminator: ;
+      - naked_identifier: v_employees
+      - row_type_reference:
+          table_reference:
+            naked_identifier: employees
+          binary_operator: '%'
+          keyword: ROWTYPE
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        open_for:
+        - keyword: OPEN
+        - naked_identifier: cv
+        - keyword: FOR
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: last_name
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: job_id
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: employees
+            where_clause:
+              keyword: WHERE
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: REGEXP_LIKE
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: job_id
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'S[HT]_CLERK'"
+                    - end_bracket: )
+            orderby_clause:
+            - keyword: ORDER
+            - keyword: BY
+            - column_reference:
+                naked_identifier: last_name
+    - statement_terminator: ;
+    - statement:
+        loop_statement:
+        - keyword: LOOP
+        - statement:
+            fetch:
+              keyword: FETCH
+              naked_identifier: cv
+              into_clause:
+              - keyword: INTO
+              - naked_identifier: v_lastname
+              - comma: ','
+              - naked_identifier: v_jobid
+        - statement_terminator: ;
+        - statement:
+            exit:
+            - keyword: EXIT
+            - keyword: WHEN
+            - expression:
+                naked_identifier: cv
+                binary_operator: '%'
+                keyword: NOTFOUND
+        - statement_terminator: ;
+        - statement:
+            function:
+              function_name:
+                naked_identifier: DBMS_OUTPUT
+                dot: .
+                function_name_identifier: PUT_LINE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: RPAD
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                              naked_identifier: v_lastname
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '25'
+                        - comma: ','
+                        - expression:
+                            quoted_literal: "' '"
+                        - end_bracket: )
+                    binary_operator:
+                    - pipe: '|'
+                    - pipe: '|'
+                    column_reference:
+                      naked_identifier: v_jobid
+                  end_bracket: )
+        - statement_terminator: ;
+        - keyword: END
+        - keyword: LOOP
+        - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'-------------------------------------'"
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        open_for:
+        - keyword: OPEN
+        - naked_identifier: cv
+        - keyword: FOR
+        - naked_identifier: query_2
+    - statement_terminator: ;
+    - statement:
+        loop_statement:
+        - keyword: LOOP
+        - statement:
+            fetch:
+              keyword: FETCH
+              naked_identifier: cv
+              into_clause:
+                keyword: INTO
+                naked_identifier: v_employees
+        - statement_terminator: ;
+        - statement:
+            exit:
+            - keyword: EXIT
+            - keyword: WHEN
+            - expression:
+                naked_identifier: cv
+                binary_operator: '%'
+                keyword: NOTFOUND
+        - statement_terminator: ;
+        - statement:
+            function:
+              function_name:
+                naked_identifier: DBMS_OUTPUT
+                dot: .
+                function_name_identifier: PUT_LINE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: RPAD
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                            - naked_identifier: v_employees
+                            - dot: .
+                            - naked_identifier: last_name
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '25'
+                        - comma: ','
+                        - expression:
+                            quoted_literal: "' '"
+                        - end_bracket: )
+                    binary_operator:
+                    - pipe: '|'
+                    - pipe: '|'
+                    column_reference:
+                    - naked_identifier: v_employees
+                    - dot: .
+                    - naked_identifier: job_id
+                  end_bracket: )
+        - statement_terminator: ;
+        - keyword: END
+        - keyword: LOOP
+        - statement_terminator: ;
+    - statement:
+        close:
+          keyword: CLOSE
+          naked_identifier: cv
+    - statement_terminator: ;
+    - keyword: END
+    - statement_terminator: ;
+    - binary_operator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - naked_identifier: v1
+      - data_type:
+          naked_identifier: pkg
+          dot: .
+          data_type_identifier: mytab
+      - statement_terminator: ;
+      - naked_identifier: v2
+      - data_type:
+          naked_identifier: pkg
+          dot: .
+          data_type_identifier: rec
+      - statement_terminator: ;
+      - naked_identifier: c1
+      - data_type:
+          data_type_identifier: SYS_REFCURSOR
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        function:
+          function_name:
+            function_name_identifier: v1
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '1'
+              end_bracket: )
+    - statement:
+        assignment_segment:
+          dot: .
+          object_reference:
+            naked_identifier: f1
+          colon: ':'
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            numeric_literal: '1'
+          statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            function_name_identifier: v1
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '1'
+              end_bracket: )
+    - statement:
+        assignment_segment:
+          dot: .
+          object_reference:
+            naked_identifier: f2
+          colon: ':'
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            quoted_literal: "'one'"
+          statement_terminator: ;
+    - statement:
+        open_for:
+        - keyword: OPEN
+        - naked_identifier: c1
+        - keyword: FOR
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    function:
+                      function_name:
+                        function_name_identifier: TABLE
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: v1
+                          end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        fetch:
+          keyword: FETCH
+          naked_identifier: c1
+          into_clause:
+            keyword: INTO
+            naked_identifier: v2
+    - statement_terminator: ;
+    - statement:
+        close:
+          keyword: CLOSE
+          naked_identifier: c1
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+              - quoted_literal: "'Values in record are '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                - naked_identifier: v2
+                - dot: .
+                - naked_identifier: f1
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - quoted_literal: "' and '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                - naked_identifier: v2
+                - dot: .
+                - naked_identifier: f2
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+    - statement_terminator: ;
+    - binary_operator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - cursor_variable:
+        - keyword: TYPE
+        - naked_identifier: EmpCurTyp
+        - keyword: IS
+        - keyword: REF
+        - keyword: CURSOR
+      - statement_terminator: ;
+      - naked_identifier: v_emp_cursor
+      - data_type:
+          data_type_identifier: EmpCurTyp
+      - statement_terminator: ;
+      - naked_identifier: emp_record
+      - row_type_reference:
+          table_reference:
+            naked_identifier: employees
+          binary_operator: '%'
+          keyword: ROWTYPE
+      - statement_terminator: ;
+      - naked_identifier: v_stmt_str
+      - data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '200'
+              end_bracket: )
+      - statement_terminator: ;
+      - naked_identifier: v_e_job
+      - column_type_reference:
+          column_reference:
+          - naked_identifier: employees
+          - dot: .
+          - naked_identifier: job_id
+          binary_operator: '%'
+          keyword: TYPE
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        assignment_segment:
+          object_reference:
+            naked_identifier: v_stmt_str
+          colon: ':'
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            quoted_literal: "'SELECT * FROM employees WHERE job_id = :j'"
+          statement_terminator: ;
+    - statement:
+        open_for:
+        - keyword: OPEN
+        - naked_identifier: v_emp_cursor
+        - keyword: FOR
+        - naked_identifier: v_stmt_str
+        - keyword: USING
+        - quoted_identifier: "'MANAGER'"
+    - statement_terminator: ;
+    - statement:
+        loop_statement:
+        - keyword: LOOP
+        - statement:
+            fetch:
+              keyword: FETCH
+              naked_identifier: v_emp_cursor
+              into_clause:
+                keyword: INTO
+                naked_identifier: emp_record
+        - statement_terminator: ;
+        - statement:
+            exit:
+            - keyword: EXIT
+            - keyword: WHEN
+            - expression:
+                naked_identifier: v_emp_cursor
+                binary_operator: '%'
+                keyword: NOTFOUND
+        - statement_terminator: ;
+        - keyword: END
+        - keyword: LOOP
+        - statement_terminator: ;
+    - statement:
+        close:
+          keyword: CLOSE
+          naked_identifier: v_emp_cursor
+    - statement_terminator: ;
+    - keyword: END
+    - statement_terminator: ;
+    - binary_operator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - naked_identifier: v1
+      - data_type:
+          naked_identifier: pkg
+          dot: .
+          data_type_identifier: mytab
+      - statement_terminator: ;
+      - naked_identifier: v2
+      - data_type:
+          naked_identifier: pkg
+          dot: .
+          data_type_identifier: rec
+      - statement_terminator: ;
+      - naked_identifier: c1
+      - data_type:
+          data_type_identifier: SYS_REFCURSOR
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        open_for:
+        - keyword: OPEN
+        - naked_identifier: c1
+        - keyword: FOR
+        - quoted_identifier: "'SELECT * FROM TABLE(:1)'"
+        - keyword: USING
+        - naked_identifier: v1
+    - statement_terminator: ;
+    - statement:
+        fetch:
+          keyword: FETCH
+          naked_identifier: c1
+          into_clause:
+            keyword: INTO
+            naked_identifier: v2
+    - statement_terminator: ;
+    - statement:
+        close:
+          keyword: CLOSE
+          naked_identifier: c1
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+              - quoted_literal: "'Values in record are '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                - naked_identifier: v2
+                - dot: .
+                - naked_identifier: f1
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - quoted_literal: "' and '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                - naked_identifier: v2
+                - dot: .
+                - naked_identifier: f2
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+    - statement_terminator: ;
+    - binary_operator: /

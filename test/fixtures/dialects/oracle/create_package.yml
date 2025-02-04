@@ -1,0 +1,722 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2a2b36230dd25ceb83c5501aebb171255e80c7391a516336f617b2e8ff4c9079
+file:
+- statement:
+    create_package:
+    - keyword: CREATE
+    - keyword: PACKAGE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: emp_mgmt
+    - keyword: AS
+    - declare_segment:
+      - create_function_statement:
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: hire
+        - function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: last_name
+            - data_type:
+                data_type_identifier: VARCHAR2
+            - comma: ','
+            - parameter: job_id
+            - data_type:
+                data_type_identifier: VARCHAR2
+            - comma: ','
+            - parameter: manager_id
+            - data_type:
+                data_type_identifier: NUMBER
+            - comma: ','
+            - parameter: salary
+            - data_type:
+                data_type_identifier: NUMBER
+            - comma: ','
+            - parameter: commission_pct
+            - data_type:
+                data_type_identifier: NUMBER
+            - comma: ','
+            - parameter: department_id
+            - data_type:
+                data_type_identifier: NUMBER
+            - end_bracket: )
+        - keyword: RETURN
+        - data_type:
+            data_type_identifier: NUMBER
+        - statement_terminator: ;
+      - create_function_statement:
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: create_dept
+        - function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: department_id
+            - data_type:
+                data_type_identifier: NUMBER
+            - comma: ','
+            - parameter: location_id
+            - data_type:
+                data_type_identifier: NUMBER
+            - end_bracket: )
+        - keyword: RETURN
+        - data_type:
+            data_type_identifier: NUMBER
+        - statement_terminator: ;
+      - create_procedure_statement:
+          keyword: PROCEDURE
+          function_name:
+            function_name_identifier: remove_emp
+          function_parameter_list:
+            bracketed:
+              start_bracket: (
+              parameter: employee_id
+              data_type:
+                data_type_identifier: NUMBER
+              end_bracket: )
+          statement_terminator: ;
+      - create_procedure_statement:
+          keyword: PROCEDURE
+          function_name:
+            function_name_identifier: remove_dept
+          function_parameter_list:
+            bracketed:
+              start_bracket: (
+              parameter: department_id
+              data_type:
+                data_type_identifier: NUMBER
+              end_bracket: )
+          statement_terminator: ;
+      - create_procedure_statement:
+          keyword: PROCEDURE
+          function_name:
+            function_name_identifier: increase_sal
+          function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: employee_id
+            - data_type:
+                data_type_identifier: NUMBER
+            - comma: ','
+            - parameter: salary_incr
+            - data_type:
+                data_type_identifier: NUMBER
+            - end_bracket: )
+          statement_terminator: ;
+      - create_procedure_statement:
+          keyword: PROCEDURE
+          function_name:
+            function_name_identifier: increase_comm
+          function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: employee_id
+            - data_type:
+                data_type_identifier: NUMBER
+            - comma: ','
+            - parameter: comm_incr
+            - data_type:
+                data_type_identifier: NUMBER
+            - end_bracket: )
+          statement_terminator: ;
+      - naked_identifier: no_comm
+      - data_type:
+          data_type_identifier: EXCEPTION
+      - statement_terminator: ;
+      - naked_identifier: no_sal
+      - data_type:
+          data_type_identifier: EXCEPTION
+      - statement_terminator: ;
+    - keyword: END
+    - object_reference:
+        naked_identifier: emp_mgmt
+- statement_terminator: ;
+- binary_operator: /
+- statement:
+    create_package:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PACKAGE
+    - keyword: BODY
+    - object_reference:
+        naked_identifier: emp_mgmt
+    - keyword: AS
+    - declare_segment:
+      - naked_identifier: tot_emps
+      - data_type:
+          data_type_identifier: NUMBER
+      - statement_terminator: ;
+      - naked_identifier: tot_depts
+      - data_type:
+          data_type_identifier: NUMBER
+      - statement_terminator: ;
+      - create_function_statement:
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: hire
+        - function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: last_name
+            - data_type:
+                data_type_identifier: VARCHAR2
+            - comma: ','
+            - parameter: job_id
+            - data_type:
+                data_type_identifier: VARCHAR2
+            - comma: ','
+            - parameter: manager_id
+            - data_type:
+                data_type_identifier: NUMBER
+            - comma: ','
+            - parameter: salary
+            - data_type:
+                data_type_identifier: NUMBER
+            - comma: ','
+            - parameter: commission_pct
+            - data_type:
+                data_type_identifier: NUMBER
+            - comma: ','
+            - parameter: department_id
+            - data_type:
+                data_type_identifier: NUMBER
+            - end_bracket: )
+        - keyword: RETURN
+        - data_type:
+            data_type_identifier: NUMBER
+        - keyword: IS
+        - declare_segment:
+            naked_identifier: new_empno
+            data_type:
+              data_type_identifier: NUMBER
+            statement_terminator: ;
+        - begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                    - naked_identifier: employees_seq
+                    - dot: .
+                    - naked_identifier: NEXTVAL
+                into_clause:
+                  keyword: INTO
+                  naked_identifier: new_empno
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: DUAL
+          - statement_terminator: ;
+          - statement:
+              insert_statement:
+              - keyword: INSERT
+              - keyword: INTO
+              - table_reference:
+                  naked_identifier: employees
+              - values_clause:
+                  keyword: VALUES
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: new_empno
+                  - comma: ','
+                  - quoted_literal: "'First'"
+                  - comma: ','
+                  - quoted_literal: "'Last'"
+                  - comma: ','
+                  - quoted_literal: "'first.example@example.com'"
+                  - comma: ','
+                  - quoted_literal: "'(415)555-0100'"
+                  - comma: ','
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: TO_DATE
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              quoted_literal: "'18-JUN-2002'"
+                          - comma: ','
+                          - expression:
+                              quoted_literal: "'DD-MON-YYYY'"
+                          - end_bracket: )
+                  - comma: ','
+                  - quoted_literal: "'IT_PROG'"
+                  - comma: ','
+                  - numeric_literal: '90000000'
+                  - comma: ','
+                  - numeric_literal: '00'
+                  - comma: ','
+                  - numeric_literal: '100'
+                  - comma: ','
+                  - numeric_literal: '110'
+                  - end_bracket: )
+          - statement_terminator: ;
+          - statement:
+              assignment_segment:
+                object_reference:
+                  naked_identifier: tot_emps
+                colon: ':'
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  column_reference:
+                    naked_identifier: tot_emps
+                  binary_operator: +
+                  numeric_literal: '1'
+                statement_terminator: ;
+          - statement:
+              function:
+                function_name:
+                  function_name_identifier: RETURN
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: new_empno
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+          - statement_terminator: ;
+      - create_function_statement:
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: create_dept
+        - function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: department_id
+            - data_type:
+                data_type_identifier: NUMBER
+            - comma: ','
+            - parameter: location_id
+            - data_type:
+                data_type_identifier: NUMBER
+            - end_bracket: )
+        - keyword: RETURN
+        - data_type:
+            data_type_identifier: NUMBER
+        - keyword: IS
+        - declare_segment:
+            naked_identifier: new_deptno
+            data_type:
+              data_type_identifier: NUMBER
+            statement_terminator: ;
+        - begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                    - naked_identifier: departments_seq
+                    - dot: .
+                    - naked_identifier: NEXTVAL
+                into_clause:
+                  keyword: INTO
+                  naked_identifier: new_deptno
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: dual
+          - statement_terminator: ;
+          - statement:
+              insert_statement:
+              - keyword: INSERT
+              - keyword: INTO
+              - table_reference:
+                  naked_identifier: departments
+              - values_clause:
+                  keyword: VALUES
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: new_deptno
+                  - comma: ','
+                  - quoted_literal: "'department name'"
+                  - comma: ','
+                  - numeric_literal: '100'
+                  - comma: ','
+                  - numeric_literal: '1700'
+                  - end_bracket: )
+          - statement_terminator: ;
+          - statement:
+              assignment_segment:
+                object_reference:
+                  naked_identifier: tot_depts
+                colon: ':'
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  column_reference:
+                    naked_identifier: tot_depts
+                  binary_operator: +
+                  numeric_literal: '1'
+                statement_terminator: ;
+          - statement:
+              function:
+                function_name:
+                  function_name_identifier: RETURN
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: new_deptno
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+          - statement_terminator: ;
+      - create_procedure_statement:
+        - keyword: PROCEDURE
+        - function_name:
+            function_name_identifier: remove_emp
+        - function_parameter_list:
+            bracketed:
+              start_bracket: (
+              parameter: employee_id
+              data_type:
+                data_type_identifier: NUMBER
+              end_bracket: )
+        - keyword: IS
+        - begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              delete_statement:
+                keyword: DELETE
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: employees
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                  - column_reference:
+                    - naked_identifier: employees
+                    - dot: .
+                    - naked_identifier: employee_id
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - column_reference:
+                    - naked_identifier: remove_emp
+                    - dot: .
+                    - naked_identifier: employee_id
+          - statement_terminator: ;
+          - statement:
+              assignment_segment:
+                object_reference:
+                  naked_identifier: tot_emps
+                colon: ':'
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  column_reference:
+                    naked_identifier: tot_emps
+                  binary_operator: '-'
+                  numeric_literal: '1'
+                statement_terminator: ;
+          - keyword: END
+          - statement_terminator: ;
+      - create_procedure_statement:
+        - keyword: PROCEDURE
+        - function_name:
+            function_name_identifier: remove_dept
+        - function_parameter_list:
+            bracketed:
+              start_bracket: (
+              parameter: department_id
+              data_type:
+                data_type_identifier: NUMBER
+              end_bracket: )
+        - keyword: IS
+        - begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              delete_statement:
+                keyword: DELETE
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: departments
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                  - column_reference:
+                    - naked_identifier: departments
+                    - dot: .
+                    - naked_identifier: department_id
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - column_reference:
+                    - naked_identifier: remove_dept
+                    - dot: .
+                    - naked_identifier: department_id
+          - statement_terminator: ;
+          - statement:
+              assignment_segment:
+                object_reference:
+                  naked_identifier: tot_depts
+                colon: ':'
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  column_reference:
+                    naked_identifier: tot_depts
+                  binary_operator: '-'
+                  numeric_literal: '1'
+                statement_terminator: ;
+          - statement:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    function:
+                      function_name:
+                        function_name_identifier: COUNT
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          star: '*'
+                          end_bracket: )
+                into_clause:
+                  keyword: INTO
+                  naked_identifier: tot_emps
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: employees
+          - statement_terminator: ;
+          - keyword: END
+          - statement_terminator: ;
+      - create_procedure_statement:
+        - keyword: PROCEDURE
+        - function_name:
+            function_name_identifier: increase_sal
+        - function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: employee_id
+            - data_type:
+                data_type_identifier: NUMBER
+            - comma: ','
+            - parameter: salary_incr
+            - data_type:
+                data_type_identifier: NUMBER
+            - end_bracket: )
+        - keyword: IS
+        - declare_segment:
+            naked_identifier: curr_sal
+            data_type:
+              data_type_identifier: NUMBER
+            statement_terminator: ;
+        - begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                      naked_identifier: salary
+                into_clause:
+                  keyword: INTO
+                  naked_identifier: curr_sal
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: employees
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                  - column_reference:
+                    - naked_identifier: employees
+                    - dot: .
+                    - naked_identifier: employee_id
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - column_reference:
+                    - naked_identifier: increase_sal
+                    - dot: .
+                    - naked_identifier: employee_id
+          - statement_terminator: ;
+          - statement:
+              if_then_statement:
+              - if_clause:
+                - keyword: IF
+                - expression:
+                    column_reference:
+                      naked_identifier: curr_sal
+                    keyword: IS
+                    null_literal: 'NULL'
+                - keyword: THEN
+              - statement:
+                  raise_segment:
+                    keyword: RAISE
+                    naked_identifier: no_sal
+                    statement_terminator: ;
+              - keyword: ELSE
+              - statement:
+                  update_statement:
+                    keyword: UPDATE
+                    table_reference:
+                      naked_identifier: employees
+                    set_clause_list:
+                      keyword: SET
+                      set_clause:
+                        column_reference:
+                          naked_identifier: salary
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        expression:
+                        - column_reference:
+                            naked_identifier: salary
+                        - binary_operator: +
+                        - column_reference:
+                            naked_identifier: salary_incr
+                    where_clause:
+                      keyword: WHERE
+                      expression:
+                      - column_reference:
+                          naked_identifier: employee_id
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - column_reference:
+                          naked_identifier: employee_id
+              - statement_terminator: ;
+              - keyword: END
+              - keyword: IF
+          - statement_terminator: ;
+          - keyword: END
+          - statement_terminator: ;
+      - create_procedure_statement:
+        - keyword: PROCEDURE
+        - function_name:
+            function_name_identifier: increase_comm
+        - function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: employee_id
+            - data_type:
+                data_type_identifier: NUMBER
+            - comma: ','
+            - parameter: comm_incr
+            - data_type:
+                data_type_identifier: NUMBER
+            - end_bracket: )
+        - keyword: IS
+        - declare_segment:
+            naked_identifier: curr_comm
+            data_type:
+              data_type_identifier: NUMBER
+            statement_terminator: ;
+        - begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                      naked_identifier: commission_pct
+                into_clause:
+                  keyword: INTO
+                  naked_identifier: curr_comm
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: employees
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                  - column_reference:
+                    - naked_identifier: employees
+                    - dot: .
+                    - naked_identifier: employee_id
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - column_reference:
+                    - naked_identifier: increase_comm
+                    - dot: .
+                    - naked_identifier: employee_id
+          - statement_terminator: ;
+          - statement:
+              if_then_statement:
+              - if_clause:
+                - keyword: IF
+                - expression:
+                    column_reference:
+                      naked_identifier: curr_comm
+                    keyword: IS
+                    null_literal: 'NULL'
+                - keyword: THEN
+              - statement:
+                  raise_segment:
+                    keyword: RAISE
+                    naked_identifier: no_comm
+                    statement_terminator: ;
+              - keyword: ELSE
+              - statement:
+                  update_statement:
+                    keyword: UPDATE
+                    table_reference:
+                      naked_identifier: employees
+                    set_clause_list:
+                      keyword: SET
+                      set_clause:
+                        column_reference:
+                          naked_identifier: commission_pct
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        expression:
+                        - column_reference:
+                            naked_identifier: commission_pct
+                        - binary_operator: +
+                        - column_reference:
+                            naked_identifier: comm_incr
+              - statement_terminator: ;
+              - keyword: END
+              - keyword: IF
+          - statement_terminator: ;
+          - keyword: END
+          - statement_terminator: ;
+    - keyword: END
+    - object_reference:
+        naked_identifier: emp_mgmt
+- statement_terminator: ;
+- binary_operator: /

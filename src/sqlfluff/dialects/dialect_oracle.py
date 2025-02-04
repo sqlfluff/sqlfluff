@@ -55,6 +55,8 @@ oracle_dialect.sets("reserved_keywords").update(
         "ACCESSIBLE",
         "AUTHID",
         "BODY",
+        "BULK_EXCEPTIONS",
+        "BULK_ROWCOUNT",
         "COMMENT",
         "COMPILE",
         "COMPOUND",
@@ -74,9 +76,12 @@ oracle_dialect.sets("reserved_keywords").update(
         "INDEXTYPE",
         "INDICES",
         "INSERTING",
+        "ISOPEN",
+        "LOOP",
         "MUTABLE",
         "NESTED",
         "NOCOPY",
+        "NOTFOUND",
         "OID",
         "ON",
         "OVERFLOW",
@@ -92,6 +97,7 @@ oracle_dialect.sets("reserved_keywords").update(
         "PRIVATE",
         "PROMPT",
         "RAISE",
+        "RECORD",
         "RESULT_CACHE",
         "REUSE",
         "REVERSE",
@@ -105,6 +111,7 @@ oracle_dialect.sets("reserved_keywords").update(
         "UPDATE",
         "UPDATING",
         "VARRAY",
+        "WHEN",
     ]
 )
 
@@ -342,6 +349,18 @@ oracle_dialect.add(
             )
         ),
     ),
+    ImplicitCursorAttributesGrammar=Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Ref("ModuloSegment"),
+        OneOf(
+            "ISOPEN",
+            "FOUND",
+            "NOTFOUND",
+            "ROWCOUNT",
+            "BULK_ROWCOUNT",
+            "BULK_EXCEPTIONS",
+        ),
+    ),
 )
 
 oracle_dialect.replace(
@@ -456,6 +475,7 @@ oracle_dialect.replace(
                 ),
             ),
             Ref("LocalAliasSegment"),
+            Ref("ImplicitCursorAttributesGrammar"),
             terminators=[Ref("CommaSegment")],
         ),
         Ref("AccessorGrammar", optional=True),
@@ -710,6 +730,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CaseExpressionSegment"),
             Ref("CompoundTriggerBlock"),
             Ref("ForLoopStatementSegment"),
+            Ref("LoopStatementSegment"),
             Ref("ForAllStatementSegment"),
             Ref("RaiseStatementSegment"),
             Ref("CreateFunctionStatementSegment"),
@@ -717,7 +738,14 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterTriggerStatementSegment"),
             Ref("CreateTypeStatementSegment"),
             Ref("CreateTypeBodyStatementSegment"),
+            Ref("RecordTypeDefinitionSegment"),
             Ref("DeclareCursorVariableSegment"),
+            Ref("NullStatementSegment"),
+            Ref("OpenForStatementSegment"),
+            Ref("FetchStatementSegment"),
+            Ref("ExitStatementSegment"),
+            Ref("CloseStatementSegment"),
+            Ref("CreatePackageStatementSegment"),
         ],
     )
 
@@ -1253,9 +1281,10 @@ class CreateProcedureStatementSegment(BaseSegment):
             Ref("AccessibleByClauseGrammar"),
             optional=True,
         ),
-        OneOf("IS", "AS"),
+        OneOf("IS", "AS", optional=True),
         AnyNumberOf(Ref("DeclareStatementSegment"), optional=True),
         Ref("BeginEndSegment", optional=True),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -1328,6 +1357,7 @@ class DeclareStatementSegment(BaseSegment):
                                 Ref("FunctionSegment"),
                             ),
                             Ref("CollectionTypeDefinitionSegment"),
+                            Ref("RecordTypeDefinitionSegment"),
                             Ref("DeclareCursorVariableSegment"),
                         ),
                         Sequence("NOT", "NULL", optional=True),
@@ -1345,7 +1375,7 @@ class DeclareStatementSegment(BaseSegment):
                     Ref("CreateFunctionStatementSegment"),
                 ),
                 delimiter=Ref("DelimiterGrammar"),
-                terminators=["BEGIN"],
+                terminators=["BEGIN", "END"],
             )
         ),
     )
@@ -1800,11 +1830,26 @@ class ForLoopStatementSegment(BaseSegment):
                 Sequence("WHEN", Ref("ExpressionSegment"), optional=True),
             )
         ),
+        Ref("LoopStatementSegment"),
+    )
+
+
+class LoopStatementSegment(BaseSegment):
+    """A `LOOP` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/loop-statements.html
+    """
+
+    type = "loop_statement"
+
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar", optional=True),
         "LOOP",
         Ref("OneOrMoreStatementsGrammar"),
         "END",
         "LOOP",
         Ref("SingleIdentifierGrammar", optional=True),
+        Ref("DelimiterGrammar"),
     )
 
 
@@ -1891,6 +1936,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         OneOf("IS", "AS", optional=True),
         AnyNumberOf(Ref("DeclareStatementSegment"), optional=True),
         Ref("BeginEndSegment", optional=True),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -1968,7 +2014,7 @@ class CreateTypeStatementSegment(BaseSegment):
     type = "create_type"
 
     match_grammar = Sequence(
-        "CREATE",
+        Ref.keyword("CREATE", optional=True),
         Sequence("OR", "REPLACE", optional=True),
         OneOf("EDITIONABLE", "NONEDITIONABLE", optional=True),
         "TYPE",
@@ -2125,4 +2171,174 @@ class DeclareCursorVariableSegment(BaseSegment):
             ),
             optional=True,
         ),
+    )
+
+
+class RecordTypeDefinitionSegment(BaseSegment):
+    """A `RECORD` type definition.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/record-variable-declaration.html
+    """
+
+    type = "record_type"
+
+    match_grammar = Sequence(
+        "TYPE",
+        Ref("SingleIdentifierGrammar"),
+        "IS",
+        "RECORD",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    OneOf(Ref("DatatypeSegment"), Ref("ColumnTypeReferenceSegment")),
+                    Sequence(
+                        Sequence("NOT", "NULL", optional=True),
+                        OneOf(
+                            Sequence(Ref("ColonSegment"), Ref("EqualsSegment")),
+                            "DEFAULT",
+                        ),
+                        Ref("ExpressionSegment"),
+                        optional=True,
+                    ),
+                )
+            )
+        ),
+    )
+
+
+class NullStatementSegment(BaseSegment):
+    """A `NULL` statement inside a block."""
+
+    type = "null"
+
+    match_grammar = Sequence("NULL", Ref("DelimiterGrammar"))
+
+
+class OpenForStatementSegment(BaseSegment):
+    """An `OPEN FOR` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/OPEN-FOR-statement.html
+    """
+
+    type = "open_for"
+
+    match_grammar = Sequence(
+        "OPEN",
+        OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar")),
+        "FOR",
+        OneOf(
+            Ref("SingleQuotedIdentifierSegment"),
+            Ref("SelectStatementSegment"),
+            Ref("SingleIdentifierGrammar"),
+        ),
+        Sequence(
+            "USING",
+            Delimited(
+                Sequence(
+                    OneOf("IN", "OUT", Sequence("IN", "OUT"), optional=True),
+                    OneOf(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("SingleQuotedIdentifierSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+            optional=True,
+        ),
+    )
+
+
+class FetchStatementSegment(BaseSegment):
+    """A `FETCH` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/FETCH-statement.html
+    """
+
+    type = "fetch"
+
+    match_grammar = Sequence(
+        "FETCH",
+        OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar")),
+        OneOf(
+            Ref("IntoClauseSegment"),
+            Sequence(
+                Ref("BulkCollectIntoClauseSegment"),
+                Sequence("LIMIT", Ref("NumericLiteralSegment"), optional=True),
+            ),
+        ),
+    )
+
+
+class BulkCollectIntoClauseSegment(BaseSegment):
+    """A `BULK COLLECT INTO` Clause Segment.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/RETURNING-INTO-clause.html#GUID-38F735B9-1100-45AF-AE71-18FB74A899BE__CJAIAGHJ
+    """
+
+    type = "bulk_collect_into_clause"
+
+    match_grammar = Sequence(
+        "BULK",
+        "COLLECT",
+        "INTO",
+        Delimited(OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar"))),
+    )
+
+
+class ExitStatementSegment(BaseSegment):
+    """An `EXIT` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/EXIT-statement.html
+    """
+
+    type = "exit"
+
+    match_grammar = Sequence(
+        "EXIT",
+        Ref("SingleIdentifierGrammar", optional=True),
+        Sequence("WHEN", Ref("ExpressionSegment"), optional=True),
+    )
+
+
+class CloseStatementSegment(BaseSegment):
+    """A `CLOSE` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CLOSE-statement.html
+    """
+
+    type = "close"
+
+    match_grammar = Sequence(
+        "CLOSE", OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar"))
+    )
+
+
+class CreatePackageStatementSegment(BaseSegment):
+    """A `CREATE PACKAGE` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CREATE-PACKAGE-statement.html
+    """
+
+    type = "create_package"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        OneOf("EDITIONABLE", "NONEDITIONABLE", optional=True),
+        "PACKAGE",
+        Ref.keyword("BODY", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref("SharingClauseGrammar", optional=True),
+        AnyNumberOf(
+            Ref("DefaultCollationClauseGrammar"),
+            Ref("InvokerRightsClauseGrammar"),
+            Ref("AccessibleByClauseGrammar"),
+            optional=True,
+        ),
+        OneOf("IS", "AS"),
+        Ref("DeclareStatementSegment"),
+        "END",
+        Ref("ObjectReferenceSegment", optional=True),
     )
