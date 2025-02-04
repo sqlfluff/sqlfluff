@@ -116,7 +116,7 @@ oracle_dialect.sets("reserved_keywords").update(
 )
 
 oracle_dialect.sets("unreserved_keywords").update(
-    ["EDITIONABLE", "EDITIONING", "NONEDITIONABLE", "KEEP"]
+    ["EDITIONABLE", "EDITIONING", "NONEDITIONABLE", "KEEP", "NOMINVALUE", "NOMAXVALUE"]
 )
 
 oracle_dialect.sets("bare_functions").clear()
@@ -469,6 +469,7 @@ oracle_dialect.replace(
     ).copy(
         insert=[
             Ref("ConnectByRootGrammar"),
+            Ref("SqlplusSubstitutionVariableSegment"),
         ]
     ),
     Expression_D_Grammar=Sequence(
@@ -528,6 +529,7 @@ oracle_dialect.replace(
                 ),
             ),
             Ref("LocalAliasSegment"),
+            Ref("SqlplusSubstitutionVariableSegment"),
             Ref("ImplicitCursorAttributesGrammar"),
             terminators=[Ref("CommaSegment")],
         ),
@@ -545,6 +547,19 @@ oracle_dialect.replace(
     PreTableFunctionKeywordsGrammar=OneOf("LATERAL"),
     ConditionalCrossJoinKeywordsGrammar=Nothing(),
     UnconditionalCrossJoinKeywordsGrammar=Ref.keyword("CROSS"),
+    SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
+        insert=[
+            Ref("SqlplusSubstitutionVariableSegment"),
+        ]
+    ),
+    SequenceMinValueGrammar=OneOf(
+        Sequence("MINVALUE", Ref("NumericLiteralSegment")),
+        "NOMINVALUE",
+    ),
+    SequenceMaxValueGrammar=OneOf(
+        Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
+        "NOMAXVALUE",
+    ),
     FunctionParameterGrammar=Sequence(
         Ref("ParameterNameSegment"),
         OneOf(
@@ -1290,6 +1305,31 @@ class FunctionNameSegment(BaseSegment):
             delimiter=Ref("AtSignSegment"),
         ),
         allow_gaps=False,
+    )
+
+
+class SqlplusSubstitutionVariableSegment(BaseSegment):
+    """SQLPlus Substitution Variables &thing.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqpug/using-substitution-variables-sqlplus.html
+    """
+
+    type = "sqlplus_variable"
+
+    match_grammar = Sequence(
+        Ref("AmpersandSegment"),
+        Ref("AmpersandSegment", optional=True),
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
+class TableExpressionSegment(ansi.TableExpressionSegment):
+    """The main table expression e.g. within a FROM clause."""
+
+    match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
+        insert=[
+            Ref("SqlplusSubstitutionVariableSegment"),
+        ]
     )
 
 
