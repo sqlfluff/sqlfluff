@@ -702,6 +702,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterMasterKeySegment"),
             Ref("DropMasterKeySegment"),
             Ref("CreateLoginStatementSegment"),
+            Ref("SetContextInfoSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -3018,6 +3019,19 @@ class CastFunctionNameSegment(BaseSegment):
     match_grammar = Sequence("CAST")
 
 
+class ReplicateFunctionNameSegment(BaseSegment):
+    """REPLICATE function name segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/replicate-transact-sql
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = Sequence("REPLICATE")
+
+
 class RankFunctionNameSegment(BaseSegment):
     """Rank function name segment.
 
@@ -3199,6 +3213,23 @@ class ConvertFunctionContentsSegment(BaseSegment):
     )
 
 
+class ReplicateFunctionContentsSegment(BaseSegment):
+    """REPLICATE Function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            OneOf(
+                Ref("ExpressionSegment"),
+                Ref("HexadecimalLiteralSegment"),
+            ),
+            Ref("CommaSegment"),
+            Ref("ExpressionSegment"),
+        ),
+    )
+
+
 class RankFunctionContentsSegment(BaseSegment):
     """Rank Function contents."""
 
@@ -3248,6 +3279,10 @@ class FunctionSegment(BaseSegment):
             # https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql
             Ref("CastFunctionNameSegment"),
             Ref("CastFunctionContentsSegment"),
+        ),
+        Sequence(
+            Ref("ReplicateFunctionNameSegment"),
+            Ref("ReplicateFunctionContentsSegment"),
         ),
         Sequence(
             Ref("WithinGroupFunctionNameSegment"),
@@ -4443,6 +4478,23 @@ class SetClauseSegment(BaseSegment):
         Ref("ColumnReferenceSegment"),
         Ref("AssignmentOperatorSegment"),
         Ref("ExpressionSegment"),
+    )
+
+
+class SetContextInfoSegment(BaseSegment):
+    """SET CONTEXT_INFO Statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/set-context-info-transact-sql
+    """
+
+    type = "set_context_info_statement"
+    match_grammar = Sequence(
+        "SET",
+        "CONTEXT_INFO",
+        OneOf(
+            Ref("HexadecimalLiteralSegment"),
+            Ref("ParameterNameSegment"),
+        ),
     )
 
 

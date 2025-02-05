@@ -1005,22 +1005,23 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
         Ref("TableReferenceSegment"),
         Ref("AliasExpressionSegment", optional=True),
         Dedent,
-        "SET",
-        Indent,
-        Delimited(
-            Sequence(
-                OneOf(
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("BracketedColumnReferenceListGrammar"),
-                ),
-                Ref("EqualsSegment"),
-                Ref("ExpressionSegment"),
-            ),
-        ),
-        Dedent,
+        Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("ReturningClauseSegment", optional=True),
+    )
+
+
+class SetClauseSegment(ansi.SetClauseSegment):
+    """A set clause."""
+
+    match_grammar = Sequence(
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Ref("BracketedColumnReferenceListGrammar"),
+        ),
+        Ref("EqualsSegment"),
+        Ref("ExpressionSegment"),
     )
 
 
