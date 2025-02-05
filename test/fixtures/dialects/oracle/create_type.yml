@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d92cdcb477121987438eeec4ff4a808ccc343a9d4534fa1a37441456da8d1131
+_hash: e3112fe34f6052a26d66630b5bbe14db6fdc7e5544f870fd9ada534d60922283
 file:
 - statement:
     create_type:
@@ -93,7 +93,7 @@ file:
           data_type_identifier: ORDER_LIST_TYP
       - end_bracket: )
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     create_type:
     - keyword: CREATE
@@ -125,7 +125,7 @@ file:
             data_type_identifier: NUMBER
         end_bracket: )
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     create_type:
     - keyword: CREATE
@@ -147,7 +147,7 @@ file:
               end_bracket: )
         end_bracket: )
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     create_type:
     - keyword: CREATE
@@ -174,7 +174,7 @@ file:
     - keyword: NOT
     - keyword: FINAL
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     create_type:
     - keyword: CREATE
@@ -197,7 +197,7 @@ file:
     - keyword: NOT
     - keyword: FINAL
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     create_type:
     - keyword: CREATE
@@ -214,7 +214,7 @@ file:
           data_type_identifier: NUMBER
         end_bracket: )
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     create_type:
     - keyword: CREATE
@@ -236,7 +236,7 @@ file:
             numeric_literal: '25'
             end_bracket: )
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     create_type:
     - keyword: CREATE
@@ -261,7 +261,7 @@ file:
     - keyword: NOT
     - keyword: PERSISTABLE
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     create_type:
     - keyword: CREATE
@@ -279,7 +279,7 @@ file:
     - keyword: NOT
     - keyword: PERSISTABLE
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     create_type:
     - keyword: CREATE
@@ -297,7 +297,7 @@ file:
     - keyword: NOT
     - keyword: PERSISTABLE
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     create_type:
     - keyword: CREATE
@@ -322,7 +322,7 @@ file:
           data_type_identifier: BLOB
       - end_bracket: )
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     create_type:
     - keyword: CREATE
@@ -335,7 +335,7 @@ file:
     - data_type:
         data_type_identifier: textdoc_typ
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     create_type:
     - keyword: CREATE
@@ -396,7 +396,7 @@ file:
           data_type_identifier: phone_list_typ_demo
       - end_bracket: )
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     create_type:
     - keyword: CREATE
@@ -409,7 +409,7 @@ file:
     - data_type:
         data_type_identifier: cust_address_typ2
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     create_type:
     - keyword: CREATE
@@ -429,7 +429,7 @@ file:
           data_type_identifier: NUMBER
       - end_bracket: )
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     create_type:
     - keyword: CREATE
@@ -454,7 +454,7 @@ file:
             data_type_identifier: NUMBER
         end_bracket: )
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     create_type:
     - keyword: CREATE
@@ -486,4 +486,4 @@ file:
               end_bracket: )
       - end_bracket: )
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /

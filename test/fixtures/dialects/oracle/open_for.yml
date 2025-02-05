@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 513b1b529d2cfb43893799d557d35e0443b41ff4323afc087e5c45cdee8437c8
+_hash: 0c5f2f51a64dcc1346313da4cc3aac690601b1c42b84739bc36407b1a59cf46a
 file:
 - statement:
     begin_end_block:
@@ -97,7 +97,7 @@ file:
             - keyword: BY
             - column_reference:
                 naked_identifier: last_name
-    - statement_terminator: ;
+        - statement_terminator: ;
     - statement:
         loop_statement:
         - keyword: LOOP
@@ -110,7 +110,7 @@ file:
               - naked_identifier: v_lastname
               - comma: ','
               - naked_identifier: v_jobid
-        - statement_terminator: ;
+              statement_terminator: ;
         - statement:
             exit:
             - keyword: EXIT
@@ -119,7 +119,7 @@ file:
                 naked_identifier: cv
                 binary_operator: '%'
                 keyword: NOTFOUND
-        - statement_terminator: ;
+            - statement_terminator: ;
         - statement:
             function:
               function_name:
@@ -175,7 +175,7 @@ file:
         - naked_identifier: cv
         - keyword: FOR
         - naked_identifier: query_2
-    - statement_terminator: ;
+        - statement_terminator: ;
     - statement:
         loop_statement:
         - keyword: LOOP
@@ -186,7 +186,7 @@ file:
               into_clause:
                 keyword: INTO
                 naked_identifier: v_employees
-        - statement_terminator: ;
+              statement_terminator: ;
         - statement:
             exit:
             - keyword: EXIT
@@ -195,7 +195,7 @@ file:
                 naked_identifier: cv
                 binary_operator: '%'
                 keyword: NOTFOUND
-        - statement_terminator: ;
+            - statement_terminator: ;
         - statement:
             function:
               function_name:
@@ -240,10 +240,10 @@ file:
         close:
           keyword: CLOSE
           naked_identifier: cv
-    - statement_terminator: ;
+          statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -334,7 +334,7 @@ file:
                             column_reference:
                               naked_identifier: v1
                           end_bracket: )
-    - statement_terminator: ;
+        - statement_terminator: ;
     - statement:
         fetch:
           keyword: FETCH
@@ -342,12 +342,12 @@ file:
           into_clause:
             keyword: INTO
             naked_identifier: v2
-    - statement_terminator: ;
+          statement_terminator: ;
     - statement:
         close:
           keyword: CLOSE
           naked_identifier: c1
-    - statement_terminator: ;
+          statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -381,12 +381,12 @@ file:
     - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
       - keyword: DECLARE
-      - cursor_variable:
+      - ref_cursor_type:
         - keyword: TYPE
         - naked_identifier: EmpCurTyp
         - keyword: IS
@@ -441,7 +441,7 @@ file:
         - naked_identifier: v_stmt_str
         - keyword: USING
         - quoted_identifier: "'MANAGER'"
-    - statement_terminator: ;
+        - statement_terminator: ;
     - statement:
         loop_statement:
         - keyword: LOOP
@@ -452,7 +452,7 @@ file:
               into_clause:
                 keyword: INTO
                 naked_identifier: emp_record
-        - statement_terminator: ;
+              statement_terminator: ;
         - statement:
             exit:
             - keyword: EXIT
@@ -461,7 +461,7 @@ file:
                 naked_identifier: v_emp_cursor
                 binary_operator: '%'
                 keyword: NOTFOUND
-        - statement_terminator: ;
+            - statement_terminator: ;
         - keyword: END
         - keyword: LOOP
         - statement_terminator: ;
@@ -469,10 +469,10 @@ file:
         close:
           keyword: CLOSE
           naked_identifier: v_emp_cursor
-    - statement_terminator: ;
+          statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -502,7 +502,7 @@ file:
         - quoted_identifier: "'SELECT * FROM TABLE(:1)'"
         - keyword: USING
         - naked_identifier: v1
-    - statement_terminator: ;
+        - statement_terminator: ;
     - statement:
         fetch:
           keyword: FETCH
@@ -510,12 +510,12 @@ file:
           into_clause:
             keyword: INTO
             naked_identifier: v2
-    - statement_terminator: ;
+          statement_terminator: ;
     - statement:
         close:
           keyword: CLOSE
           naked_identifier: c1
-    - statement_terminator: ;
+          statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -549,4 +549,4 @@ file:
     - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /

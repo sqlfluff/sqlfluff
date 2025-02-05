@@ -64,6 +64,7 @@ oracle_dialect.sets("reserved_keywords").update(
         "CONNECT_BY_ROOT",
         "CONSTANT",
         "CROSSEDITION",
+        "CURSOR",
         "DEBUG",
         "DEFINITION",
         "DELETING",
@@ -414,6 +415,9 @@ oracle_dialect.add(
             ),
         ),
     ),
+    ForUpdateGrammar=Sequence(
+        "FOR", "UPDATE", Sequence("OF", Ref("TableReferenceSegment"), optional=True)
+    ),
 )
 
 oracle_dialect.replace(
@@ -595,6 +599,7 @@ oracle_dialect.replace(
         Ref("SetOperatorSegment"),
         "FETCH",
     ),
+    DivideSegment=StringParser("/", SymbolSegment, type="statement_terminator"),
 )
 
 
@@ -814,6 +819,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ExitStatementSegment"),
             Ref("CloseStatementSegment"),
             Ref("CreatePackageStatementSegment"),
+            Ref("WhileLoopStatementSegment"),
+            Ref("OpenStatementSegment"),
+            Ref("ContinueStatementSegment"),
         ],
     )
 
@@ -1175,10 +1183,12 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     match_grammar: Matchable = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("IntoClauseSegment", optional=True),
+            Ref("ForUpdateGrammar", optional=True),
             Ref("OrderByClauseSegment", optional=True),
             Ref("FetchClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),
+            Ref("ForUpdateGrammar", optional=True),
         ],
         replace_terminators=True,
         terminators=cast(
@@ -1411,7 +1421,7 @@ class BeginEndSegment(BaseSegment):
         Dedent,
         "END",
         Ref("ObjectReferenceSegment", optional=True),
-        Ref("DelimiterGrammar"),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -1445,7 +1455,7 @@ class DeclareStatementSegment(BaseSegment):
                             ),
                             Ref("CollectionTypeDefinitionSegment"),
                             Ref("RecordTypeDefinitionSegment"),
-                            Ref("DeclareCursorVariableSegment"),
+                            Ref("RefCursorTypeDefinitionSegment"),
                         ),
                         Sequence("NOT", "NULL", optional=True),
                         Sequence(
@@ -1460,6 +1470,7 @@ class DeclareStatementSegment(BaseSegment):
                     ),
                     Ref("CreateProcedureStatementSegment"),
                     Ref("CreateFunctionStatementSegment"),
+                    Ref("DeclareCursorVariableSegment"),
                 ),
                 delimiter=Ref("DelimiterGrammar"),
                 terminators=["BEGIN", "END"],
@@ -1479,7 +1490,7 @@ class ReturnStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "RETURN",
         Ref("ExpressionSegment", optional=True),
-        Ref("DelimiterGrammar"),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -1496,11 +1507,11 @@ class AssignmentStatementSegment(BaseSegment):
             Ref("ObjectReferenceSegment"),
             Bracketed(Ref("ObjectReferenceSegment"), optional=True),
             Ref("DotSegment", optional=True),
+            optional=True,
         ),
-        Ref("ColonSegment"),
-        Ref("EqualsSegment"),
+        OneOf(Sequence(Ref("ColonSegment"), Ref("EqualsSegment")), "DEFAULT"),
         Ref("ExpressionSegment"),
-        Ref("DelimiterGrammar"),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -1530,6 +1541,7 @@ class IfExpressionStatement(BaseSegment):
         ),
         "END",
         "IF",
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -1628,6 +1640,7 @@ class InsertStatementSegment(BaseSegment):
                 optional=True,
             ),
         ),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -1667,6 +1680,7 @@ class CreateTriggerStatementSegment(BaseSegment):
         OneOf(Ref("CompoundTriggerBlock"), Ref("OneOrMoreStatementsGrammar")),
         Ref.keyword("END", optional=True),
         Ref("ObjectReferenceSegment", optional=True),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -1918,6 +1932,7 @@ class ForLoopStatementSegment(BaseSegment):
             )
         ),
         Ref("LoopStatementSegment"),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -1936,7 +1951,7 @@ class LoopStatementSegment(BaseSegment):
         "END",
         "LOOP",
         Ref("SingleIdentifierGrammar", optional=True),
-        Ref("DelimiterGrammar"),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -1963,6 +1978,23 @@ class ForAllStatementSegment(BaseSegment):
             Ref("SelectStatementSegment"),
             Ref("UpdateStatementSegment"),
         ),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class WhileLoopStatementSegment(BaseSegment):
+    """A `WHILE LOOP` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/WHILE-LOOP-statement.html
+    """
+
+    type = "while_loop_statement"
+
+    match_grammar: Matchable = Sequence(
+        "WHILE",
+        Ref("ExpressionSegment"),
+        Ref("LoopStatementSegment"),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -1977,7 +2009,7 @@ class RaiseStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "RAISE",
         Ref("SingleIdentifierGrammar", optional=True),
-        Ref("DelimiterGrammar"),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2055,7 +2087,7 @@ class AlterFunctionStatementSegment(BaseSegment):
             ),
             OneOf("EDITIONABLE", "NONEDITIONABLE"),
         ),
-        Ref("DelimiterGrammar"),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2088,7 +2120,7 @@ class AlterTriggerStatementSegment(BaseSegment):
             Sequence("RENAME", "TO", Ref("FunctionNameSegment")),
             OneOf("EDITIONABLE", "NONEDITIONABLE"),
         ),
-        Ref("DelimiterGrammar"),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2127,7 +2159,7 @@ class CreateTypeStatementSegment(BaseSegment):
             Ref("ObjectTypeAndSubtypeDefGrammar"),
             Ref("VarrayAndNestedTypeSpecGrammar"),
         ),
-        Ref("DelimiterGrammar"),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2151,17 +2183,17 @@ class CreateTypeBodyStatementSegment(BaseSegment):
         OneOf("IS", "AS"),
         Ref("ElementSpecificationGrammar"),
         "END",
-        Ref("DelimiterGrammar"),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
-class DeclareCursorVariableSegment(BaseSegment):
-    """A `CURSOR` declaration.
+class RefCursorTypeDefinitionSegment(BaseSegment):
+    """A `REF CURSOR TYPE` declaration.
 
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/cursor-variable-declaration.html
     """
 
-    type = "cursor_variable"
+    type = "ref_cursor_type"
 
     match_grammar = Sequence(
         "TYPE",
@@ -2178,6 +2210,32 @@ class DeclareCursorVariableSegment(BaseSegment):
             ),
             optional=True,
         ),
+    )
+
+
+class DeclareCursorVariableSegment(BaseSegment):
+    """A `CURSOR` declaration.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/explicit-cursor-declaration-and-definition.html
+    """
+
+    type = "cursor_variable"
+
+    match_grammar = Sequence(
+        "CURSOR",
+        Ref("SingleIdentifierGrammar"),
+        Ref("FunctionParameterListGrammar", optional=True),
+        Sequence(
+            "RETURN",
+            OneOf(
+                Ref("ColumnTypeReferenceSegment"),
+                Ref("RowTypeReferenceSegment"),
+                Ref("DatatypeSegment"),
+            ),
+            optional=True,
+        ),
+        Sequence("IS", Ref("SelectStatementSegment"), optional=True),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2219,7 +2277,7 @@ class NullStatementSegment(BaseSegment):
 
     type = "null"
 
-    match_grammar = Sequence("NULL", Ref("DelimiterGrammar"))
+    match_grammar = Sequence("NULL", Ref("DelimiterGrammar", optional=True))
 
 
 class OpenForStatementSegment(BaseSegment):
@@ -2253,6 +2311,7 @@ class OpenForStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2271,9 +2330,14 @@ class FetchStatementSegment(BaseSegment):
             Ref("IntoClauseSegment"),
             Sequence(
                 Ref("BulkCollectIntoClauseSegment"),
-                Sequence("LIMIT", Ref("NumericLiteralSegment"), optional=True),
+                Sequence(
+                    "LIMIT",
+                    OneOf(Ref("NumericLiteralSegment"), Ref("SingleIdentifierGrammar")),
+                    optional=True,
+                ),
             ),
         ),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2305,6 +2369,39 @@ class ExitStatementSegment(BaseSegment):
         "EXIT",
         Ref("SingleIdentifierGrammar", optional=True),
         Sequence("WHEN", Ref("ExpressionSegment"), optional=True),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class ContinueStatementSegment(BaseSegment):
+    """A `CONTINUE` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CONTINUE-statement.html
+    """
+
+    type = "continue"
+
+    match_grammar = Sequence(
+        "CONTINUE",
+        Ref("SingleIdentifierGrammar", optional=True),
+        Sequence("WHEN", Ref("ExpressionSegment"), optional=True),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class OpenStatementSegment(BaseSegment):
+    """An `OPEN` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/OPEN-statement.html
+    """
+
+    type = "open"
+
+    match_grammar = Sequence(
+        "OPEN",
+        Ref("SingleIdentifierGrammar"),
+        Ref("FunctionContentsSegment", optional=True),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2317,7 +2414,9 @@ class CloseStatementSegment(BaseSegment):
     type = "close"
 
     match_grammar = Sequence(
-        "CLOSE", OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar"))
+        "CLOSE",
+        OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar")),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2348,4 +2447,5 @@ class CreatePackageStatementSegment(BaseSegment):
         Ref("DeclareStatementSegment"),
         "END",
         Ref("ObjectReferenceSegment", optional=True),
+        Ref("DelimiterGrammar", optional=True),
     )

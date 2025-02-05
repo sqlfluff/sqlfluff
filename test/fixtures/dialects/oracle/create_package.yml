@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2a2b36230dd25ceb83c5501aebb171255e80c7391a516336f617b2e8ff4c9079
+_hash: bcfc816610ca95e9035de1b5b89bc88a4eb8bdc4cc3d363780790dd31c56faed
 file:
 - statement:
     create_package:
@@ -137,8 +137,8 @@ file:
     - keyword: END
     - object_reference:
         naked_identifier: emp_mgmt
-- statement_terminator: ;
-- binary_operator: /
+    - statement_terminator: ;
+    - statement_terminator: /
 - statement:
     create_package:
     - keyword: CREATE
@@ -266,7 +266,7 @@ file:
                   - comma: ','
                   - numeric_literal: '110'
                   - end_bracket: )
-          - statement_terminator: ;
+              - statement_terminator: ;
           - statement:
               assignment_segment:
                 object_reference:
@@ -360,7 +360,7 @@ file:
                   - comma: ','
                   - numeric_literal: '1700'
                   - end_bracket: )
-          - statement_terminator: ;
+              - statement_terminator: ;
           - statement:
               assignment_segment:
                 object_reference:
@@ -618,7 +618,7 @@ file:
               - statement_terminator: ;
               - keyword: END
               - keyword: IF
-          - statement_terminator: ;
+              - statement_terminator: ;
           - keyword: END
           - statement_terminator: ;
       - create_procedure_statement:
@@ -712,11 +712,11 @@ file:
               - statement_terminator: ;
               - keyword: END
               - keyword: IF
-          - statement_terminator: ;
+              - statement_terminator: ;
           - keyword: END
           - statement_terminator: ;
     - keyword: END
     - object_reference:
         naked_identifier: emp_mgmt
-- statement_terminator: ;
-- binary_operator: /
+    - statement_terminator: ;
+    - statement_terminator: /

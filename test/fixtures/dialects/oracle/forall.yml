@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 963ee44c8d606bee99dce4f780a8cb84e5c167930a763b0eb5f916edcd4b644a
+_hash: aee9eb31b66bb78a0b445f27a56755602514f271d6a85a732f81745da626c46f
 file:
 - statement:
     begin_end_block:
@@ -87,10 +87,10 @@ file:
                         column_reference:
                           naked_identifier: i
                       end_bracket: )
-    - statement_terminator: ;
+        - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -286,7 +286,7 @@ file:
                                 naked_identifier: i
                             end_bracket: )
                   - end_bracket: )
-          - statement_terminator: ;
+              - statement_terminator: ;
           - keyword: END
           - keyword: LOOP
           - statement_terminator: ;
@@ -353,7 +353,7 @@ file:
                             naked_identifier: i
                         end_bracket: )
               - end_bracket: )
-    - statement_terminator: ;
+          - statement_terminator: ;
     - statement:
         assignment_segment:
           object_reference:
@@ -423,7 +423,7 @@ file:
                           - column_reference:
                               naked_identifier: t1
                           end_bracket: )
-                        binary_operator: /
+                        statement_terminator: /
                         numeric_literal: '100'
                       end_bracket: )
               end_bracket: )
@@ -458,7 +458,7 @@ file:
                           - column_reference:
                               naked_identifier: t2
                           end_bracket: )
-                        binary_operator: /
+                        statement_terminator: /
                         numeric_literal: '100'
                       end_bracket: )
               end_bracket: )
@@ -469,7 +469,7 @@ file:
     - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -569,10 +569,10 @@ file:
                         column_reference:
                           naked_identifier: j
                       end_bracket: )
-    - statement_terminator: ;
+        - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
-    - binary_operator: /
+    - statement_terminator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -650,7 +650,7 @@ file:
                 comma: ','
                 quoted_literal: "'Clerk'"
                 end_bracket: )
-      - statement_terminator: ;
+          - statement_terminator: ;
       - statement:
           insert_statement:
           - keyword: INSERT
@@ -673,7 +673,7 @@ file:
                 comma: ','
                 quoted_literal: "'Bookkeeper'"
                 end_bracket: )
-      - statement_terminator: ;
+          - statement_terminator: ;
       - statement:
           insert_statement:
           - keyword: INSERT
@@ -696,7 +696,7 @@ file:
                 comma: ','
                 quoted_literal: "'Analyst'"
                 end_bracket: )
-      - statement_terminator: ;
+          - statement_terminator: ;
       - statement:
           transaction_statement:
             keyword: COMMIT
@@ -749,7 +749,7 @@ file:
                           column_reference:
                             naked_identifier: j
                         end_bracket: )
-      - statement_terminator: ;
+          - statement_terminator: ;
       - keyword: EXCEPTION
       - keyword: WHEN
       - keyword: OTHERS
@@ -789,4 +789,4 @@ file:
             statement_terminator: ;
       - keyword: END
       - statement_terminator: ;
-      - binary_operator: /
+      - statement_terminator: /

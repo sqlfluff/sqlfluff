@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 89efde3f699b189f3e7f20f821b2140bd0913275e90d065cc8f9ae5288239325
+_hash: 6a94bdad228ca378a9a4dcc5c2d8c0d3c87371ba805a3299cc532cfd71d5c327
 file:
 - statement:
     begin_end_block:
@@ -69,15 +69,52 @@ file:
                   column_reference:
                     naked_identifier: x
                   comparison_operator:
-                    raw_comparison_operator: '>'
+                    raw_comparison_operator: <
                   numeric_literal: '3'
               - keyword: THEN
             - statement:
-                exit:
-                  keyword: EXIT
+                continue:
+                  keyword: CONTINUE
                   statement_terminator: ;
             - keyword: END
             - keyword: IF
+            - statement_terminator: ;
+        - statement:
+            function:
+              function_name:
+                naked_identifier: DBMS_OUTPUT
+                dot: .
+                function_name_identifier: PUT_LINE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'Inside loop, after CONTINUE:  x = '"
+                    binary_operator:
+                    - pipe: '|'
+                    - pipe: '|'
+                    function:
+                      function_name:
+                        function_name_identifier: TO_CHAR
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: x
+                          end_bracket: )
+                  end_bracket: )
+        - statement_terminator: ;
+        - statement:
+            exit:
+            - keyword: EXIT
+            - keyword: WHEN
+            - expression:
+                column_reference:
+                  naked_identifier: x
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '5'
             - statement_terminator: ;
         - keyword: END
         - keyword: LOOP
@@ -168,6 +205,43 @@ file:
                 numeric_literal: '1'
               statement_terminator: ;
         - statement:
+            continue:
+            - keyword: CONTINUE
+            - keyword: WHEN
+            - expression:
+                column_reference:
+                  naked_identifier: x
+                comparison_operator:
+                  raw_comparison_operator: <
+                numeric_literal: '3'
+            - statement_terminator: ;
+        - statement:
+            function:
+              function_name:
+                naked_identifier: DBMS_OUTPUT
+                dot: .
+                function_name_identifier: PUT_LINE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'Inside loop, after CONTINUE:  x = '"
+                    binary_operator:
+                    - pipe: '|'
+                    - pipe: '|'
+                    function:
+                      function_name:
+                        function_name_identifier: TO_CHAR
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: x
+                          end_bracket: )
+                  end_bracket: )
+        - statement_terminator: ;
+        - statement:
             exit:
             - keyword: EXIT
             - keyword: WHEN
@@ -175,8 +249,8 @@ file:
                 column_reference:
                   naked_identifier: x
                 comparison_operator:
-                  raw_comparison_operator: '>'
-                numeric_literal: '3'
+                  raw_comparison_operator: '='
+                numeric_literal: '5'
             - statement_terminator: ;
         - keyword: END
         - keyword: LOOP
@@ -191,7 +265,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                quoted_literal: "'After loop:  x = '"
+                quoted_literal: "' After loop:  x = '"
                 binary_operator:
                 - pipe: '|'
                 - pipe: '|'

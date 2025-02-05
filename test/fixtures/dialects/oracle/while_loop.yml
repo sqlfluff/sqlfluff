@@ -1,0 +1,93 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 05f8b45525b630d31edf1163955e279687a5559f01cde3b007c42d34fbbd5fa2
+file:
+  statement:
+    begin_end_block:
+    - declare_segment:
+        keyword: DECLARE
+        naked_identifier: done
+        data_type:
+          data_type_identifier: BOOLEAN
+        colon: ':'
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          boolean_literal: 'FALSE'
+        statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        while_loop_statement:
+          keyword: WHILE
+          expression:
+            column_reference:
+              naked_identifier: done
+          loop_statement:
+          - keyword: LOOP
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'This line does not print.'"
+                    end_bracket: )
+          - statement_terminator: ;
+          - statement:
+              assignment_segment:
+                object_reference:
+                  naked_identifier: done
+                colon: ':'
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  boolean_literal: 'TRUE'
+                statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+          - statement_terminator: ;
+    - statement:
+        while_loop_statement:
+          keyword: WHILE
+          expression:
+            keyword: NOT
+            column_reference:
+              naked_identifier: done
+          loop_statement:
+          - keyword: LOOP
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'Hello, world!'"
+                    end_bracket: )
+          - statement_terminator: ;
+          - statement:
+              assignment_segment:
+                object_reference:
+                  naked_identifier: done
+                colon: ':'
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  boolean_literal: 'TRUE'
+                statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+          - statement_terminator: ;
+    - keyword: END
+    - statement_terminator: ;
+    - statement_terminator: /

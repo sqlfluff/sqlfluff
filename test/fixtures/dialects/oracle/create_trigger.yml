@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 896d87d388653ba836a190f642b2ff6ec64355daab21152bdf02a2a14e5696d8
+_hash: d62998444149d9bde5571780951730f4f1b1bb80f59016f7e12ab859157aa480
 file:
   statement:
     create_trigger:
@@ -126,7 +126,7 @@ file:
         - statement_terminator: ;
         - keyword: END
         - statement_terminator: ;
-        - binary_operator: /
+        - statement_terminator: /
     - statement:
         create_trigger:
         - keyword: CREATE
@@ -207,7 +207,7 @@ file:
                       - dot: .
                       - parameter: cust_first_name
                     - end_bracket: )
-            - statement_terminator: ;
+                - statement_terminator: ;
             - statement:
                 insert_statement:
                 - keyword: INSERT
@@ -247,7 +247,7 @@ file:
                       - dot: .
                       - parameter: customer_id
                     - end_bracket: )
-            - statement_terminator: ;
+                - statement_terminator: ;
             - keyword: EXCEPTION
             - keyword: WHEN
             - naked_identifier: duplicate_info
@@ -278,7 +278,7 @@ file:
             - object_reference:
                 naked_identifier: order_info_insert
             - statement_terminator: ;
-            - binary_operator: /
+            - statement_terminator: /
         - statement:
             create_trigger:
             - keyword: CREATE
@@ -390,10 +390,10 @@ file:
                           - dot: .
                           - parameter: department_id
                         - end_bracket: )
-                - statement_terminator: ;
+                    - statement_terminator: ;
                 - keyword: END
                 - statement_terminator: ;
-                - binary_operator: /
+                - statement_terminator: /
             - statement:
                 create_trigger:
                 - keyword: CREATE
@@ -500,7 +500,7 @@ file:
                                   start_bracket: (
                                   naked_identifier: j
                                   end_bracket: )
-                        - statement_terminator: ;
+                              - statement_terminator: ;
                         - statement:
                             function:
                               function_name:
@@ -653,7 +653,7 @@ file:
                         - statement_terminator: ;
                         - keyword: END
                         - keyword: IF
-                    - statement_terminator: ;
+                        - statement_terminator: ;
                     - keyword: END
                     - keyword: AFTER
                     - keyword: EACH
@@ -680,5 +680,5 @@ file:
                 - keyword: END
                 - object_reference:
                     naked_identifier: maintain_employee_salaries
-            - statement_terminator: ;
-            - binary_operator: /
+                - statement_terminator: ;
+                - statement_terminator: /

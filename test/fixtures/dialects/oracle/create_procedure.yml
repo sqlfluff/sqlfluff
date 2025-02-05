@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ecafee792955087d8b613707bfed26c6ff3444e6ec0436b9e9019ef448d72cb4
+_hash: e9ad135362156f39ad4de5f4c04e572194c52534a76a9a7cbc31fe7547ea3d2d
 file:
 - statement:
     create_procedure_statement:
@@ -68,7 +68,7 @@ file:
             statement_terminator: ;
       - keyword: END
       - statement_terminator: ;
-      - binary_operator: /
+      - statement_terminator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -101,7 +101,7 @@ file:
       - statement_terminator: ;
       - keyword: END
       - statement_terminator: ;
-      - binary_operator: /
+      - statement_terminator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -145,10 +145,10 @@ file:
           - statement_terminator: ;
           - keyword: END
           - keyword: IF
-      - statement_terminator: ;
+          - statement_terminator: ;
       - keyword: END
       - statement_terminator: ;
-      - binary_operator: /
+      - statement_terminator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -232,7 +232,7 @@ file:
                     - column_reference:
                         naked_identifier: quota
                     end_bracket: )
-                  binary_operator: /
+                  statement_terminator: /
                   numeric_literal: '4'
                 statement_terminator: ;
           - statement:
@@ -275,7 +275,7 @@ file:
                 statement_terminator: ;
           - keyword: END
           - keyword: IF
-      - statement_terminator: ;
+          - statement_terminator: ;
       - statement:
           function:
             function_name:
@@ -313,7 +313,7 @@ file:
       - statement_terminator: ;
       - keyword: END
       - statement_terminator: ;
-      - binary_operator: /
+      - statement_terminator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -383,7 +383,7 @@ file:
                     - column_reference:
                         naked_identifier: quota
                     end_bracket: )
-                  binary_operator: /
+                  statement_terminator: /
                   numeric_literal: '4'
                 statement_terminator: ;
           - keyword: ELSE
@@ -423,10 +423,10 @@ file:
                   - statement_terminator: ;
               - keyword: END
               - keyword: IF
-          - statement_terminator: ;
+              - statement_terminator: ;
           - keyword: END
           - keyword: IF
-      - statement_terminator: ;
+          - statement_terminator: ;
       - statement:
           function:
             function_name:
@@ -475,7 +475,7 @@ file:
       - statement_terminator: ;
       - keyword: END
       - statement_terminator: ;
-      - binary_operator: /
+      - statement_terminator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -564,7 +564,7 @@ file:
       - statement_terminator: ;
       - keyword: END
       - statement_terminator: ;
-      - binary_operator: /
+      - statement_terminator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -606,4 +606,4 @@ file:
       - statement_terminator: ;
       - keyword: END
       - statement_terminator: ;
-      - binary_operator: /
+      - statement_terminator: /
