@@ -10,12 +10,26 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [3.3.1] - 2025-02-01
+## [3.3.1] - 2025-02-05
 
 ## Highlights
 
+This is a bugfix release resolving a several issues from 3.3.0 and previously.
+
+* Dialect improvements for Snowflake, Oracle, SQLite, BigQuery, TSQL, Databricks,
+  SparkSQL, Hive, Trino & Postgres.
+* Rule improvements for AL04, AM08, RF01, RF02, ST03, ST05, ST09, ST10, ST11.
+
+This release also includes the first contributions from **thirteen** new contributors!
+Welcome to the project and thank you for your contributions. 🎉🎉🏆🏆🎉🎉
+
 ## What’s Changed
 
+* Update acronym ETL/ELT in README.md [#6500](https://github.com/sqlfluff/sqlfluff/pull/6500) [@galenseilis](https://github.com/galenseilis)
+* Fill in Gap for Snowflake `CREATE` Syntax Parsing [#6514](https://github.com/sqlfluff/sqlfluff/pull/6514) [@LoganPrice344](https://github.com/LoganPrice344)
+* Add support for PostGIS `geometry(point)` datatype. [#6543](https://github.com/sqlfluff/sqlfluff/pull/6543) [@joaostorrer](https://github.com/joaostorrer)
+* Allow double equals in hive dialect [#6623](https://github.com/sqlfluff/sqlfluff/pull/6623) [@TheCleric](https://github.com/TheCleric)
+* Bump Python version in the docs and metadata [#6626](https://github.com/sqlfluff/sqlfluff/pull/6626) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * Added support for Variable Substitution for `Snowflake` `Target_lag` [#6567](https://github.com/sqlfluff/sqlfluff/pull/6567) [@LoganPrice344](https://github.com/LoganPrice344)
 * Sqlite: Added `set_clause_list` to `UPDATE` statement [#6605](https://github.com/sqlfluff/sqlfluff/pull/6605) [@keraion](https://github.com/keraion)
 * Oracle: Support for `NOMAXVALUE` and `NOMINVALUE` [#6606](https://github.com/sqlfluff/sqlfluff/pull/6606) [@keraion](https://github.com/keraion)
@@ -68,8 +82,8 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * Add support for Snowflake's `CREATE OR ALTER` syntax [#6497](https://github.com/sqlfluff/sqlfluff/pull/6497) [@korverdev](https://github.com/korverdev)
 * TSQL dialect - Allow for multiple columns in ALTER TABLE DROP COLUMN statements [#6501](https://github.com/sqlfluff/sqlfluff/pull/6501) [@korverdev](https://github.com/korverdev)
 
-## New Contributors
 
+## New Contributors
 * [@korverdev](https://github.com/korverdev) made their first contribution in [#6501](https://github.com/sqlfluff/sqlfluff/pull/6501)
 * [@LoganPrice344](https://github.com/LoganPrice344) made their first contribution in [#6520](https://github.com/sqlfluff/sqlfluff/pull/6520)
 * [@sarahmccuan](https://github.com/sarahmccuan) made their first contribution in [#6528](https://github.com/sqlfluff/sqlfluff/pull/6528)
@@ -82,6 +96,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * [@rayz90](https://github.com/rayz90) made their first contribution in [#6584](https://github.com/sqlfluff/sqlfluff/pull/6584)
 * [@boushphong](https://github.com/boushphong) made their first contribution in [#6564](https://github.com/sqlfluff/sqlfluff/pull/6564)
 * [@VMois](https://github.com/VMois) made their first contribution in [#6612](https://github.com/sqlfluff/sqlfluff/pull/6612)
+* [@galenseilis](https://github.com/galenseilis) made their first contribution in [#6500](https://github.com/sqlfluff/sqlfluff/pull/6500)
 
 ## [3.3.0] - 2024-12-10
 
