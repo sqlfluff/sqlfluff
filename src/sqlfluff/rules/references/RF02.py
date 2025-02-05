@@ -64,10 +64,15 @@ class Rule_RF02(Rule_AL04):
             if parent_select_info:
                 # If we are looking at a subquery, include any table references
                 for table_alias in parent_select_info.table_aliases:
-                    if table_alias.from_expression_element.path_to(
-                        rule_context.segment
+                    is_from = self._is_root_from_clause(rule_context)
+                    if (
+                        table_alias.from_expression_element.path_to(
+                            rule_context.segment
+                        )
+                        or is_from
                     ):
-                        # Skip the subquery alias itself
+                        # Skip the subquery alias itself or if the subquery is inside
+                        # of a `from` or `join`` clause that isn't a nested where clause
                         continue
                     table_aliases.append(table_alias)
 
@@ -130,6 +135,21 @@ class Rule_RF02(Rule_AL04):
                 )
 
         return violation_buff or None
+
+    def _is_root_from_clause(self, rule_context: RuleContext) -> bool:
+        """This is to determine if a subquery is part of the from clause.
+
+        Any subqueries in the `from_clause` should be ignore, unless they are a nested
+        correlated query.
+        """
+        is_from = False
+        for x in reversed(rule_context.parent_stack):
+            if x.is_type("from_clause"):
+                is_from = True
+                break
+            elif x.is_type("where_clause"):
+                break
+        return is_from
 
     def _init_ignore_words_list(self) -> List[str]:
         """Called first time rule is evaluated to fetch & cache the policy."""

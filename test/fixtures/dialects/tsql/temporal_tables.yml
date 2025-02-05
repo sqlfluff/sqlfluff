@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bbd05ea5802b6edbcb5baf6d32bf80afd3ce4fa374f6cf87ff658b3bf31190a8
+_hash: 5df1ebf65d79568139aa91680030965a48c3220483d9116c2a2b8a73382b2a54
 file:
 - batch:
   - statement:
@@ -120,6 +120,84 @@ file:
                 - comma: ','
                 - quoted_literal: "'2022-01-01 00:00:00.0000000'"
                 - end_bracket: )
+          statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@StartTime'
+        data_type:
+          data_type_identifier: DATETIME2
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          quoted_literal: "'2021-01-01 00:00:00'"
+        statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@EndTime'
+        data_type:
+          data_type_identifier: DATETIME2
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          quoted_literal: "'2022-01-01 00:00:00'"
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: Employee
+              temporal_query:
+              - keyword: FOR
+              - keyword: SYSTEM_TIME
+              - keyword: FROM
+              - parameter: '@StartTime'
+              - keyword: TO
+              - parameter: '@EndTime'
+          statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@PointInTime'
+        data_type:
+          data_type_identifier: DATETIME2
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          quoted_literal: "'2021-01-01 00:00:00'"
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: Employee
+              temporal_query:
+              - keyword: FOR
+              - keyword: SYSTEM_TIME
+              - keyword: AS
+              - keyword: OF
+              - parameter: '@PointInTime'
           statement_terminator: ;
   - statement:
       create_table_statement:

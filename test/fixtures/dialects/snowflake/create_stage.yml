@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3e2f4328a97af8154b0d1d246e31a7bc0b646fb5c8198113c172cb13f96fc9e1
+_hash: 3b210bbf0a6ded512ce3b0761956e012bd1e2930e1315ca4ba6d9efb002a7ced
 file:
 - statement:
     create_stage_statement:
@@ -664,4 +664,154 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - bucket_path: "'s3://foobar'"
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+      - naked_identifier: foo
+      - dot: .
+      - naked_identifier: bar
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          variable: $your_variable
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - variable: $your_variable
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: STAGE
+    - object_reference:
+      - naked_identifier: foo
+      - dot: .
+      - naked_identifier: bar
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          naked_identifier: foo
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'s3://foobar'"
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          csv_file_format_type_parameters:
+          - keyword: TYPE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - file_type: CSV
+          - keyword: PARSE_HEADER
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - boolean_literal: 'TRUE'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: my_ext_stage
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          naked_identifier: myint
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'azure://myaccount.blob.core.windows.net/load/files/'"
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: mystage
+    - stage_parameters:
+      - keyword: CREDENTIALS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+          start_bracket: (
+          keyword: AZURE_SAS_TOKEN
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'?sv=2016-05-31&ss=b&srt=sco&sp=rwdl&se=2018-06-27T10:05:50Z&st=2017-06-27T02:05:50Z&spr=https,http&sig=bgqQwoXwxzuD2GJfagRg7VOS8hzNr3QLT7rhS8OFRLQ%3D'"
+          end_bracket: )
+      - keyword: ENCRYPTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - keyword: TYPE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - stage_encryption_option: "'AZURE_CSE'"
+        - keyword: MASTER_KEY
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'kPxX0jzYfIamtnJEUTHwq80Au6NbSgPH5r4BDDwOaO8='"
+        - end_bracket: )
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'azure://myaccount.blob.core.windows.net/mycontainer/files/'"
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        object_reference:
+          naked_identifier: my_csv_format
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: mystage
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          naked_identifier: my_storage_int
+    - keyword: DIRECTORY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: ENABLE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - keyword: AUTO_REFRESH
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - keyword: NOTIFICATION_INTEGRATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'MY_NOTIFICATION_INT'"
+      - end_bracket: )
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'azure://myaccount.blob.core.windows.net/load/files/'"
 - statement_terminator: ;

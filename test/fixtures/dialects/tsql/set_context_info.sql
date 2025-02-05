@@ -1,0 +1,7 @@
+SET CONTEXT_INFO 0x01010101;
+
+DECLARE @BinVar varbinary(128);
+SET @BinVar = CAST(REPLICATE(0x20, 128) AS varbinary(128) );
+SET CONTEXT_INFO @BinVar;
+
+SELECT CONTEXT_INFO() AS MyContextInfo;

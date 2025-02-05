@@ -259,6 +259,11 @@ snowflake_dialect.add(
         CodeSegment,
         type="variable",
     ),
+    SnowflakeVariableNameSegment=RegexParser(
+        r":[a-zA-Z0-9_]*",
+        CodeSegment,
+        type="variable",
+    ),
     ReferencedVariableNameSegment=RegexParser(
         r"\$[A-Z_][A-Z0-9_]*",
         CodeSegment,
@@ -355,7 +360,7 @@ snowflake_dialect.add(
         type="copy_on_error_option",
     ),
     DynamicTableLagIntervalSegment=RegexParser(
-        r"'((DOWNSTREAM)|([1-9]\d*\s+(?:SECOND|MINUTE|HOUR|DAY)S?))'",
+        r"DYNAMIC|'.*'",
         LiteralSegment,
         type="dynamic_table_lag_interval_segment",
     ),
@@ -698,12 +703,19 @@ snowflake_dialect.replace(
     ),
     BaseExpressionElementGrammar=ansi_dialect.get_grammar(
         "BaseExpressionElementGrammar"
-    ).copy(
+    )
+    .copy(
         insert=[
             # Allow use of CONNECT_BY_ROOT pseudo-columns.
             # https://docs.snowflake.com/en/sql-reference/constructs/connect-by.html#:~:text=Snowflake%20supports%20the%20CONNECT_BY_ROOT,the%20Examples%20section%20below.
             Sequence("CONNECT_BY_ROOT", Ref("ColumnReferenceSegment")),
             Sequence("PRIOR", Ref("ColumnReferenceSegment")),
+        ],
+        before=Ref("LiteralGrammar"),
+    )
+    .copy(
+        insert=[
+            Ref("SnowflakeVariableNameSegment"),
         ],
         before=Ref("LiteralGrammar"),
     ),
@@ -1421,6 +1433,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreatePasswordPolicyStatementSegment"),
             Ref("AlterPasswordPolicyStatementSegment"),
             Ref("DropPasswordPolicyStatementSegment"),
+            Ref("CreateRowAccessPolicyStatementSegment"),
+            Ref("AlterRowAccessPolicyStatmentSegment"),
+            Ref("AlterTagStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -2106,6 +2121,7 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                     Ref("IfNotExistsGrammar", optional=True),
                     Ref("ColumnReferenceSegment"),
                     Ref("DatatypeSegment"),
+                    Sequence("NOT", "NULL", optional=True),
                     OneOf(
                         # Default & AS (virtual columns)
                         Sequence(
@@ -2820,6 +2836,7 @@ class AccessStatementSegment(BaseSegment):
                 "DATABASE",
                 "INTEGRATION",
                 "SHARE",
+                "TAG",
                 Sequence("DATA", "EXCHANGE", "LISTING"),
                 Sequence("NETWORK", "POLICY"),
             ),
@@ -2829,7 +2846,7 @@ class AccessStatementSegment(BaseSegment):
         Sequence("APPLY", "SESSION", "POLICY"),
         Sequence("APPLY", "TAG"),
         Sequence("ATTACH", "POLICY"),
-        Sequence("EXECUTE", "TASK"),
+        Sequence("EXECUTE", OneOf("ALERT", "TASK")),
         Sequence("IMPORT", "SHARE"),
         Sequence(
             "MANAGE",
@@ -2928,18 +2945,8 @@ class AccessStatementSegment(BaseSegment):
                 Sequence("FUTURE", "SCHEMAS", "IN", "DATABASE"),
                 _schema_object_types,
                 Sequence(
-                    "ALL",
-                    OneOf(
-                        _schema_object_types_plural,
-                        Sequence("MATERIALIZED", "VIEWS"),
-                        Sequence("EXTERNAL", "TABLES"),
-                        Sequence("FILE", "FORMATS"),
-                    ),
-                    "IN",
-                    OneOf("SCHEMA", "DATABASE"),
-                ),
-                Sequence(
-                    "FUTURE",
+                    OneOf("ALL", "FUTURE"),
+                    OneOf("DYNAMIC", optional=True),
                     OneOf(
                         _schema_object_types_plural,
                         Sequence("MATERIALIZED", "VIEWS"),
@@ -2987,13 +2994,21 @@ class AccessStatementSegment(BaseSegment):
                     "SCHEMA",
                     Ref("SchemaReferenceSegment"),
                 ),
+                Sequence("APPLICATION", "ROLE", Ref("ObjectReferenceSegment")),
                 # In the case where a role is granted non-explicitly,
                 # e.g. GRANT ROLE_NAME TO OTHER_ROLE_NAME
                 # See https://docs.snowflake.com/en/sql-reference/sql/grant-role.html
                 Ref("ObjectReferenceSegment"),
             ),
             "TO",
-            OneOf("USER", "ROLE", "SHARE", Sequence("DATABASE", "ROLE"), optional=True),
+            OneOf(
+                "APPLICATION",
+                "USER",
+                "ROLE",
+                "SHARE",
+                Sequence("DATABASE", "ROLE"),
+                optional=True,
+            ),
             Delimited(
                 OneOf(
                     Ref("RoleReferenceSegment"),
@@ -3904,6 +3919,16 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
             Ref("EqualsSegment"),
             Ref("NakedIdentifierSegment"),
         ),
+        Sequence(
+            "ENABLE_QUERY_ACCELERATION",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "QUERY_ACCELERATION_MAX_SCALE_FACTOR",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
     )
 
 
@@ -4443,30 +4468,6 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        Sequence(
-            "TARGET_LAG",
-            Ref("EqualsSegment"),
-            Ref("DynamicTableTargetLagSegment"),
-            optional=True,
-        ),
-        Sequence(
-            "REFRESH_MODE",
-            Ref("EqualsSegment"),
-            Ref("RefreshModeType"),
-            optional=True,
-        ),
-        Sequence(
-            "INITIALIZE",
-            Ref("EqualsSegment"),
-            Ref("InitializeType"),
-            optional=True,
-        ),
-        Sequence(
-            "WAREHOUSE",
-            Ref("EqualsSegment"),
-            Ref("ObjectReferenceSegment"),
-            optional=True,
-        ),
         # Columns and comment syntax:
         AnySetOf(
             Sequence(
@@ -4560,6 +4561,35 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             OneOf(
                 # Create AS syntax:
                 Sequence(
+                    AnySetOf(
+                        Sequence(
+                            "TARGET_LAG",
+                            Ref("EqualsSegment"),
+                            Ref("DynamicTableTargetLagSegment"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "REFRESH_MODE",
+                            Ref("EqualsSegment"),
+                            Ref("RefreshModeType"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "INITIALIZE",
+                            Ref("EqualsSegment"),
+                            Ref("InitializeType"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "WAREHOUSE",
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                Ref("ObjectReferenceSegment"),
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                            optional=True,
+                        ),
+                    ),
                     "AS",
                     OptionallyBracketed(Ref("SelectableGrammar")),
                 ),
@@ -4636,7 +4666,7 @@ class CreateTaskSegment(BaseSegment):
         ),
         Sequence(
             "AFTER",
-            Ref("ObjectReferenceSegment"),
+            Delimited(Ref("ObjectReferenceSegment")),
             optional=True,
         ),
         Dedent,
@@ -6415,99 +6445,203 @@ class CreateStageSegment(BaseSegment):
                     optional=True,
                 ),
             ),
-            Sequence(
-                "URL",
-                Ref("EqualsSegment"),
-                OneOf(
-                    # External S3 stage
-                    Sequence(
+            OneOf(
+                Sequence(
+                    "URL",
+                    Ref("EqualsSegment"),
+                    OneOf(
                         Ref("S3Path"),
-                        Ref("S3ExternalStageParameters", optional=True),
-                        Sequence(
-                            "DIRECTORY",
-                            Ref("EqualsSegment"),
-                            Bracketed(
-                                Sequence(
-                                    "ENABLE",
-                                    Ref("EqualsSegment"),
-                                    Ref("BooleanLiteralGrammar"),
-                                ),
-                                Sequence(
-                                    "AUTO_REFRESH",
-                                    Ref("EqualsSegment"),
-                                    Ref("BooleanLiteralGrammar"),
-                                    optional=True,
-                                ),
-                            ),
-                            optional=True,
-                        ),
-                    ),
-                    # External GCS stage
-                    Sequence(
                         Ref("GCSPath"),
-                        Ref("GCSExternalStageParameters", optional=True),
-                        Sequence(
-                            "DIRECTORY",
-                            Ref("EqualsSegment"),
-                            Bracketed(
-                                Sequence(
-                                    "ENABLE",
-                                    Ref("EqualsSegment"),
-                                    Ref("BooleanLiteralGrammar"),
-                                ),
-                                Sequence(
-                                    "AUTO_REFRESH",
-                                    Ref("EqualsSegment"),
-                                    Ref("BooleanLiteralGrammar"),
-                                    optional=True,
-                                ),
-                                Sequence(
-                                    "NOTIFICATION_INTEGRATION",
-                                    Ref("EqualsSegment"),
-                                    OneOf(
-                                        Ref("NakedIdentifierSegment"),
-                                        Ref("QuotedLiteralSegment"),
-                                    ),
-                                    optional=True,
-                                ),
-                            ),
-                            optional=True,
-                        ),
+                        Ref("AzureBlobStoragePath"),
+                        Ref("ReferencedVariableNameSegment"),
                     ),
-                    # External Azure Blob Storage stage
-                    Sequence(
-                        OneOf(
-                            Ref("AzureBlobStoragePath"),
-                            Ref("ReferencedVariableNameSegment"),
-                        ),
-                        Ref("AzureBlobStorageExternalStageParameters", optional=True),
+                    OneOf(
+                        # External S3 stage
                         Sequence(
-                            "DIRECTORY",
-                            Ref("EqualsSegment"),
-                            Bracketed(
-                                Sequence(
-                                    "ENABLE",
-                                    Ref("EqualsSegment"),
-                                    Ref("BooleanLiteralGrammar"),
-                                ),
-                                Sequence(
-                                    "AUTO_REFRESH",
-                                    Ref("EqualsSegment"),
-                                    Ref("BooleanLiteralGrammar"),
-                                    optional=True,
-                                ),
-                                Sequence(
-                                    "NOTIFICATION_INTEGRATION",
-                                    Ref("EqualsSegment"),
-                                    OneOf(
-                                        Ref("NakedIdentifierSegment"),
-                                        Ref("QuotedLiteralSegment"),
+                            Ref("S3ExternalStageParameters", optional=True),
+                            Sequence(
+                                "DIRECTORY",
+                                Ref("EqualsSegment"),
+                                Bracketed(
+                                    Sequence(
+                                        "ENABLE",
+                                        Ref("EqualsSegment"),
+                                        Ref("BooleanLiteralGrammar"),
                                     ),
-                                    optional=True,
+                                    Sequence(
+                                        "AUTO_REFRESH",
+                                        Ref("EqualsSegment"),
+                                        Ref("BooleanLiteralGrammar"),
+                                        optional=True,
+                                    ),
                                 ),
+                                optional=True,
                             ),
-                            optional=True,
                         ),
+                        # External GCS stage
+                        Sequence(
+                            Ref("GCSExternalStageParameters", optional=True),
+                            Sequence(
+                                "DIRECTORY",
+                                Ref("EqualsSegment"),
+                                Bracketed(
+                                    Sequence(
+                                        "ENABLE",
+                                        Ref("EqualsSegment"),
+                                        Ref("BooleanLiteralGrammar"),
+                                    ),
+                                    Sequence(
+                                        "AUTO_REFRESH",
+                                        Ref("EqualsSegment"),
+                                        Ref("BooleanLiteralGrammar"),
+                                        optional=True,
+                                    ),
+                                    Sequence(
+                                        "NOTIFICATION_INTEGRATION",
+                                        Ref("EqualsSegment"),
+                                        OneOf(
+                                            Ref("NakedIdentifierSegment"),
+                                            Ref("QuotedLiteralSegment"),
+                                        ),
+                                        optional=True,
+                                    ),
+                                ),
+                                optional=True,
+                            ),
+                        ),
+                        # External Azure Blob Storage stage
+                        Sequence(
+                            Ref(
+                                "AzureBlobStorageExternalStageParameters", optional=True
+                            ),
+                            Sequence(
+                                "DIRECTORY",
+                                Ref("EqualsSegment"),
+                                Bracketed(
+                                    Sequence(
+                                        "ENABLE",
+                                        Ref("EqualsSegment"),
+                                        Ref("BooleanLiteralGrammar"),
+                                    ),
+                                    Sequence(
+                                        "AUTO_REFRESH",
+                                        Ref("EqualsSegment"),
+                                        Ref("BooleanLiteralGrammar"),
+                                        optional=True,
+                                    ),
+                                    Sequence(
+                                        "NOTIFICATION_INTEGRATION",
+                                        Ref("EqualsSegment"),
+                                        OneOf(
+                                            Ref("NakedIdentifierSegment"),
+                                            Ref("QuotedLiteralSegment"),
+                                        ),
+                                        optional=True,
+                                    ),
+                                ),
+                                optional=True,
+                            ),
+                        ),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    OneOf(
+                        # External S3 stage
+                        Sequence(
+                            Ref("S3ExternalStageParameters", optional=True),
+                            Sequence(
+                                "DIRECTORY",
+                                Ref("EqualsSegment"),
+                                Bracketed(
+                                    Sequence(
+                                        "ENABLE",
+                                        Ref("EqualsSegment"),
+                                        Ref("BooleanLiteralGrammar"),
+                                    ),
+                                    Sequence(
+                                        "AUTO_REFRESH",
+                                        Ref("EqualsSegment"),
+                                        Ref("BooleanLiteralGrammar"),
+                                        optional=True,
+                                    ),
+                                ),
+                                optional=True,
+                            ),
+                        ),
+                        # External GCS stage
+                        Sequence(
+                            Ref("GCSExternalStageParameters", optional=True),
+                            Sequence(
+                                "DIRECTORY",
+                                Ref("EqualsSegment"),
+                                Bracketed(
+                                    Sequence(
+                                        "ENABLE",
+                                        Ref("EqualsSegment"),
+                                        Ref("BooleanLiteralGrammar"),
+                                    ),
+                                    Sequence(
+                                        "AUTO_REFRESH",
+                                        Ref("EqualsSegment"),
+                                        Ref("BooleanLiteralGrammar"),
+                                        optional=True,
+                                    ),
+                                    Sequence(
+                                        "NOTIFICATION_INTEGRATION",
+                                        Ref("EqualsSegment"),
+                                        OneOf(
+                                            Ref("NakedIdentifierSegment"),
+                                            Ref("QuotedLiteralSegment"),
+                                        ),
+                                        optional=True,
+                                    ),
+                                ),
+                                optional=True,
+                            ),
+                        ),
+                        # External Azure Blob Storage stage
+                        Sequence(
+                            Ref(
+                                "AzureBlobStorageExternalStageParameters", optional=True
+                            ),
+                            Sequence(
+                                "DIRECTORY",
+                                Ref("EqualsSegment"),
+                                Bracketed(
+                                    Sequence(
+                                        "ENABLE",
+                                        Ref("EqualsSegment"),
+                                        Ref("BooleanLiteralGrammar"),
+                                    ),
+                                    Sequence(
+                                        "AUTO_REFRESH",
+                                        Ref("EqualsSegment"),
+                                        Ref("BooleanLiteralGrammar"),
+                                        optional=True,
+                                    ),
+                                    Sequence(
+                                        "NOTIFICATION_INTEGRATION",
+                                        Ref("EqualsSegment"),
+                                        OneOf(
+                                            Ref("NakedIdentifierSegment"),
+                                            Ref("QuotedLiteralSegment"),
+                                        ),
+                                        optional=True,
+                                    ),
+                                ),
+                                optional=True,
+                            ),
+                        ),
+                        optional=True,
+                    ),
+                    "URL",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("S3Path"),
+                        Ref("GCSPath"),
+                        Ref("AzureBlobStoragePath"),
+                        Ref("ReferencedVariableNameSegment"),
                     ),
                 ),
             ),
@@ -7301,8 +7435,8 @@ class AlterTaskStatementSegment(BaseSegment):
         OneOf(
             "RESUME",
             "SUSPEND",
-            Sequence("REMOVE", "AFTER", Ref("ObjectReferenceSegment")),
-            Sequence("ADD", "AFTER", Ref("ObjectReferenceSegment")),
+            Sequence("REMOVE", "AFTER", Delimited(Ref("ObjectReferenceSegment"))),
+            Sequence("ADD", "AFTER", Delimited(Ref("ObjectReferenceSegment"))),
             Ref("AlterTaskSpecialSetClauseSegment"),
             Ref("AlterTaskSetClauseSegment"),
             Ref("AlterTaskUnsetClauseSegment"),
@@ -8706,4 +8840,121 @@ class DropPasswordPolicyStatementSegment(BaseSegment):
         "POLICY",
         Ref("IfExistsGrammar", optional=True),
         Ref("PasswordPolicyReferenceSegment"),
+    )
+
+
+class CreateRowAccessPolicyStatementSegment(BaseSegment):
+    """Create Row Access Policy.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/create-row-access-policy
+    """
+
+    type = "create_row_access_policy_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "ROW",
+        "ACCESS",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("NakedIdentifierSegment"),
+        "AS",
+        Ref("FunctionParameterListGrammar"),
+        "RETURNS",
+        "BOOLEAN",
+        Ref("FunctionAssignerSegment"),
+        Ref("ExpressionSegment"),
+        Sequence(
+            "COMMENT",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+
+class AlterRowAccessPolicyStatmentSegment(BaseSegment):
+    """Alter Row Access Policy Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/alter-row-access-policy
+    """
+
+    type = "alter_row_access_policy_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "ROW",
+        "ACCESS",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "SET",
+                "BODY",
+                Ref("FunctionAssignerSegment"),
+                Ref("ExpressionSegment"),
+            ),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence(
+                "SET", "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+            ),
+            Sequence("UNSET", "COMMENT"),
+        ),
+    )
+
+
+class AlterTagStatementSegment(BaseSegment):
+    """A Snowflake Alter Tag Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/alter-tag
+    """
+
+    type = "alter_tag_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "TAG",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                OneOf(
+                    "SET",
+                    "UNSET",
+                ),
+                Delimited(
+                    Sequence(
+                        "MASKING",
+                        "POLICY",
+                        Ref("ParameterNameSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "SET",
+                "COMMENT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence("UNSET", "COMMENT"),
+            Sequence(
+                OneOf(
+                    "ADD",
+                    "DROP",
+                ),
+                "ALLOWED_VALUES",
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            Sequence("UNSET", "ALLOWED_VALUES"),
+        ),
     )

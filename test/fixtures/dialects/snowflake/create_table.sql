@@ -180,8 +180,14 @@ WAREHOUSE = mywh
 AS
 SELECT * FROM my_table;
 
-CREATE OR REPLACE DYNAMIC TABLE DT_WITH_MULTIPLE_DAYS_LAG
+CREATE OR REPLACE DYNAMIC TABLE my_table
 TARGET_LAG = '5 days'
+WAREHOUSE = mywh
+AS
+SELECT * FROM my_table;
+
+CREATE OR REPLACE DYNAMIC TABLE my_table
+TARGET_LAG = '${my_time_variable}'
 WAREHOUSE = mywh
 AS
 SELECT * FROM my_table;
@@ -243,3 +249,16 @@ CREATE OR REPLACE TABLE some_table (
 CREATE OR ALTER TABLE some_table (
   id INTEGER NOT NULL
 );
+
+CREATE OR REPLACE DYNAMIC TABLE names(
+  id,
+  first_name,
+  last_name
+)
+REFRESH_MODE = AUTO
+TARGET_LAG = '1 minute'
+INITIALIZE = ON_CREATE
+WAREHOUSE = 'mywh'
+AS
+SELECT var:id::int id, var:fname::string first_name,
+var:lname::string last_name FROM raw;

@@ -760,6 +760,14 @@ ansi_dialect.add(
         Bracketed(Ref("NumericLiteralSegment"), optional=True),
         Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
     ),
+    SequenceMinValueGrammar=OneOf(
+        Sequence("MINVALUE", Ref("NumericLiteralSegment")),
+        Sequence("NO", "MINVALUE"),
+    ),
+    SequenceMaxValueGrammar=OneOf(
+        Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
+        Sequence("NO", "MAXVALUE"),
+    ),
 )
 
 
@@ -3770,12 +3778,7 @@ class SetClauseListSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "SET",
         Indent,
-        Ref("SetClauseSegment"),
-        # set clause
-        AnyNumberOf(
-            Ref("CommaSegment"),
-            Ref("SetClauseSegment"),
-        ),
+        Delimited(Ref("SetClauseSegment")),
         Dedent,
     )
 
@@ -4199,14 +4202,8 @@ class CreateSequenceOptionsSegment(BaseSegment):
         Sequence(
             "START", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")
         ),
-        OneOf(
-            Sequence("MINVALUE", Ref("NumericLiteralSegment")),
-            Sequence("NO", "MINVALUE"),
-        ),
-        OneOf(
-            Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
-            Sequence("NO", "MAXVALUE"),
-        ),
+        Ref("SequenceMinValueGrammar"),
+        Ref("SequenceMaxValueGrammar"),
         OneOf(Sequence("CACHE", Ref("NumericLiteralSegment")), "NOCACHE"),
         OneOf("CYCLE", "NOCYCLE"),
         Ref("OrderNoOrderGrammar"),
@@ -4239,14 +4236,8 @@ class AlterSequenceOptionsSegment(BaseSegment):
 
     match_grammar: Matchable = OneOf(
         Sequence("INCREMENT", "BY", Ref("NumericLiteralSegment")),
-        OneOf(
-            Sequence("MINVALUE", Ref("NumericLiteralSegment")),
-            Sequence("NO", "MINVALUE"),
-        ),
-        OneOf(
-            Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
-            Sequence("NO", "MAXVALUE"),
-        ),
+        Ref("SequenceMinValueGrammar"),
+        Ref("SequenceMaxValueGrammar"),
         OneOf(Sequence("CACHE", Ref("NumericLiteralSegment")), "NOCACHE"),
         OneOf("CYCLE", "NOCYCLE"),
         Ref("OrderNoOrderGrammar"),

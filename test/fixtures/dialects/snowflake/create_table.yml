@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2555fe6f5fba6f89b64877716efd8c9dacaede86f1d0648ead3d45e0dd5dba90
+_hash: dd2e987190b52eebc6a01f5f6760d192348c04857db1463679286f311412e4bf
 file:
 - statement:
     create_table_statement:
@@ -1459,11 +1459,45 @@ file:
     - keyword: DYNAMIC
     - keyword: TABLE
     - table_reference:
-        naked_identifier: DT_WITH_MULTIPLE_DAYS_LAG
+        naked_identifier: my_table
     - keyword: TARGET_LAG
     - comparison_operator:
         raw_comparison_operator: '='
     - dynamic_table_lag_interval_segment: "'5 days'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'${my_time_variable}'"
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -1941,4 +1975,90 @@ file:
           - keyword: NOT
           - keyword: 'NULL'
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: names
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: id
+      - comma: ','
+      - naked_identifier: first_name
+      - comma: ','
+      - naked_identifier: last_name
+      - end_bracket: )
+    - keyword: REFRESH_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: AUTO
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'1 minute'"
+    - keyword: INITIALIZE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - initialize_type: ON_CREATE
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'mywh'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            expression:
+              cast_expression:
+                column_reference:
+                  naked_identifier: var
+                semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: id
+                casting_operator: '::'
+                data_type:
+                  data_type_identifier: int
+            alias_expression:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            expression:
+              cast_expression:
+                column_reference:
+                  naked_identifier: var
+                semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: fname
+                casting_operator: '::'
+                data_type:
+                  data_type_identifier: string
+            alias_expression:
+              naked_identifier: first_name
+        - comma: ','
+        - select_clause_element:
+            expression:
+              cast_expression:
+                column_reference:
+                  naked_identifier: var
+                semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: lname
+                casting_operator: '::'
+                data_type:
+                  data_type_identifier: string
+            alias_expression:
+              naked_identifier: last_name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: raw
 - statement_terminator: ;

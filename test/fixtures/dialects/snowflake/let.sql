@@ -16,3 +16,6 @@ begin
   -- resultset reassignment
   someresult := (select SOME_COL from some_database.schema.some_table);
 end;
+
+LET VARIABLE := SOME_VALUE;
+SELECT :variable FROM my_table;

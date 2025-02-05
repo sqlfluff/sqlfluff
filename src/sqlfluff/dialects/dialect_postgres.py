@@ -145,6 +145,7 @@ postgres_dialect.insert_lexer_matchers(
             r"[bBxX]'[0-9a-fA-F]*'",
             CodeSegment,
         ),
+        StringLexer("full_text_search_operator", "!!", SymbolSegment),
     ],
     before="like_operator",
 )
@@ -170,7 +171,7 @@ postgres_dialect.insert_lexer_matchers(
             # them. In future we may want to enhance this to actually parse them to
             # ensure they are valid meta commands.
             "meta_command",
-            r"\\([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
+            r"\\(?!gset|gexec)([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
             CommentSegment,
         ),
         RegexLexer(
@@ -182,6 +183,14 @@ postgres_dialect.insert_lexer_matchers(
             "dollar_numeric_literal",
             r"\$\d+",
             LiteralSegment,
+        ),
+        RegexLexer(
+            # For now we'll just treat meta syntax like comments and so just ignore
+            # them. In future we may want to enhance this to actually parse them to
+            # ensure they are valid meta commands.
+            "meta_command_query_buffer",
+            r"\\([^\\\r\n])+((\\g(set|exec))|(?=\n)|(?=\r\n))?",
+            SymbolSegment,
         ),
     ],
     before="word",  # Final thing to search for - as psql specific
@@ -300,7 +309,20 @@ postgres_dialect.sets("datetime_units").update(
 
 # Set the bare functions
 postgres_dialect.sets("bare_functions").update(
-    ["CURRENT_TIMESTAMP", "CURRENT_TIME", "CURRENT_DATE", "LOCALTIME", "LOCALTIMESTAMP"]
+    [
+        "CURRENT_TIMESTAMP",
+        "CURRENT_TIME",
+        "CURRENT_DATE",
+        "LOCALTIME",
+        "LOCALTIMESTAMP",
+        "CURRENT_CATALOG",
+        "CURRENT_ROLE",
+        "CURRENT_SCHEMA",
+        "CURRENT_USER",
+        "SESSION_USER",
+        "SYSTEM_USER",
+        "USER",
+    ]
 )
 
 # Postgres doesn't have a dateadd function
@@ -388,6 +410,12 @@ postgres_dialect.add(
     CreateForeignTableGrammar=Sequence("CREATE", "FOREIGN", "TABLE"),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
     WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
+    MetaCommandQueryBufferSegment=TypedParser(
+        "meta_command_query_buffer", SymbolSegment, type="meta_command"
+    ),
+    FullTextSearchOperatorSegment=TypedParser(
+        "full_text_search_operator", LiteralSegment, type="full_text_search_operator"
+    ),
 )
 
 postgres_dialect.replace(
@@ -423,7 +451,13 @@ postgres_dialect.replace(
     ),
     Expression_C_Grammar=Sequence(
         Ref("WalrusOperatorSegment", optional=True),
-        ansi_dialect.get_grammar("Expression_C_Grammar"),
+        OneOf(
+            ansi_dialect.get_grammar("Expression_C_Grammar"),
+            Sequence(
+                Ref("FullTextSearchOperatorSegment", optional=True),
+                Ref("ShorthandCastSegment"),
+            ),
+        ),
     ),
     ParameterNameSegment=RegexParser(
         r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, type="parameter"
@@ -599,7 +633,11 @@ postgres_dialect.replace(
         OneOf("IN", "OUT", "INOUT", "VARIADIC", optional=True),
         OneOf(
             Ref("DatatypeSegment"),
-            Sequence(Ref("ParameterNameSegment"), Ref("DatatypeSegment")),
+            Sequence(
+                Ref("ParameterNameSegment"),
+                OneOf("IN", "OUT", "INOUT", "VARIADIC", optional=True),
+                OneOf(Ref("DatatypeSegment"), Ref("ColumnTypeReferenceSegment")),
+            ),
         ),
         Sequence(
             OneOf("DEFAULT", Ref("EqualsSegment"), Ref("WalrusOperatorSegment")),
@@ -623,6 +661,7 @@ postgres_dialect.replace(
         "LIMIT",
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
+        Ref("MetaCommandQueryBufferSegment"),
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
@@ -1503,9 +1542,12 @@ class WellKnownTextGeometrySegment(BaseSegment):
             Bracketed(
                 Sequence(
                     OneOf(*_geometry_type_keywords, "GEOMETRY", "GEOGRAPHY"),
-                    Ref("CommaSegment"),
-                    Ref("NumericLiteralSegment"),
-                )
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                ),
             ),
         ),
     )
@@ -1704,6 +1746,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
             Sequence("ON", "CONFLICT"),
             Ref.keyword("RETURNING"),
             Ref("WithCheckOptionSegment"),
+            Ref("MetaCommandQueryBufferSegment"),
         ],
     )
 
@@ -1731,6 +1774,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Sequence("ON", "CONFLICT"),
             Ref.keyword("RETURNING"),
             Ref("WithCheckOptionSegment"),
+            Ref("MetaCommandQueryBufferSegment"),
         ],
     )
 
@@ -1759,6 +1803,7 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
             Ref("SetOperatorSegment"),
             Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
             Ref("WithCheckOptionSegment"),
+            Ref("MetaCommandQueryBufferSegment"),
         ],
         parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
@@ -4761,6 +4806,10 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ShowStatementSegment"),
             Ref("SetConstraintsStatementSegment"),
             Ref("CreateForeignDataWrapperStatementSegment"),
+            Ref("MetaCommandQueryBufferStatement"),
+            Ref("DropForeignTableStatement"),
+            Ref("CreateOperatorStatementSegment"),
+            Ref("AlterForeignTableStatementSegment"),
         ],
     )
 
@@ -6391,4 +6440,173 @@ class ShowStatementSegment(BaseSegment):
             "SERVER_VERSION",
             Ref("ParameterNameSegment"),
         ),
+    )
+
+
+class MetaCommandQueryBufferStatement(BaseSegment):
+    """A statement that uses meta-commands to change query buffer (e.g. gset and gexec).
+
+    https://www.postgresql.org/docs/current/app-psql.html#APP-PSQL-META-COMMAND-GEXEC
+    """
+
+    type = "meta_command_statement"
+
+    match_grammar = Sequence(
+        AnyNumberOf(
+            Sequence(
+                Ref("SelectStatementSegment"),
+                Ref("MetaCommandQueryBufferSegment", optional=True),
+            )
+        )
+    )
+
+
+class DropForeignTableStatement(BaseSegment):
+    """A `DROP FOREIGN TABLE` Statement.
+
+    https://www.postgresql.org/docs/current/sql-dropforeigntable.html
+    """
+
+    type = "drop_foreign_table_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "FOREIGN",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(
+            Ref("TableReferenceSegment"),
+        ),
+        Ref("CascadeRestrictGrammar", optional=True),
+    )
+
+
+class ColumnTypeReferenceSegment(BaseSegment):
+    """A column type reference segment (e.g. `table_name.column_name%type`).
+
+    https://www.postgresql.org/docs/current/sql-createfunction.html
+    """
+
+    type = "column_type_reference"
+
+    match_grammar = Sequence(
+        Ref("ColumnReferenceSegment"), Ref("ModuloSegment"), "TYPE"
+    )
+
+
+class CreateOperatorStatementSegment(BaseSegment):
+    """A `CREATE OPERATOR` statement.
+
+    As specified in https://www.postgresql.org/docs/17/sql-createoperator.html
+    """
+
+    type = "create_operator_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "OPERATOR",
+        AnyNumberOf(
+            RegexParser(r"^[+\-*/<>=~!@#%^&|`?]+$", SymbolSegment, "commutator"),
+        ),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf("LEFTARG", "RIGHTARG"),
+                    Ref("EqualsSegment"),
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    "COMMUTATOR",
+                    Ref("EqualsSegment"),
+                    AnyNumberOf(
+                        RegexParser(
+                            r"^[+\-*/<>=~!@#%^&|`?]+$", SymbolSegment, "commutator"
+                        ),
+                    ),
+                    optional=True,
+                ),
+                Sequence(
+                    "NEGATOR",
+                    Ref("EqualsSegment"),
+                    AnyNumberOf(
+                        RegexParser(
+                            r"^[+\-*/<>=~!@#%^&|`?]+$", SymbolSegment, "negator"
+                        ),
+                    ),
+                    optional=True,
+                ),
+                Sequence(
+                    OneOf("RESTRICT", "JOIN", OneOf("PROCEDURE", "FUNCTION")),
+                    Ref("EqualsSegment"),
+                    Ref("FunctionNameSegment"),
+                    optional=True,
+                ),
+                Ref.keyword("HASHES", optional=True),
+                Ref.keyword("MERGES", optional=True),
+            )
+        ),
+    )
+
+
+class AlterForeignTableStatementSegment(BaseSegment):
+    """An `ALTER TABLE` statement.
+
+    https://www.postgresql.org/docs/17/sql-alterforeigntable.html
+    """
+
+    type = "alter_foreign_table_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "FOREIGN",
+        "TABLE",
+        Sequence(
+            Ref("IfExistsGrammar", optional=True),
+            Ref.keyword("ONLY", optional=True),
+            Ref("TableReferenceSegment"),
+            Ref("StarSegment", optional=True),
+            OneOf(
+                Delimited(Ref("AlterForeignTableActionSegment")),
+                Sequence(
+                    "RENAME",
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("ColumnReferenceSegment"),
+                    "TO",
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+class AlterForeignTableActionSegment(AlterTableActionSegment):
+    """Alter Foreign Table Action Segment.
+
+    https://www.postgresql.org/docs/17/sql-alterforeigntable.html
+    """
+
+    type = "alter_foreign_table_action_segment"
+
+    match_grammar = AlterTableActionSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Sequence(
+                    "ALTER",
+                    Ref("COLUMN", optional=True),
+                    Ref("ColumnReferenceSegment"),
+                    optional=True,
+                ),
+                "OPTIONS",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            OneOf("ADD", "SET", "DROP", optional=True),
+                            Ref("SingleIdentifierGrammar"),
+                            Ref("QuotedLiteralSegment", optional=True),
+                        )
+                    )
+                ),
+            )
+        ]
     )

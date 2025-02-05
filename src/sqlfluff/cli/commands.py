@@ -691,7 +691,7 @@ def lint(
                         "start_line": violation["start_line_no"],
                         "start_column": violation["start_line_pos"],
                         # NOTE: There should always be a start, there _may_ not be an
-                        # end, so in that case we default back to just re-using
+                        # end, so in that case we default back to just reusing
                         # the start.
                         "end_line": violation.get(
                             "end_line_no", violation["start_line_no"]
