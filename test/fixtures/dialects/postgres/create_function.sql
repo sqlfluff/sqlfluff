@@ -212,3 +212,12 @@ BEGIN ATOMIC
 SELECT time_bucket(_from, _from, _to, _buckets, g.ofs - 1)
 FROM generate_series(0, greatest((_buckets - 1), 1)) AS g (ofs);
 END;
+
+create or replace function test (
+  _pt geography(point)
+)
+returns numeric
+language sql
+begin atomic
+  select st_x(_pt::geometry);
+end;
