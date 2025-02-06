@@ -42,3 +42,11 @@ CREATE
 DEFINER=CURRENT_USER
 TRIGGER ins_sum BEFORE INSERT ON account
 FOR EACH ROW SET @sum = @sum + NEW.amount;
+
+CREATE TRIGGER tr_downloads_i_copy_new_fields BEFORE INSERT
+ON downloads
+FOR EACH ROW BEGIN
+
+SET NEW.createdate = UNIX_TIMESTAMP(NEW.createdate_m);
+
+END;
