@@ -8977,6 +8977,12 @@ class ExceptionBlockStatementSegment(BaseSegment):
                 Sequence(
                     "WHEN",
                     Ref("ObjectReferenceSegment"),
+                    AnyNumberOf(
+                        Sequence(
+                            "OR",
+                            Ref("ObjectReferenceSegment"),
+                        ),
+                    ),
                     "THEN",
                 ),
                 Sequence(
@@ -8994,6 +9000,12 @@ class ExceptionBlockStatementSegment(BaseSegment):
                     Sequence(
                         "WHEN",
                         Ref("ObjectReferenceSegment"),
+                        AnyNumberOf(
+                            Sequence(
+                                "OR",
+                                Ref("ObjectReferenceSegment"),
+                            ),
+                        ),
                         "THEN",
                     ),
                     Sequence(
