@@ -106,6 +106,7 @@ oracle_dialect.sets("reserved_keywords").update(
         "SHARD_ENABLE",
         "SHARING",
         "SIBLINGS",
+        "SPECIFICATION",
         "SQL_MACRO",
         "START",
         "UNPIVOT",
@@ -417,6 +418,18 @@ oracle_dialect.add(
     ),
     ForUpdateGrammar=Sequence(
         "FOR", "UPDATE", Sequence("OF", Ref("TableReferenceSegment"), optional=True)
+    ),
+    CompileClauseGrammar=Sequence(
+        "COMPILE",
+        Ref.keyword("DEBUG", optional=True),
+        OneOf("PACKAGE", "SPECIFICATION", "BODY", optional=True),
+        Delimited(
+            Ref("ParameterNameSegment"),
+            Ref("EqualsSegment"),
+            Ref("NakedIdentifierSegment"),
+            optional=True,
+        ),
+        Sequence("REUSE", "SETTINGS", optional=True),
     ),
 )
 
@@ -793,35 +806,35 @@ class StatementSegment(ansi.StatementSegment):
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("CommentStatementSegment"),
-            Ref("BeginEndSegment"),
             Ref("CreateProcedureStatementSegment"),
-            Ref("AssignmentStatementSegment"),
-            Ref("FunctionSegment"),
-            Ref("IfExpressionStatement"),
-            Ref("ReturnStatementSegment"),
-            Ref("CreateTriggerStatementSegment"),
-            Ref("CaseExpressionSegment"),
-            Ref("CompoundTriggerBlock"),
-            Ref("ForLoopStatementSegment"),
-            Ref("LoopStatementSegment"),
-            Ref("ForAllStatementSegment"),
-            Ref("RaiseStatementSegment"),
-            Ref("CreateFunctionStatementSegment"),
+            Ref("DropProcedureStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
-            Ref("AlterTriggerStatementSegment"),
             Ref("CreateTypeStatementSegment"),
             Ref("CreateTypeBodyStatementSegment"),
+            Ref("CreatePackageStatementSegment"),
+            Ref("DropPackageStatementSegment"),
+            Ref("AlterPackageStatementSegment"),
+            Ref("AlterTriggerStatementSegment"),
+            Ref("BeginEndSegment"),
+            Ref("AssignmentStatementSegment"),
             Ref("RecordTypeDefinitionSegment"),
             Ref("DeclareCursorVariableSegment"),
+            Ref("FunctionSegment"),
+            Ref("IfExpressionStatement"),
+            Ref("CaseExpressionSegment"),
             Ref("NullStatementSegment"),
+            Ref("ForLoopStatementSegment"),
+            Ref("WhileLoopStatementSegment"),
+            Ref("LoopStatementSegment"),
+            Ref("ForAllStatementSegment"),
+            Ref("OpenStatementSegment"),
+            Ref("CloseStatementSegment"),
             Ref("OpenForStatementSegment"),
             Ref("FetchStatementSegment"),
             Ref("ExitStatementSegment"),
-            Ref("CloseStatementSegment"),
-            Ref("CreatePackageStatementSegment"),
-            Ref("WhileLoopStatementSegment"),
-            Ref("OpenStatementSegment"),
             Ref("ContinueStatementSegment"),
+            Ref("RaiseStatementSegment"),
+            Ref("ReturnStatementSegment"),
         ],
     )
 
@@ -2074,18 +2087,9 @@ class AlterFunctionStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         OneOf(
-            Sequence(
-                "COMPILE",
-                Ref.keyword("DEBUG", optional=True),
-                Delimited(
-                    Ref("ParameterNameSegment"),
-                    Ref("EqualsSegment"),
-                    Ref("NakedIdentifierSegment"),
-                    optional=True,
-                ),
-                Sequence("REUSE", "SETTINGS", optional=True),
-            ),
-            OneOf("EDITIONABLE", "NONEDITIONABLE"),
+            Ref("CompileClauseGrammar"),
+            "EDITIONABLE",
+            "NONEDITIONABLE",
         ),
         Ref("DelimiterGrammar", optional=True),
     )
@@ -2105,20 +2109,12 @@ class AlterTriggerStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         OneOf(
-            Sequence(
-                "COMPILE",
-                Ref.keyword("DEBUG", optional=True),
-                Delimited(
-                    Ref("ParameterNameSegment"),
-                    Ref("EqualsSegment"),
-                    Ref("NakedIdentifierSegment"),
-                    optional=True,
-                ),
-                Sequence("REUSE", "SETTINGS", optional=True),
-            ),
-            OneOf("ENABLE", "DISABLE"),
+            Ref("CompileClauseGrammar"),
+            "ENABLE",
+            "DISABLE",
             Sequence("RENAME", "TO", Ref("FunctionNameSegment")),
-            OneOf("EDITIONABLE", "NONEDITIONABLE"),
+            "EDITIONABLE",
+            "NONEDITIONABLE",
         ),
         Ref("DelimiterGrammar", optional=True),
     )
@@ -2447,5 +2443,74 @@ class CreatePackageStatementSegment(BaseSegment):
         Ref("DeclareStatementSegment"),
         "END",
         Ref("ObjectReferenceSegment", optional=True),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class DropProcedureStatementSegment(BaseSegment):
+    """A `DROP PROCEDURE` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/DROP-PROCEDURE-statement.html
+    """
+
+    type = "drop_procedure"
+
+    match_grammar = Sequence(
+        "DROP",
+        "PROCEDURE",
+        Ref("FunctionNameSegment"),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class DropPackageStatementSegment(BaseSegment):
+    """A `DROP PACKAGE` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/DROP-PACKAGE-statement.html
+    """
+
+    type = "drop_package"
+
+    match_grammar = Sequence(
+        "DROP",
+        "PACKAGE",
+        Ref.keyword("BODY", optional=True),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class DropTypeStatementSegment(ansi.DropTypeStatementSegment):
+    """A `DROP TYPE` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/DROP-TYPE-statement.html
+    """
+
+    type = "drop_type_statement"
+
+    match_grammar: Matchable = ansi.DropTypeStatementSegment.match_grammar.copy(
+        insert=[Ref.keyword("BODY", optional=True)],
+        before=Ref("IfExistsGrammar", optional=True),
+    ).copy(
+        insert=[OneOf("FORCE", "VALIDATE", optional=True)],
+        before=Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class AlterPackageStatementSegment(BaseSegment):
+    """An `ALTER PACKAGE` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/ALTER-PACKAGE-statement.html
+    """
+
+    type = "alter_package"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "PACKAGE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(Ref("CompileClauseGrammar"), "EDITIONABLE", "NONEDITIONABLE"),
         Ref("DelimiterGrammar", optional=True),
     )
