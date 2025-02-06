@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: adf7a98df4b82ea77c516e2fc93393ebdce6726d554c5808b36ce3c094bb58f3
+_hash: 9e767b4e91ce29dc1ae5aac2875887e287beb4dfddad4db659921f230895093a
 file:
 - statement:
     describe_statement:
@@ -694,4 +694,22 @@ file:
     - keyword: POLICY
     - password_policy_reference:
         naked_identifier: password_policy_prod_1
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: mysvc
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: mysvc
 - statement_terminator: ;
