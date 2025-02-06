@@ -334,6 +334,18 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - boolean_literal: 'TRUE'
+      - keyword: USE_LOGICAL_TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: USE_VECTORIZED_SCANNER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: REPLACE_INVALID_CHARACTERS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
       - keyword: NULL_IF
       - comparison_operator:
           raw_comparison_operator: '='
