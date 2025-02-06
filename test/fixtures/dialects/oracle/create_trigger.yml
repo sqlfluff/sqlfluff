@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d62998444149d9bde5571780951730f4f1b1bb80f59016f7e12ab859157aa480
+_hash: a580a5fc6e05178ca760ab12ec4f78e4b43ab2920dd6b10102df031d4f6ff718
 file:
   statement:
     create_trigger:
@@ -678,7 +678,7 @@ file:
                     - keyword: STATEMENT
                     - statement_terminator: ;
                 - keyword: END
-                - object_reference:
+                - trigger_reference:
                     naked_identifier: maintain_employee_salaries
                 - statement_terminator: ;
                 - statement_terminator: /

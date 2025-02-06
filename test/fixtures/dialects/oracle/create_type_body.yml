@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bd83ebba7f899f6ec343f67d4e5512709f5d86a1d0b4b118285c81bb24c9748b
+_hash: 877fb5bdd43c7c30d0a0d3b9727a187da8301dd1dcad4158b2bc661470ff10f5
 file:
 - statement:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: TYPE
     - keyword: BODY
-    - object_reference:
+    - type_reference:
         naked_identifier: data_typ1
     - keyword: IS
     - keyword: MEMBER
@@ -56,7 +56,7 @@ file:
     - keyword: CREATE
     - keyword: TYPE
     - keyword: BODY
-    - object_reference:
+    - type_reference:
         naked_identifier: demo_typ2
     - keyword: IS
     - keyword: MEMBER

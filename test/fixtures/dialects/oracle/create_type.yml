@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e3112fe34f6052a26d66630b5bbe14db6fdc7e5544f870fd9ada534d60922283
+_hash: 13338959b737a6c5414ecfd3ccc1ae0f2d8d27c1849ddf9ea1582d89c27a3d29
 file:
 - statement:
     create_type:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
+    - type_reference:
         naked_identifier: customer_typ_demo
     - keyword: AS
     - keyword: OBJECT
@@ -98,7 +98,7 @@ file:
     create_type:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
+    - type_reference:
         naked_identifier: data_typ1
     - keyword: AS
     - keyword: OBJECT
@@ -130,7 +130,7 @@ file:
     create_type:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
+    - type_reference:
         naked_identifier: corporate_customer_typ_demo
     - keyword: UNDER
     - object_reference:
@@ -152,7 +152,7 @@ file:
     create_type:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
+    - type_reference:
         naked_identifier: person_t
     - keyword: AS
     - keyword: OBJECT
@@ -179,7 +179,7 @@ file:
     create_type:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
+    - type_reference:
         naked_identifier: employee_t
     - keyword: UNDER
     - object_reference:
@@ -202,7 +202,7 @@ file:
     create_type:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
+    - type_reference:
         naked_identifier: part_time_emp_t
     - keyword: UNDER
     - object_reference:
@@ -219,7 +219,7 @@ file:
     create_type:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
+    - type_reference:
         naked_identifier: phone_list_typ_demo
     - keyword: AS
     - keyword: VARRAY
@@ -244,7 +244,7 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - object_reference:
+    - type_reference:
         naked_identifier: varr_int
     - keyword: AS
     - keyword: VARRAY
@@ -266,7 +266,7 @@ file:
     create_type:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
+    - type_reference:
         naked_identifier: plsint
     - keyword: AS
     - keyword: OBJECT
@@ -284,7 +284,7 @@ file:
     create_type:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
+    - type_reference:
         naked_identifier: tab_plsint
     - keyword: AS
     - keyword: TABLE
@@ -302,7 +302,7 @@ file:
     create_type:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
+    - type_reference:
         naked_identifier: textdoc_typ
     - keyword: AS
     - keyword: OBJECT
@@ -327,7 +327,7 @@ file:
     create_type:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
+    - type_reference:
         naked_identifier: textdoc_tab
     - keyword: AS
     - keyword: TABLE
@@ -340,7 +340,7 @@ file:
     create_type:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
+    - type_reference:
         naked_identifier: cust_address_typ2
     - keyword: AS
     - keyword: OBJECT
@@ -401,7 +401,7 @@ file:
     create_type:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
+    - type_reference:
         naked_identifier: cust_nt_address_typ
     - keyword: AS
     - keyword: TABLE
@@ -414,7 +414,7 @@ file:
     create_type:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
+    - type_reference:
         naked_identifier: demo_typ1
     - keyword: AS
     - keyword: OBJECT
@@ -434,7 +434,7 @@ file:
     create_type:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
+    - type_reference:
         naked_identifier: demo_typ2
     - keyword: AS
     - keyword: OBJECT
@@ -461,7 +461,7 @@ file:
     - keyword: OR
     - keyword: REPLACE
     - keyword: TYPE
-    - object_reference:
+    - type_reference:
         naked_identifier: department_t
     - keyword: AS
     - keyword: OBJECT

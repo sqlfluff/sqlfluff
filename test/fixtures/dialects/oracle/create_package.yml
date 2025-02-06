@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bcfc816610ca95e9035de1b5b89bc88a4eb8bdc4cc3d363780790dd31c56faed
+_hash: 8715daf26d024dd27299ec35002d3ed5c400cb570bffaa1b13674d1f4abe2f86
 file:
 - statement:
     create_package:
@@ -12,7 +12,7 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - object_reference:
+    - package_reference:
         naked_identifier: emp_mgmt
     - keyword: AS
     - declare_segment:
@@ -135,7 +135,7 @@ file:
           data_type_identifier: EXCEPTION
       - statement_terminator: ;
     - keyword: END
-    - object_reference:
+    - package_reference:
         naked_identifier: emp_mgmt
     - statement_terminator: ;
     - statement_terminator: /
@@ -146,7 +146,7 @@ file:
     - keyword: REPLACE
     - keyword: PACKAGE
     - keyword: BODY
-    - object_reference:
+    - package_reference:
         naked_identifier: emp_mgmt
     - keyword: AS
     - declare_segment:
@@ -716,7 +716,7 @@ file:
           - keyword: END
           - statement_terminator: ;
     - keyword: END
-    - object_reference:
+    - package_reference:
         naked_identifier: emp_mgmt
     - statement_terminator: ;
     - statement_terminator: /
