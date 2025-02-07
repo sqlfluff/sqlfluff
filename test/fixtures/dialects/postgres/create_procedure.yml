@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b038c0c2ee3d0f7a1afe80e9651148bcf3952190b0f8ab3f94250e4166e03bee
+_hash: b95429c2a11a114bca6dae1a3936a2468fe95f2637321f7ffb1c521509a4b838
 file:
 - statement:
     create_procedure_statement:
@@ -51,4 +51,67 @@ file:
         keyword: AS
         quoted_literal: "$$\nINSERT INTO tbl VALUES (a);\nINSERT INTO tbl VALUES (b);\n\
           $$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        naked_identifier: abc
+        dot: .
+        function_name_identifier: cdf
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - function_definition:
+      - language_clause:
+          keyword: LANGUAGE
+          naked_identifier: sql
+      - keyword: BEGIN
+      - keyword: ATOMIC
+      - with_compound_statement:
+          keyword: WITH
+          common_table_expression:
+            naked_identifier: tbl2
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                    - naked_identifier: a
+                    - dot: .
+                    - naked_identifier: apple
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: tbl1
+                      alias_expression:
+                        naked_identifier: a
+              end_bracket: )
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                - naked_identifier: t
+                - dot: .
+                - naked_identifier: apple
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: tbl2
+                  alias_expression:
+                    naked_identifier: t
+      - statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;
