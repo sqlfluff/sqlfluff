@@ -1645,7 +1645,10 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                         Ref("SemicolonSegment"),
                     ),
                     Sequence(
-                        Ref("SelectStatementSegment"),
+                        OneOf(
+                            Ref("WithCompoundStatementSegment"),
+                            Ref("SelectStatementSegment"),
+                        ),
                         Ref("SemicolonSegment"),
                     ),
                     Sequence(

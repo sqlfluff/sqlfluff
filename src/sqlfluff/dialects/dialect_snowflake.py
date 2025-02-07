@@ -5648,7 +5648,10 @@ class ParquetFileFormatTypeParameters(BaseSegment):
             OneOf(
                 "SNAPPY_COMPRESSION",
                 "BINARY_AS_TEXT",
+                "USE_LOGICAL_TYPE",
                 "TRIM_SPACE",
+                "USE_VECTORIZED_SCANNER",
+                "REPLACE_INVALID_CHARACTERS",
             ),
             Ref("EqualsSegment"),
             Ref("BooleanLiteralGrammar"),
