@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 39f80e632ae1f4f2b0670e5fa3a867f82fe804b31d64045847cef827094eabd6
+_hash: 12dee21fcf99ef3e3f088755a81789325e2979c98c98d67269233660a7c700b5
 file:
 - statement:
     create_trigger:
@@ -429,4 +429,46 @@ file:
             - naked_identifier: NEW
             - dot: .
             - naked_identifier: amount
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: tr_downloads_i_copy_new_fields
+    - keyword: BEFORE
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: downloads
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - statement:
+        transaction_statement:
+          keyword: BEGIN
+          statement:
+            set_statement:
+            - keyword: SET
+            - keyword: NEW
+            - dot: .
+            - variable: createdate
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - function:
+                function_name:
+                  function_name_identifier: UNIX_TIMESTAMP
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                      - naked_identifier: NEW
+                      - dot: .
+                      - naked_identifier: createdate_m
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: END
 - statement_terminator: ;
