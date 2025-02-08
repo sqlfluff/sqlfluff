@@ -2,121 +2,122 @@ GRANT OWNERSHIP ON SCHEMA MY_DATABASE.MY_SCHEMA TO ROLE MY_ROLE;
 
 GRANT ROLE MY_ROLE TO ROLE MY_OTHER_ROLE;
 
-grant use_any_role on integration external_oauth_1 to role1;
+GRANT USE_ANY_ROLE ON INTEGRATION EXTERNAL_OAUTH_1 TO ROLE1;
 
-grant ownership on table myschema.mytable to role analyst;
+GRANT OWNERSHIP ON TABLE MYSCHEMA.MYTABLE TO ROLE ANALYST;
 
-grant ownership on all tables in schema public to role analyst;
+GRANT OWNERSHIP ON ALL TABLES IN SCHEMA PUBLIC TO ROLE ANALYST;
 
-grant ownership on all tables in schema mydb.public to role analyst;
+GRANT OWNERSHIP ON ALL TABLES IN SCHEMA MYDB.PUBLIC TO ROLE ANALYST;
 
-grant ownership on all tables in schema mydb.public to role analyst copy current grants;
+GRANT OWNERSHIP ON ALL TABLES IN SCHEMA MYDB.PUBLIC TO ROLE ANALYST COPY CURRENT GRANTS;
 
 GRANT ROLE ROLENAME TO ROLE IDENTIFIER($THIS_ROLE);
 
 GRANT OWNERSHIP ON ROLE TEST_ROLE TO ROLE DIFFERENT_ROLE;
 
-grant all on all materialized views in database my_db to role analyst;
-grant all on all file formats in database my_db to role analyst;
-grant create temporary table on schema my_db.my_schema to role analyst;
-grant all on future pipes in database my_db to role analyst;
-grant all on future file formats in database my_db to role analyst;
-grant all on future materialized views in database my_db to role analyst;
-grant all on future pipes in database my_db to role analyst;
-grant usage on all sequences in database my_db to role analyst;
-grant all on all materialized views in database my_db to role analyst;
-grant all on all sequences in database my_db to role analyst;
-grant all on all functions in database my_db to role analyst;
-grant all on all file formats in database my_db to role analyst;
-grant all on all stages in database my_db to role analyst;
-grant select on all views in database my_db to role analyst;
+GRANT ALL ON ALL MATERIALIZED VIEWS IN DATABASE MY_DB TO ROLE ANALYST;
+GRANT ALL ON ALL FILE FORMATS IN DATABASE MY_DB TO ROLE ANALYST;
+GRANT CREATE TEMPORARY TABLE ON SCHEMA MY_DB.MY_SCHEMA TO ROLE ANALYST;
+GRANT ALL ON FUTURE PIPES IN DATABASE MY_DB TO ROLE ANALYST;
+GRANT ALL ON FUTURE FILE FORMATS IN DATABASE MY_DB TO ROLE ANALYST;
+GRANT ALL ON FUTURE MATERIALIZED VIEWS IN DATABASE MY_DB TO ROLE ANALYST;
+GRANT ALL ON FUTURE PIPES IN DATABASE MY_DB TO ROLE ANALYST;
+GRANT USAGE ON ALL SEQUENCES IN DATABASE MY_DB TO ROLE ANALYST;
+GRANT ALL ON ALL MATERIALIZED VIEWS IN DATABASE MY_DB TO ROLE ANALYST;
+GRANT ALL ON ALL SEQUENCES IN DATABASE MY_DB TO ROLE ANALYST;
+GRANT ALL ON ALL FUNCTIONS IN DATABASE MY_DB TO ROLE ANALYST;
+GRANT ALL ON ALL FILE FORMATS IN DATABASE MY_DB TO ROLE ANALYST;
+GRANT ALL ON ALL STAGES IN DATABASE MY_DB TO ROLE ANALYST;
+GRANT SELECT ON ALL VIEWS IN DATABASE MY_DB TO ROLE ANALYST;
 
-revoke role analyst from role sysadmin;
+REVOKE ROLE ANALYST FROM ROLE SYSADMIN;
 
-revoke select,insert on future tables in schema mydb.myschema from role role1;
+REVOKE SELECT, INSERT ON FUTURE TABLES IN SCHEMA MYDB.MYSCHEMA FROM ROLE ROLE1;
 
-revoke all privileges on function add5(number) from role analyst;
+REVOKE ALL PRIVILEGES ON FUNCTION add5(number) FROM ROLE ANALYST;
 
-revoke grant option for operate on warehouse report_wh from role analyst;
+REVOKE GRANT OPTION FOR OPERATE ON WAREHOUSE REPORT_WH FROM ROLE ANALYST;
 
-revoke select on all tables in schema mydb.myschema from role analyst;
+REVOKE SELECT ON ALL TABLES IN SCHEMA MYDB.MYSCHEMA FROM ROLE ANALYST;
 
-revoke operate on warehouse report_wh from role analyst;
+REVOKE OPERATE ON WAREHOUSE REPORT_WH FROM ROLE ANALYST;
 
-revoke reference_usage on database database2 from share share1;
+REVOKE REFERENCE_USAGE ON DATABASE DATABASE2 FROM SHARE SHARE1;
 
 REVOKE OWNERSHIP ON ROLE TEST_ROLE FROM ROLE DIFFERENT_ROLE;
 
-grant imported privileges on schema mydb.myschema to application my_app;
+GRANT IMPORTED PRIVILEGES ON SCHEMA MYDB.MYSCHEMA TO APPLICATION MY_APP;
 
-grant operate on warehouse report_wh to role analyst;
-grant operate on warehouse report_wh to role analyst with grant option;
-grant operate on future dynamic tables in schema mydb.myschema to role analyst;
-grant operate on all dynamic tables in schema mydb.myschema to role analyst;
-grant select on all tables in schema mydb.myschema to role analyst;
-grant all privileges on function mydb.myschema.add5(number) to role analyst;
-grant all privileges on function mydb.myschema.add5(string) to role analyst;
-grant usage on procedure mydb.myschema.myprocedure(number) to role analyst;
-grant create materialized view on schema mydb.myschema to role myrole;
-grant select,insert on future tables in schema mydb.myschema to role role1;
-grant usage on future schemas in database mydb to role role1;
+GRANT OPERATE ON WAREHOUSE REPORT_WH TO ROLE ANALYST;
+GRANT OPERATE ON WAREHOUSE REPORT_WH TO ROLE ANALYST WITH GRANT OPTION;
+GRANT OPERATE ON FUTURE DYNAMIC TABLES IN SCHEMA MYDB.MYSCHEMA TO ROLE ANALYST;
+GRANT OPERATE ON ALL DYNAMIC TABLES IN SCHEMA MYDB.MYSCHEMA TO ROLE ANALYST;
+GRANT SELECT ON ALL TABLES IN SCHEMA MYDB.MYSCHEMA TO ROLE ANALYST;
+GRANT ALL PRIVILEGES ON FUNCTION mydb.myschema.add5(number) TO ROLE ANALYST;
+GRANT ALL PRIVILEGES ON FUNCTION mydb.myschema.add5(string) TO ROLE ANALYST;
+GRANT USAGE ON PROCEDURE mydb.myschema.myprocedure(number) TO ROLE ANALYST;
+GRANT CREATE MATERIALIZED VIEW ON SCHEMA MYDB.MYSCHEMA TO ROLE MYROLE;
+GRANT SELECT, INSERT ON FUTURE TABLES IN SCHEMA MYDB.MYSCHEMA TO ROLE ROLE1;
+GRANT USAGE ON FUTURE SCHEMAS IN DATABASE MYDB TO ROLE ROLE1;
 
-grant usage on database database1 to share share1;
-grant usage on schema database1.schema1 to share share1;
-grant reference_usage on database database2 to share share1;
-grant select on view view2 to share share1;
-grant usage on database mydb to share share1;
-grant usage on schema mydb.public to share share1;
-grant usage on function mydb.shared_schema.function1 to share share1;
-grant select on all tables in schema mydb.public to share share1;
-grant usage on schema mydb.shared_schema to share share1;
-grant select on view mydb.shared_schema.view1 to share share1;
-grant select on view mydb.shared_schema.view3 to share share1;
+GRANT USAGE ON DATABASE DATABASE1 TO SHARE SHARE1;
+GRANT USAGE ON SCHEMA DATABASE1.SCHEMA1 TO SHARE SHARE1;
+GRANT REFERENCE_USAGE ON DATABASE DATABASE2 TO SHARE SHARE1;
+GRANT SELECT ON VIEW VIEW2 TO SHARE SHARE1;
+GRANT USAGE ON DATABASE MYDB TO SHARE SHARE1;
+GRANT USAGE ON SCHEMA MYDB.PUBLIC TO SHARE SHARE1;
+GRANT USAGE ON FUNCTION MYDB.SHARED_SCHEMA.FUNCTION1 TO SHARE SHARE1;
+GRANT SELECT ON ALL TABLES IN SCHEMA MYDB.PUBLIC TO SHARE SHARE1;
+GRANT USAGE ON SCHEMA MYDB.SHARED_SCHEMA TO SHARE SHARE1;
+GRANT SELECT ON VIEW MYDB.SHARED_SCHEMA.VIEW1 TO SHARE SHARE1;
+GRANT SELECT ON VIEW MYDB.SHARED_SCHEMA.VIEW3 TO SHARE SHARE1;
 
-grant role analyst to user user1;
+GRANT ROLE ANALYST TO USER USER1;
 
-revoke all privileges on procedure clean_schema(string) from role analyst;
-revoke all privileges on function add5(string) from role analyst;
+REVOKE ALL PRIVILEGES ON PROCEDURE clean_schema(string) FROM ROLE ANALYST;
+REVOKE ALL PRIVILEGES ON FUNCTION add5(string) FROM ROLE ANALYST;
 
-revoke select on view mydb.shared_schema.view1 from share share1;
-revoke usage on schema mydb.shared_schema from share share1;
-revoke select on all tables in schema mydb.public from share share1;
-revoke usage on schema mydb.public from share share1;
-revoke usage on database mydb from share share1;
+REVOKE SELECT ON VIEW MYDB.SHARED_SCHEMA.VIEW1 FROM SHARE SHARE1;
+REVOKE USAGE ON SCHEMA MYDB.SHARED_SCHEMA FROM SHARE SHARE1;
+REVOKE SELECT ON ALL TABLES IN SCHEMA MYDB.PUBLIC FROM SHARE SHARE1;
+REVOKE USAGE ON SCHEMA MYDB.PUBLIC FROM SHARE SHARE1;
+REVOKE USAGE ON DATABASE MYDB FROM SHARE SHARE1;
 
-grant apply masking policy on account to role my_role;
-grant apply row access policy on account to role my_role;
-grant apply session policy on account to role my_role;
-grant apply tag on account to role my_role;
-grant attach policy on account to role my_role;
-grant execute alert on account to role my_role;
-grant execute task on account to role my_role;
-grant import share on account to role my_role;
-grant manage grants on account to role my_role;
-grant monitor execution on account to role my_role;
-grant monitor usage on account to role my_role;
-grant monitor on user some_user to role my_role;
-revoke monitor on user some_user from role my_role;
-grant override share restrictions on account to role my_role;
-grant create account on account to role my_role;
-grant create share on account to role my_role;
-grant create network policy on account to role my_role;
-grant create tag on schema my_schema to role my_role;
-grant create data exchange listing on account to role my_role;
-
-GRANT MANAGE ACCOUNT SUPPORT CASES ON ACCOUNT TO ROLE my_role;
-GRANT MANAGE ORGANIZATION SUPPORT CASES ON ACCOUNT TO ROLE my_role;
-GRANT MANAGE USER SUPPORT CASES ON ACCOUNT TO ROLE my_role;
+GRANT APPLY MASKING POLICY ON ACCOUNT TO ROLE MY_ROLE;
+GRANT APPLY ROW ACCESS POLICY ON ACCOUNT TO ROLE MY_ROLE;
+GRANT APPLY SESSION POLICY ON ACCOUNT TO ROLE MY_ROLE;
+GRANT APPLY TAG ON ACCOUNT TO ROLE MY_ROLE;
+GRANT ATTACH POLICY ON ACCOUNT TO ROLE MY_ROLE;
+GRANT EXECUTE ALERT ON ACCOUNT TO ROLE MY_ROLE;
+GRANT EXECUTE TASK ON ACCOUNT TO ROLE MY_ROLE;
+GRANT IMPORT SHARE ON ACCOUNT TO ROLE MY_ROLE;
+GRANT MANAGE GRANTS ON ACCOUNT TO ROLE MY_ROLE;
+GRANT MONITOR EXECUTION ON ACCOUNT TO ROLE MY_ROLE;
+GRANT MONITOR USAGE ON ACCOUNT TO ROLE MY_ROLE;
+GRANT MONITOR ON USER SOME_USER TO ROLE MY_ROLE;
+REVOKE MONITOR ON USER SOME_USER FROM ROLE MY_ROLE;
+GRANT OVERRIDE SHARE RESTRICTIONS ON ACCOUNT TO ROLE MY_ROLE;
+GRANT CREATE ACCOUNT ON ACCOUNT TO ROLE MY_ROLE;
+GRANT CREATE SHARE ON ACCOUNT TO ROLE MY_ROLE;
+GRANT CREATE NETWORK POLICY ON ACCOUNT TO ROLE MY_ROLE;
+GRANT CREATE TAG ON SCHEMA MY_SCHEMA TO ROLE MY_ROLE;
+GRANT CREATE DATA EXCHANGE LISTING ON ACCOUNT TO ROLE MY_ROLE;
+GRANT CREATE CORTEX SEARCH SERVICE ON SCHEMA MY_SCHEMA TO ROLE MY_ROLE;
+GRANT USAGE ON CORTEX SEARCH SERVICE MY_SERVICE TO ROLE MY_ROLE;
+GRANT MANAGE ACCOUNT SUPPORT CASES ON ACCOUNT TO ROLE MY_ROLE;
+GRANT MANAGE ORGANIZATION SUPPORT CASES ON ACCOUNT TO ROLE MY_ROLE;
+GRANT MANAGE USER SUPPORT CASES ON ACCOUNT TO ROLE MY_ROLE;
 
 GRANT ADD SEARCH OPTIMIZATION ON SCHEMA MY_SCHEMA TO ROLE MY_ROLE;
 
-grant database role dbname.rolename to role public;
-grant database role dbrolename to role public;
-revoke database role dbname.rolename from role public;
-revoke database role dbrolename from role public;
-grant select on table dbname.schemaname.tablename to database role dbname.rolename;
-grant select on table dbname.schemaname.tablename to database role dbrolename;
-revoke select on table dbname.schemaname.tablename from database role dbname.rolename;
-revoke select on table dbname.schemaname.tablename from database role dbrolename;
+GRANT DATABASE ROLE DBNAME.ROLENAME TO ROLE PUBLIC;
+GRANT DATABASE ROLE DBROLENAME TO ROLE PUBLIC;
+REVOKE DATABASE ROLE DBNAME.ROLENAME FROM ROLE PUBLIC;
+REVOKE DATABASE ROLE DBROLENAME FROM ROLE PUBLIC;
+GRANT SELECT ON TABLE DBNAME.SCHEMANAME.TABLENAME TO DATABASE ROLE DBNAME.ROLENAME;
+GRANT SELECT ON TABLE DBNAME.SCHEMANAME.TABLENAME TO DATABASE ROLE DBROLENAME;
+REVOKE SELECT ON TABLE DBNAME.SCHEMANAME.TABLENAME FROM DATABASE ROLE DBNAME.ROLENAME;
+REVOKE SELECT ON TABLE DBNAME.SCHEMANAME.TABLENAME FROM DATABASE ROLE DBROLENAME;
 
-GRANT APPLICATION ROLE dbrolename TO ROLE public;
+GRANT APPLICATION ROLE DBROLENAME TO ROLE PUBLIC;
