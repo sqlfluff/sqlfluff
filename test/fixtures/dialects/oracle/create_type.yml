@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 13338959b737a6c5414ecfd3ccc1ae0f2d8d27c1849ddf9ea1582d89c27a3d29
+_hash: 46b3235912c64064ec9ff19a2a83d70a3982628e1ee29eaa00af2eb05e9fdc7a
 file:
 - statement:
-    create_type:
+    create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - type_reference:
@@ -95,7 +95,7 @@ file:
     - statement_terminator: ;
     - statement_terminator: /
 - statement:
-    create_type:
+    create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - type_reference:
@@ -127,7 +127,7 @@ file:
     - statement_terminator: ;
     - statement_terminator: /
 - statement:
-    create_type:
+    create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - type_reference:
@@ -149,7 +149,7 @@ file:
     - statement_terminator: ;
     - statement_terminator: /
 - statement:
-    create_type:
+    create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - type_reference:
@@ -176,7 +176,7 @@ file:
     - statement_terminator: ;
     - statement_terminator: /
 - statement:
-    create_type:
+    create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - type_reference:
@@ -199,7 +199,7 @@ file:
     - statement_terminator: ;
     - statement_terminator: /
 - statement:
-    create_type:
+    create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - type_reference:
@@ -216,7 +216,7 @@ file:
     - statement_terminator: ;
     - statement_terminator: /
 - statement:
-    create_type:
+    create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - type_reference:
@@ -238,7 +238,7 @@ file:
     - statement_terminator: ;
     - statement_terminator: /
 - statement:
-    create_type:
+    create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - keyword: IF
@@ -263,7 +263,7 @@ file:
     - statement_terminator: ;
     - statement_terminator: /
 - statement:
-    create_type:
+    create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - type_reference:
@@ -281,7 +281,7 @@ file:
     - statement_terminator: ;
     - statement_terminator: /
 - statement:
-    create_type:
+    create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - type_reference:
@@ -299,7 +299,7 @@ file:
     - statement_terminator: ;
     - statement_terminator: /
 - statement:
-    create_type:
+    create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - type_reference:
@@ -324,7 +324,7 @@ file:
     - statement_terminator: ;
     - statement_terminator: /
 - statement:
-    create_type:
+    create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - type_reference:
@@ -337,7 +337,7 @@ file:
     - statement_terminator: ;
     - statement_terminator: /
 - statement:
-    create_type:
+    create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - type_reference:
@@ -398,7 +398,7 @@ file:
     - statement_terminator: ;
     - statement_terminator: /
 - statement:
-    create_type:
+    create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - type_reference:
@@ -411,7 +411,7 @@ file:
     - statement_terminator: ;
     - statement_terminator: /
 - statement:
-    create_type:
+    create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - type_reference:
@@ -431,7 +431,7 @@ file:
     - statement_terminator: ;
     - statement_terminator: /
 - statement:
-    create_type:
+    create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - type_reference:
@@ -456,7 +456,7 @@ file:
     - statement_terminator: ;
     - statement_terminator: /
 - statement:
-    create_type:
+    create_type_statement:
     - keyword: CREATE
     - keyword: OR
     - keyword: REPLACE

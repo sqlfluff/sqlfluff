@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3b3d78e177e7f8daaad97a9d1660cff52e7e78886561b11ee0b2f3dff2da4b74
+_hash: 2e418a7c34c3bb84e7d64a33265b3dfaab7b4be0a6738e6a3b2f4b8c739370f5
 file:
 - statement:
     begin_end_block:
@@ -60,9 +60,9 @@ file:
       - statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        'null':
+        null_statement:
           keyword: 'NULL'
-          statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -118,9 +118,9 @@ file:
       - statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        'null':
+        null_statement:
           keyword: 'NULL'
-          statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -161,7 +161,7 @@ file:
       - statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        open_for:
+        open_for_statement:
         - keyword: OPEN
         - naked_identifier: cv
         - keyword: FOR
@@ -193,12 +193,12 @@ file:
                   naked_identifier: job_id
                 keyword: LIKE
                 quoted_literal: "'AD_%'"
-        - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         loop_statement:
         - keyword: LOOP
         - statement:
-            fetch:
+            fetch_statement:
               keyword: FETCH
               naked_identifier: cv
               into_clause:
@@ -206,16 +206,16 @@ file:
               - naked_identifier: sal
               - comma: ','
               - naked_identifier: sal_multiple
-              statement_terminator: ;
+        - statement_terminator: ;
         - statement:
-            exit:
+            exit_statement:
             - keyword: EXIT
             - keyword: WHEN
             - expression:
                 naked_identifier: cv
                 binary_operator: '%'
                 keyword: NOTFOUND
-            - statement_terminator: ;
+        - statement_terminator: ;
         - statement:
             function:
               function_name:
@@ -271,7 +271,7 @@ file:
                   end_bracket: )
         - statement_terminator: ;
         - statement:
-            assignment_segment:
+            assignment_segment_statement:
               object_reference:
                 naked_identifier: factor
               colon: ':'
@@ -282,15 +282,15 @@ file:
                   naked_identifier: factor
                 binary_operator: +
                 numeric_literal: '1'
-              statement_terminator: ;
+        - statement_terminator: ;
         - keyword: END
         - keyword: LOOP
-        - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        close:
+        close_statement:
           keyword: CLOSE
           naked_identifier: cv
-          statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -349,7 +349,7 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        open_for:
+        open_for_statement:
         - keyword: OPEN
         - naked_identifier: cv
         - keyword: FOR
@@ -381,12 +381,12 @@ file:
                   naked_identifier: job_id
                 keyword: LIKE
                 quoted_literal: "'AD_%'"
-        - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         loop_statement:
         - keyword: LOOP
         - statement:
-            fetch:
+            fetch_statement:
               keyword: FETCH
               naked_identifier: cv
               into_clause:
@@ -394,16 +394,16 @@ file:
               - naked_identifier: sal
               - comma: ','
               - naked_identifier: sal_multiple
-              statement_terminator: ;
+        - statement_terminator: ;
         - statement:
-            exit:
+            exit_statement:
             - keyword: EXIT
             - keyword: WHEN
             - expression:
                 naked_identifier: cv
                 binary_operator: '%'
                 keyword: NOTFOUND
-            - statement_terminator: ;
+        - statement_terminator: ;
         - statement:
             function:
               function_name:
@@ -442,9 +442,9 @@ file:
         - statement_terminator: ;
         - keyword: END
         - keyword: LOOP
-        - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: factor
           colon: ':'
@@ -455,7 +455,7 @@ file:
               naked_identifier: factor
             binary_operator: +
             numeric_literal: '1'
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -475,7 +475,7 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        open_for:
+        open_for_statement:
         - keyword: OPEN
         - naked_identifier: cv
         - keyword: FOR
@@ -507,12 +507,12 @@ file:
                   naked_identifier: job_id
                 keyword: LIKE
                 quoted_literal: "'AD_%'"
-        - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         loop_statement:
         - keyword: LOOP
         - statement:
-            fetch:
+            fetch_statement:
               keyword: FETCH
               naked_identifier: cv
               into_clause:
@@ -520,16 +520,16 @@ file:
               - naked_identifier: sal
               - comma: ','
               - naked_identifier: sal_multiple
-              statement_terminator: ;
+        - statement_terminator: ;
         - statement:
-            exit:
+            exit_statement:
             - keyword: EXIT
             - keyword: WHEN
             - expression:
                 naked_identifier: cv
                 binary_operator: '%'
                 keyword: NOTFOUND
-            - statement_terminator: ;
+        - statement_terminator: ;
         - statement:
             function:
               function_name:
@@ -568,12 +568,12 @@ file:
         - statement_terminator: ;
         - keyword: END
         - keyword: LOOP
-        - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        close:
+        close_statement:
           keyword: CLOSE
           naked_identifier: cv
-          statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -609,7 +609,7 @@ file:
                 numeric_literal: '1'
               end_bracket: )
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           dot: .
           object_reference:
             naked_identifier: f1
@@ -618,7 +618,7 @@ file:
             raw_comparison_operator: '='
           expression:
             numeric_literal: '1'
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -630,7 +630,7 @@ file:
                 numeric_literal: '1'
               end_bracket: )
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           dot: .
           object_reference:
             naked_identifier: f2
@@ -639,9 +639,9 @@ file:
             raw_comparison_operator: '='
           expression:
             quoted_literal: "'one'"
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        open_for:
+        open_for_statement:
         - keyword: OPEN
         - naked_identifier: c1
         - keyword: FOR
@@ -667,20 +667,20 @@ file:
                             column_reference:
                               naked_identifier: v1
                           end_bracket: )
-        - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        fetch:
+        fetch_statement:
           keyword: FETCH
           naked_identifier: c1
           into_clause:
             keyword: INTO
             naked_identifier: v2
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        close:
+        close_statement:
           keyword: CLOSE
           naked_identifier: c1
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -835,9 +835,9 @@ file:
         - statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        'null':
+        null_statement:
           keyword: 'NULL'
-          statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -907,15 +907,15 @@ file:
         - statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        open:
+        open_statement:
           keyword: OPEN
           naked_identifier: c1
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         loop_statement:
         - keyword: LOOP
         - statement:
-            fetch:
+            fetch_statement:
               keyword: FETCH
               naked_identifier: c1
               into_clause:
@@ -923,16 +923,16 @@ file:
               - naked_identifier: sal
               - comma: ','
               - naked_identifier: sal_multiple
-              statement_terminator: ;
+        - statement_terminator: ;
         - statement:
-            exit:
+            exit_statement:
             - keyword: EXIT
             - keyword: WHEN
             - expression:
                 naked_identifier: c1
                 binary_operator: '%'
                 keyword: NOTFOUND
-            - statement_terminator: ;
+        - statement_terminator: ;
         - statement:
             function:
               function_name:
@@ -988,7 +988,7 @@ file:
                   end_bracket: )
         - statement_terminator: ;
         - statement:
-            assignment_segment:
+            assignment_segment_statement:
               object_reference:
                 naked_identifier: factor
               colon: ':'
@@ -999,15 +999,15 @@ file:
                   naked_identifier: factor
                 binary_operator: +
                 numeric_literal: '1'
-              statement_terminator: ;
+        - statement_terminator: ;
         - keyword: END
         - keyword: LOOP
-        - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        close:
+        close_statement:
           keyword: CLOSE
           naked_identifier: c1
-          statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -1095,15 +1095,15 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        open:
+        open_statement:
           keyword: OPEN
           naked_identifier: c1
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         loop_statement:
         - keyword: LOOP
         - statement:
-            fetch:
+            fetch_statement:
               keyword: FETCH
               naked_identifier: c1
               into_clause:
@@ -1111,16 +1111,16 @@ file:
               - naked_identifier: sal
               - comma: ','
               - naked_identifier: sal_multiple
-              statement_terminator: ;
+        - statement_terminator: ;
         - statement:
-            exit:
+            exit_statement:
             - keyword: EXIT
             - keyword: WHEN
             - expression:
                 naked_identifier: c1
                 binary_operator: '%'
                 keyword: NOTFOUND
-            - statement_terminator: ;
+        - statement_terminator: ;
         - statement:
             function:
               function_name:
@@ -1159,14 +1159,14 @@ file:
         - statement_terminator: ;
         - keyword: END
         - keyword: LOOP
-        - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        close:
+        close_statement:
           keyword: CLOSE
           naked_identifier: c1
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: factor
           colon: ':'
@@ -1177,7 +1177,7 @@ file:
               naked_identifier: factor
             binary_operator: +
             numeric_literal: '1'
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -1197,15 +1197,15 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        open:
+        open_statement:
           keyword: OPEN
           naked_identifier: c1
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         loop_statement:
         - keyword: LOOP
         - statement:
-            fetch:
+            fetch_statement:
               keyword: FETCH
               naked_identifier: c1
               into_clause:
@@ -1213,16 +1213,16 @@ file:
               - naked_identifier: sal
               - comma: ','
               - naked_identifier: sal_multiple
-              statement_terminator: ;
+        - statement_terminator: ;
         - statement:
-            exit:
+            exit_statement:
             - keyword: EXIT
             - keyword: WHEN
             - expression:
                 naked_identifier: c1
                 binary_operator: '%'
                 keyword: NOTFOUND
-            - statement_terminator: ;
+        - statement_terminator: ;
         - statement:
             function:
               function_name:
@@ -1261,12 +1261,12 @@ file:
         - statement_terminator: ;
         - keyword: END
         - keyword: LOOP
-        - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        close:
+        close_statement:
           keyword: CLOSE
           naked_identifier: c1
-          statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -1326,30 +1326,30 @@ file:
         statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        open:
+        open_statement:
           keyword: OPEN
           naked_identifier: c1
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         loop_statement:
         - keyword: LOOP
         - statement:
-            fetch:
+            fetch_statement:
               keyword: FETCH
               naked_identifier: c1
               into_clause:
                 keyword: INTO
                 naked_identifier: emp_rec
-              statement_terminator: ;
+        - statement_terminator: ;
         - statement:
-            exit:
+            exit_statement:
             - keyword: EXIT
             - keyword: WHEN
             - expression:
                 naked_identifier: c1
                 binary_operator: '%'
                 keyword: NOTFOUND
-            - statement_terminator: ;
+        - statement_terminator: ;
         - statement:
             function:
               function_name:
@@ -1383,12 +1383,12 @@ file:
         - statement_terminator: ;
         - keyword: END
         - keyword: LOOP
-        - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        close:
+        close_statement:
           keyword: CLOSE
           naked_identifier: c1
-          statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -1503,7 +1503,7 @@ file:
               loop_statement:
               - keyword: LOOP
               - statement:
-                  fetch:
+                  fetch_statement:
                     keyword: FETCH
                     naked_identifier: c
                     into_clause:
@@ -1513,16 +1513,16 @@ file:
                     - naked_identifier: first_name_
                     - comma: ','
                     - naked_identifier: overpayment_
-                    statement_terminator: ;
+              - statement_terminator: ;
               - statement:
-                  exit:
+                  exit_statement:
                   - keyword: EXIT
                   - keyword: WHEN
                   - expression:
                       naked_identifier: c
                       binary_operator: '%'
                       keyword: NOTFOUND
-                  - statement_terminator: ;
+              - statement_terminator: ;
               - statement:
                   function:
                     function_name:
@@ -1561,7 +1561,7 @@ file:
               - statement_terminator: ;
               - keyword: END
               - keyword: LOOP
-              - statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
           - object_reference:
               naked_identifier: print_overpaid
@@ -1607,7 +1607,7 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        open:
+        open_statement:
           keyword: OPEN
           naked_identifier: c
           function_contents:
@@ -1619,7 +1619,7 @@ file:
             - expression:
                 numeric_literal: '5000'
             - end_bracket: )
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -1630,10 +1630,10 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        close:
+        close_statement:
           keyword: CLOSE
           naked_identifier: c
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -1674,7 +1674,7 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        open:
+        open_statement:
           keyword: OPEN
           naked_identifier: c
           function_contents:
@@ -1686,7 +1686,7 @@ file:
             - expression:
                 numeric_literal: '10000'
             - end_bracket: )
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -1697,10 +1697,10 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        close:
+        close_statement:
           keyword: CLOSE
           naked_identifier: c
-          statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -1849,7 +1849,7 @@ file:
               loop_statement:
               - keyword: LOOP
               - statement:
-                  fetch:
+                  fetch_statement:
                     keyword: FETCH
                     naked_identifier: c
                     into_clause:
@@ -1859,16 +1859,16 @@ file:
                     - naked_identifier: mgr_name
                     - comma: ','
                     - naked_identifier: city_name
-                    statement_terminator: ;
+              - statement_terminator: ;
               - statement:
-                  exit:
+                  exit_statement:
                   - keyword: EXIT
                   - keyword: WHEN
                   - expression:
                       naked_identifier: c
                       binary_operator: '%'
                       keyword: NOTFOUND
-                  - statement_terminator: ;
+              - statement_terminator: ;
               - statement:
                   function:
                     function_name:
@@ -1898,7 +1898,7 @@ file:
               - statement_terminator: ;
               - keyword: END
               - keyword: LOOP
-              - statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
           - object_reference:
               naked_identifier: print_depts
@@ -1931,10 +1931,10 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        open:
+        open_statement:
           keyword: OPEN
           naked_identifier: c
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -1958,10 +1958,10 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        close:
+        close_statement:
           keyword: CLOSE
           naked_identifier: c
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -1989,7 +1989,7 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        open:
+        open_statement:
           keyword: OPEN
           naked_identifier: c
           function_contents:
@@ -1998,7 +1998,7 @@ file:
               expression:
                 numeric_literal: '1800'
               end_bracket: )
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -2009,12 +2009,12 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        close:
+        close_statement:
           keyword: CLOSE
           naked_identifier: c
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        open:
+        open_statement:
           keyword: OPEN
           naked_identifier: c
           function_contents:
@@ -2023,7 +2023,7 @@ file:
               expression:
                 numeric_literal: '1900'
               end_bracket: )
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -2034,10 +2034,10 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        close:
+        close_statement:
           keyword: CLOSE
           naked_identifier: c
-          statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -2177,7 +2177,7 @@ file:
               loop_statement:
               - keyword: LOOP
               - statement:
-                  fetch:
+                  fetch_statement:
                     keyword: FETCH
                     naked_identifier: c
                     into_clause:
@@ -2187,16 +2187,16 @@ file:
                     - naked_identifier: first_name_
                     - comma: ','
                     - naked_identifier: overpayment_
-                    statement_terminator: ;
+              - statement_terminator: ;
               - statement:
-                  exit:
+                  exit_statement:
                   - keyword: EXIT
                   - keyword: WHEN
                   - expression:
                       naked_identifier: c
                       binary_operator: '%'
                       keyword: NOTFOUND
-                  - statement_terminator: ;
+              - statement_terminator: ;
               - statement:
                   function:
                     function_name:
@@ -2235,7 +2235,7 @@ file:
               - statement_terminator: ;
               - keyword: END
               - keyword: LOOP
-              - statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
           - object_reference:
               naked_identifier: print_overpaid
@@ -2281,7 +2281,7 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        open:
+        open_statement:
           keyword: OPEN
           naked_identifier: c
           function_contents:
@@ -2293,7 +2293,7 @@ file:
             - expression:
                 numeric_literal: '10000'
             - end_bracket: )
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -2304,10 +2304,10 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        close:
+        close_statement:
           keyword: CLOSE
           naked_identifier: c
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -2348,7 +2348,7 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        open:
+        open_statement:
           keyword: OPEN
           naked_identifier: c
           function_contents:
@@ -2374,7 +2374,7 @@ file:
                         quoted_literal: "'DD-MON-YYYY'"
                     - end_bracket: )
             - end_bracket: )
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -2385,10 +2385,10 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        close:
+        close_statement:
           keyword: CLOSE
           naked_identifier: c
-          statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -2539,7 +2539,7 @@ file:
           - statement_terminator: ;
           - keyword: END
           - keyword: LOOP
-          - statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -2659,7 +2659,7 @@ file:
           - statement_terminator: ;
           - keyword: END
           - keyword: LOOP
-          - statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -2779,15 +2779,15 @@ file:
         - statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        open:
+        open_statement:
           keyword: OPEN
           naked_identifier: c1
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         loop_statement:
         - keyword: LOOP
         - statement:
-            fetch:
+            fetch_statement:
               keyword: FETCH
               naked_identifier: c1
               into_clause:
@@ -2795,16 +2795,16 @@ file:
               - naked_identifier: dept_name
               - comma: ','
               - naked_identifier: emp_cur
-              statement_terminator: ;
+        - statement_terminator: ;
         - statement:
-            exit:
+            exit_statement:
             - keyword: EXIT
             - keyword: WHEN
             - expression:
                 naked_identifier: c1
                 binary_operator: '%'
                 keyword: NOTFOUND
-            - statement_terminator: ;
+        - statement_terminator: ;
         - statement:
             function:
               function_name:
@@ -2827,22 +2827,22 @@ file:
             loop_statement:
             - keyword: LOOP
             - statement:
-                fetch:
+                fetch_statement:
                   keyword: FETCH
                   naked_identifier: emp_cur
                   into_clause:
                     keyword: INTO
                     naked_identifier: emp_name
-                  statement_terminator: ;
+            - statement_terminator: ;
             - statement:
-                exit:
+                exit_statement:
                 - keyword: EXIT
                 - keyword: WHEN
                 - expression:
                     naked_identifier: emp_cur
                     binary_operator: '%'
                     keyword: NOTFOUND
-                - statement_terminator: ;
+            - statement_terminator: ;
             - statement:
                 function:
                   function_name:
@@ -2863,15 +2863,15 @@ file:
             - statement_terminator: ;
             - keyword: END
             - keyword: LOOP
-            - statement_terminator: ;
+        - statement_terminator: ;
         - keyword: END
         - keyword: LOOP
-        - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        close:
+        close_statement:
           keyword: CLOSE
           naked_identifier: c1
-          statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -2917,30 +2917,30 @@ file:
         statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        open:
+        open_statement:
           keyword: OPEN
           naked_identifier: c1
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         loop_statement:
         - keyword: LOOP
         - statement:
-            fetch:
+            fetch_statement:
               keyword: FETCH
               naked_identifier: c1
               into_clause:
                 keyword: INTO
                 naked_identifier: emp_rec
-              statement_terminator: ;
+        - statement_terminator: ;
         - statement:
-            exit:
+            exit_statement:
             - keyword: EXIT
             - keyword: WHEN
             - expression:
                 naked_identifier: c1
                 binary_operator: '%'
                 keyword: NOTFOUND
-            - statement_terminator: ;
+        - statement_terminator: ;
         - statement:
             function:
               function_name:
@@ -3001,7 +3001,7 @@ file:
         - statement_terminator: ;
         - keyword: END
         - keyword: LOOP
-        - statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /

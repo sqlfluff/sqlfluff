@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4c691f6d6531c9f843eb581e113042bd7ac0419b6875f17fdc46d10ba2a040b3
+_hash: f6f24883f4906e4a9803ae6299feecf69e311909fa98827386c9f1b0428aab2d
 file:
 - statement:
     begin_end_block:
@@ -74,7 +74,7 @@ file:
                       end_bracket: )
                 - keyword: THEN
               - statement:
-                  assignment_segment:
+                  assignment_segment_statement:
                     object_reference:
                       naked_identifier: bonus
                     colon: ':'
@@ -92,7 +92,7 @@ file:
                         end_bracket: )
                       statement_terminator: /
                       numeric_literal: '4'
-                    statement_terminator: ;
+              - statement_terminator: ;
               - statement:
                   update_statement:
                     keyword: UPDATE
@@ -122,7 +122,7 @@ file:
                           naked_identifier: emp_id
               - statement_terminator: ;
               - statement:
-                  assignment_segment:
+                  assignment_segment_statement:
                     object_reference:
                       naked_identifier: updated
                     colon: ':'
@@ -130,10 +130,10 @@ file:
                       raw_comparison_operator: '='
                     expression:
                       quoted_literal: "'Yes'"
-                    statement_terminator: ;
+              - statement_terminator: ;
               - keyword: END
               - keyword: IF
-              - statement_terminator: ;
+          - statement_terminator: ;
           - statement:
               function:
                 function_name:
@@ -266,7 +266,7 @@ file:
                       end_bracket: )
                 - keyword: THEN
               - statement:
-                  assignment_segment:
+                  assignment_segment_statement:
                     object_reference:
                       naked_identifier: bonus
                     colon: ':'
@@ -284,9 +284,9 @@ file:
                         end_bracket: )
                       statement_terminator: /
                       numeric_literal: '4'
-                    statement_terminator: ;
+              - statement_terminator: ;
               - statement:
-                  assignment_segment:
+                  assignment_segment_statement:
                   - object_reference:
                       naked_identifier: ELSE
                   - object_reference:
@@ -296,10 +296,10 @@ file:
                       raw_comparison_operator: '='
                   - expression:
                       numeric_literal: '50'
-                  - statement_terminator: ;
+              - statement_terminator: ;
               - keyword: END
               - keyword: IF
-              - statement_terminator: ;
+          - statement_terminator: ;
           - statement:
               function:
                 function_name:
@@ -443,7 +443,7 @@ file:
                       end_bracket: )
                 - keyword: THEN
               - statement:
-                  assignment_segment:
+                  assignment_segment_statement:
                     object_reference:
                       naked_identifier: bonus
                     colon: ':'
@@ -461,7 +461,7 @@ file:
                         end_bracket: )
                       statement_terminator: /
                       numeric_literal: '4'
-                    statement_terminator: ;
+              - statement_terminator: ;
               - keyword: ELSE
               - statement:
                   if_then_statement:
@@ -476,7 +476,7 @@ file:
                           naked_identifier: quota
                     - keyword: THEN
                   - statement:
-                      assignment_segment:
+                      assignment_segment_statement:
                         object_reference:
                           naked_identifier: bonus
                         colon: ':'
@@ -484,9 +484,9 @@ file:
                           raw_comparison_operator: '='
                         expression:
                           numeric_literal: '50'
-                        statement_terminator: ;
+                  - statement_terminator: ;
                   - statement:
-                      assignment_segment:
+                      assignment_segment_statement:
                       - object_reference:
                           naked_identifier: ELSE
                       - object_reference:
@@ -496,13 +496,13 @@ file:
                           raw_comparison_operator: '='
                       - expression:
                           numeric_literal: '0'
-                      - statement_terminator: ;
+                  - statement_terminator: ;
                   - keyword: END
                   - keyword: IF
-                  - statement_terminator: ;
+              - statement_terminator: ;
               - keyword: END
               - keyword: IF
-              - statement_terminator: ;
+          - statement_terminator: ;
           - statement:
               function:
                 function_name:
@@ -648,7 +648,7 @@ file:
                     numeric_literal: '50000'
                 - keyword: THEN
               - statement:
-                  assignment_segment:
+                  assignment_segment_statement:
                     object_reference:
                       naked_identifier: bonus
                     colon: ':'
@@ -656,7 +656,7 @@ file:
                       raw_comparison_operator: '='
                     expression:
                       numeric_literal: '1500'
-                    statement_terminator: ;
+              - statement_terminator: ;
               - keyword: ELSIF
               - expression:
                   column_reference:
@@ -666,7 +666,7 @@ file:
                   numeric_literal: '35000'
               - keyword: THEN
               - statement:
-                  assignment_segment:
+                  assignment_segment_statement:
                     object_reference:
                       naked_identifier: bonus
                     colon: ':'
@@ -674,9 +674,9 @@ file:
                       raw_comparison_operator: '='
                     expression:
                       numeric_literal: '500'
-                    statement_terminator: ;
+              - statement_terminator: ;
               - statement:
-                  assignment_segment:
+                  assignment_segment_statement:
                   - object_reference:
                       naked_identifier: ELSE
                   - object_reference:
@@ -686,10 +686,10 @@ file:
                       raw_comparison_operator: '='
                   - expression:
                       numeric_literal: '100'
-                  - statement_terminator: ;
+              - statement_terminator: ;
               - keyword: END
               - keyword: IF
-              - statement_terminator: ;
+          - statement_terminator: ;
           - statement:
               function:
                 function_name:

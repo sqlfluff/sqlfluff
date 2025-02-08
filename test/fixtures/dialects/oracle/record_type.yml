@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c6c9cc4b07924294dd02d64e63c7f19de8d54fd75f258e14be5916b42fb5b906
+_hash: 8deb357c1a1451d26a9274327ec4296fe860c44b641978388b091c741000cd72
 file:
 - statement:
     begin_end_block:
@@ -222,7 +222,7 @@ file:
       - statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
           - naked_identifier: friend
           - dot: .
@@ -234,9 +234,9 @@ file:
             raw_comparison_operator: '='
           expression:
             quoted_literal: "'John'"
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
           - naked_identifier: friend
           - dot: .
@@ -248,9 +248,9 @@ file:
             raw_comparison_operator: '='
           expression:
             quoted_literal: "'Smith'"
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
           - naked_identifier: friend
           - dot: .
@@ -260,7 +260,7 @@ file:
             raw_comparison_operator: '='
           expression:
             quoted_literal: "'1-650-555-1234'"
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -373,7 +373,7 @@ file:
       - statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
           - naked_identifier: friend
           - dot: .
@@ -383,7 +383,7 @@ file:
             raw_comparison_operator: '='
           expression:
             quoted_literal: "'1-650-555-1234'"
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:

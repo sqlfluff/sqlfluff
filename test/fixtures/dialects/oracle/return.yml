@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f1a18a52c7263abfc5e5c3bd73c91550b8fb9cc3478fadb319185cf2385a3aeb
+_hash: 095633351236cc175ed719577c8b92b4bb0a06a8100c52478e64c5d68a3ecf83
 file:
 - statement:
     begin_end_block:
@@ -78,7 +78,7 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: x
           colon: ':'
@@ -94,7 +94,7 @@ file:
                   expression:
                     numeric_literal: '2'
                   end_bracket: )
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -148,11 +148,11 @@ file:
                     numeric_literal: '0'
                 - keyword: THEN
               - statement:
-                  return_segment:
+                  return_statement:
                     keyword: RETURN
                     expression:
                       numeric_literal: '1'
-                    statement_terminator: ;
+              - statement_terminator: ;
               - keyword: ELSIF
               - expression:
                   column_reference:
@@ -162,15 +162,15 @@ file:
                   numeric_literal: '1'
               - keyword: THEN
               - statement:
-                  return_segment:
+                  return_statement:
                     keyword: RETURN
                     expression:
                       column_reference:
                         naked_identifier: n
-                    statement_terminator: ;
+              - statement_terminator: ;
               - keyword: END
               - keyword: IF
-              - statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
           - statement_terminator: ;
           - statement_terminator: /
@@ -208,11 +208,11 @@ file:
                     numeric_literal: '0'
                 - keyword: THEN
               - statement:
-                  return_segment:
+                  return_statement:
                     keyword: RETURN
                     expression:
                       numeric_literal: '1'
-                    statement_terminator: ;
+              - statement_terminator: ;
               - keyword: ELSIF
               - expression:
                   column_reference:
@@ -222,15 +222,15 @@ file:
                   numeric_literal: '1'
               - keyword: THEN
               - statement:
-                  return_segment:
+                  return_statement:
                     keyword: RETURN
                     expression:
                       column_reference:
                         naked_identifier: n
-                    statement_terminator: ;
+              - statement_terminator: ;
               - keyword: ELSE
               - statement:
-                  return_segment:
+                  return_statement:
                     keyword: RETURN
                     expression:
                     - column_reference:
@@ -238,10 +238,10 @@ file:
                     - binary_operator: '*'
                     - column_reference:
                         naked_identifier: n
-                    statement_terminator: ;
+              - statement_terminator: ;
               - keyword: END
               - keyword: IF
-              - statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
           - statement_terminator: ;
           - statement_terminator: /
@@ -294,7 +294,7 @@ file:
           - statement_terminator: ;
           - keyword: END
           - keyword: LOOP
-          - statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -323,9 +323,9 @@ file:
                     end_bracket: )
           - statement_terminator: ;
           - statement:
-              return_segment:
+              return_statement:
                 keyword: RETURN
-                statement_terminator: ;
+          - statement_terminator: ;
           - statement:
               function:
                 function_name:
@@ -387,9 +387,9 @@ file:
                   end_bracket: )
         - statement_terminator: ;
         - statement:
-            return_segment:
+            return_statement:
               keyword: RETURN
-              statement_terminator: ;
+        - statement_terminator: ;
         - statement:
             function:
               function_name:

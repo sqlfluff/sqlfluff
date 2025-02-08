@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e9ad135362156f39ad4de5f4c04e572194c52534a76a9a7cbc31fe7547ea3d2d
+_hash: 36f2f00e4ce961c774d08318603195fe46d4e5569f12884eb53330653d34be01
 file:
 - statement:
     create_procedure_statement:
@@ -54,7 +54,7 @@ file:
                 - naked_identifier: employee_id
       - statement_terminator: ;
       - statement:
-          assignment_segment:
+          assignment_segment_statement:
             object_reference:
               naked_identifier: tot_emps
             colon: ':'
@@ -65,7 +65,7 @@ file:
                 naked_identifier: tot_emps
               binary_operator: '-'
               numeric_literal: '1'
-            statement_terminator: ;
+      - statement_terminator: ;
       - keyword: END
       - statement_terminator: ;
       - statement_terminator: /
@@ -145,7 +145,7 @@ file:
           - statement_terminator: ;
           - keyword: END
           - keyword: IF
-          - statement_terminator: ;
+      - statement_terminator: ;
       - keyword: END
       - statement_terminator: ;
       - statement_terminator: /
@@ -216,7 +216,7 @@ file:
                   end_bracket: )
             - keyword: THEN
           - statement:
-              assignment_segment:
+              assignment_segment_statement:
                 object_reference:
                   naked_identifier: bonus
                 colon: ':'
@@ -234,7 +234,7 @@ file:
                     end_bracket: )
                   statement_terminator: /
                   numeric_literal: '4'
-                statement_terminator: ;
+          - statement_terminator: ;
           - statement:
               update_statement:
                 keyword: UPDATE
@@ -264,7 +264,7 @@ file:
                       naked_identifier: emp_id
           - statement_terminator: ;
           - statement:
-              assignment_segment:
+              assignment_segment_statement:
                 object_reference:
                   naked_identifier: updated
                 colon: ':'
@@ -272,10 +272,10 @@ file:
                   raw_comparison_operator: '='
                 expression:
                   quoted_literal: "'Yes'"
-                statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
           - keyword: IF
-          - statement_terminator: ;
+      - statement_terminator: ;
       - statement:
           function:
             function_name:
@@ -367,7 +367,7 @@ file:
                   end_bracket: )
             - keyword: THEN
           - statement:
-              assignment_segment:
+              assignment_segment_statement:
                 object_reference:
                   naked_identifier: bonus
                 colon: ':'
@@ -385,7 +385,7 @@ file:
                     end_bracket: )
                   statement_terminator: /
                   numeric_literal: '4'
-                statement_terminator: ;
+          - statement_terminator: ;
           - keyword: ELSE
           - statement:
               if_then_statement:
@@ -400,7 +400,7 @@ file:
                       naked_identifier: quota
                 - keyword: THEN
               - statement:
-                  assignment_segment:
+                  assignment_segment_statement:
                     object_reference:
                       naked_identifier: bonus
                     colon: ':'
@@ -408,9 +408,9 @@ file:
                       raw_comparison_operator: '='
                     expression:
                       numeric_literal: '50'
-                    statement_terminator: ;
+              - statement_terminator: ;
               - statement:
-                  assignment_segment:
+                  assignment_segment_statement:
                   - object_reference:
                       naked_identifier: ELSE
                   - object_reference:
@@ -420,13 +420,13 @@ file:
                       raw_comparison_operator: '='
                   - expression:
                       numeric_literal: '0'
-                  - statement_terminator: ;
+              - statement_terminator: ;
               - keyword: END
               - keyword: IF
-              - statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
           - keyword: IF
-          - statement_terminator: ;
+      - statement_terminator: ;
       - statement:
           function:
             function_name:
@@ -516,7 +516,7 @@ file:
     - begin_end_block:
       - keyword: BEGIN
       - statement:
-          assignment_segment:
+          assignment_segment_statement:
             object_reference:
               naked_identifier: email
             colon: ':'
@@ -543,7 +543,7 @@ file:
               - pipe: '|'
             - column_reference:
                 naked_identifier: company
-            statement_terminator: ;
+      - statement_terminator: ;
       - keyword: EXCEPTION
       - keyword: WHEN
       - naked_identifier: VALUE_ERROR
@@ -588,9 +588,9 @@ file:
                 end_bracket: )
       - statement_terminator: ;
       - statement:
-          return_segment:
+          return_statement:
             keyword: RETURN
-            statement_terminator: ;
+      - statement_terminator: ;
       - statement:
           function:
             function_name:

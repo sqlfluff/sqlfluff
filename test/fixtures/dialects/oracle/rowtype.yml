@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: df20f3fcad12a77825e07000450ca66bab09f86f24bb68aac1c270511de4121f
+_hash: ae3f0959031a5dd5c43725f557fa2fd859f822659094f8505b830a8bed2a1b5a
 file:
 - statement:
     begin_end_block:
@@ -18,7 +18,7 @@ file:
         statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
           - naked_identifier: dept_rec
           - dot: .
@@ -28,9 +28,9 @@ file:
             raw_comparison_operator: '='
           expression:
             numeric_literal: '10'
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
           - naked_identifier: dept_rec
           - dot: .
@@ -40,9 +40,9 @@ file:
             raw_comparison_operator: '='
           expression:
             quoted_literal: "'Administration'"
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
           - naked_identifier: dept_rec
           - dot: .
@@ -52,9 +52,9 @@ file:
             raw_comparison_operator: '='
           expression:
             numeric_literal: '200'
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
           - naked_identifier: dept_rec
           - dot: .
@@ -64,7 +64,7 @@ file:
             raw_comparison_operator: '='
           expression:
             numeric_literal: '1700'
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -312,7 +312,7 @@ file:
         statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
           - naked_identifier: friend
           - dot: .
@@ -322,9 +322,9 @@ file:
             raw_comparison_operator: '='
           expression:
             quoted_literal: "'John'"
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
           - naked_identifier: friend
           - dot: .
@@ -334,9 +334,9 @@ file:
             raw_comparison_operator: '='
           expression:
             quoted_literal: "'Smith'"
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
           - naked_identifier: friend
           - dot: .
@@ -346,7 +346,7 @@ file:
             raw_comparison_operator: '='
           expression:
             quoted_literal: "'1-650-555-1234'"
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -452,9 +452,9 @@ file:
         statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        'null':
+        null_statement:
           keyword: 'NULL'
-          statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -591,7 +591,7 @@ file:
       - statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
           - naked_identifier: source
           - dot: .
@@ -601,9 +601,9 @@ file:
             raw_comparison_operator: '='
           expression:
             quoted_literal: "'Jane'"
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
           - naked_identifier: source
           - dot: .
@@ -613,7 +613,7 @@ file:
             raw_comparison_operator: '='
           expression:
             quoted_literal: "'Smith'"
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -646,7 +646,7 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: target
           colon: ':'
@@ -655,7 +655,7 @@ file:
           expression:
             column_reference:
               naked_identifier: source
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:

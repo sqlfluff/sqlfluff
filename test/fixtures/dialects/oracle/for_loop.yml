@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dd4e5d96ed16693cec1aad28e2139cc7f825222bcf35f3c25f6a93cb61978d59
+_hash: dba74fbc582c1c402015076abd730d9a79e0afb30a47162b4cac56dd4b95dc40
 file:
 - statement:
     begin_end_block:
@@ -35,7 +35,7 @@ file:
           - statement_terminator: ;
           - keyword: END
           - keyword: LOOP
-          - statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -70,7 +70,7 @@ file:
           - statement_terminator: ;
           - keyword: END
           - keyword: LOOP
-          - statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -117,7 +117,7 @@ file:
           - statement_terminator: ;
           - keyword: END
           - keyword: LOOP
-          - statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -182,7 +182,7 @@ file:
           - statement_terminator: ;
           - keyword: END
           - keyword: LOOP
-          - statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -228,7 +228,7 @@ file:
           - statement_terminator: ;
           - keyword: END
           - keyword: LOOP
-          - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -311,7 +311,7 @@ file:
           - statement_terminator: ;
           - keyword: END
           - keyword: LOOP
-          - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -413,7 +413,7 @@ file:
           - statement_terminator: ;
           - keyword: END
           - keyword: LOOP
-          - statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - object_reference:
         naked_identifier: main
@@ -506,15 +506,15 @@ file:
                     - statement_terminator: ;
                     - keyword: END
                     - keyword: IF
-                    - statement_terminator: ;
+                - statement_terminator: ;
                 - keyword: END
                 - keyword: LOOP
                 - naked_identifier: inner_loop
-                - statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
           - keyword: LOOP
           - naked_identifier: outer_loop
-          - statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -550,10 +550,10 @@ file:
         - statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        open:
+        open_statement:
           keyword: OPEN
           naked_identifier: c1
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         for_loop_statement:
         - keyword: FOR
@@ -566,30 +566,30 @@ file:
         - loop_statement:
           - keyword: LOOP
           - statement:
-              fetch:
+              fetch_statement:
                 keyword: FETCH
                 naked_identifier: c1
                 into_clause:
                   keyword: INTO
                   naked_identifier: v_employees
-                statement_terminator: ;
+          - statement_terminator: ;
           - statement:
-              exit:
+              exit_statement:
               - keyword: EXIT
               - keyword: WHEN
               - expression:
                   naked_identifier: c1
                   binary_operator: '%'
                   keyword: NOTFOUND
-              - statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
           - keyword: LOOP
-          - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        close:
+        close_statement:
           keyword: CLOSE
           naked_identifier: c1
-          statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -625,10 +625,10 @@ file:
         - statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        open:
+        open_statement:
           keyword: OPEN
           naked_identifier: c1
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         for_loop_statement:
         - keyword: FOR
@@ -652,15 +652,15 @@ file:
               - loop_statement:
                 - keyword: LOOP
                 - statement:
-                    fetch:
+                    fetch_statement:
                       keyword: FETCH
                       naked_identifier: c1
                       into_clause:
                         keyword: INTO
                         naked_identifier: v_employees
-                      statement_terminator: ;
+                - statement_terminator: ;
                 - statement:
-                    exit:
+                    exit_statement:
                     - keyword: EXIT
                     - naked_identifier: outer_loop
                     - keyword: WHEN
@@ -668,19 +668,19 @@ file:
                         naked_identifier: c1
                         binary_operator: '%'
                         keyword: NOTFOUND
-                    - statement_terminator: ;
+                - statement_terminator: ;
                 - keyword: END
                 - keyword: LOOP
-                - statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
           - keyword: LOOP
           - naked_identifier: outer_loop
-          - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        close:
+        close_statement:
           keyword: CLOSE
           naked_identifier: c1
-          statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -716,10 +716,10 @@ file:
         - statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        open:
+        open_statement:
           keyword: OPEN
           naked_identifier: c1
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         for_loop_statement:
         - keyword: FOR
@@ -743,15 +743,15 @@ file:
               - loop_statement:
                 - keyword: LOOP
                 - statement:
-                    fetch:
+                    fetch_statement:
                       keyword: FETCH
                       naked_identifier: c1
                       into_clause:
                         keyword: INTO
                         naked_identifier: v_employees
-                      statement_terminator: ;
+                - statement_terminator: ;
                 - statement:
-                    continue:
+                    continue_statement:
                     - keyword: CONTINUE
                     - naked_identifier: outer_loop
                     - keyword: WHEN
@@ -759,19 +759,19 @@ file:
                         naked_identifier: c1
                         binary_operator: '%'
                         keyword: NOTFOUND
-                    - statement_terminator: ;
+                - statement_terminator: ;
                 - keyword: END
                 - keyword: LOOP
-                - statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
           - keyword: LOOP
           - naked_identifier: outer_loop
-          - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        close:
+        close_statement:
           keyword: CLOSE
           naked_identifier: c1
-          statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /

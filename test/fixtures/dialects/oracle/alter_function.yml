@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cebde3b02267fabd30cd32e49569dc64b14c785075cdf4951558451be87dd004
+_hash: 422b212aecaeb64190765172d3baa506acb9342abc527de0e065bfa9b29bf7e5
 file:
 - statement:
-    alter_function:
+    alter_function_statement:
     - keyword: ALTER
     - keyword: FUNCTION
     - function_name:
@@ -16,7 +16,7 @@ file:
     - keyword: COMPILE
     - statement_terminator: ;
 - statement:
-    alter_function:
+    alter_function_statement:
     - keyword: ALTER
     - keyword: PROCEDURE
     - keyword: IF

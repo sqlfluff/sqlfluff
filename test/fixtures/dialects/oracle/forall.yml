@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aee9eb31b66bb78a0b445f27a56755602514f271d6a85a732f81745da626c46f
+_hash: 03fe17814ee00079318e12a2aa0465a2b3dff1db89a6e7a7024807c3487431a0
 file:
 - statement:
     begin_end_block:
@@ -87,7 +87,7 @@ file:
                         column_reference:
                           naked_identifier: i
                       end_bracket: )
-        - statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -174,7 +174,7 @@ file:
         - loop_statement:
           - keyword: LOOP
           - statement:
-              assignment_segment:
+              assignment_segment_statement:
                 object_reference:
                   naked_identifier: pnums
                 bracketed:
@@ -188,9 +188,9 @@ file:
                 expression:
                   column_reference:
                     naked_identifier: j
-                statement_terminator: ;
+          - statement_terminator: ;
           - statement:
-              assignment_segment:
+              assignment_segment_statement:
                 object_reference:
                   naked_identifier: pnames
                 bracketed:
@@ -216,12 +216,12 @@ file:
                           column_reference:
                             naked_identifier: j
                         end_bracket: )
-                statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
           - keyword: LOOP
-          - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: t1
           colon: ':'
@@ -232,7 +232,7 @@ file:
             - naked_identifier: DBMS_UTILITY
             - dot: .
             - naked_identifier: get_time
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         for_loop_statement:
         - keyword: FOR
@@ -286,12 +286,12 @@ file:
                                 naked_identifier: i
                             end_bracket: )
                   - end_bracket: )
-              - statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
           - keyword: LOOP
-          - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: t2
           colon: ':'
@@ -302,7 +302,7 @@ file:
             - naked_identifier: DBMS_UTILITY
             - dot: .
             - naked_identifier: get_time
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         forall_statement:
         - keyword: FORALL
@@ -353,9 +353,9 @@ file:
                             naked_identifier: i
                         end_bracket: )
               - end_bracket: )
-          - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: t3
           colon: ':'
@@ -366,7 +366,7 @@ file:
             - naked_identifier: DBMS_UTILITY
             - dot: .
             - naked_identifier: get_time
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -569,7 +569,7 @@ file:
                         column_reference:
                           naked_identifier: j
                       end_bracket: )
-        - statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -650,7 +650,7 @@ file:
                 comma: ','
                 quoted_literal: "'Clerk'"
                 end_bracket: )
-          - statement_terminator: ;
+      - statement_terminator: ;
       - statement:
           insert_statement:
           - keyword: INSERT
@@ -673,7 +673,7 @@ file:
                 comma: ','
                 quoted_literal: "'Bookkeeper'"
                 end_bracket: )
-          - statement_terminator: ;
+      - statement_terminator: ;
       - statement:
           insert_statement:
           - keyword: INSERT
@@ -696,7 +696,7 @@ file:
                 comma: ','
                 quoted_literal: "'Analyst'"
                 end_bracket: )
-          - statement_terminator: ;
+      - statement_terminator: ;
       - statement:
           transaction_statement:
             keyword: COMMIT
@@ -749,13 +749,13 @@ file:
                           column_reference:
                             naked_identifier: j
                         end_bracket: )
-          - statement_terminator: ;
+      - statement_terminator: ;
       - keyword: EXCEPTION
       - keyword: WHEN
       - keyword: OTHERS
       - keyword: THEN
       - statement:
-          assignment_segment:
+          assignment_segment_statement:
             object_reference:
               naked_identifier: error_message
             colon: ':'
@@ -764,7 +764,7 @@ file:
             expression:
               column_reference:
                 naked_identifier: SQLERRM
-            statement_terminator: ;
+      - statement_terminator: ;
       - statement:
           function:
             function_name:
@@ -784,9 +784,9 @@ file:
             keyword: COMMIT
       - statement_terminator: ;
       - statement:
-          raise_segment:
+          raise_statement:
             keyword: RAISE
-            statement_terminator: ;
+      - statement_terminator: ;
       - keyword: END
       - statement_terminator: ;
       - statement_terminator: /

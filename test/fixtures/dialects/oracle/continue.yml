@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6a94bdad228ca378a9a4dcc5c2d8c0d3c87371ba805a3299cc532cfd71d5c327
+_hash: 6d4f754ca1bd37f5021e6ef897441cc2427e97de24ee20c735ff0680ecae2e7c
 file:
 - statement:
     begin_end_block:
@@ -49,7 +49,7 @@ file:
                   end_bracket: )
         - statement_terminator: ;
         - statement:
-            assignment_segment:
+            assignment_segment_statement:
               object_reference:
                 naked_identifier: x
               colon: ':'
@@ -60,7 +60,7 @@ file:
                   naked_identifier: x
                 binary_operator: +
                 numeric_literal: '1'
-              statement_terminator: ;
+        - statement_terminator: ;
         - statement:
             if_then_statement:
             - if_clause:
@@ -73,12 +73,12 @@ file:
                   numeric_literal: '3'
               - keyword: THEN
             - statement:
-                continue:
+                continue_statement:
                   keyword: CONTINUE
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
             - keyword: IF
-            - statement_terminator: ;
+        - statement_terminator: ;
         - statement:
             function:
               function_name:
@@ -106,7 +106,7 @@ file:
                   end_bracket: )
         - statement_terminator: ;
         - statement:
-            exit:
+            exit_statement:
             - keyword: EXIT
             - keyword: WHEN
             - expression:
@@ -115,10 +115,10 @@ file:
                 comparison_operator:
                   raw_comparison_operator: '='
                 numeric_literal: '5'
-            - statement_terminator: ;
+        - statement_terminator: ;
         - keyword: END
         - keyword: LOOP
-        - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -192,7 +192,7 @@ file:
                   end_bracket: )
         - statement_terminator: ;
         - statement:
-            assignment_segment:
+            assignment_segment_statement:
               object_reference:
                 naked_identifier: x
               colon: ':'
@@ -203,9 +203,9 @@ file:
                   naked_identifier: x
                 binary_operator: +
                 numeric_literal: '1'
-              statement_terminator: ;
+        - statement_terminator: ;
         - statement:
-            continue:
+            continue_statement:
             - keyword: CONTINUE
             - keyword: WHEN
             - expression:
@@ -214,7 +214,7 @@ file:
                 comparison_operator:
                   raw_comparison_operator: <
                 numeric_literal: '3'
-            - statement_terminator: ;
+        - statement_terminator: ;
         - statement:
             function:
               function_name:
@@ -242,7 +242,7 @@ file:
                   end_bracket: )
         - statement_terminator: ;
         - statement:
-            exit:
+            exit_statement:
             - keyword: EXIT
             - keyword: WHEN
             - expression:
@@ -251,10 +251,10 @@ file:
                 comparison_operator:
                   raw_comparison_operator: '='
                 numeric_literal: '5'
-            - statement_terminator: ;
+        - statement_terminator: ;
         - keyword: END
         - keyword: LOOP
-        - statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:

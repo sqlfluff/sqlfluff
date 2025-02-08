@@ -1404,7 +1404,7 @@ class DropProcedureStatementSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/DROP-PROCEDURE-statement.html
     """
 
-    type = "drop_procedure"
+    type = "drop_procedure_statement"
 
     match_grammar = Sequence(
         "DROP",
@@ -1696,7 +1696,7 @@ class AlterFunctionStatementSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/ALTER-PROCEDURE-statement.html
     """
 
-    type = "alter_function"
+    type = "alter_function_statement"
 
     match_grammar = Sequence(
         "ALTER",
@@ -1718,7 +1718,7 @@ class CreateTypeStatementSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CREATE-TYPE-statement.html
     """
 
-    type = "create_type"
+    type = "create_type_statement"
 
     match_grammar = Sequence(
         Ref.keyword("CREATE", optional=True),
@@ -1763,7 +1763,7 @@ class CreateTypeBodyStatementSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CREATE-TYPE-BODY-statement.html
     """
 
-    type = "create_procedure_statement"
+    type = "create_type_body_statement"
 
     match_grammar = Sequence(
         Ref.keyword("CREATE", optional=True),
@@ -1804,7 +1804,7 @@ class CreatePackageStatementSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CREATE-PACKAGE-statement.html
     """
 
-    type = "create_package"
+    type = "create_package_statement"
 
     match_grammar = Sequence(
         "CREATE",
@@ -1841,7 +1841,7 @@ class AlterPackageStatementSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/ALTER-PACKAGE-statement.html
     """
 
-    type = "alter_package"
+    type = "alter_package_statement"
 
     match_grammar = Sequence(
         "ALTER",
@@ -1859,7 +1859,7 @@ class DropPackageStatementSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/DROP-PACKAGE-statement.html
     """
 
-    type = "drop_package"
+    type = "drop_package_statement"
 
     match_grammar = Sequence(
         "DROP",
@@ -1993,7 +1993,7 @@ class AlterTriggerStatementSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/ALTER-TRIGGER-statement.html
     """
 
-    type = "alter_trigger"
+    type = "alter_trigger_statement"
 
     match_grammar = Sequence(
         "ALTER",
@@ -2008,7 +2008,6 @@ class AlterTriggerStatementSegment(BaseSegment):
             "EDITIONABLE",
             "NONEDITIONABLE",
         ),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2018,7 +2017,7 @@ class AssignmentStatementSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/assignment-statement.html
     """
 
-    type = "assignment_segment"
+    type = "assignment_segment_statement"
 
     match_grammar = Sequence(
         AnyNumberOf(
@@ -2029,7 +2028,6 @@ class AssignmentStatementSegment(BaseSegment):
         ),
         OneOf(Sequence(Ref("ColonSegment"), Ref("EqualsSegment")), "DEFAULT"),
         Ref("ExpressionSegment"),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2059,7 +2057,6 @@ class IfExpressionStatement(BaseSegment):
         ),
         "END",
         "IF",
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2188,9 +2185,9 @@ class ElseClauseSegment(BaseSegment):
 class NullStatementSegment(BaseSegment):
     """A `NULL` statement inside a block."""
 
-    type = "null"
+    type = "null_statement"
 
-    match_grammar = Sequence("NULL", Ref("DelimiterGrammar", optional=True))
+    match_grammar = Sequence("NULL")
 
 
 class MergeUpdateClauseSegment(BaseSegment):
@@ -2237,7 +2234,6 @@ class InsertStatementSegment(BaseSegment):
                 optional=True,
             ),
         ),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2278,7 +2274,6 @@ class ForLoopStatementSegment(BaseSegment):
             )
         ),
         Ref("LoopStatementSegment"),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2294,7 +2289,6 @@ class WhileLoopStatementSegment(BaseSegment):
         "WHILE",
         Ref("ExpressionSegment"),
         Ref("LoopStatementSegment"),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2313,7 +2307,6 @@ class LoopStatementSegment(BaseSegment):
         "END",
         "LOOP",
         Ref("SingleIdentifierGrammar", optional=True),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2340,7 +2333,6 @@ class ForAllStatementSegment(BaseSegment):
             Ref("SelectStatementSegment"),
             Ref("UpdateStatementSegment"),
         ),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2350,13 +2342,12 @@ class OpenStatementSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/OPEN-statement.html
     """
 
-    type = "open"
+    type = "open_statement"
 
     match_grammar = Sequence(
         "OPEN",
         Ref("SingleIdentifierGrammar"),
         Ref("FunctionContentsSegment", optional=True),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2366,12 +2357,11 @@ class CloseStatementSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CLOSE-statement.html
     """
 
-    type = "close"
+    type = "close_statement"
 
     match_grammar = Sequence(
         "CLOSE",
         OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar")),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2381,7 +2371,7 @@ class OpenForStatementSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/OPEN-FOR-statement.html
     """
 
-    type = "open_for"
+    type = "open_for_statement"
 
     match_grammar = Sequence(
         "OPEN",
@@ -2406,7 +2396,6 @@ class OpenForStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2416,7 +2405,7 @@ class FetchStatementSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/FETCH-statement.html
     """
 
-    type = "fetch"
+    type = "fetch_statement"
 
     match_grammar = Sequence(
         "FETCH",
@@ -2432,7 +2421,6 @@ class FetchStatementSegment(BaseSegment):
                 ),
             ),
         ),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2472,13 +2460,12 @@ class ExitStatementSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/EXIT-statement.html
     """
 
-    type = "exit"
+    type = "exit_statement"
 
     match_grammar = Sequence(
         "EXIT",
         Ref("SingleIdentifierGrammar", optional=True),
         Sequence("WHEN", Ref("ExpressionSegment"), optional=True),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2488,13 +2475,12 @@ class ContinueStatementSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CONTINUE-statement.html
     """
 
-    type = "continue"
+    type = "continue_statement"
 
     match_grammar = Sequence(
         "CONTINUE",
         Ref("SingleIdentifierGrammar", optional=True),
         Sequence("WHEN", Ref("ExpressionSegment"), optional=True),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2504,12 +2490,11 @@ class RaiseStatementSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/RAISE-statement.html
     """
 
-    type = "raise_segment"
+    type = "raise_statement"
 
     match_grammar = Sequence(
         "RAISE",
         Ref("SingleIdentifierGrammar", optional=True),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2519,10 +2504,9 @@ class ReturnStatementSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/RETURN-statement.html
     """
 
-    type = "return_segment"
+    type = "return_statement"
 
     match_grammar = Sequence(
         "RETURN",
         Ref("ExpressionSegment", optional=True),
-        Ref("DelimiterGrammar", optional=True),
     )

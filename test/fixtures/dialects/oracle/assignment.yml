@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f54f853486917de949d8403d010870e71e37c4729b8168d59134486b14377992
+_hash: 8a85bd7e053e292de6c46347ed6c52af54515e648ae7385559e6454107a62a7b
 file:
 - statement:
     begin_end_block:
@@ -99,7 +99,7 @@ file:
       - statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: wages
           colon: ':'
@@ -118,9 +118,9 @@ file:
             binary_operator: +
             column_reference:
               naked_identifier: bonus
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: country
           colon: ':'
@@ -128,9 +128,9 @@ file:
             raw_comparison_operator: '='
           expression:
             quoted_literal: "'France'"
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: country
           colon: ':'
@@ -146,9 +146,9 @@ file:
                   expression:
                     quoted_literal: "'Canada'"
                   end_bracket: )
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: done
           colon: ':'
@@ -164,9 +164,9 @@ file:
                   raw_comparison_operator: '>'
                 numeric_literal: '100'
               end_bracket: )
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: valid_id
           colon: ':'
@@ -174,9 +174,9 @@ file:
             raw_comparison_operator: '='
           expression:
             boolean_literal: 'TRUE'
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
           - naked_identifier: emp_rec1
           - dot: .
@@ -186,9 +186,9 @@ file:
             raw_comparison_operator: '='
           expression:
             quoted_literal: "'Antonio'"
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
           - naked_identifier: emp_rec1
           - dot: .
@@ -198,9 +198,9 @@ file:
             raw_comparison_operator: '='
           expression:
             quoted_literal: "'Ortiz'"
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: emp_rec1
           colon: ':'
@@ -209,7 +209,7 @@ file:
           expression:
             column_reference:
               naked_identifier: emp_rec2
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -221,7 +221,7 @@ file:
                 numeric_literal: '5'
               end_bracket: )
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           colon: ':'
           comparison_operator:
             raw_comparison_operator: '='
@@ -229,7 +229,7 @@ file:
           - numeric_literal: '20000'
           - binary_operator: '*'
           - numeric_literal: '0.15'
-          statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -252,7 +252,7 @@ file:
       - statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: done
           colon: ':'
@@ -260,7 +260,7 @@ file:
             raw_comparison_operator: '='
           expression:
             boolean_literal: 'FALSE'
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         while_loop_statement:
           keyword: WHILE
@@ -274,7 +274,7 @@ file:
           loop_statement:
           - keyword: LOOP
           - statement:
-              assignment_segment:
+              assignment_segment_statement:
                 object_reference:
                   naked_identifier: counter
                 colon: ':'
@@ -285,9 +285,9 @@ file:
                     naked_identifier: counter
                   binary_operator: +
                   numeric_literal: '1'
-                statement_terminator: ;
+          - statement_terminator: ;
           - statement:
-              assignment_segment:
+              assignment_segment_statement:
                 object_reference:
                   naked_identifier: done
                 colon: ':'
@@ -303,10 +303,10 @@ file:
                         raw_comparison_operator: '>'
                       numeric_literal: '500'
                     end_bracket: )
-                statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
           - keyword: LOOP
-          - statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -387,7 +387,7 @@ file:
       - statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: group2
           colon: ':'
@@ -396,9 +396,9 @@ file:
           expression:
             column_reference:
               naked_identifier: group1
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: group3
           colon: ':'
@@ -407,7 +407,7 @@ file:
           expression:
             column_reference:
               naked_identifier: group1
-          statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /

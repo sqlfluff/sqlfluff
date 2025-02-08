@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b4263dfb0c98d619bcf848e9f7065c079bd886e828a8b41c201277563cd16690
+_hash: ccba7fb4078be9fe8f3a40f8a5e5aad75d82e3093314e4e55068758deb920074
 file:
 - statement:
     begin_end_block:
@@ -52,13 +52,13 @@ file:
                 quoted_literal: "'Smallville'"
               end_bracket: )
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           colon: ':'
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             numeric_literal: '2000'
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -70,13 +70,13 @@ file:
                 quoted_literal: "'Midland'"
               end_bracket: )
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           colon: ':'
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             numeric_literal: '750000'
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -88,13 +88,13 @@ file:
                 quoted_literal: "'Megalopolis'"
               end_bracket: )
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           colon: ':'
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             numeric_literal: '1000000'
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -106,15 +106,15 @@ file:
                 quoted_literal: "'Smallville'"
               end_bracket: )
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           colon: ':'
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             numeric_literal: '2001'
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: i
           colon: ':'
@@ -125,7 +125,7 @@ file:
             - naked_identifier: city_population
             - dot: .
             - naked_identifier: FIRST
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         while_loop_statement:
           keyword: WHILE
@@ -173,7 +173,7 @@ file:
                     end_bracket: )
           - statement_terminator: ;
           - statement:
-              assignment_segment:
+              assignment_segment_statement:
                 object_reference:
                   naked_identifier: i
                 colon: ':'
@@ -192,10 +192,10 @@ file:
                           column_reference:
                             naked_identifier: i
                         end_bracket: )
-                statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
           - keyword: LOOP
-          - statement_terminator: ;
+    - statement_terminator: ;
     - keyword: END
     - statement_terminator: ;
     - statement_terminator: /
@@ -283,7 +283,7 @@ file:
               - loop_statement:
                 - keyword: LOOP
                 - statement:
-                    assignment_segment:
+                    assignment_segment_statement:
                       object_reference:
                         naked_identifier: s
                       bracketed:
@@ -319,17 +319,17 @@ file:
                             statement_terminator: /
                             numeric_literal: '2'
                           end_bracket: )
-                      statement_terminator: ;
+                - statement_terminator: ;
                 - keyword: END
                 - keyword: LOOP
-                - statement_terminator: ;
+          - statement_terminator: ;
           - statement:
-              return_segment:
+              return_statement:
                 keyword: RETURN
                 expression:
                   column_reference:
                     naked_identifier: s
-                statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
           - object_reference:
               naked_identifier: get_sum_multiples
@@ -539,7 +539,7 @@ file:
                 - statement_terminator: ;
                 - keyword: END
                 - keyword: LOOP
-                - statement_terminator: ;
+          - statement_terminator: ;
           - statement:
               function:
                 function_name:
@@ -578,13 +578,13 @@ file:
                 numeric_literal: '3'
               end_bracket: )
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           colon: ':'
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             quoted_literal: "'Pierre'"
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -596,13 +596,13 @@ file:
                 numeric_literal: '4'
               end_bracket: )
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           colon: ':'
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             quoted_literal: "'Yvonne'"
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -615,7 +615,7 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: team
           colon: ':'
@@ -640,7 +640,7 @@ file:
                 - expression:
                     quoted_literal: "'Mae'"
                 - end_bracket: )
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -766,7 +766,7 @@ file:
                 - statement_terminator: ;
                 - keyword: END
                 - keyword: LOOP
-                - statement_terminator: ;
+          - statement_terminator: ;
           - statement:
               function:
                 function_name:
@@ -805,13 +805,13 @@ file:
                 numeric_literal: '3'
               end_bracket: )
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           colon: ':'
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             quoted_literal: "'P Perez'"
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
@@ -824,7 +824,7 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: names
           colon: ':'
@@ -843,7 +843,7 @@ file:
                 - expression:
                     quoted_literal: "'B Gupta'"
                 - end_bracket: )
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:

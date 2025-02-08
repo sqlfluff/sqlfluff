@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 05db4405cb4e1fd8ceaf50a4a845318b3781b8ae8d0f39b92ecea5d4ff8702ff
+_hash: 891b9861679017e10511f6cd6c981d004058353750eea3911959ea69c8724fb5
 file:
 - statement:
     create_procedure_statement:
@@ -45,13 +45,13 @@ file:
                   naked_identifier: today
             - keyword: THEN
           - statement:
-              raise_segment:
+              raise_statement:
                 keyword: RAISE
                 naked_identifier: past_due
-                statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
           - keyword: IF
-          - statement_terminator: ;
+      - statement_terminator: ;
       - keyword: EXCEPTION
       - keyword: WHEN
       - naked_identifier: past_due
@@ -112,10 +112,10 @@ file:
                 numeric_literal: '0'
             - keyword: THEN
           - statement:
-              raise_segment:
+              raise_statement:
                 keyword: RAISE
                 naked_identifier: INVALID_NUMBER
-                statement_terminator: ;
+          - statement_terminator: ;
           - keyword: ELSE
           - statement:
               insert_statement:
@@ -141,10 +141,10 @@ file:
                               quoted_literal: "'9G999'"
                           - end_bracket: )
                     end_bracket: )
-              - statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
           - keyword: IF
-          - statement_terminator: ;
+      - statement_terminator: ;
       - keyword: EXCEPTION
       - keyword: WHEN
       - naked_identifier: INVALID_NUMBER
@@ -176,7 +176,7 @@ file:
                   column_reference:
                     naked_identifier: default_number
                 end_bracket: )
-          - statement_terminator: ;
+      - statement_terminator: ;
       - keyword: END
       - statement_terminator: ;
       - statement_terminator: /
@@ -227,19 +227,19 @@ file:
                     naked_identifier: max_salary
               - keyword: THEN
             - statement:
-                raise_segment:
+                raise_statement:
                   keyword: RAISE
                   naked_identifier: salary_too_high
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
             - keyword: IF
-            - statement_terminator: ;
+        - statement_terminator: ;
         - keyword: EXCEPTION
         - keyword: WHEN
         - naked_identifier: salary_too_high
         - keyword: THEN
         - statement:
-            assignment_segment:
+            assignment_segment_statement:
               object_reference:
                 naked_identifier: erroneous_salary
               colon: ':'
@@ -248,7 +248,7 @@ file:
               expression:
                 column_reference:
                   naked_identifier: current_salary
-              statement_terminator: ;
+        - statement_terminator: ;
         - statement:
             function:
               function_name:
@@ -294,9 +294,9 @@ file:
                   end_bracket: )
         - statement_terminator: ;
         - statement:
-            raise_segment:
+            raise_statement:
               keyword: RAISE
-              statement_terminator: ;
+        - statement_terminator: ;
         - keyword: END
         - statement_terminator: ;
     - keyword: EXCEPTION
@@ -304,7 +304,7 @@ file:
     - naked_identifier: salary_too_high
     - keyword: THEN
     - statement:
-        assignment_segment:
+        assignment_segment_statement:
           object_reference:
             naked_identifier: current_salary
           colon: ':'
@@ -313,7 +313,7 @@ file:
           expression:
             column_reference:
               naked_identifier: max_salary
-          statement_terminator: ;
+    - statement_terminator: ;
     - statement:
         function:
           function_name:
