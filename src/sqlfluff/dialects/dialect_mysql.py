@@ -1758,6 +1758,7 @@ class SetAssignmentStatementSegment(BaseSegment):
         "SET",
         Delimited(
             Sequence(
+                Sequence(OneOf("NEW", "OLD"), Ref("DotSegment"), optional=True),
                 OneOf(
                     Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")
                 ),

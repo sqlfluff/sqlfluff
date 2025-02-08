@@ -15,3 +15,16 @@ AS $$
 INSERT INTO tbl VALUES (a);
 INSERT INTO tbl VALUES (b);
 $$;
+
+CREATE PROCEDURE abc.cdf()
+LANGUAGE sql
+BEGIN ATOMIC
+WITH tbl2 AS (
+SELECT a.apple
+FROM tbl1 a
+)
+
+SELECT t.apple
+FROM tbl2 t
+;
+END;
