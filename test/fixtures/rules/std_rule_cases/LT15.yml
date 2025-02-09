@@ -1,0 +1,55 @@
+rule: LT15
+
+test_pass_no_empty_lines:
+  pass_str: |
+    SELECT foo
+    FROM bar
+
+test_pass_one_empty_line:
+  pass_str: |
+    SELECT foo
+
+    FROM
+      bar
+  configs:
+    rules:
+      layout.newlines:
+          maximum_empty_lines_inside_statements: 1
+
+test_fail_no_empty_lines:
+  fail_str: |
+    SELECT foo
+
+    FROM
+      bar
+  fix_str: |
+    SELECT foo
+    FROM
+      bar
+  configs:
+    rules:
+      layout.newlines:
+          maximum_empty_lines_inside_statements: 0
+
+test_fail_one_empty_line_between_statements:
+  fail_str: |
+    SELECT foo
+    FROM
+      bar
+    ;
+
+
+    SELECT foo
+    ;
+  fix_str: |
+    SELECT foo
+    FROM
+      bar
+    ;
+
+    SELECT foo
+    ;
+  configs:
+    rules:
+      layout.newlines:
+          maximum_empty_lines_between_statements: 1
