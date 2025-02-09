@@ -67,7 +67,7 @@ class Rule_LT15(BaseRule):
 
         if all(
             raw_seg.is_type("newline")
-            for raw_seg in context.raw_stack[-maximum_empty_lines - 1:]
+            for raw_seg in context.raw_stack[-maximum_empty_lines - 1 :]
         ):
 
             return [
