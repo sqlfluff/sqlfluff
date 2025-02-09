@@ -14,7 +14,7 @@ test_pass_one_empty_line:
   configs:
     rules:
       layout.newlines:
-          maximum_empty_lines_inside_statements: 1
+        maximum_empty_lines_inside_statements: 1
 
 test_fail_no_empty_lines:
   fail_str: |
@@ -29,7 +29,7 @@ test_fail_no_empty_lines:
   configs:
     rules:
       layout.newlines:
-          maximum_empty_lines_inside_statements: 0
+        maximum_empty_lines_inside_statements: 0
 
 test_fail_one_empty_line_between_statements:
   fail_str: |
@@ -52,4 +52,4 @@ test_fail_one_empty_line_between_statements:
   configs:
     rules:
       layout.newlines:
-          maximum_empty_lines_between_statements: 1
+        maximum_empty_lines_between_statements: 1
