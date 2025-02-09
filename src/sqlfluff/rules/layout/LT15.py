@@ -2,8 +2,8 @@
 
 from typing import List, Optional
 
-from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
 class Rule_LT15(BaseRule):
@@ -37,7 +37,7 @@ class Rule_LT15(BaseRule):
         LIMIT 5
         ;
 
-"""
+    """
 
     name = "layout.newlines"
     groups = ("all", "layout")
