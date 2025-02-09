@@ -54,8 +54,6 @@ class Rule_LT15(BaseRule):
         self.maximum_empty_lines_inside_statements: int
         context_seg = context.segment
 
-        print(context.parent_stack)
-
         maximum_empty_lines = (
             self.maximum_empty_lines_inside_statements
             if any(seg.is_type("statement") for seg in context.parent_stack)
