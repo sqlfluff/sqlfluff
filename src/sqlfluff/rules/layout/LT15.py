@@ -1,8 +1,9 @@
 """Implementation of Rule LT15."""
 
+from typing import List, Optional
+
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
-from typing import List, Optional
 
 
 class Rule_LT15(BaseRule):
@@ -48,8 +49,7 @@ class Rule_LT15(BaseRule):
     is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
-        """Keyword clauses should begin on a newline."""
-
+        """There should be a maximum number of empty lines."""
         self.maximum_empty_lines_between_statements: int
         self.maximum_empty_lines_inside_statements: int
         context_seg = context.segment
