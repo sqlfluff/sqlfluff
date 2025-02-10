@@ -1392,7 +1392,7 @@ class CreateProcedureStatementSegment(BaseSegment):
             optional=True,
         ),
         OneOf("IS", "AS", optional=True),
-        AnyNumberOf(Ref("DeclareStatementSegment"), optional=True),
+        AnyNumberOf(Ref("DeclareSegment"), optional=True),
         Ref("BeginEndSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
     )
@@ -1414,7 +1414,7 @@ class DropProcedureStatementSegment(BaseSegment):
     )
 
 
-class DeclareStatementSegment(BaseSegment):
+class DeclareSegment(BaseSegment):
     """A declaration segment in PL/SQL.
 
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/block.html#GUID-9ACEB9ED-567E-4E1A-A16A-B8B35214FC9D__CJAIABJJ
@@ -1613,7 +1613,7 @@ class BeginEndSegment(BaseSegment):
 
     type = "begin_end_block"
     match_grammar = Sequence(
-        Ref("DeclareStatementSegment", optional=True),
+        Ref("DeclareSegment", optional=True),
         "BEGIN",
         Indent,
         Ref("OneOrMoreStatementsGrammar"),
@@ -1683,7 +1683,7 @@ class CreateFunctionStatementSegment(BaseSegment):
             optional=True,
         ),
         OneOf("IS", "AS", optional=True),
-        AnyNumberOf(Ref("DeclareStatementSegment"), optional=True),
+        AnyNumberOf(Ref("DeclareSegment"), optional=True),
         Ref("BeginEndSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
     )
@@ -1822,7 +1822,7 @@ class CreatePackageStatementSegment(BaseSegment):
             optional=True,
         ),
         OneOf("IS", "AS"),
-        Ref("DeclareStatementSegment"),
+        Ref("DeclareSegment"),
         "END",
         Ref("PackageReferenceSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
@@ -1871,13 +1871,13 @@ class DropPackageStatementSegment(BaseSegment):
     )
 
 
-class CreateTriggerStatementSegment(BaseSegment):
+class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
     """Create Trigger Statement.
 
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/CREATE-TRIGGER-statement.html
     """
 
-    type = "create_trigger"
+    type = "create_trigger_statement"
 
     match_grammar: Matchable = Sequence(
         "CREATE",
@@ -1964,7 +1964,7 @@ class CompoundTriggerBlock(BaseSegment):
     match_grammar: Matchable = Sequence(
         "COMPOUND",
         "TRIGGER",
-        Ref("DeclareStatementSegment", optional=True),
+        Ref("DeclareSegment", optional=True),
         AnyNumberOf(Ref("TimingPointSectionSegment")),
     )
 

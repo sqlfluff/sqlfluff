@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 35a3845585bddfbd005fb877ac70d583b4b5eca5349ac76341642dd8920b6ecc
+_hash: 8a7a65a3911c6db6dddab9bfdab2aed2e6417d3776b2c9309b70124caf7cb273
 file:
   statement:
-    create_trigger:
+    create_trigger_statement:
     - keyword: CREATE
     - keyword: OR
     - keyword: REPLACE
@@ -128,7 +128,7 @@ file:
         - statement_terminator: ;
         - statement_terminator: /
     - statement:
-        create_trigger:
+        create_trigger_statement:
         - keyword: CREATE
         - keyword: OR
         - keyword: REPLACE
@@ -280,7 +280,7 @@ file:
             - statement_terminator: ;
             - statement_terminator: /
         - statement:
-            create_trigger:
+            create_trigger_statement:
             - keyword: CREATE
             - keyword: OR
             - keyword: REPLACE
@@ -395,7 +395,7 @@ file:
                 - statement_terminator: ;
                 - statement_terminator: /
             - statement:
-                create_trigger:
+                create_trigger_statement:
                 - keyword: CREATE
                 - keyword: OR
                 - keyword: REPLACE
