@@ -6856,6 +6856,12 @@ class CreateStreamlitStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("CommentEqualsClauseSegment", optional=True),
+        Sequence(
+            "TITLE",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
     )
 
 
