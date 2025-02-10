@@ -1542,9 +1542,12 @@ class WellKnownTextGeometrySegment(BaseSegment):
             Bracketed(
                 Sequence(
                     OneOf(*_geometry_type_keywords, "GEOMETRY", "GEOGRAPHY"),
-                    Ref("CommaSegment"),
-                    Ref("NumericLiteralSegment"),
-                )
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                ),
             ),
         ),
     )
@@ -1642,7 +1645,10 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                         Ref("SemicolonSegment"),
                     ),
                     Sequence(
-                        Ref("SelectStatementSegment"),
+                        OneOf(
+                            Ref("WithCompoundStatementSegment"),
+                            Ref("SelectStatementSegment"),
+                        ),
                         Ref("SemicolonSegment"),
                     ),
                     Sequence(

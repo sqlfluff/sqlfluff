@@ -867,8 +867,13 @@ class InsertStatementSegment(BaseSegment):
     type = "insert_statement"
     match_grammar = Sequence(
         "INSERT",
-        Ref.keyword("INTO", optional=True),
-        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                Ref.keyword("INTO", optional=True),
+                Ref("TableReferenceSegment"),
+            ),
+            Ref("OpenQuerySegment"),
+        ),
         Ref("PostTableExpressionGrammar", optional=True),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Ref("OutputClauseSegment", optional=True),
@@ -4193,6 +4198,7 @@ class DeleteStatementSegment(BaseSegment):
                 Ref("JoinOnConditionSegment"),
                 Ref("WhereClauseSegment", optional=True),
             ),
+            Ref("OpenQuerySegment"),
         ),
         Ref("OptionClauseSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
@@ -4239,6 +4245,7 @@ class TableExpressionSegment(BaseSegment):
         Ref("FunctionSegment"),
         Ref("OpenRowSetSegment"),
         Ref("OpenJsonSegment"),
+        Ref("OpenQuerySegment"),
         Ref("TableReferenceSegment"),
         Ref("StorageLocationSegment"),
         # Nested Selects
@@ -4435,7 +4442,11 @@ class UpdateStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "UPDATE",
         Indent,
-        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
+        OneOf(
+            Ref("TableReferenceSegment"),
+            Ref("AliasedTableReferenceGrammar"),
+            Ref("OpenQuerySegment"),
+        ),
         Ref("PostTableExpressionGrammar", optional=True),
         Dedent,
         Ref("SetClauseListSegment"),
@@ -6060,6 +6071,25 @@ class OpenJsonSegment(BaseSegment):
             ),
         ),
         Ref("OpenJsonWithClauseSegment", optional=True),
+    )
+
+
+class OpenQuerySegment(BaseSegment):
+    """An `OPENQUERY()` table-valued function.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/openquery-transact-sql#syntax
+    """
+
+    type = "openquery_segment"
+
+    match_grammar = Sequence(
+        "OPENQUERY",
+        Bracketed(
+            Delimited(
+                Ref("ObjectReferenceSegment"),
+                Ref("QuotedLiteralSegment"),
+            )
+        ),
     )
 
 
