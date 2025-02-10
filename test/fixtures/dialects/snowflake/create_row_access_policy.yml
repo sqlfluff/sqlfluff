@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 57c540fcc2ff103c018e50d4df27779e9007853ac872a533b23c734f6ccb3c58
+_hash: 1a0a2037d2d40af831eadf08d1c019c8b05d457e56b4559ead0c4fbe00a339a2
 file:
 - statement:
     create_row_access_policy_statement:
@@ -153,4 +153,25 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - quoted_literal: "'My Comment'"
+- statement_terminator: ;
+- statement:
+    create_row_access_policy_statement:
+    - keyword: CREATE
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - quoted_identifier: '"My-Access-Policy"'
+    - keyword: AS
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: val
+          data_type:
+            data_type_identifier: VARCHAR
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: BOOLEAN
+    - function_assigner: ->
+    - expression:
+        boolean_literal: 'TRUE'
 - statement_terminator: ;

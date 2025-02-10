@@ -8973,7 +8973,7 @@ class CreateRowAccessPolicyStatementSegment(BaseSegment):
         "ACCESS",
         "POLICY",
         Ref("IfNotExistsGrammar", optional=True),
-        Ref("NakedIdentifierSegment"),
+        OneOf(Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment")),
         "AS",
         Ref("FunctionParameterListGrammar"),
         "RETURNS",
