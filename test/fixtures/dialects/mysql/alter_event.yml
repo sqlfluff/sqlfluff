@@ -1,0 +1,103 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 152139666dcb2e7d6c30f4e3819eefa07ae3c2e3418b07d9f18f544c343a9716
+file:
+- statement:
+    alter_event_statement:
+    - keyword: ALTER
+    - keyword: EVENT
+    - object_reference:
+        naked_identifier: no_such_event
+    - keyword: 'ON'
+    - keyword: SCHEDULE
+    - keyword: EVERY
+    - expression:
+        quoted_literal: "'2:3'"
+    - date_part: DAY_HOUR
+- statement_terminator: ;
+- statement:
+    alter_event_statement:
+    - keyword: ALTER
+    - keyword: EVENT
+    - object_reference:
+        naked_identifier: myevent
+    - keyword: 'ON'
+    - keyword: SCHEDULE
+    - keyword: EVERY
+    - expression:
+        numeric_literal: '12'
+    - date_part: HOUR
+    - keyword: STARTS
+    - expression:
+        bare_function: CURRENT_TIMESTAMP
+        binary_operator: +
+        interval_expression:
+          keyword: INTERVAL
+          expression:
+            numeric_literal: '4'
+          date_part: HOUR
+- statement_terminator: ;
+- statement:
+    alter_event_statement:
+    - keyword: ALTER
+    - keyword: EVENT
+    - object_reference:
+        naked_identifier: myevent
+    - keyword: 'ON'
+    - keyword: SCHEDULE
+    - keyword: AT
+    - expression:
+        bare_function: CURRENT_TIMESTAMP
+        binary_operator: +
+        interval_expression:
+          keyword: INTERVAL
+          expression:
+            numeric_literal: '1'
+          date_part: DAY
+    - keyword: DO
+    - statement:
+        truncate_table:
+        - keyword: TRUNCATE
+        - keyword: TABLE
+        - table_reference:
+          - naked_identifier: myschema
+          - dot: .
+          - naked_identifier: mytable
+- statement_terminator: ;
+- statement:
+    alter_event_statement:
+    - keyword: ALTER
+    - keyword: EVENT
+    - object_reference:
+        naked_identifier: myevent
+    - keyword: DISABLE
+- statement_terminator: ;
+- statement:
+    alter_event_statement:
+    - keyword: ALTER
+    - keyword: EVENT
+    - object_reference:
+        naked_identifier: myevent
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: yourevent
+- statement_terminator: ;
+- statement:
+    alter_event_statement:
+    - keyword: ALTER
+    - keyword: EVENT
+    - object_reference:
+      - naked_identifier: olddb
+      - dot: .
+      - naked_identifier: myevent
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: newdb
+      - dot: .
+      - naked_identifier: myevent
+- statement_terminator: ;
