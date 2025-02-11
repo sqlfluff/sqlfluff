@@ -262,3 +262,13 @@ WAREHOUSE = 'mywh'
 AS
 SELECT var:id::int id, var:fname::string first_name,
 var:lname::string last_name FROM raw;
+
+ALTER TABLE my_table
+ADD ROW ACCESS POLICY my_access_policy
+ON (my_column);
+
+ALTER TABLE my_table
+SET TAG my_tag = 'some_value';
+
+ALTER TABLE my_table
+UNSET TAG my_tag;

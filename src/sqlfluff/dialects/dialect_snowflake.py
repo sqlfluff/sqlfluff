@@ -2092,7 +2092,111 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     ),
                 ),
             ),
+            Ref("DataGovnPolicyTagAction"),
             # @TODO: Add/drop row access policies
+        ),
+    )
+
+
+class DataGovnPolicyTagActionSegment(BaseSegment):
+    """The dataGovnPolicyTagAction segment for alter table parsing."""
+
+    match_grammar = OneOf(
+        Sequence(
+            "SET",
+            "TAG",
+            Delimited(
+                Ref("TagReferenceSegment"),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+        Sequence(
+            "UNSET",
+            "TAG",
+            Delimited(
+                Ref("TagReferenceSegment"),
+            ),
+        ),
+        Sequence(
+            "ADD",
+            "ROW",
+            "ACCESS",
+            "POLICY",
+            Ref("ObjectReferenceSegment"),
+            "ON",
+            Bracketed(
+                Delimited(
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+        ),
+        Sequence(
+            "DROP",
+            "ROW",
+            "ACCESS",
+            "POLICY",
+            Ref("ObjectReferenceSegment"),
+            Sequence(
+                "ADD",
+                "ROW",
+                "ACCESS",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+                "ON",
+                Bracketed(
+                    Delimited(
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "DROP",
+            "ALL",
+            "ROW",
+            "ACCESS",
+            "POLICIES",
+        ),
+        Sequence(
+            "SET",
+            "AGGREGATION",
+            "POLICY",
+            Ref("ObjectReferenceSegment"),
+            Sequence(
+                "ENTITY",
+                Bracketed(
+                    Delimited(
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "FORCE",
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "UNSET",
+            "AGGREGATION",
+            "POLICY",
+        ),
+        Sequence(
+            "SET",
+            "JOIN",
+            "POLICY",
+            Ref("ObjectReferenceSegment"),
+            Sequence(
+                "FORCE",
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "UNSET",
+            "JOIN",
+            "POLICY",
         ),
     )
 
