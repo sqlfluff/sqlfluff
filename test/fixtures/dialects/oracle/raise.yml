@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 891b9861679017e10511f6cd6c981d004058353750eea3911959ea69c8724fb5
+_hash: b5a48581fec1b681a7038e02eb9380d19b172c2e273103a54bc34729f1a9b2b4
 file:
 - statement:
     create_procedure_statement:
@@ -70,8 +70,8 @@ file:
                 end_bracket: )
       - statement_terminator: ;
       - keyword: END
-      - statement_terminator: ;
-      - statement_terminator: /
+    - statement_terminator: ;
+    - statement_terminator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -178,8 +178,8 @@ file:
                 end_bracket: )
       - statement_terminator: ;
       - keyword: END
-      - statement_terminator: ;
-      - statement_terminator: /
+    - statement_terminator: ;
+    - statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -298,7 +298,7 @@ file:
               keyword: RAISE
         - statement_terminator: ;
         - keyword: END
-        - statement_terminator: ;
+    - statement_terminator: ;
     - keyword: EXCEPTION
     - keyword: WHEN
     - naked_identifier: salary_too_high
@@ -346,5 +346,5 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /

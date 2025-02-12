@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2e418a7c34c3bb84e7d64a33265b3dfaab7b4be0a6738e6a3b2f4b8c739370f5
+_hash: c26ac8a77382611878a0312ac03a7e22fb4b139b1deba954ef8239faabae25a4
 file:
 - statement:
     begin_end_block:
@@ -64,8 +64,8 @@ file:
           keyword: 'NULL'
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -122,8 +122,8 @@ file:
           keyword: 'NULL'
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -292,8 +292,8 @@ file:
           naked_identifier: cv
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -575,8 +575,8 @@ file:
           naked_identifier: cv
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -713,8 +713,8 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -839,8 +839,8 @@ file:
           keyword: 'NULL'
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -1009,8 +1009,8 @@ file:
           naked_identifier: c1
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -1268,8 +1268,8 @@ file:
           naked_identifier: c1
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -1390,8 +1390,8 @@ file:
           naked_identifier: c1
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -1565,7 +1565,7 @@ file:
           - keyword: END
           - object_reference:
               naked_identifier: print_overpaid
-          - statement_terminator: ;
+        - statement_terminator: ;
     - keyword: BEGIN
     - statement:
         function:
@@ -1702,8 +1702,8 @@ file:
           naked_identifier: c
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -1902,7 +1902,7 @@ file:
           - keyword: END
           - object_reference:
               naked_identifier: print_depts
-          - statement_terminator: ;
+        - statement_terminator: ;
     - keyword: BEGIN
     - statement:
         function:
@@ -2039,8 +2039,8 @@ file:
           naked_identifier: c
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -2239,7 +2239,7 @@ file:
           - keyword: END
           - object_reference:
               naked_identifier: print_overpaid
-          - statement_terminator: ;
+        - statement_terminator: ;
     - keyword: BEGIN
     - statement:
         function:
@@ -2390,8 +2390,8 @@ file:
           naked_identifier: c
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -2541,8 +2541,8 @@ file:
           - keyword: LOOP
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -2661,8 +2661,8 @@ file:
           - keyword: LOOP
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -2873,8 +2873,8 @@ file:
           naked_identifier: c1
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -3003,5 +3003,5 @@ file:
         - keyword: LOOP
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /

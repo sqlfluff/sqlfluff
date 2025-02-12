@@ -1410,7 +1410,6 @@ class DropProcedureStatementSegment(BaseSegment):
         "DROP",
         "PROCEDURE",
         Ref("FunctionNameSegment"),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -1639,7 +1638,6 @@ class BeginEndSegment(BaseSegment):
         Dedent,
         "END",
         Ref("ObjectReferenceSegment", optional=True),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -1708,7 +1706,6 @@ class AlterFunctionStatementSegment(BaseSegment):
             "EDITIONABLE",
             "NONEDITIONABLE",
         ),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -1747,7 +1744,6 @@ class CreateTypeStatementSegment(BaseSegment):
             Ref("ObjectTypeAndSubtypeDefGrammar"),
             Ref("VarrayAndNestedTypeSpecGrammar"),
         ),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -1777,7 +1773,6 @@ class CreateTypeBodyStatementSegment(BaseSegment):
         OneOf("IS", "AS"),
         Ref("ElementSpecificationGrammar"),
         "END",
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -1825,7 +1820,6 @@ class CreatePackageStatementSegment(BaseSegment):
         Ref("DeclareSegment"),
         "END",
         Ref("PackageReferenceSegment", optional=True),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -1849,7 +1843,6 @@ class AlterPackageStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("PackageReferenceSegment"),
         OneOf(Ref("CompileClauseGrammar"), "EDITIONABLE", "NONEDITIONABLE"),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -1867,7 +1860,6 @@ class DropPackageStatementSegment(BaseSegment):
         Ref.keyword("BODY", optional=True),
         Ref("IfExistsGrammar", optional=True),
         Ref("PackageReferenceSegment"),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -1907,7 +1899,6 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
         OneOf(Ref("CompoundTriggerBlock"), Ref("OneOrMoreStatementsGrammar")),
         Ref.keyword("END", optional=True),
         Ref("TriggerReferenceSegment", optional=True),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 

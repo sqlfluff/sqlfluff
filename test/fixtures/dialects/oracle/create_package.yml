@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c7cdca01e332808b22d564b15e126ec8731d6fa232db478adb4d889728b24a51
+_hash: a7b777c0f7344ac2e383ecdf127cb8422e19c5fb0c856f267ae7ea03439d6f30
 file:
 - statement:
     create_package_statement:
@@ -137,8 +137,8 @@ file:
     - keyword: END
     - package_reference:
         naked_identifier: emp_mgmt
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     create_package_statement:
     - keyword: CREATE
@@ -293,7 +293,7 @@ file:
                     end_bracket: )
           - statement_terminator: ;
           - keyword: END
-          - statement_terminator: ;
+        - statement_terminator: ;
       - create_function_statement:
         - keyword: FUNCTION
         - function_name:
@@ -387,7 +387,7 @@ file:
                     end_bracket: )
           - statement_terminator: ;
           - keyword: END
-          - statement_terminator: ;
+        - statement_terminator: ;
       - create_procedure_statement:
         - keyword: PROCEDURE
         - function_name:
@@ -440,7 +440,7 @@ file:
                   numeric_literal: '1'
           - statement_terminator: ;
           - keyword: END
-          - statement_terminator: ;
+        - statement_terminator: ;
       - create_procedure_statement:
         - keyword: PROCEDURE
         - function_name:
@@ -517,7 +517,7 @@ file:
                           naked_identifier: employees
           - statement_terminator: ;
           - keyword: END
-          - statement_terminator: ;
+        - statement_terminator: ;
       - create_procedure_statement:
         - keyword: PROCEDURE
         - function_name:
@@ -620,7 +620,7 @@ file:
               - keyword: IF
           - statement_terminator: ;
           - keyword: END
-          - statement_terminator: ;
+        - statement_terminator: ;
       - create_procedure_statement:
         - keyword: PROCEDURE
         - function_name:
@@ -714,9 +714,9 @@ file:
               - keyword: IF
           - statement_terminator: ;
           - keyword: END
-          - statement_terminator: ;
+        - statement_terminator: ;
     - keyword: END
     - package_reference:
         naked_identifier: emp_mgmt
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /

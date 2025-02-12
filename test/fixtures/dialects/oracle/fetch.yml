@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 816243c42871f3d68b7763a0fdd4926106bfb359adbbda69e64c9e4f5a39a0c0
+_hash: 4261173c48027065a3994944218fc5a00f68b16543da541ce7ead3aa4ba11b44
 file:
 - statement:
     begin_end_block:
@@ -138,7 +138,7 @@ file:
           - keyword: END
           - object_reference:
               naked_identifier: nth_highest_salary
-          - statement_terminator: ;
+        - statement_terminator: ;
     - keyword: BEGIN
     - statement:
         assignment_segment_statement:
@@ -239,8 +239,8 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -506,8 +506,8 @@ file:
           naked_identifier: c2
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -816,8 +816,8 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -1055,8 +1055,8 @@ file:
           naked_identifier: cv
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -1225,8 +1225,8 @@ file:
           - keyword: LOOP
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -1355,8 +1355,8 @@ file:
         - keyword: LOOP
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -1446,8 +1446,8 @@ file:
           naked_identifier: v_emp_cursor
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -1665,7 +1665,7 @@ file:
               - keyword: IF
           - statement_terminator: ;
           - keyword: END
-          - statement_terminator: ;
+        - statement_terminator: ;
     - keyword: BEGIN
     - statement:
         function:
@@ -1845,8 +1845,8 @@ file:
           - keyword: LOOP
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -1992,8 +1992,8 @@ file:
           - keyword: LOOP
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -2140,5 +2140,5 @@ file:
           naked_identifier: c1
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /

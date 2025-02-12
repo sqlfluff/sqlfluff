@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 422b212aecaeb64190765172d3baa506acb9342abc527de0e065bfa9b29bf7e5
+_hash: 35d74f03abcec25009bdcbeddff50fa383676308f2d496ad49df2e789c456b4b
 file:
 - statement:
     alter_function_statement:
@@ -14,7 +14,7 @@ file:
         dot: .
         function_name_identifier: get_bal
     - keyword: COMPILE
-    - statement_terminator: ;
+- statement_terminator: ;
 - statement:
     alter_function_statement:
     - keyword: ALTER
@@ -26,4 +26,4 @@ file:
         dot: .
         function_name_identifier: remove_emp
     - keyword: COMPILE
-    - statement_terminator: ;
+- statement_terminator: ;

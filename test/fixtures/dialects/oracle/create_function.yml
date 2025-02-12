@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 038ced4a3fb5402b24fa953c237d64ecfa5c3a6a73c29cf78c0801276308efb5
+_hash: 340296ffaff92bb390c129d0bcdba65a20a281b78b978e73c31eebb2f9863d20
 file:
 - statement:
     create_function_statement:
@@ -80,8 +80,8 @@ file:
                 end_bracket: )
       - statement_terminator: ;
       - keyword: END
-      - statement_terminator: ;
-      - statement_terminator: /
+    - statement_terminator: ;
+    - statement_terminator: /
 - statement:
     create_function_statement:
     - keyword: CREATE
@@ -122,8 +122,8 @@ file:
                     end_bracket: )
       - statement_terminator: ;
       - keyword: END
-      - statement_terminator: ;
-      - statement_terminator: /
+    - statement_terminator: ;
+    - statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -172,7 +172,7 @@ file:
                     naked_identifier: original_squared
           - statement_terminator: ;
           - keyword: END
-          - statement_terminator: ;
+        - statement_terminator: ;
     - keyword: BEGIN
     - statement:
         function:
@@ -196,8 +196,8 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -239,7 +239,7 @@ file:
                     end_bracket: )
           - statement_terminator: ;
           - keyword: END
-          - statement_terminator: ;
+        - statement_terminator: ;
     - keyword: BEGIN
     - statement:
         function:
@@ -302,8 +302,8 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -365,8 +365,8 @@ file:
               - keyword: IF
           - statement_terminator: ;
           - keyword: END
-          - statement_terminator: ;
-          - statement_terminator: /
+        - statement_terminator: ;
+        - statement_terminator: /
       - create_function_statement:
         - keyword: CREATE
         - keyword: OR
@@ -436,8 +436,8 @@ file:
               - keyword: IF
           - statement_terminator: ;
           - keyword: END
-          - statement_terminator: ;
-          - statement_terminator: /
+        - statement_terminator: ;
+        - statement_terminator: /
     - keyword: BEGIN
     - statement:
         for_loop_statement:
@@ -489,5 +489,5 @@ file:
           - keyword: LOOP
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /

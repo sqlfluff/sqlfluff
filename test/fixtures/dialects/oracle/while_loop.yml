@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7ba9f2439c3cea62f5ca87e0aab8edf7560dcf559d513aa87ea6890cee0b2088
+_hash: 869b36306f52316ea77dd3e4d7d47f0d2ee1b902bfcac9e9a111796c93de8b4d
 file:
-  statement:
+- statement:
     begin_end_block:
     - declare_segment:
         keyword: DECLARE
@@ -89,5 +89,5 @@ file:
           - keyword: LOOP
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /

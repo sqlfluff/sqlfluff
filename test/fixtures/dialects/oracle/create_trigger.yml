@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8a7a65a3911c6db6dddab9bfdab2aed2e6417d3776b2c9309b70124caf7cb273
+_hash: 29042e9b45129d51a9fe4b3f5c03d5540ce515518e4f6b3fee329b474bedf3c9
 file:
   statement:
     create_trigger_statement:
@@ -125,8 +125,8 @@ file:
             - keyword: CASE
         - statement_terminator: ;
         - keyword: END
-        - statement_terminator: ;
-        - statement_terminator: /
+    - statement_terminator: ;
+    - statement_terminator: /
     - statement:
         create_trigger_statement:
         - keyword: CREATE
@@ -277,8 +277,8 @@ file:
             - keyword: END
             - object_reference:
                 naked_identifier: order_info_insert
-            - statement_terminator: ;
-            - statement_terminator: /
+        - statement_terminator: ;
+        - statement_terminator: /
         - statement:
             create_trigger_statement:
             - keyword: CREATE
@@ -392,8 +392,8 @@ file:
                         - end_bracket: )
                 - statement_terminator: ;
                 - keyword: END
-                - statement_terminator: ;
-                - statement_terminator: /
+            - statement_terminator: ;
+            - statement_terminator: /
             - statement:
                 create_trigger_statement:
                 - keyword: CREATE
@@ -547,7 +547,7 @@ file:
                         - keyword: END
                         - object_reference:
                             naked_identifier: flush_array
-                        - statement_terminator: ;
+                      - statement_terminator: ;
                   - timing_point_section:
                     - keyword: AFTER
                     - keyword: EACH
@@ -680,5 +680,5 @@ file:
                 - keyword: END
                 - trigger_reference:
                     naked_identifier: maintain_employee_salaries
-                - statement_terminator: ;
-                - statement_terminator: /
+            - statement_terminator: ;
+            - statement_terminator: /

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 36f2f00e4ce961c774d08318603195fe46d4e5569f12884eb53330653d34be01
+_hash: 73678a038d1fdab4ab8503284822c83df0f952b1e1c84f3e06fe71f05f434c84
 file:
 - statement:
     create_procedure_statement:
@@ -67,8 +67,8 @@ file:
               numeric_literal: '1'
       - statement_terminator: ;
       - keyword: END
-      - statement_terminator: ;
-      - statement_terminator: /
+    - statement_terminator: ;
+    - statement_terminator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -100,8 +100,8 @@ file:
                 end_bracket: )
       - statement_terminator: ;
       - keyword: END
-      - statement_terminator: ;
-      - statement_terminator: /
+    - statement_terminator: ;
+    - statement_terminator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -147,8 +147,8 @@ file:
           - keyword: IF
       - statement_terminator: ;
       - keyword: END
-      - statement_terminator: ;
-      - statement_terminator: /
+    - statement_terminator: ;
+    - statement_terminator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -312,8 +312,8 @@ file:
                 end_bracket: )
       - statement_terminator: ;
       - keyword: END
-      - statement_terminator: ;
-      - statement_terminator: /
+    - statement_terminator: ;
+    - statement_terminator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -474,8 +474,8 @@ file:
                   naked_identifier: emp_id
       - statement_terminator: ;
       - keyword: END
-      - statement_terminator: ;
-      - statement_terminator: /
+    - statement_terminator: ;
+    - statement_terminator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -563,8 +563,8 @@ file:
                 end_bracket: )
       - statement_terminator: ;
       - keyword: END
-      - statement_terminator: ;
-      - statement_terminator: /
+    - statement_terminator: ;
+    - statement_terminator: /
 - statement:
     create_procedure_statement:
     - keyword: CREATE
@@ -605,5 +605,5 @@ file:
                 end_bracket: )
       - statement_terminator: ;
       - keyword: END
-      - statement_terminator: ;
-      - statement_terminator: /
+    - statement_terminator: ;
+    - statement_terminator: /

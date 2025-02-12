@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ccba7fb4078be9fe8f3a40f8a5e5aad75d82e3093314e4e55068758deb920074
+_hash: 60e9f36500747270137b27a86c9007fdeed5083790cf1950bd74b10da5cafc6e
 file:
 - statement:
     begin_end_block:
@@ -197,8 +197,8 @@ file:
           - keyword: LOOP
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -333,7 +333,7 @@ file:
           - keyword: END
           - object_reference:
               naked_identifier: get_sum_multiples
-          - statement_terminator: ;
+        - statement_terminator: ;
     - keyword: BEGIN
     - statement:
         function:
@@ -415,8 +415,8 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -554,7 +554,7 @@ file:
                     end_bracket: )
           - statement_terminator: ;
           - keyword: END
-          - statement_terminator: ;
+        - statement_terminator: ;
     - keyword: BEGIN
     - statement:
         function:
@@ -653,8 +653,8 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
 - statement:
     begin_end_block:
     - declare_segment:
@@ -781,7 +781,7 @@ file:
                     end_bracket: )
           - statement_terminator: ;
           - keyword: END
-          - statement_terminator: ;
+        - statement_terminator: ;
     - keyword: BEGIN
     - statement:
         function:
@@ -856,5 +856,5 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - keyword: END
-    - statement_terminator: ;
-    - statement_terminator: /
+- statement_terminator: ;
+- statement_terminator: /
