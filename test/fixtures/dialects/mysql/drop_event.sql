@@ -1,0 +1,3 @@
+DROP EVENT test;
+
+DROP EVENT IF EXISTS test;
