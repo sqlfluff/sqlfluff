@@ -1438,6 +1438,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateRowAccessPolicyStatementSegment"),
             Ref("AlterRowAccessPolicyStatmentSegment"),
             Ref("AlterTagStatementSegment"),
+            Ref("ExceptionBlockStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -6856,6 +6857,12 @@ class CreateStreamlitStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("CommentEqualsClauseSegment", optional=True),
+        Sequence(
+            "TITLE",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
     )
 
 
@@ -8967,7 +8974,7 @@ class CreateRowAccessPolicyStatementSegment(BaseSegment):
         "ACCESS",
         "POLICY",
         Ref("IfNotExistsGrammar", optional=True),
-        Ref("NakedIdentifierSegment"),
+        OneOf(Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment")),
         "AS",
         Ref("FunctionParameterListGrammar"),
         "RETURNS",
@@ -9065,5 +9072,64 @@ class AlterTagStatementSegment(BaseSegment):
                 ),
             ),
             Sequence("UNSET", "ALLOWED_VALUES"),
+        ),
+    )
+
+
+class ExceptionBlockStatementSegment(BaseSegment):
+    """A snowflake `BEGIN ... END` statement for SQL scripting.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/begin
+    """
+
+    type = "exception_block_statement"
+
+    match_grammar = Sequence(
+        Sequence(
+            "EXCEPTION",
+            Indent,
+            OneOf(
+                Sequence(
+                    "WHEN",
+                    Ref("ObjectReferenceSegment"),
+                    AnyNumberOf(
+                        Sequence(
+                            "OR",
+                            Ref("ObjectReferenceSegment"),
+                        ),
+                    ),
+                    "THEN",
+                ),
+                Sequence(
+                    "WHEN",
+                    "OTHER",
+                    "THEN",
+                ),
+            ),
+            Ref("StatementSegment"),
+        ),
+        AnyNumberOf(
+            Sequence(
+                Ref("DelimiterGrammar"),
+                OneOf(
+                    Sequence(
+                        "WHEN",
+                        Ref("ObjectReferenceSegment"),
+                        AnyNumberOf(
+                            Sequence(
+                                "OR",
+                                Ref("ObjectReferenceSegment"),
+                            ),
+                        ),
+                        "THEN",
+                    ),
+                    Sequence(
+                        "WHEN",
+                        "OTHER",
+                        "THEN",
+                    ),
+                ),
+                Ref("StatementSegment"),
+            ),
         ),
     )

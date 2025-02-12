@@ -1,0 +1,299 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b5b199559d90736fe98b7d2ddb5e05b77be6fcc1b5685a2e4123147996df0920
+file:
+- statement:
+    create_event_statement:
+    - keyword: CREATE
+    - keyword: EVENT
+    - object_reference:
+        naked_identifier: myevent
+    - keyword: 'ON'
+    - keyword: SCHEDULE
+    - keyword: AT
+    - expression:
+        bare_function: CURRENT_TIMESTAMP
+        binary_operator: +
+        interval_expression:
+          keyword: INTERVAL
+          expression:
+            numeric_literal: '1'
+          date_part: HOUR
+    - keyword: DO
+    - statement:
+        update_statement:
+          keyword: UPDATE
+          table_reference:
+          - naked_identifier: myschema
+          - dot: .
+          - naked_identifier: mytable
+          set_clause_list:
+            keyword: SET
+            set_clause:
+              column_reference:
+                naked_identifier: mycol
+              comparison_operator:
+                raw_comparison_operator: '='
+              expression:
+                column_reference:
+                  naked_identifier: mycol
+                binary_operator: +
+                numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_event_statement:
+    - keyword: CREATE
+    - keyword: EVENT
+    - object_reference:
+        naked_identifier: e_totals
+    - keyword: 'ON'
+    - keyword: SCHEDULE
+    - keyword: AT
+    - expression:
+        quoted_literal: "'2006-02-10 23:59:00'"
+    - keyword: DO
+    - statement:
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+          - naked_identifier: test
+          - dot: .
+          - naked_identifier: totals
+        - values_clause:
+            keyword: VALUES
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: NOW
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_event_statement:
+    - keyword: CREATE
+    - keyword: EVENT
+    - object_reference:
+        naked_identifier: e_hourly
+    - keyword: 'ON'
+    - keyword: SCHEDULE
+    - keyword: EVERY
+    - expression:
+        numeric_literal: '1'
+    - date_part: HOUR
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: "'Clears out sessions table each hour.'"
+    - keyword: DO
+    - statement:
+        delete_statement:
+          keyword: DELETE
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: site_activity
+                  - dot: .
+                  - naked_identifier: sessions
+- statement_terminator: ;
+- statement:
+    create_event_statement:
+    - keyword: CREATE
+    - keyword: EVENT
+    - object_reference:
+        naked_identifier: e_daily
+    - keyword: 'ON'
+    - keyword: SCHEDULE
+    - keyword: EVERY
+    - expression:
+        numeric_literal: '1'
+    - date_part: DAY
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: "'Saves total number of sessions then clears the table each\
+          \ day'"
+    - keyword: DO
+    - statement:
+        transaction_statement:
+          keyword: BEGIN
+          statement:
+            insert_statement:
+            - keyword: INSERT
+            - keyword: INTO
+            - table_reference:
+              - naked_identifier: site_activity
+              - dot: .
+              - naked_identifier: totals
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: time
+              - comma: ','
+              - column_reference:
+                  naked_identifier: total
+              - end_bracket: )
+            - select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    bare_function: CURRENT_TIMESTAMP
+                - comma: ','
+                - select_clause_element:
+                    function:
+                      function_name:
+                        function_name_identifier: COUNT
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          star: '*'
+                          end_bracket: )
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - naked_identifier: site_activity
+                        - dot: .
+                        - naked_identifier: sessions
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: site_activity
+              - dot: .
+              - naked_identifier: sessions
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: END
+- statement_terminator: ;
+- statement:
+    create_event_statement:
+    - keyword: CREATE
+    - keyword: EVENT
+    - object_reference:
+        naked_identifier: e_call_myproc
+    - keyword: 'ON'
+    - keyword: SCHEDULE
+    - keyword: AT
+    - expression:
+        bare_function: CURRENT_TIMESTAMP
+        binary_operator: +
+        interval_expression:
+          keyword: INTERVAL
+          expression:
+            numeric_literal: '1'
+          date_part: DAY
+    - keyword: DO
+    - statement:
+        call_statement:
+          keyword: CALL
+          function:
+            function_name:
+              function_name_identifier: myproc
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '5'
+              - comma: ','
+              - expression:
+                  numeric_literal: '27'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_event_statement:
+    - keyword: CREATE
+    - keyword: EVENT
+    - object_reference:
+        naked_identifier: e
+    - keyword: 'ON'
+    - keyword: SCHEDULE
+    - keyword: EVERY
+    - expression:
+        interval_expression:
+          keyword: interval
+          date_part: SECOND
+    - keyword: STARTS
+    - expression:
+        bare_function: CURRENT_TIMESTAMP
+        binary_operator: +
+        interval_expression:
+          keyword: INTERVAL
+          expression:
+            numeric_literal: '10'
+          date_part: SECOND
+    - keyword: ENDS
+    - expression:
+        bare_function: CURRENT_TIMESTAMP
+        binary_operator: +
+        interval_expression:
+          keyword: INTERVAL
+          expression:
+            numeric_literal: '2'
+          date_part: MINUTE
+    - keyword: 'ON'
+    - keyword: COMPLETION
+    - keyword: PRESERVE
+    - keyword: DO
+    - statement:
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+          - naked_identifier: d
+          - dot: .
+          - naked_identifier: t1
+        - values_clause:
+          - keyword: VALUES
+          - keyword: ROW
+          - bracketed:
+            - start_bracket: (
+            - null_literal: 'NULL'
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: NOW
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: FLOOR
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        function:
+                          function_name:
+                            function_name_identifier: RAND
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              end_bracket: )
+                        binary_operator: '*'
+                        numeric_literal: '100'
+                      end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
