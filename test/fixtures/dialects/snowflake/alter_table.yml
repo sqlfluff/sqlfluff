@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c555c5ff9e9236bfb928b18744b10efa151afd24845fdd04698dbebb5721ecc3
+_hash: 30c6c34c4d19cfa5d570936c1315663c44a95fbd45bf86d954f61300aaef70c5
 file:
 - statement:
     alter_table_statement:
@@ -713,4 +713,380 @@ file:
             end_bracket: )
         - keyword: MATCH
         - keyword: PARTIAL
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_gov_policy_tag_action_segment:
+        keyword: SET
+        tag_equals:
+          keyword: TAG
+          tag_reference:
+            naked_identifier: tag1
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: '"some_value"'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_gov_policy_tag_action_segment:
+        keyword: SET
+        tag_equals:
+        - keyword: TAG
+        - tag_reference:
+            naked_identifier: tag1
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"some_value"'
+        - comma: ','
+        - tag_reference:
+            naked_identifier: tag2
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"some_value"'
+        - comma: ','
+        - tag_reference:
+            naked_identifier: tag3
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"some_value"'
+        - comma: ','
+        - tag_reference:
+            naked_identifier: tag4
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"some_value"'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_gov_policy_tag_action_segment:
+        keyword: UNSET
+        tag_equals:
+          keyword: TAG
+          tag_reference:
+            naked_identifier: tag1
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: '"some_value"'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_gov_policy_tag_action_segment:
+        keyword: UNSET
+        tag_equals:
+        - keyword: TAG
+        - tag_reference:
+            naked_identifier: tag1
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"some_value"'
+        - comma: ','
+        - tag_reference:
+            naked_identifier: tag2
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"some_value"'
+        - comma: ','
+        - tag_reference:
+            naked_identifier: tag3
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"some_value"'
+        - comma: ','
+        - tag_reference:
+            naked_identifier: tag4
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"some_value"'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_gov_policy_tag_action_segment:
+      - keyword: ADD
+      - keyword: ROW
+      - keyword: ACCESS
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_policy
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          object_reference:
+            naked_identifier: col1
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_gov_policy_tag_action_segment:
+      - keyword: ADD
+      - keyword: ROW
+      - keyword: ACCESS
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_policy
+      - keyword: 'ON'
+      - bracketed:
+        - start_bracket: (
+        - object_reference:
+            naked_identifier: col1
+        - comma: ','
+        - object_reference:
+            naked_identifier: col2
+        - comma: ','
+        - object_reference:
+            naked_identifier: col3
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_gov_policy_tag_action_segment:
+      - keyword: DROP
+      - keyword: ROW
+      - keyword: ACCESS
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_gov_policy_tag_action_segment:
+      - keyword: DROP
+      - keyword: ROW
+      - keyword: ACCESS
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_policy
+      - comma: ','
+      - keyword: ADD
+      - keyword: ROW
+      - keyword: ACCESS
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_policy
+      - keyword: 'ON'
+      - bracketed:
+          start_bracket: (
+          object_reference:
+            naked_identifier: col1
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_gov_policy_tag_action_segment:
+      - keyword: DROP
+      - keyword: ROW
+      - keyword: ACCESS
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_policy
+      - comma: ','
+      - keyword: ADD
+      - keyword: ROW
+      - keyword: ACCESS
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_policy
+      - keyword: 'ON'
+      - bracketed:
+        - start_bracket: (
+        - object_reference:
+            naked_identifier: col1
+        - comma: ','
+        - object_reference:
+            naked_identifier: col2
+        - comma: ','
+        - object_reference:
+            naked_identifier: col3
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_gov_policy_tag_action_segment:
+      - keyword: DROP
+      - keyword: ALL
+      - keyword: ROW
+      - keyword: ACCESS
+      - keyword: POLICIES
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_gov_policy_tag_action_segment:
+      - keyword: SET
+      - keyword: AGGREGATION
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_gov_policy_tag_action_segment:
+      - keyword: SET
+      - keyword: AGGREGATION
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_policy
+      - keyword: ENTITY
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          object_reference:
+            naked_identifier: col1
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_gov_policy_tag_action_segment:
+      - keyword: SET
+      - keyword: AGGREGATION
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_policy
+      - keyword: ENTITY
+      - keyword: KEY
+      - bracketed:
+        - start_bracket: (
+        - object_reference:
+            naked_identifier: col1
+        - comma: ','
+        - object_reference:
+            naked_identifier: col2
+        - comma: ','
+        - object_reference:
+            naked_identifier: col3
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_gov_policy_tag_action_segment:
+      - keyword: SET
+      - keyword: AGGREGATION
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_policy
+      - keyword: FORCE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_gov_policy_tag_action_segment:
+      - keyword: SET
+      - keyword: AGGREGATION
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_policy
+      - keyword: ENTITY
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          object_reference:
+            naked_identifier: col1
+          end_bracket: )
+      - keyword: FORCE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_gov_policy_tag_action_segment:
+      - keyword: UNSET
+      - keyword: AGGREGATION
+      - keyword: POLICY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_gov_policy_tag_action_segment:
+      - keyword: SET
+      - keyword: JOIN
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_gov_policy_tag_action_segment:
+      - keyword: SET
+      - keyword: JOIN
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: my_policy
+      - keyword: FORCE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - data_gov_policy_tag_action_segment:
+      - keyword: UNSET
+      - keyword: JOIN
+      - keyword: POLICY
 - statement_terminator: ;

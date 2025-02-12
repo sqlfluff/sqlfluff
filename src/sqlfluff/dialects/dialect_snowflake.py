@@ -2092,8 +2092,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     ),
                 ),
             ),
-            Ref("DataGovnPolicyTagAction"),
-            # @TODO: Add/drop row access policies
+            Ref("DataGovnPolicyTagActionSegment"),
         ),
     )
 
@@ -2101,22 +2100,16 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
 class DataGovnPolicyTagActionSegment(BaseSegment):
     """The dataGovnPolicyTagAction segment for alter table parsing."""
 
+    type = "data_gov_policy_tag_action_segment"
+
     match_grammar = OneOf(
         Sequence(
             "SET",
-            "TAG",
-            Delimited(
-                Ref("TagReferenceSegment"),
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-            ),
+            Ref("TagEqualsSegment"),
         ),
         Sequence(
             "UNSET",
-            "TAG",
-            Delimited(
-                Ref("TagReferenceSegment"),
-            ),
+            Ref("TagEqualsSegment"),
         ),
         Sequence(
             "ADD",
@@ -2138,6 +2131,7 @@ class DataGovnPolicyTagActionSegment(BaseSegment):
             "POLICY",
             Ref("ObjectReferenceSegment"),
             Sequence(
+                Ref("CommaSegment"),
                 "ADD",
                 "ROW",
                 "ACCESS",
@@ -2166,6 +2160,7 @@ class DataGovnPolicyTagActionSegment(BaseSegment):
             Ref("ObjectReferenceSegment"),
             Sequence(
                 "ENTITY",
+                "KEY",
                 Bracketed(
                     Delimited(
                         Ref("ObjectReferenceSegment"),

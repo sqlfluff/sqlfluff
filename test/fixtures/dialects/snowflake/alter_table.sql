@@ -63,3 +63,41 @@ ALTER TABLE table1 ADD CONSTRAINT constraint1 FOREIGN KEY (address) REFERENCES a
 ALTER TABLE table1 ADD CONSTRAINT constraint1 FOREIGN KEY (address) REFERENCES addresses (address) MATCH SIMPLE;
 
 ALTER TABLE table1 ADD CONSTRAINT constraint1 FOREIGN KEY (address) REFERENCES addresses (address) MATCH PARTIAL;
+
+ALTER TABLE my_table SET TAG tag1 = "some_value";
+
+ALTER TABLE my_table SET TAG tag1 = "some_value", tag2 = "some_value", tag3 = "some_value", tag4 = "some_value";
+
+ALTER TABLE my_table UNSET TAG tag1 = "some_value";
+
+ALTER TABLE my_table UNSET TAG tag1 = "some_value", tag2 = "some_value", tag3 = "some_value", tag4 = "some_value";
+
+ALTER TABLE my_table ADD ROW ACCESS POLICY my_policy ON (col1);
+
+ALTER TABLE my_table ADD ROW ACCESS POLICY my_policy ON (col1, col2, col3);
+
+ALTER TABLE my_table DROP ROW ACCESS POLICY my_policy;
+
+ALTER TABLE my_table DROP ROW ACCESS POLICY my_policy, ADD ROW ACCESS POLICY my_policy ON (col1);
+
+ALTER TABLE my_table DROP ROW ACCESS POLICY my_policy, ADD ROW ACCESS POLICY my_policy ON (col1, col2, col3);
+
+ALTER TABLE my_table DROP ALL ROW ACCESS POLICIES;
+
+ALTER TABLE my_table SET AGGREGATION POLICY my_policy;
+
+ALTER TABLE my_table SET AGGREGATION POLICY my_policy ENTITY KEY (col1);
+
+ALTER TABLE my_table SET AGGREGATION POLICY my_policy ENTITY KEY (col1, col2, col3);
+
+ALTER TABLE my_table SET AGGREGATION POLICY my_policy FORCE;
+
+ALTER TABLE my_table SET AGGREGATION POLICY my_policy ENTITY KEY (col1) FORCE;
+
+ALTER TABLE my_table UNSET AGGREGATION POLICY;
+
+ALTER TABLE my_table SET JOIN POLICY my_policy;
+
+ALTER TABLE my_table SET JOIN POLICY my_policy FORCE;
+
+ALTER TABLE my_table UNSET JOIN POLICY;
