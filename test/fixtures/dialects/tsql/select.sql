@@ -107,7 +107,8 @@ SELECT
     CURRENT_TIMESTAMP,
     CURRENT_USER,
     SESSION_USER,
-    SYSTEM_USER
+    SYSTEM_USER,
+	test(default, 2)
 
 
 FROM dbo . all_pop;
