@@ -1164,8 +1164,10 @@ class IntervalExpressionSegment(BaseSegment):
     type = "interval_expression"
     match_grammar = Sequence(
         "INTERVAL",
-        Ref("ExpressionSegment"),
-        Ref("DatetimeUnitSegment"),
+        OneOf(
+            Ref("DatetimeUnitSegment"),
+            Sequence(Ref("ExpressionSegment"), Ref("DatetimeUnitSegment")),
+        ),
     )
 
 
@@ -1430,6 +1432,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterDatabaseStatementSegment"),
             Ref("ReturnStatementSegment"),
             Ref("SetNamesStatementSegment"),
+            Ref("CreateEventStatementSegment"),
+            Ref("AlterEventStatementSegment"),
+            Ref("DropEventStatementSegment"),
         ],
         remove=[
             # handle CREATE SCHEMA in CreateDatabaseStatementSegment
@@ -3014,4 +3019,112 @@ class SetNamesStatementSegment(BaseSegment):
         "NAMES",
         OneOf("DEFAULT", Ref("QuotedLiteralSegment"), Ref("NakedIdentifierSegment")),
         Sequence("COLLATE", Ref("CollationReferenceSegment"), optional=True),
+    )
+
+
+class CreateEventStatementSegment(BaseSegment):
+    """A `CREATE EVENT` statement.
+
+    As specified in https://dev.mysql.com/doc/refman/9.2/en/create-event.html
+    """
+
+    type = "create_event_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("DefinerSegment", optional=True),
+        "EVENT",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        "SCHEDULE",
+        OneOf("AT", "EVERY"),
+        Ref("ExpressionSegment"),
+        OneOf(Ref("DatetimeUnitSegment"), optional=True),
+        AnyNumberOf(
+            Sequence(
+                OneOf("STARTS", "ENDS"),
+                Ref("ExpressionSegment"),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "ON",
+            "COMPLETION",
+            Ref.keyword("NOT", optional=True),
+            "PRESERVE",
+            optional=True,
+        ),
+        OneOf(
+            "ENABLE",
+            "DISABLE",
+            Sequence("DISABLE", "ON", OneOf("REPLICA", "SLAVE")),
+            optional=True,
+        ),
+        Ref("CommentClauseSegment", optional=True),
+        "DO",
+        Ref("StatementSegment"),
+    )
+
+
+class AlterEventStatementSegment(BaseSegment):
+    """An `ALTER EVENT` statement.
+
+    As specified in https://dev.mysql.com/doc/refman/9.2/en/alter-event.html
+    """
+
+    type = "alter_event_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        Ref("DefinerSegment", optional=True),
+        "EVENT",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "ON",
+            "SCHEDULE",
+            OneOf("AT", "EVERY"),
+            Ref("ExpressionSegment"),
+            OneOf(Ref("DatetimeUnitSegment"), optional=True),
+            AnyNumberOf(
+                Sequence(
+                    OneOf("STARTS", "ENDS"),
+                    Ref("ExpressionSegment"),
+                ),
+                optional=True,
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "ON",
+            "COMPLETION",
+            Ref.keyword("NOT", optional=True),
+            "PRESERVE",
+            optional=True,
+        ),
+        Sequence("RENAME", "TO", Ref("ObjectReferenceSegment"), optional=True),
+        OneOf(
+            "ENABLE",
+            "DISABLE",
+            Sequence("DISABLE", "ON", OneOf("REPLICA", "SLAVE")),
+            optional=True,
+        ),
+        Ref("CommentClauseSegment", optional=True),
+        Sequence("DO", Ref("StatementSegment"), optional=True),
+    )
+
+
+class DropEventStatementSegment(BaseSegment):
+    """A `DROP EVENT` statement.
+
+    As specified in https://dev.mysql.com/doc/refman/9.2/en/drop-event.html
+    """
+
+    type = "drop_event_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "EVENT",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
     )

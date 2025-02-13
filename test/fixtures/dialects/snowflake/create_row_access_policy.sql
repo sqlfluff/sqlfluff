@@ -23,3 +23,7 @@ CREATE ROW ACCESS POLICY my_access_policy AS(
     val VARCHAR
 ) RETURNS BOOLEAN -> TRUE COMMENT
 = 'My Comment';
+
+CREATE ROW ACCESS POLICY "My-Access-Policy" AS(
+    val VARCHAR
+) RETURNS BOOLEAN -> TRUE;
