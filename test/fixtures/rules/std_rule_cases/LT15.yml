@@ -53,3 +53,30 @@ test_fail_one_empty_line_between_statements:
     rules:
       layout.newlines:
         maximum_empty_lines_between_statements: 1
+
+test_fail_bad_edge_case:
+  fail_str: |
+    SELECT foo
+    FROM
+      bar
+
+
+    ;
+
+
+    SELECT foo
+    ;
+  fix_str: |
+    SELECT foo
+    FROM
+      bar
+
+    ;
+
+    SELECT foo
+    ;
+  configs:
+    rules:
+      layout.newlines:
+        maximum_empty_lines_between_statements: 1
+        maximum_empty_lines_within_statements: 0
