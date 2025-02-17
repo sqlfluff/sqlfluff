@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 52a23c2abd879ae43a5d3a6cecb7e2cc892da557bbeba80cc96791883b508dda
+_hash: 63ab5dc15ab9ac978d5903898b1b24c414804b363a7ff627f5a97948ae5816c3
 file:
 - statement:
     create_streamlit_statement:
@@ -130,4 +130,23 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'amazing comment'"
+- statement_terminator: ;
+- statement:
+    create_streamlit_statement:
+    - keyword: CREATE
+    - keyword: STREAMLIT
+    - object_reference:
+        naked_identifier: new_streamlit
+    - keyword: ROOT_LOCATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - stage_path: "'@stage_name/folder'"
+    - keyword: MAIN_FILE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'main.py'"
+    - keyword: TITLE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'amazing title'"
 - statement_terminator: ;
