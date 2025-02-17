@@ -235,9 +235,24 @@ clickhouse_dialect.replace(
         Ref("SingleQuotedIdentifierSegment"),
         Ref("BackQuotedIdentifierSegment"),
     ),
-    InOperatorGrammar=ansi_dialect.get_grammar("InOperatorGrammar").copy(
-        insert=[Ref.keyword("GLOBAL", optional=True)],
-        before=Ref.keyword("NOT", optional=True),
+    InOperatorGrammar=Sequence(
+        Ref.keyword("GLOBAL", optional=True),
+        Ref.keyword("NOT", optional=True),
+        "IN",
+        OneOf(
+            Bracketed(
+                OneOf(
+                    Delimited(
+                        Ref("Expression_A_Grammar"),
+                    ),
+                    Ref("SelectableGrammar"),
+                ),
+                parse_mode=ParseMode.GREEDY,
+            ),
+            Ref("FunctionSegment"),  # E.g. IN tuple(1, 2)
+            Ref("ArrayLiteralSegment"),  # E.g. IN [1, 2]
+            Ref("SingleIdentifierGrammar"),  # E.g. IN TABLE, IN CTE
+        ),
     ),
     SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "SelectClauseTerminatorGrammar"

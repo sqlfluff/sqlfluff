@@ -1,0 +1,137 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 78f48a4f5b7c915e5b6a6874ea999d6562b0f96b7234100eb7b65935b91de567
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+      where_clause:
+        keyword: where
+        expression:
+          column_reference:
+            naked_identifier: int_col
+          keyword: in
+          bracketed:
+          - start_bracket: (
+          - numeric_literal: '1'
+          - comma: ','
+          - numeric_literal: '2'
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+      where_clause:
+        keyword: where
+        expression:
+          column_reference:
+            naked_identifier: int_col
+          keyword: in
+          array_literal:
+          - start_square_bracket: '['
+          - numeric_literal: '1'
+          - comma: ','
+          - numeric_literal: '2'
+          - end_square_bracket: ']'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+      where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+            naked_identifier: int_col
+        - keyword: global
+        - keyword: in
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '1'
+          - comma: ','
+          - numeric_literal: '2'
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+      where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+            naked_identifier: int_col
+        - keyword: not
+        - keyword: in
+        - array_literal:
+          - start_square_bracket: '['
+          - function:
+              function_name:
+                function_name_identifier: toUUID
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'a'"
+                  end_bracket: )
+          - comma: ','
+          - function:
+              function_name:
+                function_name_identifier: toUUID
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'b'"
+                  end_bracket: )
+          - end_square_bracket: ']'
+- statement_terminator: ;
