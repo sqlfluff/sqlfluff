@@ -5022,8 +5022,8 @@ class ConflictActionSegment(BaseSegment):
                     )
                 ),
                 Dedent,
-                Dedent,
                 Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
+                Dedent,
             ),
         ),
     )
