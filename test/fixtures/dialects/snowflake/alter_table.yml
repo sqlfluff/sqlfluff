@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 30c6c34c4d19cfa5d570936c1315663c44a95fbd45bf86d954f61300aaef70c5
+_hash: b00a25c5555c580fe1fabae9a87864d2737ecb8c3ec61da3fc8158c623e24863
 file:
 - statement:
     alter_table_statement:
@@ -720,7 +720,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: my_table
-    - data_gov_policy_tag_action_segment:
+    - data_governance_policy_tag_action_segment:
         keyword: SET
         tag_equals:
           keyword: TAG
@@ -736,7 +736,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: my_table
-    - data_gov_policy_tag_action_segment:
+    - data_governance_policy_tag_action_segment:
         keyword: SET
         tag_equals:
         - keyword: TAG
@@ -770,7 +770,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: my_table
-    - data_gov_policy_tag_action_segment:
+    - data_governance_policy_tag_action_segment:
         keyword: UNSET
         tag_equals:
           keyword: TAG
@@ -786,7 +786,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: my_table
-    - data_gov_policy_tag_action_segment:
+    - data_governance_policy_tag_action_segment:
         keyword: UNSET
         tag_equals:
         - keyword: TAG
@@ -820,7 +820,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: my_table
-    - data_gov_policy_tag_action_segment:
+    - data_governance_policy_tag_action_segment:
       - keyword: ADD
       - keyword: ROW
       - keyword: ACCESS
@@ -840,7 +840,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: my_table
-    - data_gov_policy_tag_action_segment:
+    - data_governance_policy_tag_action_segment:
       - keyword: ADD
       - keyword: ROW
       - keyword: ACCESS
@@ -866,7 +866,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: my_table
-    - data_gov_policy_tag_action_segment:
+    - data_governance_policy_tag_action_segment:
       - keyword: DROP
       - keyword: ROW
       - keyword: ACCESS
@@ -880,7 +880,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: my_table
-    - data_gov_policy_tag_action_segment:
+    - data_governance_policy_tag_action_segment:
       - keyword: DROP
       - keyword: ROW
       - keyword: ACCESS
@@ -907,7 +907,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: my_table
-    - data_gov_policy_tag_action_segment:
+    - data_governance_policy_tag_action_segment:
       - keyword: DROP
       - keyword: ROW
       - keyword: ACCESS
@@ -940,7 +940,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: my_table
-    - data_gov_policy_tag_action_segment:
+    - data_governance_policy_tag_action_segment:
       - keyword: DROP
       - keyword: ALL
       - keyword: ROW
@@ -953,7 +953,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: my_table
-    - data_gov_policy_tag_action_segment:
+    - data_governance_policy_tag_action_segment:
       - keyword: SET
       - keyword: AGGREGATION
       - keyword: POLICY
@@ -966,7 +966,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: my_table
-    - data_gov_policy_tag_action_segment:
+    - data_governance_policy_tag_action_segment:
       - keyword: SET
       - keyword: AGGREGATION
       - keyword: POLICY
@@ -986,7 +986,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: my_table
-    - data_gov_policy_tag_action_segment:
+    - data_governance_policy_tag_action_segment:
       - keyword: SET
       - keyword: AGGREGATION
       - keyword: POLICY
@@ -1012,7 +1012,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: my_table
-    - data_gov_policy_tag_action_segment:
+    - data_governance_policy_tag_action_segment:
       - keyword: SET
       - keyword: AGGREGATION
       - keyword: POLICY
@@ -1026,7 +1026,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: my_table
-    - data_gov_policy_tag_action_segment:
+    - data_governance_policy_tag_action_segment:
       - keyword: SET
       - keyword: AGGREGATION
       - keyword: POLICY
@@ -1047,7 +1047,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: my_table
-    - data_gov_policy_tag_action_segment:
+    - data_governance_policy_tag_action_segment:
       - keyword: UNSET
       - keyword: AGGREGATION
       - keyword: POLICY
@@ -1058,7 +1058,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: my_table
-    - data_gov_policy_tag_action_segment:
+    - data_governance_policy_tag_action_segment:
       - keyword: SET
       - keyword: JOIN
       - keyword: POLICY
@@ -1071,7 +1071,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: my_table
-    - data_gov_policy_tag_action_segment:
+    - data_governance_policy_tag_action_segment:
       - keyword: SET
       - keyword: JOIN
       - keyword: POLICY
@@ -1085,7 +1085,7 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: my_table
-    - data_gov_policy_tag_action_segment:
+    - data_governance_policy_tag_action_segment:
       - keyword: UNSET
       - keyword: JOIN
       - keyword: POLICY

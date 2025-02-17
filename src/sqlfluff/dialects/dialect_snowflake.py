@@ -2093,15 +2093,15 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     ),
                 ),
             ),
-            Ref("DataGovnPolicyTagActionSegment"),
+            Ref("DataGovernancePolicyTagActionSegment"),
         ),
     )
 
 
-class DataGovnPolicyTagActionSegment(BaseSegment):
+class DataGovernancePolicyTagActionSegment(BaseSegment):
     """The dataGovnPolicyTagAction segment for alter table parsing."""
 
-    type = "data_gov_policy_tag_action_segment"
+    type = "data_governance_policy_tag_action_segment"
 
     match_grammar = OneOf(
         Sequence(
