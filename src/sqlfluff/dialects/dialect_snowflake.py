@@ -2296,6 +2296,11 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                 optional=True,
             ),
         ),
+        Sequence(
+            "DROP",
+            "CONSTRAINT",
+            Ref("ObjectReferenceSegment"),
+        ),
     )
 
 
