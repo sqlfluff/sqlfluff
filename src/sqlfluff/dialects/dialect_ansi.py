@@ -818,6 +818,16 @@ class IntervalExpressionSegment(BaseSegment):
     )
 
 
+class TupleSegment(BaseSegment):
+    """Expression to construct a TUPLE.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#tuple_syntax
+    """
+
+    type = "tuple"
+    match_grammar = Bracketed(Delimited(Ref("BaseExpressionElementGrammar")))
+
+
 class ArrayTypeSegment(BaseSegment):
     """Prefix for array literals specifying the type.
 

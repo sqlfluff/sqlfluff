@@ -1314,16 +1314,6 @@ class ArrayExpressionSegment(ansi.ArrayExpressionSegment):
     )
 
 
-class TupleSegment(BaseSegment):
-    """Expression to construct a TUPLE.
-
-    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#tuple_syntax
-    """
-
-    type = "tuple"
-    match_grammar = Bracketed(Delimited(Ref("BaseExpressionElementGrammar")))
-
-
 class NamedArgumentSegment(BaseSegment):
     """Named argument to a function.
 

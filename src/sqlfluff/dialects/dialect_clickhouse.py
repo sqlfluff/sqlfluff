@@ -240,6 +240,10 @@ clickhouse_dialect.replace(
         Ref.keyword("NOT", optional=True),
         "IN",
         OneOf(
+            Ref("FunctionSegment"),  # E.g. IN tuple(1, 2)
+            Ref("ArrayLiteralSegment"),  # E.g. IN [1, 2]
+            Ref("TupleSegment"),  # E.g. IN (1, 2)
+            Ref("SingleIdentifierGrammar"),  # E.g. IN TABLE, IN CTE
             Bracketed(
                 OneOf(
                     Delimited(
@@ -249,9 +253,6 @@ clickhouse_dialect.replace(
                 ),
                 parse_mode=ParseMode.GREEDY,
             ),
-            Ref("FunctionSegment"),  # E.g. IN tuple(1, 2)
-            Ref("ArrayLiteralSegment"),  # E.g. IN [1, 2]
-            Ref("SingleIdentifierGrammar"),  # E.g. IN TABLE, IN CTE
         ),
     ),
     SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
