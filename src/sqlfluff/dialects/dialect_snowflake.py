@@ -1439,6 +1439,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterRowAccessPolicyStatmentSegment"),
             Ref("AlterTagStatementSegment"),
             Ref("ExceptionBlockStatementSegment"),
+            Ref("DropDynamicTableSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -9132,4 +9133,18 @@ class ExceptionBlockStatementSegment(BaseSegment):
                 Ref("StatementSegment"),
             ),
         ),
+    )
+
+
+class DropDynamicTableSegment(BaseSegment):
+    """Drop dynamic table segment."""
+
+    type = "drop_dynamic_table_segment"
+
+    match_grammar = Sequence(
+        "DROP",
+        "DYNAMIC",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
     )
