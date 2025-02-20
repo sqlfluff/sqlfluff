@@ -1,0 +1,25 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1c894e9461583beca1e58e234e36bd15637b4e6d22bf89a60751c5b488ab57f0
+file:
+- statement:
+    drop_dynamic_table_segment:
+    - keyword: DROP
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - object_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    drop_dynamic_table_segment:
+    - keyword: DROP
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
