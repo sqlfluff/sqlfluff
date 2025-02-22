@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 12d7e9e7e03ef1a35e91fa4258be722ef43fb9dd4d7c1e251e1909a0fb24b499
+_hash: 9eec6cfe5e73ecdcee8624fae8b6172f082deb550dcb83cab053fe1e6500bf6e
 file:
 - statement:
     alter_table_statement:
@@ -183,4 +183,27 @@ file:
             - keyword: 'NULL'
           - keyword: ENABLE
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: employees
+    - alter_table_constraint_clauses:
+        keyword: ADD
+        table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: salary_check
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: salary
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0'
+            end_bracket: )
 - statement_terminator: ;
