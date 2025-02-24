@@ -64,6 +64,8 @@ ALTER TABLE table1 ADD CONSTRAINT constraint1 FOREIGN KEY (address) REFERENCES a
 
 ALTER TABLE table1 ADD CONSTRAINT constraint1 FOREIGN KEY (address) REFERENCES addresses (address) MATCH PARTIAL;
 
+ALTER TABLE table1 DROP CONSTRAINT my_constraint;
+
 ALTER TABLE my_table SET TAG tag1 = "some_value";
 
 ALTER TABLE my_table SET TAG tag1 = "some_value", tag2 = "some_value", tag3 = "some_value", tag4 = "some_value";

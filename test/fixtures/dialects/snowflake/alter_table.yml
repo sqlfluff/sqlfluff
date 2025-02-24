@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b00a25c5555c580fe1fabae9a87864d2737ecb8c3ec61da3fc8158c623e24863
+_hash: fb0089be6cd99b72160379caa3d33bf5e16f43d6376f4e762db2964fa123dde5
 file:
 - statement:
     alter_table_statement:
@@ -713,6 +713,18 @@ file:
             end_bracket: )
         - keyword: MATCH
         - keyword: PARTIAL
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - keyword: CONSTRAINT
+      - object_reference:
+          naked_identifier: my_constraint
 - statement_terminator: ;
 - statement:
     alter_table_statement:

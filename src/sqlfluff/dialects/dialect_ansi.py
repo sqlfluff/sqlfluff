@@ -172,6 +172,11 @@ ansi_dialect.set_lexer_matchers(
             r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
             LiteralSegment,
         ),
+        RegexLexer(
+            "obevo_annotation",
+            r"////\s*(CHANGE|BODY|METADATA)[^\n]*",
+            CommentSegment,
+        ),
         RegexLexer("like_operator", r"!?~~?\*?", ComparisonOperatorSegment),
         RegexLexer("newline", r"\r\n|\n", NewlineSegment),
         StringLexer("casting_operator", "::", CodeSegment),
@@ -816,6 +821,16 @@ class IntervalExpressionSegment(BaseSegment):
             ),
         ),
     )
+
+
+class TupleSegment(BaseSegment):
+    """Expression to construct a TUPLE.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#tuple_syntax
+    """
+
+    type = "tuple"
+    match_grammar = Bracketed(Delimited(Ref("BaseExpressionElementGrammar")))
 
 
 class ArrayTypeSegment(BaseSegment):
