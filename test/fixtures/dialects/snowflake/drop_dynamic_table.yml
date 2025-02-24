@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1c894e9461583beca1e58e234e36bd15637b4e6d22bf89a60751c5b488ab57f0
+_hash: 768773afafbf00637796a35f27f6e969b650b9b1c040332f15cab4dc776facb4
 file:
 - statement:
     drop_dynamic_table_segment:
     - keyword: DROP
     - keyword: DYNAMIC
     - keyword: TABLE
-    - object_reference:
+    - table_reference:
         naked_identifier: my_table
 - statement_terminator: ;
 - statement:
@@ -20,6 +20,6 @@ file:
     - keyword: TABLE
     - keyword: IF
     - keyword: EXISTS
-    - object_reference:
+    - table_reference:
         naked_identifier: my_table
 - statement_terminator: ;
