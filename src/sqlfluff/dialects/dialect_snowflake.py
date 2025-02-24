@@ -9146,5 +9146,5 @@ class DropDynamicTableSegment(BaseSegment):
         "DYNAMIC",
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
     )
