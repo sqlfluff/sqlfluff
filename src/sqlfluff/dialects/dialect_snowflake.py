@@ -9159,7 +9159,7 @@ class CreateAuthenticationPolicySegment(BaseSegment):
             optional=True,
         ),
         Sequence(
-            "MFA_AUTHENTICATION_METHOD",
+            "MFA_AUTHENTICATION_METHODS",
             Ref("EqualsSegment"),
             Bracketed(
                 Delimited(
