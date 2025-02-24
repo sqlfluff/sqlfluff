@@ -105,3 +105,17 @@ test_pass_duckdb_replace_expression:
   configs:
     core:
       dialect: duckdb
+
+test_fail_subquery_without_alias:
+  fail_str: |
+    SELECT
+        (SELECT MAX(t.col) AS m FROM t),
+        (SELECT MAX(t.col2) AS m FROM t)
+    FROM tbl;
+
+test_pass_subquery_with_alias:
+  pass_str: |
+    SELECT
+        (SELECT MAX(t.col) AS m FROM t) AS a,
+        (SELECT MAX(t.col2) AS m FROM t) AS b
+    FROM tbl;

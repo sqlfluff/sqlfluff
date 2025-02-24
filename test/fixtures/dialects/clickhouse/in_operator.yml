@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 846662c040f27c95a6da4d17ae6a4c57d7eab1f9757b1e66608e955d9e199cb7
+_hash: 15c6a5e3466927fe29c0ab9f7f85b50f459ded3952818f223e1b3e09df5577a0
 file:
 - statement:
     select_statement:
@@ -33,30 +33,32 @@ file:
           column_reference:
             naked_identifier: col1
           keyword: IN
-          bracketed:
-            start_bracket: (
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  column_reference:
-                    naked_identifier: col1
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        naked_identifier: table1
-              where_clause:
-                keyword: WHERE
-                expression:
-                  column_reference:
-                    naked_identifier: col2
-                  comparison_operator:
-                    raw_comparison_operator: '='
-                  numeric_literal: '34'
-            end_bracket: )
+          tuple:
+            bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      column_reference:
+                        naked_identifier: col1
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: table1
+                  where_clause:
+                    keyword: WHERE
+                    expression:
+                      column_reference:
+                        naked_identifier: col2
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      numeric_literal: '34'
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -87,30 +89,32 @@ file:
             naked_identifier: col1
         - keyword: NOT
         - keyword: IN
-        - bracketed:
-            start_bracket: (
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  column_reference:
-                    naked_identifier: col1
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        naked_identifier: table1
-              where_clause:
-                keyword: WHERE
-                expression:
-                  column_reference:
-                    naked_identifier: col2
-                  comparison_operator:
-                    raw_comparison_operator: '='
-                  numeric_literal: '34'
-            end_bracket: )
+        - tuple:
+            bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      column_reference:
+                        naked_identifier: col1
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: table1
+                  where_clause:
+                    keyword: WHERE
+                    expression:
+                      column_reference:
+                        naked_identifier: col2
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      numeric_literal: '34'
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -141,30 +145,32 @@ file:
             naked_identifier: col1
         - keyword: GLOBAL
         - keyword: IN
-        - bracketed:
-            start_bracket: (
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  column_reference:
-                    naked_identifier: col1
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        naked_identifier: table1
-              where_clause:
-                keyword: WHERE
-                expression:
-                  column_reference:
-                    naked_identifier: col2
-                  comparison_operator:
-                    raw_comparison_operator: '='
-                  numeric_literal: '34'
-            end_bracket: )
+        - tuple:
+            bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      column_reference:
+                        naked_identifier: col1
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: table1
+                  where_clause:
+                    keyword: WHERE
+                    expression:
+                      column_reference:
+                        naked_identifier: col2
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      numeric_literal: '34'
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -196,30 +202,32 @@ file:
         - keyword: GLOBAL
         - keyword: NOT
         - keyword: IN
-        - bracketed:
-            start_bracket: (
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  column_reference:
-                    naked_identifier: col1
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        naked_identifier: table1
-              where_clause:
-                keyword: WHERE
-                expression:
-                  column_reference:
-                    naked_identifier: col2
-                  comparison_operator:
-                    raw_comparison_operator: '='
-                  numeric_literal: '34'
-            end_bracket: )
+        - tuple:
+            bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      column_reference:
+                        naked_identifier: col1
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: table1
+                  where_clause:
+                    keyword: WHERE
+                    expression:
+                      column_reference:
+                        naked_identifier: col2
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      numeric_literal: '34'
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:

@@ -623,6 +623,7 @@ tsql_dialect.replace(
             Ref("ColumnReferenceSegment"),
             Ref("TypedArrayLiteralSegment"),
             Ref("ArrayLiteralSegment"),
+            "DEFAULT",
         ),
         Ref("AccessorGrammar", optional=True),
         allow_gaps=True,
