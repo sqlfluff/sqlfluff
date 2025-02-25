@@ -5772,6 +5772,7 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
             Dedent,
             optional=True,
         ),
+        Ref("JoinClauseSegment", optional=True),
         OneOf(
             Sequence("WHERE", "CURRENT", "OF", Ref("ObjectReferenceSegment")),
             Ref("WhereClauseSegment"),
