@@ -332,6 +332,86 @@ def test__cli__command_stdin_filename_config(command, stdin_filepath, ret_code, 
 
 
 @pytest.mark.parametrize(
+    ("command", "stdin_filepath", "cli_input", "output"),
+    [
+        (
+            fix,
+            "test/fixtures/linter/autofix/snowflake/002_previously_parse_tree_damaging/.sqlfluff",
+            "SeLECT * From TABLE1 t Where A > 100 AND B between 12 AND 45;",
+            "SELECT * FROM table1\nWHERE a > 100 AND b BETWEEN 12 AND 45;\n",
+        ),
+        (
+            fix,
+            "test/fixtures/linter/autofix/snowflake/002_previously_parse_tree_damaging/.sqlfluff",
+            (
+                " SELECT t.*,j1.x,j2.y FROM TABLE1 t JOIN JT1 j1 ON j1.a = t.a "
+                " LEFT OUTER JOIN JT2 j2 ON j2.a=t.a AND j2.b=j1.b "
+                " WHERE t.xxx IS NOT NULL; "
+            ),
+            "SELECT\n  t.*,\n  j1.x,\n  j2.y\nFROM table1 t INNER JOIN jt1 j1 ON t.a = j1.a LEFT OUTER JOIN jt2 j2 ON t.a = j2.a AND j1.b = j2.b\nWHERE t.xxx IS NOT NULL;",
+        ),
+        (
+            fix,
+            "test/fixtures/linter/autofix/snowflake/002_previously_parse_tree_damaging/.sqlfluff",
+            (
+                """SELECT table1.id, table2.number, SUM(table1.amount) FROM table1 INNER JOIN table2 ON table1.id = table2.table1_id
+                WHERE table1.id IN (SELECT table1_id FROM table3 WHERE table3.name = 'Foo Bar' and table3.type = 'unknown_type')
+                GROUP BY table1.id, table2.number ORDER BY table1.id;"""
+            ),
+            (
+                "SELECT\n  table1.id,\n  table2.number,\n  sum(table1.amount)\nFROM table1 INNER JOIN table2 ON table1.id = table2.table1_id\n"
+                "WHERE\n  table1.id IN (\n    SELECT table1_id FROM table3\n    WHERE table3.name = 'Foo Bar' AND table3.type = 'unknown_type'\n  )\n"
+                "GROUP BY table1.id, table2.number\nORDER BY table1.id;"
+            ),
+        ),
+        (
+            fix,
+            "test/fixtures/an_ansi_config_here.sql",
+            "SeLECT * From TABLE1 t Where A > 100 AND B between 12 AND 45;",
+            "SELECT * FROM TABLE1\nWHERE A > 100 AND B BETWEEN 12 AND 45;",
+        ),
+    ],
+)
+def test__cli__command_stdin_verbose(command, stdin_filepath, cli_input, output):
+    """Check the script picks up the config from the indicated path."""
+    # Arrange
+    args_verbose = [
+        command,
+        [
+            "--stdin-filename",
+            stdin_filepath,
+            "-",
+        ],
+    ]
+    args_quit = [
+        command,
+        [
+            "-q",
+            "--stdin-filename",
+            stdin_filepath,
+            "-",
+        ],
+    ]
+    kwargs = {"input": cli_input}
+    runner = CliRunner()
+
+    # Act
+    result_verbose = runner.invoke(*args_verbose, **kwargs)
+    result_quit = runner.invoke(*args_quit, **kwargs)
+
+    # Assert
+    assert output in result_verbose.output
+    assert (
+        "WARNING" in result_verbose.output
+        or "Unfixable violations detected" in result_verbose.output
+    )
+
+    assert output in result_quit.output
+    assert "WARNING" not in result_quit.output
+    assert "Unfixable violations detected" not in result_quit.output
+
+
+@pytest.mark.parametrize(
     "command",
     [
         (

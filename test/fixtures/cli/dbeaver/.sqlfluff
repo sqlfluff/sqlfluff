@@ -1,0 +1,20 @@
+[sqlfluff]
+dialect = oracle
+templater = jinja
+exclude_rules = AL05,ST06,AL03
+max_line_length = 120
+
+[sqlfluff:layout:type:comma]
+line_position = leading
+
+[sqlfluff:indentation]
+tab_space_size = 4
+
+[sqlfluff:rules:capitalisation.keywords]  # Keywords
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.identifiers]  # Unquoted identifiers
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.functions]  # Function names
+extended_capitalisation_policy = capitalise
