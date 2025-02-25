@@ -1,0 +1,143 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a37eed13c4e996a62daade20220a7dbd0965899a21e34ba0dbc91afaf31accd7
+file:
+- statement:
+    create_authentication_policy_segment:
+    - keyword: CREATE
+    - keyword: AUTHENTICATION
+    - keyword: POLICY
+    - table_reference:
+        naked_identifier: my_policy
+- statement_terminator: ;
+- statement:
+    create_authentication_policy_segment:
+    - keyword: CREATE
+    - keyword: AUTHENTICATION
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: my_authentication_policy
+    - keyword: AUTHENTICATION_METHODS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'MY METHOD'"
+        end_bracket: )
+    - keyword: CLIENT_TYPES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'MY CLIENT'"
+        end_bracket: )
+    - keyword: COMMENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'My Comment'"
+- statement_terminator: ;
+- statement:
+    create_authentication_policy_segment:
+    - keyword: CREATE
+    - keyword: AUTHENTICATION
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: my_authentication_policy
+    - keyword: AUTHENTICATION_METHODS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'METHOD1'"
+      - comma: ','
+      - quoted_literal: "'METHOD2'"
+      - comma: ','
+      - quoted_literal: "'METHOD3'"
+      - end_bracket: )
+    - keyword: CLIENT_TYPES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'CLIENT1'"
+      - comma: ','
+      - quoted_literal: "'CLIENT2'"
+      - comma: ','
+      - quoted_literal: "'CLIENT3'"
+      - end_bracket: )
+    - keyword: COMMENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'My Comment'"
+- statement_terminator: ;
+- statement:
+    create_authentication_policy_segment:
+    - keyword: CREATE
+    - keyword: AUTHENTICATION
+    - keyword: POLICY
+    - table_reference:
+        naked_identifier: my_policy
+    - keyword: MFA_AUTHENTICATION_METHODS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'METHOD1'"
+        end_bracket: )
+    - keyword: MFA_ENROLLMENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: REQUIRED
+    - keyword: SECURITY_INTEGRATIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'INTEGRATION1'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_authentication_policy_segment:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: AUTHENTICATION
+    - keyword: POLICY
+    - table_reference:
+        naked_identifier: my_policy
+    - keyword: MFA_AUTHENTICATION_METHODS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'METHOD1'"
+      - comma: ','
+      - quoted_literal: "'METHOD2'"
+      - comma: ','
+      - quoted_literal: "'METHOD3'"
+      - end_bracket: )
+    - keyword: MFA_ENROLLMENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: REQUIRED
+    - keyword: SECURITY_INTEGRATIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'INTEGRATION1'"
+      - comma: ','
+      - quoted_literal: "'INTEGRATION2'"
+      - comma: ','
+      - quoted_literal: "'INTEGRATION3'"
+      - end_bracket: )
+- statement_terminator: ;
