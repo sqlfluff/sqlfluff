@@ -9147,7 +9147,7 @@ class CreateAuthenticationPolicySegment(BaseSegment):
         "AUTHENTICATION",
         "POLICY",
         Ref("IfNotExistsGrammar", optional=True),
-        Ref("LocalVariableNameSegment"),
+        Ref("TableReferenceSegment"),
         Sequence(
             "AUTHENTICATION_METHODS",
             Ref("EqualsSegment"),

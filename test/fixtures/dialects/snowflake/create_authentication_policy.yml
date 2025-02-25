@@ -3,14 +3,15 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 88b91ea21fa2724806e7783813689c96acb6e5ec49ac58ce5428df859c86da10
+_hash: a37eed13c4e996a62daade20220a7dbd0965899a21e34ba0dbc91afaf31accd7
 file:
 - statement:
     create_authentication_policy_segment:
     - keyword: CREATE
     - keyword: AUTHENTICATION
     - keyword: POLICY
-    - variable: my_policy
+    - table_reference:
+        naked_identifier: my_policy
 - statement_terminator: ;
 - statement:
     create_authentication_policy_segment:
@@ -20,7 +21,8 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - variable: my_authentication_policy
+    - table_reference:
+        naked_identifier: my_authentication_policy
     - keyword: AUTHENTICATION_METHODS
     - comparison_operator:
         raw_comparison_operator: '='
@@ -48,7 +50,8 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - variable: my_authentication_policy
+    - table_reference:
+        naked_identifier: my_authentication_policy
     - keyword: AUTHENTICATION_METHODS
     - comparison_operator:
         raw_comparison_operator: '='
@@ -81,7 +84,8 @@ file:
     - keyword: CREATE
     - keyword: AUTHENTICATION
     - keyword: POLICY
-    - variable: my_policy
+    - table_reference:
+        naked_identifier: my_policy
     - keyword: MFA_AUTHENTICATION_METHODS
     - comparison_operator:
         raw_comparison_operator: '='
@@ -108,7 +112,8 @@ file:
     - keyword: REPLACE
     - keyword: AUTHENTICATION
     - keyword: POLICY
-    - variable: my_policy
+    - table_reference:
+        naked_identifier: my_policy
     - keyword: MFA_AUTHENTICATION_METHODS
     - comparison_operator:
         raw_comparison_operator: '='
