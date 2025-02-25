@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f3d3ebfa833192cd017717cf293af0454a2e0acf78d95c13748c92815644c3e3
+_hash: 773d46c9822264c11a50e66320e345bd3253d204df2f380934c05a4ef8213003
 file:
 - statement:
     scripting_declare_statement:
@@ -62,17 +62,18 @@ file:
         comma: ','
         quoted_literal: "'my first exception'"
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        scripting_let_statement:
+          variable: profit
+          assignment_operator: :=
+          expression:
+            numeric_literal: '1.0'
     - statement_terminator: ;
-    - scripting_block_statement:
-      - keyword: BEGIN
-      - statement:
-          scripting_let_statement:
-            variable: profit
-            assignment_operator: :=
-            expression:
-              numeric_literal: '1.0'
-      - statement_terminator: ;
-      - keyword: END
+    - keyword: END
 - statement_terminator: ;
 - statement:
     scripting_declare_statement:
@@ -104,15 +105,130 @@ file:
     - keyword: CURSOR
     - keyword: FOR
     - variable: res
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+        return_statement:
+          keyword: RETURN
+          expression:
+            column_reference:
+              naked_identifier: c1
     - statement_terminator: ;
-    - scripting_block_statement:
-      - keyword: BEGIN
-      - statement:
-          return_statement:
-            keyword: RETURN
-            expression:
-              column_reference:
-                naked_identifier: c1
-      - statement_terminator: ;
-      - keyword: END
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_declare_statement:
+    - keyword: DECLARE
+    - variable: res
+    - keyword: RESULTSET
+- statement_terminator: ;
+- statement:
+    scripting_declare_statement:
+    - keyword: DECLARE
+    - variable: res
+    - keyword: RESULTSET
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    scripting_declare_statement:
+    - keyword: DECLARE
+    - variable: res
+    - data_type:
+        data_type_identifier: RESULTSET
+    - keyword: DEFAULT
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: ASYNC
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      column_reference:
+                        naked_identifier: a
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: t001
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: a
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    scripting_declare_statement:
+      keyword: DECLARE
+      variable: res
+      data_type:
+        data_type_identifier: RESULTSET
+      assignment_operator: :=
+      expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: a
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: t001
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: a
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    scripting_declare_statement:
+      keyword: DECLARE
+      variable: res
+      data_type:
+        data_type_identifier: RESULTSET
+      assignment_operator: :=
+      expression:
+        function:
+          function_name:
+            function_name_identifier: ASYNC
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      column_reference:
+                        naked_identifier: a
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: t001
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: a
+              end_bracket: )
 - statement_terminator: ;
