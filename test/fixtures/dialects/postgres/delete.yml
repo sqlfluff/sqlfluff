@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 807bc630f751ca3385876e9134d7b8d6e4a64f4898fca5dcfe14f3cf656b92b2
+_hash: 9490e035393d40c490bdb4928e5e43d4def7c95e792dfa39e772729a6ad7ac6b
 file:
 - statement:
     delete_statement:
@@ -546,4 +546,56 @@ file:
       - keyword: FROM
       - table_reference:
           naked_identifier: films
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: foo
+    - keyword: USING
+    - table_expression:
+        table_reference:
+          naked_identifier: baz
+    - join_clause:
+      - keyword: LEFT
+      - keyword: JOIN
+      - from_expression_element:
+          table_expression:
+            table_reference:
+              naked_identifier: bar
+      - join_on_condition:
+          keyword: 'ON'
+          expression:
+          - column_reference:
+            - naked_identifier: baz
+            - dot: .
+            - naked_identifier: bar_id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: bar
+            - dot: .
+            - naked_identifier: id
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: foo
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: bar
+          - dot: .
+          - naked_identifier: foo_id
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: baz
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'c'"
 - statement_terminator: ;
