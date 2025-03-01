@@ -9306,6 +9306,7 @@ class DropDynamicTableSegment(BaseSegment):
         Ref("TableReferenceSegment"),
     )
 
+
 class CreateAuthenticationPolicySegment(BaseSegment):
     """A Snowflake Create Authentication Policy Segment."""
 
