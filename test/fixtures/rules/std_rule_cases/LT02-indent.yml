@@ -2381,6 +2381,29 @@ test_fail_postgres_insert_returning:
     core:
       dialect: postgres
 
+test_fail_postgres_on_conflict_returning:
+  fail_str: |
+    INSERT INTO foo (
+    id, bar
+    )
+    VALUES (
+    $1, $2
+    ) ON CONFLICT (id) DO UPDATE
+    SET
+    bar = $2;
+  fix_str: |
+    INSERT INTO foo (
+      id, bar
+    )
+    VALUES (
+      $1, $2
+    ) ON CONFLICT (id) DO UPDATE
+        SET
+            bar = $2;
+  configs:
+    core:
+      dialect: postgres
+
 test_fail_ansi_update:
   fail_str: |
     UPDATE
