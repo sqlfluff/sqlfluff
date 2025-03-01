@@ -9304,6 +9304,7 @@ class DropDynamicTableSegment(BaseSegment):
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
+    )
 
       
 class CreateAuthenticationPolicySegment(BaseSegment):
