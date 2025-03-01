@@ -52,3 +52,8 @@ WITH RECURSIVE t(n) AS (
     SELECT n+1 FROM t WHERE n < 100
 )
 DELETE FROM films;
+
+DELETE FROM foo USING baz
+  LEFT JOIN bar ON baz.bar_id = bar.id
+  WHERE foo.id = bar.foo_id
+    AND baz.id = 'c';
