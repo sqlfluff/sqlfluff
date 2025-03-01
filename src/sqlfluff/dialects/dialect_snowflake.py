@@ -1439,6 +1439,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterRowAccessPolicyStatmentSegment"),
             Ref("AlterTagStatementSegment"),
             Ref("ExceptionBlockStatementSegment"),
+            Ref("CreateAuthenticationPolicySegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -9188,5 +9189,75 @@ class ExceptionBlockStatementSegment(BaseSegment):
                 ),
                 Ref("StatementSegment"),
             ),
+        ),
+    )
+
+
+class CreateAuthenticationPolicySegment(BaseSegment):
+    """A Snowflake Create Authentication Policy Segment."""
+
+    type = "create_authentication_policy_segment"
+
+    match_grammar = Sequence(
+        "Create",
+        Ref("OrReplaceGrammar", optional=True),
+        "AUTHENTICATION",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "AUTHENTICATION_METHODS",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "MFA_AUTHENTICATION_METHODS",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "MFA_ENROLLMENT",
+            Ref("EqualsSegment"),
+            OneOf(
+                "REQUIRED",
+                "OPTIONAL",
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "CLIENT_TYPES",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "SECURITY_INTEGRATIONS",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "COMMENT",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
         ),
     )
