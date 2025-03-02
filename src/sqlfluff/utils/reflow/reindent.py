@@ -1213,6 +1213,7 @@ def _lint_line_starting_indent(
     indent_line: _IndentLine,
     single_indent: str,
     forced_indents: list[int],
+    leading_comma_align_elements: bool,
 ) -> list[LintResult]:
     """Lint the indent at the start of a line.
 
@@ -1227,7 +1228,13 @@ def _lint_line_starting_indent(
         elements, indent_points[-1].last_line_break_idx
     )
     desired_indent_units = indent_line.desired_indent_units(forced_indents)
-    desired_starting_indent = desired_indent_units * single_indent
+    desired_starting_indent = _calculate_desired_starting_indent(
+        elements=elements,
+        initial_point_idx=initial_point_idx,
+        desired_indent_units=desired_indent_units,
+        single_indent=single_indent,
+        leading_comma_align_elements=leading_comma_align_elements,
+    )
     initial_point = cast(ReflowPoint, elements[initial_point_idx])
 
     if current_indent == desired_starting_indent:
@@ -1310,6 +1317,47 @@ def _lint_line_starting_indent(
 
     elements[initial_point_idx] = new_point
     return new_results
+
+
+def _calculate_desired_starting_indent(
+    elements: ReflowSequenceType,
+    initial_point_idx: int,
+    desired_indent_units: int,
+    single_indent: str,
+    leading_comma_align_elements: bool,
+) -> str:
+    """Calculate the desired starting indent, accounting for leading comma alignment."""
+    unaligned_starting_indent = desired_indent_units * single_indent
+
+    # If leading comma alignment is not enabled, simply return the desired indent.
+    if not leading_comma_align_elements:
+        return unaligned_starting_indent
+
+    # We don't have a good way to enable leading comma alignment for tabs or spaces with
+    # size less than 4, so we'll warn and return the desired indent.
+    if len(single_indent) < 4 or set(single_indent) != {" "}:
+        reflow_logger.warning(
+            "`leading_comma_align_elements` is only supported for `indent_unit` set to "
+            "`space` and `tab_space_size` set to 4."
+        )
+        return unaligned_starting_indent
+
+    # Leading comma alignment is enabled, so we need to check if the current
+    # working line is not the first column reference.
+    if len(elements[initial_point_idx + 1].segments) > 1:
+        initial_seg = elements[initial_point_idx + 1].segments[0]
+        parent_result = initial_seg.get_parent()
+        if not parent_result:
+            return unaligned_starting_indent
+
+        initial_seg_parent, initial_seg_parent_idx = parent_result
+        if initial_seg_parent_idx > 0 and initial_seg.is_type("comma"):
+            reflow_logger.debug("    Not the first column reference. Dedent by 2.")
+            # TODO: should not be a fix number 2
+            # but depends on if there is whitespace following
+            return unaligned_starting_indent[:-2]
+
+    return unaligned_starting_indent
 
 
 def _lint_line_untaken_positive_indents(
@@ -1527,6 +1575,7 @@ def _lint_line_buffer_indents(
     single_indent: str,
     forced_indents: list[int],
     imbalanced_indent_locs: list[int],
+    leading_comma_align_elements: bool,
 ) -> list[LintResult]:
     """Evaluate a single set of indent points on one line.
 
@@ -1580,7 +1629,11 @@ def _lint_line_buffer_indents(
 
     # First, handle starting indent.
     results += _lint_line_starting_indent(
-        elements, indent_line, single_indent, forced_indents
+        elements=elements,
+        indent_line=indent_line,
+        single_indent=single_indent,
+        forced_indents=forced_indents,
+        leading_comma_align_elements=leading_comma_align_elements,
     )
 
     # Second, handle potential missing positive indents.
@@ -1616,6 +1669,7 @@ def lint_indent_points(
     skip_indentation_in: frozenset[str] = frozenset(),
     allow_implicit_indents: bool = False,
     ignore_comment_lines: bool = False,
+    leading_comma_align_elements: bool = False,
 ) -> tuple[ReflowSequenceType, list[LintResult]]:
     """Lint the indent points to check we have line breaks where we should.
 
@@ -1678,7 +1732,12 @@ def lint_indent_points(
     elem_buffer = elements.copy()  # Make a working copy to mutate.
     for line in lines:
         line_results = _lint_line_buffer_indents(
-            elem_buffer, line, single_indent, forced_indents, imbalanced_indent_locs
+            elements=elem_buffer,
+            indent_line=line,
+            single_indent=single_indent,
+            forced_indents=forced_indents,
+            imbalanced_indent_locs=imbalanced_indent_locs,
+            leading_comma_align_elements=leading_comma_align_elements,
         )
         if line_results:
             reflow_logger.info("      PROBLEMS:")

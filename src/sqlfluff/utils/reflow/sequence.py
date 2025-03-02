@@ -593,6 +593,7 @@ class ReflowSequence:
             skip_indentation_in=self.reflow_config.skip_indentation_in,
             allow_implicit_indents=self.reflow_config.allow_implicit_indents,
             ignore_comment_lines=self.reflow_config.ignore_comment_lines,
+            leading_comma_align_elements=self.reflow_config.leading_comma_align_elements,  # noqa: E501
         )
 
         return ReflowSequence(
