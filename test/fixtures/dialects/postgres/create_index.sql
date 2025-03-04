@@ -39,3 +39,5 @@ CREATE INDEX nulls_not_distinct_index ON documents_table USING GIN (locations)
     NULLS NOT DISTINCT WITH (fastupdate = 'off');
 
 CREATE INDEX code_idx ON films (code) TABLESPACE indexspace;
+
+CREATE INDEX CONCURRENTLY IF NOT EXISTS user_my_column_idx ON my_schema.user (my_column);
