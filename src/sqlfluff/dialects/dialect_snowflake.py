@@ -1439,6 +1439,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterRowAccessPolicyStatmentSegment"),
             Ref("AlterTagStatementSegment"),
             Ref("ExceptionBlockStatementSegment"),
+            Ref("DropDynamicTableSegment"),
+            Ref("CreateAuthenticationPolicySegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -2093,7 +2095,106 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     ),
                 ),
             ),
-            # @TODO: Add/drop row access policies
+            Ref("DataGovernancePolicyTagActionSegment"),
+        ),
+    )
+
+
+class DataGovernancePolicyTagActionSegment(BaseSegment):
+    """The dataGovnPolicyTagAction segment for alter table parsing."""
+
+    type = "data_governance_policy_tag_action_segment"
+
+    match_grammar = OneOf(
+        Sequence(
+            "SET",
+            Ref("TagEqualsSegment"),
+        ),
+        Sequence(
+            "UNSET",
+            Ref("TagEqualsSegment"),
+        ),
+        Sequence(
+            "ADD",
+            "ROW",
+            "ACCESS",
+            "POLICY",
+            Ref("ObjectReferenceSegment"),
+            "ON",
+            Bracketed(
+                Delimited(
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+        ),
+        Sequence(
+            "DROP",
+            "ROW",
+            "ACCESS",
+            "POLICY",
+            Ref("ObjectReferenceSegment"),
+            Sequence(
+                Ref("CommaSegment"),
+                "ADD",
+                "ROW",
+                "ACCESS",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+                "ON",
+                Bracketed(
+                    Delimited(
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "DROP",
+            "ALL",
+            "ROW",
+            "ACCESS",
+            "POLICIES",
+        ),
+        Sequence(
+            "SET",
+            "AGGREGATION",
+            "POLICY",
+            Ref("ObjectReferenceSegment"),
+            Sequence(
+                "ENTITY",
+                "KEY",
+                Bracketed(
+                    Delimited(
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "FORCE",
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "UNSET",
+            "AGGREGATION",
+            "POLICY",
+        ),
+        Sequence(
+            "SET",
+            "JOIN",
+            "POLICY",
+            Ref("ObjectReferenceSegment"),
+            Sequence(
+                "FORCE",
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "UNSET",
+            "JOIN",
+            "POLICY",
         ),
     )
 
@@ -9188,5 +9289,89 @@ class ExceptionBlockStatementSegment(BaseSegment):
                 ),
                 Ref("StatementSegment"),
             ),
+        ),
+    )
+
+
+class DropDynamicTableSegment(BaseSegment):
+    """Drop dynamic table segment."""
+
+    type = "drop_dynamic_table_segment"
+
+    match_grammar = Sequence(
+        "DROP",
+        "DYNAMIC",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
+class CreateAuthenticationPolicySegment(BaseSegment):
+    """A Snowflake Create Authentication Policy Segment."""
+
+    type = "create_authentication_policy_segment"
+
+    match_grammar = Sequence(
+        "Create",
+        Ref("OrReplaceGrammar", optional=True),
+        "AUTHENTICATION",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "AUTHENTICATION_METHODS",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "MFA_AUTHENTICATION_METHODS",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "MFA_ENROLLMENT",
+            Ref("EqualsSegment"),
+            OneOf(
+                "REQUIRED",
+                "OPTIONAL",
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "CLIENT_TYPES",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "SECURITY_INTEGRATIONS",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "COMMENT",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
         ),
     )
