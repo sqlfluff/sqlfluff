@@ -25,3 +25,14 @@ SELECT
     '["a", {"b":1}]'::jsonb #- '{1,b}',
     '{"a":[1,2,3,4,5]}'::jsonb @? '$.a[*] ? (@ > 2)',
     '{"a":[1,2,3,4,5]}'::jsonb @@ '$.a[*] > 2';
+
+SELECT json_object('code' VALUE 'P123', 'title': 'Jaws');
+
+SELECT json_object(
+        'word': CASE
+            WHEN str = '1' THEN 'One'
+            WHEN str = '2' THEN 'Two'
+            ELSE 'Unknown'
+        END
+    ) AS json_column
+FROM first_table;
