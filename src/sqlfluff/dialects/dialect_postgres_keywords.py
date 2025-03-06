@@ -858,7 +858,7 @@ postgres_docs_keywords = [
     ("UPPER", "not-keyword"),
     ("URI", "not-keyword"),
     ("USAGE", "not-keyword"),
-    ("USER", "reserved"),
+    ("USER", "non-reserved"),
     ("USER_DEFINED_TYPE_CATALOG", "not-keyword"),
     ("USER_DEFINED_TYPE_CODE", "not-keyword"),
     ("USER_DEFINED_TYPE_NAME", "not-keyword"),
