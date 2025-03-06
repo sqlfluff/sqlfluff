@@ -517,3 +517,13 @@ test_pass_trino_lambda_expression:
   configs:
     core:
       dialect: trino
+
+test_pass_snowflake_lambda_expression:
+  pass_str: |
+    select
+        a_column,
+        transform(array_col, x -> x + 1) as array_col_example
+    from example_table;
+  configs:
+    core:
+      dialect: snowflake
