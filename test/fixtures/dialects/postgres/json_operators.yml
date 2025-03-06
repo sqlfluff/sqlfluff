@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 947fce13543180fe3b7fce322f22c12f2f6a180eaa92f5e0ad5a6b6db113d2a6
+_hash: fe37b6045b1ed1f44a555be651b48e2f112a48960ecabd434e0ac655fc54772a
 file:
 - statement:
     select_statement:
@@ -237,4 +237,84 @@ file:
                 keyword: jsonb
             binary_operator: '@@'
             quoted_literal: "'$.a[*] > 2'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_object
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'code'"
+              - keyword: VALUE
+              - expression:
+                  quoted_literal: "'P123'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'title'"
+              - colon: ':'
+              - expression:
+                  quoted_literal: "'Jaws'"
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_object
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'word'"
+              - colon: ':'
+              - expression:
+                  case_expression:
+                  - keyword: CASE
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                        column_reference:
+                          naked_identifier: str
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        quoted_literal: "'1'"
+                    - keyword: THEN
+                    - expression:
+                        quoted_literal: "'One'"
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                        column_reference:
+                          naked_identifier: str
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        quoted_literal: "'2'"
+                    - keyword: THEN
+                    - expression:
+                        quoted_literal: "'Two'"
+                  - else_clause:
+                      keyword: ELSE
+                      expression:
+                        quoted_literal: "'Unknown'"
+                  - keyword: END
+              - end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: json_column
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: first_table
 - statement_terminator: ;
