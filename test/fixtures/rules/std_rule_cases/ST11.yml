@@ -180,3 +180,10 @@ test_pass_table_expression_function_6558:
   configs:
     core:
       dialect: bigquery
+
+test_mysql_identifier_with_backticks_should_not_except:
+  pass_str: |
+    SELECT `f`.`bar`, `g`.`baz` FROM `foo` AS `f` LEFT JOIN `foobar` AS `g`;
+  configs:
+    core:
+      dialect: mysql
