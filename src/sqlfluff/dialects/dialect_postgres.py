@@ -5003,7 +5003,9 @@ class ConflictActionSegment(BaseSegment):
             "NOTHING",
             Sequence(
                 "UPDATE",
+                Indent,
                 "SET",
+                Indent,
                 Delimited(
                     OneOf(
                         Sequence(
@@ -5026,7 +5028,9 @@ class ConflictActionSegment(BaseSegment):
                         ),
                     )
                 ),
+                Dedent,
                 Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
+                Dedent,
             ),
         ),
     )
