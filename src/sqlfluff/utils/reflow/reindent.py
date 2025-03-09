@@ -1213,7 +1213,7 @@ def _lint_line_starting_indent(
     indent_line: _IndentLine,
     single_indent: str,
     forced_indents: list[int],
-    leading_comma_align_elements: bool,
+    starting_indent_compensation_spaces: int,
 ) -> list[LintResult]:
     """Lint the indent at the start of a line.
 
@@ -1229,11 +1229,9 @@ def _lint_line_starting_indent(
     )
     desired_indent_units = indent_line.desired_indent_units(forced_indents)
     desired_starting_indent = _calculate_desired_starting_indent(
-        elements=elements,
-        initial_point_idx=initial_point_idx,
         desired_indent_units=desired_indent_units,
         single_indent=single_indent,
-        leading_comma_align_elements=leading_comma_align_elements,
+        starting_indent_compensation_spaces=starting_indent_compensation_spaces,
     )
     initial_point = cast(ReflowPoint, elements[initial_point_idx])
 
@@ -1320,44 +1318,32 @@ def _lint_line_starting_indent(
 
 
 def _calculate_desired_starting_indent(
-    elements: ReflowSequenceType,
-    initial_point_idx: int,
     desired_indent_units: int,
     single_indent: str,
-    leading_comma_align_elements: bool,
+    starting_indent_compensation_spaces: int,
 ) -> str:
     """Calculate the desired starting indent, accounting for leading comma alignment."""
     unaligned_starting_indent = desired_indent_units * single_indent
 
-    # If leading comma alignment is not enabled, simply return the desired indent.
-    if not leading_comma_align_elements:
+    # If indent compensation is not needed, simply return the desired indent.
+    if not starting_indent_compensation_spaces:
         return unaligned_starting_indent
 
     # We don't have a good way to enable leading comma alignment for tabs or spaces with
     # size less than 4, so we'll warn and return the desired indent.
-    if len(single_indent) < 4 or set(single_indent) != {" "}:
+    if len(unaligned_starting_indent) < abs(starting_indent_compensation_spaces):
         reflow_logger.warning(
-            "`leading_comma_align_elements` is only supported for `indent_unit` set to "
-            "`space` and `tab_space_size` set to 4."
+            "Not enough space to compensate indentation. "
+            "Ignoring indentation compensation."
         )
         return unaligned_starting_indent
 
-    # Leading comma alignment is enabled, so we need to check if the current
-    # working line is not the first column reference.
-    if len(elements[initial_point_idx + 1].segments) > 1:
-        initial_seg = elements[initial_point_idx + 1].segments[0]
-        parent_result = initial_seg.get_parent()
-        if not parent_result:
-            return unaligned_starting_indent
-
-        initial_seg_parent, initial_seg_parent_idx = parent_result
-        if initial_seg_parent_idx > 0 and initial_seg.is_type("comma"):
-            reflow_logger.debug("    Not the first column reference. Dedent by 2.")
-            # TODO: should not be a fix number 2
-            # but depends on if there is whitespace following
-            return unaligned_starting_indent[:-2]
-
-    return unaligned_starting_indent
+    # remove the tailing spaces from the starting indentation
+    reflow_logger.debug(
+        "Compensating the starting indent by %s spaces.",
+        starting_indent_compensation_spaces,
+    )
+    return unaligned_starting_indent[:starting_indent_compensation_spaces]
 
 
 def _lint_line_untaken_positive_indents(
@@ -1575,7 +1561,7 @@ def _lint_line_buffer_indents(
     single_indent: str,
     forced_indents: list[int],
     imbalanced_indent_locs: list[int],
-    leading_comma_align_elements: bool,
+    starting_indent_compensation_spaces: int,
 ) -> list[LintResult]:
     """Evaluate a single set of indent points on one line.
 
@@ -1633,7 +1619,7 @@ def _lint_line_buffer_indents(
         indent_line=indent_line,
         single_indent=single_indent,
         forced_indents=forced_indents,
-        leading_comma_align_elements=leading_comma_align_elements,
+        starting_indent_compensation_spaces=starting_indent_compensation_spaces,
     )
 
     # Second, handle potential missing positive indents.
@@ -1669,7 +1655,7 @@ def lint_indent_points(
     skip_indentation_in: frozenset[str] = frozenset(),
     allow_implicit_indents: bool = False,
     ignore_comment_lines: bool = False,
-    leading_comma_align_elements: bool = False,
+    indentation_align_following: dict[str, int] | None = None,
 ) -> tuple[ReflowSequenceType, list[LintResult]]:
     """Lint the indent points to check we have line breaks where we should.
 
@@ -1691,6 +1677,9 @@ def lint_indent_points(
     having line breaks in the right place, but if we're inserting a line
     break, we need to also know how much to indent by.
     """
+    if indentation_align_following is None:
+        indentation_align_following = {}
+
     # First map the line buffers.
     lines: list[_IndentLine]
     imbalanced_indent_locs: list[int]
@@ -1731,13 +1720,23 @@ def lint_indent_points(
     forced_indents: list[int] = []
     elem_buffer = elements.copy()  # Make a working copy to mutate.
     for line in lines:
+        if indentation_align_following:
+            # detect if we need to compensate indentation for the leading element
+            compensate_spaces = _calculate_indent_compensation(
+                elements=elements,
+                line=line,
+                indentation_align_following=indentation_align_following,
+            )
+        else:
+            compensate_spaces = 0
+
         line_results = _lint_line_buffer_indents(
             elements=elem_buffer,
             indent_line=line,
             single_indent=single_indent,
             forced_indents=forced_indents,
             imbalanced_indent_locs=imbalanced_indent_locs,
-            leading_comma_align_elements=leading_comma_align_elements,
+            starting_indent_compensation_spaces=compensate_spaces,
         )
         if line_results:
             reflow_logger.info("      PROBLEMS:")
@@ -1747,6 +1746,38 @@ def lint_indent_points(
         results += line_results
 
     return elem_buffer, results
+
+
+def _calculate_indent_compensation(
+    elements: ReflowSequenceType,
+    line: _IndentLine,
+    indentation_align_following: dict[str, int],
+) -> int:
+    """Calculate the number of spaces to compensate for the leading element.
+
+    This is the number of spaces to remove from the indent of the first element
+    in the line.
+    """
+    # detect if we need to compensate indentation for the leading element
+    for block in line.iter_blocks(elements):
+        # ignore blocks until we reach the first non-whitespace block
+        segment = block.segments[0]
+        if not segment.is_type("whitespace"):
+            if (
+                space_after := indentation_align_following.get(segment.get_type(), None)
+            ) is not None:
+                reflow_logger.debug(
+                    "Compensating line as it starts with %s", segment.type
+                )
+                compensation = len(segment.raw) + space_after
+                reflow_logger.debug(
+                    "Length of segment: %s, space following token: %s",
+                    compensation,
+                    space_after,
+                )
+                return -compensation
+        break
+    return 0
 
 
 def _source_char_len(elements: ReflowSequenceType) -> int:
