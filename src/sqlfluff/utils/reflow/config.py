@@ -74,7 +74,6 @@ class ReflowConfig:
     allow_implicit_indents: bool = False
     trailing_comments: str = "before"
     ignore_comment_lines: bool = False
-    leading_comma_align_elements: bool = False
 
     @classmethod
     def from_dict(cls, config_dict: ConfigDictType, **kwargs: Any) -> "ReflowConfig":
@@ -111,9 +110,6 @@ class ReflowConfig:
             ),
             trailing_comments=config.get("trailing_comments", ["indentation"]),
             ignore_comment_lines=config.get("ignore_comment_lines", ["indentation"]),
-            leading_comma_align_elements=config.get(
-                "leading_comma_align_elements", ["indentation"]
-            ),
         )
 
     def get_block_config(
