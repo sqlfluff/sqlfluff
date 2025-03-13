@@ -688,6 +688,11 @@ class FluffConfig:
             )
             return
         config_line = config_line[9:].strip()
+        if ":" not in config_line:
+            config_logger.warning(
+                "Unable to process inline config statement: %r", config_line
+            )
+            return
         config_key, config_value = split_colon_separated_string(config_line)
         # Move to core section if appropriate
         if len(config_key) == 1:
