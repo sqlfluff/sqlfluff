@@ -331,6 +331,13 @@ def test__process_inline_config():
     assert cfg.get("dialect") == "postgres"
     assert cfg.get("dialect_obj").name == "postgres"
 
+    # Check malformed inline config doesn't throw an error / is ignored (#6688)
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.config") as caplog:
+        cfg.process_inline_config("-- sqlfluff: dialect=bigquery", "test.sql")
+        assert (
+            "Unable to process inline config statement: 'dialect=bigquery'"
+        ) in caplog.text
+
     assert cfg.get("rulez") is None
     cfg.process_inline_config("-- sqlfluff:rulez:LT06", "test.sql")
     assert cfg.get("rulez") == "LT06"
