@@ -527,6 +527,13 @@ postgres_dialect.replace(
         Ref("IgnoreRespectNullsGrammar"),
         Ref("IndexColumnDefinitionSegment"),
         Ref("EmptyStructLiteralSegment"),
+        Delimited(
+            Sequence(
+                Ref("ExpressionSegment"),
+                OneOf("VALUE", Ref("ColonSegment")),
+                Ref("ExpressionSegment"),
+            )
+        ),
     ),
     QuotedLiteralSegment=OneOf(
         # Postgres allows newline-concatenated string literals (#1488).
