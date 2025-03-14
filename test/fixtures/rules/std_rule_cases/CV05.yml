@@ -106,6 +106,14 @@ test_tsql_alternate_alias_syntax:
     core:
       dialect: tsql
 
+test_tsql_declare_set_null:
+  pass_str: |
+    declare
+      @variable INT = null
+  configs:
+    core:
+      dialect: tsql
+
 test_exclude_constraint:
   pass_str: |
     alter table abc add constraint xyz exclude (field WITH =);

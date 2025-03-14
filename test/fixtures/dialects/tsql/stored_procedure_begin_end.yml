@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7f71fc8304b1b2f26f7e6755ba3326e8051a2d846e70c1f6b8e78fdfe899e279
+_hash: 7f4effa2c6f2a0a8c69ee2c2082deda6018dd70534ccbaada2264b70b6c9ccc4
 file:
 - batch:
     create_procedure_statement:
@@ -211,60 +211,64 @@ file:
               - statement:
                   set_segment:
                     keyword: SET
-                    parameter: '@v_nSysErrorNum'
-                    assignment_operator:
-                      raw_comparison_operator: '='
-                    expression:
-                      function:
-                        function_name:
-                          function_name_identifier: ERROR_NUMBER
-                        function_contents:
-                          bracketed:
-                            start_bracket: (
-                            end_bracket: )
+                    parameter_assignment:
+                      parameter: '@v_nSysErrorNum'
+                      assignment_operator:
+                        raw_comparison_operator: '='
+                      expression:
+                        function:
+                          function_name:
+                            function_name_identifier: ERROR_NUMBER
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              end_bracket: )
                     statement_terminator: ;
               - statement:
                   set_segment:
                     keyword: SET
-                    parameter: '@v_vchCode'
-                    assignment_operator:
-                      raw_comparison_operator: '='
-                    expression:
-                      function:
-                        function_name:
-                          function_name_identifier: ERROR_LINE
-                        function_contents:
-                          bracketed:
-                            start_bracket: (
-                            end_bracket: )
+                    parameter_assignment:
+                      parameter: '@v_vchCode'
+                      assignment_operator:
+                        raw_comparison_operator: '='
+                      expression:
+                        function:
+                          function_name:
+                            function_name_identifier: ERROR_LINE
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              end_bracket: )
                     statement_terminator: ;
               - statement:
                   set_segment:
                     keyword: SET
-                    parameter: '@v_vchMsg'
-                    assignment_operator:
-                      raw_comparison_operator: '='
-                    expression:
-                      quoted_literal: "N'Missing control type.'"
+                    parameter_assignment:
+                      parameter: '@v_vchMsg'
+                      assignment_operator:
+                        raw_comparison_operator: '='
+                      expression:
+                        quoted_literal: "N'Missing control type.'"
                     statement_terminator: ;
               - statement:
                   set_segment:
                     keyword: SET
-                    parameter: '@v_vchMsg'
-                    assignment_operator:
-                      raw_comparison_operator: '='
-                    expression:
-                    - parameter: '@v_vchMsg'
-                    - binary_operator: +
-                    - quoted_literal: "N' SQL Error = '"
-                    - binary_operator: +
-                    - function:
-                        function_name:
-                          function_name_identifier: ERROR_MESSAGE
-                        function_contents:
-                          bracketed:
-                            start_bracket: (
-                            end_bracket: )
+                    parameter_assignment:
+                      parameter: '@v_vchMsg'
+                      assignment_operator:
+                        raw_comparison_operator: '='
+                      expression:
+                      - parameter: '@v_vchMsg'
+                      - binary_operator: +
+                      - quoted_literal: "N' SQL Error = '"
+                      - binary_operator: +
+                      - function:
+                          function_name:
+                            function_name_identifier: ERROR_MESSAGE
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              end_bracket: )
                     statement_terminator: ;
               - statement:
                   goto_statement:

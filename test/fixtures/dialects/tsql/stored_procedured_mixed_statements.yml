@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2d2452b5af1e64d4115fbc459772a84fad16b23caf8252614e8dddbdcc17ce94
+_hash: 5c760aec0eae0f92044c29e75e01845d308271c1bd685290e3c093015a19a241
 file:
   batch:
     create_procedure_statement:
@@ -56,11 +56,12 @@ file:
       - statement:
           set_segment:
             keyword: SET
-            parameter: '@deadlock_var'
-            assignment_operator:
-              raw_comparison_operator: '='
-            expression:
-              quoted_literal: "N'LOW'"
+            parameter_assignment:
+              parameter: '@deadlock_var'
+              assignment_operator:
+                raw_comparison_operator: '='
+              expression:
+                quoted_literal: "N'LOW'"
             statement_terminator: ;
       - statement:
           begin_end_block:
