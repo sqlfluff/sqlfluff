@@ -1,0 +1,43 @@
+rule: TQ02
+
+test_fail_select_assignment:
+  fail_str: |
+    SELECT @CUSTOMERID = X.ID FROM X WHERE X.EMAIL = 'foo@bar.com';
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_set_assignment:
+  pass_str: |
+    SET @CUSTOMERID = (SELECT X.ID FROM X WHERE X.EMAIL = 'foo@bar.com');
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_select_alt_alias:
+  pass_str: |
+    SELECT CUSTOMERID = X.ID FROM X WHERE X.EMAIL = 'foo@bar.com';
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_select_literal:
+  fail_str: |
+    SELECT @EMAIL = 'foo@bar.com';
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_select_null_literal:
+  fail_str: |
+    SELECT @EMAIL = NULL;
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_declare:
+  pass_str: |
+    DECLARE @MYAGE INT = 12;
+  configs:
+    core:
+      dialect: tsql
