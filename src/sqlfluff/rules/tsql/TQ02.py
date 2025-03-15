@@ -20,7 +20,9 @@ class Rule_TQ02(BaseRule):
 
     Variable value is ambiguous after the above query if it returns >1 row.
     Avoid this by re-writing as SET statement; this will error if >1 row is returned.
-    TODO: automate ability to fix; the following re-writing only applies in the simplest cases with no other projections or joins
+    TODO:
+    It should be possible to lint fix this syntax automatically.
+    The following re-writing only applies in the simplest cases with no other projections or joins.
 
     .. code-block:: sql
 
@@ -32,13 +34,13 @@ class Rule_TQ02(BaseRule):
     aliases = ()
     groups = ("all", "tsql")
     # NB T-SQL dialect code uses the term 'parameter' whenever lexing '@identifier'
-    # This case is 'local variable' in MS docs so we use 'variable' in user-facing docs here
+    # This case is called 'local variable' in MS docs
+    # We use 'variable' in user-facing docs here
     crawl_behaviour = SegmentSeekerCrawler({"parameter_assignment"})
     is_fix_compatible = False
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
-        """Enforce SET over SELECT for assigning local variables."""
-
+        r"""Enforce SET over SELECT for assigning local variables."""
         # Rule only applies to T-SQL syntax.
         if context.dialect.name != "tsql":
             return None  # pragma: no cover
@@ -57,5 +59,5 @@ class Rule_TQ02(BaseRule):
             )
         else:  # pragma: no cover
             raise NotImplementedError(
-                "T-SQL parameter assignment not within SET or SELECT clause?  Raise this as a bug on GitHub."
+                "Assignment not in SET or SELECT. Raise this as a bug on GitHub."
             )

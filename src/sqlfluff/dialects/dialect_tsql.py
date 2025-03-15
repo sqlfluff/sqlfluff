@@ -2821,7 +2821,7 @@ class SetStatementSegment(BaseSegment):
                         Ref("QualifiedNumericLiteralSegment"),
                     ),
                 ),
-                Ref("ParameterAssignmentSegment")
+                Ref("ParameterAssignmentSegment"),
             ),
         ),
         Dedent,
@@ -2829,9 +2829,9 @@ class SetStatementSegment(BaseSegment):
     )
 
 class ParameterAssignmentSegment(BaseSegment):
-    """ Assigning a value to a parameter.
+    """Assigning a value to a parameter.
 
-        Used in both SET and the now-deprecated SELECT statements (with the latter fixable under linting)
+    Used in both SET and the now-deprecated SELECT statements
     """
 
     type = "parameter_assignment"
