@@ -20,10 +20,7 @@ class Rule_TQ02(BaseRule):
 
     Variable value is ambiguous after the above query if it returns >1 row.
     Avoid this by re-writing as SET statement; this will error if >1 row is returned.
-    TODO:
-    It should be possible to lint fix this syntax automatically.
-    The following re-writing only applies in the simplest cases with no other projections or joins.
-
+    
     .. code-block:: sql
 
         SET @VARIABLE = ( SELECT X.ID FROM X WHERE X.EMAIL = 'foo@bar.com' );
@@ -38,6 +35,10 @@ class Rule_TQ02(BaseRule):
     # We use 'variable' in user-facing docs here
     crawl_behaviour = SegmentSeekerCrawler({"parameter_assignment"})
     is_fix_compatible = False
+
+    # TODO: consider if we can fix this syntax automatically.
+    # The above example re-writing only applies in the simplest cases
+    # with no other projections or joins.
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         r"""Enforce SET over SELECT for assigning local variables."""
