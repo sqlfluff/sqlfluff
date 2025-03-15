@@ -2828,6 +2828,7 @@ class SetStatementSegment(BaseSegment):
         Ref("DelimiterGrammar", optional=True),
     )
 
+
 class ParameterAssignmentSegment(BaseSegment):
     """Assigning a value to a parameter.
 
@@ -2843,6 +2844,7 @@ class ParameterAssignmentSegment(BaseSegment):
             Ref("SelectableGrammar"),
         ),
     )
+
 
 class AssignmentOperatorSegment(BaseSegment):
     """One of the assignment operators.

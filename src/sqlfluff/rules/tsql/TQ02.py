@@ -20,7 +20,7 @@ class Rule_TQ02(BaseRule):
 
     Variable value is ambiguous after the above query if it returns >1 row.
     Avoid this by re-writing as SET statement; this will error if >1 row is returned.
-    
+
     .. code-block:: sql
 
         SET @VARIABLE = ( SELECT X.ID FROM X WHERE X.EMAIL = 'foo@bar.com' );
