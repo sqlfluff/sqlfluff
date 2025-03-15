@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0ceaf083acfcd10c06e99d6627bc416a777a0a2ef84999efd8816105e1f68ce9
+_hash: ccaff02b06f3c9c68a26ed5aee72e349412a629c2c29956f7d1a9811ac5a53b2
 file:
   batch:
   - statement:
@@ -28,38 +28,39 @@ file:
   - statement:
       set_segment:
         keyword: SET
-        parameter: '@BinVar'
-        assignment_operator:
-          raw_comparison_operator: '='
-        expression:
-          function:
-            function_name:
-              keyword: CAST
-            function_contents:
-              bracketed:
-                start_bracket: (
-                expression:
-                  function:
-                    function_name:
-                      keyword: REPLICATE
-                    function_contents:
+        parameter_assignment:
+          parameter: '@BinVar'
+          assignment_operator:
+            raw_comparison_operator: '='
+          expression:
+            function:
+              function_name:
+                keyword: CAST
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        keyword: REPLICATE
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          numeric_literal: '0x20'
+                          comma: ','
+                          expression:
+                            numeric_literal: '128'
+                          end_bracket: )
+                  keyword: AS
+                  data_type:
+                    data_type_identifier: varbinary
+                    bracketed_arguments:
                       bracketed:
                         start_bracket: (
-                        numeric_literal: '0x20'
-                        comma: ','
                         expression:
                           numeric_literal: '128'
                         end_bracket: )
-                keyword: AS
-                data_type:
-                  data_type_identifier: varbinary
-                  bracketed_arguments:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        numeric_literal: '128'
-                      end_bracket: )
-                end_bracket: )
+                  end_bracket: )
         statement_terminator: ;
   - statement:
       set_context_info_statement:
