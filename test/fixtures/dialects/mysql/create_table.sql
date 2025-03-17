@@ -33,3 +33,5 @@ CREATE TEMPORARY TABLE tbl_name (INDEX(col)) AS
 
 CREATE TEMPORARY TABLE tbl_name (INDEX(col))
     SELECT id, col FROM table_name;
+
+CREATE TABLE my_table (num INT(5) UNSIGNED ZEROFILL);
