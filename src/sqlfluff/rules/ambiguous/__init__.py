@@ -42,6 +42,7 @@ def get_rules() -> List[Type[BaseRule]]:
     from sqlfluff.rules.ambiguous.AM06 import Rule_AM06
     from sqlfluff.rules.ambiguous.AM07 import Rule_AM07
     from sqlfluff.rules.ambiguous.AM08 import Rule_AM08
+    from sqlfluff.rules.ambiguous.AM09 import Rule_AM09
 
     return [
         Rule_AM01,
@@ -52,4 +53,5 @@ def get_rules() -> List[Type[BaseRule]]:
         Rule_AM06,
         Rule_AM07,
         Rule_AM08,
+        Rule_AM09,
     ]
