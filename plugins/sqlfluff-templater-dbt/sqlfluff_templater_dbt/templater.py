@@ -415,6 +415,7 @@ class DbtTemplater(JinjaTemplater):
                 self.sqlfluff_config.get_section(
                     (self.templater_selector, self.name, "project_dir")
                 )
+                or os.getenv("DBT_PROJECT_DIR")
                 or os.getcwd()
             )
         )
