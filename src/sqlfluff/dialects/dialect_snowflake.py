@@ -2084,7 +2084,6 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Bracketed(Delimited(Ref("ColumnReferenceSegment"), optional=True)),
             ),
             Ref("AlterTableTableColumnActionSegment"),
-            # @TODO: Set/unset TAG
             # UNSET Table options
             Sequence(
                 Ref.keyword("UNSET"),
