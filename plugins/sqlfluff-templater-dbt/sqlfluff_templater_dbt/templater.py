@@ -452,6 +452,11 @@ class DbtTemplater(JinjaTemplater):
 
         return cli_vars if cli_vars else {}
 
+    def _get_force_raise_compilation_error(self) -> bool:
+        return self.sqlfluff_config.get_section(
+            (self.templater_selector, self.name, "force_raise_compilation_error")
+        ) or False
+
     def sequence_files(
         self, fnames: List[str], config=None, formatter=None
     ) -> Iterator[str]:
@@ -712,6 +717,8 @@ class DbtTemplater(JinjaTemplater):
                 # to happen if we tried to compile ephemeral models in the
                 # wrong order), but more often because a macro tries to query
                 # a table at compile time which doesn't exist.
+                if self._get_force_raise_compilation_error():
+                    raise SQLTemplaterError(str(err))
                 raise SQLFluffSkipFile(
                     f"Skipped file {fname} because dbt raised a fatal "
                     f"exception during compilation: {err!s}"
