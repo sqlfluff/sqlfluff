@@ -73,6 +73,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
 
 duckdb_dialect.add(
     LambdaArrowSegment=StringParser("->", SymbolSegment, type="lambda_arrow"),
+    OrIgnoreGrammar=Sequence("OR", "IGNORE"),
 )
 
 duckdb_dialect.replace(
@@ -223,6 +224,59 @@ class MapTypeSchemaSegment(BaseSegment):
     match_grammar = Bracketed(
         Delimited(
             Ref("DatatypeSegment"),
+        ),
+    )
+
+
+class InsertStatementSegment(ansi.InsertStatementSegment):
+    """An `INSERT` Statement.
+
+    https://duckdb.org/docs/stable/sql/statements/insert.html
+    """
+
+    type = "insert_statement"
+    match_grammar: Matchable = Sequence(
+        "INSERT",
+        OneOf(Ref("OrReplaceGrammar"), Ref("OrIgnoreGrammar"), optional=True),
+        "INTO",
+        Ref("TableReferenceSegment"),
+        Ref("AsAliasExpressionSegment", optional=True),
+        OneOf(
+            Ref("BracketedColumnReferenceListGrammar"),
+            Sequence("BY", "POSITION"),
+            Sequence("BY", "NAME"),
+            optional=True,
+        ),
+        OneOf(
+            Sequence("DEFAULT", "VALUES"),
+            Ref("SelectStatementSegment"),
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                OneOf(
+                    Ref("ValuesClauseSegment"),
+                    OptionallyBracketed(Ref("SelectStatementSegment")),
+                ),
+            ),
+        ),
+        Sequence(
+            "ON",
+            "CONFLICT",
+            Ref("ConflictTargetSegment", optional=True),
+            Ref("ConflictActionSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "RETURNING",
+            OneOf(
+                Ref("StarSegment"),
+                Delimited(
+                    Sequence(
+                        Ref("ExpressionSegment"),
+                        Ref("AsAliasExpressionSegment", optional=True),
+                    ),
+                ),
+            ),
+            optional=True,
         ),
     )
 
@@ -449,6 +503,16 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
+        replace_terminators=True,
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithDataClauseSegment"),
+            Sequence("ON", "CONFLICT"),
+            Ref.keyword("RETURNING"),
+            Ref("WithCheckOptionSegment"),
+            Ref("MetaCommandQueryBufferSegment"),
+        ],
     )
 
 
@@ -484,6 +548,8 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
             Ref("SetOperatorSegment"),
             Ref("OrderByClauseSegment"),
             Ref("LimitClauseSegment"),
+            Sequence("ON", "CONFLICT"),
+            Ref.keyword("RETURNING"),
         ],
     )
 
