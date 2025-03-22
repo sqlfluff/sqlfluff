@@ -5200,12 +5200,18 @@ class CreateUserSegment(BaseSegment):
             Sequence(
                 "RSA_PUBLIC_KEY",
                 Ref("EqualsSegment"),
-                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
             ),
             Sequence(
                 "RSA_PUBLIC_KEY_2",
                 Ref("EqualsSegment"),
-                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
             ),
             Sequence(
                 "TYPE",
