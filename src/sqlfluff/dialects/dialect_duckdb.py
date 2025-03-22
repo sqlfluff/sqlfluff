@@ -509,7 +509,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("WithNoSchemaBindingClauseSegment"),
             Ref("WithDataClauseSegment"),
             Sequence("ON", "CONFLICT"),
-            Ref.keyword("RETURNING"),
+            "RETURNING",
             Ref("WithCheckOptionSegment"),
             Ref("MetaCommandQueryBufferSegment"),
         ],
@@ -549,7 +549,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
             Ref("OrderByClauseSegment"),
             Ref("LimitClauseSegment"),
             Sequence("ON", "CONFLICT"),
-            Ref.keyword("RETURNING"),
+            "RETURNING",
         ],
     )
 
