@@ -7,12 +7,12 @@ rather than the individual file caching in the `file` module.
 """
 
 from __future__ import annotations
-from importlib.resources import files
 
 import logging
 import os
 import os.path
 import sys
+from importlib.resources import files
 from pathlib import Path
 from typing import (
     Optional,
