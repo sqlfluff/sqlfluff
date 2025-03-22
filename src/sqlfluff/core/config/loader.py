@@ -7,12 +7,7 @@ rather than the individual file caching in the `file` module.
 """
 
 from __future__ import annotations
-
-try:
-    from importlib.resources import files
-except ImportError:  # pragma: no cover
-    # fallback for python <=3.8
-    from importlib_resources import files  # type: ignore
+from importlib.resources import files
 
 import logging
 import os
