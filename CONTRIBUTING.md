@@ -85,8 +85,7 @@ changes.
 
 If you plan on working with a particular dbt plugin, you will need
 to ensure your python version is high enough to support it. For example,
-the instructions below use `python3.12`, and we support as low as `python3.8`
-but if you are working with `dbt-snowflake` 1.9.0 you will need python at least 3.9.
+the instructions below use `python3.13`, and we support as low as `python3.9`.
 
 The simplest way to set up a development environment is to use `tox`.
 
@@ -94,8 +93,8 @@ First ensure that you have tox installed:
 ```shell
 python3.12 -m pip install -U tox
 ```
-**IMPORTANT:** Python 3.8 is the minimum version we support. Feel free
-to test on anything between `python3.8` and `python3.13`.
+**IMPORTANT:** Python 3.9 is the minimum version we support. Feel free
+to test on anything between `python3.9` and `python3.13`.
 
 Note: Unfortunately tox does not currently support setting just a minimum
 Python version (though this may be be coming in tox 4!).
@@ -114,7 +113,7 @@ source .venv/bin/activate
 ```
 (The `dbt180` environment is a good default choice.
 However any version can be installed by replacing `dbt180` with
-`py`, `py38` through `py313`, `dbt140` through `dbt190`, etc.
+`py`, `py39` through `py313`, `dbt140` through `dbt190`, etc.
 `py` defaults to the python version that was used to install tox.
 To be able to run all tests including the dbt templater,
 choose one of the dbt environments.)
@@ -163,19 +162,19 @@ tox
 This will build and test for several Python versions, and also lint the project.
 Practically on a day-to-day basis, you might only want to lint and test for one
 Python version, so you can always specify a particular environment. For example,
-if you are developing in Python 3.8 you might call...
+if you are developing in Python 3.9 you might call...
 
 ```shell
-tox -e generate-fixture-yml,py38,linting,mypy
+tox -e generate-fixture-yml,py39,linting,mypy
 ```
 
 ...or if you also want to see the coverage reporting...
 
 ```shell
-tox -e generate-fixture-yml,cov-init,py38,cov-report,linting,mypy
+tox -e generate-fixture-yml,cov-init,py39,cov-report,linting,mypy
 ```
 
-> NB: The `cov-init` task clears the previous test results, the `py38` environment
+> NB: The `cov-init` task clears the previous test results, the `py39` environment
 > generates the results for tests in that Python version and the `cov-report`
 > environment reports those results out to you (excluding dbt).
 
@@ -184,13 +183,13 @@ faster while working on an issue, before running full tests at the end.
 For example, you can run specific tests by making use of the `-k` option in `pytest`:
 
 ```
-tox -e py38 -- -k AL02 test
+tox -e py39 -- -k AL02 test
 ```
 
 Alternatively, you can also run tests from a specific directory or file only:
 ```
-tox -e py38 -- test/cli
-tox -e py38 -- test/cli/commands_test.py
+tox -e py39 -- test/cli
+tox -e py39 -- test/cli/commands_test.py
 ```
 
 You can also manually test your updated code against a SQL file via:
@@ -264,7 +263,7 @@ We recommend using https://postgresapp.com/.
 To run the dbt-related tests you will have to explicitly include these tests:
 
 ```shell
-tox -e cov-init,dbt018-py38,cov-report-dbt -- plugins/sqlfluff-templater-dbt
+tox -e cov-init,dbt019-py39,cov-report-dbt -- plugins/sqlfluff-templater-dbt
 ```
 
 For more information on adding and running test cases see the [Parser Test README](test/fixtures/dialects/README.md) and the [Rules Test README](test/fixtures/rules/std_rule_cases/README.md).
