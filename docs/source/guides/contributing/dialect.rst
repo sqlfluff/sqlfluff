@@ -1025,7 +1025,7 @@ For example if you're adding or modifying
 
 .. code-block:: bash
 
-   tox -e py38 -- -s test/dialects/dialects_test.py -k hive-select_interval.sql
+   tox -e py39 -- -s test/dialects/dialects_test.py -k hive-select_interval.sql
 
 The :code:`-s` flag for pytest enables printing of post-parse structure,
 which allows you to quickly check that each query element is typed
@@ -1045,13 +1045,13 @@ The following command runs just the dialect tests, for **all** dialects:
 
 .. code-block:: bash
 
-   tox -e py38 -- test/dialects/dialects_test.py
+   tox -e py39 -- test/dialects/dialects_test.py
 
 The following command runs just the dialect tests, for **a specific** dialect:
 
 .. code-block:: bash
 
-   tox -e py38 -- test/dialects/dialects_test.py -k ansi
+   tox -e py39 -- test/dialects/dialects_test.py -k ansi
 
 Or, if making a dialect change to fix a rule that is incorrectly flagging,
 you can just run the tests for that one rule, for example to run the
@@ -1059,7 +1059,7 @@ you can just run the tests for that one rule, for example to run the
 
 .. code-block:: bash
 
-   tox -e py38 -- -k LT01 test
+   tox -e py39 -- -k LT01 test
 
 Final checks before committing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -1149,10 +1149,23 @@ class StructTypeSegment(hive.StructTypeSegment):
     pass
 
 
-class StructTypeSchemaSegment(hive.StructTypeSchemaSegment):
-    """STRUCT type schema as per hive."""
+class StructTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a STRUCT datatype."""
 
-    pass
+    type = "struct_type_schema"
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("ColonSegment", optional=True),
+                Ref("DatatypeSegment"),
+                Ref("CommentGrammar", optional=True),
+            ),
+            bracket_pairs_set="angle_bracket_pairs",
+        ),
+        bracket_pairs_set="angle_bracket_pairs",
+        bracket_type="angle",
+    )
 
 
 class SemiStructuredAccessorSegment(BaseSegment):

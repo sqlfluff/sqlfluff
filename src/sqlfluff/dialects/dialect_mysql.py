@@ -1664,6 +1664,47 @@ class AlterTableStatementSegment(BaseSegment):
                 # CONVERT TO CHARACTER SET charset_name [COLLATE collation_name]
                 Sequence("CONVERT", "TO", AnyNumberOf(Ref("AlterOptionSegment"))),
             ),
+            optional=True,
+        ),
+        Sequence(
+            OneOf(
+                "ADD",
+                "DROP",
+                "DISCARD",
+                "IMPORT",
+                "TRUNCATE",
+                "COALESCE",
+                "REORGANIZE",
+                "EXCHANGE",
+                "ANALYZE",
+                "CHECK",
+                "OPTIMIZE",
+                "REBUILD",
+                "REPAIR",
+                "REMOVE",
+            ),
+            OneOf("PARTITION", "PARTITIONING"),
+            OneOf(
+                Ref("SingleIdentifierGrammar"),
+                Ref("NumericLiteralSegment"),
+                "ALL",
+                Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+            ),
+            Ref.keyword("TABLESPACE", optional=True),
+            Sequence(
+                "WITH",
+                "TABLE",
+                Ref("TableReference"),
+                OneOf("WITH", "WITHOUT"),
+                "VALIDATION",
+                optional=True,
+            ),
+            Sequence(
+                "INTO",
+                Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+                optional=True,
+            ),
+            optional=True,
         ),
     )
 

@@ -11,7 +11,7 @@ select * from employees where employee_id = &myv;
 SELECT SALARY FROM EMP_DETAILS_VIEW WHERE EMPLOYEE_ID='&X.5';
 
 SELECT &GROUP_COL, MAX(&NUMBER_COL) MAXIMUM
-FROM &TABLE
+FROM &MY_TABLE
 GROUP BY &GROUP_COL;
 
 select * from employees where employee_id = &&myv;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 95a3b8c440b0d1f7b04d865db988719f4cc0dd2e853dbf191b0b42e76b390a41
+_hash: 7908a85e00986cbd6fb19e01e79d4a7184ec255792d56dc31510e47023a15563
 file:
 - statement:
     alter_table_statement:
@@ -710,4 +710,14 @@ file:
         keyword: COLLATE
         collation_reference:
           naked_identifier: utf8mb4_unicode_ci
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: CUST
+    - keyword: TRUNCATE
+    - keyword: PARTITION
+    - naked_identifier: data_dt
 - statement_terminator: ;
