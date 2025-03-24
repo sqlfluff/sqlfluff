@@ -454,9 +454,12 @@ class DbtTemplater(JinjaTemplater):
         return cli_vars if cli_vars else {}
 
     def _get_force_raise_compilation_error(self) -> bool:
-        return self.sqlfluff_config.get_section(
-            (self.templater_selector, self.name, "force_raise_compilation_error")
-        ) or False
+        return (
+            self.sqlfluff_config.get_section(
+                (self.templater_selector, self.name, "force_raise_compilation_error")
+            )
+            or False
+        )
 
     def sequence_files(
         self, fnames: List[str], config=None, formatter=None
