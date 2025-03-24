@@ -1,6 +1,5 @@
 """Implementation of rule AL09."""
 
-
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.base import EvalResultType
 from sqlfluff.core.rules.context import RuleContext

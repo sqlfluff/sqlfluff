@@ -1,6 +1,5 @@
 """Implementation of Rule LT04."""
 
-
 from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.rules.layout.LT03 import Rule_LT03

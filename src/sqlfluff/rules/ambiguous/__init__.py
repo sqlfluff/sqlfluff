@@ -10,7 +10,7 @@ from sqlfluff.core.rules import BaseRule
 
 
 @hookimpl
-def get_configs_info() -> Dict[str, Any]:
+def get_configs_info() -> dict[str, Any]:
     """Get additional rule config validations and descriptions."""
     return {
         "fully_qualify_join_types": {

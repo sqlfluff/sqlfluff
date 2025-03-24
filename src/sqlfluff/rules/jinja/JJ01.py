@@ -1,6 +1,5 @@
 """Implementation of Rule JJ01."""
 
-
 from sqlfluff.core.parser.segments import BaseSegment, SourceFix
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler

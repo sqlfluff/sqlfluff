@@ -1,7 +1,7 @@
 """The Test file for The New Parser (Lexing steps)."""
 
 import logging
-from typing import Any, Dict, NamedTuple, Union
+from typing import Any, NamedTuple, Union
 
 import pytest
 
@@ -175,7 +175,7 @@ def test__parser__lexer_trim_post_subdivide(caplog):
 class _LexerSlicingCase(NamedTuple):
     name: str
     in_str: str
-    context: Dict[str, Any]
+    context: dict[str, Any]
     # (
     #     raw,
     #     source_str (if TemplateSegment),

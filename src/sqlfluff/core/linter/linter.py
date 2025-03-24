@@ -4,16 +4,7 @@ import fnmatch
 import logging
 import os
 import time
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterator,
-    Optional,
-    Sequence,
-    Type,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Iterator, Optional, Sequence, Type, cast
 
 import regex
 from tqdm import tqdm
@@ -761,8 +752,8 @@ class Linter:
 
     @classmethod
     def allowed_rule_ref_map(
-        cls, reference_map: Dict[str, set[str]], disable_noqa_except: Optional[str]
-    ) -> Dict[str, set[str]]:
+        cls, reference_map: dict[str, set[str]], disable_noqa_except: Optional[str]
+    ) -> dict[str, set[str]]:
         """Generate a noqa rule reference map."""
         # disable_noqa_except is not set, return the entire map.
         if not disable_noqa_except:

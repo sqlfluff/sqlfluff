@@ -4,7 +4,7 @@ This class is a construct to keep track of positions within a file.
 """
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from sqlfluff.core.helpers.slice import zero_slice
 
@@ -246,6 +246,6 @@ class PositionMarker:
         """Returns the string in the source at this position."""
         return self.templated_file.source_str[self.source_slice]
 
-    def to_source_dict(self) -> Dict[str, int]:
+    def to_source_dict(self) -> dict[str, int]:
         """Serialise the source position."""
         return self.templated_file.source_position_dict_from_slice(self.source_slice)

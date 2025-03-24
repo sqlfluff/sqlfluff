@@ -3,7 +3,7 @@
 import fnmatch
 import logging
 from dataclasses import dataclass
-from typing import Dict, Optional, Union, cast
+from typing import Optional, Union, cast
 
 from sqlfluff.core.errors import SQLBaseError, SQLParseError, SQLUnusedNoQaWarning
 from sqlfluff.core.parser import BaseSegment, RawSegment, RegexLexer
@@ -66,7 +66,7 @@ class IgnoreMask:
         comment: str,
         line_no: int,
         line_pos: int,
-        reference_map: Dict[str, set[str]],
+        reference_map: dict[str, set[str]],
     ) -> Union[NoQaDirective, SQLParseError, None]:
         """Extract ignore mask entries from a comment string."""
         # Also trim any whitespace afterward
@@ -143,7 +143,7 @@ class IgnoreMask:
     def _extract_ignore_from_comment(
         cls,
         comment: RawSegment,
-        reference_map: Dict[str, set[str]],
+        reference_map: dict[str, set[str]],
     ) -> Union[NoQaDirective, SQLParseError, None]:
         """Extract ignore mask entries from a comment segment."""
         # Also trim any whitespace
@@ -168,7 +168,7 @@ class IgnoreMask:
     def from_tree(
         cls,
         tree: BaseSegment,
-        reference_map: Dict[str, set[str]],
+        reference_map: dict[str, set[str]],
     ) -> tuple["IgnoreMask", list[SQLBaseError]]:
         """Look for inline ignore comments and return NoQaDirectives."""
         ignore_buff: list[NoQaDirective] = []
@@ -191,7 +191,7 @@ class IgnoreMask:
         cls,
         source: str,
         inline_comment_regex: RegexLexer,
-        reference_map: Dict[str, set[str]],
+        reference_map: dict[str, set[str]],
     ) -> tuple["IgnoreMask", list[SQLBaseError]]:
         """Look for inline ignore comments and return NoQaDirectives.
 

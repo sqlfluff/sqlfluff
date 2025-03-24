@@ -9,7 +9,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     DefaultDict,
-    Dict,
     Optional,
     Sequence,
     Type,
@@ -66,7 +65,7 @@ class MatchResult:
     # but not yet created a container to put them in.
     matched_class: Optional[Type["BaseSegment"]] = None
     # kwargs to pass to the segment on creation.
-    segment_kwargs: Dict[str, Any] = field(default_factory=dict)
+    segment_kwargs: dict[str, Any] = field(default_factory=dict)
     # Types and indices to add in new segments (they'll be meta segments)
     insert_segments: tuple[tuple[int, Type["MetaSegment"]], ...] = field(
         default_factory=tuple
@@ -163,7 +162,7 @@ class MatchResult:
         self,
         outer_class: Type["BaseSegment"],
         insert_segments: tuple[tuple[int, Type["MetaSegment"]], ...] = (),
-        segment_kwargs: Dict[str, Any] = {},
+        segment_kwargs: dict[str, Any] = {},
     ) -> "MatchResult":
         """Wrap this result with an outer class.
 

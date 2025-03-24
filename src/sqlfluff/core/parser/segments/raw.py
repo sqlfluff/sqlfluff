@@ -4,7 +4,7 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
-from typing import Any, Callable, Dict, Optional, Union, cast
+from typing import Any, Callable, Optional, Union, cast
 from uuid import uuid4
 
 import regex as re
@@ -272,7 +272,7 @@ class RawSegment(BaseSegment):
             source_fixes=source_fixes or self.source_fixes,
         )
 
-    def _get_raw_segment_kwargs(self) -> Dict[str, Any]:
+    def _get_raw_segment_kwargs(self) -> dict[str, Any]:
         return {
             "quoted_value": self.quoted_value,
             "escape_replacements": self.escape_replacements,
@@ -285,7 +285,7 @@ class RawSegment(BaseSegment):
     def from_result_segments(
         cls,
         result_segments: tuple[BaseSegment, ...],
-        segment_kwargs: Dict[str, Any],
+        segment_kwargs: dict[str, Any],
     ) -> "RawSegment":
         """Create a RawSegment from result segments."""
         assert len(result_segments) == 1

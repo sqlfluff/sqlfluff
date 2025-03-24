@@ -175,7 +175,7 @@ class DbtTemplater(JinjaTemplater):
     sequential_fail_limit = 3
     adapters = {}
 
-    def __init__(self, override_context: Optional[Dict[str, Any]] = None):
+    def __init__(self, override_context: Optional[dict[str, Any]] = None):
         self.sqlfluff_config = None
         self.formatter = None
         self.project_dir = None
@@ -461,14 +461,14 @@ class DbtTemplater(JinjaTemplater):
             self.profiles_dir = self._get_profiles_dir()
 
         # Populate full paths for selected files
-        full_paths: Dict[str, str] = {}
+        full_paths: dict[str, str] = {}
         selected_files = set()
         for fname in fnames:
             fpath = os.path.join(self.working_dir, fname)
             full_paths[fpath] = fname
             selected_files.add(fpath)
 
-        ephemeral_nodes: Dict[str, tuple[str, Any]] = {}
+        ephemeral_nodes: dict[str, tuple[str, Any]] = {}
 
         # Extract the ephemeral models
         for key, node in self.dbt_manifest.nodes.items():

@@ -4,7 +4,7 @@ import sys
 import textwrap
 from collections import abc
 from functools import cached_property
-from typing import Any, Callable, Dict
+from typing import Any, Callable
 
 from sqlfluff import __version__ as pkg_version
 
@@ -34,7 +34,7 @@ def wrap_elem(s: str, width: int) -> list[str]:
 
 def wrap_field(
     label: str, val: str, width: int, max_label_width: int = 10, sep_char: str = ": "
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Wrap a field (label, val).
 
     Returns:

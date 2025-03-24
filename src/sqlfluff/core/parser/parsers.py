@@ -4,7 +4,7 @@ Matchable objects which return individual segments.
 """
 
 from abc import abstractmethod
-from typing import Any, Callable, Collection, Dict, Optional, Sequence, Type
+from typing import Any, Callable, Collection, Optional, Sequence, Type
 from uuid import uuid4
 
 import regex
@@ -55,9 +55,9 @@ class BaseParser(Matchable):
         """Return whether this element is optional."""
         return self.optional
 
-    def segment_kwargs(self) -> Dict[str, Any]:
+    def segment_kwargs(self) -> dict[str, Any]:
         """Generates the segment_kwargs package for generating a matched segment."""
-        segment_kwargs: Dict[str, Any] = {}
+        segment_kwargs: dict[str, Any] = {}
         if self._instance_types:
             segment_kwargs["instance_types"] = self._instance_types
         if self._trim_chars:

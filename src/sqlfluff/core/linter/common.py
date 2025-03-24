@@ -1,6 +1,6 @@
 """Defines small container classes to hold intermediate results during linting."""
 
-from typing import Any, Dict, NamedTuple, Optional, Union
+from typing import Any, NamedTuple, Optional, Union
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import (
@@ -33,7 +33,7 @@ class RenderedFile(NamedTuple):
     templated_variants: list[TemplatedFile]
     templater_violations: list[SQLTemplaterError]
     config: FluffConfig
-    time_dict: Dict[str, float]
+    time_dict: dict[str, float]
     fname: str
     encoding: str
     source_str: str
@@ -85,7 +85,7 @@ class ParsedString(NamedTuple):
 
     parsed_variants: list[ParsedVariant]
     templating_violations: list[SQLTemplaterError]
-    time_dict: Dict[str, Any]
+    time_dict: dict[str, Any]
     config: FluffConfig
     fname: str
     source_str: str

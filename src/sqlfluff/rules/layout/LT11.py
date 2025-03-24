@@ -1,6 +1,5 @@
 """Implementation of Rule LT11."""
 
-
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.reflow.sequence import ReflowSequence

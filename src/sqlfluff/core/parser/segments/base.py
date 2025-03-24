@@ -22,7 +22,6 @@ from typing import (
     Any,
     Callable,
     ClassVar,
-    Dict,
     Iterator,
     Optional,
     Sequence,
@@ -47,7 +46,7 @@ if TYPE_CHECKING:  # pragma: no cover
 linter_logger = logging.getLogger("sqlfluff.linter")
 
 TupleSerialisedSegment = tuple[str, Union[str, tuple["TupleSerialisedSegment", ...]]]
-RecordSerialisedSegment = Dict[
+RecordSerialisedSegment = dict[
     str, Union[None, str, "RecordSerialisedSegment", list["RecordSerialisedSegment"]]
 ]
 
@@ -119,7 +118,7 @@ class SegmentMetaclass(type, Matchable):
         mcs: Type[type],
         name: str,
         bases: tuple[Type["BaseSegment"]],
-        class_dict: Dict[str, Any],
+        class_dict: dict[str, Any],
     ) -> SegmentMetaclass:
         """Generate a new class.
 
@@ -266,14 +265,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: ({self.pos_marker})>"
 
-    def __getstate__(self) -> Dict[str, Any]:
+    def __getstate__(self) -> dict[str, Any]:
         """Get the current state to allow pickling."""
         s = self.__dict__.copy()
         # Kill the parent ref. It won't pickle well.
         s["_parent"] = None
         return s
 
-    def __setstate__(self, state: Dict[str, Any]) -> None:
+    def __setstate__(self, state: dict[str, Any]) -> None:
         """Set state during process of unpickling."""
         self.__dict__ = state.copy()
         # Once state is ingested - repopulate, NOT recursing.
@@ -1236,7 +1235,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
     def from_result_segments(
         cls,
         result_segments: tuple[BaseSegment, ...],
-        segment_kwargs: Dict[str, Any],
+        segment_kwargs: dict[str, Any],
     ) -> "BaseSegment":
         """Create an instance of this class from a tuple of matched segments."""
         return cls(segments=result_segments, **segment_kwargs)

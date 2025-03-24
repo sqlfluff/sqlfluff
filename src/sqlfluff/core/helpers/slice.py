@@ -1,7 +1,6 @@
 """Helpers for handling slices."""
 
 
-
 def to_tuple(s: slice) -> tuple[int, int]:
     """Convert a slice into a tuple of (start, stop)."""
     assert s.start is not None and s.stop is not None

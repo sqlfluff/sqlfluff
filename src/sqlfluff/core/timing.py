@@ -1,7 +1,7 @@
 """Timing summary class."""
 
 from collections import defaultdict
-from typing import Dict, Optional, Union
+from typing import Optional, Union
 
 
 class TimingSummary:
@@ -9,17 +9,17 @@ class TimingSummary:
 
     def __init__(self, steps: Optional[list[str]] = None):
         self.steps = steps
-        self._timings: list[Dict[str, float]] = []
+        self._timings: list[dict[str, float]] = []
 
-    def add(self, timing_dict: Dict[str, float]) -> None:
+    def add(self, timing_dict: dict[str, float]) -> None:
         """Add a timing dictionary to the summary."""
         self._timings.append(timing_dict)
         if not self.steps:
             self.steps = list(timing_dict.keys())
 
-    def summary(self) -> Dict[str, Dict[str, float]]:
+    def summary(self) -> dict[str, dict[str, float]]:
         """Generate a summary for display."""
-        vals: Dict[str, list[float]] = defaultdict(list)
+        vals: dict[str, list[float]] = defaultdict(list)
         if not self.steps:  # pragma: no cover
             return {}
 
@@ -53,16 +53,16 @@ class RuleTimingSummary:
 
     def summary(
         self, threshold: float = 0.5
-    ) -> Dict[str, Dict[str, Union[float, str]]]:
+    ) -> dict[str, dict[str, Union[float, str]]]:
         """Generate a summary for display."""
         keys: set[tuple[str, str]] = set()
-        vals: Dict[tuple[str, str], list[float]] = defaultdict(list)
+        vals: dict[tuple[str, str], list[float]] = defaultdict(list)
 
         for code, name, time in self._timings:
             vals[(code, name)].append(time)
             keys.add((code, name))
 
-        summary: Dict[str, Dict[str, Union[float, str]]] = {}
+        summary: dict[str, dict[str, Union[float, str]]] = {}
         for code, name in sorted(keys):
             timings = vals[(code, name)]
             # For brevity, if the total time taken is less than

@@ -1,7 +1,7 @@
 """Testing utils for rule plugins."""
 
 from glob import glob
-from typing import Collection, Dict, NamedTuple, Optional, Union
+from typing import Collection, NamedTuple, Optional, Union
 
 import pytest
 import yaml
@@ -17,8 +17,8 @@ from sqlfluff.core.errors import (
 from sqlfluff.core.rules import BaseRule, get_ruleset
 from sqlfluff.core.types import ConfigMappingType
 
-FixDictType = Dict[str, Union[str, int]]
-ViolationDictType = Dict[str, Union[str, int, bool, list[FixDictType]]]
+FixDictType = dict[str, Union[str, int]]
+ViolationDictType = dict[str, Union[str, int, bool, list[FixDictType]]]
 
 
 class RuleTestCase(NamedTuple):

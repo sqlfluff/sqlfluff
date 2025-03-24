@@ -39,7 +39,7 @@ def get_rules() -> list[Type[BaseRule]]:
 
 
 @hookimpl
-def load_default_config() -> Dict[str, Any]:
+def load_default_config() -> dict[str, Any]:
     """Loads the default configuration for the plugin."""
     return load_config_resource(
         package="sqlfluff_plugin_example",
@@ -48,7 +48,7 @@ def load_default_config() -> Dict[str, Any]:
 
 
 @hookimpl
-def get_configs_info() -> Dict[str, Dict[str, Any]]:
+def get_configs_info() -> dict[str, dict[str, Any]]:
     """Get rule config validations and descriptions."""
     return {
         "forbidden_columns": {"definition": "A list of column to forbid"},

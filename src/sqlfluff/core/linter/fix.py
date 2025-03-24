@@ -3,7 +3,7 @@
 import logging
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Optional
 
 from sqlfluff.core.parser import BaseSegment, SourceFix
 from sqlfluff.core.rules.fix import LintFix
@@ -93,7 +93,7 @@ class AnchorEditInfo:
         return False  # pragma: no cover
 
 
-def compute_anchor_edit_info(fixes: list["LintFix"]) -> Dict[int, AnchorEditInfo]:
+def compute_anchor_edit_info(fixes: list["LintFix"]) -> dict[int, AnchorEditInfo]:
     """Group and count fixes by anchor, return dictionary."""
     anchor_info = defaultdict(AnchorEditInfo)  # type: ignore
     for fix in fixes:
@@ -108,7 +108,7 @@ def apply_fixes(
     segment: BaseSegment,
     dialect: "Dialect",
     rule_code: str,
-    fixes: Dict[int, AnchorEditInfo],
+    fixes: dict[int, AnchorEditInfo],
     fix_even_unparsable: bool = False,
 ) -> tuple["BaseSegment", list["BaseSegment"], list["BaseSegment"], bool]:
     """Apply a dictionary of fixes to this segment.

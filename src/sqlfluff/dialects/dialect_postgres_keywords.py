@@ -10,7 +10,6 @@ isn't support for that distinction at present.
 """
 
 
-
 def priority_keyword_merge(*args: list[tuple[str, str]]) -> list[tuple[str, str]]:
     """Merge keyword lists, giving priority to entries in later lists.
 

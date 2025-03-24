@@ -1,6 +1,5 @@
 """Information API."""
 
-
 from sqlfluff.core import Linter, dialect_readout
 from sqlfluff.core.dialects import DialectTuple
 from sqlfluff.core.linter import RuleTuple

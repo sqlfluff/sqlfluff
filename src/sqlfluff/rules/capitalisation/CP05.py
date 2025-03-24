@@ -1,6 +1,5 @@
 """Implementation of Rule CP05."""
 
-
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import LintResult
 from sqlfluff.core.rules.context import RuleContext

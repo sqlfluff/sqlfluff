@@ -1,6 +1,5 @@
 """Implementation of Rule LT02."""
 
-
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.utils.reflow.sequence import ReflowSequence

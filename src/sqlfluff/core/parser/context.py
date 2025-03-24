@@ -12,15 +12,7 @@ import logging
 import uuid
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterator,
-    NoReturn,
-    Optional,
-    Sequence,
-)
+from typing import TYPE_CHECKING, Any, Iterator, NoReturn, Optional, Sequence
 
 from tqdm import tqdm
 
@@ -61,13 +53,13 @@ class ParseContext:
     def __init__(
         self,
         dialect: "Dialect",
-        indentation_config: Optional[Dict[str, Any]] = None,
+        indentation_config: Optional[dict[str, Any]] = None,
     ) -> None:
         """Initialize a new instance of the class.
 
         Args:
             dialect (Dialect): The dialect used for parsing.
-            indentation_config (Optional[Dict[str, Any]], optional): The indentation
+            indentation_config (Optional[dict[str, Any]], optional): The indentation
                 configuration used by Indent and Dedent to control the intended
                 indentation of certain features. Defaults to None.
         """
@@ -82,13 +74,13 @@ class ParseContext:
         self.uuid = uuid.uuid4()
         # A dict for parse caching. This is reset for each file,
         # but persists for the duration of an individual file parse.
-        self._parse_cache: Dict[tuple[Any, ...], "MatchResult"] = {}
+        self._parse_cache: dict[tuple[Any, ...], "MatchResult"] = {}
         # A dictionary for keeping track of some statistics on parsing
         # for performance optimisation.
         # Focused around BaseGrammar._longest_trimmed_match().
         # Initialise only with "next_counts", the rest will be int
         # and are dealt with in .increment().
-        self.parse_stats: Dict[str, Any] = {"next_counts": defaultdict(int)}
+        self.parse_stats: dict[str, Any] = {"next_counts": defaultdict(int)}
         # The following attributes are only accessible via a copy
         # and not in the init method.
         # NOTE: We default to the name `File` which is not

@@ -5,15 +5,7 @@ from __future__ import annotations
 import logging
 from copy import copy, deepcopy
 from itertools import chain
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterable,
-    Optional,
-    Type,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Iterable, Optional, Type, Union
 
 import pluggy
 
@@ -189,7 +181,7 @@ class FluffConfig:
                 f"{', '.join([d.label for d in dialect_readout()])}"
             )
 
-    def __getstate__(self) -> Dict[str, Any]:
+    def __getstate__(self) -> dict[str, Any]:
         # Copy the object's state from self.__dict__ which contains
         # all our instance attributes. Always use the dict.copy()
         # method to avoid modifying the original state.
@@ -209,7 +201,7 @@ class FluffConfig:
         state["_configs"]["core"]["templater_obj"] = None
         return state
 
-    def __setstate__(self, state: Dict[str, Any]) -> None:  # pragma: no cover
+    def __setstate__(self, state: dict[str, Any]) -> None:  # pragma: no cover
         # Restore instance attributes
         self.__dict__.update(state)
         # NOTE: Rather than rehydrating the previous plugin manager, we
@@ -442,7 +434,7 @@ class FluffConfig:
            full templater. Instantiated templaters don't pickle well, so aren't
            automatically passed around between threads/processes.
         """
-        templater_lookup: Dict[str, Type["RawTemplater"]] = {
+        templater_lookup: dict[str, Type["RawTemplater"]] = {
             templater.name: templater
             for templater in chain.from_iterable(
                 self._plugin_manager.hook.get_templaters()

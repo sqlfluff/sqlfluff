@@ -1,6 +1,6 @@
 """Common test fixtures for grammar testing."""
 
-from typing import Any, Dict, Type
+from typing import Any, Type
 
 import pytest
 
@@ -22,7 +22,7 @@ def structural_parse_mode_test(generate_test_segments, fresh_ansi_dialect):
         grammar_class: Type[BaseGrammar],
         grammar_argument_seeds: list[str],
         grammar_terminator_seeds: list[str],
-        grammar_kwargs: Dict[str, Any],
+        grammar_kwargs: dict[str, Any],
         parse_mode: ParseMode,
         input_slice: slice,
         output_tuple: tuple[Any, ...],

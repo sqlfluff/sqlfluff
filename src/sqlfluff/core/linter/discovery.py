@@ -9,7 +9,7 @@ into specific file references. The method also processes the
 import logging
 import os
 from pathlib import Path
-from typing import Callable, Dict, Iterable, Iterator, Optional, Sequence
+from typing import Callable, Iterable, Iterator, Optional, Sequence
 
 import pathspec
 
@@ -95,7 +95,7 @@ def _load_configfile(dirpath: str, filename: str) -> Optional[IgnoreSpecRecord]:
     return dirpath, filename, spec
 
 
-ignore_file_loaders: Dict[str, Callable[[str, str], Optional[IgnoreSpecRecord]]] = {
+ignore_file_loaders: dict[str, Callable[[str, str], Optional[IgnoreSpecRecord]]] = {
     ".sqlfluffignore": _load_ignorefile,
     "pyproject.toml": _load_configfile,
     ".sqlfluff": _load_configfile,

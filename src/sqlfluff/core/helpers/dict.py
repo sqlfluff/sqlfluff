@@ -1,20 +1,11 @@
 """Dict helpers, mostly used in config routines."""
 
 from copy import deepcopy
-from typing import (
-    Dict,
-    Iterable,
-    Iterator,
-    Optional,
-    Sequence,
-    TypeVar,
-    Union,
-    cast,
-)
+from typing import Iterable, Iterator, Optional, Sequence, TypeVar, Union, cast
 
 T = TypeVar("T")
 
-NestedStringDict = Dict[str, Union[T, "NestedStringDict[T]"]]
+NestedStringDict = dict[str, Union[T, "NestedStringDict[T]"]]
 """Nested dict, with keys as strings.
 
 All values of the dict are either values of the given type variable T, or

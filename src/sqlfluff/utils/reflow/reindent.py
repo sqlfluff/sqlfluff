@@ -4,14 +4,7 @@ import logging
 from collections import defaultdict
 from dataclasses import dataclass
 from itertools import chain
-from typing import (
-    DefaultDict,
-    Dict,
-    Iterator,
-    Optional,
-    Union,
-    cast,
-)
+from typing import DefaultDict, Iterator, Optional, Union, cast
 
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.slice import slice_length
@@ -1765,7 +1758,7 @@ def _source_char_len(elements: ReflowSequenceType) -> int:
     return char_len
 
 
-def _rebreak_priorities(spans: list[_RebreakSpan]) -> Dict[int, int]:
+def _rebreak_priorities(spans: list[_RebreakSpan]) -> dict[int, int]:
     """Process rebreak spans into opportunities to split lines.
 
     The index to insert a potential indent at depends on the
@@ -1870,7 +1863,7 @@ def _increment_balance(
 
 def _match_indents(
     line_elements: ReflowSequenceType,
-    rebreak_priorities: Dict[int, int],
+    rebreak_priorities: dict[int, int],
     newline_idx: int,
     allow_implicit_indents: bool = False,
 ) -> MatchedIndentsType:
@@ -1881,7 +1874,7 @@ def _match_indents(
     """
     balance = 0
     matched_indents: MatchedIndentsType = defaultdict(list)
-    implicit_indents: Dict[int, tuple[int, ...]] = {}
+    implicit_indents: dict[int, tuple[int, ...]] = {}
     for idx, e in enumerate(line_elements):
         # We only care about points, because only they contain indents.
         if not isinstance(e, ReflowPoint):

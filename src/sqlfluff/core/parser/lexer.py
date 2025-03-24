@@ -1,7 +1,7 @@
 """The code for the Lexer."""
 
 import logging
-from typing import Any, Dict, Iterator, NamedTuple, Optional, Type, Union
+from typing import Any, Iterator, NamedTuple, Optional, Type, Union
 from uuid import UUID, uuid4
 
 import regex
@@ -42,7 +42,7 @@ class BlockTracker:
     """
 
     _stack: list[UUID] = []
-    _map: Dict[tuple[int, int], UUID] = {}
+    _map: dict[tuple[int, int], UUID] = {}
 
     def enter(self, src_slice: slice) -> None:
         """Add a block to the stack."""
@@ -141,7 +141,7 @@ class StringLexer:
         segment_class: Type[RawSegment],
         subdivider: Optional[LexerType] = None,
         trim_post_subdivide: Optional[LexerType] = None,
-        segment_kwargs: Optional[Dict[str, Any]] = None,
+        segment_kwargs: Optional[dict[str, Any]] = None,
     ) -> None:
         self.name = name
         self.template = template

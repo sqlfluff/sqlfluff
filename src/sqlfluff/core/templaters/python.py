@@ -3,15 +3,7 @@
 import ast
 import re
 from string import Formatter
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    Iterator,
-    NamedTuple,
-    Optional,
-)
+from typing import Any, Callable, Iterable, Iterator, NamedTuple, Optional
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLTemplaterError
@@ -171,7 +163,7 @@ class PythonTemplater(RawTemplater):
     name = "python"
     config_subsection: tuple[str, ...] = ("context",)
 
-    def __init__(self, override_context: Optional[Dict[str, Any]] = None) -> None:
+    def __init__(self, override_context: Optional[dict[str, Any]] = None) -> None:
         self.default_context = dict(test_value="__test__")
         self.override_context = override_context or {}
 
@@ -192,7 +184,7 @@ class PythonTemplater(RawTemplater):
         self,
         fname: Optional[str],
         config: Optional[FluffConfig],
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get the templating context from the config.
 
         This function retrieves the templating context from the config by
@@ -450,7 +442,7 @@ class PythonTemplater(RawTemplater):
     @classmethod
     def _substring_occurrences(
         cls, in_str: str, substrings: Iterable[str]
-    ) -> Dict[str, list[int]]:
+    ) -> dict[str, list[int]]:
         """Find every occurrence of the given substrings."""
         occurrences = {}
         for substring in substrings:
@@ -459,7 +451,7 @@ class PythonTemplater(RawTemplater):
 
     @staticmethod
     def _sorted_occurrence_tuples(
-        occurrences: Dict[str, list[int]],
+        occurrences: dict[str, list[int]],
     ) -> list[tuple[str, int]]:
         """Sort a dict of occurrences into a sorted list of tuples."""
         return sorted(
@@ -520,8 +512,8 @@ class PythonTemplater(RawTemplater):
         cls,
         raw_sliced: list[RawFileSlice],
         literals: list[str],
-        raw_occurrences: Dict[str, list[int]],
-        templated_occurrences: Dict[str, list[int]],
+        raw_occurrences: dict[str, list[int]],
+        templated_occurrences: dict[str, list[int]],
         templated_str: str,
     ) -> Iterator[IntermediateFileSlice]:
         """Split a sliced file on its invariant literals.
@@ -619,8 +611,8 @@ class PythonTemplater(RawTemplater):
 
     @staticmethod
     def _filter_occurrences(
-        file_slice: slice, occurrences: Dict[str, list[int]]
-    ) -> Dict[str, list[int]]:
+        file_slice: slice, occurrences: dict[str, list[int]]
+    ) -> dict[str, list[int]]:
         """Filter a dict of occurrences to just those within a slice."""
         filtered = {
             key: [
@@ -658,8 +650,8 @@ class PythonTemplater(RawTemplater):
     def _split_uniques_coalesce_rest(
         cls,
         split_file: list[IntermediateFileSlice],
-        raw_occurrences: Dict[str, list[int]],
-        templ_occurrences: Dict[str, list[int]],
+        raw_occurrences: dict[str, list[int]],
+        templ_occurrences: dict[str, list[int]],
         templated_str: str,
     ) -> Iterator[TemplatedFileSlice]:
         """Within each of the compound sections split on unique literals.

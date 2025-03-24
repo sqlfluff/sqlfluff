@@ -3,7 +3,7 @@
 import logging
 from dataclasses import dataclass, field
 from itertools import chain
-from typing import Dict, Optional, Sequence, Type, Union, cast
+from typing import Optional, Sequence, Type, Union, cast
 
 from sqlfluff.core.helpers.slice import slice_overlaps
 from sqlfluff.core.parser import PositionMarker
@@ -152,18 +152,18 @@ class ReflowBlock(ReflowElement):
     #: Desired spacing configurations for parent segments
     #: of the segment in this block.
     #: See :ref:`layoutspacingconfig`
-    stack_spacing_configs: Dict[int, str]
+    stack_spacing_configs: dict[int, str]
     #: Desired line position configurations for parent segments
     #: of the segment in this block.
     #: See :ref:`layoutspacingconfig`
-    line_position_configs: Dict[int, str]
+    line_position_configs: dict[int, str]
     #: Desired line position for this block's keywords.
     #: See :ref:`layoutspacingconfig`
     keyword_line_position: Optional[str]
     #: Desired keyword line position configurations for parent segments
     #: of the segment in this block.
     #: See :ref:`layoutspacingconfig`
-    keyword_line_position_configs: Dict[int, str]
+    keyword_line_position_configs: dict[int, str]
 
     @classmethod
     def from_config(

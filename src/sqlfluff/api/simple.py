@@ -1,6 +1,6 @@
 """The simple public API methods."""
 
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from sqlfluff.core import (
     FluffConfig,
@@ -65,7 +65,7 @@ def lint(
     exclude_rules: Optional[list[str]] = None,
     config: Optional[FluffConfig] = None,
     config_path: Optional[str] = None,
-) -> list[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Lint a SQL string.
 
     Args:
@@ -83,7 +83,7 @@ def lint(
             Defaults to None.
 
     Returns:
-        :obj:`list[Dict[str, Any]]` for each violation found.
+        :obj:`list[dict[str, Any]]` for each violation found.
     """
     cfg = config or get_simple_config(
         dialect=dialect,
@@ -157,7 +157,7 @@ def parse(
     dialect: str = "ansi",
     config: Optional[FluffConfig] = None,
     config_path: Optional[str] = None,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Parse a SQL string.
 
     Args:

@@ -1,6 +1,5 @@
 """Implementation of Rule AM02."""
 
-
 from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler

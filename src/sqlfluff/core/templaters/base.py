@@ -5,7 +5,6 @@ from bisect import bisect_left
 from typing import (
     Any,
     Callable,
-    Dict,
     Iterable,
     Iterator,
     NamedTuple,
@@ -123,7 +122,7 @@ class RawSliceBlockInfo(NamedTuple):
 
     # Given a raw file slace, return its block ID. Useful for identifying
     # regions of a file with respect to template control structures (for, if).
-    block_ids: Dict[RawFileSlice, int]
+    block_ids: dict[RawFileSlice, int]
 
     # List of block IDs that have the following characteristics:
     # - Loop body
@@ -491,7 +490,7 @@ class TemplatedFile:
                 ret_buff.append(elem)
         return ret_buff
 
-    def source_position_dict_from_slice(self, source_slice: slice) -> Dict[str, int]:
+    def source_position_dict_from_slice(self, source_slice: slice) -> dict[str, int]:
         """Create a source position dict from a slice."""
         start = self.get_line_pos_of_char_pos(source_slice.start, source=True)
         stop = self.get_line_pos_of_char_pos(source_slice.stop, source=True)
@@ -517,7 +516,7 @@ class RawTemplater:
 
     def __init__(
         self,
-        override_context: Optional[Dict[str, Any]] = None,
+        override_context: Optional[dict[str, Any]] = None,
     ) -> None:
         """Placeholder init function.
 
@@ -614,7 +613,7 @@ class RawTemplater:
         self,
         fname: Optional[str],
         config: Optional[FluffConfig],
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get the templating context from the config.
 
         This function retrieves the templating context from the config by

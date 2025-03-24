@@ -2,7 +2,7 @@
 
 import logging
 from dataclasses import dataclass
-from typing import Dict, Sequence, Type
+from typing import Sequence, Type
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.parser.segments.base import PathStep
@@ -61,7 +61,7 @@ class DepthInfo:
     # This is a convenience cache to speed up operations.
     stack_hash_set: frozenset[int]
     stack_class_types: tuple[frozenset[str], ...]
-    stack_positions: Dict[int, StackPosition]
+    stack_positions: dict[int, StackPosition]
 
     @classmethod
     def from_raw_and_stack(

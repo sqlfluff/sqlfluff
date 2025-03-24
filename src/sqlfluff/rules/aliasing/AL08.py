@@ -1,6 +1,6 @@
 """Implementation of Rule AL08."""
 
-from typing import Dict, Optional
+from typing import Optional
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, EvalResultType, LintResult, RuleContext
@@ -71,7 +71,7 @@ class Rule_AL08(BaseRule):
         """Walk through select clauses, looking for matching identifiers."""
         assert context.segment.is_type("select_clause")
 
-        used_aliases: Dict[str, BaseSegment] = {}
+        used_aliases: dict[str, BaseSegment] = {}
         violations = []
 
         # Work through each of the elements

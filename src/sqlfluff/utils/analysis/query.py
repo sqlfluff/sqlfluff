@@ -173,7 +173,7 @@ class Query(Generic[T]):
     query_type: QueryType
     dialect: Dialect
     selectables: list[Selectable] = field(default_factory=list)
-    ctes: Dict[str, T] = field(default_factory=dict)
+    ctes: dict[str, T] = field(default_factory=dict)
     # Parent scope. This query can "see" CTEs defined by parents.
     parent: Optional[T] = field(default=None)
     # subqueries are subselects in either the SELECT or FROM clause.
@@ -205,7 +205,7 @@ class Query(Generic[T]):
 
     def as_dict(self: T) -> Dict:
         """Dict representation for logging/testing."""
-        result: Dict[str, Union[str, list[str], Dict, list[Dict]]] = {}
+        result: dict[str, Union[str, list[str], Dict, list[Dict]]] = {}
         if self.query_type != QueryType.Simple:
             result["query_type"] = self.query_type.name
         if self.selectables:

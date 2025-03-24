@@ -4,7 +4,7 @@ This stores the idea of a collection of linted files at a single start path
 
 """
 
-from typing import Dict, Iterable, Optional, Type, TypedDict, Union
+from typing import Iterable, Optional, Type, TypedDict, Union
 
 from sqlfluff.core.errors import (
     CheckTuple,
@@ -22,9 +22,9 @@ LintingRecord = TypedDict(
         "filepath": str,
         "violations": list[SerializedObject],
         # Things like file length
-        "statistics": Dict[str, int],
+        "statistics": dict[str, int],
         # Raw timings, in seconds, for both rules and steps
-        "timings": Dict[str, float],
+        "timings": dict[str, float],
     },
 )
 
@@ -53,11 +53,11 @@ class LintedDir:
         self._num_unclean: int = 0
         self._num_violations: int = 0
         self.num_unfiltered_tmp_prs_errors: int = 0
-        self._unfiltered_tmp_prs_errors_map: Dict[str, int] = {}
+        self._unfiltered_tmp_prs_errors_map: dict[str, int] = {}
         self.num_tmp_prs_errors: int = 0
         self.num_unfixable_lint_errors: int = 0
         # Timing
-        self.step_timings: list[Dict[str, float]] = []
+        self.step_timings: list[dict[str, float]] = []
         self.rule_timings: list[tuple[str, str, float]] = []
 
     def add(self, file: LintedFile) -> None:
@@ -157,7 +157,7 @@ class LintedDir:
 
     def check_tuples_by_path(
         self, raise_on_non_linting_violations: bool = True
-    ) -> Dict[str, list[CheckTuple]]:
+    ) -> dict[str, list[CheckTuple]]:
         """Fetch all check_tuples from all contained `LintedDir` objects.
 
         Returns:
@@ -198,7 +198,7 @@ class LintedDir:
         """
         return self._records
 
-    def stats(self) -> Dict[str, int]:
+    def stats(self) -> dict[str, int]:
         """Return a dict containing linting stats about this path."""
         return {
             "files": self._num_files,
@@ -211,14 +211,14 @@ class LintedDir:
         self,
         formatter: Optional[FormatterInterface] = None,
         fixed_file_suffix: str = "",
-    ) -> Dict[str, Union[bool, str]]:
+    ) -> dict[str, Union[bool, str]]:
         """Persist changes to files in the given path.
 
         This also logs the output as we go using the formatter if present.
         """
         assert self.retain_files, "cannot `persist_changes()` without `retain_files`"
         # Run all the fixes for all the files and return a dict
-        buffer: Dict[str, Union[bool, str]] = {}
+        buffer: dict[str, Union[bool, str]] = {}
         for file in self.files:
             buffer[file.path] = file.persist_tree(
                 suffix=fixed_file_suffix, formatter=formatter

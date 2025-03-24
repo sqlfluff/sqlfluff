@@ -1,7 +1,7 @@
 """Methods for loading config from pyproject.toml files."""
 
 import sys
-from typing import Any, Dict, TypeVar
+from typing import Any, TypeVar
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -26,7 +26,7 @@ def _condense_rule_record(record: NestedDictRecord[T]) -> NestedDictRecord[T]:
     return key, value
 
 
-def _validate_structure(raw_config: Dict[str, Any]) -> ConfigMappingType:
+def _validate_structure(raw_config: dict[str, Any]) -> ConfigMappingType:
     """Helper function to narrow types for use by SQLFluff.
 
     This is a recursive function on any dict keys found.

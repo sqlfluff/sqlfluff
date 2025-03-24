@@ -27,7 +27,6 @@ from typing import (
     Any,
     ClassVar,
     DefaultDict,
-    Dict,
     Iterator,
     Optional,
     Sequence,
@@ -176,8 +175,8 @@ class RuleMetaclass(type):
 
     @staticmethod
     def _populate_code_and_description(
-        name: str, class_dict: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        name: str, class_dict: dict[str, Any]
+    ) -> dict[str, Any]:
         """Extract and validate the rule code & description.
 
         We expect that rules are defined as classes with the name `Rule_XXXX`
@@ -213,7 +212,7 @@ class RuleMetaclass(type):
         return class_dict
 
     @staticmethod
-    def _populate_docstring(name: str, class_dict: Dict[str, Any]) -> Dict[str, Any]:
+    def _populate_docstring(name: str, class_dict: dict[str, Any]) -> dict[str, Any]:
         """Enrich the docstring in the class_dict.
 
         This takes the various defined values in the BaseRule class
@@ -318,7 +317,7 @@ class RuleMetaclass(type):
         mcs,
         name: str,
         bases: list["BaseRule"],
-        class_dict: Dict[str, Any],
+        class_dict: dict[str, Any],
     ) -> "RuleMetaclass":
         """Generate a new class."""
         # Optionally, groups may be inherited. At this stage of initialisation
@@ -493,7 +492,7 @@ class BaseRule(metaclass=RuleMetaclass):
         list[SQLLintError],
         tuple[RawSegment, ...],
         list[LintFix],
-        Optional[Dict[str, Any]],
+        Optional[dict[str, Any]],
     ]:
         """Run the rule on a given tree.
 
@@ -874,7 +873,7 @@ class RulePack:
     """
 
     rules: list[BaseRule]
-    reference_map: Dict[str, set[str]]
+    reference_map: dict[str, set[str]]
 
     def codes(self) -> Iterator[str]:
         """Returns an iterator through the codes contained in the pack."""
@@ -904,10 +903,10 @@ class RuleSet:
 
     """
 
-    def __init__(self, name: str, config_info: Dict[str, Dict[str, Any]]) -> None:
+    def __init__(self, name: str, config_info: dict[str, dict[str, Any]]) -> None:
         self.name = name
         self.config_info = config_info
-        self._register: Dict[str, RuleManifest] = {}
+        self._register: dict[str, RuleManifest] = {}
 
     def _validate_config_options(
         self, config: "FluffConfig", rule_ref: Optional[str] = None
@@ -988,7 +987,7 @@ class RuleSet:
         return cls
 
     def _expand_rule_refs(
-        self, glob_list: list[str], reference_map: Dict[str, set[str]]
+        self, glob_list: list[str], reference_map: dict[str, set[str]]
     ) -> set[str]:
         """Expand a list of rule references into a list of rule codes.
 
@@ -1011,7 +1010,7 @@ class RuleSet:
                     expanded_rule_set.update(reference_map[matched])
         return expanded_rule_set
 
-    def rule_reference_map(self) -> Dict[str, set[str]]:
+    def rule_reference_map(self) -> dict[str, set[str]]:
         """Generate a rule reference map for looking up rules.
 
         Generate the master reference map. The priority order is:
@@ -1020,10 +1019,10 @@ class RuleSet:
         the alias is wrong)
         """
         valid_codes: set[str] = set(self._register.keys())
-        reference_map: Dict[str, set[str]] = {code: {code} for code in valid_codes}
+        reference_map: dict[str, set[str]] = {code: {code} for code in valid_codes}
 
         # Generate name map.
-        name_map: Dict[str, set[str]] = {
+        name_map: dict[str, set[str]] = {
             manifest.name: {manifest.code}
             for manifest in self._register.values()
             if manifest.name

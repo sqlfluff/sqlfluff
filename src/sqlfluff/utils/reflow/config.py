@@ -3,13 +3,13 @@
 # Until we have a proper structure this will work.
 # TODO: Migrate this to the config file.
 from dataclasses import dataclass
-from typing import AbstractSet, Any, Dict, Optional
+from typing import AbstractSet, Any, Optional
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.utils.reflow.depthmap import DepthInfo
 
-ConfigElementType = Dict[str, str]
-ConfigDictType = Dict[str, ConfigElementType]
+ConfigElementType = dict[str, str]
+ConfigDictType = dict[str, ConfigElementType]
 
 
 @dataclass()

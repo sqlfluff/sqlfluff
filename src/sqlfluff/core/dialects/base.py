@@ -1,7 +1,7 @@
 """Defines the base dialect class."""
 
 import sys
-from typing import Any, Dict, Optional, Type, Union, cast
+from typing import Any, Optional, Type, Union, cast
 
 from sqlfluff.core.parser import (
     BaseSegment,
@@ -30,8 +30,8 @@ class Dialect:
         name: str,
         root_segment_name: str,
         lexer_matchers: Optional[list[LexerType]] = None,
-        library: Optional[Dict[str, DialectElementType]] = None,
-        sets: Optional[Dict[str, set[Union[str, BracketPairTuple]]]] = None,
+        library: Optional[dict[str, DialectElementType]] = None,
+        sets: Optional[dict[str, set[Union[str, BracketPairTuple]]]] = None,
         inherits_from: Optional[str] = None,
         formatted_name: Optional[str] = None,
         docstring: Optional[str] = None,
@@ -239,7 +239,7 @@ class Dialect:
 
             self._library[n] = replacement
 
-    def add_update_segments(self, module_dct: Dict[str, Any]) -> None:
+    def add_update_segments(self, module_dct: dict[str, Any]) -> None:
         """Scans module dictionary, adding or replacing segment definitions."""
         for k, v in module_dct.items():
             if isinstance(v, type) and issubclass(v, BaseSegment):

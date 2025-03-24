@@ -12,7 +12,7 @@ import stat
 import tempfile
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict, Iterable, NamedTuple, Optional, Type, Union
+from typing import Iterable, NamedTuple, Optional, Type, Union
 
 from sqlfluff.core.errors import (
     CheckTuple,
@@ -39,7 +39,7 @@ TMP_PRS_ERROR_TYPES = (SQLTemplaterError, SQLParseError)
 class FileTimings:
     """A dataclass for holding the timings information for a file."""
 
-    step_timings: Dict[str, float]
+    step_timings: dict[str, float]
     # NOTE: Because rules may run more than once for any
     # given file we record each run and then we can post
     # process this as we wish later.
@@ -48,12 +48,12 @@ class FileTimings:
     def __repr__(self) -> str:  # pragma: no cover
         return "<FileTimings>"
 
-    def get_rule_timing_dict(self) -> Dict[str, float]:
+    def get_rule_timing_dict(self) -> dict[str, float]:
         """Generate a summary to total time in each rule.
 
         This is primarily for csv export.
         """
-        total_times: Dict[str, float] = defaultdict(float)
+        total_times: dict[str, float] = defaultdict(float)
 
         for code, _, time in self.rule_timings:
             total_times[code] += time

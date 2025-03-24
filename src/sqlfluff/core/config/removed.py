@@ -2,7 +2,7 @@
 
 import logging
 from dataclasses import dataclass
-from typing import Callable, Dict, Optional, Union
+from typing import Callable, Optional, Union
 
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import (
@@ -40,7 +40,7 @@ class _RemovedConfig:
         return ":".join(self.new_path)
 
 
-RemovedConfigMapType = Dict[str, Union[_RemovedConfig, "RemovedConfigMapType"]]
+RemovedConfigMapType = dict[str, Union[_RemovedConfig, "RemovedConfigMapType"]]
 
 
 REMOVED_CONFIGS = [

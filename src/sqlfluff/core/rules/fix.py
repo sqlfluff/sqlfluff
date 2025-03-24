@@ -2,7 +2,7 @@
 
 import logging
 from itertools import chain
-from typing import Any, Dict, Iterable, Optional, Sized, cast
+from typing import Any, Iterable, Optional, Sized, cast
 
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment, SourceFix
 from sqlfluff.core.templaters import RawFileSlice, TemplatedFile
@@ -125,7 +125,7 @@ class LintFix:
             f"@{self.anchor.pos_marker} {detail}>"
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialise this LintFix as a dict."""
         assert self.anchor
         _position = self.anchor.pos_marker

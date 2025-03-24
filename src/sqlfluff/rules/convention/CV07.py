@@ -1,6 +1,5 @@
 """Implementation of Rule CV07."""
 
-
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.utils.functional import Segments, sp

@@ -5,7 +5,6 @@ import time
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Iterable,
     Mapping,
     Optional,
@@ -23,7 +22,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.segments.base import BaseSegment
 
 
-def sum_dicts(d1: Mapping[str, int], d2: Mapping[str, int]) -> Dict[str, int]:
+def sum_dicts(d1: Mapping[str, int], d2: Mapping[str, int]) -> dict[str, int]:
     """Take the keys of two dictionaries and add their values."""
     keys = set(d1.keys()) | set(d2.keys())
     return {key: d1.get(key, 0) + d2.get(key, 0) for key in keys}
@@ -32,9 +31,9 @@ def sum_dicts(d1: Mapping[str, int], d2: Mapping[str, int]) -> Dict[str, int]:
 T = TypeVar("T")
 
 
-def combine_dicts(*d: Dict[str, T]) -> Dict[str, T]:
+def combine_dicts(*d: dict[str, T]) -> dict[str, T]:
     """Take any set of dictionaries and combine them."""
-    dict_buffer: Dict[str, T] = {}
+    dict_buffer: dict[str, T] = {}
     for dct in d:
         dict_buffer.update(dct)
     return dict_buffer
@@ -76,13 +75,13 @@ class LintingResult:
             )
         ]
 
-    def check_tuples_by_path(self) -> Dict[str, list[CheckTuple]]:
+    def check_tuples_by_path(self) -> dict[str, list[CheckTuple]]:
         """Fetch all check_tuples from all contained `LintedDir` objects.
 
         Returns:
             A dict, with lists of tuples grouped by path.
         """
-        buff: Dict[str, list[CheckTuple]] = {}
+        buff: dict[str, list[CheckTuple]] = {}
         for path in self.paths:
             buff.update(path.check_tuples_by_path())
         return buff
@@ -105,16 +104,16 @@ class LintingResult:
 
     def stats(
         self, fail_code: int, success_code: int
-    ) -> Dict[str, Union[int, float, str]]:
+    ) -> dict[str, Union[int, float, str]]:
         """Return a stats dictionary of this result."""
         # Add up all the counts for each file.
         # NOTE: Having a more strictly typed dict for the counts also helps with
         # typing later in this method.
-        counts: Dict[str, int] = dict(files=0, clean=0, unclean=0, violations=0)
+        counts: dict[str, int] = dict(files=0, clean=0, unclean=0, violations=0)
         for path in self.paths:
             counts = sum_dicts(path.stats(), counts)
         # Set up the overall dictionary.
-        all_stats: Dict[str, Union[int, float, str]] = {}
+        all_stats: dict[str, Union[int, float, str]] = {}
         all_stats.update(counts)
         if counts["files"] > 0:
             all_stats["avg per file"] = counts["violations"] * 1.0 / counts["files"]
@@ -128,7 +127,7 @@ class LintingResult:
         all_stats["status"] = "FAIL" if counts["violations"] > 0 else "PASS"
         return all_stats
 
-    def timing_summary(self) -> Dict[str, Dict[str, Any]]:
+    def timing_summary(self) -> dict[str, dict[str, Any]]:
         """Return a timing summary."""
         timing = TimingSummary()
         rules_timing = RuleTimingSummary()
@@ -200,7 +199,7 @@ class LintingResult:
 
     def persist_changes(
         self, formatter: Optional[FormatterInterface], fixed_file_suffix: str = ""
-    ) -> Dict[str, Union[bool, str]]:
+    ) -> dict[str, Union[bool, str]]:
         """Run all the fixes for all the files and return a dict."""
         return combine_dicts(
             *(

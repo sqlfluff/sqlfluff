@@ -1,7 +1,7 @@
 """Defines the specification to implement a plugin."""
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, Type
+from typing import TYPE_CHECKING, Any, Type
 
 import pluggy
 
@@ -25,7 +25,7 @@ class PluginSpec:
 
     @hookspec
     @abstractmethod
-    def load_default_config(self) -> Dict[str, Any]:
+    def load_default_config(self) -> dict[str, Any]:
         """Loads the default configuration for the plugin."""
 
     @hookspec
@@ -33,5 +33,5 @@ class PluginSpec:
     # TODO: This type annotation could probably be more specific but that would
     # require making the config info object something more like a namedTuple rather
     # than a dict.
-    def get_configs_info(self) -> Dict[str, Dict[str, Any]]:
+    def get_configs_info(self) -> dict[str, dict[str, Any]]:
         """Get rule config validations and descriptions."""

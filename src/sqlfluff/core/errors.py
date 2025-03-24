@@ -11,17 +11,17 @@ tracking.
 https://stackoverflow.com/questions/49715881/how-to-pickle-inherited-exceptions
 """
 
-from typing import TYPE_CHECKING, Any, Dict, Optional, Type, Union, cast
+from typing import TYPE_CHECKING, Any, Optional, Type, Union, cast
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser import BaseSegment, PositionMarker
     from sqlfluff.core.rules import BaseRule, LintFix
 
 CheckTuple = tuple[str, int, int]
-SerializedObject = Dict[str, Union[str, int, bool, list["SerializedObject"]]]
+SerializedObject = dict[str, Union[str, int, bool, list["SerializedObject"]]]
 
 
-def _extract_position(segment: Optional["BaseSegment"]) -> Dict[str, int]:
+def _extract_position(segment: Optional["BaseSegment"]) -> dict[str, int]:
     """If a segment is present and is a literal, return it's source length."""
     if segment:
         position = segment.pos_marker

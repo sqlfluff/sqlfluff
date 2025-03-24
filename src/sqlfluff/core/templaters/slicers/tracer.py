@@ -8,15 +8,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import (
-    Callable,
-    ClassVar,
-    Dict,
-    NamedTuple,
-    Optional,
-    Union,
-    cast,
-)
+from typing import Callable, ClassVar, NamedTuple, Optional, Union, cast
 
 import regex
 from jinja2 import Environment
@@ -56,7 +48,7 @@ class JinjaTracer:
         self,
         raw_str: str,
         raw_sliced: list[RawFileSlice],
-        raw_slice_info: Dict[RawFileSlice, RawSliceInfo],
+        raw_slice_info: dict[RawFileSlice, RawSliceInfo],
         sliced_file: list[TemplatedFileSlice],
         render_func: Callable[[str], str],
     ):
@@ -159,7 +151,7 @@ class JinjaTracer:
         self,
         target_slice_idx: int,
         target_slice_length: int,
-    ) -> Dict[int, list[int]]:
+    ) -> dict[int, list[int]]:
         """Given a template location, walk execution to that point.
 
         This updates the internal `program_counter` to the appropriate
@@ -292,7 +284,7 @@ class JinjaAnalyzer:
 
         # Output
         self.raw_sliced: list[RawFileSlice] = []
-        self.raw_slice_info: Dict[RawFileSlice, RawSliceInfo] = {}
+        self.raw_slice_info: dict[RawFileSlice, RawSliceInfo] = {}
         self.sliced_file: list[TemplatedFileSlice] = []
 
         # Internal bookkeeping
@@ -418,7 +410,7 @@ class JinjaAnalyzer:
         self,
         raw_str: str,
         raw_sliced: list[RawFileSlice],
-        raw_slice_info: Dict[RawFileSlice, RawSliceInfo],
+        raw_slice_info: dict[RawFileSlice, RawSliceInfo],
         sliced_file: list[TemplatedFileSlice],
         render_func: Callable[[str], str],
     ) -> JinjaTracer:

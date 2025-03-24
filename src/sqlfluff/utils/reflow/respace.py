@@ -2,7 +2,7 @@
 
 import logging
 from collections import defaultdict
-from typing import TYPE_CHECKING, Dict, Optional, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.parser import (
@@ -241,7 +241,7 @@ def _determine_aligned_inline_spacing(
 
     # Purge any siblings which are either on the same line or on another line and
     # have another index
-    siblings_by_line: Dict[int, list[BaseSegment]] = defaultdict(list)
+    siblings_by_line: dict[int, list[BaseSegment]] = defaultdict(list)
     for sibling in siblings:
         _pos = sibling.pos_marker
         assert _pos

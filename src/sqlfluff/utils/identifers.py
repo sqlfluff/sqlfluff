@@ -5,7 +5,6 @@ bundles. Defined here to avoid duplication, but also avoid
 circular imports.
 """
 
-
 from sqlfluff.core.parser import BaseSegment
 
 

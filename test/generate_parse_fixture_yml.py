@@ -7,7 +7,7 @@ import re
 import sys
 import time
 from collections import defaultdict
-from typing import Callable, Dict, Optional, TypeVar
+from typing import Callable, Optional, TypeVar
 
 import click
 import yaml
@@ -116,7 +116,7 @@ def generate_one_parse_fixture(
     # Remove the .sql file extension
     path = _create_file_path(example)
     with open(path, "w", newline="\n", encoding="utf8") as f:
-        r: Optional[Dict[str, Optional[str]]] = None
+        r: Optional[dict[str, Optional[str]]] = None
 
         if not tree:
             f.write("")

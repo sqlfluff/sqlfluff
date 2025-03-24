@@ -12,7 +12,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Iterable,
     Iterator,
     Optional,
@@ -110,8 +109,8 @@ class JinjaTemplater(PythonTemplater):
 
     @staticmethod
     def _extract_macros_from_template(
-        template: str, env: Environment, ctx: Dict[str, Any]
-    ) -> Dict[str, "Macro"]:
+        template: str, env: Environment, ctx: dict[str, Any]
+    ) -> dict[str, "Macro"]:
         """Take a template string and extract any macros from it.
 
         Lovingly inspired by http://codyaray.com/2015/05/auto-load-jinja2-macros
@@ -124,7 +123,7 @@ class JinjaTemplater(PythonTemplater):
         from jinja2.runtime import Macro  # noqa
 
         # Iterate through keys exported from the loaded template string
-        context: Dict[str, Macro] = {}
+        context: dict[str, Macro] = {}
         # NOTE: `env.from_string()` will raise TemplateSyntaxError if `template`
         # is invalid.
         macro_template = env.from_string(template, globals=ctx)
@@ -149,9 +148,9 @@ class JinjaTemplater(PythonTemplater):
         cls,
         path: list[str],
         env: Environment,
-        ctx: Dict[str, Any],
+        ctx: dict[str, Any],
         exclude_paths: Optional[list[str]] = None,
-    ) -> Dict[str, "Macro"]:
+    ) -> dict[str, "Macro"]:
         """Take a path and extract macros from it.
 
         Args:
@@ -167,7 +166,7 @@ class JinjaTemplater(PythonTemplater):
             ValueError: If a path does not exist.
             SQLTemplaterError: If there is an error in the Jinja macro file.
         """
-        macro_ctx: Dict[str, "Macro"] = {}
+        macro_ctx: dict[str, "Macro"] = {}
         for path_entry in path:
             # Does it exist? It should as this check was done on config load.
             if not os.path.exists(path_entry):
@@ -210,8 +209,8 @@ class JinjaTemplater(PythonTemplater):
         return macro_ctx
 
     def _extract_macros_from_config(
-        self, config: FluffConfig, env: Environment, ctx: Dict[str, Any]
-    ) -> Dict[str, "Macro"]:
+        self, config: FluffConfig, env: Environment, ctx: dict[str, Any]
+    ) -> dict[str, "Macro"]:
         """Take a config and load any macros from it.
 
         Args:
@@ -230,7 +229,7 @@ class JinjaTemplater(PythonTemplater):
             loaded_context = {}
 
         # Iterate to load macros
-        macro_ctx: Dict[str, "Macro"] = {}
+        macro_ctx: dict[str, "Macro"] = {}
         for value in loaded_context.values():
             try:
                 macro_ctx.update(
@@ -242,7 +241,7 @@ class JinjaTemplater(PythonTemplater):
                 )
         return macro_ctx
 
-    def _extract_libraries_from_config(self, config: FluffConfig) -> Dict[str, Any]:
+    def _extract_libraries_from_config(self, config: FluffConfig) -> dict[str, Any]:
         """Extracts libraries from the given configuration.
 
         This function iterates over the modules in the library path and
@@ -501,7 +500,7 @@ class JinjaTemplater(PythonTemplater):
         fname: Optional[str],
         config: Optional[FluffConfig],
         env: Environment,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get the templating context from the config.
 
         NOTE: This closely mirrors the `get_context` method which we inherit from the
@@ -562,7 +561,7 @@ class JinjaTemplater(PythonTemplater):
 
     def construct_render_func(
         self, fname: Optional[str] = None, config: Optional[FluffConfig] = None
-    ) -> tuple[Environment, Dict[str, Any], Callable[[str], str]]:
+    ) -> tuple[Environment, dict[str, Any], Callable[[str], str]]:
         """Builds and returns objects needed to create and run templates.
 
         Args:
@@ -624,7 +623,7 @@ class JinjaTemplater(PythonTemplater):
 
     @staticmethod
     def _init_undefined_tracking(
-        live_context: Dict[str, Any],
+        live_context: dict[str, Any],
         potentially_undefined_variables: Iterable[str],
         ignore_templating: bool = False,
     ) -> set[str]:
@@ -783,7 +782,7 @@ class JinjaTemplater(PythonTemplater):
 
     @staticmethod
     def _rectify_templated_slices(
-        length_deltas: Dict[int, int], sliced_template: list[TemplatedFileSlice]
+        length_deltas: dict[int, int], sliced_template: list[TemplatedFileSlice]
     ) -> list[TemplatedFileSlice]:
         """This method rectifies the source slices of a variant template.
 
@@ -840,7 +839,7 @@ class JinjaTemplater(PythonTemplater):
         raw_sliced: list[RawFileSlice],
         sliced_file: list[TemplatedFileSlice],
         uncovered_slices: set[int],
-        original_source_slices: Dict[int, slice],
+        original_source_slices: dict[int, slice],
     ) -> int:
         """Compute a score for the variant based from size of covered slices.
 
@@ -894,7 +893,7 @@ class JinjaTemplater(PythonTemplater):
 
         max_variants_generated = 10
         max_variants_returned = 5
-        variants: Dict[str, tuple[int, JinjaTrace, Dict[int, int]]] = {}
+        variants: dict[str, tuple[int, JinjaTrace, dict[int, int]]] = {}
 
         # Create a mapping of the original source slices before modification so
         # we can adjust the positions post-modification.
@@ -910,7 +909,7 @@ class JinjaTemplater(PythonTemplater):
             # `length_deltas` is to keep track of the length changes associated
             # with the changes we're making so we can correct the positions in
             # the resulting template.
-            length_deltas: Dict[int, int] = {}
+            length_deltas: dict[int, int] = {}
             # Find a path that takes us to 'uncovered_slice'.
             choices = tracer_probe.move_to_slice(uncovered_slice, 0)
             for branch, options in choices.items():
@@ -970,7 +969,7 @@ class JinjaTemplater(PythonTemplater):
                     variants[variant_raw_str] = (score, trace, length_deltas)
 
         # Return the top-scoring variants.
-        sorted_variants: list[tuple[int, JinjaTrace, Dict[int, int]]] = sorted(
+        sorted_variants: list[tuple[int, JinjaTrace, dict[int, int]]] = sorted(
             variants.values(), key=lambda v: v[0], reverse=True
         )
         for _, trace, deltas in sorted_variants[:max_variants_returned]:
