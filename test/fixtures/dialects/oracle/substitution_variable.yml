@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6f27a1d7f5eab2da90914282e3976d71d89614ce5cde8883ebe506af5605c108
+_hash: f79c607025da4906c27934a413a7bb44ca528296cd1c2d0da5519c9aa9d56548
 file:
 - statement:
     access_statement:
@@ -151,7 +151,7 @@ file:
             table_expression:
               sqlplus_variable:
                 ampersand: '&'
-                naked_identifier: TABLE
+                naked_identifier: MY_TABLE
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
