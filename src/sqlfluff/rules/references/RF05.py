@@ -1,6 +1,6 @@
 """Implementation of Rule RF05."""
 
-from typing import List, Optional, Set
+from typing import Optional
 
 import regex
 
@@ -57,7 +57,7 @@ class Rule_RF05(BaseRule):
 
     def _get_additional_allowed_characters(self, dialect_name: str) -> str:
         """Returns additional allowed characters, with adjustments for dialect."""
-        result: Set[str] = set()
+        result: set[str] = set()
         if self.additional_allowed_characters:
             result.update(self.additional_allowed_characters)
         if dialect_name == "bigquery":
@@ -224,7 +224,7 @@ class Rule_RF05(BaseRule):
 
         return None
 
-    def _init_ignore_words_list(self) -> List[str]:
+    def _init_ignore_words_list(self) -> list[str]:
         """Called first time rule is evaluated to fetch & cache the policy."""
         ignore_words_config: str = str(getattr(self, "ignore_words"))
         if ignore_words_config and ignore_words_config != "None":

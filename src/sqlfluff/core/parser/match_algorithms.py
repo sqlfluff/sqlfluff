@@ -5,7 +5,7 @@ or BaseGrammar to un-bloat those classes.
 """
 
 from collections import defaultdict
-from typing import DefaultDict, FrozenSet, List, Optional, Sequence, Tuple, cast
+from typing import DefaultDict, Optional, Sequence, cast
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.parser.context import ParseContext
@@ -65,7 +65,7 @@ def first_trimmed_raw(seg: BaseSegment) -> str:
 def first_non_whitespace(
     segments: Sequence[BaseSegment],
     start_idx: int = 0,
-) -> Optional[Tuple[str, FrozenSet[str]]]:
+) -> Optional[tuple[str, frozenset[str]]]:
     """Return the upper first non-whitespace segment in the iterable."""
     for i in range(start_idx, len(segments)):
         _segment = segments[i]
@@ -82,7 +82,7 @@ def prune_options(
     segments: Sequence[BaseSegment],
     parse_context: ParseContext,
     start_idx: int = 0,
-) -> List[Matchable]:
+) -> list[Matchable]:
     """Use the simple matchers to prune which options to match on.
 
     Works in the context of a grammar making choices between options
@@ -141,7 +141,7 @@ def longest_match(
     matchers: Sequence[Matchable],
     idx: int,
     parse_context: ParseContext,
-) -> Tuple[MatchResult, Optional[Matchable]]:
+) -> tuple[MatchResult, Optional[Matchable]]:
     """Return longest match from a selection of matchers.
 
     Priority is:
@@ -281,7 +281,7 @@ def next_match(
     idx: int,
     matchers: Sequence[Matchable],
     parse_context: ParseContext,
-) -> Tuple[MatchResult, Optional[Matchable]]:
+) -> tuple[MatchResult, Optional[Matchable]]:
     """Look ahead for matches beyond the first element of the segments list.
 
     NOTE: Returns *only clean* matches.
@@ -308,8 +308,8 @@ def next_match(
     # host grammar.
     # NOTE: We keep the index of the matcher so we can prioritise
     # later. Mathchers themselves are obtained through direct lookup.
-    raw_simple_map: DefaultDict[str, List[int]] = defaultdict(list)
-    type_simple_map: DefaultDict[str, List[int]] = defaultdict(list)
+    raw_simple_map: DefaultDict[str, list[int]] = defaultdict(list)
+    type_simple_map: DefaultDict[str, list[int]] = defaultdict(list)
     for _idx, matcher in enumerate(matchers):
         simple = matcher.simple(parse_context=parse_context)
         if not simple:  # pragma: no cover
@@ -366,9 +366,9 @@ def resolve_bracket(
     segments: Sequence[BaseSegment],
     opening_match: MatchResult,
     opening_matcher: Matchable,
-    start_brackets: List[Matchable],
-    end_brackets: List[Matchable],
-    bracket_persists: List[bool],
+    start_brackets: list[Matchable],
+    end_brackets: list[Matchable],
+    bracket_persists: list[bool],
     parse_context: ParseContext,
     nested_match: bool = False,
 ) -> MatchResult:
@@ -384,7 +384,7 @@ def resolve_bracket(
     assert opening_matcher in start_brackets
     type_idx = start_brackets.index(opening_matcher)
     matched_idx = opening_match.matched_slice.stop
-    child_matches: Tuple[MatchResult, ...] = (opening_match,)
+    child_matches: tuple[MatchResult, ...] = (opening_match,)
 
     while True:
         # Look for the next relevant bracket.
@@ -470,7 +470,7 @@ def next_ex_bracket_match(
     matchers: Sequence[Matchable],
     parse_context: ParseContext,
     bracket_pairs_set: str = "bracket_pairs",
-) -> Tuple[MatchResult, Optional[Matchable], Tuple[MatchResult, ...]]:
+) -> tuple[MatchResult, Optional[Matchable], tuple[MatchResult, ...]]:
     """Same as `next_match` but with bracket counting.
 
     NB: Given we depend on `next_match` we can also utilise
@@ -506,7 +506,7 @@ def next_ex_bracket_match(
 
     # Make some buffers
     matched_idx = idx
-    child_matches: Tuple[MatchResult, ...] = ()
+    child_matches: tuple[MatchResult, ...] = ()
 
     while True:
         match, matcher = next_match(
@@ -537,7 +537,7 @@ def next_ex_bracket_match(
             opening_matcher=matcher,
             start_brackets=start_brackets,
             end_brackets=end_brackets,
-            bracket_persists=cast(List[bool], bracket_persists),
+            bracket_persists=cast(list[bool], bracket_persists),
             parse_context=parse_context,
             # Do keep the nested brackets in case the calling method
             # wants to use them.
@@ -563,7 +563,7 @@ def greedy_match(
     _stop_idx = idx
     # NOTE: child_matches is always tracked, but it will only ever have
     # _content_ if `nested_match` is True. It otherwise remains an empty tuple.
-    child_matches: Tuple[MatchResult, ...] = ()
+    child_matches: tuple[MatchResult, ...] = ()
 
     while True:
         with parse_context.deeper_match(name="GreedyUntil") as ctx:

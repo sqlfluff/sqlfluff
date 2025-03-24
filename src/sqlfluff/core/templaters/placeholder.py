@@ -1,7 +1,7 @@
 """Defines the placeholder template."""
 
 import logging
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 
 import regex
 
@@ -119,7 +119,7 @@ class PlaceholderTemplater(RawTemplater):
         fname: str,
         config: Optional[FluffConfig] = None,
         formatter: Optional[FormatterInterface] = None,
-    ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
+    ) -> tuple[TemplatedFile, list[SQLTemplaterError]]:
         """Process a string and return a TemplatedFile.
 
         Note that the arguments are enforced as keywords

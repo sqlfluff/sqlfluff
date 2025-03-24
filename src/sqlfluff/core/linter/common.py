@@ -1,6 +1,6 @@
 """Defines small container classes to hold intermediate results during linting."""
 
-from typing import Any, Dict, List, NamedTuple, Optional, Tuple, Union
+from typing import Any, Dict, NamedTuple, Optional, Union
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import (
@@ -19,8 +19,8 @@ class RuleTuple(NamedTuple):
     code: str
     name: str
     description: str
-    groups: Tuple[str, ...]
-    aliases: Tuple[str, ...]
+    groups: tuple[str, ...]
+    aliases: tuple[str, ...]
 
 
 class RenderedFile(NamedTuple):
@@ -30,8 +30,8 @@ class RenderedFile(NamedTuple):
     in the main process and the child processes when running in parallel mode.
     """
 
-    templated_variants: List[TemplatedFile]
-    templater_violations: List[SQLTemplaterError]
+    templated_variants: list[TemplatedFile]
+    templater_violations: list[SQLTemplaterError]
     config: FluffConfig
     time_dict: Dict[str, float]
     fname: str
@@ -56,10 +56,10 @@ class ParsedVariant(NamedTuple):
 
     templated_file: TemplatedFile
     tree: Optional[BaseSegment]
-    lexing_violations: List[SQLLexError]
-    parsing_violations: List[SQLParseError]
+    lexing_violations: list[SQLLexError]
+    parsing_violations: list[SQLParseError]
 
-    def violations(self) -> List[Union[SQLLexError, SQLParseError]]:
+    def violations(self) -> list[Union[SQLLexError, SQLParseError]]:
         """Returns the combined lexing and parsing violations for this variant."""
         return [*self.lexing_violations, *self.parsing_violations]
 
@@ -83,15 +83,15 @@ class ParsedString(NamedTuple):
         source_str (str): The raw content of the source file.
     """
 
-    parsed_variants: List[ParsedVariant]
-    templating_violations: List[SQLTemplaterError]
+    parsed_variants: list[ParsedVariant]
+    templating_violations: list[SQLTemplaterError]
     time_dict: Dict[str, Any]
     config: FluffConfig
     fname: str
     source_str: str
 
     @property
-    def violations(self) -> List[SQLBaseError]:
+    def violations(self) -> list[SQLBaseError]:
         """Returns the combination of violations for this variant.
 
         NOTE: This is implemented as a property for backward compatibility.

@@ -2,7 +2,7 @@
 
 import logging
 from itertools import chain
-from typing import Iterable, List
+from typing import Iterable
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.rules import LintFix, LintResult
@@ -13,7 +13,7 @@ from sqlfluff.core.rules import LintFix, LintResult
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 
 
-def fixes_from_results(results: Iterable[LintResult]) -> List[LintFix]:
+def fixes_from_results(results: Iterable[LintResult]) -> list[LintFix]:
     """Return a list of fixes from an iterable of LintResult."""
     return list(chain.from_iterable(result.fixes for result in results))
 

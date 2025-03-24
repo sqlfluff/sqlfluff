@@ -1,6 +1,6 @@
 """Implementation of Rule AM08."""
 
-from typing import Optional, Tuple
+from typing import Optional
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
@@ -39,7 +39,7 @@ class Rule_AM08(BaseRule):
 
     name = "ambiguous.join_condition"
     aliases = ()
-    groups: Tuple[str, ...] = ("all", "ambiguous")
+    groups: tuple[str, ...] = ("all", "ambiguous")
     crawl_behaviour = SegmentSeekerCrawler({"join_clause"})
     is_fix_compatible = True
 
@@ -113,7 +113,7 @@ class Rule_AM08(BaseRule):
         )
 
     @staticmethod
-    def _get_select_stmt(stack: Tuple[BaseSegment, ...]) -> Optional[BaseSegment]:
+    def _get_select_stmt(stack: tuple[BaseSegment, ...]) -> Optional[BaseSegment]:
         for seg in reversed(stack):
             if seg.is_type("select_statement"):
                 return seg

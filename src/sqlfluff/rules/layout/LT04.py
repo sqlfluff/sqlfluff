@@ -1,6 +1,5 @@
 """Implementation of Rule LT04."""
 
-from typing import List
 
 from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
@@ -62,7 +61,7 @@ class Rule_LT04(Rule_LT03):
     _adjust_anchors = True
     is_fix_compatible = True
 
-    def _eval(self, context: RuleContext) -> List[LintResult]:
+    def _eval(self, context: RuleContext) -> list[LintResult]:
         """Enforce comma placement.
 
         For the fixing routines we delegate to the reflow utils. However

@@ -1,6 +1,5 @@
 """autocompletion commands."""
 
-from typing import List
 
 from sqlfluff import list_dialects
 
@@ -20,7 +19,7 @@ except ImportError:  # pragma: no cover
 # NOTE: Important that we refer to the "CompletionItem" type
 # as a string rather than a direct reference so that we don't
 # get import errors when running with older versions of click.
-def dialect_shell_complete(ctx, param, incomplete) -> List["CompletionItem"]:
+def dialect_shell_complete(ctx, param, incomplete) -> list["CompletionItem"]:
     """Shell completion for possible dialect names.
 
     We use this over click.Choice as we want to internally

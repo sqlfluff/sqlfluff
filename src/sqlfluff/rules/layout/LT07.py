@@ -1,6 +1,6 @@
 """Implementation of Rule LT07."""
 
-from typing import Optional, Set, cast
+from typing import Optional, cast
 
 from sqlfluff.core.parser import NewlineSegment, RawSegment
 from sqlfluff.core.parser.segments import TemplateSegment
@@ -56,7 +56,7 @@ class Rule_LT07(BaseRule):
 
         # Find the end brackets for the CTE *query* (i.e. ignore optional
         # list of CTE columns).
-        cte_end_brackets: Set[RawSegment] = set()
+        cte_end_brackets: set[RawSegment] = set()
         for cte in (
             FunctionalContext(context)
             .segment.children(sp.is_type("common_table_expression"))

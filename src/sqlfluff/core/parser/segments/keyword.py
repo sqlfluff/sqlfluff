@@ -1,6 +1,6 @@
 """The KeywordSegment class."""
 
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Callable, Optional, Union
 
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments.base import SourceFix
@@ -21,11 +21,11 @@ class KeywordSegment(WordSegment):
         self,
         raw: Optional[str] = None,
         pos_marker: Optional[PositionMarker] = None,
-        instance_types: Tuple[str, ...] = (),
-        source_fixes: Optional[List[SourceFix]] = None,
-        trim_chars: Optional[Tuple[str, ...]] = None,
-        quoted_value: Optional[Tuple[str, Union[int, str]]] = None,
-        escape_replacements: Optional[List[Tuple[str, str]]] = None,
+        instance_types: tuple[str, ...] = (),
+        source_fixes: Optional[list[SourceFix]] = None,
+        trim_chars: Optional[tuple[str, ...]] = None,
+        quoted_value: Optional[tuple[str, Union[int, str]]] = None,
+        escape_replacements: Optional[list[tuple[str, str]]] = None,
         casefold: Optional[Callable[[str], str]] = None,
     ):
         """If no other name is provided we extrapolate it from the raw."""
@@ -41,7 +41,7 @@ class KeywordSegment(WordSegment):
         )
 
     def edit(
-        self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None
+        self, raw: Optional[str] = None, source_fixes: Optional[list[SourceFix]] = None
     ) -> "KeywordSegment":
         """Create a new segment, with exactly the same position but different content.
 

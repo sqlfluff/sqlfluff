@@ -1,6 +1,6 @@
 """Implementation of Rule AL08."""
 
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, EvalResultType, LintResult, RuleContext
@@ -64,7 +64,7 @@ class Rule_AL08(BaseRule):
 
     name = "aliasing.unique.column"
     aliases = ()
-    groups: Tuple[str, ...] = ("all", "core", "aliasing", "aliasing.unique")
+    groups: tuple[str, ...] = ("all", "core", "aliasing", "aliasing.unique")
     crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
 
     def _eval(self, context: RuleContext) -> EvalResultType:

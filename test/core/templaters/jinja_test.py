@@ -9,7 +9,7 @@ loops and placeholders.
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import List, NamedTuple, Union
+from typing import NamedTuple, Union
 
 import pytest
 from jinja2 import Environment, nodes
@@ -96,11 +96,11 @@ class RawTemplatedTestCase(NamedTuple):
     templated_str: str
 
     # These fields are used to check TemplatedFile.sliced_file.
-    expected_templated_sliced__source_list: List[str]
-    expected_templated_sliced__templated_list: List[str]
+    expected_templated_sliced__source_list: list[str]
+    expected_templated_sliced__templated_list: list[str]
 
     # This field is used to check TemplatedFile.raw_sliced.
-    expected_raw_sliced__source_list: List[str]
+    expected_raw_sliced__source_list: list[str]
 
 
 @pytest.mark.parametrize(
@@ -527,7 +527,7 @@ def test__templater_jinja_slices(case: RawTemplatedTestCase):
 
     # Build and check the list of source strings referenced by "raw_sliced".
     previous_rs = None
-    actual_rs_source_list: List[RawFileSlice] = []
+    actual_rs_source_list: list[RawFileSlice] = []
     for rs in templated_file.raw_sliced + [None]:  # type: ignore
         if previous_rs:
             if rs:
@@ -946,17 +946,17 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
             JINJA_MACRO_CALL_SQL,
             [
                 ("{% macro render_name(title) %}", "block_start", 0, 1, "macro"),
-                ("\n" "  '", "literal", 30, 1),
+                ("\n  '", "literal", 30, 1),
                 ("{{ title }}", "templated", 34, 1),
                 (". foo' as ", "literal", 45, 1),
                 ("{{ caller() }}", "templated", 55, 1),
                 ("\n", "literal", 69, 1),
                 ("{% endmacro %}", "block_end", 70, 1, "endmacro"),
-                ("\n" "SELECT\n" "    ", "literal", 84, 2),
+                ("\nSELECT\n    ", "literal", 84, 2),
                 ("{% call render_name('Sir') %}", "block_start", 96, 3, "call"),
-                ("\n" "        bar\n" "    ", "literal", 125, 3),
+                ("\n        bar\n    ", "literal", 125, 3),
                 ("{% endcall %}", "block_end", 142, 3, "endcall"),
-                ("\n" "FROM baz\n", "literal", 155, 4),
+                ("\nFROM baz\n", "literal", 155, 4),
             ],
             JinjaAnalyzer,
         ),
@@ -1022,7 +1022,7 @@ class DBMigrationExtension(Extension):
 
     tags = {"up"}
 
-    def parse(self, parser: Parser) -> Union[Node, List[Node]]:
+    def parse(self, parser: Parser) -> Union[Node, list[Node]]:
         """Parse the up/down blocks."""
         # {% up 'migration name' %}
         next(parser.stream)  # skip the "up" token

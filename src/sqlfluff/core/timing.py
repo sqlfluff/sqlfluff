@@ -1,15 +1,15 @@
 """Timing summary class."""
 
 from collections import defaultdict
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Dict, Optional, Union
 
 
 class TimingSummary:
     """An object for tracking the timing of similar steps across many files."""
 
-    def __init__(self, steps: Optional[List[str]] = None):
+    def __init__(self, steps: Optional[list[str]] = None):
         self.steps = steps
-        self._timings: List[Dict[str, float]] = []
+        self._timings: list[Dict[str, float]] = []
 
     def add(self, timing_dict: Dict[str, float]) -> None:
         """Add a timing dictionary to the summary."""
@@ -19,7 +19,7 @@ class TimingSummary:
 
     def summary(self) -> Dict[str, Dict[str, float]]:
         """Generate a summary for display."""
-        vals: Dict[str, List[float]] = defaultdict(list)
+        vals: Dict[str, list[float]] = defaultdict(list)
         if not self.steps:  # pragma: no cover
             return {}
 
@@ -44,9 +44,9 @@ class RuleTimingSummary:
     """An object for tracking the timing of rules across many files."""
 
     def __init__(self) -> None:
-        self._timings: List[Tuple[str, str, float]] = []
+        self._timings: list[tuple[str, str, float]] = []
 
-    def add(self, rule_timings: List[Tuple[str, str, float]]) -> None:
+    def add(self, rule_timings: list[tuple[str, str, float]]) -> None:
         """Add a set of rule timings."""
         # Add records to the main list.
         self._timings.extend(rule_timings)
@@ -55,8 +55,8 @@ class RuleTimingSummary:
         self, threshold: float = 0.5
     ) -> Dict[str, Dict[str, Union[float, str]]]:
         """Generate a summary for display."""
-        keys: Set[Tuple[str, str]] = set()
-        vals: Dict[Tuple[str, str], List[float]] = defaultdict(list)
+        keys: set[tuple[str, str]] = set()
+        vals: Dict[tuple[str, str], list[float]] = defaultdict(list)
 
         for code, name, time in self._timings:
             vals[(code, name)].append(time)

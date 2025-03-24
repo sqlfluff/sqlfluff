@@ -1,6 +1,5 @@
 """Implementation of Rule ST04."""
 
-from typing import List
 
 from sqlfluff.core.parser import BaseSegment, Indent, NewlineSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -200,7 +199,7 @@ class Rule_ST04(BaseRule):
         case1_children: Segments,
         case1_else_clause_seg: BaseSegment,
         end_indent_str: str,
-    ) -> List[LintFix]:
+    ) -> list[LintFix]:
         """Prepend newline spacing to comments on the final nested `END` line."""
         trailing_end = case1_children.select(
             start_seg=case1_else_clause_seg,
@@ -217,7 +216,7 @@ class Rule_ST04(BaseRule):
 
     def _rebuild_spacing(
         self, indent_str: str, nested_clauses: Segments
-    ) -> List[BaseSegment]:
+    ) -> list[BaseSegment]:
         buff = []
         # If the first segment is a comment, add a newline
         prior_newline = nested_clauses.first(sp.not_(sp.is_whitespace())).any(

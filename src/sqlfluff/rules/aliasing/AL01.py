@@ -1,12 +1,8 @@
 """Implementation of Rule AL01."""
 
-from typing import Optional, Tuple, cast
+from typing import Optional, cast
 
-from sqlfluff.core.parser import (
-    BaseSegment,
-    KeywordSegment,
-    RawSegment,
-)
+from sqlfluff.core.parser import BaseSegment, KeywordSegment, RawSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.reflow import ReflowSequence
@@ -42,12 +38,12 @@ class Rule_AL01(BaseRule):
 
     name = "aliasing.table"
     aliases = ("L011",)
-    groups: Tuple[str, ...] = ("all", "aliasing")
+    groups: tuple[str, ...] = ("all", "aliasing")
     config_keywords = ["aliasing"]
     crawl_behaviour = SegmentSeekerCrawler({"alias_expression"}, provide_raw_stack=True)
     is_fix_compatible = True
 
-    _target_parent_types: Tuple[str, ...] = (
+    _target_parent_types: tuple[str, ...] = (
         "from_expression_element",
         "merge_statement",
     )

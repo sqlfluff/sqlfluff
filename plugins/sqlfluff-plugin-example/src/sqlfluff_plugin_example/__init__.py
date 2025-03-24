@@ -20,7 +20,7 @@ from sqlfluff_plugin_example.rules import Rule_Example_L001  # noqa: F401
 
 
 @hookimpl
-def get_rules() -> List[Type[BaseRule]]:
+def get_rules() -> list[Type[BaseRule]]:
     """Get plugin rules.
 
     NOTE: It is much better that we only import the rule on demand.

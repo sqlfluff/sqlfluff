@@ -4,7 +4,7 @@ import sys
 import textwrap
 from collections import abc
 from functools import cached_property
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict
 
 from sqlfluff import __version__ as pkg_version
 
@@ -27,7 +27,7 @@ def get_package_version() -> str:
     return pkg_version
 
 
-def wrap_elem(s: str, width: int) -> List[str]:
+def wrap_elem(s: str, width: int) -> list[str]:
     """Wrap a string into a list of strings all less than <width>."""
     return textwrap.wrap(s, width=width)
 

@@ -4,7 +4,7 @@ This stores the idea of a collection of linted files at a single start path
 
 """
 
-from typing import Dict, Iterable, List, Optional, Tuple, Type, TypedDict, Union
+from typing import Dict, Iterable, Optional, Type, TypedDict, Union
 
 from sqlfluff.core.errors import (
     CheckTuple,
@@ -20,7 +20,7 @@ LintingRecord = TypedDict(
     "LintingRecord",
     {
         "filepath": str,
-        "violations": List[SerializedObject],
+        "violations": list[SerializedObject],
         # Things like file length
         "statistics": Dict[str, int],
         # Raw timings, in seconds, for both rules and steps
@@ -42,11 +42,11 @@ class LintedDir:
     """
 
     def __init__(self, path: str, retain_files: bool = True) -> None:
-        self.files: List[LintedFile] = []
+        self.files: list[LintedFile] = []
         self.path: str = path
         self.retain_files: bool = retain_files
         # Records
-        self._records: List[LintingRecord] = []
+        self._records: list[LintingRecord] = []
         # Stats
         self._num_files: int = 0
         self._num_clean: int = 0
@@ -57,8 +57,8 @@ class LintedDir:
         self.num_tmp_prs_errors: int = 0
         self.num_unfixable_lint_errors: int = 0
         # Timing
-        self.step_timings: List[Dict[str, float]] = []
-        self.rule_timings: List[Tuple[str, str, float]] = []
+        self.step_timings: list[Dict[str, float]] = []
+        self.rule_timings: list[tuple[str, str, float]] = []
 
     def add(self, file: LintedFile) -> None:
         """Add a file to this path.
@@ -140,7 +140,7 @@ class LintedDir:
 
     def check_tuples(
         self, raise_on_non_linting_violations: bool = True
-    ) -> List[CheckTuple]:
+    ) -> list[CheckTuple]:
         """Compress all the tuples into one list.
 
         NB: This is a little crude, as you can't tell which
@@ -157,7 +157,7 @@ class LintedDir:
 
     def check_tuples_by_path(
         self, raise_on_non_linting_violations: bool = True
-    ) -> Dict[str, List[CheckTuple]]:
+    ) -> Dict[str, list[CheckTuple]]:
         """Fetch all check_tuples from all contained `LintedDir` objects.
 
         Returns:
@@ -184,12 +184,12 @@ class LintedDir:
         )
 
     def get_violations(
-        self, rules: Optional[Union[str, Tuple[str, ...]]] = None
-    ) -> List[SQLBaseError]:
+        self, rules: Optional[Union[str, tuple[str, ...]]] = None
+    ) -> list[SQLBaseError]:
         """Return a list of violations in the path."""
         return [v for file in self.files for v in file.get_violations(rules=rules)]
 
-    def as_records(self) -> List[LintingRecord]:
+    def as_records(self) -> list[LintingRecord]:
         """Return the result as a list of dictionaries.
 
         Each record contains a key specifying the filepath, and a list of violations.

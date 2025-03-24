@@ -8,10 +8,8 @@ from typing import (
     Dict,
     Iterable,
     Iterator,
-    List,
     NamedTuple,
     Optional,
-    Tuple,
     TypeVar,
 )
 
@@ -130,7 +128,7 @@ class RawSliceBlockInfo(NamedTuple):
     # List of block IDs that have the following characteristics:
     # - Loop body
     # - Containing only literals (no templating)
-    literal_only_loops: List[int]
+    literal_only_loops: list[int]
 
 
 class TemplatedFile:
@@ -146,8 +144,8 @@ class TemplatedFile:
         source_str: str,
         fname: str,
         templated_str: Optional[str] = None,
-        sliced_file: Optional[List[TemplatedFileSlice]] = None,
-        raw_sliced: Optional[List[RawFileSlice]] = None,
+        sliced_file: Optional[list[TemplatedFileSlice]] = None,
+        raw_sliced: Optional[list[RawFileSlice]] = None,
     ):
         """Initialise the TemplatedFile.
 
@@ -159,9 +157,9 @@ class TemplatedFile:
             fname (str): The file name.
             templated_str (Optional[str], optional): The templated string.
                 Defaults to None.
-            sliced_file (Optional[List[TemplatedFileSlice]], optional): The sliced file.
+            sliced_file (Optional[list[TemplatedFileSlice]], optional): The sliced file.
                 Defaults to None.
-            raw_sliced (Optional[List[RawFileSlice]], optional): The raw sliced file.
+            raw_sliced (Optional[list[RawFileSlice]], optional): The raw sliced file.
                 Defaults to None.
         """
         self.source_str = source_str
@@ -170,7 +168,7 @@ class TemplatedFile:
         # If no fname, we assume this is from a string or stdin.
         self.fname = fname
         # Assume that no sliced_file, means the file is not templated
-        self.sliced_file: List[TemplatedFileSlice]
+        self.sliced_file: list[TemplatedFileSlice]
         if sliced_file is None:
             if self.templated_str != self.source_str:  # pragma: no cover
                 raise ValueError("Cannot instantiate a templated file unsliced!")
@@ -184,7 +182,7 @@ class TemplatedFile:
             assert (
                 raw_sliced is None
             ), "Templated file was not sliced, but not has raw slices."
-            self.raw_sliced: List[RawFileSlice] = [
+            self.raw_sliced: list[RawFileSlice] = [
                 RawFileSlice(source_str, "literal", 0)
             ]
         else:
@@ -254,7 +252,7 @@ class TemplatedFile:
 
     def get_line_pos_of_char_pos(
         self, char_pos: int, source: bool = True
-    ) -> Tuple[int, int]:
+    ) -> tuple[int, int]:
         """Get the line number and position of a point in the source file.
 
         Args:
@@ -285,7 +283,7 @@ class TemplatedFile:
         templated_pos: int,
         start_idx: Optional[int] = None,
         inclusive: bool = True,
-    ) -> Tuple[int, int]:
+    ) -> tuple[int, int]:
         """Find a subset of the sliced file which touch this point.
 
         NB: the last_idx is exclusive, as the intent is to use this as a slice.
@@ -315,7 +313,7 @@ class TemplatedFile:
 
     def raw_slices_spanning_source_slice(
         self, source_slice: slice
-    ) -> List[RawFileSlice]:
+    ) -> list[RawFileSlice]:
         """Return a list of the raw slices spanning a set of indices."""
         # Special case: The source_slice is at the end of the file.
         last_raw_slice = self.raw_sliced[-1]
@@ -479,7 +477,7 @@ class TemplatedFile:
                     is_literal = False
         return is_literal
 
-    def source_only_slices(self) -> List[RawFileSlice]:
+    def source_only_slices(self) -> list[RawFileSlice]:
         """Return a list a slices which reference the parts only in the source.
 
         All of these slices should be expected to have zero-length
@@ -515,7 +513,7 @@ class RawTemplater:
 
     name = "raw"
     templater_selector = "templater"
-    config_subsection: Tuple[str, ...] = ()
+    config_subsection: tuple[str, ...] = ()
 
     def __init__(
         self,
@@ -532,7 +530,7 @@ class RawTemplater:
 
     def sequence_files(
         self,
-        fnames: List[str],
+        fnames: list[str],
         config: Optional[FluffConfig] = None,
         formatter: Optional[FormatterInterface] = None,
     ) -> Iterable[str]:
@@ -548,7 +546,7 @@ class RawTemplater:
         fname: str,
         config: Optional[FluffConfig] = None,
         formatter: Optional[FormatterInterface] = None,
-    ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
+    ) -> tuple[TemplatedFile, list[SQLTemplaterError]]:
         """Process a string and return a TemplatedFile.
 
         Note that the arguments are enforced as keywords because Templaters
@@ -586,7 +584,7 @@ class RawTemplater:
         fname: str,
         config: Optional[FluffConfig] = None,
         formatter: Optional[FormatterInterface] = None,
-    ) -> Iterator[Tuple[TemplatedFile, List[SQLTemplaterError]]]:
+    ) -> Iterator[tuple[TemplatedFile, list[SQLTemplaterError]]]:
         """Extended version of `process` which returns multiple variants.
 
         Unless explicitly defined, this simply yields the result of .process().
@@ -602,11 +600,11 @@ class RawTemplater:
         """
         return isinstance(other, self.__class__)
 
-    def config_pairs(self) -> List[Tuple[str, str]]:
+    def config_pairs(self) -> list[tuple[str, str]]:
         """Returns info about the given templater for output by the cli.
 
         Returns:
-            List[Tuple[str, str]]: A list of tuples containing information
+            list[tuple[str, str]]: A list of tuples containing information
                 about the given templater. Each tuple contains two strings:
                 the string 'templater' and the name of the templater.
         """

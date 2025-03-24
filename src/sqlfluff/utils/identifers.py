@@ -5,13 +5,12 @@ bundles. Defined here to avoid duplication, but also avoid
 circular imports.
 """
 
-from typing import Tuple
 
 from sqlfluff.core.parser import BaseSegment
 
 
 def identifiers_policy_applicable(
-    policy: str, parent_stack: Tuple[BaseSegment, ...]
+    policy: str, parent_stack: tuple[BaseSegment, ...]
 ) -> bool:
     """Does `(un)quoted_identifiers_policy` apply to this segment?
 

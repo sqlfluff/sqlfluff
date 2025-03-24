@@ -3,7 +3,7 @@
 import fnmatch
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Tuple, Union, cast
+from typing import Dict, Optional, Union, cast
 
 from sqlfluff.core.errors import SQLBaseError, SQLParseError, SQLUnusedNoQaWarning
 from sqlfluff.core.parser import BaseSegment, RawSegment, RegexLexer
@@ -18,14 +18,14 @@ class NoQaDirective:
 
     line_no: int  # Source line number
     line_pos: int  # Source line position
-    rules: Optional[Tuple[str, ...]]  # Affected rule names
+    rules: Optional[tuple[str, ...]]  # Affected rule names
     action: Optional[str]  # "enable", "disable", or "None"
     raw_str: str = ""  # The raw representation of the directive for warnings.
     used: bool = False  # Has it been used.
 
     def _filter_violations_single_line(
-        self, violations: List[SQLBaseError]
-    ) -> List[SQLBaseError]:
+        self, violations: list[SQLBaseError]
+    ) -> list[SQLBaseError]:
         """Filter a list of violations based on this single line noqa.
 
         Also record whether this class was _used_ in any of that filtering.
@@ -53,7 +53,7 @@ class NoQaDirective:
 class IgnoreMask:
     """Structure to hold a set of 'noqa' directives."""
 
-    def __init__(self, ignores: List[NoQaDirective]):
+    def __init__(self, ignores: list[NoQaDirective]):
         self._ignore_list = ignores
 
     def __repr__(self) -> str:  # pragma: no cover
@@ -66,7 +66,7 @@ class IgnoreMask:
         comment: str,
         line_no: int,
         line_pos: int,
-        reference_map: Dict[str, Set[str]],
+        reference_map: Dict[str, set[str]],
     ) -> Union[NoQaDirective, SQLParseError, None]:
         """Extract ignore mask entries from a comment string."""
         # Also trim any whitespace afterward
@@ -107,7 +107,7 @@ class IgnoreMask:
                                 "or 'noqa: disable=<rule>[,...] | all",
                                 line_no=line_no,
                             )
-                    rules: Optional[Tuple[str, ...]]
+                    rules: Optional[tuple[str, ...]]
                     if rule_part != "all":
                         # Rules can be globs therefore we compare to the rule_set to
                         # expand the globs.
@@ -115,7 +115,7 @@ class IgnoreMask:
                             r.strip() for r in rule_part.split(",")
                         )
                         # We use a set to do natural deduplication.
-                        expanded_rules: Set[str] = set()
+                        expanded_rules: set[str] = set()
                         for r in unexpanded_rules:
                             matched = False
                             for expanded in (
@@ -143,7 +143,7 @@ class IgnoreMask:
     def _extract_ignore_from_comment(
         cls,
         comment: RawSegment,
-        reference_map: Dict[str, Set[str]],
+        reference_map: Dict[str, set[str]],
     ) -> Union[NoQaDirective, SQLParseError, None]:
         """Extract ignore mask entries from a comment segment."""
         # Also trim any whitespace
@@ -168,11 +168,11 @@ class IgnoreMask:
     def from_tree(
         cls,
         tree: BaseSegment,
-        reference_map: Dict[str, Set[str]],
-    ) -> Tuple["IgnoreMask", List[SQLBaseError]]:
+        reference_map: Dict[str, set[str]],
+    ) -> tuple["IgnoreMask", list[SQLBaseError]]:
         """Look for inline ignore comments and return NoQaDirectives."""
-        ignore_buff: List[NoQaDirective] = []
-        violations: List[SQLBaseError] = []
+        ignore_buff: list[NoQaDirective] = []
+        violations: list[SQLBaseError] = []
         for comment in tree.recursive_crawl("comment"):
             if comment.is_type("inline_comment", "block_comment"):
                 ignore_entry = cls._extract_ignore_from_comment(
@@ -191,15 +191,15 @@ class IgnoreMask:
         cls,
         source: str,
         inline_comment_regex: RegexLexer,
-        reference_map: Dict[str, Set[str]],
-    ) -> Tuple["IgnoreMask", List[SQLBaseError]]:
+        reference_map: Dict[str, set[str]],
+    ) -> tuple["IgnoreMask", list[SQLBaseError]]:
         """Look for inline ignore comments and return NoQaDirectives.
 
         Very similar to .from_tree(), but can be run on raw source
         (i.e. does not require the code to have parsed successfully).
         """
-        ignore_buff: List[NoQaDirective] = []
-        violations: List[SQLBaseError] = []
+        ignore_buff: list[NoQaDirective] = []
+        violations: list[SQLBaseError] = []
         for idx, line in enumerate(source.split("\n")):
             match = inline_comment_regex.search(line) if line else None
             if match:
@@ -218,8 +218,8 @@ class IgnoreMask:
 
     @staticmethod
     def _ignore_masked_violations_single_line(
-        violations: List[SQLBaseError], ignore_mask: List[NoQaDirective]
-    ) -> List[SQLBaseError]:
+        violations: list[SQLBaseError], ignore_mask: list[NoQaDirective]
+    ) -> list[SQLBaseError]:
         """Filter a list of violations based on this single line noqa.
 
         The "ignore" list is assumed to ONLY contain NoQaDirectives with
@@ -231,8 +231,8 @@ class IgnoreMask:
 
     @staticmethod
     def _should_ignore_violation_line_range(
-        line_no: int, ignore_rules: List[NoQaDirective]
-    ) -> Tuple[bool, Optional[NoQaDirective]]:
+        line_no: int, ignore_rules: list[NoQaDirective]
+    ) -> tuple[bool, Optional[NoQaDirective]]:
         """Returns whether to ignore a violation at line_no.
 
         Loop through the NoQaDirectives to find the state of things at
@@ -267,8 +267,8 @@ class IgnoreMask:
 
     @classmethod
     def _ignore_masked_violations_line_range(
-        cls, violations: List[SQLBaseError], ignore_mask: List[NoQaDirective]
-    ) -> List[SQLBaseError]:
+        cls, violations: list[SQLBaseError], ignore_mask: list[NoQaDirective]
+    ) -> list[SQLBaseError]:
         """Returns whether to ignore error for line-range directives.
 
         The "ignore" list is assumed to ONLY contain NoQaDirectives where
@@ -302,8 +302,8 @@ class IgnoreMask:
         return result
 
     def ignore_masked_violations(
-        self, violations: List[SQLBaseError]
-    ) -> List[SQLBaseError]:
+        self, violations: list[SQLBaseError]
+    ) -> list[SQLBaseError]:
         """Remove any violations specified by ignore_mask.
 
         This involves two steps:
@@ -318,7 +318,7 @@ class IgnoreMask:
         violations = self._ignore_masked_violations_line_range(violations, ignore_range)
         return violations
 
-    def generate_warnings_for_unused(self) -> List[SQLBaseError]:
+    def generate_warnings_for_unused(self) -> list[SQLBaseError]:
         """Generates warnings for any unused NoQaDirectives."""
         return [
             SQLUnusedNoQaWarning(

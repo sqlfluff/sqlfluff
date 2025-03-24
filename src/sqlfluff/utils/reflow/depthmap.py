@@ -2,7 +2,7 @@
 
 import logging
 from dataclasses import dataclass
-from typing import Dict, FrozenSet, List, Sequence, Tuple, Type
+from typing import Dict, Sequence, Type
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.parser.segments.base import PathStep
@@ -57,10 +57,10 @@ class DepthInfo:
     """An object to hold the depth information for a specific raw segment."""
 
     stack_depth: int
-    stack_hashes: Tuple[int, ...]
+    stack_hashes: tuple[int, ...]
     # This is a convenience cache to speed up operations.
-    stack_hash_set: FrozenSet[int]
-    stack_class_types: Tuple[FrozenSet[str], ...]
+    stack_hash_set: frozenset[int]
+    stack_class_types: tuple[frozenset[str], ...]
     stack_positions: Dict[int, StackPosition]
 
     @classmethod
@@ -81,7 +81,7 @@ class DepthInfo:
             },
         )
 
-    def common_with(self, other: "DepthInfo") -> Tuple[int, ...]:
+    def common_with(self, other: "DepthInfo") -> tuple[int, ...]:
         """Get the common depth and hashes with the other."""
         # We use set intersection because it's faster and hashes should be unique.
         common_hashes = self.stack_hash_set.intersection(other.stack_hashes)
@@ -124,7 +124,7 @@ class DepthMap:
 
     """
 
-    def __init__(self, raws_with_stack: Sequence[Tuple[RawSegment, List[PathStep]]]):
+    def __init__(self, raws_with_stack: Sequence[tuple[RawSegment, list[PathStep]]]):
         self.depth_info = {}
         for raw, stack in raws_with_stack:
             self.depth_info[raw.uuid] = DepthInfo.from_raw_and_stack(raw, stack)

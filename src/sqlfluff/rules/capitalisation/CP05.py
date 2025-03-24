@@ -1,6 +1,5 @@
 """Implementation of Rule CP05."""
 
-from typing import List
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import LintResult
@@ -63,7 +62,7 @@ class Rule_CP05(Rule_CP01):
     ]
     _description_elem = "Datatypes"
 
-    def _eval(self, context: RuleContext) -> List[LintResult]:
+    def _eval(self, context: RuleContext) -> list[LintResult]:
         """Inconsistent capitalisation of datatypes.
 
         We use the `memory` feature here to keep track of cases known to be

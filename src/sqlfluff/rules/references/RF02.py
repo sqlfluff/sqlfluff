@@ -1,6 +1,6 @@
 """Implementation of Rule RF02."""
 
-from typing import List, Optional, Set
+from typing import Optional
 
 import regex
 
@@ -46,14 +46,14 @@ class Rule_RF02(Rule_AL04):
 
     def _lint_references_and_aliases(
         self,
-        table_aliases: List[AliasInfo],
-        standalone_aliases: List[BaseSegment],
+        table_aliases: list[AliasInfo],
+        standalone_aliases: list[BaseSegment],
         references,
-        col_aliases: List[ColumnAliasInfo],
-        using_cols: List[BaseSegment],
+        col_aliases: list[ColumnAliasInfo],
+        using_cols: list[BaseSegment],
         parent_select: Optional[BaseSegment],
         rule_context: RuleContext,
-    ) -> Optional[List[LintResult]]:
+    ) -> Optional[list[LintResult]]:
         # Config type hints
         self.ignore_words_regex: str
 
@@ -151,7 +151,7 @@ class Rule_RF02(Rule_AL04):
                 break
         return is_from
 
-    def _init_ignore_words_list(self) -> List[str]:
+    def _init_ignore_words_list(self) -> list[str]:
         """Called first time rule is evaluated to fetch & cache the policy."""
         ignore_words_config: str = str(getattr(self, "ignore_words"))
         if ignore_words_config and ignore_words_config != "None":
@@ -163,12 +163,12 @@ class Rule_RF02(Rule_AL04):
 
         return self.ignore_words_list
 
-    def _find_sql_variables(self, rule_context: RuleContext) -> Set[str]:
+    def _find_sql_variables(self, rule_context: RuleContext) -> set[str]:
         """Get any `DECLARE`d variables in the whole of the linted file.
 
         This assumes that the declare statement is going to be used before any reference
         """
-        sql_variables: Set[str] = set()
+        sql_variables: set[str] = set()
 
         # Check for bigquery declared variables. These may only exists at the top of
         # the file or at the beginning of a `BEGIN` block. The risk of collision

@@ -1,6 +1,6 @@
 """Common test fixtures for grammar testing."""
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, Dict, Type
 
 import pytest
 
@@ -18,14 +18,14 @@ def structural_parse_mode_test(generate_test_segments, fresh_ansi_dialect):
     """
 
     def _structural_parse_mode_test(
-        test_segment_seeds: List[str],
+        test_segment_seeds: list[str],
         grammar_class: Type[BaseGrammar],
-        grammar_argument_seeds: List[str],
-        grammar_terminator_seeds: List[str],
+        grammar_argument_seeds: list[str],
+        grammar_terminator_seeds: list[str],
         grammar_kwargs: Dict[str, Any],
         parse_mode: ParseMode,
         input_slice: slice,
-        output_tuple: Tuple[Any, ...],
+        output_tuple: tuple[Any, ...],
     ):
         segments = generate_test_segments(test_segment_seeds)
         # Dialect is required here only to have access to bracket segments.

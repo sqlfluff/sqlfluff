@@ -1,7 +1,7 @@
 """The Test file for The New Parser (Lexing steps)."""
 
 import logging
-from typing import Any, Dict, List, NamedTuple, Tuple, Union
+from typing import Any, Dict, NamedTuple, Union
 
 import pytest
 
@@ -182,7 +182,7 @@ class _LexerSlicingCase(NamedTuple):
     #     block_type (if TemplateSegment),
     #     segment_type
     # )
-    expected_segments: List[Tuple[str, Union[str, None], Union[str, None], str]]
+    expected_segments: list[tuple[str, Union[str, None], Union[str, None], str]]
 
 
 def _statement(*args, **kwargs):
@@ -324,7 +324,7 @@ class _LexerSlicingTemplateFileCase(NamedTuple):
     #     block_type (if TemplateSegment),
     #     segment_type
     # )
-    expected_segments: List[Tuple[str, Union[str, None], Union[str, None], str]]
+    expected_segments: list[tuple[str, Union[str, None], Union[str, None], str]]
 
 
 @pytest.mark.parametrize(

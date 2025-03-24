@@ -9,31 +9,20 @@ into specific file references. The method also processes the
 import logging
 import os
 from pathlib import Path
-from typing import (
-    Callable,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-)
+from typing import Callable, Dict, Iterable, Iterator, Optional, Sequence
 
 import pathspec
 
 from sqlfluff.core.config.file import load_config_file_as_dict
-from sqlfluff.core.errors import (
-    SQLFluffUserError,
-)
+from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.file import iter_intermediate_paths
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
-WalkableType = Iterable[Tuple[str, Optional[List[str]], List[str]]]
-IgnoreSpecRecord = Tuple[str, str, pathspec.PathSpec]
-IgnoreSpecRecords = List[IgnoreSpecRecord]
+WalkableType = Iterable[tuple[str, Optional[list[str]], list[str]]]
+IgnoreSpecRecord = tuple[str, str, pathspec.PathSpec]
+IgnoreSpecRecords = list[IgnoreSpecRecord]
 
 
 def _check_ignore_specs(
@@ -116,7 +105,7 @@ ignore_file_loaders: Dict[str, Callable[[str, str], Optional[IgnoreSpecRecord]]]
 def _iter_config_files(
     target_path: Path,
     working_path: Path,
-) -> Iterator[Tuple[str, str]]:
+) -> Iterator[tuple[str, str]]:
     """Iterate through paths looking for valid config files."""
     for search_path in iter_intermediate_paths(target_path.absolute(), working_path):
         for _filename in ignore_file_loaders:
@@ -141,9 +130,9 @@ def _match_file_extension(filepath: str, valid_extensions: Sequence[str]) -> boo
 def _process_exact_path(
     path: str,
     working_path: str,
-    lower_file_exts: Tuple[str, ...],
+    lower_file_exts: tuple[str, ...],
     outer_ignore_specs: IgnoreSpecRecords,
-) -> List[str]:
+) -> list[str]:
     """Handle exact paths being passed to paths_from_path.
 
     If it's got the right extension and it's not ignored, then
@@ -180,7 +169,7 @@ def _iter_files_in_path(
     path: str,
     ignore_files: bool,
     outer_ignore_specs: IgnoreSpecRecords,
-    lower_file_exts: Tuple[str, ...],
+    lower_file_exts: tuple[str, ...],
 ) -> Iterator[str]:
     """Handle directory paths being passed to paths_from_path.
 
@@ -249,7 +238,7 @@ def paths_from_path(
     ignore_files: bool = True,
     working_path: str = os.getcwd(),
     target_file_exts: Sequence[str] = (".sql",),
-) -> List[str]:
+) -> list[str]:
     """Return a set of sql file paths from a potentially more ambiguous path string.
 
     Here we also deal with the any ignore files file if present, whether as raw

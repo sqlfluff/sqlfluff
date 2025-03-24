@@ -7,7 +7,7 @@ from sqlfluff.core.rules import BaseRule
 
 
 @hookimpl
-def get_rules() -> List[Type[BaseRule]]:
+def get_rules() -> list[Type[BaseRule]]:
     """Get plugin rules.
 
     NOTE: Rules are imported only on fetch to manage import times

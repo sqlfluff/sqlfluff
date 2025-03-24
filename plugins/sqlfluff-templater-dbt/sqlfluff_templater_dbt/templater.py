@@ -23,9 +23,7 @@ from typing import (
     Deque,
     Dict,
     Iterator,
-    List,
     Optional,
-    Tuple,
     Type,
     TypeVar,
     Union,
@@ -235,9 +233,7 @@ class DbtTemplater(JinjaTemplater):
         # is present then assume that it's not a problem
         if not self.formatter:
             if self.dbt_version_tuple >= (1, 8):
-                from dbt_common.events.event_manager_client import (
-                    cleanup_event_logger,
-                )
+                from dbt_common.events.event_manager_client import cleanup_event_logger
 
             else:
                 from dbt.events.functions import cleanup_event_logger
@@ -345,12 +341,8 @@ class DbtTemplater(JinjaTemplater):
                 "dbt templater", "Compiling dbt project..."
             )
 
-        from dbt.graph.selector_methods import (
-            MethodManager as DbtSelectorMethodManager,
-        )
-        from dbt.graph.selector_methods import (
-            MethodName as DbtMethodName,
-        )
+        from dbt.graph.selector_methods import MethodManager as DbtSelectorMethodManager
+        from dbt.graph.selector_methods import MethodName as DbtMethodName
 
         selector_methods_manager = DbtSelectorMethodManager(
             self.dbt_manifest, previous_state=None
@@ -452,7 +444,7 @@ class DbtTemplater(JinjaTemplater):
         return cli_vars if cli_vars else {}
 
     def sequence_files(
-        self, fnames: List[str], config=None, formatter=None
+        self, fnames: list[str], config=None, formatter=None
     ) -> Iterator[str]:
         """Reorder fnames to process dependent files first.
 
@@ -476,7 +468,7 @@ class DbtTemplater(JinjaTemplater):
             full_paths[fpath] = fname
             selected_files.add(fpath)
 
-        ephemeral_nodes: Dict[str, Tuple[str, Any]] = {}
+        ephemeral_nodes: Dict[str, tuple[str, Any]] = {}
 
         # Extract the ephemeral models
         for key, node in self.dbt_manifest.nodes.items():
@@ -537,7 +529,7 @@ class DbtTemplater(JinjaTemplater):
         in_str: Optional[str] = None,
         config: Optional["FluffConfig"] = None,
         formatter: Optional["OutputStreamFormatter"] = None,
-    ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
+    ) -> tuple[TemplatedFile, list[SQLTemplaterError]]:
         """Compile a dbt model and return the compiled SQL.
 
         Args:

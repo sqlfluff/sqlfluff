@@ -1,7 +1,7 @@
 """Defines the base dialect class."""
 
 import sys
-from typing import Any, Dict, List, Optional, Set, Type, Union, cast
+from typing import Any, Dict, Optional, Type, Union, cast
 
 from sqlfluff.core.parser import (
     BaseSegment,
@@ -29,9 +29,9 @@ class Dialect:
         self,
         name: str,
         root_segment_name: str,
-        lexer_matchers: Optional[List[LexerType]] = None,
+        lexer_matchers: Optional[list[LexerType]] = None,
         library: Optional[Dict[str, DialectElementType]] = None,
-        sets: Optional[Dict[str, Set[Union[str, BracketPairTuple]]]] = None,
+        sets: Optional[Dict[str, set[Union[str, BracketPairTuple]]]] = None,
         inherits_from: Optional[str] = None,
         formatted_name: Optional[str] = None,
         docstring: Optional[str] = None,
@@ -92,7 +92,7 @@ class Dialect:
         expanded_copy.expanded = True
         return expanded_copy
 
-    def sets(self, label: str) -> Set[str]:
+    def sets(self, label: str) -> set[str]:
         """Allows access to sets belonging to this dialect.
 
         These sets belong to the dialect and are copied for sub
@@ -107,9 +107,9 @@ class Dialect:
 
         if label not in self._sets:
             self._sets[label] = set()
-        return cast(Set[str], self._sets[label])
+        return cast(set[str], self._sets[label])
 
-    def bracket_sets(self, label: str) -> Set[BracketPairTuple]:
+    def bracket_sets(self, label: str) -> set[BracketPairTuple]:
         """Allows access to bracket sets belonging to this dialect."""
         assert label in (
             "bracket_pairs",
@@ -118,7 +118,7 @@ class Dialect:
 
         if label not in self._sets:
             self._sets[label] = set()
-        return cast(Set[BracketPairTuple], self._sets[label])
+        return cast(set[BracketPairTuple], self._sets[label])
 
     def update_keywords_set_from_multiline_string(
         self, set_label: str, values: str
@@ -334,7 +334,7 @@ class Dialect:
                 )
             )
 
-    def set_lexer_matchers(self, lexer_matchers: List[LexerType]) -> None:
+    def set_lexer_matchers(self, lexer_matchers: list[LexerType]) -> None:
         """Set the lexer struct for the dialect.
 
         This is what is used for base dialects. For derived dialects
@@ -344,14 +344,14 @@ class Dialect:
         """
         self.lexer_matchers = lexer_matchers
 
-    def get_lexer_matchers(self) -> List[LexerType]:
+    def get_lexer_matchers(self) -> list[LexerType]:
         """Fetch the lexer struct for this dialect."""
         if self.lexer_matchers:
             return self.lexer_matchers
         else:  # pragma: no cover
             raise ValueError(f"Lexing struct has not been set for dialect {self}")
 
-    def patch_lexer_matchers(self, lexer_patch: List[LexerType]) -> None:
+    def patch_lexer_matchers(self, lexer_patch: list[LexerType]) -> None:
         """Patch an existing lexer struct.
 
         Used to edit the lexer of a sub-dialect.
@@ -371,7 +371,7 @@ class Dialect:
         # Overwrite with the buffer once we're done
         self.lexer_matchers = buff
 
-    def insert_lexer_matchers(self, lexer_patch: List[LexerType], before: str) -> None:
+    def insert_lexer_matchers(self, lexer_patch: list[LexerType], before: str) -> None:
         """Insert new records into an existing lexer struct.
 
         Used to edit the lexer of a sub-dialect. The patch is

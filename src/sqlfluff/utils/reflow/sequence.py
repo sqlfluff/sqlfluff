@@ -2,7 +2,7 @@
 
 import logging
 from itertools import chain
-from typing import Iterator, List, Literal, Optional, Sequence, Tuple, Type, cast
+from typing import Iterator, Literal, Optional, Sequence, Type, cast
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser import BaseSegment, RawSegment
@@ -65,7 +65,7 @@ class ReflowSequence:
         root_segment: BaseSegment,
         reflow_config: ReflowConfig,
         depth_map: DepthMap,
-        lint_results: Optional[List[LintResult]] = None,
+        lint_results: Optional[list[LintResult]] = None,
     ):
         # First validate integrity
         self._validate_reflow_sequence(elements)
@@ -81,9 +81,9 @@ class ReflowSequence:
         # Rather than saving *fixes* directly, we package them into
         # LintResult objects to make it a little easier to expose them
         # in the CLI.
-        self.lint_results: List[LintResult] = lint_results or []
+        self.lint_results: list[LintResult] = lint_results or []
 
-    def get_fixes(self) -> List[LintFix]:
+    def get_fixes(self) -> list[LintFix]:
         """Get the current fix buffer.
 
         We're hydrating them here directly from the LintResult
@@ -93,7 +93,7 @@ class ReflowSequence:
         """
         return fixes_from_results(self.lint_results)
 
-    def get_results(self) -> List[LintResult]:
+    def get_results(self) -> list[LintResult]:
         """Return the current result buffer."""
         return self.lint_results
 
@@ -136,7 +136,7 @@ class ReflowSequence:
         which simplifies iteration here.
         """
         elem_buff: ReflowSequenceType = []
-        seg_buff: List[RawSegment] = []
+        seg_buff: list[RawSegment] = []
         for seg in segments:
             # NOTE: end_of_file is block-like rather than point-like.
             # This is to facilitate better evaluation of the ends of files.
@@ -447,7 +447,7 @@ class ReflowSequence:
 
     def _iter_points_with_constraints(
         self,
-    ) -> Iterator[Tuple[ReflowPoint, Optional[ReflowBlock], Optional[ReflowBlock]]]:
+    ) -> Iterator[tuple[ReflowPoint, Optional[ReflowBlock], Optional[ReflowBlock]]]:
         for idx, elem in enumerate(self.elements):
             # Only evaluate points.
             if isinstance(elem, ReflowPoint):
@@ -609,8 +609,7 @@ class ReflowSequence:
         """
         if self.lint_results:
             raise NotImplementedError(  # pragma: no cover
-                "break_long_lines cannot currently handle pre-existing "
-                "embodied fixes."
+                "break_long_lines cannot currently handle pre-existing embodied fixes."
             )
 
         single_indent = construct_single_indent(

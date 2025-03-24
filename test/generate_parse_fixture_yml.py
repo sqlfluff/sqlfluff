@@ -7,7 +7,7 @@ import re
 import sys
 import time
 from collections import defaultdict
-from typing import Callable, Dict, List, Optional, Tuple, TypeVar
+from typing import Callable, Dict, Optional, TypeVar
 
 import click
 import yaml
@@ -23,7 +23,7 @@ from sqlfluff.core.errors import SQLParseError
 S = TypeVar("S", bound="ParseExample")
 
 
-def distribute_work(work_items: List[S], work_fn: Callable[[S], None]) -> None:
+def distribute_work(work_items: list[S], work_fn: Callable[[S], None]) -> None:
     """Distribute work keep track of progress."""
     # Build up a dict of sets, where the key is the dialect and the set
     # contains all the expected cases. As cases return we'll check them
@@ -94,7 +94,7 @@ def _is_matching_new_criteria(example: ParseExample):
 
 def generate_one_parse_fixture(
     example: ParseExample,
-) -> Tuple[ParseExample, Optional[SQLParseError]]:
+) -> tuple[ParseExample, Optional[SQLParseError]]:
     """Parse example SQL file, write parse tree to YAML file."""
     dialect, sqlfile = example
     sql_path = _create_file_path(example, ".sql")
@@ -151,7 +151,7 @@ def gather_file_list(
     dialect: Optional[str] = None,
     glob_match_pattern: Optional[str] = None,
     new_only: bool = False,
-) -> List[ParseExample]:
+) -> list[ParseExample]:
     """Gather the list of files to generate fixtures for. Apply filters as required."""
     parse_success_examples, _ = get_parse_fixtures()
     if new_only:

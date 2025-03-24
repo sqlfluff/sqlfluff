@@ -7,11 +7,8 @@ from typing import (
     Any,
     Dict,
     Iterable,
-    List,
     Mapping,
     Optional,
-    Set,
-    Tuple,
     Type,
     TypeVar,
     Union,
@@ -51,7 +48,7 @@ class LintingResult:
     """
 
     def __init__(self) -> None:
-        self.paths: List[LintedDir] = []
+        self.paths: list[LintedDir] = []
         self._start_time: float = time.monotonic()
         self.total_time: float = 0.0
 
@@ -65,7 +62,7 @@ class LintingResult:
 
     def check_tuples(
         self, raise_on_non_linting_violations: bool = True
-    ) -> List[CheckTuple]:
+    ) -> list[CheckTuple]:
         """Fetch all check_tuples from all contained `LintedDir` objects.
 
         Returns:
@@ -79,13 +76,13 @@ class LintingResult:
             )
         ]
 
-    def check_tuples_by_path(self) -> Dict[str, List[CheckTuple]]:
+    def check_tuples_by_path(self) -> Dict[str, list[CheckTuple]]:
         """Fetch all check_tuples from all contained `LintedDir` objects.
 
         Returns:
             A dict, with lists of tuples grouped by path.
         """
-        buff: Dict[str, List[CheckTuple]] = {}
+        buff: Dict[str, list[CheckTuple]] = {}
         for path in self.paths:
             buff.update(path.check_tuples_by_path())
         return buff
@@ -101,8 +98,8 @@ class LintingResult:
         )
 
     def get_violations(
-        self, rules: Optional[Union[str, Tuple[str, ...]]] = None
-    ) -> List[SQLBaseError]:
+        self, rules: Optional[Union[str, tuple[str, ...]]] = None
+    ) -> list[SQLBaseError]:
         """Return a list of violations in the result."""
         return [v for path in self.paths for v in path.get_violations(rules=rules)]
 
@@ -156,7 +153,7 @@ class LintingResult:
 
         # Iterate through all the files to get rule timing information so
         # we know what headings we're going to need.
-        rule_codes: Set[str] = set()
+        rule_codes: set[str] = set()
         for path in self.paths:
             for record in path.as_records():
                 if "timings" not in record:  # pragma: no cover
@@ -188,7 +185,7 @@ class LintingResult:
                         }
                     )
 
-    def as_records(self) -> List[LintingRecord]:
+    def as_records(self) -> list[LintingRecord]:
         """Return the result as a list of dictionaries.
 
         Each record contains a key specifying the filepath, and a list of violations.
@@ -224,7 +221,7 @@ class LintingResult:
             )
         return self.paths[0].tree
 
-    def count_tmp_prs_errors(self) -> Tuple[int, int]:
+    def count_tmp_prs_errors(self) -> tuple[int, int]:
         """Count templating or parse errors before and after filtering."""
         total_errors = sum(path.num_unfiltered_tmp_prs_errors for path in self.paths)
         num_filtered_errors = sum(path.num_tmp_prs_errors for path in self.paths)

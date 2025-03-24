@@ -9,10 +9,8 @@ from typing import (
     Dict,
     Iterable,
     Iterator,
-    List,
     NamedTuple,
     Optional,
-    Tuple,
 )
 
 from sqlfluff.core.config import FluffConfig
@@ -36,11 +34,11 @@ class IntermediateFileSlice(NamedTuple):
     intermediate_type: str
     source_slice: slice
     templated_slice: slice
-    slice_buffer: List[RawFileSlice]
+    slice_buffer: list[RawFileSlice]
 
     def _trim_end(
         self, templated_str: str, target_end: str = "head"
-    ) -> Tuple["IntermediateFileSlice", List[TemplatedFileSlice]]:
+    ) -> tuple["IntermediateFileSlice", list[TemplatedFileSlice]]:
         """Trim the ends of a intermediate segment."""
         target_idx = 0 if target_end == "head" else -1
         terminator_types = ("block_start") if target_end == "head" else ("block_end")
@@ -122,8 +120,8 @@ class IntermediateFileSlice(NamedTuple):
 
     def trim_ends(
         self, templated_str: str
-    ) -> Tuple[
-        List[TemplatedFileSlice], "IntermediateFileSlice", List[TemplatedFileSlice]
+    ) -> tuple[
+        list[TemplatedFileSlice], "IntermediateFileSlice", list[TemplatedFileSlice]
     ]:
         """Trim both ends of an intermediate slice."""
         # Trim start:
@@ -171,7 +169,7 @@ class PythonTemplater(RawTemplater):
     """
 
     name = "python"
-    config_subsection: Tuple[str, ...] = ("context",)
+    config_subsection: tuple[str, ...] = ("context",)
 
     def __init__(self, override_context: Optional[Dict[str, Any]] = None) -> None:
         self.default_context = dict(test_value="__test__")
@@ -224,7 +222,7 @@ class PythonTemplater(RawTemplater):
         fname: str,
         config: Optional[FluffConfig] = None,
         formatter: Optional[FormatterInterface] = None,
-    ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
+    ) -> tuple[TemplatedFile, list[SQLTemplaterError]]:
         """Process a string and return a TemplatedFile.
 
         Note that the arguments are enforced as keywords
@@ -316,7 +314,7 @@ class PythonTemplater(RawTemplater):
         render_func: Callable[[str], str],
         config: Optional[FluffConfig] = None,
         append_to_templated: str = "",
-    ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
+    ) -> tuple[list[RawFileSlice], list[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix."""
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str)
@@ -391,10 +389,10 @@ class PythonTemplater(RawTemplater):
     @classmethod
     def _check_for_wrapped(
         cls,
-        slices: List[TemplatedFileSlice],
+        slices: list[TemplatedFileSlice],
         templated_str: str,
         unwrap_wrapped: bool = True,
-    ) -> Tuple[List[TemplatedFileSlice], str]:
+    ) -> tuple[list[TemplatedFileSlice], str]:
         """Identify a wrapped query (e.g. dbt test) and handle it.
 
         If unwrap_wrapped is true, we trim the wrapping from the templated
@@ -452,7 +450,7 @@ class PythonTemplater(RawTemplater):
     @classmethod
     def _substring_occurrences(
         cls, in_str: str, substrings: Iterable[str]
-    ) -> Dict[str, List[int]]:
+    ) -> Dict[str, list[int]]:
         """Find every occurrence of the given substrings."""
         occurrences = {}
         for substring in substrings:
@@ -461,8 +459,8 @@ class PythonTemplater(RawTemplater):
 
     @staticmethod
     def _sorted_occurrence_tuples(
-        occurrences: Dict[str, List[int]],
-    ) -> List[Tuple[str, int]]:
+        occurrences: Dict[str, list[int]],
+    ) -> list[tuple[str, int]]:
         """Sort a dict of occurrences into a sorted list of tuples."""
         return sorted(
             ((raw, idx) for raw in occurrences.keys() for idx in occurrences[raw]),
@@ -520,10 +518,10 @@ class PythonTemplater(RawTemplater):
     @classmethod
     def _split_invariants(
         cls,
-        raw_sliced: List[RawFileSlice],
-        literals: List[str],
-        raw_occurrences: Dict[str, List[int]],
-        templated_occurrences: Dict[str, List[int]],
+        raw_sliced: list[RawFileSlice],
+        literals: list[str],
+        raw_occurrences: Dict[str, list[int]],
+        templated_occurrences: Dict[str, list[int]],
         templated_str: str,
     ) -> Iterator[IntermediateFileSlice]:
         """Split a sliced file on its invariant literals.
@@ -564,7 +562,7 @@ class PythonTemplater(RawTemplater):
                         invariants.remove(tinv)
 
         # Set up some buffers
-        buffer: List[RawFileSlice] = []
+        buffer: list[RawFileSlice] = []
         idx: Optional[int] = None
         templ_idx = 0
         # Loop through
@@ -621,8 +619,8 @@ class PythonTemplater(RawTemplater):
 
     @staticmethod
     def _filter_occurrences(
-        file_slice: slice, occurrences: Dict[str, List[int]]
-    ) -> Dict[str, List[int]]:
+        file_slice: slice, occurrences: Dict[str, list[int]]
+    ) -> Dict[str, list[int]]:
         """Filter a dict of occurrences to just those within a slice."""
         filtered = {
             key: [
@@ -635,7 +633,7 @@ class PythonTemplater(RawTemplater):
         return {key: filtered[key] for key in filtered.keys() if filtered[key]}
 
     @staticmethod
-    def _coalesce_types(elems: List[RawFileSlice]) -> str:
+    def _coalesce_types(elems: list[RawFileSlice]) -> str:
         """Coalesce to the priority type."""
         # Make a set of types
         types = {elem.slice_type for elem in elems}
@@ -659,9 +657,9 @@ class PythonTemplater(RawTemplater):
     @classmethod
     def _split_uniques_coalesce_rest(
         cls,
-        split_file: List[IntermediateFileSlice],
-        raw_occurrences: Dict[str, List[int]],
-        templ_occurrences: Dict[str, List[int]],
+        split_file: list[IntermediateFileSlice],
+        raw_occurrences: Dict[str, list[int]],
+        templ_occurrences: Dict[str, list[int]],
         templated_str: str,
     ) -> Iterator[TemplatedFileSlice]:
         """Within each of the compound sections split on unique literals.
@@ -674,7 +672,7 @@ class PythonTemplater(RawTemplater):
 
         """
         # A buffer to capture tail segments
-        tail_buffer: List[TemplatedFileSlice] = []
+        tail_buffer: list[TemplatedFileSlice] = []
 
         templater_logger.debug("    _split_uniques_coalesce_rest: %s", split_file)
 
@@ -970,7 +968,7 @@ class PythonTemplater(RawTemplater):
 
                     # Can we identify a meaningful portion of the patch
                     # to recurse a split?
-                    sub_section: Optional[List[RawFileSlice]] = None
+                    sub_section: Optional[list[RawFileSlice]] = None
                     # If it's the start, the slicing is easy
                     if (
                         starts[1] == int_file_slice.templated_slice.stop

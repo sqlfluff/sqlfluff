@@ -29,11 +29,8 @@ from typing import (
     DefaultDict,
     Dict,
     Iterator,
-    List,
     Optional,
     Sequence,
-    Set,
-    Tuple,
     Type,
     Union,
 )
@@ -74,7 +71,7 @@ linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 class RuleLoggingAdapter(_LoggerAdapter):
     """A LoggingAdapter for rules which adds the code of the rule to it."""
 
-    def process(self, msg: str, kwargs: Any) -> Tuple[str, Any]:
+    def process(self, msg: str, kwargs: Any) -> tuple[str, Any]:
         """Add the code element to the logging message before emit."""
         return "[{}] {}".format(self.extra["code"] if self.extra else "", msg), kwargs
 
@@ -106,7 +103,7 @@ class LintResult:
     def __init__(
         self,
         anchor: Optional[BaseSegment] = None,
-        fixes: Optional[List["LintFix"]] = None,
+        fixes: Optional[list["LintFix"]] = None,
         memory: Optional[Any] = None,
         description: Optional[str] = None,
         source: Optional[str] = None,
@@ -151,7 +148,7 @@ class LintResult:
         return None
 
 
-EvalResultType = Union[LintResult, List[LintResult], None]
+EvalResultType = Union[LintResult, list[LintResult], None]
 
 
 class RuleMetaclass(type):
@@ -320,7 +317,7 @@ class RuleMetaclass(type):
     def __new__(
         mcs,
         name: str,
-        bases: List["BaseRule"],
+        bases: list["BaseRule"],
         class_dict: Dict[str, Any],
     ) -> "RuleMetaclass":
         """Generate a new class."""
@@ -390,7 +387,7 @@ class BaseRule(metaclass=RuleMetaclass):
 
     # Config settings supported for this rule.
     # See config_info.py for supported values.
-    config_keywords: List[str] = []
+    config_keywords: list[str] = []
     # Lint loop / crawl behavior. When appropriate, rules can (and should)
     # override these values to make linting faster.
     crawl_behaviour: BaseCrawler
@@ -401,14 +398,14 @@ class BaseRule(metaclass=RuleMetaclass):
     # - In a second linter pass after the main phase
     lint_phase = "main"
     # Groups attribute to be overwritten.
-    groups: Tuple[str, ...] = ()
+    groups: tuple[str, ...] = ()
     # Name attribute to be overwritten.
     # NOTE: for backward compatibility we should handle the case
     # where no name is set gracefully.
     name: str = ""
     # Optional set of aliases for the rule. Most often used for old codes which
     # referred to this rule.
-    aliases: Tuple[str, ...] = ()
+    aliases: tuple[str, ...] = ()
 
     # NOTE: code and description are provided here as hints, but should not
     # be set directly. They are set automatically by the metaclass based on
@@ -492,10 +489,10 @@ class BaseRule(metaclass=RuleMetaclass):
         ignore_mask: Optional["IgnoreMask"],
         fname: Optional[str],
         config: "FluffConfig",
-    ) -> Tuple[
-        List[SQLLintError],
-        Tuple[RawSegment, ...],
-        List[LintFix],
+    ) -> tuple[
+        list[SQLLintError],
+        tuple[RawSegment, ...],
+        list[LintFix],
         Optional[Dict[str, Any]],
     ]:
         """Run the rule on a given tree.
@@ -512,8 +509,8 @@ class BaseRule(metaclass=RuleMetaclass):
             segment=tree,
             config=config,
         )
-        vs: List[SQLLintError] = []
-        fixes: List[LintFix] = []
+        vs: list[SQLLintError] = []
+        fixes: list[LintFix] = []
 
         # Propagates memory from one rule _eval() to the next.
         memory = root_context.memory
@@ -557,8 +554,8 @@ class BaseRule(metaclass=RuleMetaclass):
                 )
                 return vs, context.raw_stack, fixes, context.memory
 
-            new_lerrs: List[SQLLintError] = []
-            new_fixes: List[LintFix] = []
+            new_lerrs: list[SQLLintError] = []
+            new_fixes: list[LintFix] = []
 
             if res is None or res == []:
                 # Assume this means no problems (also means no memory)
@@ -616,8 +613,8 @@ class BaseRule(metaclass=RuleMetaclass):
         res: LintResult,
         templated_file: Optional[TemplatedFile],
         ignore_mask: Optional["IgnoreMask"],
-        new_lerrs: List[SQLLintError],
-        new_fixes: List[LintFix],
+        new_lerrs: list[SQLLintError],
+        new_fixes: list[LintFix],
         root: BaseSegment,
     ) -> None:
         # Unless the rule declares that it's already template safe. Do safety
@@ -663,7 +660,7 @@ class BaseRule(metaclass=RuleMetaclass):
     @staticmethod
     def filter_meta(
         segments: Sequence[BaseSegment], keep_meta: bool = False
-    ) -> Tuple[BaseSegment, ...]:
+    ) -> tuple[BaseSegment, ...]:
         """Filter the segments to non-meta.
 
         Or optionally the opposite if keep_meta is True.
@@ -725,7 +722,7 @@ class BaseRule(metaclass=RuleMetaclass):
 
         # Issue 3079: Fixes that span multiple template blocks are bad. Don't
         # permit them.
-        block_indices: Set[int] = set()
+        block_indices: set[int] = set()
         for fix in lint_result.fixes:
             fix_slices = fix.get_fix_slices(templated_file, within_only=True)
             for fix_slice in fix_slices:
@@ -796,7 +793,7 @@ class BaseRule(metaclass=RuleMetaclass):
 
         anchor: BaseSegment = segment
         child: BaseSegment = segment
-        path: Optional[List[BaseSegment]] = (
+        path: Optional[list[BaseSegment]] = (
             [ps.segment for ps in root_segment.path_to(segment)]
             if root_segment
             else None
@@ -811,7 +808,7 @@ class BaseRule(metaclass=RuleMetaclass):
                 )
                 break
             # Which lists of children to check against.
-            children_lists: List[List[BaseSegment]] = []
+            children_lists: list[list[BaseSegment]] = []
             if filter_meta:
                 # Optionally check against filtered (non-meta only) children.
                 children_lists.append(
@@ -819,7 +816,7 @@ class BaseRule(metaclass=RuleMetaclass):
                 )
             # Always check against the full set of children.
             children_lists.append(list(seg.segments))
-            children: List[BaseSegment]
+            children: list[BaseSegment]
             for children in children_lists:
                 if edit_type == "create_before" and children[0] is child:
                     linter_logger.debug(
@@ -847,8 +844,8 @@ class RuleManifest:
     code: str
     name: str
     description: str
-    groups: Tuple[str, ...]
-    aliases: Tuple[str, ...]
+    groups: tuple[str, ...]
+    aliases: tuple[str, ...]
     rule_class: Type[BaseRule]
 
 
@@ -876,8 +873,8 @@ class RulePack:
             set present in the `rules` attribute.
     """
 
-    rules: List[BaseRule]
-    reference_map: Dict[str, Set[str]]
+    rules: list[BaseRule]
+    reference_map: Dict[str, set[str]]
 
     def codes(self) -> Iterator[str]:
         """Returns an iterator through the codes contained in the pack."""
@@ -991,15 +988,15 @@ class RuleSet:
         return cls
 
     def _expand_rule_refs(
-        self, glob_list: List[str], reference_map: Dict[str, Set[str]]
-    ) -> Set[str]:
+        self, glob_list: list[str], reference_map: Dict[str, set[str]]
+    ) -> set[str]:
         """Expand a list of rule references into a list of rule codes.
 
         Returns:
             :obj:`set` of :obj:`str` rule codes.
 
         """
-        expanded_rule_set: Set[str] = set()
+        expanded_rule_set: set[str] = set()
         for r in glob_list:
             # Is it a direct reference?
             if r in reference_map:
@@ -1014,7 +1011,7 @@ class RuleSet:
                     expanded_rule_set.update(reference_map[matched])
         return expanded_rule_set
 
-    def rule_reference_map(self) -> Dict[str, Set[str]]:
+    def rule_reference_map(self) -> Dict[str, set[str]]:
         """Generate a rule reference map for looking up rules.
 
         Generate the master reference map. The priority order is:
@@ -1022,11 +1019,11 @@ class RuleSet:
         (i.e. if there's a collision between a name and an alias - we assume
         the alias is wrong)
         """
-        valid_codes: Set[str] = set(self._register.keys())
-        reference_map: Dict[str, Set[str]] = {code: {code} for code in valid_codes}
+        valid_codes: set[str] = set(self._register.keys())
+        reference_map: Dict[str, set[str]] = {code: {code} for code in valid_codes}
 
         # Generate name map.
-        name_map: Dict[str, Set[str]] = {
+        name_map: Dict[str, set[str]] = {
             manifest.name: {manifest.code}
             for manifest in self._register.values()
             if manifest.name
@@ -1046,7 +1043,7 @@ class RuleSet:
         reference_map = {**name_map, **reference_map}
 
         # Generate the group map.
-        group_map: DefaultDict[str, Set[str]] = defaultdict(set)
+        group_map: DefaultDict[str, set[str]] = defaultdict(set)
         for manifest in self._register.values():
             for group in manifest.groups:
                 if group in reference_map:
@@ -1064,7 +1061,7 @@ class RuleSet:
         reference_map = {**group_map, **reference_map}
 
         # Generate the alias map.
-        alias_map: DefaultDict[str, Set[str]] = defaultdict(set)
+        alias_map: DefaultDict[str, set[str]] = defaultdict(set)
         for manifest in self._register.values():
             for alias in manifest.aliases:
                 if alias in reference_map:
@@ -1097,7 +1094,7 @@ class RuleSet:
         # codes > names > groups > aliases
         # (i.e. if there's a collision between a name and an
         # alias - we assume the alias is wrong.)
-        valid_codes: Set[str] = set(self._register.keys())
+        valid_codes: set[str] = set(self._register.keys())
         reference_map = self.rule_reference_map()
         valid_config_lookups = set(
             manifest.rule_class.get_config_ref() for manifest in self._register.values()

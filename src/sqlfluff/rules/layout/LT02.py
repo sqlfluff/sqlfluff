@@ -1,6 +1,5 @@
 """Implementation of Rule LT02."""
 
-from typing import List
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
@@ -51,7 +50,7 @@ class Rule_LT02(BaseRule):
     template_safe_fixes = True
     _adjust_anchors = True
 
-    def _eval(self, context: RuleContext) -> List[LintResult]:
+    def _eval(self, context: RuleContext) -> list[LintResult]:
         """Indentation not consistent with previous lines.
 
         To set the default tab size, set the `tab_space_size` value

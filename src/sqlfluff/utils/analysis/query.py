@@ -8,7 +8,6 @@ from typing import (
     Dict,
     Generic,
     Iterator,
-    List,
     NamedTuple,
     Optional,
     Type,
@@ -61,7 +60,7 @@ class WildcardInfo(NamedTuple):
     """Structure returned by Selectable.get_wildcard_info()."""
 
     segment: BaseSegment
-    tables: List[str]
+    tables: list[str]
 
 
 @dataclass
@@ -118,9 +117,9 @@ class Selectable:
                 table_reference_buffer=[],
             )
 
-    def get_wildcard_info(self) -> List[WildcardInfo]:
+    def get_wildcard_info(self) -> list[WildcardInfo]:
         """Find wildcard (*) targets in the SELECT."""
-        buff: List[WildcardInfo] = []
+        buff: list[WildcardInfo] = []
         # Some select-like statements don't have select_info
         # (e.g. test_exasol_invalid_foreign_key_from)
         if not self.select_info:  # pragma: no cover
@@ -173,12 +172,12 @@ class Query(Generic[T]):
 
     query_type: QueryType
     dialect: Dialect
-    selectables: List[Selectable] = field(default_factory=list)
+    selectables: list[Selectable] = field(default_factory=list)
     ctes: Dict[str, T] = field(default_factory=dict)
     # Parent scope. This query can "see" CTEs defined by parents.
     parent: Optional[T] = field(default=None)
     # subqueries are subselects in either the SELECT or FROM clause.
-    subqueries: List[T] = field(default_factory=list)
+    subqueries: list[T] = field(default_factory=list)
     cte_definition_segment: Optional[BaseSegment] = field(default=None)
     cte_name_segment: Optional[BaseSegment] = field(default=None)
     is_subquery: Optional[bool] = None
@@ -200,13 +199,13 @@ class Query(Generic[T]):
             cte.parent = self
 
     @property
-    def children(self: T) -> List[T]:
+    def children(self: T) -> list[T]:
         """Children could be CTEs, subselects or Others."""
         return list(self.ctes.values()) + self.subqueries
 
     def as_dict(self: T) -> Dict:
         """Dict representation for logging/testing."""
-        result: Dict[str, Union[str, List[str], Dict, List[Dict]]] = {}
+        result: Dict[str, Union[str, list[str], Dict, list[Dict]]] = {}
         if self.query_type != QueryType.Simple:
             result["query_type"] = self.query_type.name
         if self.selectables:
@@ -326,7 +325,7 @@ class Query(Generic[T]):
 
         selectables = []
         subqueries = []
-        cte_defs: List[BaseSegment] = []
+        cte_defs: list[BaseSegment] = []
         query_type = QueryType.Simple
 
         if segment.is_type("select_statement", *SUBSELECT_TYPES):

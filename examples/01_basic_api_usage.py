@@ -1,6 +1,6 @@
 """This is an example of how to use the simple sqlfluff api."""
 
-from typing import Any, Dict, Iterator, List, Union
+from typing import Any, Dict, Iterator, Union
 
 import sqlfluff
 
@@ -47,7 +47,7 @@ parse_result = sqlfluff.parse(my_bad_query)
 
 def get_json_segment(
     parse_result: Dict[str, Any], segment_type: str
-) -> Iterator[Union[str, Dict[str, Any], List[Dict[str, Any]]]]:
+) -> Iterator[Union[str, Dict[str, Any], list[Dict[str, Any]]]]:
     """Recursively search JSON parse result for specified segment type.
 
     Args:
@@ -55,7 +55,7 @@ def get_json_segment(
         segment_type (str): The segment type to search for.
 
     Yields:
-        Iterator[Union[str, Dict[str, Any], List[Dict[str, Any]]]]:
+        Iterator[Union[str, Dict[str, Any], list[Dict[str, Any]]]]:
         Retrieves children of specified segment type as either a string for a raw
         segment or as JSON or an array of JSON for non-raw segments.
     """

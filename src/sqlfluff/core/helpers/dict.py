@@ -5,10 +5,8 @@ from typing import (
     Dict,
     Iterable,
     Iterator,
-    List,
     Optional,
     Sequence,
-    Tuple,
     TypeVar,
     Union,
     cast,
@@ -24,7 +22,7 @@ are themselves dicts with the same nested properties. Variables of this type
 are used regularly in configuration methods and classes.
 """
 
-NestedDictRecord = Tuple[Tuple[str, ...], T]
+NestedDictRecord = tuple[tuple[str, ...], T]
 """Tuple form record of a setting in a NestedStringDict.
 
 The tuple of strings in the first element is the "address" in the NestedStringDict
@@ -89,7 +87,7 @@ def nested_combine(*dicts: NestedStringDict[T]) -> NestedStringDict[T]:
 def dict_diff(
     left: NestedStringDict[T],
     right: NestedStringDict[T],
-    ignore: Optional[List[str]] = None,
+    ignore: Optional[list[str]] = None,
 ) -> NestedStringDict[T]:
     """Work out the difference between two dictionaries.
 
@@ -244,7 +242,7 @@ def nested_dict_get(
     if not isinstance(next_value, dict):
         raise KeyError(
             f"{next_key!r} found non dict value, but there are more keys to "
-            f"iterate: {keys[key_index + 1:]}"
+            f"iterate: {keys[key_index + 1 :]}"
         )
 
     return nested_dict_get(next_value, keys, key_index=key_index + 1)

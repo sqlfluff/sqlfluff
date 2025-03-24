@@ -10,9 +10,7 @@ from typing import (
     Any,
     Dict,
     Iterable,
-    List,
     Optional,
-    Tuple,
     Type,
     Union,
 )
@@ -20,10 +18,7 @@ from typing import (
 import pluggy
 
 from sqlfluff.core.config.ini import coerce_value
-from sqlfluff.core.config.loader import (
-    load_config_string,
-    load_config_up_to_path,
-)
+from sqlfluff.core.config.loader import load_config_string, load_config_up_to_path
 from sqlfluff.core.config.validate import validate_config_dict
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import (
@@ -401,8 +396,8 @@ class FluffConfig:
     def from_kwargs(
         cls,
         dialect: Optional[str] = None,
-        rules: Optional[List[str]] = None,
-        exclude_rules: Optional[List[str]] = None,
+        rules: Optional[list[str]] = None,
+        exclude_rules: Optional[list[str]] = None,
         require_dialect: bool = True,
     ) -> FluffConfig:
         """Instantiate a config from a subset of common options.
@@ -455,10 +450,9 @@ class FluffConfig:
         }
         # Fetch the config value.
         templater_name = self._configs["core"].get("templater", "<no value set>")
-        assert isinstance(templater_name, str), (
-            "Config value `templater` expected to be a string. "
-            f"Not: {templater_name!r}"
-        )
+        assert isinstance(
+            templater_name, str
+        ), f"Config value `templater` expected to be a string. Not: {templater_name!r}"
         try:
             cls = templater_lookup[templater_name]
             # Return class. Do not instantiate yet. That happens in `get_templater()`
@@ -621,7 +615,7 @@ class FluffConfig:
 
     def iter_vals(
         self, cfg: Optional[ConfigMappingType] = None
-    ) -> Iterable[Tuple[int, str, ConfigValueOrListType]]:
+    ) -> Iterable[tuple[int, str, ConfigValueOrListType]]:
         """Return an iterable of tuples representing keys.
 
         Args:

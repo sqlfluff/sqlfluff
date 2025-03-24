@@ -1,7 +1,7 @@
 """Enums used by sqlfluff."""
 
 from enum import Enum
-from typing import List, Union
+from typing import Union
 
 from colorama import Fore
 
@@ -14,7 +14,7 @@ ConfigValueType = Union[int, float, bool, None, str]
 # config loading starts as strings, it's more likely that we
 # just don't _try_ to convert lists from anything other than
 # strings.
-ConfigValueOrListType = Union[ConfigValueType, List[str]]
+ConfigValueOrListType = Union[ConfigValueType, list[str]]
 ConfigMappingType = NestedStringDict[ConfigValueOrListType]
 ConfigRecordType = NestedDictRecord[ConfigValueOrListType]
 

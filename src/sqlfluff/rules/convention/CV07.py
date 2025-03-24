@@ -1,6 +1,5 @@
 """Implementation of Rule CV07."""
 
-from typing import List
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
@@ -72,7 +71,7 @@ class Rule_CV07(BaseRule):
                 if seg.is_type("bracketed"):
                     yield stmt, seg
 
-    def _eval(self, context: RuleContext) -> List[LintResult]:
+    def _eval(self, context: RuleContext) -> list[LintResult]:
         """Top-level statements should not be wrapped in brackets."""
         # Because of the root_only_crawler, this can control its own
         # crawling behaviour.
