@@ -527,6 +527,13 @@ postgres_dialect.replace(
         Ref("IgnoreRespectNullsGrammar"),
         Ref("IndexColumnDefinitionSegment"),
         Ref("EmptyStructLiteralSegment"),
+        Delimited(
+            Sequence(
+                Ref("ExpressionSegment"),
+                OneOf("VALUE", Ref("ColonSegment")),
+                Ref("ExpressionSegment"),
+            )
+        ),
     ),
     QuotedLiteralSegment=OneOf(
         # Postgres allows newline-concatenated string literals (#1488).
@@ -5772,6 +5779,7 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
             Dedent,
             optional=True,
         ),
+        Ref("JoinClauseSegment", optional=True),
         OneOf(
             Sequence("WHERE", "CURRENT", "OF", Ref("ObjectReferenceSegment")),
             Ref("WhereClauseSegment"),

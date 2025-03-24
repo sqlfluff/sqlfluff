@@ -52,73 +52,146 @@ oracle_dialect = ansi_dialect.copy_as(
 
 oracle_dialect.sets("reserved_keywords").update(
     [
-        "ACCESSIBLE",
-        "AUTHID",
-        "BODY",
-        "BULK_EXCEPTIONS",
-        "BULK_ROWCOUNT",
+        "ACCESS",
+        "ADD",
+        "ALL",
+        "ALTER",
+        "AND",
+        "ANY",
+        "AS",
+        "ASC",
+        "AUDIT",
+        "BETWEEN",
+        "BY",
+        "CHAR",
+        "CHECK",
+        "CLUSTER",
+        "COLUMN",
+        "COLUMN_VALUE",
         "COMMENT",
-        "COMPILE",
-        "COMPOUND",
+        "COMMENT",
+        "COMPRESS",
+        "CONNECT",
         "CONNECT",
         "CONNECT_BY_ROOT",
-        "CONSTANT",
-        "CROSSEDITION",
-        "CURSOR",
-        "DEBUG",
+        "CONSTRAINT",
+        "CREATE",
+        "CURRENT",
+        "DATE",
+        "DECIMAL",
+        "DEFAULT",
         "DEFINITION",
-        "DELETING",
-        "ELSIF",
-        "ERROR",
-        "FOLLOWS",
+        "DELETE",
+        "DESC",
+        "DISTINCT",
+        "DROP",
+        "ELSE",
+        "EXCLUSIVE",
+        "EXISTS",
+        "FILE",
+        "FLOAT",
         "FOR",
-        "FORALL",
+        "FOR",
         "FORCE",
+        "FROM",
+        "GRANT",
+        "GROUP",
+        "HAVING",
+        "IDENTIFIED",
+        "IMMEDIATE",
+        "IN",
+        "INCREMENT",
+        "INDEX",
         "INDEXTYPE",
-        "INDICES",
-        "INSERTING",
-        "ISOPEN",
-        "LOOP",
-        "MUTABLE",
-        "NESTED",
-        "NOCOPY",
-        "NOTFOUND",
-        "OID",
+        "INITIAL",
+        "INSERT",
+        "INTEGER",
+        "INTERSECT",
+        "INTO",
+        "IS",
+        "LEVEL",
+        "LIKE",
+        "LOCK",
+        "LONG",
+        "MAXEXTENTS",
+        "MINUS",
+        "MLSLABEL",
+        "MODE",
+        "MODIFY",
+        "NESTED_TABLE_ID",
+        "NOAUDIT",
+        "NOCOMPRESS",
+        "NOT",
+        "NOWAIT",
+        "NULL",
+        "NUMBER",
+        "OF",
+        "OFFLINE",
         "ON",
+        "ON",
+        "ONLINE",
+        "OPTION",
+        "OR",
+        "ORDER",
         "OVERFLOW",
-        "PACKAGE",
-        "PAIRS",
-        "PARALLEL_ENABLE",
-        "PARENT",
-        "PERSISTABLE",
-        "PIPELINED",
+        "PCTFREE",
         "PIVOT",
-        "PRAGMA",
-        "PRECEDES",
+        "PRIOR",
         "PRIVATE",
         "PROMPT",
-        "RAISE",
-        "RECORD",
-        "RESULT_CACHE",
-        "REUSE",
-        "REVERSE",
-        "ROWTYPE",
-        "SHARD_ENABLE",
-        "SHARING",
+        "PUBLIC",
+        "RAW",
+        "RENAME",
+        "RESOURCE",
+        "REVOKE",
+        "ROW",
+        "ROWID",
+        "ROWNUM",
+        "ROWS",
+        "SELECT",
+        "SESSION",
+        "SET",
+        "SHARE",
         "SIBLINGS",
-        "SPECIFICATION",
-        "SQL_MACRO",
+        "SIZE",
+        "SMALLINT",
         "START",
+        "START",
+        "SUCCESSFUL",
+        "SYNONYM",
+        "SYSDATE",
+        "TABLE",
+        "THEN",
+        "TO",
+        "TRIGGER",
+        "UID",
+        "UNION",
+        "UNIQUE",
         "UNPIVOT",
         "UPDATE",
-        "UPDATING",
-        "VARRAY",
-        "WHEN",
+        "UPDATE",
+        "USER",
+        "VALIDATE",
+        "VALUES",
+        "VARCHAR",
+        "VARCHAR2",
+        "VIEW",
+        "WHENEVER",
+        "WHERE",
+        "WITH",
     ]
 )
 
 oracle_dialect.sets("unreserved_keywords").update(
-    ["EDITIONABLE", "EDITIONING", "NONEDITIONABLE", "KEEP", "NOMINVALUE", "NOMAXVALUE"]
+    [
+        "EDITIONABLE",
+        "EDITIONING",
+        "ERROR",
+        "KEEP",
+        "NOMAXVALUE",
+        "NOMINVALUE",
+        "NONEDITIONABLE",
+    ]
 )
 
 oracle_dialect.sets("bare_functions").clear()
@@ -478,6 +551,9 @@ oracle_dialect.replace(
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("SqlplusVariableGrammar"),
+            Ref.keyword("LEVEL"),
+            Ref.keyword("ROWNUM"),
+            Ref.keyword("ANY"),
         ],
         before=Ref("ArrayLiteralSegment"),
     ),
@@ -1353,6 +1429,50 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
         insert=[
             Ref("SqlplusSubstitutionVariableSegment"),
         ]
+    )
+
+
+class TableConstraintSegment(ansi.TableConstraintSegment):
+    """A table constraint, e.g. for CREATE TABLE.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/ALTER-TABLE.html#GUID-552E7373-BF93-477D-9DA3-B2C9386F2877__I2103997
+    """
+
+    type = "table_constraint"
+
+    # Later add support for CHECK constraint, others?
+    # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
+    match_grammar: Matchable = Sequence(
+        Sequence(  # [ CONSTRAINT <Constraint name> ]
+            "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
+        ),
+        OneOf(
+            Sequence(
+                "CHECK",
+                Bracketed(Ref("ExpressionSegment")),
+                Sequence("NO", "INHERIT", optional=True),
+            ),
+            Sequence(  # UNIQUE ( column_name [, ... ] )
+                "UNIQUE",
+                Ref("BracketedColumnReferenceListGrammar"),
+                # Later add support for index_parameters?
+            ),
+            Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
+                Ref("PrimaryKeyGrammar"),
+                # Columns making up PRIMARY KEY constraint
+                Ref("BracketedColumnReferenceListGrammar"),
+                # Later add support for index_parameters?
+            ),
+            Sequence(  # FOREIGN KEY ( column_name [, ... ] )
+                # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+                Ref("ForeignKeyGrammar"),
+                # Local columns making up FOREIGN KEY constraint
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref(
+                    "ReferenceDefinitionGrammar"
+                ),  # REFERENCES reftable [ ( refcolumn) ]
+            ),
+        ),
     )
 
 

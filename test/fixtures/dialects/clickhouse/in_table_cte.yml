@@ -1,0 +1,182 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6b844f1cfa918894591b7d23b0c89bbd947961fcc52647e563e928a790410151
+file:
+- statement:
+    with_compound_statement:
+      keyword: with
+      common_table_expression:
+        expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: select
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '2'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '3'
+                  - end_bracket: )
+            end_bracket: )
+        keyword: as
+        naked_identifier: in_arr_cte
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+        where_clause:
+          keyword: where
+          expression:
+            column_reference:
+              naked_identifier: int_col
+            keyword: in
+            naked_identifier: in_arr_cte
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: with
+      common_table_expression:
+        expression:
+          bracketed:
+          - start_bracket: (
+          - numeric_literal: '1'
+          - comma: ','
+          - numeric_literal: '2'
+          - comma: ','
+          - numeric_literal: '3'
+          - end_bracket: )
+        keyword: as
+        naked_identifier: int_arr
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+        where_clause:
+          keyword: where
+          expression:
+            column_reference:
+              naked_identifier: int_col
+            keyword: in
+            naked_identifier: int_arr
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: with
+      common_table_expression:
+        expression:
+          array_literal:
+          - start_square_bracket: '['
+          - numeric_literal: '1'
+          - comma: ','
+          - numeric_literal: '2'
+          - comma: ','
+          - numeric_literal: '3'
+          - end_square_bracket: ']'
+        keyword: as
+        naked_identifier: int_arr
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+        where_clause:
+          keyword: where
+          expression:
+            column_reference:
+              naked_identifier: int_col
+            keyword: in
+            naked_identifier: int_arr
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: with
+      common_table_expression:
+        expression:
+          array_literal:
+          - start_square_bracket: '['
+          - numeric_literal: '1'
+          - comma: ','
+          - numeric_literal: '2'
+          - comma: ','
+          - numeric_literal: '3'
+          - end_square_bracket: ']'
+        keyword: as
+        naked_identifier: int_arr
+      select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: if
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: int_col
+                    keyword: in
+                    naked_identifier: int_arr
+                - comma: ','
+                - expression:
+                    numeric_literal: '1'
+                - comma: ','
+                - expression:
+                    numeric_literal: '0'
+                - end_bracket: )
+            alias_expression:
+              keyword: as
+              naked_identifier: in_array_flag
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+- statement_terminator: ;

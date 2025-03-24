@@ -1439,6 +1439,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterRowAccessPolicyStatmentSegment"),
             Ref("AlterTagStatementSegment"),
             Ref("ExceptionBlockStatementSegment"),
+            Ref("DropDynamicTableSegment"),
+            Ref("CreateAuthenticationPolicySegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -2082,7 +2084,6 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Bracketed(Delimited(Ref("ColumnReferenceSegment"), optional=True)),
             ),
             Ref("AlterTableTableColumnActionSegment"),
-            # @TODO: Set/unset TAG
             # UNSET Table options
             Sequence(
                 Ref.keyword("UNSET"),
@@ -2093,7 +2094,106 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     ),
                 ),
             ),
-            # @TODO: Add/drop row access policies
+            Ref("DataGovernancePolicyTagActionSegment"),
+        ),
+    )
+
+
+class DataGovernancePolicyTagActionSegment(BaseSegment):
+    """The dataGovnPolicyTagAction segment for alter table parsing."""
+
+    type = "data_governance_policy_tag_action_segment"
+
+    match_grammar = OneOf(
+        Sequence(
+            "SET",
+            Ref("TagEqualsSegment"),
+        ),
+        Sequence(
+            "UNSET",
+            Ref("TagEqualsSegment"),
+        ),
+        Sequence(
+            "ADD",
+            "ROW",
+            "ACCESS",
+            "POLICY",
+            Ref("ObjectReferenceSegment"),
+            "ON",
+            Bracketed(
+                Delimited(
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+        ),
+        Sequence(
+            "DROP",
+            "ROW",
+            "ACCESS",
+            "POLICY",
+            Ref("ObjectReferenceSegment"),
+            Sequence(
+                Ref("CommaSegment"),
+                "ADD",
+                "ROW",
+                "ACCESS",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+                "ON",
+                Bracketed(
+                    Delimited(
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "DROP",
+            "ALL",
+            "ROW",
+            "ACCESS",
+            "POLICIES",
+        ),
+        Sequence(
+            "SET",
+            "AGGREGATION",
+            "POLICY",
+            Ref("ObjectReferenceSegment"),
+            Sequence(
+                "ENTITY",
+                "KEY",
+                Bracketed(
+                    Delimited(
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "FORCE",
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "UNSET",
+            "AGGREGATION",
+            "POLICY",
+        ),
+        Sequence(
+            "SET",
+            "JOIN",
+            "POLICY",
+            Ref("ObjectReferenceSegment"),
+            Sequence(
+                "FORCE",
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "UNSET",
+            "JOIN",
+            "POLICY",
         ),
     )
 
@@ -5100,12 +5200,18 @@ class CreateUserSegment(BaseSegment):
             Sequence(
                 "RSA_PUBLIC_KEY",
                 Ref("EqualsSegment"),
-                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
             ),
             Sequence(
                 "RSA_PUBLIC_KEY_2",
                 Ref("EqualsSegment"),
-                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
             ),
             Sequence(
                 "TYPE",
@@ -8745,8 +8851,55 @@ class ScriptingDeclareStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "DECLARE",
         Indent,
+        Sequence(
+            # Avoid BEGIN as a variable from the subsequent scripting block
+            Ref("LocalVariableNameSegment", exclude=Ref.keyword("BEGIN")),
+            OneOf(
+                # Variable assignment
+                OneOf(
+                    Sequence(
+                        Ref("DatatypeSegment"),
+                        OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                        Ref("ExpressionSegment"),
+                    ),
+                    Sequence(
+                        OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+                # Cursor assignment
+                Sequence(
+                    "CURSOR",
+                    "FOR",
+                    OneOf(Ref("LocalVariableNameSegment"), Ref("SelectableGrammar")),
+                ),
+                # Resultset assignment
+                Sequence(
+                    "RESULTSET",
+                    Sequence(
+                        OneOf(
+                            "DEFAULT",
+                            Ref("WalrusOperatorSegment"),
+                        ),
+                        Sequence("ASYNC", optional=True),
+                        Bracketed(Ref("SelectClauseSegment"), optional=True),
+                        optional=True,
+                    ),
+                ),
+                # Exception assignment
+                Sequence(
+                    "EXCEPTION",
+                    Bracketed(
+                        Delimited(
+                            Ref("ExceptionCodeSegment"), Ref("QuotedLiteralSegment")
+                        )
+                    ),
+                ),
+            ),
+        ),
         AnyNumberOf(
             Sequence(
+                Ref("DelimiterGrammar"),
                 # Avoid BEGIN as a variable from the subsequent scripting block
                 Ref("LocalVariableNameSegment", exclude=Ref.keyword("BEGIN")),
                 OneOf(
@@ -8773,8 +8926,15 @@ class ScriptingDeclareStatementSegment(BaseSegment):
                     # Resultset assignment
                     Sequence(
                         "RESULTSET",
-                        Ref("WalrusOperatorSegment"),
-                        Bracketed(Ref("SelectableGrammar")),
+                        Sequence(
+                            OneOf(
+                                "DEFAULT",
+                                Ref("WalrusOperatorSegment"),
+                            ),
+                            Sequence("ASYNC", optional=True),
+                            Bracketed(Ref("SelectClauseSegment"), optional=True),
+                            optional=True,
+                        ),
                     ),
                     # Exception assignment
                     Sequence(
@@ -8786,12 +8946,10 @@ class ScriptingDeclareStatementSegment(BaseSegment):
                         ),
                     ),
                 ),
-                Ref("DelimiterGrammar"),
             ),
-            min_times=1,
         ),
         Dedent,
-        Ref("ScriptingBlockStatementSegment"),
+        Ref("ScriptingBlockStatementSegment", optional=True),
     )
 
 
@@ -9136,5 +9294,89 @@ class ExceptionBlockStatementSegment(BaseSegment):
                 ),
                 Ref("StatementSegment"),
             ),
+        ),
+    )
+
+
+class DropDynamicTableSegment(BaseSegment):
+    """Drop dynamic table segment."""
+
+    type = "drop_dynamic_table_segment"
+
+    match_grammar = Sequence(
+        "DROP",
+        "DYNAMIC",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
+class CreateAuthenticationPolicySegment(BaseSegment):
+    """A Snowflake Create Authentication Policy Segment."""
+
+    type = "create_authentication_policy_segment"
+
+    match_grammar = Sequence(
+        "Create",
+        Ref("OrReplaceGrammar", optional=True),
+        "AUTHENTICATION",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "AUTHENTICATION_METHODS",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "MFA_AUTHENTICATION_METHODS",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "MFA_ENROLLMENT",
+            Ref("EqualsSegment"),
+            OneOf(
+                "REQUIRED",
+                "OPTIONAL",
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "CLIENT_TYPES",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "SECURITY_INTEGRATIONS",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "COMMENT",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
         ),
     )

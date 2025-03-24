@@ -40,7 +40,7 @@ class SQLFluffDriver(QualityDriver):
 
     def installed(self) -> bool:
         """Check if SQLFluff is installed."""
-        return run_command_for_code("sqlfluff") == 0
+        return run_command_for_code(["sqlfluff", "--version"]) == 0
 
 
 class SQLFluffViolationReporter(QualityReporter):

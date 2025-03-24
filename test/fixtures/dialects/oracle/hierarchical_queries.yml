@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7280223c00b071cea987a10c284d821d4b23320d2f71ecf6420f8fd7f92e737e
+_hash: 4664657533a7267eee5e7408ab5d0daea2080a1aeeb15d5e602493cbb5d2ec30
 file:
 - statement:
     select_statement:
@@ -57,8 +57,7 @@ file:
             naked_identifier: manager_id
       - comma: ','
       - select_clause_element:
-          column_reference:
-            naked_identifier: LEVEL
+          keyword: LEVEL
       from_clause:
         keyword: FROM
         from_expression:
@@ -96,8 +95,7 @@ file:
             naked_identifier: manager_id
       - comma: ','
       - select_clause_element:
-          column_reference:
-            naked_identifier: LEVEL
+          keyword: LEVEL
       from_clause:
         keyword: FROM
         from_expression:
@@ -144,8 +142,7 @@ file:
             quoted_identifier: '"Employee"'
       - comma: ','
       - select_clause_element:
-          column_reference:
-            naked_identifier: LEVEL
+          keyword: LEVEL
       - comma: ','
       - select_clause_element:
           function:
@@ -173,8 +170,7 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-        - column_reference:
-            naked_identifier: level
+        - keyword: level
         - comparison_operator:
           - raw_comparison_operator: <
           - raw_comparison_operator: '='
@@ -207,8 +203,7 @@ file:
           - column_reference:
               naked_identifier: manager_id
           - binary_operator: AND
-          - column_reference:
-              naked_identifier: LEVEL
+          - keyword: LEVEL
           - comparison_operator:
             - raw_comparison_operator: <
             - raw_comparison_operator: '='
@@ -231,8 +226,7 @@ file:
             quoted_identifier: '"Cycle"'
       - comma: ','
       - select_clause_element:
-          column_reference:
-            naked_identifier: LEVEL
+          keyword: LEVEL
       - comma: ','
       - select_clause_element:
           function:
@@ -260,8 +254,7 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-        - column_reference:
-            naked_identifier: level
+        - keyword: level
         - comparison_operator:
           - raw_comparison_operator: <
           - raw_comparison_operator: '='
@@ -295,8 +288,7 @@ file:
           - column_reference:
               naked_identifier: manager_id
           - binary_operator: AND
-          - column_reference:
-              naked_identifier: LEVEL
+          - keyword: LEVEL
           - comparison_operator:
             - raw_comparison_operator: <
             - raw_comparison_operator: '='
@@ -310,8 +302,8 @@ file:
       - column_reference:
           quoted_identifier: '"Cycle"'
       - comma: ','
-      - column_reference:
-          naked_identifier: LEVEL
+      - expression:
+          keyword: LEVEL
       - comma: ','
       - column_reference:
           quoted_identifier: '"Path"'
@@ -356,8 +348,7 @@ file:
                   select_clause:
                   - keyword: SELECT
                   - select_clause_element:
-                      column_reference:
-                        naked_identifier: ROWNUM
+                      keyword: ROWNUM
                       alias_expression:
                         naked_identifier: r
                   - comma: ','
@@ -427,8 +418,7 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: LEVEL
+            keyword: LEVEL
             binary_operator: '-'
             numeric_literal: '1'
           alias_expression:
@@ -460,8 +450,7 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-        - column_reference:
-            naked_identifier: LEVEL
+        - keyword: LEVEL
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal: '1'

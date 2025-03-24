@@ -361,3 +361,8 @@ CREATE TABLE IF NOT EXISTS table2(
   REFERENCES table1 (col1, col2)
   ON DELETE SET DEFAULT (col1)
 );
+
+CREATE TABLE myschema.user (
+    user_id bigint PRIMARY KEY,
+    name    varchar(40)
+);

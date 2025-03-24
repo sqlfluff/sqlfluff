@@ -451,6 +451,44 @@ class SetOperatorSegment(BaseSegment):
         Sequence("UNION", OneOf("DISTINCT", "ALL")),
         Sequence("INTERSECT", "DISTINCT"),
         Sequence("EXCEPT", "DISTINCT"),
+        Sequence(
+            OneOf(
+                "INNER",
+                Sequence(
+                    OneOf("FULL", "LEFT"),
+                    Ref.keyword("OUTER", optional=True),
+                ),
+                "OUTER",
+                optional=True,
+            ),
+            OneOf(
+                Sequence("UNION", OneOf("ALL", "DISTINCT")),
+                Sequence("INTERSECT", "DISTINCT"),
+                Sequence("EXCEPT", "DISTINCT"),
+            ),
+            Sequence(
+                OneOf(
+                    Sequence(
+                        "BY",
+                        "NAME",
+                        Sequence(
+                            "ON",
+                            Ref("BracketedColumnReferenceListGrammar"),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        Ref.keyword("STRICT", optional=True),
+                        "CORRESPONDING",
+                        Sequence(
+                            "BY",
+                            Ref("BracketedColumnReferenceListGrammar"),
+                            optional=True,
+                        ),
+                    ),
+                )
+            ),
+        ),
     )
 
 
@@ -1312,16 +1350,6 @@ class ArrayExpressionSegment(ansi.ArrayExpressionSegment):
         Ref("ArrayFunctionNameSegment"),
         Ref("ArrayFunctionContentsSegment"),
     )
-
-
-class TupleSegment(BaseSegment):
-    """Expression to construct a TUPLE.
-
-    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#tuple_syntax
-    """
-
-    type = "tuple"
-    match_grammar = Bracketed(Delimited(Ref("BaseExpressionElementGrammar")))
 
 
 class NamedArgumentSegment(BaseSegment):
