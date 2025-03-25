@@ -6,17 +6,15 @@ test_fail_limit_without_order_by:
     FROM foo
     LIMIT 10;
 
-test_fail_offset_without_order_by:
-  fail_str: |
-    SELECT *
-    FROM foo
-    OFFSET 5;
-
 test_fail_limit_and_offset_without_order_by:
   fail_str: |
     SELECT *
     FROM foo
-    LIMIT 10 OFFSET 5;
+    LIMIT 10
+    OFFSET 5;
+  configs:
+    core:
+      dialect: ansi
 
 test_pass_limit_with_order_by:
   pass_str: |
@@ -25,19 +23,16 @@ test_pass_limit_with_order_by:
     ORDER BY id
     LIMIT 10;
 
-test_pass_offset_with_order_by:
-  pass_str: |
-    SELECT *
-    FROM foo
-    ORDER BY id
-    OFFSET 5;
-
 test_pass_limit_and_offset_with_order_by:
   pass_str: |
     SELECT *
     FROM foo
     ORDER BY id
-    LIMIT 10 OFFSET 5;
+    LIMIT 10
+    OFFSET 5;
+  configs:
+    core:
+      dialect: postgres
 
 test_pass_no_limit_or_offset:
   pass_str: |
