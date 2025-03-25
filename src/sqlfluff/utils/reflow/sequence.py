@@ -585,6 +585,27 @@ class ReflowSequence:
             tab_space_size=self.reflow_config.tab_space_size,
         )
 
+        # For comma and binary operator, allow indentation to be anchored to
+        # the first non-whitespace element following the comma or binary operator
+        indentation_align_following: dict[str, int] = {}
+        for t in {"comma", "binary_operator"}:
+            block_config = self.reflow_config.get_block_config({t})
+            if block_config.line_position == "leading:align-following":
+                # For future proofing, in case `spacing_after` can be set to `touch`
+                match block_config.spacing_after:
+                    case "single":
+                        spaces_after = 1
+                    case "touch":
+                        spaces_after = 0
+                    case _:
+                        reflow_logger.warning(
+                            "Unexpected `spacing_after` value for calculating "
+                            "indentation compensation: %s",
+                            block_config.spacing_after,
+                        )
+                        spaces_after = 1
+                indentation_align_following[t] = spaces_after
+
         reflow_logger.info("# Evaluating indents.")
         elements, indent_results = lint_indent_points(
             self.elements,
@@ -592,6 +613,7 @@ class ReflowSequence:
             skip_indentation_in=self.reflow_config.skip_indentation_in,
             allow_implicit_indents=self.reflow_config.allow_implicit_indents,
             ignore_comment_lines=self.reflow_config.ignore_comment_lines,
+            indentation_align_following=indentation_align_following,
         )
 
         return ReflowSequence(
@@ -609,8 +631,7 @@ class ReflowSequence:
         """
         if self.lint_results:
             raise NotImplementedError(  # pragma: no cover
-                "break_long_lines cannot currently handle pre-existing "
-                "embodied fixes."
+                "break_long_lines cannot currently handle pre-existing embodied fixes."
             )
 
         single_indent = construct_single_indent(
