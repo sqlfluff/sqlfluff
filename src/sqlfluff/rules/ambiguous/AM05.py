@@ -1,6 +1,6 @@
 """Implementation of Rule AM05."""
 
-from typing import Optional, Tuple
+from typing import Optional
 
 from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -41,7 +41,7 @@ class Rule_AM05(BaseRule):
 
     name = "ambiguous.join"
     aliases = ("L051",)
-    groups: Tuple[str, ...] = ("all", "ambiguous")
+    groups: tuple[str, ...] = ("all", "ambiguous")
     config_keywords = ["fully_qualify_join_types"]
     crawl_behaviour = SegmentSeekerCrawler({"join_clause"})
     is_fix_compatible = True

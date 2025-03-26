@@ -1,6 +1,6 @@
 """Common classes for dialects to use."""
 
-from typing import List, NamedTuple, Optional
+from typing import NamedTuple, Optional
 
 from sqlfluff.core.parser import BaseSegment
 
@@ -21,4 +21,4 @@ class ColumnAliasInfo(NamedTuple):
 
     alias_identifier_name: str
     aliased_segment: BaseSegment
-    column_reference_segments: List[BaseSegment]
+    column_reference_segments: list[BaseSegment]

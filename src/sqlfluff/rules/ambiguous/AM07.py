@@ -1,14 +1,10 @@
 """Implementation of Rule AM07."""
 
-from typing import Optional, Set, Tuple
+from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.analysis.query import (
-    Query,
-    Selectable,
-    WildcardInfo,
-)
+from sqlfluff.utils.analysis.query import Query, Selectable, WildcardInfo
 
 
 class Rule_AM07(BaseRule):
@@ -57,13 +53,13 @@ class Rule_AM07(BaseRule):
 
     name = "ambiguous.set_columns"
     aliases = ("L068",)
-    groups: Tuple[str, ...] = ("all", "ambiguous")
+    groups: tuple[str, ...] = ("all", "ambiguous")
     crawl_behaviour = SegmentSeekerCrawler({"set_expression"}, provide_raw_stack=True)
 
     def __resolve_wild_query(
         self,
         query: Query,
-    ) -> Tuple[int, bool]:
+    ) -> tuple[int, bool]:
         """Attempt to resolve a full query which may contain wildcards.
 
         NOTE: This requires a ``Query`` as input rather than just a
@@ -89,7 +85,7 @@ class Rule_AM07(BaseRule):
 
     def __resolve_selectable_wildcard(
         self, wildcard: WildcardInfo, selectable: Selectable, root_query: Query
-    ) -> Tuple[int, bool]:
+    ) -> tuple[int, bool]:
         """Attempt to resolve a single wildcard (*) within a Selectable.
 
         NOTE: This means resolving the number of columns implied by
@@ -142,7 +138,7 @@ class Rule_AM07(BaseRule):
 
     def __resolve_selectable(
         self, selectable: Selectable, root_query: Query
-    ) -> Tuple[int, bool]:
+    ) -> tuple[int, bool]:
         """Resolve the number of columns in a single Selectable.
 
         The selectable may or may not have wildcard (*) expressions.
@@ -179,7 +175,7 @@ class Rule_AM07(BaseRule):
         )
         return num_cols, resolved
 
-    def _get_select_target_counts(self, query: Query) -> Tuple[Set[int], bool]:
+    def _get_select_target_counts(self, query: Query) -> tuple[set[int], bool]:
         """Given a set expression, get the number of select targets in each query.
 
         We keep track of the number of columns in each selectable using a

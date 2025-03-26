@@ -12,7 +12,7 @@ import stat
 import tempfile
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, NamedTuple, Optional, Tuple, Type, Union
+from typing import Iterable, NamedTuple, Optional, Union
 
 from sqlfluff.core.errors import (
     CheckTuple,
@@ -39,21 +39,21 @@ TMP_PRS_ERROR_TYPES = (SQLTemplaterError, SQLParseError)
 class FileTimings:
     """A dataclass for holding the timings information for a file."""
 
-    step_timings: Dict[str, float]
+    step_timings: dict[str, float]
     # NOTE: Because rules may run more than once for any
     # given file we record each run and then we can post
     # process this as we wish later.
-    rule_timings: List[Tuple[str, str, float]]
+    rule_timings: list[tuple[str, str, float]]
 
     def __repr__(self) -> str:  # pragma: no cover
         return "<FileTimings>"
 
-    def get_rule_timing_dict(self) -> Dict[str, float]:
+    def get_rule_timing_dict(self) -> dict[str, float]:
         """Generate a summary to total time in each rule.
 
         This is primarily for csv export.
         """
-        total_times: Dict[str, float] = defaultdict(float)
+        total_times: dict[str, float] = defaultdict(float)
 
         for code, _, time in self.rule_timings:
             total_times[code] += time
@@ -66,7 +66,7 @@ class LintedFile(NamedTuple):
     """A class to store the idea of a linted file."""
 
     path: str
-    violations: List[SQLBaseError]
+    violations: list[SQLBaseError]
     timings: Optional[FileTimings]
     tree: Optional[BaseSegment]
     ignore_mask: Optional[IgnoreMask]
@@ -75,14 +75,14 @@ class LintedFile(NamedTuple):
 
     def check_tuples(
         self, raise_on_non_linting_violations: bool = True
-    ) -> List[CheckTuple]:
+    ) -> list[CheckTuple]:
         """Make a list of check_tuples.
 
         This assumes that all the violations found are
         linting violations. If they don't then this function
         raises that error.
         """
-        vs: List[CheckTuple] = []
+        vs: list[CheckTuple] = []
         for v in self.get_violations():
             if isinstance(v, SQLLintError):
                 vs.append(v.check_tuple())
@@ -92,8 +92,8 @@ class LintedFile(NamedTuple):
 
     @staticmethod
     def deduplicate_in_source_space(
-        violations: List[SQLBaseError],
-    ) -> List[SQLBaseError]:
+        violations: list[SQLBaseError],
+    ) -> list[SQLBaseError]:
         """Removes duplicates in the source space.
 
         This is useful for templated files with loops, where we'll
@@ -119,13 +119,13 @@ class LintedFile(NamedTuple):
 
     def get_violations(
         self,
-        rules: Optional[Union[str, Tuple[str, ...]]] = None,
-        types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
+        rules: Optional[Union[str, tuple[str, ...]]] = None,
+        types: Optional[Union[type[SQLBaseError], Iterable[type[SQLBaseError]]]] = None,
         filter_ignore: bool = True,
         filter_warning: bool = True,
         warn_unused_ignores: bool = False,
         fixable: Optional[bool] = None,
-    ) -> List[SQLBaseError]:
+    ) -> list[SQLBaseError]:
         """Get a list of violations, respecting filters and ignore options.
 
         Optionally now with filters.
@@ -169,7 +169,7 @@ class LintedFile(NamedTuple):
 
     def num_violations(
         self,
-        types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
+        types: Optional[Union[type[SQLBaseError], Iterable[type[SQLBaseError]]]] = None,
         filter_ignore: bool = True,
         filter_warning: bool = True,
         fixable: Optional[bool] = None,
@@ -190,7 +190,7 @@ class LintedFile(NamedTuple):
         """Return True if there are no ignorable violations."""
         return not any(self.get_violations(filter_ignore=True))
 
-    def fix_string(self) -> Tuple[str, bool]:
+    def fix_string(self) -> tuple[str, bool]:
         """Obtain the changes to a path as a string.
 
         We use the source mapping features of TemplatedFile
@@ -263,10 +263,10 @@ class LintedFile(NamedTuple):
 
     @staticmethod
     def _slice_source_file_using_patches(
-        source_patches: List[FixPatch],
-        source_only_slices: List[RawFileSlice],
+        source_patches: list[FixPatch],
+        source_only_slices: list[RawFileSlice],
         raw_source_string: str,
-    ) -> List[slice]:
+    ) -> list[slice]:
         """Use patches to safely slice up the file before fixing.
 
         This uses source only slices to avoid overwriting sections
@@ -343,8 +343,8 @@ class LintedFile(NamedTuple):
 
     @staticmethod
     def _build_up_fixed_source_string(
-        source_file_slices: List[slice],
-        source_patches: List[FixPatch],
+        source_file_slices: list[slice],
+        source_patches: list[FixPatch],
         raw_source_string: str,
     ) -> str:
         """Use patches and raw file to fix the source file.

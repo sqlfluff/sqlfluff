@@ -13,7 +13,7 @@ of more general wider use - please define it in the specific plugin
 rather than here.
 """
 
-from typing import Dict, List, Optional, TypedDict
+from typing import Optional, TypedDict
 
 from sqlfluff.core.plugin.host import get_plugin_manager
 
@@ -35,10 +35,10 @@ class ConfigInfo(TypedDict, total=False):
     """
 
     definition: str
-    validation: Optional[List[bool | str | int] | range]
+    validation: Optional[list[bool | str | int] | range]
 
 
-STANDARD_CONFIG_INFO_DICT: Dict[str, ConfigInfo] = {
+STANDARD_CONFIG_INFO_DICT: dict[str, ConfigInfo] = {
     "force_enable": {
         "validation": [True, False],
         "definition": (

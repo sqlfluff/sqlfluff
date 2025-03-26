@@ -1,6 +1,6 @@
 """Implementation of Rule AM03."""
 
-from typing import List, NamedTuple, Optional, Tuple
+from typing import NamedTuple, Optional
 
 from sqlfluff.core.parser import BaseSegment, KeywordSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -41,12 +41,12 @@ class Rule_AM03(BaseRule):
 
     name = "ambiguous.order_by"
     aliases = ("L037",)
-    groups: Tuple[str, ...] = ("all", "ambiguous")
+    groups: tuple[str, ...] = ("all", "ambiguous")
     crawl_behaviour = SegmentSeekerCrawler({"orderby_clause"})
     is_fix_compatible = True
 
     @staticmethod
-    def _get_orderby_info(segment: BaseSegment) -> List[OrderByColumnInfo]:
+    def _get_orderby_info(segment: BaseSegment) -> list[OrderByColumnInfo]:
         assert segment.is_type("orderby_clause")
 
         result = []
@@ -80,7 +80,7 @@ class Rule_AM03(BaseRule):
             )
         return result
 
-    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
+    def _eval(self, context: RuleContext) -> Optional[list[LintResult]]:
         """Ambiguous ordering directions for columns in order by clause.
 
         This rule checks if some ORDER BY columns explicitly specify ASC or

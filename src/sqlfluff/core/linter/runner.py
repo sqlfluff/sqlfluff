@@ -18,7 +18,7 @@ import sys
 import traceback
 from abc import ABC, abstractmethod
 from types import TracebackType
-from typing import Callable, Iterable, Iterator, List, Optional, Tuple, Union
+from typing import Callable, Iterable, Iterator, Optional, Union
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile
@@ -43,7 +43,7 @@ class BaseRunner(ABC):
 
     pass_formatter = True
 
-    def iter_rendered(self, fnames: List[str]) -> Iterator[Tuple[str, RenderedFile]]:
+    def iter_rendered(self, fnames: list[str]) -> Iterator[tuple[str, RenderedFile]]:
         """Iterate through rendered files ready for linting."""
         for fname in self.linter.templater.sequence_files(
             fnames, config=self.config, formatter=self.linter.formatter
@@ -55,9 +55,9 @@ class BaseRunner(ABC):
 
     def iter_partials(
         self,
-        fnames: List[str],
+        fnames: list[str],
         fix: bool = False,
-    ) -> Iterator[Tuple[str, PartialLintCallable]]:
+    ) -> Iterator[tuple[str, PartialLintCallable]]:
         """Iterate through partials for linted files.
 
         Generates filenames and objects which return LintedFiles.
@@ -79,7 +79,7 @@ class BaseRunner(ABC):
             )
 
     @abstractmethod
-    def run(self, fnames: List[str], fix: bool) -> Iterator[LintedFile]:
+    def run(self, fnames: list[str], fix: bool) -> Iterator[LintedFile]:
         """Run linting on the specified list of files."""
         ...
 
@@ -108,7 +108,7 @@ To hide this warning, add the failing file to .sqlfluffignore
 class SequentialRunner(BaseRunner):
     """Simple runner that does sequential processing."""
 
-    def run(self, fnames: List[str], fix: bool) -> Iterator[LintedFile]:
+    def run(self, fnames: list[str], fix: bool) -> Iterator[LintedFile]:
         """Sequential implementation."""
         for fname, partial in self.iter_partials(fnames, fix=fix):
             try:
@@ -131,7 +131,7 @@ class ParallelRunner(BaseRunner):
         super().__init__(linter, config)
         self.processes = processes
 
-    def run(self, fnames: List[str], fix: bool) -> Iterator[LintedFile]:
+    def run(self, fnames: list[str], fix: bool) -> Iterator[LintedFile]:
         """Parallel implementation.
 
         Note that the partials are generated one at a time then
@@ -175,7 +175,7 @@ class ParallelRunner(BaseRunner):
 
     @staticmethod
     def _apply(
-        partial_tuple: Tuple[str, PartialLintCallable],
+        partial_tuple: tuple[str, PartialLintCallable],
     ) -> Union["DelayedException", LintedFile]:
         """Shim function used in parallel mode."""
         # Unpack the tuple and ditch the filename in this case.
@@ -205,9 +205,9 @@ class ParallelRunner(BaseRunner):
         cls,
         pool: multiprocessing.pool.Pool,
         func: Callable[
-            [Tuple[str, PartialLintCallable]], Union["DelayedException", LintedFile]
+            [tuple[str, PartialLintCallable]], Union["DelayedException", LintedFile]
         ],
-        iterable: Iterable[Tuple[str, PartialLintCallable]],
+        iterable: Iterable[tuple[str, PartialLintCallable]],
     ) -> Iterable[Union["DelayedException", LintedFile]]:  # pragma: no cover
         """Class-specific map method.
 
@@ -244,9 +244,9 @@ class MultiProcessRunner(ParallelRunner):
         cls,
         pool: multiprocessing.pool.Pool,
         func: Callable[
-            [Tuple[str, PartialLintCallable]], Union["DelayedException", LintedFile]
+            [tuple[str, PartialLintCallable]], Union["DelayedException", LintedFile]
         ],
-        iterable: Iterable[Tuple[str, PartialLintCallable]],
+        iterable: Iterable[tuple[str, PartialLintCallable]],
     ) -> Iterable[Union["DelayedException", LintedFile]]:
         """Map using imap unordered.
 
@@ -269,9 +269,9 @@ class MultiThreadRunner(ParallelRunner):
         cls,
         pool: multiprocessing.pool.Pool,
         func: Callable[
-            [Tuple[str, PartialLintCallable]], Union["DelayedException", LintedFile]
+            [tuple[str, PartialLintCallable]], Union["DelayedException", LintedFile]
         ],
-        iterable: Iterable[Tuple[str, PartialLintCallable]],
+        iterable: Iterable[tuple[str, PartialLintCallable]],
     ) -> Iterable[Union["DelayedException", LintedFile]]:
         """Map using imap.
 
@@ -301,7 +301,7 @@ def get_runner(
     config: FluffConfig,
     processes: int,
     allow_process_parallelism: bool = True,
-) -> Tuple[BaseRunner, int]:
+) -> tuple[BaseRunner, int]:
     """Generate a runner instance based on parallel and system configuration.
 
     The processes argument can be positive or negative.

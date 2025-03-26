@@ -1,6 +1,6 @@
 """Implementation of Rule ST10."""
 
-from typing import Iterator, Tuple
+from typing import Iterator
 
 from sqlfluff.core.rules import BaseRule, EvalResultType, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
@@ -43,7 +43,7 @@ class Rule_ST10(BaseRule):
 
     name = "structure.constant_expression"
     aliases = ()
-    groups: Tuple[str, ...] = ("all", "structure")
+    groups: tuple[str, ...] = ("all", "structure")
     config_keywords = []
     crawl_behaviour = SegmentSeekerCrawler({"expression"})
     is_fix_compatible = False

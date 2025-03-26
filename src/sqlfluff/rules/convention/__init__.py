@@ -1,13 +1,11 @@
 """The convention plugin bundle."""
 
-from typing import Dict, List, Type
-
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import BaseRule, ConfigInfo
 
 
 @hookimpl
-def get_configs_info() -> Dict[str, ConfigInfo]:
+def get_configs_info() -> dict[str, ConfigInfo]:
     """Get additional rule config validations and descriptions."""
     return {
         "preferred_not_equal_style": {
@@ -62,7 +60,7 @@ def get_configs_info() -> Dict[str, ConfigInfo]:
 
 
 @hookimpl
-def get_rules() -> List[Type[BaseRule]]:
+def get_rules() -> list[type[BaseRule]]:
     """Get plugin rules.
 
     NOTE: Rules are imported only on fetch to manage import times

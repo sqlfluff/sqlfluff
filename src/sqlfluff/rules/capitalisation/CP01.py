@@ -1,6 +1,6 @@
 """Implementation of Rule CP01."""
 
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import regex
 
@@ -49,15 +49,15 @@ class Rule_CP01(BaseRule):
 
     name = "capitalisation.keywords"
     aliases = ("L010",)
-    groups: Tuple[str, ...] = ("all", "core", "capitalisation")
+    groups: tuple[str, ...] = ("all", "core", "capitalisation")
     is_fix_compatible = True
 
     lint_phase = "post"
     # Binary operators behave like keywords too.
     crawl_behaviour = SegmentSeekerCrawler({"keyword", "binary_operator", "date_part"})
     # Skip literals (which are also keywords) as they have their own rule (CP04)
-    _exclude_types: Tuple[str, ...] = ("literal",)
-    _exclude_parent_types: Tuple[str, ...] = (
+    _exclude_types: tuple[str, ...] = ("literal",)
+    _exclude_parent_types: tuple[str, ...] = (
         "data_type",
         "datetime_type_identifier",
         "primitive_type",
@@ -66,7 +66,7 @@ class Rule_CP01(BaseRule):
     # Human readable target elem for description
     _description_elem = "Keywords"
 
-    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
+    def _eval(self, context: RuleContext) -> Optional[list[LintResult]]:
         """Inconsistent capitalisation of keywords.
 
         We use the `memory` feature here to keep track of cases known to be

@@ -1,7 +1,7 @@
 """Implementation of Rule AL07."""
 
 from collections import Counter, defaultdict
-from typing import Generator, List, NamedTuple, Optional
+from typing import Generator, NamedTuple, Optional
 
 from sqlfluff.core.parser import BaseSegment, IdentifierSegment, SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -88,7 +88,7 @@ class Rule_AL07(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
     is_fix_compatible = True
 
-    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
+    def _eval(self, context: RuleContext) -> Optional[list[LintResult]]:
         """Identify aliases in from clause and join conditions.
 
         Find base table, table expressions in join, and other expressions in select
@@ -187,7 +187,7 @@ class Rule_AL07(BaseRule):
 
     def _lint_aliases_in_join(
         self, base_table, from_expression_elements, column_reference_segments, segment
-    ) -> Optional[List[LintResult]]:
+    ) -> Optional[list[LintResult]]:
         """Lint and fix all aliases in joins - except for self-joins."""
         # A buffer to keep any violations.
         violation_buff = []
@@ -247,7 +247,7 @@ class Rule_AL07(BaseRule):
             # Fixes for deleting ` as sth` and for editing references to aliased tables
             # Note unparsable errors have cause the delete to fail (see #2484)
             # so check there is a d before doing deletes.
-            fixes: List[LintFix] = []
+            fixes: list[LintFix] = []
             fixes += [
                 LintFix.delete(d)
                 for d in [alias_info.alias_exp_ref, alias_info.whitespace_ref]
@@ -256,7 +256,7 @@ class Rule_AL07(BaseRule):
             for alias in [alias_info.alias_identifier_ref, *ids_refs]:
                 if alias:
                     identifier_parts = alias_info.table_ref.raw.split(".")
-                    edits: List[BaseSegment] = []
+                    edits: list[BaseSegment] = []
                     for part in identifier_parts:
                         if edits:
                             edits.append(SymbolSegment(".", type="dot"))

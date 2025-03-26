@@ -1,7 +1,5 @@
 """Implementation of rule AL09."""
 
-from typing import List
-
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.base import EvalResultType
 from sqlfluff.core.rules.context import RuleContext
@@ -167,7 +165,7 @@ class Rule_AL09(BaseRule):
             # Resolving aliases & references with differing quoting and casing
             # should be done in conjunction with RF06 & CP02 (see docstring).
             if column_identifier.raw == alias_identifier.raw:
-                fixes: List[LintFix] = []
+                fixes: list[LintFix] = []
 
                 fixes.append(LintFix.delete(whitespace))
                 fixes.append(LintFix.delete(alias_expression))

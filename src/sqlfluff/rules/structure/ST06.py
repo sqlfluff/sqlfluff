@@ -1,6 +1,6 @@
 """Implementation of Rule ST06."""
 
-from typing import Iterator, List, Optional, Tuple, Union
+from typing import Iterator, Optional, Union
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import (
@@ -63,8 +63,8 @@ class Rule_ST06(BaseRule):
     def _eval(self, context: RuleContext) -> EvalResultType:
         self.violation_exists = False
         # Bands of select targets in order to be enforced
-        select_element_order_preference: Tuple[
-            Tuple[Union[str, Tuple[str, ...]], ...], ...
+        select_element_order_preference: tuple[
+            tuple[Union[str, tuple[str, ...]], ...], ...
         ] = (
             ("wildcard_expression",),
             (
@@ -79,7 +79,7 @@ class Rule_ST06(BaseRule):
         # Track which bands have been seen, with additional empty list for the
         # non-matching elements. If we find a matching target element, we append the
         # element to the corresponding index.
-        self.seen_band_elements: List[List[BaseSegment]] = [
+        self.seen_band_elements: list[list[BaseSegment]] = [
             [] for _ in select_element_order_preference
         ] + [
             []
@@ -236,7 +236,7 @@ class Rule_ST06(BaseRule):
 
         This function was adapted from similar code in AM06.
         """
-        _ignore_types: List[str] = ["withingroup_clause", "window_specification"]
+        _ignore_types: list[str] = ["withingroup_clause", "window_specification"]
         if not segment.is_type(*_ignore_types):  # Ignore Windowing clauses
             if segment.is_type("groupby_clause", "orderby_clause"):
                 for seg in segment.segments:

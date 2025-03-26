@@ -8,7 +8,7 @@ Specifically:
 
 import logging
 import sys
-from typing import Callable, List, Tuple, Type
+from typing import Callable
 
 import pytest
 
@@ -47,7 +47,7 @@ class SpecialMarkerInserter(JinjaTemplater):
 
     def slice_file(
         self, raw_str: str, render_func: Callable[[str], str], config=None
-    ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
+    ) -> tuple[list[RawFileSlice], list[TemplatedFileSlice], str]:
         """Patch a sliced file returned by the superclass."""
         raw_sliced, sliced_file, templated_str = super().slice_file(
             raw_str, render_func, config
@@ -73,7 +73,7 @@ class SpecialMarkerInserter(JinjaTemplater):
 
 
 @hookimpl
-def get_templaters() -> List[Type[RawTemplater]]:
+def get_templaters() -> list[type[RawTemplater]]:
     """Return templaters provided by this test module."""
     return [SpecialMarkerInserter]
 
@@ -690,14 +690,7 @@ def test_reflow__crawl_indent_points(raw_sql_in, templater, points_out, caplog):
             "    ,{{ c }}_val\n"
             "    {% endfor %}\n"
             "FROM foo",
-            "SELECT\n"
-            "  a\n"
-            "  \n"
-            "    ,d_val\n"
-            "  \n"
-            "    ,e_val\n"
-            "  \n"
-            "FROM foo",
+            "SELECT\n  a\n  \n    ,d_val\n  \n    ,e_val\n  \nFROM foo",
         ),
         # ... then without a FROM
         (

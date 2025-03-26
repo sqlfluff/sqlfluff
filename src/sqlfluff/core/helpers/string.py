@@ -1,6 +1,6 @@
 """String Helpers for the parser module."""
 
-from typing import Iterator, List, Tuple, Union
+from typing import Iterator, Union
 
 
 def curtail_string(s: str, length: int = 20) -> str:
@@ -25,7 +25,7 @@ def findall(substr: str, in_str: str) -> Iterator[int]:
         idx = in_str.find(substr, idx + 1)
 
 
-def split_colon_separated_string(in_str: str) -> Tuple[Tuple[str, ...], str]:
+def split_colon_separated_string(in_str: str) -> tuple[tuple[str, ...], str]:
     r"""Converts a colon separated string.
 
     The final value in the string is handled separately the other others.
@@ -46,7 +46,7 @@ def split_colon_separated_string(in_str: str) -> Tuple[Tuple[str, ...], str]:
     >>> split_colon_separated_string('foo:bar:[{"k":"v"}]')
     (('foo', 'bar'), '[{"k":"v"}]')
     """
-    config_path: List[str] = []
+    config_path: list[str] = []
     leftover = in_str
     while ":" in leftover:
         element, _, value = leftover.partition(":")
@@ -77,7 +77,7 @@ def should_split_on_colon(value: str) -> bool:
     return True
 
 
-def split_comma_separated_string(raw: Union[str, List[str]]) -> List[str]:
+def split_comma_separated_string(raw: Union[str, list[str]]) -> list[str]:
     """Converts comma separated string to List, stripping whitespace."""
     if isinstance(raw, str):
         return [s.strip() for s in raw.split(",") if s.strip()]

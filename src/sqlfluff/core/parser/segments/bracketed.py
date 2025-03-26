@@ -1,6 +1,6 @@
 """The BracketedSegment."""
 
-from typing import TYPE_CHECKING, Optional, Sequence, Set, Tuple
+from typing import TYPE_CHECKING, Optional, Sequence
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.markers import PositionMarker
@@ -19,13 +19,13 @@ class BracketedSegment(BaseSegment):
 
     def __init__(
         self,
-        segments: Tuple["BaseSegment", ...],
+        segments: tuple["BaseSegment", ...],
         # These are tuples of segments but we're expecting them to
         # be tuples of length 1. This is because we'll almost always
         # be doing tuple arithmetic with the results and constructing
         # 1-tuples on the fly is very easy to misread.
-        start_bracket: Tuple[BaseSegment],
-        end_bracket: Tuple[BaseSegment],
+        start_bracket: tuple[BaseSegment],
+        end_bracket: tuple[BaseSegment],
         pos_marker: Optional[PositionMarker] = None,
         uuid: Optional[int] = None,
     ):
@@ -40,7 +40,7 @@ class BracketedSegment(BaseSegment):
 
     @classmethod
     def simple(
-        cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
+        cls, parse_context: ParseContext, crumbs: Optional[tuple[str, ...]] = None
     ) -> Optional["SimpleHintType"]:
         """Simple methods for bracketed and the persistent brackets."""
         start_brackets = [
@@ -50,7 +50,7 @@ class BracketedSegment(BaseSegment):
             )
             if persistent
         ]
-        simple_raws: Set[str] = set()
+        simple_raws: set[str] = set()
         for ref in start_brackets:
             bracket_simple = parse_context.dialect.ref(ref).simple(
                 parse_context, crumbs=crumbs

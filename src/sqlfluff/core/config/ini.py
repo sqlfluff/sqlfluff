@@ -4,7 +4,6 @@ This includes `.sqlfluff` and `tox.ini` files.
 """
 
 import configparser
-from typing import List, Tuple
 
 from sqlfluff.core.helpers.dict import NestedDictRecord, records_to_nested_dict
 from sqlfluff.core.types import ConfigMappingType, ConfigValueType
@@ -63,10 +62,10 @@ def load_ini_string(cfg_content: str) -> ConfigMappingType:
     config.read_string(cfg_content)
 
     # Build up a buffer of config values.
-    config_buffer: List[NestedDictRecord[ConfigValueType]] = []
+    config_buffer: list[NestedDictRecord[ConfigValueType]] = []
     for k in config.sections():
         if k == "sqlfluff":
-            key: Tuple[str, ...] = ("core",)
+            key: tuple[str, ...] = ("core",)
         elif k.startswith("sqlfluff:"):
             # Return a tuple of nested values
             key = tuple(k[len("sqlfluff:") :].split(":"))

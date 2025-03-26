@@ -1,11 +1,9 @@
 """Implementation of Rule CV12."""
 
 import collections
-from typing import Deque, Iterator, List
+from typing import Deque, Iterator
 
-from sqlfluff.core.parser import (
-    BaseSegment,
-)
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.parser.segments.common import (
     BinaryOperatorSegment,
     WhitespaceSegment,
@@ -259,7 +257,7 @@ class Rule_CV12(BaseRule):
         return all(op.raw_upper == "AND" for op in ops)
 
     @staticmethod
-    def _get_subexpression_chunks(expr: BaseSegment) -> List[List[BaseSegment]]:
+    def _get_subexpression_chunks(expr: BaseSegment) -> list[list[BaseSegment]]:
         expr_segments = expr.segments
         bin_op_indices = [
             i for i, e in enumerate(expr_segments) if e.is_type("binary_operator")

@@ -3,7 +3,7 @@
 # NOTE: We rename the typing.Sequence here so it doesn't collide
 # with the grammar class that we're defining.
 from os import getenv
-from typing import Optional, Set, Tuple, Type, Union, cast
+from typing import Optional, Union, cast
 from typing import Sequence as SequenceType
 
 from sqlfluff.core.helpers.slice import is_zero_slice
@@ -34,9 +34,9 @@ from sqlfluff.core.parser.types import ParseMode, SimpleHintType
 def _flush_metas(
     pre_nc_idx: int,
     post_nc_idx: int,
-    meta_buffer: SequenceType[Type["MetaSegment"]],
+    meta_buffer: SequenceType[type["MetaSegment"]],
     segments: SequenceType[BaseSegment],
-) -> Tuple[Tuple[int, Type[MetaSegment]], ...]:
+) -> tuple[tuple[int, type[MetaSegment]], ...]:
     """Position any new meta segments relative to the non code section.
 
     It's important that we position the new meta segments appropriately
@@ -90,15 +90,15 @@ class Sequence(BaseGrammar):
 
     @cached_method_for_parse_context
     def simple(
-        self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
+        self, parse_context: ParseContext, crumbs: Optional[tuple[str]] = None
     ) -> SimpleHintType:
         """Does this matcher support a uppercase hash matching route?
 
         Sequence does provide this, as long as the *first* non-optional
         element does, *AND* and optional elements which preceded it also do.
         """
-        simple_raws: Set[str] = set()
-        simple_types: Set[str] = set()
+        simple_raws: set[str] = set()
+        simple_types: set[str] = set()
         for opt in self._elements:
             simple = opt.simple(parse_context=parse_context, crumbs=crumbs)
             if not simple:
@@ -133,8 +133,8 @@ class Sequence(BaseGrammar):
         start_idx = idx  # Where did we start
         matched_idx = idx  # Where have we got to
         max_idx = len(segments)  # What is the limit
-        insert_segments: Tuple[Tuple[int, Type[MetaSegment]], ...] = ()
-        child_matches: Tuple[MatchResult, ...] = ()
+        insert_segments: tuple[tuple[int, type[MetaSegment]], ...] = ()
+        child_matches: tuple[MatchResult, ...] = ()
         first_match = True
         # Metas with a negative indent value come AFTER
         # the whitespace. Positive or neutral come BEFORE.
@@ -431,7 +431,7 @@ class Bracketed(Sequence):
 
     @cached_method_for_parse_context
     def simple(
-        self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
+        self, parse_context: ParseContext, crumbs: Optional[tuple[str]] = None
     ) -> SimpleHintType:
         """Check if the matcher supports an uppercase hash matching route.
 
@@ -442,7 +442,7 @@ class Bracketed(Sequence):
 
     def get_bracket_from_dialect(
         self, parse_context: ParseContext
-    ) -> Tuple[Matchable, Matchable, bool]:
+    ) -> tuple[Matchable, Matchable, bool]:
         """Rehydrate the bracket segments in question."""
         bracket_pairs = parse_context.dialect.bracket_sets(self.bracket_pairs_set)
         for bracket_type, start_ref, end_ref, persists in bracket_pairs:
@@ -573,7 +573,7 @@ class Bracketed(Sequence):
 
         # We now have content and bracketed matches. Depending on whether the intent
         # is to wrap or not we should construct the response.
-        _content_matches: Tuple[MatchResult, ...]
+        _content_matches: tuple[MatchResult, ...]
         if content_match.matched_class:
             _content_matches = bracketed_match.child_matches + (content_match,)
         else:

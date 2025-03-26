@@ -1,6 +1,6 @@
 """Implementation of Rule AM01."""
 
-from typing import Optional, Tuple
+from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
@@ -37,7 +37,7 @@ class Rule_AM01(BaseRule):
 
     name = "ambiguous.distinct"
     aliases = ("L021",)
-    groups: Tuple[str, ...] = ("all", "core", "ambiguous")
+    groups: tuple[str, ...] = ("all", "core", "ambiguous")
     crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:

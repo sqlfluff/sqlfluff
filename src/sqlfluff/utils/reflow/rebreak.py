@@ -2,7 +2,7 @@
 
 import logging
 from dataclasses import dataclass
-from typing import List, Tuple, Type, cast
+from typing import cast
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.rules import LintFix, LintResult
@@ -41,7 +41,7 @@ class _RebreakIndices:
 
     @classmethod
     def from_elements(
-        cls: Type["_RebreakIndices"],
+        cls: type["_RebreakIndices"],
         elements: ReflowSequenceType,
         start_idx: int,
         dir: int,
@@ -78,7 +78,7 @@ class _RebreakLocation:
 
     @classmethod
     def from_span(
-        cls: Type["_RebreakLocation"], span: _RebreakSpan, elements: ReflowSequenceType
+        cls: type["_RebreakLocation"], span: _RebreakSpan, elements: ReflowSequenceType
     ) -> "_RebreakLocation":
         """Expand a span to a location."""
         return cls(
@@ -144,7 +144,7 @@ class _RebreakLocation:
 
 def first_create_anchor(
     elem_buff: ReflowSequenceType, loc_range: range
-) -> Tuple[RawSegment, ...]:
+) -> tuple[RawSegment, ...]:
     """Handle the potential case of an empty point with the next point with segments.
 
     While a reflow element's segments are empty, search for the next
@@ -166,7 +166,7 @@ def first_create_anchor(
 
 def identify_rebreak_spans(
     element_buffer: ReflowSequenceType, root_segment: BaseSegment
-) -> List[_RebreakSpan]:
+) -> list[_RebreakSpan]:
     """Identify areas in file to rebreak.
 
     A span here is a block, or group of blocks which have
@@ -174,7 +174,7 @@ def identify_rebreak_spans(
     as raw segments themselves or by virtue of one of their
     parent segments.
     """
-    spans: List[_RebreakSpan] = []
+    spans: list[_RebreakSpan] = []
     # We'll need at least two elements each side, so constrain
     # our range accordingly.
     for idx in range(2, len(element_buffer) - 2):
@@ -265,13 +265,13 @@ def identify_rebreak_spans(
 
 def identify_keyword_rebreak_spans(
     element_buffer: ReflowSequenceType,
-) -> List[_RebreakSpan]:
+) -> list[_RebreakSpan]:
     """Identify keyword areas in file to rebreak.
 
     A span here is a block, or group of blocks which have explicit
     configs for their keyword's line position.
     """
-    spans: List[_RebreakSpan] = []
+    spans: list[_RebreakSpan] = []
     # We'll need at least two elements each side, so constrain
     # our range accordingly.
     for idx in range(2, len(element_buffer) - 2):
@@ -349,7 +349,7 @@ def identify_keyword_rebreak_spans(
 def rebreak_sequence(
     elements: ReflowSequenceType,
     root_segment: BaseSegment,
-) -> Tuple[ReflowSequenceType, List[LintResult]]:
+) -> tuple[ReflowSequenceType, list[LintResult]]:
     """Reflow line breaks within a sequence.
 
     Initially this only _moves_ existing segments
@@ -360,8 +360,8 @@ def rebreak_sequence(
     This intentionally does *not* handle indentation,
     as the existing indents are assumed to be correct.
     """
-    lint_results: List[LintResult] = []
-    fixes: List[LintFix] = []
+    lint_results: list[LintResult] = []
+    fixes: list[LintFix] = []
     elem_buff: ReflowSequenceType = elements.copy()
 
     # Given a sequence we should identify the objects which
@@ -378,7 +378,7 @@ def rebreak_sequence(
     # to handle comments differently. There are two other important points:
     # 1. The next newline outward before code (but passing over comments).
     # 2. The point before the next _code_ segment (ditto comments).
-    locations: List[_RebreakLocation] = []
+    locations: list[_RebreakLocation] = []
     for span in spans:
         try:
             locations.append(_RebreakLocation.from_span(span, elem_buff))
@@ -666,7 +666,7 @@ def rebreak_sequence(
 def rebreak_keywords_sequence(
     elements: ReflowSequenceType,
     root_segment: BaseSegment,
-) -> Tuple[ReflowSequenceType, List[LintResult]]:
+) -> tuple[ReflowSequenceType, list[LintResult]]:
     """Reflow line breaks within a sequence.
 
     Initially this only _moves_ existing segments
@@ -677,8 +677,8 @@ def rebreak_keywords_sequence(
     This intentionally does *not* handle indentation,
     as the existing indents are assumed to be correct.
     """
-    lint_results: List[LintResult] = []
-    fixes: List[LintFix] = []
+    lint_results: list[LintResult] = []
+    fixes: list[LintFix] = []
     elem_buff: ReflowSequenceType = elements.copy()
 
     # Given a sequence we should identify the objects which
@@ -695,7 +695,7 @@ def rebreak_keywords_sequence(
     # to handle comments differently. There are two other important points:
     # 1. The next newline outward before code (but passing over comments).
     # 2. The point before the next _code_ segment (ditto comments).
-    locations: List[_RebreakLocation] = []
+    locations: list[_RebreakLocation] = []
     for span in spans:
         try:
             locations.append(_RebreakLocation.from_span(span, elem_buff))
