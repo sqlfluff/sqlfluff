@@ -219,9 +219,9 @@ class RuleMetaclass(type):
         docstring so that it can be displayed in the sphinx docs.
         """
         # Ensure that there _is_ a docstring.
-        assert "__doc__" in class_dict, (
-            f"Tried to define rule {name!r} without docstring."
-        )
+        assert (
+            "__doc__" in class_dict
+        ), f"Tried to define rule {name!r} without docstring."
 
         # Build up a buffer of entries to add to the docstring.
         fix_docs = (
