@@ -177,7 +177,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # _preface_modifier used in ._preface()
     _preface_modifier: str = ""
     # Optional reference to the parent. Stored as a weakref.
-    _parent: Optional[weakref.Referencetype["BaseSegment"]] = None
+    _parent: Optional[weakref.ReferenceType["BaseSegment"]] = None
     _parent_idx: Optional[int] = None
 
     def __init__(
