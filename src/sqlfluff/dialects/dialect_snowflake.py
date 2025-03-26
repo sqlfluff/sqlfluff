@@ -4561,6 +4561,107 @@ class CreateEventTableStatementSegment(BaseSegment):
     )
 
 
+class DynamicTableOptionsSegment(BaseSegment):
+    """A Snowflake Dynamic Table Options segment.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-dynamic-table
+    """
+
+    type = "dynamic_table_options"
+
+    match_grammar = Sequence(
+        AnySetOf(
+            Sequence(
+                "TARGET_LAG",
+                Ref("EqualsSegment"),
+                Ref("DynamicTableTargetLagSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "REFRESH_MODE",
+                Ref("EqualsSegment"),
+                Ref("RefreshModeType"),
+                optional=True,
+            ),
+            Sequence(
+                "INITIALIZE",
+                Ref("EqualsSegment"),
+                Ref("InitializeType"),
+                optional=True,
+            ),
+            Sequence(
+                "WAREHOUSE",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "CLUSTER",
+                "BY",
+                Delimited(Ref("ExpressionSegment")),
+                optional=True,
+            ),
+            Sequence(
+                "BASE_LOCATION",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "CATALOG",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "EXTERNAL_VOLUME",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "DATA_RETENTION_TIME_IN_DAYS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "COMMENT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                Ref.keyword("WITH", optional=True),
+                "ROW",
+                "ACCESS",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+                "ON",
+                Bracketed(
+                    Delimited(Ref("ColumnReferenceSegment")),
+                ),
+                optional=True,
+            ),
+            Ref("TagBracketedEqualsSegment", optional=True),
+            Sequence(
+                "REQUIRE",
+                "USER",
+                optional=True,
+            ),
+        ),
+    )
+
+
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """A `CREATE TABLE` statement.
 
@@ -4574,6 +4675,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Ref("AlterOrReplaceGrammar", optional=True),
         Ref("TemporaryTransientGrammar", optional=True),
         Ref.keyword("DYNAMIC", optional=True),
+        Ref.keyword("ICEBERG", optional=True),
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
@@ -4670,42 +4772,22 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             OneOf(
                 # Create AS syntax:
                 Sequence(
-                    AnySetOf(
-                        Sequence(
-                            "TARGET_LAG",
-                            Ref("EqualsSegment"),
-                            Ref("DynamicTableTargetLagSegment"),
-                            optional=True,
-                        ),
-                        Sequence(
-                            "REFRESH_MODE",
-                            Ref("EqualsSegment"),
-                            Ref("RefreshModeType"),
-                            optional=True,
-                        ),
-                        Sequence(
-                            "INITIALIZE",
-                            Ref("EqualsSegment"),
-                            Ref("InitializeType"),
-                            optional=True,
-                        ),
-                        Sequence(
-                            "WAREHOUSE",
-                            Ref("EqualsSegment"),
-                            OneOf(
-                                Ref("ObjectReferenceSegment"),
-                                Ref("QuotedLiteralSegment"),
-                            ),
-                            optional=True,
-                        ),
-                    ),
+                    Ref("DynamicTableOptionsSegment", optional=True),
                     "AS",
                     OptionallyBracketed(Ref("SelectableGrammar")),
                 ),
                 # Create like syntax
                 Sequence("LIKE", Ref("TableReferenceSegment")),
                 # Create clone syntax
-                Sequence("ClONE", Ref("TableReferenceSegment")),
+                Sequence(
+                    "ClONE",
+                    Ref("TableReferenceSegment"),
+                    OneOf(
+                        Ref("FromAtExpressionSegment"),
+                        Ref("FromBeforeExpressionSegment"),
+                        optional=True,
+                    ),
+                ),
                 Sequence("USING", "TEMPLATE", Ref("SelectableGrammar")),
                 optional=True,
             ),
