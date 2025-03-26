@@ -5,15 +5,7 @@ This should be the default response from any `match` method.
 
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    DefaultDict,
-    Optional,
-    Sequence,
-    Type,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, DefaultDict, Optional, Sequence, Union
 
 from sqlfluff.core.helpers.slice import slice_length
 from sqlfluff.core.parser.markers import PositionMarker
@@ -63,11 +55,11 @@ class MatchResult:
     # Reference to the kind of segment to create.
     # NOTE: If this is null, it means we've matched a sequence of segments
     # but not yet created a container to put them in.
-    matched_class: Optional[Type["BaseSegment"]] = None
+    matched_class: Optional[type["BaseSegment"]] = None
     # kwargs to pass to the segment on creation.
     segment_kwargs: dict[str, Any] = field(default_factory=dict)
     # Types and indices to add in new segments (they'll be meta segments)
-    insert_segments: tuple[tuple[int, Type["MetaSegment"]], ...] = field(
+    insert_segments: tuple[tuple[int, type["MetaSegment"]], ...] = field(
         default_factory=tuple
     )
     # Child segment matches (this is the recursive bit)
@@ -122,7 +114,7 @@ class MatchResult:
     def append(
         self,
         other: "MatchResult",
-        insert_segments: tuple[tuple[int, Type["MetaSegment"]], ...] = (),
+        insert_segments: tuple[tuple[int, type["MetaSegment"]], ...] = (),
     ) -> "MatchResult":
         """Combine another subsequent match onto this one.
 
@@ -160,8 +152,8 @@ class MatchResult:
 
     def wrap(
         self,
-        outer_class: Type["BaseSegment"],
-        insert_segments: tuple[tuple[int, Type["MetaSegment"]], ...] = (),
+        outer_class: type["BaseSegment"],
+        insert_segments: tuple[tuple[int, type["MetaSegment"]], ...] = (),
         segment_kwargs: dict[str, Any] = {},
     ) -> "MatchResult":
         """Wrap this result with an outer class.
@@ -237,7 +229,7 @@ class MatchResult:
 
         # Which are the locations we need to care about?
         trigger_locs: DefaultDict[
-            int, list[Union[MatchResult, Type["MetaSegment"]]]
+            int, list[Union[MatchResult, type["MetaSegment"]]]
         ] = defaultdict(list)
         # Add the inserts first...
         for insert in self.insert_segments:

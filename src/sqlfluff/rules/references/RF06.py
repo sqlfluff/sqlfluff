@@ -1,7 +1,7 @@
 """Implementation of Rule RF06."""
 
 from functools import cached_property
-from typing import TYPE_CHECKING, Optional, Type, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 import regex
 
@@ -232,7 +232,7 @@ class Rule_RF06(BaseRule):
         )
         anti_template = cast(str, naked_identifier_parser.anti_template)
         NakedIdentifierSegment = cast(
-            Type[CodeSegment], context.dialect.get_segment("IdentifierSegment")
+            type[CodeSegment], context.dialect.get_segment("IdentifierSegment")
         )
 
         # For this to be a candidate for unquoting, it must:

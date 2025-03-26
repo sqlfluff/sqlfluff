@@ -4,7 +4,7 @@ Matchable objects which return individual segments.
 """
 
 from abc import abstractmethod
-from typing import Any, Callable, Collection, Optional, Sequence, Type
+from typing import Any, Callable, Collection, Optional, Sequence
 from uuid import uuid4
 
 import regex
@@ -26,7 +26,7 @@ class BaseParser(Matchable):
     @abstractmethod
     def __init__(
         self,
-        raw_class: Type[RawSegment],
+        raw_class: type[RawSegment],
         type: Optional[str] = None,
         optional: bool = False,
         # The following kwargs are passed on to the segment:
@@ -84,7 +84,7 @@ class TypedParser(BaseParser):
     def __init__(
         self,
         template: str,
-        raw_class: Type[RawSegment],
+        raw_class: type[RawSegment],
         type: Optional[str] = None,
         optional: bool = False,
         trim_chars: Optional[tuple[str, ...]] = None,
@@ -94,7 +94,7 @@ class TypedParser(BaseParser):
 
         Args:
             template (str): The template type.
-            raw_class (Type[RawSegment]): The raw segment class.
+            raw_class (type[RawSegment]): The raw segment class.
             type (Optional[str]): The type of the instance.
             optional (bool): Whether the instance is optional.
             trim_chars (Optional[tuple[str, ...]]): The characters to trim.
@@ -174,7 +174,7 @@ class StringParser(BaseParser):
     def __init__(
         self,
         template: str,
-        raw_class: Type[RawSegment],
+        raw_class: type[RawSegment],
         type: Optional[str] = None,
         optional: bool = False,
         trim_chars: Optional[tuple[str, ...]] = None,
@@ -226,7 +226,7 @@ class MultiStringParser(BaseParser):
     def __init__(
         self,
         templates: Collection[str],
-        raw_class: Type[RawSegment],
+        raw_class: type[RawSegment],
         type: Optional[str] = None,
         optional: bool = False,
         trim_chars: Optional[tuple[str, ...]] = None,
@@ -278,7 +278,7 @@ class RegexParser(BaseParser):
     def __init__(
         self,
         template: str,
-        raw_class: Type[RawSegment],
+        raw_class: type[RawSegment],
         type: Optional[str] = None,
         optional: bool = False,
         anti_template: Optional[str] = None,

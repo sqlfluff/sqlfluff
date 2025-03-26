@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from copy import copy, deepcopy
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Iterable, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, Iterable, Optional, Union
 
 import pluggy
 
@@ -424,7 +424,7 @@ class FluffConfig:
 
         return cls(overrides=overrides, require_dialect=require_dialect)
 
-    def get_templater_class(self) -> Type["RawTemplater"]:
+    def get_templater_class(self) -> type["RawTemplater"]:
         """Get the configured templater class.
 
         .. note::
@@ -434,7 +434,7 @@ class FluffConfig:
            full templater. Instantiated templaters don't pickle well, so aren't
            automatically passed around between threads/processes.
         """
-        templater_lookup: dict[str, Type["RawTemplater"]] = {
+        templater_lookup: dict[str, type["RawTemplater"]] = {
             templater.name: templater
             for templater in chain.from_iterable(
                 self._plugin_manager.hook.get_templaters()
@@ -442,9 +442,9 @@ class FluffConfig:
         }
         # Fetch the config value.
         templater_name = self._configs["core"].get("templater", "<no value set>")
-        assert isinstance(
-            templater_name, str
-        ), f"Config value `templater` expected to be a string. Not: {templater_name!r}"
+        assert isinstance(templater_name, str), (
+            f"Config value `templater` expected to be a string. Not: {templater_name!r}"
+        )
         try:
             cls = templater_lookup[templater_name]
             # Return class. Do not instantiate yet. That happens in `get_templater()`

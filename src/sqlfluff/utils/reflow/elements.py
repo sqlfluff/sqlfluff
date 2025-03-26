@@ -3,7 +3,7 @@
 import logging
 from dataclasses import dataclass, field
 from itertools import chain
-from typing import Optional, Sequence, Type, Union, cast
+from typing import Optional, Sequence, Union, cast
 
 from sqlfluff.core.helpers.slice import slice_overlaps
 from sqlfluff.core.parser import PositionMarker
@@ -167,7 +167,7 @@ class ReflowBlock(ReflowElement):
 
     @classmethod
     def from_config(
-        cls: Type["ReflowBlock"],
+        cls: type["ReflowBlock"],
         segments: tuple[RawSegment, ...],
         config: ReflowConfig,
         depth_info: DepthInfo,

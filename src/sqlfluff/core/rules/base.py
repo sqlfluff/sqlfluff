@@ -30,7 +30,6 @@ from typing import (
     Iterator,
     Optional,
     Sequence,
-    Type,
     Union,
 )
 
@@ -220,9 +219,9 @@ class RuleMetaclass(type):
         docstring so that it can be displayed in the sphinx docs.
         """
         # Ensure that there _is_ a docstring.
-        assert (
-            "__doc__" in class_dict
-        ), f"Tried to define rule {name!r} without docstring."
+        assert "__doc__" in class_dict, (
+            f"Tried to define rule {name!r} without docstring."
+        )
 
         # Build up a buffer of entries to add to the docstring.
         fix_docs = (
@@ -845,7 +844,7 @@ class RuleManifest:
     description: str
     groups: tuple[str, ...]
     aliases: tuple[str, ...]
-    rule_class: Type[BaseRule]
+    rule_class: type[BaseRule]
 
 
 @dataclass
@@ -939,8 +938,8 @@ class RuleSet:
                 )
 
     def register(
-        self, cls: Type[BaseRule], plugin: Optional["PluginSpec"] = None
-    ) -> Type[BaseRule]:
+        self, cls: type[BaseRule], plugin: Optional["PluginSpec"] = None
+    ) -> type[BaseRule]:
         """Decorate a class with this to add it to the ruleset.
 
         .. code-block:: python

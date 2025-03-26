@@ -1,7 +1,7 @@
 """Defines the base dialect class."""
 
 import sys
-from typing import Any, Optional, Type, Union, cast
+from typing import Any, Optional, Union, cast
 
 from sqlfluff.core.parser import (
     BaseSegment,
@@ -212,11 +212,11 @@ class Dialect:
                 replacement,
                 Nothing,
             ):
-                assert isinstance(
-                    replacement, type
-                ), f"Cannot replace {n!r} with {replacement}"
-                old_seg = cast(Type["BaseSegment"], self._library[n])
-                new_seg = cast(Type["BaseSegment"], replacement)
+                assert isinstance(replacement, type), (
+                    f"Cannot replace {n!r} with {replacement}"
+                )
+                old_seg = cast(type["BaseSegment"], self._library[n])
+                new_seg = cast(type["BaseSegment"], replacement)
                 assert issubclass(old_seg, BaseSegment)
                 assert issubclass(new_seg, BaseSegment)
                 subclass = issubclass(new_seg, old_seg)
@@ -264,7 +264,7 @@ class Dialect:
             )
         return grammar
 
-    def get_segment(self, name: str) -> Type["BaseSegment"]:
+    def get_segment(self, name: str) -> type["BaseSegment"]:
         """Allow access to segments pre-expansion.
 
         This is typically for dialect inheritance. This method
@@ -272,7 +272,7 @@ class Dialect:
         """
         if name not in self._library:  # pragma: no cover
             raise ValueError(f"Element {name} not found in dialect.")
-        segment = cast(Type["BaseSegment"], self._library[name])
+        segment = cast(type["BaseSegment"], self._library[name])
 
         if issubclass(segment, BaseSegment):
             return segment
@@ -398,6 +398,6 @@ class Dialect:
         # Overwrite with the buffer once we're done
         self.lexer_matchers = buff
 
-    def get_root_segment(self) -> Union[Type[BaseSegment], Matchable]:
+    def get_root_segment(self) -> Union[type[BaseSegment], Matchable]:
         """Get the root segment of the dialect."""
         return self.ref(self.root_segment_name)

@@ -12,7 +12,7 @@ import stat
 import tempfile
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Iterable, NamedTuple, Optional, Type, Union
+from typing import Iterable, NamedTuple, Optional, Union
 
 from sqlfluff.core.errors import (
     CheckTuple,
@@ -120,7 +120,7 @@ class LintedFile(NamedTuple):
     def get_violations(
         self,
         rules: Optional[Union[str, tuple[str, ...]]] = None,
-        types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
+        types: Optional[Union[type[SQLBaseError], Iterable[type[SQLBaseError]]]] = None,
         filter_ignore: bool = True,
         filter_warning: bool = True,
         warn_unused_ignores: bool = False,
@@ -169,7 +169,7 @@ class LintedFile(NamedTuple):
 
     def num_violations(
         self,
-        types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
+        types: Optional[Union[type[SQLBaseError], Iterable[type[SQLBaseError]]]] = None,
         filter_ignore: bool = True,
         filter_warning: bool = True,
         fixable: Optional[bool] = None,

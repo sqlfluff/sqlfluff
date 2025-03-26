@@ -11,7 +11,7 @@ tracking.
 https://stackoverflow.com/questions/49715881/how-to-pickle-inherited-exceptions
 """
 
-from typing import TYPE_CHECKING, Any, Optional, Type, Union, cast
+from typing import TYPE_CHECKING, Any, Optional, Union, cast
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser import BaseSegment, PositionMarker
@@ -70,7 +70,7 @@ class SQLBaseError(ValueError):
 
     def __reduce__(
         self,
-    ) -> tuple[Type["SQLBaseError"], tuple[Any, ...]]:
+    ) -> tuple[type["SQLBaseError"], tuple[Any, ...]]:
         """Prepare the SQLBaseError for pickling."""
         return type(self), (
             self.description,
@@ -220,7 +220,7 @@ class SQLParseError(SQLBaseError):
 
     def __reduce__(
         self,
-    ) -> tuple[Type["SQLParseError"], tuple[Any, ...]]:
+    ) -> tuple[type["SQLParseError"], tuple[Any, ...]]:
         """Prepare the SQLParseError for pickling."""
         return type(self), (
             self.description,
@@ -285,7 +285,7 @@ class SQLLintError(SQLBaseError):
 
     def __reduce__(
         self,
-    ) -> tuple[Type["SQLLintError"], tuple[Any, ...]]:
+    ) -> tuple[type["SQLLintError"], tuple[Any, ...]]:
         """Prepare the SQLLintError for pickling."""
         return type(self), (
             self.description,

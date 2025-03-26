@@ -2,7 +2,7 @@
 
 import logging
 from dataclasses import dataclass
-from typing import Type, cast
+from typing import cast
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.rules import LintFix, LintResult
@@ -41,7 +41,7 @@ class _RebreakIndices:
 
     @classmethod
     def from_elements(
-        cls: Type["_RebreakIndices"],
+        cls: type["_RebreakIndices"],
         elements: ReflowSequenceType,
         start_idx: int,
         dir: int,
@@ -78,7 +78,7 @@ class _RebreakLocation:
 
     @classmethod
     def from_span(
-        cls: Type["_RebreakLocation"], span: _RebreakSpan, elements: ReflowSequenceType
+        cls: type["_RebreakLocation"], span: _RebreakSpan, elements: ReflowSequenceType
     ) -> "_RebreakLocation":
         """Expand a span to a location."""
         return cls(

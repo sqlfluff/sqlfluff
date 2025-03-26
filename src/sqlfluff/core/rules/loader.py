@@ -3,7 +3,7 @@
 import os
 from glob import glob
 from importlib import import_module
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.rules.base import BaseRule
@@ -15,7 +15,7 @@ def get_rules_from_path(
         os.path.join(os.path.dirname(__file__), "../../rules", "L*.py")
     ),
     base_module: str = "sqlfluff.rules",
-) -> list[Type["BaseRule"]]:
+) -> list[type["BaseRule"]]:
     """Reads all of the Rule classes from a path into a list."""
     # Create a rules dictionary for importing in
     # sqlfluff/src/sqlfluff/core/rules/__init__.py

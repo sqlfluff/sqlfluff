@@ -3,7 +3,7 @@
 This uses the rules API supported from 0.4.0 onwards.
 """
 
-from typing import Any, Type
+from typing import Any
 
 from sqlfluff.core.config import load_config_resource
 from sqlfluff.core.plugin import hookimpl
@@ -20,7 +20,7 @@ from sqlfluff_plugin_example.rules import Rule_Example_L001  # noqa: F401
 
 
 @hookimpl
-def get_rules() -> list[Type[BaseRule]]:
+def get_rules() -> list[type[BaseRule]]:
     """Get plugin rules.
 
     NOTE: It is much better that we only import the rule on demand.

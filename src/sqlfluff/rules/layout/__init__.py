@@ -1,6 +1,6 @@
 """The layout plugin bundle."""
 
-from typing import Any, Type
+from typing import Any
 
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import BaseRule
@@ -32,7 +32,7 @@ def get_configs_info() -> dict[str, Any]:
 
 
 @hookimpl
-def get_rules() -> list[Type[BaseRule]]:
+def get_rules() -> list[type[BaseRule]]:
     """Get plugin rules.
 
     NOTE: Rules are imported only on fetch to manage import times

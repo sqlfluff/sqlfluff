@@ -1,7 +1,7 @@
 """Defines the specification to implement a plugin."""
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Type
+from typing import TYPE_CHECKING, Any
 
 import pluggy
 
@@ -20,7 +20,7 @@ class PluginSpec:
 
     @hookspec
     @abstractmethod
-    def get_rules(self) -> list[Type["BaseRule"]]:
+    def get_rules(self) -> list[type["BaseRule"]]:
         """Get plugin rules."""
 
     @hookspec

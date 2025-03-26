@@ -4,7 +4,7 @@ import fnmatch
 import logging
 import os
 import time
-from typing import TYPE_CHECKING, Any, Iterator, Optional, Sequence, Type, cast
+from typing import TYPE_CHECKING, Any, Iterator, Optional, Sequence, cast
 
 import regex
 from tqdm import tqdm
@@ -64,7 +64,7 @@ class Linter:
         formatter: Any = None,
         dialect: Optional[str] = None,
         rules: Optional[list[str]] = None,
-        user_rules: Optional[list[Type[BaseRule]]] = None,
+        user_rules: Optional[list[type[BaseRule]]] = None,
         exclude_rules: Optional[list[str]] = None,
     ) -> None:
         if config and (dialect or rules or exclude_rules):

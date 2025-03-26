@@ -1,7 +1,7 @@
 """The code for the Lexer."""
 
 import logging
-from typing import Any, Iterator, NamedTuple, Optional, Type, Union
+from typing import Any, Iterator, NamedTuple, Optional, Union
 from uuid import UUID, uuid4
 
 import regex
@@ -138,7 +138,7 @@ class StringLexer:
         self,
         name: str,
         template: str,
-        segment_class: Type[RawSegment],
+        segment_class: type[RawSegment],
         subdivider: Optional[LexerType] = None,
         trim_post_subdivide: Optional[LexerType] = None,
         segment_kwargs: Optional[dict[str, Any]] = None,
@@ -292,9 +292,9 @@ class StringLexer:
         # NOTE: Using a private attribute here feels a bit wrong.
         _segment_class_types = self.segment_class._class_types
         _kwargs = self.segment_kwargs
-        assert not (
-            "type" in _kwargs and "instance_types" in _kwargs
-        ), f"Cannot set both `type` and `instance_types` in segment kwargs: {_kwargs}"
+        assert not ("type" in _kwargs and "instance_types" in _kwargs), (
+            f"Cannot set both `type` and `instance_types` in segment kwargs: {_kwargs}"
+        )
         if "type" in _kwargs:
             # TODO: At some point we should probably deprecate this API and only
             # allow setting `instance_types`.

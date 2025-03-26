@@ -2,16 +2,7 @@
 
 import csv
 import time
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Iterable,
-    Mapping,
-    Optional,
-    Type,
-    TypeVar,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Iterable, Mapping, Optional, TypeVar, Union
 
 from sqlfluff.core.errors import CheckTuple, SQLBaseError
 from sqlfluff.core.formatter import FormatterInterface
@@ -88,7 +79,7 @@ class LintingResult:
 
     def num_violations(
         self,
-        types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
+        types: Optional[Union[type[SQLBaseError], Iterable[type[SQLBaseError]]]] = None,
         fixable: Optional[bool] = None,
     ) -> int:
         """Count the number of violations in the result."""

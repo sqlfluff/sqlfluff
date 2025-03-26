@@ -1,7 +1,7 @@
 """Implementation of Rule ST05."""
 
 from functools import partial
-from typing import Iterator, NamedTuple, Optional, Type, TypeVar, cast
+from typing import Iterator, NamedTuple, Optional, TypeVar, cast
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
@@ -273,9 +273,9 @@ class Rule_ST05(BaseRule):
             # if the subquery is table_expression, get the bracketed child instead.
             if anchor.is_type("table_expression"):
                 bracket_anchor = anchor.get_child("bracketed")
-                assert (
-                    bracket_anchor
-                ), "table_expression should have a bracketed segment"
+                assert bracket_anchor, (
+                    "table_expression should have a bracketed segment"
+                )
             else:
                 bracket_anchor = anchor
 
@@ -491,12 +491,12 @@ class _CTEBuilder:
 
 def _is_child(maybe_parent: Segments, maybe_child: Segments) -> bool:
     """Is the child actually between the start and end markers of the parent."""
-    assert (
-        len(maybe_child) == 1
-    ), "Cannot assess child relationship of multiple segments"
-    assert (
-        len(maybe_parent) == 1
-    ), "Cannot assess child relationship of multiple parents"
+    assert len(maybe_child) == 1, (
+        "Cannot assess child relationship of multiple segments"
+    )
+    assert len(maybe_parent) == 1, (
+        "Cannot assess child relationship of multiple parents"
+    )
     child_markers = maybe_child[0].pos_marker
     parent_pos = maybe_parent[0].pos_marker
     assert parent_pos and child_markers
@@ -509,7 +509,7 @@ def _is_child(maybe_parent: Segments, maybe_child: Segments) -> bool:
     return True
 
 
-S = TypeVar("S", bound=Type[BaseSegment])
+S = TypeVar("S", bound=type[BaseSegment])
 
 
 def _get_seg(class_def: S, dialect: Dialect) -> S:
@@ -521,7 +521,7 @@ def _create_cte_seg(
 ) -> CTEDefinitionSegment:
     CTESegment = _get_seg(CTEDefinitionSegment, dialect)
     IdentifierSegment = cast(
-        Type[CodeSegment], dialect.get_segment("IdentifierSegment")
+        type[CodeSegment], dialect.get_segment("IdentifierSegment")
     )
     element: CTEDefinitionSegment = CTESegment(
         segments=(
@@ -544,7 +544,7 @@ def _create_table_ref(table_name: str, dialect: Dialect) -> TableExpressionSegme
     TableExpressionSeg = Seg(TableExpressionSegment)
     TableReferenceSeg = Seg(TableReferenceSegment)
     IdentifierSegment = cast(
-        Type[CodeSegment], dialect.get_segment("IdentifierSegment")
+        type[CodeSegment], dialect.get_segment("IdentifierSegment")
     )
     return TableExpressionSeg(
         segments=(

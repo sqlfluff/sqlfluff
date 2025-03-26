@@ -24,7 +24,6 @@ from typing import (
     Dict,
     Iterator,
     Optional,
-    Type,
     TypeVar,
     Union,
 )
@@ -90,7 +89,7 @@ T = TypeVar("T")
 
 
 def handle_dbt_errors(
-    error_class: Type[Exception], preamble: str
+    error_class: type[Exception], preamble: str
 ) -> Callable[[Callable[..., T]], Callable[..., T]]:
     """A decorator to safely catch dbt exceptions and raise native ones.
 

@@ -4,17 +4,7 @@ import logging
 from dataclasses import dataclass, field
 from enum import Enum
 from functools import cached_property
-from typing import (
-    Dict,
-    Generic,
-    Iterator,
-    NamedTuple,
-    Optional,
-    Type,
-    TypeVar,
-    Union,
-    cast,
-)
+from typing import Dict, Generic, Iterator, NamedTuple, Optional, TypeVar, Union, cast
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
@@ -282,7 +272,7 @@ class Query(Generic[T]):
 
     @classmethod
     def _extract_subqueries(
-        cls: Type[T], selectable: Selectable, dialect: Dialect
+        cls: type[T], selectable: Selectable, dialect: Dialect
     ) -> Iterator[T]:
         """Given a Selectable, extract subqueries."""
         assert selectable.selectable.is_type(
@@ -301,7 +291,7 @@ class Query(Generic[T]):
             yield cls.from_segment(subselect, dialect=dialect)
 
     @classmethod
-    def from_root(cls: Type[T], root_segment: BaseSegment, dialect: Dialect) -> T:
+    def from_root(cls: type[T], root_segment: BaseSegment, dialect: Dialect) -> T:
         """Given a root segment, find the first appropriate selectable and analyse."""
         selectable_segment = next(
             # Could be a Selectable or a MERGE
@@ -313,15 +303,15 @@ class Query(Generic[T]):
 
     @classmethod
     def from_segment(
-        cls: Type[T],
+        cls: type[T],
         segment: BaseSegment,
         dialect: Dialect,
         parent: Optional[T] = None,
     ) -> T:
         """Recursively generate a query from an appropriate segment."""
-        assert segment.is_type(
-            *SELECTABLE_TYPES, *SUBSELECT_TYPES
-        ), f"Invalid segment for `from_segment`: {segment}"
+        assert segment.is_type(*SELECTABLE_TYPES, *SUBSELECT_TYPES), (
+            f"Invalid segment for `from_segment`: {segment}"
+        )
 
         selectables = []
         subqueries = []

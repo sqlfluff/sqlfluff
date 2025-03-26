@@ -2,7 +2,7 @@
 
 import logging
 from itertools import chain
-from typing import Iterator, Literal, Optional, Sequence, Type, cast
+from typing import Iterator, Literal, Optional, Sequence, cast
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser import BaseSegment, RawSegment
@@ -112,13 +112,13 @@ class ReflowSequence:
         EvenType = ReflowPoint if OddType is ReflowBlock else ReflowBlock
         try:
             # Check odds are all points
-            assert all(
-                isinstance(elem, OddType) for elem in elements[::2]
-            ), f"Not all odd elements are {OddType.__name__}"
+            assert all(isinstance(elem, OddType) for elem in elements[::2]), (
+                f"Not all odd elements are {OddType.__name__}"
+            )
             # Check evens are all blocks
-            assert all(
-                isinstance(elem, EvenType) for elem in elements[1::2]
-            ), f"Not all even elements are {EvenType.__name__}"
+            assert all(isinstance(elem, EvenType) for elem in elements[1::2]), (
+                f"Not all even elements are {EvenType.__name__}"
+            )
             return None
         except AssertionError as err:  # pragma: no cover
             for elem in elements:
@@ -172,7 +172,7 @@ class ReflowSequence:
 
     @classmethod
     def from_raw_segments(
-        cls: Type["ReflowSequence"],
+        cls: type["ReflowSequence"],
         segments: Sequence[RawSegment],
         root_segment: BaseSegment,
         config: FluffConfig,
@@ -206,7 +206,7 @@ class ReflowSequence:
 
     @classmethod
     def from_root(
-        cls: Type["ReflowSequence"], root_segment: BaseSegment, config: FluffConfig
+        cls: type["ReflowSequence"], root_segment: BaseSegment, config: FluffConfig
     ) -> "ReflowSequence":
         """Generate a sequence from a root segment.
 
@@ -226,7 +226,7 @@ class ReflowSequence:
 
     @classmethod
     def from_around_target(
-        cls: Type["ReflowSequence"],
+        cls: type["ReflowSequence"],
         target_segment: BaseSegment,
         root_segment: BaseSegment,
         config: FluffConfig,

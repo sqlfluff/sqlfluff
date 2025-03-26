@@ -3,7 +3,7 @@
 # NOTE: We rename the typing.Sequence here so it doesn't collide
 # with the grammar class that we're defining.
 from os import getenv
-from typing import Optional, Type, Union, cast
+from typing import Optional, Union, cast
 from typing import Sequence as SequenceType
 
 from sqlfluff.core.helpers.slice import is_zero_slice
@@ -34,9 +34,9 @@ from sqlfluff.core.parser.types import ParseMode, SimpleHintType
 def _flush_metas(
     pre_nc_idx: int,
     post_nc_idx: int,
-    meta_buffer: SequenceType[Type["MetaSegment"]],
+    meta_buffer: SequenceType[type["MetaSegment"]],
     segments: SequenceType[BaseSegment],
-) -> tuple[tuple[int, Type[MetaSegment]], ...]:
+) -> tuple[tuple[int, type[MetaSegment]], ...]:
     """Position any new meta segments relative to the non code section.
 
     It's important that we position the new meta segments appropriately
@@ -133,7 +133,7 @@ class Sequence(BaseGrammar):
         start_idx = idx  # Where did we start
         matched_idx = idx  # Where have we got to
         max_idx = len(segments)  # What is the limit
-        insert_segments: tuple[tuple[int, Type[MetaSegment]], ...] = ()
+        insert_segments: tuple[tuple[int, type[MetaSegment]], ...] = ()
         child_matches: tuple[MatchResult, ...] = ()
         first_match = True
         # Metas with a negative indent value come AFTER

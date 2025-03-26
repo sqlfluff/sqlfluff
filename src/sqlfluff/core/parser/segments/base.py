@@ -8,7 +8,7 @@ Here we define:
   analysis.
 """
 
-# Import annotations for py 3.7 to allow `weakref.ReferenceType["BaseSegment"]`
+# Import annotations for py 3.7 to allow `weakref.Referencetype["BaseSegment"]`
 from __future__ import annotations
 
 import logging
@@ -25,7 +25,6 @@ from typing import (
     Iterator,
     Optional,
     Sequence,
-    Type,
     Union,
     cast,
 )
@@ -88,7 +87,7 @@ class PathStep:
 
 
 def _iter_base_types(
-    new_type: Optional[str], bases: tuple[Type["BaseSegment"]]
+    new_type: Optional[str], bases: tuple[type["BaseSegment"]]
 ) -> Iterator[str]:
     """Iterate types for a new segment class.
 
@@ -115,9 +114,9 @@ class SegmentMetaclass(type, Matchable):
     """
 
     def __new__(
-        mcs: Type[type],
+        mcs: type[type],
         name: str,
-        bases: tuple[Type["BaseSegment"]],
+        bases: tuple[type["BaseSegment"]],
         class_dict: dict[str, Any],
     ) -> SegmentMetaclass:
         """Generate a new class.
@@ -137,7 +136,7 @@ class SegmentMetaclass(type, Matchable):
         # Populate the `_class_types` property on creation.
         added_type = class_dict.get("type", None)
         class_dict["_class_types"] = frozenset(_iter_base_types(added_type, bases))
-        return cast(Type["BaseSegment"], type.__new__(mcs, name, bases, class_dict))
+        return cast(type["BaseSegment"], type.__new__(mcs, name, bases, class_dict))
 
 
 class BaseSegment(metaclass=SegmentMetaclass):
@@ -178,7 +177,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # _preface_modifier used in ._preface()
     _preface_modifier: str = ""
     # Optional reference to the parent. Stored as a weakref.
-    _parent: Optional[weakref.ReferenceType["BaseSegment"]] = None
+    _parent: Optional[weakref.Referencetype["BaseSegment"]] = None
     _parent_idx: Optional[int] = None
 
     def __init__(
@@ -894,9 +893,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # of not. Typically will _have_ a `segments` attribute, but it's an
         # empty tuple.
         if not self.__dict__.get("segments", None):
-            assert (
-                not segments
-            ), f"Cannot provide `segments` argument to {cls.__name__} `.copy()`\n"
+            assert not segments, (
+                f"Cannot provide `segments` argument to {cls.__name__} `.copy()`\n"
+            )
         # If segments were provided, use them.
         elif segments:
             new_segment.segments = segments

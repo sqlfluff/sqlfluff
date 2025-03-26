@@ -8,7 +8,7 @@ Specifically:
 
 import logging
 import sys
-from typing import Callable, Type
+from typing import Callable
 
 import pytest
 
@@ -73,7 +73,7 @@ class SpecialMarkerInserter(JinjaTemplater):
 
 
 @hookimpl
-def get_templaters() -> list[Type[RawTemplater]]:
+def get_templaters() -> list[type[RawTemplater]]:
     """Return templaters provided by this test module."""
     return [SpecialMarkerInserter]
 

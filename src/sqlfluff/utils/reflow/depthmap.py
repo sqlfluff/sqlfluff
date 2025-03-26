@@ -130,7 +130,7 @@ class DepthMap:
             self.depth_info[raw.uuid] = DepthInfo.from_raw_and_stack(raw, stack)
 
     @classmethod
-    def from_parent(cls: Type["DepthMap"], parent: BaseSegment) -> "DepthMap":
+    def from_parent(cls: type["DepthMap"], parent: BaseSegment) -> "DepthMap":
         """Generate a DepthMap from all the children of a segment.
 
         NOTE: This is the most efficient way to construct a DepthMap
@@ -140,7 +140,7 @@ class DepthMap:
 
     @classmethod
     def from_raws_and_root(
-        cls: Type["DepthMap"],
+        cls: type["DepthMap"],
         raw_segments: Sequence[RawSegment],
         root_segment: BaseSegment,
     ) -> "DepthMap":
