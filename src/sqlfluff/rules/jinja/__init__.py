@@ -1,6 +1,6 @@
 """The jinja rules plugin bundle."""
 
-from typing import List, Type
+from typing import Type
 
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import BaseRule

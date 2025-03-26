@@ -1,6 +1,6 @@
 """The structure plugin bundle."""
 
-from typing import Any, Dict, List, Type
+from typing import Any, Type
 
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import BaseRule

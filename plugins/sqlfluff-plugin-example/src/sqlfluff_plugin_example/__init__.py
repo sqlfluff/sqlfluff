@@ -3,7 +3,7 @@
 This uses the rules API supported from 0.4.0 onwards.
 """
 
-from typing import Any, Dict, List, Type
+from typing import Any, Type
 
 from sqlfluff.core.config import load_config_resource
 from sqlfluff.core.plugin import hookimpl

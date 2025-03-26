@@ -6,7 +6,7 @@ installable python package, but so long as the number of rules remain
 low, it makes sense to keep it bundled with SQLFluff core.
 """
 
-from typing import List, Type
+from typing import Type
 
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import BaseRule
