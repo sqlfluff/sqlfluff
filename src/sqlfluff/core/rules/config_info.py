@@ -83,7 +83,7 @@ STANDARD_CONFIG_INFO_DICT: dict[str, ConfigInfo] = {
 }
 
 
-def get_config_info() -> Dict[str, ConfigInfo]:
+def get_config_info() -> dict[str, ConfigInfo]:
     """Get the config from core sqlfluff and sqlfluff plugins and merges them.
 
     NOTE: This should be the entry point into getting config info rather than

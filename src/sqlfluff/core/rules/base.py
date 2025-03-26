@@ -902,7 +902,7 @@ class RuleSet:
 
     """
 
-    def __init__(self, name: str, config_info: dict[str, dict[str, ConfigInfo]]) -> None:
+    def __init__(self, name: str, config_info: dict[str, ConfigInfo]) -> None:
         self.name = name
         self.config_info = config_info
         self._register: dict[str, RuleManifest] = {}
