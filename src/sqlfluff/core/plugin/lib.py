@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Type
 
 from sqlfluff.core.config import load_config_resource
 from sqlfluff.core.plugin import hookimpl
-from sqlfluff.core.rules import BaseRule
+from sqlfluff.core.rules import BaseRule, ConfigInfo
 from sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
 from sqlfluff.core.rules.loader import get_rules_from_path
 from sqlfluff.core.templaters import RawTemplater, core_templaters
@@ -38,6 +38,6 @@ def load_default_config() -> Dict[str, Any]:
 
 
 @hookimpl
-def get_configs_info() -> Dict[str, Any]:
+def get_configs_info() -> Dict[str, ConfigInfo]:
     """Get rule config validations and descriptions."""
     return STANDARD_CONFIG_INFO_DICT

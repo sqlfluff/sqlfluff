@@ -44,7 +44,7 @@ from sqlfluff.core.errors import SQLFluffUserError, SQLLintError
 from sqlfluff.core.helpers.string import split_comma_separated_string
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.plugin.host import is_main_process, plugins_loaded
-from sqlfluff.core.rules.config_info import get_config_info
+from sqlfluff.core.rules.config_info import ConfigInfo, get_config_info
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import BaseCrawler
 from sqlfluff.core.rules.fix import LintFix
@@ -224,9 +224,9 @@ class RuleMetaclass(type):
         docstring so that it can be displayed in the sphinx docs.
         """
         # Ensure that there _is_ a docstring.
-        assert (
-            "__doc__" in class_dict
-        ), f"Tried to define rule {name!r} without docstring."
+        assert "__doc__" in class_dict, (
+            f"Tried to define rule {name!r} without docstring."
+        )
 
         # Build up a buffer of entries to add to the docstring.
         fix_docs = (
@@ -907,7 +907,7 @@ class RuleSet:
 
     """
 
-    def __init__(self, name: str, config_info: Dict[str, Dict[str, Any]]) -> None:
+    def __init__(self, name: str, config_info: Dict[str, ConfigInfo]) -> None:
         self.name = name
         self.config_info = config_info
         self._register: Dict[str, RuleManifest] = {}
