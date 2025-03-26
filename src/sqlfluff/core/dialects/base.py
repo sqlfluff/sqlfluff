@@ -212,9 +212,9 @@ class Dialect:
                 replacement,
                 Nothing,
             ):
-                assert isinstance(replacement, type), (
-                    f"Cannot replace {n!r} with {replacement}"
-                )
+                assert isinstance(
+                    replacement, type
+                ), f"Cannot replace {n!r} with {replacement}"
                 old_seg = cast(type["BaseSegment"], self._library[n])
                 new_seg = cast(type["BaseSegment"], replacement)
                 assert issubclass(old_seg, BaseSegment)

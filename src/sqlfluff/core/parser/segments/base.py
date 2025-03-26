@@ -893,9 +893,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # of not. Typically will _have_ a `segments` attribute, but it's an
         # empty tuple.
         if not self.__dict__.get("segments", None):
-            assert not segments, (
-                f"Cannot provide `segments` argument to {cls.__name__} `.copy()`\n"
-            )
+            assert (
+                not segments
+            ), f"Cannot provide `segments` argument to {cls.__name__} `.copy()`\n"
         # If segments were provided, use them.
         elif segments:
             new_segment.segments = segments

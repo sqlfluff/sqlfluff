@@ -442,9 +442,9 @@ class FluffConfig:
         }
         # Fetch the config value.
         templater_name = self._configs["core"].get("templater", "<no value set>")
-        assert isinstance(templater_name, str), (
-            f"Config value `templater` expected to be a string. Not: {templater_name!r}"
-        )
+        assert isinstance(
+            templater_name, str
+        ), f"Config value `templater` expected to be a string. Not: {templater_name!r}"
         try:
             cls = templater_lookup[templater_name]
             # Return class. Do not instantiate yet. That happens in `get_templater()`

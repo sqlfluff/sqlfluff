@@ -273,9 +273,9 @@ class Rule_ST05(BaseRule):
             # if the subquery is table_expression, get the bracketed child instead.
             if anchor.is_type("table_expression"):
                 bracket_anchor = anchor.get_child("bracketed")
-                assert bracket_anchor, (
-                    "table_expression should have a bracketed segment"
-                )
+                assert (
+                    bracket_anchor
+                ), "table_expression should have a bracketed segment"
             else:
                 bracket_anchor = anchor
 
@@ -491,12 +491,12 @@ class _CTEBuilder:
 
 def _is_child(maybe_parent: Segments, maybe_child: Segments) -> bool:
     """Is the child actually between the start and end markers of the parent."""
-    assert len(maybe_child) == 1, (
-        "Cannot assess child relationship of multiple segments"
-    )
-    assert len(maybe_parent) == 1, (
-        "Cannot assess child relationship of multiple parents"
-    )
+    assert (
+        len(maybe_child) == 1
+    ), "Cannot assess child relationship of multiple segments"
+    assert (
+        len(maybe_parent) == 1
+    ), "Cannot assess child relationship of multiple parents"
     child_markers = maybe_child[0].pos_marker
     parent_pos = maybe_parent[0].pos_marker
     assert parent_pos and child_markers

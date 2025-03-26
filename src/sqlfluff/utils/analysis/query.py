@@ -309,9 +309,9 @@ class Query(Generic[T]):
         parent: Optional[T] = None,
     ) -> T:
         """Recursively generate a query from an appropriate segment."""
-        assert segment.is_type(*SELECTABLE_TYPES, *SUBSELECT_TYPES), (
-            f"Invalid segment for `from_segment`: {segment}"
-        )
+        assert segment.is_type(
+            *SELECTABLE_TYPES, *SUBSELECT_TYPES
+        ), f"Invalid segment for `from_segment`: {segment}"
 
         selectables = []
         subqueries = []

@@ -281,9 +281,9 @@ class JinjaTemplater(PythonTemplater):
             # the guidance of the python docs:
             # https://docs.python.org/3/library/importlib.html#approximating-importlib-import-module
             spec = module_finder.find_spec(module_name, None)
-            assert spec, (
-                f"Module {module_name} failed to be found despite being listed."
-            )
+            assert (
+                spec
+            ), f"Module {module_name} failed to be found despite being listed."
             module = importlib.util.module_from_spec(spec)
             sys.modules[module_name] = module
             assert spec.loader, f"Module {module_name} missing expected loader."
@@ -919,9 +919,9 @@ class JinjaTemplater(PythonTemplater):
                     # (here that is options[0]).
                     new_value = "True" if options[0] == branch + 1 else "False"
                     new_source = f"{{% {raw_file_slice.tag} {new_value} %}}"
-                    tracer_trace.raw_slice_info[
-                        raw_file_slice
-                    ].alternate_code = new_source
+                    tracer_trace.raw_slice_info[raw_file_slice].alternate_code = (
+                        new_source
+                    )
                     override_raw_slices.append(branch)
                     length_deltas[raw_file_slice.source_idx] = len(new_source) - len(
                         raw_file_slice.raw

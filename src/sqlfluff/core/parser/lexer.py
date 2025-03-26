@@ -292,9 +292,9 @@ class StringLexer:
         # NOTE: Using a private attribute here feels a bit wrong.
         _segment_class_types = self.segment_class._class_types
         _kwargs = self.segment_kwargs
-        assert not ("type" in _kwargs and "instance_types" in _kwargs), (
-            f"Cannot set both `type` and `instance_types` in segment kwargs: {_kwargs}"
-        )
+        assert not (
+            "type" in _kwargs and "instance_types" in _kwargs
+        ), f"Cannot set both `type` and `instance_types` in segment kwargs: {_kwargs}"
         if "type" in _kwargs:
             # TODO: At some point we should probably deprecate this API and only
             # allow setting `instance_types`.

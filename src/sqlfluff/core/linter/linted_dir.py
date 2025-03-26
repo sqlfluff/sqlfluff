@@ -163,9 +163,9 @@ class LintedDir:
         Returns:
             A dict, with lists of tuples grouped by path.
         """
-        assert self.retain_files, (
-            "cannot `check_tuples_by_path()` without `retain_files`"
-        )
+        assert (
+            self.retain_files
+        ), "cannot `check_tuples_by_path()` without `retain_files`"
         return {
             file.path: file.check_tuples(
                 raise_on_non_linting_violations=raise_on_non_linting_violations
@@ -248,10 +248,10 @@ class LintedDir:
     def tree(self) -> Optional[BaseSegment]:
         """A convenience method for when there is only one file and we want the tree."""
         assert self.retain_files, ".tree() cannot be called if `retain_files` is False."
-        assert len(self.files) == 1, (
-            ".tree() cannot be called when a LintedDir contains more than one file."
-        )
-        assert self.files, (
-            "LintedDir has no parsed files. There is probably a parsing error."
-        )
+        assert (
+            len(self.files) == 1
+        ), ".tree() cannot be called when a LintedDir contains more than one file."
+        assert (
+            self.files
+        ), "LintedDir has no parsed files. There is probably a parsing error."
         return self.files[0].tree
