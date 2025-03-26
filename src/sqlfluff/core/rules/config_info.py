@@ -35,7 +35,9 @@ class ConfigInfo(TypedDict, total=False):
     """
 
     definition: str
-    validation: Optional[Union[list[bool | str | int], range]]
+    # NOTE: This type hint is a bit ugly, but is necessary for now.
+    # TODO: Tidy this up when we drop support for 3.9.
+    validation: Optional[Union[list[Union[bool, str, int]], range]]
 
 
 STANDARD_CONFIG_INFO_DICT: dict[str, ConfigInfo] = {
