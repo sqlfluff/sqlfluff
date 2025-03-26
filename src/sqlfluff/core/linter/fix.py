@@ -3,18 +3,9 @@
 import logging
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import (
-    TYPE_CHECKING,
-    Dict,
-    List,
-    Optional,
-    Tuple,
-)
+from typing import TYPE_CHECKING, Optional
 
-from sqlfluff.core.parser import (
-    BaseSegment,
-    SourceFix,
-)
+from sqlfluff.core.parser import BaseSegment, SourceFix
 from sqlfluff.core.rules.fix import LintFix
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -32,8 +23,8 @@ class AnchorEditInfo:
     replace: int = field(default=0)
     create_before: int = field(default=0)
     create_after: int = field(default=0)
-    fixes: List["LintFix"] = field(default_factory=list)
-    source_fixes: List[SourceFix] = field(default_factory=list)
+    fixes: list["LintFix"] = field(default_factory=list)
+    source_fixes: list[SourceFix] = field(default_factory=list)
     # First fix of edit_type "replace" in "fixes"
     _first_replace: Optional["LintFix"] = field(default=None)
 
@@ -102,7 +93,7 @@ class AnchorEditInfo:
         return False  # pragma: no cover
 
 
-def compute_anchor_edit_info(fixes: List["LintFix"]) -> Dict[int, AnchorEditInfo]:
+def compute_anchor_edit_info(fixes: list["LintFix"]) -> dict[int, AnchorEditInfo]:
     """Group and count fixes by anchor, return dictionary."""
     anchor_info = defaultdict(AnchorEditInfo)  # type: ignore
     for fix in fixes:
@@ -117,9 +108,9 @@ def apply_fixes(
     segment: BaseSegment,
     dialect: "Dialect",
     rule_code: str,
-    fixes: Dict[int, AnchorEditInfo],
+    fixes: dict[int, AnchorEditInfo],
     fix_even_unparsable: bool = False,
-) -> Tuple["BaseSegment", List["BaseSegment"], List["BaseSegment"], bool]:
+) -> tuple["BaseSegment", list["BaseSegment"], list["BaseSegment"], bool]:
     """Apply a dictionary of fixes to this segment.
 
     Used in to apply fixes found in linting. If a segment remains unchanged
@@ -158,7 +149,7 @@ def apply_fixes(
     seg_buffer = []
     before = []
     after = []
-    fixes_applied: List[LintFix] = []
+    fixes_applied: list[LintFix] = []
     requires_validate = False
 
     for seg in segment.segments:

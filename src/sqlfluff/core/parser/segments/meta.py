@@ -1,6 +1,6 @@
 """Indent and Dedent classes."""
 
-from typing import List, Optional, Sequence, Tuple
+from typing import Optional, Sequence
 from uuid import UUID
 
 from sqlfluff.core.parser.context import ParseContext
@@ -29,7 +29,7 @@ class MetaSegment(RawSegment):
         pos_marker: Optional[PositionMarker] = None,
         is_template: bool = False,
         block_uuid: Optional[UUID] = None,
-        source_fixes: Optional[List[SourceFix]] = None,
+        source_fixes: Optional[list[SourceFix]] = None,
     ):
         """Constructor for MetaSegment.
 
@@ -69,7 +69,7 @@ class MetaSegment(RawSegment):
 
     @classmethod
     def simple(
-        cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
+        cls, parse_context: ParseContext, crumbs: Optional[tuple[str, ...]] = None
     ) -> None:
         """Does this matcher support an uppercase hash matching route?
 
@@ -172,7 +172,7 @@ class TemplateSegment(MetaSegment):
         pos_marker: Optional[PositionMarker] = None,
         source_str: str = "",
         block_type: str = "",
-        source_fixes: Optional[List[SourceFix]] = None,
+        source_fixes: Optional[list[SourceFix]] = None,
         block_uuid: Optional[UUID] = None,
     ):
         """Initialise a placeholder with the source code embedded."""
@@ -221,7 +221,7 @@ class TemplateSegment(MetaSegment):
         code_only: bool = False,
         show_raw: bool = False,
         include_meta: bool = False,
-    ) -> Tuple[str, str]:
+    ) -> tuple[str, str]:
         """Return a tuple structure from this segment.
 
         Unlike most segments, we return the _source_ content for placeholders
@@ -237,7 +237,7 @@ class TemplateSegment(MetaSegment):
     def edit(
         self,
         raw: Optional[str] = None,
-        source_fixes: Optional[List[SourceFix]] = None,
+        source_fixes: Optional[list[SourceFix]] = None,
         source_str: Optional[str] = None,
     ) -> MetaSegment:
         """Create a new segment, with exactly the same position but different content.

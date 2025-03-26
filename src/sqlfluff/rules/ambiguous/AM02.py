@@ -1,11 +1,6 @@
 """Implementation of Rule AM02."""
 
-from typing import Tuple
-
-from sqlfluff.core.parser import (
-    KeywordSegment,
-    WhitespaceSegment,
-)
+from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
@@ -45,7 +40,7 @@ class Rule_AM02(BaseRule):
 
     name = "ambiguous.union"
     aliases = ("L033",)
-    groups: Tuple[str, ...] = ("all", "core", "ambiguous")
+    groups: tuple[str, ...] = ("all", "core", "ambiguous")
     crawl_behaviour = SegmentSeekerCrawler({"set_operator"})
     is_fix_compatible = True
 

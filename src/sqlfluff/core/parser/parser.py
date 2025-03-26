@@ -1,6 +1,6 @@
 """Defines the Parser class."""
 
-from typing import TYPE_CHECKING, Optional, Sequence, Type
+from typing import TYPE_CHECKING, Optional, Sequence
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser.context import ParseContext
@@ -22,7 +22,7 @@ class Parser:
             )
         # Use the provided config or create one from the dialect.
         self.config = config or FluffConfig.from_kwargs(dialect=dialect)
-        self.RootSegment: Type[BaseFileSegment] = self.config.get(
+        self.RootSegment: type[BaseFileSegment] = self.config.get(
             "dialect_obj"
         ).get_root_segment()
 

@@ -1,6 +1,6 @@
 """Conditional Grammar."""
 
-from typing import Sequence, Type, Union
+from typing import Sequence, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import BaseGrammar
@@ -42,7 +42,7 @@ class Conditional(BaseGrammar):
 
     def __init__(
         self,
-        meta: Type[Indent],
+        meta: type[Indent],
         config_type: str = "indentation",
         **rules: Union[str, bool],
     ):
@@ -52,7 +52,7 @@ class Conditional(BaseGrammar):
         arguments.
 
         Args:
-            meta (Type[Indent]): The meta argument.
+            meta (type[Indent]): The meta argument.
             config_type (str, optional): The config_type argument. Defaults to
                 "indentation".
             **rules (Union[str, bool]): The rules argument.

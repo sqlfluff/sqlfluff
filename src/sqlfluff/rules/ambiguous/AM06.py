@@ -1,6 +1,6 @@
 """Implementation of Rule AM06."""
 
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
@@ -83,12 +83,12 @@ class Rule_AM06(BaseRule):
 
     name = "ambiguous.column_references"
     aliases = ("L054",)
-    groups: Tuple[str, ...] = ("all", "core", "ambiguous")
+    groups: tuple[str, ...] = ("all", "core", "ambiguous")
     config_keywords = ["group_by_and_order_by_style"]
     crawl_behaviour = SegmentSeekerCrawler(
         {"groupby_clause", "orderby_clause", "grouping_expression_list"}
     )
-    _ignore_types: List[str] = [
+    _ignore_types: list[str] = [
         "withingroup_clause",
         "window_specification",
         "aggregate_order_by",

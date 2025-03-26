@@ -1,6 +1,6 @@
 """Implementation of Rule LT09."""
 
-from typing import List, NamedTuple, Optional, Sequence
+from typing import NamedTuple, Optional, Sequence
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -18,7 +18,7 @@ class SelectTargetsInfo(NamedTuple):
     comment_after_select_idx: int
     select_targets: Sequence[BaseSegment]
     from_segment: Optional[BaseSegment]
-    pre_from_whitespace: List[BaseSegment]
+    pre_from_whitespace: list[BaseSegment]
 
 
 class Rule_LT09(BaseRule):

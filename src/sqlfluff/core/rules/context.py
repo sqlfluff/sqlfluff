@@ -2,7 +2,7 @@
 
 import pathlib
 from dataclasses import dataclass, field
-from typing import Any, Optional, Tuple
+from typing import Any, Optional
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.dialects import Dialect
@@ -25,16 +25,16 @@ class RuleContext:
     # segment: The segment in question
     segment: BaseSegment
     # parent_stack: A tuple of the path from the root to this segment.
-    parent_stack: Tuple[BaseSegment, ...] = field(default=tuple())
+    parent_stack: tuple[BaseSegment, ...] = field(default=tuple())
     # raw_stack: All of the raw segments so far in the file
-    raw_stack: Tuple[RawSegment, ...] = field(default=tuple())
+    raw_stack: tuple[RawSegment, ...] = field(default=tuple())
     # memory: Arbitrary storage for the rule
     memory: Any = field(default_factory=dict)
     # segment_idx: The index of this segment in the parent
     segment_idx: int = field(default=0)
 
     @property
-    def siblings_pre(self) -> Tuple[BaseSegment, ...]:  # pragma: no cover
+    def siblings_pre(self) -> tuple[BaseSegment, ...]:  # pragma: no cover
         """Return sibling segments prior to self.segment."""
         if self.parent_stack:
             return self.parent_stack[-1].segments[: self.segment_idx]
@@ -42,7 +42,7 @@ class RuleContext:
             return tuple()
 
     @property
-    def siblings_post(self) -> Tuple[BaseSegment, ...]:
+    def siblings_post(self) -> tuple[BaseSegment, ...]:
         """Return sibling segments after self.segment."""
         if self.parent_stack:
             return self.parent_stack[-1].segments[self.segment_idx + 1 :]

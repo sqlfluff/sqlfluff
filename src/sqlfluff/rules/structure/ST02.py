@@ -1,6 +1,6 @@
 """Implementation of Rule ST02."""
 
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from sqlfluff.core.parser import (
     KeywordSegment,
@@ -96,7 +96,7 @@ class Rule_ST02(BaseRule):
 
     name = "structure.simple_case"
     aliases = ("L043",)
-    groups: Tuple[str, ...] = ("all", "structure")
+    groups: tuple[str, ...] = ("all", "structure")
     crawl_behaviour = SegmentSeekerCrawler({"case_expression"})
     is_fix_compatible = True
 
@@ -106,7 +106,7 @@ class Rule_ST02(BaseRule):
         coalesce_arg_1: BaseSegment,
         coalesce_arg_2: BaseSegment,
         preceding_not: bool = False,
-    ) -> List[LintFix]:
+    ) -> list[LintFix]:
         """Generate list of fixes to convert CASE statement to COALESCE function."""
         # Add coalesce and opening parenthesis.
         edits = [
@@ -126,7 +126,7 @@ class Rule_ST02(BaseRule):
         ]
 
         if preceding_not:
-            not_edits: List[BaseSegment] = [
+            not_edits: list[BaseSegment] = [
                 KeywordSegment("not"),
                 WhitespaceSegment(),
             ]
@@ -144,7 +144,7 @@ class Rule_ST02(BaseRule):
     def _column_only_fix_list(
         context: RuleContext,
         column_reference_segment: BaseSegment,
-    ) -> List[LintFix]:
+    ) -> list[LintFix]:
         """Generate list of fixes to reduce CASE statement to a single column."""
         fixes = [
             LintFix.replace(

@@ -1,6 +1,6 @@
 """The simple public API methods."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from sqlfluff.core import (
     FluffConfig,
@@ -14,8 +14,8 @@ from sqlfluff.core.types import ConfigMappingType
 
 def get_simple_config(
     dialect: Optional[str] = None,
-    rules: Optional[List[str]] = None,
-    exclude_rules: Optional[List[str]] = None,
+    rules: Optional[list[str]] = None,
+    exclude_rules: Optional[list[str]] = None,
     config_path: Optional[str] = None,
 ) -> FluffConfig:
     """Get a config object from simple API arguments."""
@@ -50,7 +50,7 @@ def get_simple_config(
 class APIParsingError(ValueError):
     """An exception which holds a set of violations."""
 
-    def __init__(self, violations: List[SQLBaseError], *args: Any):
+    def __init__(self, violations: list[SQLBaseError], *args: Any):
         self.violations = violations
         msg = f"Found {len(violations)} issues while parsing string."
         for viol in violations:
@@ -61,20 +61,20 @@ class APIParsingError(ValueError):
 def lint(
     sql: str,
     dialect: str = "ansi",
-    rules: Optional[List[str]] = None,
-    exclude_rules: Optional[List[str]] = None,
+    rules: Optional[list[str]] = None,
+    exclude_rules: Optional[list[str]] = None,
     config: Optional[FluffConfig] = None,
     config_path: Optional[str] = None,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Lint a SQL string.
 
     Args:
         sql (:obj:`str`): The SQL to be linted.
         dialect (:obj:`str`, optional): A reference to the dialect of the SQL
             to be linted. Defaults to `ansi`.
-        rules (:obj:`Optional[List[str]`, optional): A list of rule
+        rules (:obj:`Optional[list[str]`, optional): A list of rule
             references to lint for. Defaults to None.
-        exclude_rules (:obj:`Optional[List[str]`, optional): A list of rule
+        exclude_rules (:obj:`Optional[list[str]`, optional): A list of rule
             references to avoid linting for. Defaults to None.
         config (:obj:`Optional[FluffConfig]`, optional): A configuration object
             to use for the operation. Defaults to None.
@@ -83,7 +83,7 @@ def lint(
             Defaults to None.
 
     Returns:
-        :obj:`List[Dict[str, Any]]` for each violation found.
+        :obj:`list[dict[str, Any]]` for each violation found.
     """
     cfg = config or get_simple_config(
         dialect=dialect,
@@ -102,8 +102,8 @@ def lint(
 def fix(
     sql: str,
     dialect: str = "ansi",
-    rules: Optional[List[str]] = None,
-    exclude_rules: Optional[List[str]] = None,
+    rules: Optional[list[str]] = None,
+    exclude_rules: Optional[list[str]] = None,
     config: Optional[FluffConfig] = None,
     config_path: Optional[str] = None,
     fix_even_unparsable: Optional[bool] = None,
@@ -114,9 +114,9 @@ def fix(
         sql (:obj:`str`): The SQL to be fixed.
         dialect (:obj:`str`, optional): A reference to the dialect of the SQL
             to be fixed. Defaults to `ansi`.
-        rules (:obj:`Optional[List[str]`, optional): A subset of rule
+        rules (:obj:`Optional[list[str]`, optional): A subset of rule
             references to fix for. Defaults to None.
-        exclude_rules (:obj:`Optional[List[str]`, optional): A subset of rule
+        exclude_rules (:obj:`Optional[list[str]`, optional): A subset of rule
             references to avoid fixing for. Defaults to None.
         config (:obj:`Optional[FluffConfig]`, optional): A configuration object
             to use for the operation. Defaults to None.
@@ -157,7 +157,7 @@ def parse(
     dialect: str = "ansi",
     config: Optional[FluffConfig] = None,
     config_path: Optional[str] = None,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Parse a SQL string.
 
     Args:

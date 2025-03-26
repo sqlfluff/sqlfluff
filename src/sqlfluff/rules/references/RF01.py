@@ -1,16 +1,12 @@
 """Implementation of Rule RF01."""
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Tuple, cast
+from typing import Optional, cast
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules import (
-    BaseRule,
-    LintResult,
-    RuleContext,
-)
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.reference import object_ref_matches_table
 from sqlfluff.utils.analysis.query import Query
@@ -27,9 +23,9 @@ _START_TYPES = [
 class RF01Query(Query):
     """Query with custom RF01 info."""
 
-    aliases: List[AliasInfo] = field(default_factory=list)
-    standalone_aliases: List[BaseSegment] = field(default_factory=list)
-    parent_stack: Tuple[BaseSegment, ...] = field(default_factory=tuple)
+    aliases: list[AliasInfo] = field(default_factory=list)
+    standalone_aliases: list[BaseSegment] = field(default_factory=list)
+    parent_stack: tuple[BaseSegment, ...] = field(default_factory=tuple)
 
 
 class Rule_RF01(BaseRule):
@@ -72,9 +68,9 @@ class Rule_RF01(BaseRule):
     # because they will more accurately process any internal references.
     crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
 
-    def _eval(self, context: RuleContext) -> List[LintResult]:
-        violations: List[LintResult] = []
-        dml_target_table: Optional[Tuple[str, ...]] = None
+    def _eval(self, context: RuleContext) -> list[LintResult]:
+        violations: list[LintResult] = []
+        dml_target_table: Optional[tuple[str, ...]] = None
         self.logger.debug("Trigger on: %s", context.segment)
         if not context.segment.is_type("select_statement"):
             # Extract first table reference. This will be the target
@@ -96,8 +92,8 @@ class Rule_RF01(BaseRule):
         return violations
 
     @classmethod
-    def _alias_info_as_tuples(cls, alias_info: AliasInfo) -> List[Tuple[str, ...]]:
-        result: List[Tuple[str, ...]] = []
+    def _alias_info_as_tuples(cls, alias_info: AliasInfo) -> list[tuple[str, ...]]:
+        result: list[tuple[str, ...]] = []
         if alias_info.aliased:
             result.append((alias_info.ref_str,))
         if alias_info.object_reference:
@@ -105,15 +101,15 @@ class Rule_RF01(BaseRule):
         return result
 
     @staticmethod
-    def _table_ref_as_tuple(table_reference) -> Tuple[str, ...]:
+    def _table_ref_as_tuple(table_reference) -> tuple[str, ...]:
         return tuple(ref.part for ref in table_reference.iter_raw_references())
 
     def _analyze_table_references(
         self,
         query: RF01Query,
-        dml_target_table: Optional[Tuple[str, ...]],
+        dml_target_table: Optional[tuple[str, ...]],
         dialect: Dialect,
-        violations: List[LintResult],
+        violations: list[LintResult],
     ) -> None:
         # For each query...
         for selectable in query.selectables:
@@ -193,7 +189,7 @@ class Rule_RF01(BaseRule):
         return tbl_refs
 
     def _resolve_reference(
-        self, r, tbl_refs, dml_target_table: Optional[Tuple[str, ...]], query: RF01Query
+        self, r, tbl_refs, dml_target_table: Optional[tuple[str, ...]], query: RF01Query
     ) -> Optional[LintResult]:
         # Does this query define the referenced table?
         possible_references = [tbl_ref[1] for tbl_ref in tbl_refs]
@@ -237,7 +233,7 @@ class Rule_RF01(BaseRule):
         return None
 
     @staticmethod
-    def _get_implicit_targets(query: RF01Query) -> List[Tuple[str, ...]]:
+    def _get_implicit_targets(query: RF01Query) -> list[tuple[str, ...]]:
         if query.dialect.name == "sqlite":
             maybe_create_trigger: Optional[BaseSegment] = next(
                 (

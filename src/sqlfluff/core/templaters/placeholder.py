@@ -1,7 +1,7 @@
 """Defines the placeholder template."""
 
 import logging
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 import regex
 
@@ -73,7 +73,7 @@ class PlaceholderTemplater(RawTemplater):
 
     name = "placeholder"
 
-    def __init__(self, override_context: Optional[Dict[str, Any]] = None):
+    def __init__(self, override_context: Optional[dict[str, Any]] = None):
         self.default_context = dict(test_value="__test__")
         self.override_context = override_context or {}
 
@@ -82,7 +82,7 @@ class PlaceholderTemplater(RawTemplater):
         self,
         fname: Optional[str],
         config: Optional[FluffConfig],
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get the templating context from the config."""
         live_context = super().get_context(fname, config)
 
@@ -119,7 +119,7 @@ class PlaceholderTemplater(RawTemplater):
         fname: str,
         config: Optional[FluffConfig] = None,
         formatter: Optional[FormatterInterface] = None,
-    ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
+    ) -> tuple[TemplatedFile, list[SQLTemplaterError]]:
         """Process a string and return a TemplatedFile.
 
         Note that the arguments are enforced as keywords

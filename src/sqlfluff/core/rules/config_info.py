@@ -13,11 +13,11 @@ of more general wider use - please define it in the specific plugin
 rather than here.
 """
 
-from typing import Any, Dict
+from typing import Any
 
 from sqlfluff.core.plugin.host import get_plugin_manager
 
-STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
+STANDARD_CONFIG_INFO_DICT: dict[str, dict[str, Any]] = {
     "force_enable": {
         "validation": [True, False],
         "definition": (
@@ -62,7 +62,7 @@ STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
 }
 
 
-def get_config_info() -> Dict[str, Any]:
+def get_config_info() -> dict[str, Any]:
     """Get the config from core sqlfluff and sqlfluff plugins and merges them.
 
     NOTE: This should be the entry point into getting config info rather than
