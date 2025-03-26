@@ -1,0 +1,50 @@
+INSERT INTO tbl
+    VALUES (1), (2), (3);
+
+INSERT INTO tbl
+    SELECT
+        col1,
+        col2,
+        col3
+    FROM other_tbl;
+
+INSERT OR REPLACE INTO tbl (i)
+    VALUES (1);
+
+INSERT OR IGNORE INTO tbl (i)
+    VALUES (1);
+
+INSERT INTO tbl
+BY POSITION
+    VALUES (5, 42);
+
+INSERT INTO tbl BY NAME (SELECT 22 AS b);
+
+INSERT INTO tbl
+    VALUES (1, 84)
+    ON CONFLICT DO NOTHING;
+
+INSERT INTO tbl VALUES (1, 52), (1, 62) ON CONFLICT DO UPDATE SET j = EXCLUDED.j;
+
+INSERT INTO tbl
+BY NAME (
+    SELECT
+        1 AS i,
+        336 AS j
+)
+ON CONFLICT DO UPDATE SET j = EXCLUDED.j;
+
+INSERT INTO t1
+    VALUES (1), (2), (3)
+    RETURNING *;
+
+CREATE TABLE t1 (i INTEGER);
+INSERT INTO t1
+    VALUES (1), (2), (3);
+
+CREATE TABLE t2 (i INTEGER);
+INSERT INTO t2
+    SELECT i FROM t1
+    WHERE i IN (1, 3)
+    ON CONFLICT DO UPDATE SET j = EXCLUDED.j
+    RETURNING *;

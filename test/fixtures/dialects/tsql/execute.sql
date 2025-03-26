@@ -35,3 +35,11 @@ DECLARE @statement nvarchar(max) = 'SELECT 1'
 EXEC (@statement);
 
 EXEC ('DROP TABLE BoardInventory.BoardInventoryFact_Stage;');
+
+DECLARE @s1 AS varchar(10) = NULL;
+DECLARE @s2 varchar(10) = NULL;
+SET @s1 = 'select ';
+SET @s2 = '123';
+EXECUTE (@s1 + @s2);
+
+EXEC ('select ' + '123');

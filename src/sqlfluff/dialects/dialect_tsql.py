@@ -4865,8 +4865,14 @@ class ExecuteScriptSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf("EXEC", "EXECUTE"),
         Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
-        OptionallyBracketed(
-            OneOf(Ref("ObjectReferenceSegment"), Ref("QuotedLiteralSegment"))
+        OneOf(
+            OptionallyBracketed(
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                )
+            ),
+            Bracketed(Ref("BaseExpressionElementGrammar")),
         ),
         Indent,
         Sequence(
