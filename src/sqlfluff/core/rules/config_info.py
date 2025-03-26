@@ -35,7 +35,7 @@ class ConfigInfo(TypedDict, total=False):
     """
 
     definition: str
-    # NOTE: This type hint is a bit ugly, but is necessary for now.
+    # NOTE: This type hint is a bit ugly, but necessary for now.
     # TODO: Tidy this up when we drop support for 3.9.
     validation: Optional[Union[list[Union[bool, str, int]], range]]
 
