@@ -4780,7 +4780,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 Sequence("LIKE", Ref("TableReferenceSegment")),
                 # Create clone syntax
                 Sequence(
-                    "ClONE",
+                    "CLONE",
                     Ref("TableReferenceSegment"),
                 ),
                 Sequence("USING", "TEMPLATE", Ref("SelectableGrammar")),
