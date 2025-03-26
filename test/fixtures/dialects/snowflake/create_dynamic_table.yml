@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4200e3c8b06b0348c6500a6da6c90393f575cd35a57e58622736291ec6aae536
+_hash: f2fd65fb536a027a336b7a06b28d1d095b128ba89b6be16408859fc9efe2f66b
 file:
 - statement:
     create_table_statement:
@@ -261,14 +261,14 @@ file:
                   naked_identifier: staging_table
 - statement_terminator: ;
 - statement:
-    create_table_statement:
+    create_clone_statement:
     - keyword: CREATE
     - keyword: DYNAMIC
     - keyword: TABLE
-    - table_reference:
+    - object_reference:
         naked_identifier: product_clone
     - keyword: CLONE
-    - table_reference:
+    - object_reference:
         naked_identifier: product
     - from_at_expression:
         keyword: AT

@@ -3183,7 +3183,7 @@ class CreateCloneStatementSegment(BaseSegment):
         OneOf(
             "DATABASE",
             "SCHEMA",
-            "TABLE",
+            Sequence(Sequence("DYNAMIC", optional=True), "TABLE"),
             "SEQUENCE",
             Sequence("FILE", "FORMAT"),
             "STAGE",
@@ -4782,11 +4782,6 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 Sequence(
                     "ClONE",
                     Ref("TableReferenceSegment"),
-                    OneOf(
-                        Ref("FromAtExpressionSegment"),
-                        Ref("FromBeforeExpressionSegment"),
-                        optional=True,
-                    ),
                 ),
                 Sequence("USING", "TEMPLATE", Ref("SelectableGrammar")),
                 optional=True,
