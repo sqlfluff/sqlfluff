@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e0e469b93220236ba6962b699e86abd7a18acadba4d6c39a232745f953f538b0
+_hash: 5700702dd2dd58fd0d45a1338a702051c6d2ca53f20fc45914365d9c6b68da3d
 file:
 - statement:
     begin_end_block:
@@ -285,16 +285,15 @@ file:
                       statement_terminator: /
                       numeric_literal: '4'
               - statement_terminator: ;
+              - keyword: ELSE
               - statement:
                   assignment_segment_statement:
-                  - object_reference:
-                      naked_identifier: ELSE
-                  - object_reference:
+                    object_reference:
                       naked_identifier: bonus
-                  - colon: ':'
-                  - comparison_operator:
+                    colon: ':'
+                    comparison_operator:
                       raw_comparison_operator: '='
-                  - expression:
+                    expression:
                       numeric_literal: '50'
               - statement_terminator: ;
               - keyword: END
@@ -485,16 +484,15 @@ file:
                         expression:
                           numeric_literal: '50'
                   - statement_terminator: ;
+                  - keyword: ELSE
                   - statement:
                       assignment_segment_statement:
-                      - object_reference:
-                          naked_identifier: ELSE
-                      - object_reference:
+                        object_reference:
                           naked_identifier: bonus
-                      - colon: ':'
-                      - comparison_operator:
+                        colon: ':'
+                        comparison_operator:
                           raw_comparison_operator: '='
-                      - expression:
+                        expression:
                           numeric_literal: '0'
                   - statement_terminator: ;
                   - keyword: END
@@ -675,16 +673,15 @@ file:
                     expression:
                       numeric_literal: '500'
               - statement_terminator: ;
+              - keyword: ELSE
               - statement:
                   assignment_segment_statement:
-                  - object_reference:
-                      naked_identifier: ELSE
-                  - object_reference:
+                    object_reference:
                       naked_identifier: bonus
-                  - colon: ':'
-                  - comparison_operator:
+                    colon: ':'
+                    comparison_operator:
                       raw_comparison_operator: '='
-                  - expression:
+                    expression:
                       numeric_literal: '100'
               - statement_terminator: ;
               - keyword: END
