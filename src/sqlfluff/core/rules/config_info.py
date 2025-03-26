@@ -13,12 +13,12 @@ of more general wider use - please define it in the specific plugin
 rather than here.
 """
 
-from typing import Dict, List, NotRequired, TypedDict
+from typing import Dict, List, Optional, TypedDict
 
 from sqlfluff.core.plugin.host import get_plugin_manager
 
 
-class ConfigInfo(TypedDict):
+class ConfigInfo(TypedDict, total=False):
     """Type definition for a single config info value.
 
     This TypedDict defines the structure for configuration information used across
@@ -35,7 +35,7 @@ class ConfigInfo(TypedDict):
     """
 
     definition: str
-    validation: NotRequired[List[bool | str | int] | range]
+    validation: Optional[List[bool | str | int] | range]
 
 
 STANDARD_CONFIG_INFO_DICT: Dict[str, ConfigInfo] = {

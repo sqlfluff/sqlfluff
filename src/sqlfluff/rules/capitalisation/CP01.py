@@ -280,11 +280,8 @@ class Rule_CP01(BaseRule):
             k for k in self.config_keywords if k.endswith("capitalisation_policy")
         )
         self.cap_policy = getattr(self, cap_policy_name)
-        self.cap_policy_opts = [
-            opt
-            for opt in get_config_info()[cap_policy_name]["validation"]
-            if opt != "consistent"
-        ]
+        valid_options = get_config_info()[cap_policy_name]["validation"] or []
+        self.cap_policy_opts = [opt for opt in valid_options if opt != "consistent"]
         # Use str() as CP04 uses bools which might otherwise be read as bool
         ignore_words_config = str(getattr(self, "ignore_words"))
         if ignore_words_config and ignore_words_config != "None":
