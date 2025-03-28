@@ -1,0 +1,117 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b733497542f5739e4e353c11ba3d7d462c5ce4630b13e410b34122fc20140835
+file:
+  batch:
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@I'
+        data_type:
+          data_type_identifier: INT
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          numeric_literal: '0'
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            expression:
+              parameter: '@I'
+              binary_operator: +
+              numeric_literal: '1'
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            expression:
+              parameter: '@I'
+              binary_operator: +
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '2'
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            expression:
+              parameter: '@I'
+              binary_operator: '-'
+              numeric_literal: '3'
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            expression:
+              parameter: '@I'
+              binary_operator: '-'
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '4'
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            expression:
+              parameter: '@I'
+              binary_operator: '*'
+              numeric_literal: '5'
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            expression:
+              parameter: '@I'
+              binary_operator: /
+              numeric_literal: '6'
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            expression:
+              parameter: '@I'
+              binary_operator: /
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '7'
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            expression:
+              parameter: '@I'
+              binary_operator: '%'
+              numeric_literal: '8'
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            expression:
+              parameter: '@I'
+              binary_operator: '%'
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '9'
+        statement_terminator: ;
