@@ -1818,7 +1818,16 @@ class SelectClauseElementSegment(BaseSegment):
 
     def get_alias(self) -> Optional[ColumnAliasInfo]:
         """Get info on alias within SELECT clause element."""
-        alias_expression_segment = next(self.bfs_crawl("alias_expression"), None)
+        alias_expression_segment = next(
+            self.bfs_crawl(
+                "alias_expression",
+                # don't recurse into aliases
+                recurse_into=False,
+                # don't recurse into any subqueries
+                no_recursive_seg_type="select_statement",
+            ),
+            None,
+        )
         if alias_expression_segment is None:
             # Return None if no alias expression is found.
             return None
