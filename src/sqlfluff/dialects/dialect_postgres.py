@@ -4998,7 +4998,7 @@ class ConflictActionSegment(BaseSegment):
                 "UPDATE",
                 Indent,
                 "SET",
-                Indent,
+                ImplicitIndent,
                 Delimited(
                     OneOf(
                         Sequence(
