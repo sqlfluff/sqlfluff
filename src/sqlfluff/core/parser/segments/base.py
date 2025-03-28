@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import logging
 import weakref
+from collections import deque
 from dataclasses import dataclass
 from functools import cached_property
 from io import StringIO
@@ -1053,6 +1054,44 @@ class BaseSegment(metaclass=SegmentMetaclass):
                         recurse_into=recurse_into,
                         no_recursive_seg_type=no_recursive_seg_type,
                     )
+
+    def bfs_crawl(
+        self,
+        *seg_type: str,
+        recurse_into: bool = True,
+        no_recursive_seg_type: Optional[Union[str, list[str]]] = None,
+    ) -> Iterator[BaseSegment]:
+        """Breadth-first crawl for segments of a given type.
+
+        Args:
+            seg_type: :obj:`str`: one or more type of segment
+                to look for.
+            recurse_into: :obj:`bool`: When an element of type "seg_type" is
+                found, whether to recurse into it.
+            no_recursive_seg_type: :obj:`Union[str, list[str]]`: a type of segment
+                not to recurse further into. It is highly recommended
+                to set this argument where possible, as it can significantly
+                narrow the search pattern.
+        """
+        if isinstance(no_recursive_seg_type, str):
+            no_recursive_seg_type = [no_recursive_seg_type]
+
+        queue = deque([self])
+
+        while queue:
+            current = queue.popleft()
+
+            if current.is_type(*seg_type):
+                yield current
+                if not recurse_into:
+                    continue
+
+            if not current.descendant_type_set.intersection(seg_type):
+                continue
+
+            for seg in current.segments:
+                if not no_recursive_seg_type or not seg.is_type(*no_recursive_seg_type):
+                    queue.append(seg)
 
     def path_to(self, other: "BaseSegment") -> list[PathStep]:
         """Given a segment which is assumed within self, get the intermediate segments.
