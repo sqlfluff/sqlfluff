@@ -3,14 +3,12 @@
 NOTE: Yes the title of this bundle is ...ambiguous. 😁
 """
 
-from typing import Any
-
 from sqlfluff.core.plugin import hookimpl
-from sqlfluff.core.rules import BaseRule
+from sqlfluff.core.rules import BaseRule, ConfigInfo
 
 
 @hookimpl
-def get_configs_info() -> dict[str, Any]:
+def get_configs_info() -> dict[str, ConfigInfo]:
     """Get additional rule config validations and descriptions."""
     return {
         "fully_qualify_join_types": {
