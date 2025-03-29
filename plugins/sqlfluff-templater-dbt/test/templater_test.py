@@ -592,6 +592,19 @@ def test__templater_dbt_handle_database_connection_failure(
     assert "dbt tried to connect to the database" in error_message
 
 
+def test__project_dir_from_env(dbt_templater, project_dir, monkeypatch):
+    """Test possibility to set project_dir from env variable."""
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"dbt": {"project_dir": None}},
+        }
+    )
+    assert dbt_templater._get_project_dir() == Path.cwd().resolve().as_posix()
+    monkeypatch.setenv("DBT_PROJECT_DIR", project_dir)
+    assert dbt_templater._get_project_dir() == Path(project_dir).resolve().as_posix()
+
+
 def test__project_dir_does_not_exist_error(dbt_templater):
     """Test an error is logged if the given dbt project directory doesn't exist."""
     dbt_templater.sqlfluff_config = FluffConfig(
