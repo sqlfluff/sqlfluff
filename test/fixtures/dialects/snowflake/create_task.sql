@@ -103,3 +103,12 @@ CREATE TASK task5
   AFTER task2, task3, task4
 AS
   INSERT INTO t1(ts) VALUES(CURRENT_TIMESTAMP);
+
+SET custom_warehouse = 'mywh';
+SET custom_schedule = 'USING CRON 15 7 2 * * UTC';
+CREATE OR ALTER TASK mytask
+    WAREHOUSE = $custom_warehouse
+    SCHEDULE = $custom_schedule
+    LOG_LEVEL = TRACE
+AS
+    CALL SCH.MY_SPROC();
