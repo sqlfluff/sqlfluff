@@ -4,8 +4,9 @@ This should be the default response from any `match` method.
 """
 
 from collections import defaultdict
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, DefaultDict, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Any, DefaultDict, Optional, Union
 
 from sqlfluff.core.helpers.slice import slice_length
 from sqlfluff.core.parser.markers import PositionMarker

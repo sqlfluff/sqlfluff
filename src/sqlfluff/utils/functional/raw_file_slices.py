@@ -16,7 +16,7 @@ class RawFileSlices(tuple[RawFileSlice, ...]):
         cls, *raw_slices: RawFileSlice, templated_file: Optional[TemplatedFile] = None
     ) -> "RawFileSlices":
         """Override new operator."""
-        return super(RawFileSlices, cls).__new__(cls, raw_slices)
+        return super().__new__(cls, raw_slices)
 
     def __init__(self, *_: RawFileSlice, templated_file: TemplatedFile):
         self.templated_file = templated_file

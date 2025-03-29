@@ -1,6 +1,7 @@
 """Defines the Parser class."""
 
-from typing import TYPE_CHECKING, Optional, Sequence
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Optional
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser.context import ParseContext

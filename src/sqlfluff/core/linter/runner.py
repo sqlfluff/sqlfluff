@@ -17,8 +17,9 @@ import signal
 import sys
 import traceback
 from abc import ABC, abstractmethod
+from collections.abc import Iterable, Iterator
 from types import TracebackType
-from typing import Callable, Iterable, Iterator, Optional, Union
+from typing import Callable, Optional, Union
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile
