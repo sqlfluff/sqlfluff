@@ -21,15 +21,14 @@ import logging
 import pathlib
 import re
 from collections import defaultdict, namedtuple
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
     ClassVar,
     DefaultDict,
-    Iterator,
     Optional,
-    Sequence,
     Union,
 )
 
@@ -1094,9 +1093,9 @@ class RuleSet:
         # alias - we assume the alias is wrong.)
         valid_codes: set[str] = set(self._register.keys())
         reference_map = self.rule_reference_map()
-        valid_config_lookups = set(
+        valid_config_lookups = {
             manifest.rule_class.get_config_ref() for manifest in self._register.values()
-        )
+        }
 
         # Validate config doesn't try to specify values for unknown rules.
         # NOTE: We _warn_ here rather than error.

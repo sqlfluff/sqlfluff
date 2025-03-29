@@ -11,8 +11,9 @@ Within .dialects, each dialect is free to depend on other dialects as
 required. Any dependent dialects will be loaded as needed.
 """
 
+from collections.abc import Iterator
 from importlib import import_module
-from typing import Iterator, NamedTuple
+from typing import NamedTuple
 
 # Eventually it would be a good to dynamically discover dialects
 # from any module beginning with "dialect_" within this folder.

@@ -12,6 +12,7 @@ import logging
 import os
 import os.path
 import sys
+from functools import cache
 from importlib.resources import files
 from pathlib import Path
 from typing import (
@@ -23,7 +24,6 @@ import platformdirs.macos
 import platformdirs.unix
 
 from sqlfluff.core.config.file import (
-    cache,
     load_config_file_as_dict,
     load_config_string_as_dict,
 )

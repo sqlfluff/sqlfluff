@@ -131,7 +131,7 @@ class Rule_LT10(BaseRule):
             start_seg=select_clause_modifier,
         )
         if trailing_whitespace_segments:
-            fixes.extend((LintFix.delete(s) for s in trailing_whitespace_segments))
+            fixes.extend(LintFix.delete(s) for s in trailing_whitespace_segments)
 
         return LintResult(
             anchor=context.segment,

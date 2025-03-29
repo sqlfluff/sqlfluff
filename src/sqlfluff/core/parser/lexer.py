@@ -1,7 +1,8 @@
 """The code for the Lexer."""
 
 import logging
-from typing import Any, Iterator, NamedTuple, Optional, Union
+from collections.abc import Iterator
+from typing import Any, NamedTuple, Optional, Union
 from uuid import UUID, uuid4
 
 import regex

@@ -9,8 +9,9 @@ the context of each thread.
 
 import importlib.metadata
 import logging
+from collections.abc import Iterator
 from contextvars import ContextVar
-from typing import Iterator, Optional
+from typing import Optional
 
 import pluggy
 

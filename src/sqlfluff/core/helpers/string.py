@@ -1,6 +1,7 @@
 """String Helpers for the parser module."""
 
-from typing import Iterator, Union
+from collections.abc import Iterator
+from typing import Union
 
 
 def curtail_string(s: str, length: int = 20) -> str:

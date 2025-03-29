@@ -1,7 +1,8 @@
 """Implementation of Rule CV12."""
 
 import collections
-from typing import Deque, Iterator
+from collections.abc import Iterator
+from typing import Deque
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.parser.segments.common import (

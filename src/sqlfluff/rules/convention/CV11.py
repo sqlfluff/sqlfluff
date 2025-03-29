@@ -1,6 +1,7 @@
 """Implementation of Rule CV11."""
 
-from typing import Iterable, Optional
+from collections.abc import Iterable
+from typing import Optional
 
 from sqlfluff.core.parser import (
     BaseSegment,

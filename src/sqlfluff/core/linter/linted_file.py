@@ -11,8 +11,9 @@ import shutil
 import stat
 import tempfile
 from collections import defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable, NamedTuple, Optional, Union
+from typing import NamedTuple, Optional, Union
 
 from sqlfluff.core.errors import (
     CheckTuple,

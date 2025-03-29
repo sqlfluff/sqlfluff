@@ -5,7 +5,8 @@ or BaseGrammar to un-bloat those classes.
 """
 
 from collections import defaultdict
-from typing import DefaultDict, Optional, Sequence, cast
+from collections.abc import Sequence
+from typing import DefaultDict, Optional, cast
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.parser.context import ParseContext

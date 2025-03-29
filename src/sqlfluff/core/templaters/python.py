@@ -2,8 +2,9 @@
 
 import ast
 import re
+from collections.abc import Iterable, Iterator
 from string import Formatter
-from typing import Any, Callable, Iterable, Iterator, NamedTuple, Optional
+from typing import Any, Callable, NamedTuple, Optional
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLTemplaterError

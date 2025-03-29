@@ -1,6 +1,7 @@
 """Implementation of Rule LT09."""
 
-from typing import NamedTuple, Optional, Sequence
+from collections.abc import Sequence
+from typing import NamedTuple, Optional
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -390,9 +391,9 @@ class Rule_LT09(BaseRule):
                     # :TRICKY: Below, we have a couple places where we
                     # filter to guard against deleting the same segment
                     # multiple times -- this is illegal.
-                    all_deletes = set(
+                    all_deletes = {
                         fix.anchor for fix in fixes if fix.edit_type == "delete"
-                    )
+                    }
                     for seg in (*to_delete, *move_after_select_clause):
                         if seg not in all_deletes:
                             fixes.append(LintFix.delete(seg))

@@ -7,13 +7,12 @@ import logging
 import os.path
 import pkgutil
 import sys
+from collections.abc import Iterable, Iterator
 from functools import reduce
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Iterable,
-    Iterator,
     Optional,
     Union,
     cast,

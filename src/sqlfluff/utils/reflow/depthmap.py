@@ -1,8 +1,8 @@
 """The DepthMap class is an enriched sequence of raw segments."""
 
 import logging
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Sequence, Type
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.parser.segments.base import PathStep
@@ -39,9 +39,7 @@ class StackPosition:
             return ""  # NOTE: Empty string evaluates as falsy.
 
     @classmethod
-    def from_path_step(
-        cls: Type["StackPosition"], path_step: PathStep
-    ) -> "StackPosition":
+    def from_path_step(cls, path_step: PathStep) -> "StackPosition":
         """Interpret a PathStep to construct a StackPosition.
 
         The reason we don't just use the same object is partly

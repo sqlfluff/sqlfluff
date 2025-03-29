@@ -1,6 +1,7 @@
 """Implementation of Rule RF03."""
 
-from typing import Iterator, Optional, Set
+from collections.abc import Iterator
+from typing import Optional
 
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser import IdentifierSegment
@@ -95,7 +96,7 @@ class Rule_RF03(BaseRule):
             self._is_struct_dialect = True
 
         query: Query = Query.from_segment(context.segment, dialect=context.dialect)
-        visited: Set = set()
+        visited: set = set()
         # Recursively visit and check each query in the tree.
         return list(self._visit_queries(query, visited))
 

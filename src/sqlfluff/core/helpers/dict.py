@@ -1,7 +1,8 @@
 """Dict helpers, mostly used in config routines."""
 
+from collections.abc import Iterable, Iterator, Sequence
 from copy import deepcopy
-from typing import Iterable, Iterator, Optional, Sequence, TypeVar, Union, cast
+from typing import Optional, TypeVar, Union, cast
 
 T = TypeVar("T")
 

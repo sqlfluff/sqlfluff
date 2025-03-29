@@ -1,7 +1,7 @@
 """AnyNumberOf, OneOf, OptionallyBracketed & AnySetOf."""
 
+from collections.abc import Sequence as SequenceType
 from typing import Optional, Union, cast
-from typing import Sequence as SequenceType
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (

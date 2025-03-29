@@ -228,9 +228,9 @@ class Dialect:
                         )
                     base_dir = set(dir(self._library[n]))
                     cls_dir = set(dir(new_seg))
-                    missing = set(
+                    missing = {
                         n for n in base_dir.difference(cls_dir) if not n.startswith("_")
-                    )
+                    }
                     if missing:
                         raise ValueError(  # pragma: no cover
                             f"Cannot replace {n!r} because it's not a subclass and "
@@ -317,21 +317,15 @@ class Dialect:
             # traceback as not that useful and confusing to people.
             sys.tracebacklimit = 0
             raise RuntimeError(
-                (
-                    "Grammar refers to the "
-                    "{!r} keyword which was not found in the {} dialect.{}".format(
-                        keyword.upper(), self.name, keyword_tip
-                    )
+                "Grammar refers to the "
+                "{!r} keyword which was not found in the {} dialect.{}".format(
+                    keyword.upper(), self.name, keyword_tip
                 )
             )
         else:  # pragma: no cover
             raise RuntimeError(
-                (
-                    "Grammar refers to "
-                    "{!r} which was not found in the {} dialect.".format(
-                        name, self.name
-                    )
-                )
+                "Grammar refers to "
+                "{!r} which was not found in the {} dialect.".format(name, self.name)
             )
 
     def set_lexer_matchers(self, lexer_matchers: list[LexerType]) -> None:

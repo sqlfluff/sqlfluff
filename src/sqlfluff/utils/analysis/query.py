@@ -1,10 +1,11 @@
 """Tools for more complex analysis of SELECT statements."""
 
 import logging
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from enum import Enum
 from functools import cached_property
-from typing import Dict, Generic, Iterator, NamedTuple, Optional, TypeVar, Union, cast
+from typing import Generic, NamedTuple, Optional, TypeVar, Union, cast
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
@@ -193,9 +194,9 @@ class Query(Generic[T]):
         """Children could be CTEs, subselects or Others."""
         return list(self.ctes.values()) + self.subqueries
 
-    def as_dict(self: T) -> Dict:
+    def as_dict(self: T) -> dict:
         """Dict representation for logging/testing."""
-        result: dict[str, Union[str, list[str], Dict, list[Dict]]] = {}
+        result: dict[str, Union[str, list[str], dict, list[dict]]] = {}
         if self.query_type != QueryType.Simple:
             result["query_type"] = self.query_type.name
         if self.selectables:

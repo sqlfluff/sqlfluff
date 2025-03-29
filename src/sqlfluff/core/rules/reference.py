@@ -1,6 +1,6 @@
 """Components for working with object and table references."""
 
-from typing import Sequence
+from collections.abc import Sequence
 
 
 def object_ref_matches_table(

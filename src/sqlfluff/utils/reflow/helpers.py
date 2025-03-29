@@ -1,8 +1,8 @@
 """Helper utilities for reflow."""
 
 import logging
+from collections.abc import Iterable
 from itertools import chain
-from typing import Iterable
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.rules import LintFix, LintResult

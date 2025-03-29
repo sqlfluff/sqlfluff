@@ -1,8 +1,9 @@
 """Defines the LintFix class, returned by rules when recommending a fix."""
 
 import logging
+from collections.abc import Iterable, Sized
 from itertools import chain
-from typing import Any, Iterable, Optional, Sized, cast
+from typing import Any, Optional, cast
 
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment, SourceFix
 from sqlfluff.core.templaters import RawFileSlice, TemplatedFile

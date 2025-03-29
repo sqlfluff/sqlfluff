@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import logging
 import weakref
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 from functools import cached_property
 from io import StringIO
@@ -22,9 +23,7 @@ from typing import (
     Any,
     Callable,
     ClassVar,
-    Iterator,
     Optional,
-    Sequence,
     Union,
     cast,
 )
@@ -80,14 +79,14 @@ class PathStep:
         code_idxs (:obj:`tuple` of int): The indices which contain code.
     """
 
-    segment: "BaseSegment"
+    segment: BaseSegment
     idx: int
     len: int
     code_idxs: tuple[int, ...]
 
 
 def _iter_base_types(
-    new_type: Optional[str], bases: tuple[type["BaseSegment"]]
+    new_type: Optional[str], bases: tuple[type[BaseSegment]]
 ) -> Iterator[str]:
     """Iterate types for a new segment class.
 
@@ -116,7 +115,7 @@ class SegmentMetaclass(type, Matchable):
     def __new__(
         mcs: type[type],
         name: str,
-        bases: tuple[type["BaseSegment"]],
+        bases: tuple[type[BaseSegment]],
         class_dict: dict[str, Any],
     ) -> SegmentMetaclass:
         """Generate a new class.
@@ -177,12 +176,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # _preface_modifier used in ._preface()
     _preface_modifier: str = ""
     # Optional reference to the parent. Stored as a weakref.
-    _parent: Optional[weakref.ReferenceType["BaseSegment"]] = None
+    _parent: Optional[weakref.ReferenceType[BaseSegment]] = None
     _parent_idx: Optional[int] = None
 
     def __init__(
         self,
-        segments: tuple["BaseSegment", ...],
+        segments: tuple[BaseSegment, ...],
         pos_marker: Optional[PositionMarker] = None,
         uuid: Optional[int] = None,
     ) -> None:
@@ -202,7 +201,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         assert not hasattr(self, "parse_grammar"), "parse_grammar is deprecated."
 
         self.pos_marker = pos_marker
-        self.segments: tuple["BaseSegment", ...] = segments
+        self.segments: tuple[BaseSegment, ...] = segments
         # Tracker for matching when things start moving.
         # NOTE: We're storing the .int attribute so that it's swifter
         # for comparisons.
@@ -281,12 +280,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # ################ PRIVATE PROPERTIES
 
     @property
-    def _comments(self) -> list["BaseSegment"]:
+    def _comments(self) -> list[BaseSegment]:
         """Returns only the comment elements of this segment."""
         return [seg for seg in self.segments if seg.is_type("comment")]
 
     @property
-    def _non_comments(self) -> list["BaseSegment"]:  # pragma: no cover TODO?
+    def _non_comments(self) -> list[BaseSegment]:  # pragma: no cover TODO?
         """Returns only the non-comment elements of this segment."""
         return [seg for seg in self.segments if not seg.is_type("comment")]
 
@@ -357,14 +356,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return self.raw.upper()
 
     @cached_property
-    def raw_segments(self) -> list["RawSegment"]:
+    def raw_segments(self) -> list[RawSegment]:
         """Returns a list of raw segments in this segment."""
         return self.get_raw_segments()
 
     @cached_property
     def raw_segments_with_ancestors(
         self,
-    ) -> list[tuple["RawSegment", list[PathStep]]]:
+    ) -> list[tuple[RawSegment, list[PathStep]]]:
         """Returns a list of raw segments in this segment with the ancestors."""
         buffer = []
         for idx, seg in enumerate(self.segments):
@@ -430,9 +429,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
     @classmethod
     def _position_segments(
         cls,
-        segments: tuple["BaseSegment", ...],
+        segments: tuple[BaseSegment, ...],
         parent_pos: PositionMarker,
-    ) -> tuple["BaseSegment", ...]:
+    ) -> tuple[BaseSegment, ...]:
         """Refresh positions of segments within a span.
 
         This does two things:
@@ -450,7 +449,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         # Use the index so that we can look forward
         # and backward.
-        segment_buffer: tuple["BaseSegment", ...] = ()
+        segment_buffer: tuple[BaseSegment, ...] = ()
         for idx, segment in enumerate(segments):
             # Get hold of the current position.
             old_position = segment.pos_marker
@@ -531,7 +530,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
     @classmethod
     def simple(
         cls, parse_context: ParseContext, crumbs: Optional[tuple[str, ...]] = None
-    ) -> Optional["SimpleHintType"]:
+    ) -> Optional[SimpleHintType]:
         """Does this matcher support an uppercase hash matching route?
 
         This should be true if the MATCH grammar is simple. Most more
@@ -617,7 +616,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     @classmethod
     def match(
-        cls, segments: Sequence["BaseSegment"], idx: int, parse_context: ParseContext
+        cls, segments: Sequence[BaseSegment], idx: int, parse_context: ParseContext
     ) -> MatchResult:
         """Match a list of segments against this segment.
 
@@ -692,7 +691,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             if recurse:
                 seg.set_as_parent(recurse=recurse)
 
-    def set_parent(self, parent: "BaseSegment", idx: int) -> None:
+    def set_parent(self, parent: BaseSegment, idx: int) -> None:
         """Set the weak reference to the parent.
 
         We keep a reference to the index within the parent too as that
@@ -705,7 +704,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         self._parent = weakref.ref(parent)
         self._parent_idx = idx
 
-    def get_parent(self) -> Optional[tuple["BaseSegment", int]]:
+    def get_parent(self) -> Optional[tuple[BaseSegment, int]]:
         """Get the parent segment, with some validation.
 
         This is provided as a performance optimisation when searching
@@ -860,10 +859,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def copy(
         self,
-        segments: Optional[tuple["BaseSegment", ...]] = None,
-        parent: Optional["BaseSegment"] = None,
+        segments: Optional[tuple[BaseSegment, ...]] = None,
+        parent: Optional[BaseSegment] = None,
         parent_idx: Optional[int] = None,
-    ) -> "BaseSegment":
+    ) -> BaseSegment:
         """Copy the segment recursively, with appropriate copying of references.
 
         Optionally provide child segments which have already been dealt
@@ -920,7 +919,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """
         return self.structural_simplify(self.to_tuple(**kwargs))
 
-    def get_raw_segments(self) -> list["RawSegment"]:
+    def get_raw_segments(self) -> list[RawSegment]:
         """Iterate raw segments, mostly for searching."""
         return [item for s in self.segments for item in s.raw_segments]
 
@@ -930,7 +929,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def iter_segments(
         self, expanding: Optional[Sequence[str]] = None, pass_through: bool = False
-    ) -> Iterator["BaseSegment"]:
+    ) -> Iterator[BaseSegment]:
         """Iterate segments, optionally expanding some children."""
         for s in self.segments:
             if expanding and s.is_type(*expanding):
@@ -940,7 +939,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             else:
                 yield s
 
-    def iter_unparsables(self) -> Iterator["UnparsableSegment"]:
+    def iter_unparsables(self) -> Iterator[UnparsableSegment]:
         """Iterate through any unparsables this segment may contain."""
         for s in self.segments:
             yield from s.iter_unparsables()
@@ -973,11 +972,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def select_children(
         self,
-        start_seg: Optional["BaseSegment"] = None,
-        stop_seg: Optional["BaseSegment"] = None,
-        select_if: Optional[Callable[["BaseSegment"], Any]] = None,
-        loop_while: Optional[Callable[["BaseSegment"], Any]] = None,
-    ) -> list["BaseSegment"]:
+        start_seg: Optional[BaseSegment] = None,
+        stop_seg: Optional[BaseSegment] = None,
+        select_if: Optional[Callable[[BaseSegment], Any]] = None,
+        loop_while: Optional[Callable[[BaseSegment], Any]] = None,
+    ) -> list[BaseSegment]:
         """Retrieve subset of children based on range and filters.
 
         Often useful by linter rules when generating fixes, e.g. to find
@@ -1054,7 +1053,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                         no_recursive_seg_type=no_recursive_seg_type,
                     )
 
-    def path_to(self, other: "BaseSegment") -> list[PathStep]:
+    def path_to(self, other: BaseSegment) -> list[PathStep]:
         """Given a segment which is assumed within self, get the intermediate segments.
 
         Returns:
@@ -1147,7 +1146,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return []  # pragma: no cover
 
     @staticmethod
-    def _is_code_or_meta(segment: "BaseSegment") -> bool:
+    def _is_code_or_meta(segment: BaseSegment) -> bool:
         return segment.is_code or segment.is_meta
 
     def validate_non_code_ends(self) -> None:
@@ -1179,7 +1178,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def validate_segment_with_reparse(
         self,
-        dialect: "Dialect",
+        dialect: Dialect,
     ) -> bool:
         """Checks correctness of new segment by re-parsing it."""
         ctx = ParseContext(dialect=dialect)
@@ -1235,7 +1234,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         cls,
         result_segments: tuple[BaseSegment, ...],
         segment_kwargs: dict[str, Any],
-    ) -> "BaseSegment":
+    ) -> BaseSegment:
         """Create an instance of this class from a tuple of matched segments."""
         return cls(segments=result_segments, **segment_kwargs)
 
@@ -1266,7 +1265,7 @@ class UnparsableSegment(BaseSegment):
         """
         return f"!! Expected: {self._expected!r}"
 
-    def iter_unparsables(self) -> Iterator["UnparsableSegment"]:
+    def iter_unparsables(self) -> Iterator[UnparsableSegment]:
         """Iterate through any unparsables.
 
         As this is an unparsable, it should yield itself.

@@ -1,6 +1,6 @@
 """Implementation of Rule LT03."""
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext

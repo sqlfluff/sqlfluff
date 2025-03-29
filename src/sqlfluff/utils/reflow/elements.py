@@ -1,9 +1,10 @@
 """Dataclasses for reflow work."""
 
 import logging
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from itertools import chain
-from typing import Optional, Sequence, Union, cast
+from typing import Optional, Union, cast
 
 from sqlfluff.core.helpers.slice import slice_overlaps
 from sqlfluff.core.parser import PositionMarker

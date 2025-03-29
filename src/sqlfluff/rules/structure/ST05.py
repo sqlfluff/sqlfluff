@@ -1,7 +1,8 @@
 """Implementation of Rule ST05."""
 
+from collections.abc import Iterator
 from functools import partial
-from typing import Iterator, NamedTuple, Optional, TypeVar, cast
+from typing import NamedTuple, Optional, TypeVar, cast
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo

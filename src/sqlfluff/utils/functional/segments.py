@@ -1,10 +1,9 @@
 """Surrogate class for working with Segment collections."""
 
+from collections.abc import Iterable, Iterator
 from typing import (
     Any,
     Callable,
-    Iterable,
-    Iterator,
     Optional,
     SupportsIndex,
     Union,
@@ -29,7 +28,7 @@ class Segments(tuple[BaseSegment, ...]):
         cls, *segments: BaseSegment, templated_file: Optional[TemplatedFile] = None
     ) -> "Segments":
         """Override new operator."""
-        return super(Segments, cls).__new__(cls, segments)
+        return super().__new__(cls, segments)
 
     def __init__(
         self, *_: BaseSegment, templated_file: Optional[TemplatedFile] = None

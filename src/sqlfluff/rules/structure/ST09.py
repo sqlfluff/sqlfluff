@@ -1,6 +1,6 @@
 """Implementation of Rule ST09."""
 
-from typing import List, Optional, cast
+from typing import Optional, cast
 
 from sqlfluff.core.parser import BaseSegment, SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -260,7 +260,7 @@ class Rule_ST09(BaseRule):
     @staticmethod
     def _split_list_by_segment_type(
         segment_list: list[BaseSegment], delimiter_type: str, delimiters: list[str]
-    ) -> List:
+    ) -> list:
         # Break down a list into multiple sub-lists using a set of delimiters
         delimiters = [delimiter.upper() for delimiter in delimiters]
         new_list = []

@@ -8,8 +8,9 @@ into specific file references. The method also processes the
 
 import logging
 import os
+from collections.abc import Iterable, Iterator, Sequence
 from pathlib import Path
-from typing import Callable, Iterable, Iterator, Optional, Sequence
+from typing import Callable, Optional
 
 import pathspec
 

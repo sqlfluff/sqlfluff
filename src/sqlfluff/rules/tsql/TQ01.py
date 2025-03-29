@@ -69,7 +69,7 @@ class Rule_TQ01(BaseRule):
 
         # Find the object reference for the stored procedure.
         object_reference_segment = next(
-            (s for s in context.segment.segments if s.type == "object_reference")
+            s for s in context.segment.segments if s.type == "object_reference"
         )
 
         # We only want to check the stored procedure name.

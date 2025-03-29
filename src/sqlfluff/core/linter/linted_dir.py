@@ -4,7 +4,8 @@ This stores the idea of a collection of linted files at a single start path
 
 """
 
-from typing import Iterable, Optional, TypedDict, Union
+from collections.abc import Iterable
+from typing import Optional, TypedDict, Union
 
 from sqlfluff.core.errors import (
     CheckTuple,
@@ -16,17 +17,16 @@ from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES, LintedFile
 from sqlfluff.core.parser.segments.base import BaseSegment
 
-LintingRecord = TypedDict(
-    "LintingRecord",
-    {
-        "filepath": str,
-        "violations": list[SerializedObject],
-        # Things like file length
-        "statistics": dict[str, int],
-        # Raw timings, in seconds, for both rules and steps
-        "timings": dict[str, float],
-    },
-)
+
+class LintingRecord(TypedDict):
+    """A class to store the linted file statistics."""
+
+    filepath: str
+    violations: list[SerializedObject]
+    # Things like file length
+    statistics: dict[str, int]
+    # Raw timings, in seconds, for both rules and steps
+    timings: dict[str, float]
 
 
 class LintedDir:

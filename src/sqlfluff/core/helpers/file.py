@@ -1,8 +1,9 @@
 """File Helpers for the parser module."""
 
 import os.path
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator, Optional
+from typing import Optional
 
 import chardet
 
