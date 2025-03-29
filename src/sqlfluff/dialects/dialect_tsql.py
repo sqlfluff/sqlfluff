@@ -640,6 +640,22 @@ tsql_dialect.replace(
         min_times=1,
     ),
     CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
+    ArithmeticBinaryOperatorGrammar=ansi_dialect.get_grammar(
+        "ArithmeticBinaryOperatorGrammar"
+    ).copy(
+        insert=[
+            Sequence(
+                OneOf(
+                    Ref("PlusSegment"),
+                    Ref("MinusSegment"),
+                    Ref("MultiplySegment"),
+                    Ref("DivideSegment"),
+                    Ref("ModuloSegment"),
+                ),
+                Ref("EqualsSegment"),
+            )
+        ]
+    ),
 )
 
 
