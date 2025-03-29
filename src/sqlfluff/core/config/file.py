@@ -12,10 +12,7 @@ which should negate this effect.
 """
 
 import os.path
-
-# Explicitly rename so that mypy is happy re-exporting it for other
-# modules to use.
-from functools import cache as cache
+from functools import cache
 from typing import Optional
 
 from sqlfluff.core.config.ini import load_ini_string
