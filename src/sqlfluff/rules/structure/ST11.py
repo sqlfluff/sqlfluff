@@ -1,6 +1,7 @@
 """Implementation of Rule ST11."""
 
-from typing import Iterator, cast
+from collections.abc import Iterator
+from typing import cast
 
 from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
@@ -153,9 +154,9 @@ class Rule_ST11(BaseRule):
                 # Extract the join keywords used so we can exclude any which are
                 # configured. For example, INNER joins are often used as filters
                 # without being referenced.
-                join_keywords = set(
+                join_keywords = {
                     keyword.raw_upper for keyword in join_clause.get_children("keyword")
-                )
+                }
                 _this_clause_refs = []
                 for from_expression_elem in join_clause.get_children(
                     "from_expression_element"

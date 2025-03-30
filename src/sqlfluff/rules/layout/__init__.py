@@ -22,6 +22,20 @@ def get_configs_info() -> dict[str, ConfigInfo]:
                 " when linting line lengths?"
             ),
         },
+        "maximum_empty_lines_between_statements": {
+            "validation": range(1000),
+            "definition": (
+                "The maximum number of empty lines allowed between statements. "
+                "Note that currently, the gap _before_ and _after_ the semicolon "
+                "is considered 'between' statements."
+            ),
+        },
+        "maximum_empty_lines_inside_statements": {
+            "validation": range(1000),
+            "definition": (
+                "The maximum number of empty lines allowed inside statements."
+            ),
+        },
         "wildcard_policy": {
             "validation": ["single", "multiple"],
             "definition": "Treatment of wildcards. Defaults to ``single``.",
@@ -50,6 +64,7 @@ def get_rules() -> list[type[BaseRule]]:
     from sqlfluff.rules.layout.LT12 import Rule_LT12
     from sqlfluff.rules.layout.LT13 import Rule_LT13
     from sqlfluff.rules.layout.LT14 import Rule_LT14
+    from sqlfluff.rules.layout.LT15 import Rule_LT15
 
     return [
         Rule_LT01,
@@ -66,4 +81,5 @@ def get_rules() -> list[type[BaseRule]]:
         Rule_LT12,
         Rule_LT13,
         Rule_LT14,
+        Rule_LT15,
     ]

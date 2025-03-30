@@ -12,7 +12,7 @@ which should negate this effect.
 """
 
 import os.path
-import sys
+from functools import cache
 from typing import Optional
 
 from sqlfluff.core.config.ini import load_ini_string
@@ -22,20 +22,6 @@ from sqlfluff.core.helpers.string import (
     split_comma_separated_string,
 )
 from sqlfluff.core.types import ConfigMappingType
-
-if sys.version_info >= (3, 9):
-    # Explicitly rename so that mypy is happy re-exporting it for other
-    # modules to use.
-    from functools import cache as cache
-else:  # pragma: no cover
-    from functools import lru_cache
-
-    # With maxsize set to `None`, the lru_cache approximates what the later
-    # introduced `cache` does. We don't need to worry too much about overflow
-    # as config files are usually small, and sqlfluff is not often a long
-    # lived process.
-    cache = lru_cache(maxsize=None)
-
 
 COMMA_SEPARATED_PATH_KEYS = (
     "load_macros_from_path",

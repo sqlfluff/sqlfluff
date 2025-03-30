@@ -4,7 +4,8 @@ Matchable objects which return individual segments.
 """
 
 from abc import abstractmethod
-from typing import Any, Callable, Collection, Optional, Sequence
+from collections.abc import Collection, Sequence
+from typing import Any, Callable, Optional
 from uuid import uuid4
 
 import regex

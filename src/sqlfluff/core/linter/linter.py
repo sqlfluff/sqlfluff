@@ -4,7 +4,9 @@ import fnmatch
 import logging
 import os
 import time
-from typing import TYPE_CHECKING, Iterator, Optional, Sequence, cast
+
+from collections.abc import Iterator, Sequence
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 import regex
 from tqdm import tqdm
@@ -767,7 +769,7 @@ class Linter:
         output_map = reference_map
         # Add the special rules so they can be excluded for `disable_noqa_except` usage
         for special_rule in ["PRS", "LXR", "TMP"]:
-            output_map[special_rule] = set([special_rule])
+            output_map[special_rule] = {special_rule}
         # Expand glob usage of rules
         unexpanded_rules = tuple(r.strip() for r in disable_noqa_except.split(","))
         noqa_set = set()
@@ -820,14 +822,12 @@ class Linter:
         config.verify_dialect_specified()
         if not config.get("templater_obj") == self.templater:
             linter_logger.warning(
-                (
-                    f"Attempt to set templater to {config.get('templater_obj').name} "
-                    f"failed. Using {self.templater.name} templater. Templater cannot "
-                    "be set in a .sqlfluff file in a subdirectory of the current "
-                    "working directory. It can be set in a .sqlfluff in the current "
-                    "working directory. See Nesting section of the docs for more "
-                    "details."
-                )
+                f"Attempt to set templater to {config.get('templater_obj').name} "
+                f"failed. Using {self.templater.name} templater. Templater cannot "
+                "be set in a .sqlfluff file in a subdirectory of the current "
+                "working directory. It can be set in a .sqlfluff in the current "
+                "working directory. See Nesting section of the docs for more "
+                "details."
             )
 
         variant_limit = config.get("render_variant_limit")
