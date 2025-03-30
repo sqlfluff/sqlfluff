@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Optional
 
 from sqlfluff.core.types import Color
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.config import FluffConfig
     from sqlfluff.core.linter import LintedFile
 
