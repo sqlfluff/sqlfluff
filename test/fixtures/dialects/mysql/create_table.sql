@@ -33,3 +33,8 @@ CREATE TEMPORARY TABLE tbl_name (INDEX(col)) AS
 
 CREATE TEMPORARY TABLE tbl_name (INDEX(col))
     SELECT id, col FROM table_name;
+
+CREATE TABLE geom (
+    p POINT SRID 0,
+    g GEOMETRY NOT NULL SRID 4326
+);

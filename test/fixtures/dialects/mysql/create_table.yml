@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b0fc0fab94b9872212e772491b9cc1a0ee2d09b345291b80a8ba94dd2b029555
+_hash: d0dc09e9b8d8bb199d932a9e1bc882f368480af8397536fb4d54371b2c8acf2c
 file:
 - statement:
     create_table_statement:
@@ -356,4 +356,32 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: table_name
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: geom
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: p
+          data_type:
+            data_type_identifier: POINT
+          column_constraint_segment:
+            keyword: SRID
+            numeric_literal: '0'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: g
+        - data_type:
+            data_type_identifier: GEOMETRY
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_constraint_segment:
+            keyword: SRID
+            numeric_literal: '4326'
+      - end_bracket: )
 - statement_terminator: ;
