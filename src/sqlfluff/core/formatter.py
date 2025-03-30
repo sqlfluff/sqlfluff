@@ -11,11 +11,13 @@ interface should override with their own implementation.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
-from sqlfluff.core import FluffConfig
-from sqlfluff.core.linter import LintedFile
 from sqlfluff.core.types import Color
+
+if TYPE_CHECKING:
+    from sqlfluff.core.config import FluffConfig
+    from sqlfluff.core.linter import LintedFile
 
 
 class FormatterInterface(ABC):
@@ -35,7 +37,7 @@ class FormatterInterface(ABC):
     def dispatch_file_violations(
         self,
         fname: str,
-        linted_file: LintedFile,
+        linted_file: "LintedFile",
         only_fixable: bool,
         warn_unused_ignores: bool,
     ) -> None:
@@ -49,7 +51,10 @@ class FormatterInterface(ABC):
 
     @abstractmethod
     def dispatch_template_header(
-        self, fname: str, linter_config: FluffConfig, file_config: Optional[FluffConfig]
+        self,
+        fname: str,
+        linter_config: "FluffConfig",
+        file_config: Optional["FluffConfig"],
     ) -> None:
         """Dispatch the header displayed before templating."""
         ...
