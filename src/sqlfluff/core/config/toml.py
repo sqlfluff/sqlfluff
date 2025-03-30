@@ -53,6 +53,9 @@ def load_toml_file_config(filepath: str) -> ConfigMappingType:
 
     We don't need to change any key names here, because the root
     section of the toml file format is `tool.sqlfluff.core`.
+
+    NOTE: Toml files are always encoded in UTF-8. That is a necessary
+    part of the toml spec: https://toml.io/en/v1.0.0
     """
     with open(filepath, mode="r", encoding="utf-8") as file:
         toml_dict = tomllib.loads(file.read())
