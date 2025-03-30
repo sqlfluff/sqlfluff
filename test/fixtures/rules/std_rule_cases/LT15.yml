@@ -55,6 +55,13 @@ test_fail_one_empty_line_between_statements:
         maximum_empty_lines_between_statements: 1
 
 test_fail_bad_edge_case:
+  # This test case is a little controversial. Currently the gap before and
+  # after the semicolon is considered *between* statements. While this is
+  # on the lenient side, and also allows people to operate with "leading semicolons"
+  # if they want - it's very possible that some users will want this to be
+  # further tightened. Recommendation for the future is to add an additional
+  # config to control restrict whether the gap a) before b) after or c) both
+  # before and after should be considered "between" statements.
   fail_str: |
     SELECT foo
     FROM

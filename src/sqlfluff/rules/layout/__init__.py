@@ -27,7 +27,9 @@ def get_configs_info() -> Dict[str, Any]:
         "maximum_empty_lines_between_statements": {
             "validation": range(1000),
             "definition": (
-                "The maximum number of empty lines allowed between statements."
+                "The maximum number of empty lines allowed between statements. "
+                "Note that currently, the gap _before_ and _after_ the semicolon "
+                "is considered 'between' statements."
             ),
         },
         "maximum_empty_lines_inside_statements": {
