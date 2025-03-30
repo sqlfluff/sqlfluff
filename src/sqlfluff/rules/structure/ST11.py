@@ -94,7 +94,7 @@ class Rule_ST11(BaseRule):
             alias_identifier = alias_expression.get_child("identifier")
             if alias_identifier:
                 # Append the raw representation and the from expression.
-                return alias_identifier.raw_upper
+                return alias_identifier.raw_normalized(casefold=False).upper()
         # Otherwise if no alias, we need the name of the object we're
         # referencing.
         for table_reference in segment.recursive_crawl(

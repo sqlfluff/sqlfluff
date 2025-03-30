@@ -99,7 +99,7 @@ class Rule_AM08(BaseRule):
             ) in maybe_from_expression_element.recursive_crawl(
                 "function_name_identifier"
             ):
-                if function_name_identifier.raw_normalized() == "UNNEST":
+                if function_name_identifier.raw_upper == "UNNEST":
                     return None
 
         return LintResult(join_clause)

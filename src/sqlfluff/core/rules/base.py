@@ -38,7 +38,7 @@ from sqlfluff.core.errors import SQLFluffUserError, SQLLintError
 from sqlfluff.core.helpers.string import split_comma_separated_string
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.plugin.host import is_main_process, plugins_loaded
-from sqlfluff.core.rules.config_info import get_config_info
+from sqlfluff.core.rules.config_info import ConfigInfo, get_config_info
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import BaseCrawler
 from sqlfluff.core.rules.fix import LintFix
@@ -901,7 +901,7 @@ class RuleSet:
 
     """
 
-    def __init__(self, name: str, config_info: dict[str, dict[str, Any]]) -> None:
+    def __init__(self, name: str, config_info: dict[str, ConfigInfo]) -> None:
         self.name = name
         self.config_info = config_info
         self._register: dict[str, RuleManifest] = {}
