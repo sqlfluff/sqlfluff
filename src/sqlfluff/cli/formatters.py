@@ -165,7 +165,7 @@ class OutputStreamFormatter(FormatterInterface):
             self._dispatch(self._format_path(path))
 
     def dispatch_template_header(
-        self, fname: str, linter_config: FluffConfig, file_config: FluffConfig
+        self, fname: str, linter_config: FluffConfig, file_config: Optional[FluffConfig]
     ) -> None:
         """Dispatch the header displayed before templating."""
         if self.verbosity > 1:
@@ -187,9 +187,9 @@ class OutputStreamFormatter(FormatterInterface):
         if self.verbosity > 1:
             self._dispatch(self.format_filename(filename=fname, success="PARSING"))
 
-    def dispatch_lint_header(self, fname: str, rules: list[str]) -> None:
+    def dispatch_lint_header(self, fname: Optional[str], rules: list[str]) -> None:
         """Dispatch the header displayed before linting."""
-        if self.verbosity > 1:
+        if self.verbosity > 1 and fname is not None:
             self._dispatch(
                 self.format_filename(
                     filename=fname, success=f"LINTING ({', '.join(rules)})"
