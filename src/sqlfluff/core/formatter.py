@@ -11,7 +11,7 @@ interface should override with their own implementation.
 """
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional
 
 from sqlfluff.core.types import Color
 
