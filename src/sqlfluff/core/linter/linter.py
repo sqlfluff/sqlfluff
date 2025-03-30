@@ -4,9 +4,8 @@ import fnmatch
 import logging
 import os
 import time
-
 from collections.abc import Iterator, Sequence
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 import regex
 from tqdm import tqdm
