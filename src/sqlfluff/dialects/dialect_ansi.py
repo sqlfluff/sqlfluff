@@ -1672,7 +1672,12 @@ class FromExpressionElementSegment(BaseSegment):
             if segment:
                 segment = cast(IdentifierSegment, segment)
                 return AliasInfo(
-                    segment.raw, segment, True, self, alias_expression, ref
+                    segment.raw_normalized(casefold=False),
+                    segment,
+                    True,
+                    self,
+                    alias_expression,
+                    ref,
                 )
 
         # If not return the object name (or None if there isn't one)
@@ -1818,7 +1823,14 @@ class SelectClauseElementSegment(BaseSegment):
 
     def get_alias(self) -> Optional[ColumnAliasInfo]:
         """Get info on alias within SELECT clause element."""
-        alias_expression_segment = next(self.recursive_crawl("alias_expression"), None)
+        alias_expression_segment = next(
+            self.recursive_crawl(
+                "alias_expression",
+                # don't recurse into any subqueries
+                no_recursive_seg_type="select_statement",
+            ),
+            None,
+        )
         if alias_expression_segment is None:
             # Return None if no alias expression is found.
             return None

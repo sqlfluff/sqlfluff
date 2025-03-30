@@ -157,6 +157,19 @@ test_pass_unnest:
     core:
       dialect: bigquery
 
+test_pass_lowercase_unnest:
+  pass_str: |
+    select
+        ix,
+        v
+    from t
+    left join
+        unnest(t.value_list) as v
+        with offset as ix
+  configs:
+    core:
+      dialect: bigquery
+
 test_pass_natural_join:
   pass_str: |
     select foo.x
