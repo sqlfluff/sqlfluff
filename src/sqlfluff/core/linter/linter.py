@@ -386,7 +386,9 @@ class Linter:
 
         # Dispatch the output for the lint header
         if formatter:
-            formatter.dispatch_lint_header(fname, sorted(rule_pack.codes()))
+            formatter.dispatch_lint_header(
+                fname or "<filename>", sorted(rule_pack.codes())
+            )
 
         # Look for comment segments which might indicate lines to ignore.
         disable_noqa_except: Optional[str] = config.get("disable_noqa_except")

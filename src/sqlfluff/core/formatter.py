@@ -27,7 +27,7 @@ class FormatterInterface(ABC):
         ...
 
     @abstractmethod
-    def dispatch_lint_header(self, fname: Optional[str], rules: list[str]) -> None:
+    def dispatch_lint_header(self, fname: str, rules: list[str]) -> None:
         """Dispatch the header displayed before linting."""
         ...
 
