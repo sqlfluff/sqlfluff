@@ -63,7 +63,7 @@ version number.
 .. code-block:: text
 
     $ sqlfluff version
-    3.3.1
+    3.4.0
 
 Basic Usage
 -----------
