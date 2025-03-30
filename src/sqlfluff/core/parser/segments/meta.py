@@ -1,6 +1,7 @@
 """Indent and Dedent classes."""
 
-from typing import Optional, Sequence
+from collections.abc import Sequence
+from typing import Optional
 from uuid import UUID
 
 from sqlfluff.core.parser.context import ParseContext

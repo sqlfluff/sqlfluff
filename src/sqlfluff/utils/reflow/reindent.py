@@ -2,9 +2,10 @@
 
 import logging
 from collections import defaultdict
+from collections.abc import Iterator
 from dataclasses import dataclass
 from itertools import chain
-from typing import DefaultDict, Iterator, Optional, Union, cast
+from typing import DefaultDict, Optional, Union, cast
 
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.slice import slice_length
@@ -129,8 +130,7 @@ class _IndentLine:
             range_slice = slice(None, self.indent_points[-1].idx)
         else:
             range_slice = slice(self.indent_points[0].idx, self.indent_points[-1].idx)
-        for element in elements[range_slice]:
-            yield element
+        yield from elements[range_slice]
 
     def iter_blocks(self, elements: ReflowSequenceType) -> Iterator[ReflowBlock]:
         for element in self.iter_elements(elements):
@@ -302,7 +302,7 @@ def _revise_templated_lines(
         group_lines = grouped[group_uuid]
 
         # Check for case 1.
-        if len(set(lines[idx].initial_indent_balance for idx in group_lines)) == 1:
+        if len({lines[idx].initial_indent_balance for idx in group_lines}) == 1:
             reflow_logger.debug("    Case 1: All the same")
             continue
 

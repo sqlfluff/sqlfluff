@@ -12,8 +12,9 @@ grammar. Check out their docs, they're awesome.
 https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
 
+from collections.abc import Generator
 from enum import Enum
-from typing import Generator, List, NamedTuple, Optional, Union, cast
+from typing import NamedTuple, Optional, Union, cast
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
@@ -1682,7 +1683,7 @@ class FromExpressionElementSegment(BaseSegment):
 
         # If not return the object name (or None if there isn't one)
         if ref:
-            references: List = list(ref.iter_raw_references())
+            references: list = list(ref.iter_raw_references())
             # Return the last element of the reference.
             if references:
                 penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = (

@@ -1,8 +1,9 @@
 """Helpers for generating patches to fix files."""
 
 import logging
+from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Iterator, Optional
+from typing import Optional
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.parser.markers import PositionMarker
