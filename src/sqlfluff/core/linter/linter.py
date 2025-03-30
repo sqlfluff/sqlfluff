@@ -4,7 +4,7 @@ import fnmatch
 import logging
 import os
 import time
-from typing import TYPE_CHECKING, Any, Iterator, Optional, Sequence, cast
+from typing import TYPE_CHECKING, Iterator, Optional, Sequence, cast
 
 import regex
 from tqdm import tqdm
