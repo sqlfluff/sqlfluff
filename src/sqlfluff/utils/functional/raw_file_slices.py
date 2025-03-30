@@ -1,11 +1,11 @@
 """Surrogate class for working with RawFileSlice collections."""
 
-from typing import Callable, Optional, Tuple
+from typing import Callable, Optional
 
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
 
-class RawFileSlices(Tuple[RawFileSlice, ...]):
+class RawFileSlices(tuple[RawFileSlice, ...]):
     """Encapsulates a sequence of one or more RawFileSlice.
 
     The slices may or may not be contiguous in a file.

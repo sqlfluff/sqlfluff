@@ -10,7 +10,7 @@ the context of each thread.
 import importlib.metadata
 import logging
 from contextvars import ContextVar
-from typing import Iterator, Optional, Tuple
+from typing import Iterator, Optional
 
 import pluggy
 
@@ -38,7 +38,7 @@ def _get_sqlfluff_version() -> str:
     return importlib.metadata.version("sqlfluff")
 
 
-def _discover_plugins() -> Iterator[Tuple[importlib.metadata.EntryPoint, str, str]]:
+def _discover_plugins() -> Iterator[tuple[importlib.metadata.EntryPoint, str, str]]:
     """Uses the same mechanism as pluggy to introspect available plugins.
 
     This method is then intended to allow loading of plugins individually,

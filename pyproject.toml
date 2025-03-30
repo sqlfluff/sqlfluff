@@ -8,7 +8,7 @@ name = "sqlfluff"
 version = "3.3.1"
 description = "The SQL Linter for Humans"
 readme = {file = "README.md", content-type = "text/markdown"}
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 authors = [
   {name = "Alan Cruickshank", email = "alan@designingoverload.com"},
 ]
@@ -24,7 +24,6 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -75,7 +74,6 @@ dependencies = [
     "colorama>=0.3",
     # Used for diffcover plugin
     "diff-cover>=2.5.0",
-    "importlib_resources; python_version < '3.9'",
     "Jinja2",
     # Used for .sqlfluffignore
     "pathspec",

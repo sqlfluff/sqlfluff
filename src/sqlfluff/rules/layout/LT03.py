@@ -1,6 +1,6 @@
 """Implementation of Rule LT03."""
 
-from typing import List, Sequence
+from typing import Sequence
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
@@ -117,7 +117,7 @@ class Rule_LT03(BaseRule):
                 return True
         return False
 
-    def _eval(self, context: RuleContext) -> List[LintResult]:
+    def _eval(self, context: RuleContext) -> list[LintResult]:
         """Operators should follow a standard for being before/after newlines.
 
         For the fixing routines we delegate to the reflow utils. However

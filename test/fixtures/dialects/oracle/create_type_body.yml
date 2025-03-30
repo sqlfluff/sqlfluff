@@ -1,0 +1,126 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a4ef227d2f94f5b5a3d4eff6bed3d34a22fd7fb0582b725c59676e89c534efca
+file:
+- statement:
+    create_type_body_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - keyword: BODY
+    - type_reference:
+        naked_identifier: data_typ1
+    - keyword: IS
+    - keyword: MEMBER
+    - create_function_statement:
+      - keyword: FUNCTION
+      - function_name:
+          function_name_identifier: prod
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            parameter: invent
+            data_type:
+              data_type_identifier: NUMBER
+            end_bracket: )
+      - keyword: RETURN
+      - data_type:
+          data_type_identifier: NUMBER
+      - keyword: IS
+      - begin_end_block:
+        - keyword: BEGIN
+        - statement:
+            function:
+              function_name:
+                function_name_identifier: RETURN
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                  - column_reference:
+                      naked_identifier: year
+                  - binary_operator: +
+                  - column_reference:
+                      naked_identifier: invent
+                  end_bracket: )
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    create_type_body_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - keyword: BODY
+    - type_reference:
+        naked_identifier: demo_typ2
+    - keyword: IS
+    - keyword: MEMBER
+    - create_function_statement:
+      - keyword: FUNCTION
+      - function_name:
+          function_name_identifier: get_square
+      - keyword: RETURN
+      - data_type:
+          data_type_identifier: NUMBER
+      - keyword: IS
+      - declare_segment:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: NUMBER
+          statement_terminator: ;
+      - begin_end_block:
+        - keyword: BEGIN
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  expression:
+                  - column_reference:
+                    - naked_identifier: c
+                    - dot: .
+                    - naked_identifier: col
+                    - dot: .
+                    - naked_identifier: a1
+                  - binary_operator: '*'
+                  - column_reference:
+                    - naked_identifier: c
+                    - dot: .
+                    - naked_identifier: col
+                    - dot: .
+                    - naked_identifier: a1
+              into_clause:
+                keyword: INTO
+                naked_identifier: x
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: demo_tab2
+                    alias_expression:
+                      naked_identifier: c
+        - statement_terminator: ;
+        - statement:
+            function:
+              function_name:
+                function_name_identifier: RETURN
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: x
+                  end_bracket: )
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /

@@ -4,18 +4,7 @@ import logging
 from collections import defaultdict
 from dataclasses import dataclass
 from itertools import chain
-from typing import (
-    DefaultDict,
-    Dict,
-    FrozenSet,
-    Iterator,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    Union,
-    cast,
-)
+from typing import DefaultDict, Iterator, Optional, Union, cast
 
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.slice import slice_length
@@ -90,7 +79,7 @@ class _IndentPoint:
     # no newline is an untaken indent of value 2.
     # It also only covers untaken indents _before_ this point. If this point
     # is _also_ an untaken indent, we should be able to infer that ourselves.
-    untaken_indents: Tuple[int, ...]
+    untaken_indents: tuple[int, ...]
 
     @property
     def closing_indent_balance(self) -> int:
@@ -107,7 +96,7 @@ class _IndentLine:
     """
 
     initial_indent_balance: int
-    indent_points: List[_IndentPoint]
+    indent_points: list[_IndentPoint]
 
     def __repr__(self) -> str:
         """Compressed repr method to ease logging."""
@@ -123,7 +112,7 @@ class _IndentLine:
         )
 
     @classmethod
-    def from_points(cls, indent_points: List[_IndentPoint]) -> "_IndentLine":
+    def from_points(cls, indent_points: list[_IndentPoint]) -> "_IndentLine":
         # Catch edge case for first line where we'll start with a
         # block if no initial indent.
         if indent_points[-1].last_line_break_idx:
@@ -163,7 +152,7 @@ class _IndentLine:
         """Is this line made up of just template elements?"""
         return all(block.is_all_unrendered() for block in self.iter_blocks(elements))
 
-    def desired_indent_units(self, forced_indents: List[int]) -> int:
+    def desired_indent_units(self, forced_indents: list[int]) -> int:
         """Calculate the desired indent units.
 
         This is the heart of the indentation calculations.
@@ -235,7 +224,7 @@ class _IndentLine:
 
 
 def _revise_templated_lines(
-    lines: List[_IndentLine], elements: ReflowSequenceType
+    lines: list[_IndentLine], elements: ReflowSequenceType
 ) -> None:
     """Given an initial set of individual lines. Revise templated ones.
 
@@ -320,11 +309,11 @@ def _revise_templated_lines(
         # Check for case 2.
         # In this scenario, we only need to check the adjacent points.
         # If there's any wiggle room, we pick the lowest option.
-        options: List[Set[int]] = []
+        options: list[set[int]] = []
         for idx in group_lines:
             line = lines[idx]
 
-            steps: Set[int] = {line.initial_indent_balance}
+            steps: set[int] = {line.initial_indent_balance}
             # Run backward through the pre point.
             indent_balance = line.initial_indent_balance
             first_point_idx = line.indent_points[0].idx
@@ -609,15 +598,14 @@ def _revise_templated_lines(
         src_str = first_seg.pos_marker.source_str()
         if src_str != first_seg.raw and "\n" in src_str:
             reflow_logger.debug(
-                "    Removing line %s from linting as placeholder "
-                "contains newlines.",
+                "    Removing line %s from linting as placeholder contains newlines.",
                 first_seg.pos_marker.working_line_no,
             )
             lines.remove(line)
 
 
 def _revise_skipped_source_lines(
-    lines: List[_IndentLine],
+    lines: list[_IndentLine],
     elements: ReflowSequenceType,
 ) -> None:
     """Given an initial set of individual lines, revise any with skipped source.
@@ -700,7 +688,7 @@ def _revise_skipped_source_lines(
 
 
 def _revise_comment_lines(
-    lines: List[_IndentLine], elements: ReflowSequenceType, ignore_comment_lines: bool
+    lines: list[_IndentLine], elements: ReflowSequenceType, ignore_comment_lines: bool
 ) -> None:
     """Given an initial set of individual lines. Revise comment ones.
 
@@ -710,7 +698,7 @@ def _revise_comment_lines(
     the following non-comment element.
     """
     reflow_logger.debug("# Revise comment lines.")
-    comment_line_buffer: List[int] = []
+    comment_line_buffer: list[int] = []
 
     # Slice to avoid copying
     for idx, line in enumerate(lines[:]):
@@ -756,11 +744,11 @@ def construct_single_indent(indent_unit: str, tab_space_size: int) -> str:
 
 
 def _prune_untaken_indents(
-    untaken_indents: Tuple[int, ...],
+    untaken_indents: tuple[int, ...],
     incoming_balance: int,
     indent_stats: IndentStats,
     has_newline: bool,
-) -> Tuple[int, ...]:
+) -> tuple[int, ...]:
     """Update the tracking of untaken indents.
 
     This is an internal helper function for `_crawl_indent_points`.
@@ -796,11 +784,11 @@ def _prune_untaken_indents(
 
 
 def _update_crawl_balances(
-    untaken_indents: Tuple[int, ...],
+    untaken_indents: tuple[int, ...],
     incoming_balance: int,
     indent_stats: IndentStats,
     has_newline: bool,
-) -> Tuple[int, Tuple[int, ...]]:
+) -> tuple[int, tuple[int, ...]]:
     """Update the tracking of untaken indents and balances.
 
     This is an internal helper function for `_crawl_indent_points`.
@@ -831,7 +819,7 @@ def _crawl_indent_points(
     """
     last_line_break_idx: int | None = None
     indent_balance = 0
-    untaken_indents: Tuple[int, ...] = ()
+    untaken_indents: tuple[int, ...] = ()
     cached_indent_stats: Optional[IndentStats] = None
     cached_point: Optional[_IndentPoint] = None
     for idx, elem in enumerate(elements):
@@ -997,7 +985,7 @@ def _crawl_indent_points(
 
 def _map_line_buffers(
     elements: ReflowSequenceType, allow_implicit_indents: bool = False
-) -> Tuple[List[_IndentLine], List[int]]:
+) -> tuple[list[_IndentLine], list[int]]:
     """Map the existing elements, building up a list of _IndentLine.
 
     Returns:
@@ -1224,8 +1212,8 @@ def _lint_line_starting_indent(
     elements: ReflowSequenceType,
     indent_line: _IndentLine,
     single_indent: str,
-    forced_indents: List[int],
-) -> List[LintResult]:
+    forced_indents: list[int],
+) -> list[LintResult]:
     """Lint the indent at the start of a line.
 
     NOTE: This mutates `elements` to avoid lots of copying.
@@ -1328,8 +1316,8 @@ def _lint_line_untaken_positive_indents(
     elements: ReflowSequenceType,
     indent_line: _IndentLine,
     single_indent: str,
-    imbalanced_indent_locs: List[int],
-) -> Tuple[List[LintResult], List[int]]:
+    imbalanced_indent_locs: list[int],
+) -> tuple[list[LintResult], list[int]]:
     """Check for positive indents which should have been taken."""
     # First check whether this line contains any of the untaken problem points.
     for ip in indent_line.indent_points:
@@ -1431,14 +1419,14 @@ def _lint_line_untaken_negative_indents(
     elements: ReflowSequenceType,
     indent_line: _IndentLine,
     single_indent: str,
-    forced_indents: List[int],
-) -> List[LintResult]:
+    forced_indents: list[int],
+) -> list[LintResult]:
     """Check for negative indents which should have been taken."""
     # If we don't close lower than we start, there won't be any.
     if indent_line.closing_balance() >= indent_line.opening_balance():
         return []
 
-    results: List[LintResult] = []
+    results: list[LintResult] = []
     # On the way down we're looking for indents which *were* taken on
     # the way up, but currently aren't on the way down. We slice so
     # that the _last_ point isn't evaluated, because that's fine.
@@ -1537,9 +1525,9 @@ def _lint_line_buffer_indents(
     elements: ReflowSequenceType,
     indent_line: _IndentLine,
     single_indent: str,
-    forced_indents: List[int],
-    imbalanced_indent_locs: List[int],
-) -> List[LintResult]:
+    forced_indents: list[int],
+    imbalanced_indent_locs: list[int],
+) -> list[LintResult]:
     """Evaluate a single set of indent points on one line.
 
     NOTE: This mutates the given `elements` and `forced_indents` input to avoid
@@ -1625,10 +1613,10 @@ def _lint_line_buffer_indents(
 def lint_indent_points(
     elements: ReflowSequenceType,
     single_indent: str,
-    skip_indentation_in: FrozenSet[str] = frozenset(),
+    skip_indentation_in: frozenset[str] = frozenset(),
     allow_implicit_indents: bool = False,
     ignore_comment_lines: bool = False,
-) -> Tuple[ReflowSequenceType, List[LintResult]]:
+) -> tuple[ReflowSequenceType, list[LintResult]]:
     """Lint the indent points to check we have line breaks where we should.
 
     For linting indentation - we *first* need to make sure there are
@@ -1650,8 +1638,8 @@ def lint_indent_points(
     break, we need to also know how much to indent by.
     """
     # First map the line buffers.
-    lines: List[_IndentLine]
-    imbalanced_indent_locs: List[int]
+    lines: list[_IndentLine]
+    imbalanced_indent_locs: list[int]
     lines, imbalanced_indent_locs = _map_line_buffers(
         elements, allow_implicit_indents=allow_implicit_indents
     )
@@ -1683,10 +1671,10 @@ def lint_indent_points(
 
     reflow_logger.debug("# Evaluate lines for indentation.")
     # Last: handle each of the lines.
-    results: List[LintResult] = []
+    results: list[LintResult] = []
     # NOTE: forced_indents is mutated by _lint_line_buffer_indents
     # It's used to pass from one call to the next.
-    forced_indents: List[int] = []
+    forced_indents: list[int] = []
     elem_buffer = elements.copy()  # Make a working copy to mutate.
     for line in lines:
         line_results = _lint_line_buffer_indents(
@@ -1770,7 +1758,7 @@ def _source_char_len(elements: ReflowSequenceType) -> int:
     return char_len
 
 
-def _rebreak_priorities(spans: List[_RebreakSpan]) -> Dict[int, int]:
+def _rebreak_priorities(spans: list[_RebreakSpan]) -> dict[int, int]:
     """Process rebreak spans into opportunities to split lines.
 
     The index to insert a potential indent at depends on the
@@ -1819,14 +1807,14 @@ def _rebreak_priorities(spans: List[_RebreakSpan]) -> Dict[int, int]:
     return rebreak_priority
 
 
-MatchedIndentsType = DefaultDict[float, List[int]]
+MatchedIndentsType = DefaultDict[float, list[int]]
 
 
 def _increment_balance(
     input_balance: int,
     indent_stats: IndentStats,
     elem_idx: int,
-) -> Tuple[int, MatchedIndentsType]:
+) -> tuple[int, MatchedIndentsType]:
     """Logic for stepping through _match_indents.
 
     This is the part of that logic which is potentially fragile
@@ -1875,7 +1863,7 @@ def _increment_balance(
 
 def _match_indents(
     line_elements: ReflowSequenceType,
-    rebreak_priorities: Dict[int, int],
+    rebreak_priorities: dict[int, int],
     newline_idx: int,
     allow_implicit_indents: bool = False,
 ) -> MatchedIndentsType:
@@ -1886,7 +1874,7 @@ def _match_indents(
     """
     balance = 0
     matched_indents: MatchedIndentsType = defaultdict(list)
-    implicit_indents: Dict[int, Tuple[int, ...]] = {}
+    implicit_indents: dict[int, tuple[int, ...]] = {}
     for idx, e in enumerate(line_elements):
         # We only care about points, because only they contain indents.
         if not isinstance(e, ReflowPoint):
@@ -1964,7 +1952,7 @@ def _fix_long_line_with_comment(
     line_length_limit: int,
     last_indent_idx: Optional[int],
     trailing_comments: str = "before",
-) -> Tuple[ReflowSequenceType, List[LintFix]]:
+) -> tuple[ReflowSequenceType, list[LintFix]]:
     """Fix long line by moving trailing comments if possible.
 
     This method (unlike the ones for normal lines), just returns
@@ -2021,7 +2009,7 @@ def _fix_long_line_with_comment(
         prev_elems = []
         anchor = first_seg
     else:
-        new_segments: Tuple[RawSegment, ...] = (NewlineSegment(),)
+        new_segments: tuple[RawSegment, ...] = (NewlineSegment(),)
         if current_indent:
             new_segments += (WhitespaceSegment(current_indent),)
         new_point = ReflowPoint(new_segments)
@@ -2056,8 +2044,8 @@ def _fix_long_line_with_comment(
 
 
 def _fix_long_line_with_fractional_targets(
-    elements: ReflowSequenceType, target_breaks: List[int], desired_indent: str
-) -> List[LintResult]:
+    elements: ReflowSequenceType, target_breaks: list[int], desired_indent: str
+) -> list[LintResult]:
     """Work out fixes for splitting a long line at locations like operators.
 
     NOTE: This mutates `elements` to avoid copying.
@@ -2080,11 +2068,11 @@ def _fix_long_line_with_fractional_targets(
 
 def _fix_long_line_with_integer_targets(
     elements: ReflowSequenceType,
-    target_breaks: List[int],
+    target_breaks: list[int],
     line_length_limit: int,
     inner_indent: str,
     outer_indent: str,
-) -> List[LintResult]:
+) -> list[LintResult]:
     """Work out fixes for splitting a long line at locations like indents.
 
     NOTE: This mutates `elements` to avoid copying.
@@ -2172,7 +2160,7 @@ def lint_line_length(
     line_length_limit: int,
     allow_implicit_indents: bool = False,
     trailing_comments: str = "before",
-) -> Tuple[ReflowSequenceType, List[LintResult]]:
+) -> tuple[ReflowSequenceType, list[LintResult]]:
     """Lint the sequence to lines over the configured length.
 
     NOTE: This assumes that `lint_indent_points` has already
@@ -2189,7 +2177,7 @@ def lint_line_length(
     # Make a working copy to mutate.
     elem_buffer: ReflowSequenceType = elements.copy()
     line_buffer: ReflowSequenceType = []
-    results: List[LintResult] = []
+    results: list[LintResult] = []
 
     last_indent_idx: int | None = None
     for i, elem in enumerate(elem_buffer):
@@ -2267,7 +2255,7 @@ def lint_line_length(
             line_elements = line_buffer + [elem]
 
             # Type hints
-            fixes: List[LintFix]
+            fixes: list[LintFix]
 
             # Identify rebreak spans first so we can work out their indentation
             # in the next section.

@@ -9,10 +9,8 @@ There are also some keywords that are(n't) supported as types and function, but 
 isn't support for that distinction at present.
 """
 
-from typing import List, Tuple
 
-
-def priority_keyword_merge(*args: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
+def priority_keyword_merge(*args: list[tuple[str, str]]) -> list[tuple[str, str]]:
     """Merge keyword lists, giving priority to entries in later lists.
 
     *args is a list of keyword lists, these lists should be of tuples in the form
@@ -40,7 +38,7 @@ def priority_keyword_merge(*args: List[Tuple[str, str]]) -> List[Tuple[str, str]
     return base_list
 
 
-def get_keywords(keyword_list: List[Tuple[str, str]], keyword_type: str) -> List[str]:
+def get_keywords(keyword_list: list[tuple[str, str]], keyword_type: str) -> list[str]:
     """Get a list of keywords of the required type.
 
     keyword_type should be one of "not-keyword", "reserved", "non-reserved"

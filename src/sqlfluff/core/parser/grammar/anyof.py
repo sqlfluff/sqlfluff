@@ -1,6 +1,6 @@
 """AnyNumberOf, OneOf, OptionallyBracketed & AnySetOf."""
 
-from typing import FrozenSet, List, Optional, Tuple, Union, cast
+from typing import Optional, Union, cast
 from typing import Sequence as SequenceType
 
 from sqlfluff.core.parser.context import ParseContext
@@ -93,20 +93,20 @@ class AnyNumberOf(BaseGrammar):
 
     @cached_method_for_parse_context
     def simple(
-        self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
+        self, parse_context: ParseContext, crumbs: Optional[tuple[str]] = None
     ) -> SimpleHintType:
         """Does this matcher support a uppercase hash matching route?
 
         AnyNumberOf does provide this, as long as *all* the elements *also* do.
         """
-        option_simples: List[SimpleHintType] = [
+        option_simples: list[SimpleHintType] = [
             opt.simple(parse_context=parse_context, crumbs=crumbs)
             for opt in self._elements
         ]
         if any(elem is None for elem in option_simples):
             return None
         # We now know that there are no Nones.
-        simple_buff = cast(List[Tuple[FrozenSet[str], FrozenSet[str]]], option_simples)
+        simple_buff = cast(list[tuple[frozenset[str], frozenset[str]]], option_simples)
         # Combine the lists
         simple_raws = [simple[0] for simple in simple_buff if simple[0]]
         simple_types = [simple[1] for simple in simple_buff if simple[1]]

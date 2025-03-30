@@ -9,7 +9,7 @@ from sqlfluff.core.rules.base import (
     RulePack,
     RuleSet,
 )
-from sqlfluff.core.rules.config_info import get_config_info
+from sqlfluff.core.rules.config_info import ConfigInfo, get_config_info
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.fix import LintFix
 
@@ -48,4 +48,5 @@ __all__ = (
     "RuleContext",
     "RuleGhost",
     "EvalResultType",
+    "ConfigInfo",
 )

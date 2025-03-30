@@ -1,6 +1,6 @@
 """Implementation of Rule CV11."""
 
-from typing import Iterable, List, Optional
+from typing import Iterable, Optional
 
 from sqlfluff.core.parser import (
     BaseSegment,
@@ -84,7 +84,7 @@ class Rule_CV11(BaseRule):
         cast_arg_1: Iterable[BaseSegment],
         cast_arg_2: BaseSegment,
         later_types: Optional[Segments] = None,
-    ) -> List[LintFix]:
+    ) -> list[LintFix]:
         """Generate list of fixes to convert CONVERT and ShorthandCast to CAST."""
         # Add cast and opening parenthesis.
         edits = (
@@ -103,16 +103,16 @@ class Rule_CV11(BaseRule):
         )
 
         if later_types:
-            pre_edits: List[BaseSegment] = [
+            pre_edits: list[BaseSegment] = [
                 WordSegment("cast", type="function_name_identifier"),
                 SymbolSegment("(", type="start_bracket"),
             ]
-            in_edits: List[BaseSegment] = [
+            in_edits: list[BaseSegment] = [
                 WhitespaceSegment(),
                 KeywordSegment("as"),
                 WhitespaceSegment(),
             ]
-            post_edits: List[BaseSegment] = [
+            post_edits: list[BaseSegment] = [
                 SymbolSegment(")", type="end_bracket"),
             ]
             for _type in later_types:
@@ -132,7 +132,7 @@ class Rule_CV11(BaseRule):
         convert_arg_1: BaseSegment,
         convert_arg_2: BaseSegment,
         later_types=None,
-    ) -> List[LintFix]:
+    ) -> list[LintFix]:
         """Generate list of fixes to convert CAST and ShorthandCast to CONVERT."""
         # Add convert and opening parenthesis.
         edits = [
@@ -146,15 +146,15 @@ class Rule_CV11(BaseRule):
         ]
 
         if later_types:
-            pre_edits: List[BaseSegment] = [
+            pre_edits: list[BaseSegment] = [
                 WordSegment("convert", type="function_name_identifier"),
                 SymbolSegment("(", type="start_bracket"),
             ]
-            in_edits: List[BaseSegment] = [
+            in_edits: list[BaseSegment] = [
                 SymbolSegment(",", type="comma"),
                 WhitespaceSegment(),
             ]
-            post_edits: List[BaseSegment] = [
+            post_edits: list[BaseSegment] = [
                 SymbolSegment(")", type="end_bracket"),
             ]
             for _type in later_types:
@@ -171,7 +171,7 @@ class Rule_CV11(BaseRule):
     @staticmethod
     def _shorthand_fix_list(
         context: RuleContext, shorthand_arg_1: BaseSegment, shorthand_arg_2: BaseSegment
-    ) -> List[LintFix]:
+    ) -> list[LintFix]:
         """Generate list of fixes to convert CAST and CONVERT to ShorthandCast."""
         if len(shorthand_arg_1.raw_segments) > 1:
             edits = [

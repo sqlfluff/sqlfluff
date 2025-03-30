@@ -702,6 +702,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateMasterKeySegment"),
             Ref("AlterMasterKeySegment"),
             Ref("DropMasterKeySegment"),
+            Ref("OpenSymmetricKeySegment"),
             Ref("CreateLoginStatementSegment"),
             Ref("SetContextInfoSegment"),
         ],
@@ -4875,8 +4876,14 @@ class ExecuteScriptSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf("EXEC", "EXECUTE"),
         Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
-        OptionallyBracketed(
-            OneOf(Ref("ObjectReferenceSegment"), Ref("QuotedLiteralSegment"))
+        OneOf(
+            OptionallyBracketed(
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                )
+            ),
+            Bracketed(Ref("BaseExpressionElementGrammar")),
         ),
         Indent,
         Sequence(
@@ -6691,6 +6698,39 @@ class DropMasterKeySegment(BaseSegment):
         "DROP",
         "MASTER",
         "KEY",
+    )
+
+
+class OpenSymmetricKeySegment(BaseSegment):
+    """A `OPEN SYMMETRIC KEY` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/open-symmetric-key-transact-sql
+
+    type = "open_symmetric_key_statement"
+
+    # WITH PASSWORD = 'password'
+    _with_password = Sequence(
+        "WITH",
+        "PASSWORD",
+        Ref("EqualsSegment"),
+        Ref("QuotedLiteralSegment"),
+        optional=True,
+    )
+    _decryption_mechanism = OneOf(
+        Sequence("CERTIFICATE", Ref("ObjectReferenceSegment"), _with_password),
+        Sequence("ASYMMETRIC", "KEY", Ref("ObjectReferenceSegment"), _with_password),
+        Sequence("SYMMETRIC", "KEY", Ref("ObjectReferenceSegment")),
+        Sequence("PASSWORD", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+    )
+
+    match_grammar: Matchable = Sequence(
+        "OPEN",
+        "SYMMETRIC",
+        "KEY",
+        Ref("ObjectReferenceSegment"),
+        "DECRYPTION",
+        "BY",
+        _decryption_mechanism,
     )
 
 

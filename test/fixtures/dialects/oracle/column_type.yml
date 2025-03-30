@@ -1,0 +1,114 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1adc71b0efbccc942e58604d93f1c153e1535b62b512063e539585fd9504869d
+file:
+- statement:
+    begin_end_block:
+    - declare_segment:
+        keyword: DECLARE
+        naked_identifier: surname
+        column_type_reference:
+          column_reference:
+          - naked_identifier: employees
+          - dot: .
+          - naked_identifier: last_name
+          binary_operator: '%'
+          keyword: TYPE
+        statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'surname='"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                column_reference:
+                  naked_identifier: surname
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - naked_identifier: name
+      - data_type:
+          data_type_identifier: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '25'
+              end_bracket: )
+      - keyword: NOT
+      - keyword: 'NULL'
+      - colon: ':'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          quoted_literal: "'Smith'"
+      - statement_terminator: ;
+      - naked_identifier: surname
+      - column_type_reference:
+          column_reference:
+            naked_identifier: name
+          binary_operator: '%'
+          keyword: TYPE
+      - colon: ':'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          quoted_literal: "'Jones'"
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'name='"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                column_reference:
+                  naked_identifier: name
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'surname='"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                column_reference:
+                  naked_identifier: surname
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /

@@ -1,7 +1,7 @@
 """Implementation of Rule AL04."""
 
 import itertools
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser import BaseSegment
@@ -62,19 +62,19 @@ class Rule_AL04(BaseRule):
 
     name = "aliasing.unique.table"
     aliases = ("L020",)
-    groups: Tuple[str, ...] = ("all", "core", "aliasing", "aliasing.unique")
+    groups: tuple[str, ...] = ("all", "core", "aliasing", "aliasing.unique")
     crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
 
     def _lint_references_and_aliases(
         self,
-        table_aliases: List[AliasInfo],
-        standalone_aliases: List[BaseSegment],
-        references: List[ObjectReferenceSegment],
-        col_aliases: List[ColumnAliasInfo],
-        using_cols: List[BaseSegment],
+        table_aliases: list[AliasInfo],
+        standalone_aliases: list[BaseSegment],
+        references: list[ObjectReferenceSegment],
+        col_aliases: list[ColumnAliasInfo],
+        using_cols: list[BaseSegment],
         parent_select: Optional[BaseSegment],
         rule_context: RuleContext,
-    ) -> Optional[List[LintResult]]:
+    ) -> Optional[list[LintResult]]:
         """Check whether any aliases are duplicates.
 
         NB: Subclasses of this error should override this function.
@@ -106,7 +106,7 @@ class Rule_AL04(BaseRule):
                     # Reference the element, not the string.
                     anchor=aliases.segment,
                     description=(
-                        "Duplicate table alias {!r}. Table " "aliases should be unique."
+                        "Duplicate table alias {!r}. Table aliases should be unique."
                     ).format(aliases.ref_str),
                 )
                 for aliases in duplicate

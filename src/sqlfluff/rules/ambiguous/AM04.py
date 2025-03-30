@@ -1,6 +1,6 @@
 """Implementation of Rule AM04."""
 
-from typing import Optional, Tuple
+from typing import Optional
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
@@ -67,7 +67,7 @@ class Rule_AM04(BaseRule):
 
     name = "ambiguous.column_count"
     aliases = ("L044",)
-    groups: Tuple[str, ...] = ("all", "ambiguous")
+    groups: tuple[str, ...] = ("all", "ambiguous")
     # Only evaluate the outermost query.
     crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
 

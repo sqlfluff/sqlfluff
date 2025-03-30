@@ -1,6 +1,6 @@
 """Implementation of Rule LT14."""
 
-from typing import List, Optional
+from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
@@ -47,7 +47,7 @@ class Rule_LT14(BaseRule):
     crawl_behaviour = RootOnlyCrawler()
     is_fix_compatible = True
 
-    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
+    def _eval(self, context: RuleContext) -> Optional[list[LintResult]]:
         """Keyword clauses should begin on a newline."""
         return (
             ReflowSequence.from_root(context.segment, config=context.config)
