@@ -749,7 +749,10 @@ class Linter:
             fixable=True if fix else None, types=SQLParseError
         ):
             if formatter:  # pragma: no cover TODO?
-                formatter.dispatch_dialect_warning(parsed.config.get("dialect"))
+                formatter.dispatch_dialect_warning(
+                    # The dialect property is the string, not the dialect object
+                    cast(str, parsed.config.get("dialect"))
+                )
 
         return linted_file
 

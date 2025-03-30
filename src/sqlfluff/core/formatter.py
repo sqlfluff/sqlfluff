@@ -45,7 +45,7 @@ class FormatterInterface(ABC):
         ...
 
     @abstractmethod
-    def dispatch_dialect_warning(self, dialect: Any) -> None:
+    def dispatch_dialect_warning(self, dialect: str) -> None:
         """Dispatch a warning for dialects."""
         ...
 
