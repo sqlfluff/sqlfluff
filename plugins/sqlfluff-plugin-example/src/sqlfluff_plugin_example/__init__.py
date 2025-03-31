@@ -7,7 +7,7 @@ from typing import Any
 
 from sqlfluff.core.config import load_config_resource
 from sqlfluff.core.plugin import hookimpl
-from sqlfluff.core.rules import BaseRule
+from sqlfluff.core.rules import BaseRule, ConfigInfo
 
 # For backward compatibility we still support importing
 # rules within the body of the root plugin module. This is included
@@ -48,7 +48,7 @@ def load_default_config() -> dict[str, Any]:
 
 
 @hookimpl
-def get_configs_info() -> dict[str, dict[str, Any]]:
+def get_configs_info() -> dict[str, dict[str, ConfigInfo]]:
     """Get rule config validations and descriptions."""
     return {
         "forbidden_columns": {"definition": "A list of column to forbid"},

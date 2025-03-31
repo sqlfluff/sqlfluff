@@ -1,7 +1,8 @@
 """Testing utils for rule plugins."""
 
+from collections.abc import Collection
 from glob import glob
-from typing import Collection, NamedTuple, Optional, Union
+from typing import NamedTuple, Optional, Union
 
 import pytest
 import yaml

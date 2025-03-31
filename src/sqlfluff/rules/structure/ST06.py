@@ -1,6 +1,7 @@
 """Implementation of Rule ST06."""
 
-from typing import Iterator, Optional, Union
+from collections.abc import Iterator
+from typing import Optional, Union
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import (

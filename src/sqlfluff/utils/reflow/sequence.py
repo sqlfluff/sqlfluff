@@ -1,8 +1,9 @@
 """Dataclasses for reflow work."""
 
 import logging
+from collections.abc import Iterator, Sequence
 from itertools import chain
-from typing import Iterator, Literal, Optional, Sequence, cast
+from typing import Literal, Optional, cast
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser import BaseSegment, RawSegment

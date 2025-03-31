@@ -1,6 +1,6 @@
 """Templater Code."""
 
-from typing import Iterator
+from collections.abc import Iterator
 
 # Although these shouldn't usually be instantiated from here
 # we import them to make sure they get registered.

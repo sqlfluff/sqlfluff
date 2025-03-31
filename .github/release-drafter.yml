@@ -1,4 +1,10 @@
 template: |
+  ## Highlights
+
+  > Maintainers: Copy and paste the commentary from the changelog here.
+  > Check that the name and tag are correct before releasing.
+  > Publishing a GitHub release will trigger the deploy to pypi and dockerhub.
+
   ## What’s Changed
 
   $CHANGES

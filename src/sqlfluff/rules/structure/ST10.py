@@ -1,6 +1,6 @@
 """Implementation of Rule ST10."""
 
-from typing import Iterator
+from collections.abc import Iterator
 
 from sqlfluff.core.rules import BaseRule, EvalResultType, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler

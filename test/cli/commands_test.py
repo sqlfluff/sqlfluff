@@ -235,7 +235,7 @@ def test__cli__command_extra_config_fail():
 
 
 stdin_cli_input = (
-    "SELECT\n    A.COL1,\n    B.COL2\nFROM TABA AS A\n" "POSITIONAL JOIN TABB AS B;\n"
+    "SELECT\n    A.COL1,\n    B.COL2\nFROM TABA AS A\nPOSITIONAL JOIN TABB AS B;\n"
 )
 
 
@@ -875,8 +875,9 @@ def test__cli__command_versioning():
     """Check version command."""
     # Get the package version info
     pkg_version = sqlfluff.__version__
-    # Get the version info from the config file
-    with open("pyproject.toml", "r") as config_file:
+    # Get the version info from the config file.
+    # NOTE: Toml files are always encoded in UTF-8.
+    with open("pyproject.toml", "r", encoding="utf-8") as config_file:
         config = tomllib.loads(config_file.read())
     config_version = config["project"]["version"]
     assert pkg_version == config_version
@@ -2399,7 +2400,7 @@ def test__cli__render_fail():
             ],
         ],
         assert_stdout_contains=(
-            "L:   3 | P:   8 |  TMP | Undefined jinja template " "variable: 'something'"
+            "L:   3 | P:   8 |  TMP | Undefined jinja template variable: 'something'"
         ),
     )
 

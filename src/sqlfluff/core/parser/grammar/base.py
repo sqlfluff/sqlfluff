@@ -1,12 +1,12 @@
 """Base grammar, Ref, Anything and Nothing."""
 
 import copy
+from collections.abc import Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     Optional,
-    Sequence,
     TypeVar,
     Union,
 )

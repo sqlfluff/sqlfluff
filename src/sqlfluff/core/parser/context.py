@@ -11,8 +11,9 @@ and match depth of the current operation.
 import logging
 import uuid
 from collections import defaultdict
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Iterator, NoReturn, Optional, Sequence
+from typing import TYPE_CHECKING, Any, NoReturn, Optional
 
 from tqdm import tqdm
 
