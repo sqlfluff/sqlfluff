@@ -2,11 +2,10 @@
 
 import logging
 from bisect import bisect_left
+from collections.abc import Iterable, Iterator
 from typing import (
     Any,
     Callable,
-    Iterable,
-    Iterator,
     NamedTuple,
     Optional,
     TypeVar,

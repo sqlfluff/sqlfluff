@@ -12,8 +12,9 @@ grammar. Check out their docs, they're awesome.
 https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
 
+from collections.abc import Generator
 from enum import Enum
-from typing import Generator, List, NamedTuple, Optional, Union, cast
+from typing import NamedTuple, Optional, Union, cast
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
@@ -1672,12 +1673,17 @@ class FromExpressionElementSegment(BaseSegment):
             if segment:
                 segment = cast(IdentifierSegment, segment)
                 return AliasInfo(
-                    segment.raw, segment, True, self, alias_expression, ref
+                    segment.raw_normalized(casefold=False),
+                    segment,
+                    True,
+                    self,
+                    alias_expression,
+                    ref,
                 )
 
         # If not return the object name (or None if there isn't one)
         if ref:
-            references: List = list(ref.iter_raw_references())
+            references: list = list(ref.iter_raw_references())
             # Return the last element of the reference.
             if references:
                 penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = (
@@ -1818,7 +1824,14 @@ class SelectClauseElementSegment(BaseSegment):
 
     def get_alias(self) -> Optional[ColumnAliasInfo]:
         """Get info on alias within SELECT clause element."""
-        alias_expression_segment = next(self.recursive_crawl("alias_expression"), None)
+        alias_expression_segment = next(
+            self.recursive_crawl(
+                "alias_expression",
+                # don't recurse into any subqueries
+                no_recursive_seg_type="select_statement",
+            ),
+            None,
+        )
         if alias_expression_segment is None:
             # Return None if no alias expression is found.
             return None

@@ -2,7 +2,8 @@
 
 import csv
 import time
-from typing import TYPE_CHECKING, Any, Iterable, Mapping, Optional, TypeVar, Union
+from collections.abc import Iterable, Mapping
+from typing import TYPE_CHECKING, Any, Optional, TypeVar, Union
 
 from sqlfluff.core.errors import CheckTuple, SQLBaseError
 from sqlfluff.core.formatter import FormatterInterface
