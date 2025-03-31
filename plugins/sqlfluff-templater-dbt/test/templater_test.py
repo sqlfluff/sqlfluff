@@ -600,9 +600,9 @@ def test__project_dir_from_env(dbt_templater, project_dir, monkeypatch):
             "templater": {"dbt": {"project_dir": None}},
         }
     )
-    assert dbt_templater._get_project_dir() == Path.cwd().resolve().as_posix()
+    assert dbt_templater._get_project_dir() == os.path.abspath(os.getcwd())
     monkeypatch.setenv("DBT_PROJECT_DIR", project_dir)
-    assert dbt_templater._get_project_dir() == Path(project_dir).resolve().as_posix()
+    assert dbt_templater._get_project_dir() == os.path.abspath(project_dir)
 
 
 def test__project_dir_does_not_exist_error(dbt_templater):
