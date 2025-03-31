@@ -1,17 +1,11 @@
 """Helpers for generating patches to fix files."""
 
 import logging
+from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import (
-    Iterator,
-    List,
-    Optional,
-    Tuple,
-)
+from typing import Optional
 
-from sqlfluff.core.parser import (
-    BaseSegment,
-)
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.templaters import TemplatedFile
 
@@ -32,7 +26,7 @@ class FixPatch:
     templated_str: str
     source_str: str
 
-    def dedupe_tuple(self) -> Tuple[slice, str]:
+    def dedupe_tuple(self) -> tuple[slice, str]:
         """Generate a tuple of this fix for deduping."""
         return (self.source_slice, self.fixed_raw)
 
@@ -237,7 +231,7 @@ def _log_hints(patch: FixPatch, templated_file: TemplatedFile) -> None:
 
 def generate_source_patches(
     tree: BaseSegment, templated_file: TemplatedFile
-) -> List[FixPatch]:
+) -> list[FixPatch]:
     """Use the fixed tree to generate source patches.
 
     Importantly here we deduplicate and sort the patches from their position

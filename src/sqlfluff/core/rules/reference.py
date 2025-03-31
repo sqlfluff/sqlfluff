@@ -1,10 +1,10 @@
 """Components for working with object and table references."""
 
-from typing import Sequence, Tuple
+from collections.abc import Sequence
 
 
 def object_ref_matches_table(
-    possible_references: Sequence[Tuple[str, ...]], targets: Sequence[Tuple[str, ...]]
+    possible_references: Sequence[tuple[str, ...]], targets: Sequence[tuple[str, ...]]
 ) -> bool:
     """Return True if any of the possible references matches a target."""
     # Simple case: If there are no references, assume okay

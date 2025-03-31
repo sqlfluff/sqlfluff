@@ -1,6 +1,6 @@
 """Implementation of Rule ST09."""
 
-from typing import List, Optional, Tuple, cast
+from typing import Optional, cast
 
 from sqlfluff.core.parser import BaseSegment, SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -67,7 +67,7 @@ class Rule_ST09(BaseRule):
 
     name = "structure.join_condition_order"
     aliases = ()
-    groups: Tuple[str, ...] = ("all", "structure")
+    groups: tuple[str, ...] = ("all", "structure")
     config_keywords = ["preferred_first_table_in_join_clause"]
     crawl_behaviour = SegmentSeekerCrawler({"from_expression"})
     is_fix_compatible = True
@@ -93,7 +93,7 @@ class Rule_ST09(BaseRule):
         assert context.segment.is_type("from_expression")
 
         # STEP 0.
-        table_aliases: List[str] = []
+        table_aliases: list[str] = []
 
         children = FunctionalContext(context).segment.children()
 
@@ -121,7 +121,7 @@ class Rule_ST09(BaseRule):
         table_aliases.append(from_expression_alias)
 
         # the rest of the aliases come from the different join clauses
-        join_clause_aliases: List[str] = [
+        join_clause_aliases: list[str] = [
             cast(JoinClauseSegment, join_clause).get_eventual_aliases()[0][1].ref_str
             for join_clause in [clause for clause in join_clauses]
         ]
@@ -131,7 +131,7 @@ class Rule_ST09(BaseRule):
         table_aliases = [alias.upper() for alias in table_aliases]
 
         # STEP 1.
-        conditions: List[List[BaseSegment]] = []
+        conditions: list[list[BaseSegment]] = []
 
         join_on_condition__expressions = join_on_conditions.children().recursive_crawl(
             "expression"
@@ -145,7 +145,7 @@ class Rule_ST09(BaseRule):
             conditions.append(expression_group)
 
         # STEP 2.
-        subconditions: List[List[List[BaseSegment]]] = []
+        subconditions: list[list[list[BaseSegment]]] = []
 
         for expression_group in conditions:
             subconditions.append(
@@ -156,12 +156,12 @@ class Rule_ST09(BaseRule):
                 )
             )
 
-        subconditions_flattened: List[List[BaseSegment]] = [
+        subconditions_flattened: list[list[BaseSegment]] = [
             item for sublist in subconditions for item in sublist
         ]
 
         # STEP 3.
-        column_operator_column_subconditions: List[List[BaseSegment]] = [
+        column_operator_column_subconditions: list[list[BaseSegment]] = [
             subcondition
             for subcondition in subconditions_flattened
             if self._is_qualified_column_operator_qualified_column_sequence(
@@ -170,7 +170,7 @@ class Rule_ST09(BaseRule):
         ]
 
         # STEP 4.
-        fixes: List[LintFix] = []
+        fixes: list[LintFix] = []
 
         for subcondition in column_operator_column_subconditions:
             comparison_operator = subcondition[1]
@@ -259,8 +259,8 @@ class Rule_ST09(BaseRule):
 
     @staticmethod
     def _split_list_by_segment_type(
-        segment_list: List[BaseSegment], delimiter_type: str, delimiters: List[str]
-    ) -> List:
+        segment_list: list[BaseSegment], delimiter_type: str, delimiters: list[str]
+    ) -> list:
         # Break down a list into multiple sub-lists using a set of delimiters
         delimiters = [delimiter.upper() for delimiter in delimiters]
         new_list = []
@@ -282,7 +282,7 @@ class Rule_ST09(BaseRule):
 
     @staticmethod
     def _is_qualified_column_operator_qualified_column_sequence(
-        segment_list: List[BaseSegment],
+        segment_list: list[BaseSegment],
     ) -> bool:
         # Check if list is made up of a qualified column_reference segment,
         # a comparison_operator segment and another qualified column_reference segment

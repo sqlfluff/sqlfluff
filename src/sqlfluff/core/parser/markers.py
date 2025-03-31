@@ -4,7 +4,7 @@ This class is a construct to keep track of positions within a file.
 """
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Optional
 
 from sqlfluff.core.helpers.slice import zero_slice
 
@@ -68,11 +68,11 @@ class PositionMarker:
         return self.working_loc == other.working_loc
 
     @property
-    def working_loc(self) -> Tuple[int, int]:
+    def working_loc(self) -> tuple[int, int]:
         """Location tuple for the working position."""
         return self.working_line_no, self.working_line_pos
 
-    def working_loc_after(self, raw: str) -> Tuple[int, int]:
+    def working_loc_after(self, raw: str) -> tuple[int, int]:
         """Location tuple for the working position."""
         return self.infer_next_position(
             raw,
@@ -141,13 +141,13 @@ class PositionMarker:
         templated_file = templated_files.pop()
         return cls(source_slice, templated_slice, templated_file)
 
-    def source_position(self) -> Tuple[int, int]:
+    def source_position(self) -> tuple[int, int]:
         """Return the line and position of this marker in the source."""
         return self.templated_file.get_line_pos_of_char_pos(
             self.source_slice.start, source=True
         )
 
-    def templated_position(self) -> Tuple[int, int]:
+    def templated_position(self) -> tuple[int, int]:
         """Return the line and position of this marker in the source."""
         return self.templated_file.get_line_pos_of_char_pos(
             self.templated_slice.start, source=False
@@ -200,7 +200,7 @@ class PositionMarker:
         )
 
     @staticmethod
-    def infer_next_position(raw: str, line_no: int, line_pos: int) -> Tuple[int, int]:
+    def infer_next_position(raw: str, line_no: int, line_pos: int) -> tuple[int, int]:
         """Using the raw string provided to infer the position of the next.
 
         NB: Line position in 1-indexed.
@@ -246,6 +246,6 @@ class PositionMarker:
         """Returns the string in the source at this position."""
         return self.templated_file.source_str[self.source_slice]
 
-    def to_source_dict(self) -> Dict[str, int]:
+    def to_source_dict(self) -> dict[str, int]:
         """Serialise the source position."""
         return self.templated_file.source_position_dict_from_slice(self.source_slice)

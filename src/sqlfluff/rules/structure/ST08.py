@@ -1,6 +1,6 @@
 """Implementation of Rule ST08."""
 
-from typing import Optional, Tuple
+from typing import Optional
 
 from sqlfluff.core.parser import BaseSegment, KeywordSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -122,7 +122,7 @@ class Rule_ST08(BaseRule):
 
     def _remove_unneeded_brackets(
         self, context: RuleContext, bracketed: Segments
-    ) -> Tuple[BaseSegment, ReflowSequence]:
+    ) -> tuple[BaseSegment, ReflowSequence]:
         # Remove the brackets and strip any meta segments.
         anchor = bracketed.get()
         assert anchor

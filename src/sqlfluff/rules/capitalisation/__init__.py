@@ -1,13 +1,11 @@
 """The capitalisation plugin bundle."""
 
-from typing import Any, Dict, List, Type
-
 from sqlfluff.core.plugin import hookimpl
-from sqlfluff.core.rules import BaseRule
+from sqlfluff.core.rules import BaseRule, ConfigInfo
 
 
 @hookimpl
-def get_configs_info() -> Dict[str, Any]:
+def get_configs_info() -> dict[str, ConfigInfo]:
     """Get additional rule config validations and descriptions."""
     return {
         "capitalisation_policy": {
@@ -40,7 +38,7 @@ def get_configs_info() -> Dict[str, Any]:
 
 
 @hookimpl
-def get_rules() -> List[Type[BaseRule]]:
+def get_rules() -> list[type[BaseRule]]:
     """Get plugin rules.
 
     NOTE: Rules are imported only on fetch to manage import times

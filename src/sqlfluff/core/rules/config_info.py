@@ -13,11 +13,34 @@ of more general wider use - please define it in the specific plugin
 rather than here.
 """
 
-from typing import Any, Dict
+from typing import Optional, TypedDict, Union
 
 from sqlfluff.core.plugin.host import get_plugin_manager
 
-STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
+
+class ConfigInfo(TypedDict, total=False):
+    """Type definition for a single config info value.
+
+    This TypedDict defines the structure for configuration information used across
+    SQLFluff rules. Each config value must have a definition, and may optionally
+    include validation criteria.
+
+    Args:
+        definition: Required string containing a detailed description of the config
+            option and its purpose. This should be clear enough for users to
+            understand when and how to use the config.
+        validation: Optional list or range of valid values for the config option.
+            Can contain boolean, string, or integer values. If not provided,
+            the config option accepts any value of its expected type.
+    """
+
+    definition: str
+    # NOTE: This type hint is a bit ugly, but necessary for now.
+    # TODO: Tidy this up when we drop support for 3.9.
+    validation: Optional[Union[list[Union[bool, str, int]], range]]
+
+
+STANDARD_CONFIG_INFO_DICT: dict[str, ConfigInfo] = {
     "force_enable": {
         "validation": [True, False],
         "definition": (
@@ -62,7 +85,7 @@ STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
 }
 
 
-def get_config_info() -> Dict[str, Any]:
+def get_config_info() -> dict[str, ConfigInfo]:
     """Get the config from core sqlfluff and sqlfluff plugins and merges them.
 
     NOTE: This should be the entry point into getting config info rather than

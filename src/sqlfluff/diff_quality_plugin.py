@@ -7,7 +7,6 @@ import os
 import pathlib
 import sys
 import tempfile
-from typing import List
 
 from diff_cover.command_runner import execute, run_command_for_code
 from diff_cover.hook import hookimpl as diff_cover_hookimpl
@@ -79,7 +78,7 @@ class SQLFluffViolationReporter(QualityReporter):
             logger.warning("Not running SQLFluff: No files to check")
         return self.violations_dict
 
-    def _run_sqlfluff(self, src_paths) -> List[str]:
+    def _run_sqlfluff(self, src_paths) -> list[str]:
         # Prepare the SQLFluff command to run.
         command = copy.deepcopy(self.driver.command)
         if self.options:

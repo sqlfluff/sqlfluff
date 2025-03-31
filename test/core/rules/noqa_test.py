@@ -1,15 +1,11 @@
 """Tests for applying noqa directives and the IgnoreMask."""
 
 import logging
-from typing import List
 
 import pytest
 
 from sqlfluff.core import FluffConfig, Linter
-from sqlfluff.core.errors import (
-    SQLBaseError,
-    SQLParseError,
-)
+from sqlfluff.core.errors import SQLBaseError, SQLParseError
 from sqlfluff.core.rules.noqa import IgnoreMask, NoQaDirective
 
 # noqa tests require a rule_set, therefore we construct dummy rule set for glob matching.
@@ -361,7 +357,7 @@ def test_parse_noqa_no_dups():
     ],
 )
 def test_linted_file_ignore_masked_violations(
-    noqa: dict, violations: List[SQLBaseError], expected, used_noqas
+    noqa: dict, violations: list[SQLBaseError], expected, used_noqas
 ):
     """Test that _ignore_masked_violations() correctly filters violations."""
     ignore_mask = [

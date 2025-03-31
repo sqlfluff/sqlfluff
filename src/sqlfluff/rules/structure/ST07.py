@@ -1,6 +1,6 @@
 """Implementation of Rule ST07."""
 
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from sqlfluff.core.parser import (
     BaseSegment,
@@ -66,7 +66,7 @@ class Rule_ST07(BaseRule):
 
     name = "structure.using"
     aliases = ("L032",)
-    groups: Tuple[str, ...] = ("all", "structure")
+    groups: tuple[str, ...] = ("all", "structure")
     crawl_behaviour = SegmentSeekerCrawler({"join_clause"})
     is_fix_compatible = True
     _dialects_disabled_by_default = [
@@ -147,9 +147,9 @@ class Rule_ST07(BaseRule):
         )
 
 
-def _extract_cols_from_using(join_clause: Segments, using_segs: Segments) -> List[str]:
+def _extract_cols_from_using(join_clause: Segments, using_segs: Segments) -> list[str]:
     # First bracket after the USING keyword, then find ids
-    using_cols: List[str] = (
+    using_cols: list[str] = (
         join_clause.children()
         .select(start_seg=using_segs[0], select_if=sp.is_type("bracketed"))
         .first()
@@ -160,9 +160,9 @@ def _extract_cols_from_using(join_clause: Segments, using_segs: Segments) -> Lis
 
 
 def _generate_join_conditions(
-    table_a_ref: str, table_b_ref: str, columns: List[str]
-) -> List[BaseSegment]:
-    edit_segments: List[BaseSegment] = []
+    table_a_ref: str, table_b_ref: str, columns: list[str]
+) -> list[BaseSegment]:
+    edit_segments: list[BaseSegment] = []
     for col in columns:
         edit_segments = edit_segments + [
             _create_col_reference(
@@ -185,14 +185,14 @@ def _generate_join_conditions(
     return edit_segments[:-3]
 
 
-SequenceAndAnchorRes = Tuple[List[BaseSegment], BaseSegment]
+SequenceAndAnchorRes = tuple[list[BaseSegment], BaseSegment]
 
 
 def _extract_deletion_sequence_and_anchor(
     join_clause: Segments,
 ) -> SequenceAndAnchorRes:
     insert_anchor: Optional[BaseSegment] = None
-    to_delete: List[BaseSegment] = []
+    to_delete: list[BaseSegment] = []
     for seg in join_clause.children():
         if seg.raw_upper == "USING":
             # Start collecting once we hit USING

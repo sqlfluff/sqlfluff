@@ -1,8 +1,8 @@
 """The DepthMap class is an enriched sequence of raw segments."""
 
 import logging
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Dict, FrozenSet, List, Sequence, Tuple, Type
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.parser.segments.base import PathStep
@@ -39,9 +39,7 @@ class StackPosition:
             return ""  # NOTE: Empty string evaluates as falsy.
 
     @classmethod
-    def from_path_step(
-        cls: Type["StackPosition"], path_step: PathStep
-    ) -> "StackPosition":
+    def from_path_step(cls, path_step: PathStep) -> "StackPosition":
         """Interpret a PathStep to construct a StackPosition.
 
         The reason we don't just use the same object is partly
@@ -57,11 +55,11 @@ class DepthInfo:
     """An object to hold the depth information for a specific raw segment."""
 
     stack_depth: int
-    stack_hashes: Tuple[int, ...]
+    stack_hashes: tuple[int, ...]
     # This is a convenience cache to speed up operations.
-    stack_hash_set: FrozenSet[int]
-    stack_class_types: Tuple[FrozenSet[str], ...]
-    stack_positions: Dict[int, StackPosition]
+    stack_hash_set: frozenset[int]
+    stack_class_types: tuple[frozenset[str], ...]
+    stack_positions: dict[int, StackPosition]
 
     @classmethod
     def from_raw_and_stack(
@@ -81,7 +79,7 @@ class DepthInfo:
             },
         )
 
-    def common_with(self, other: "DepthInfo") -> Tuple[int, ...]:
+    def common_with(self, other: "DepthInfo") -> tuple[int, ...]:
         """Get the common depth and hashes with the other."""
         # We use set intersection because it's faster and hashes should be unique.
         common_hashes = self.stack_hash_set.intersection(other.stack_hashes)
@@ -124,13 +122,13 @@ class DepthMap:
 
     """
 
-    def __init__(self, raws_with_stack: Sequence[Tuple[RawSegment, List[PathStep]]]):
+    def __init__(self, raws_with_stack: Sequence[tuple[RawSegment, list[PathStep]]]):
         self.depth_info = {}
         for raw, stack in raws_with_stack:
             self.depth_info[raw.uuid] = DepthInfo.from_raw_and_stack(raw, stack)
 
     @classmethod
-    def from_parent(cls: Type["DepthMap"], parent: BaseSegment) -> "DepthMap":
+    def from_parent(cls: type["DepthMap"], parent: BaseSegment) -> "DepthMap":
         """Generate a DepthMap from all the children of a segment.
 
         NOTE: This is the most efficient way to construct a DepthMap
@@ -140,7 +138,7 @@ class DepthMap:
 
     @classmethod
     def from_raws_and_root(
-        cls: Type["DepthMap"],
+        cls: type["DepthMap"],
         raw_segments: Sequence[RawSegment],
         root_segment: BaseSegment,
     ) -> "DepthMap":

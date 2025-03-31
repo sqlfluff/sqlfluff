@@ -1,6 +1,6 @@
 """Implementation of Rule ST01."""
 
-from typing import Optional, Tuple
+from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
@@ -38,7 +38,7 @@ class Rule_ST01(BaseRule):
 
     name = "structure.else_null"
     aliases = ("L035",)
-    groups: Tuple[str, ...] = ("all", "structure")
+    groups: tuple[str, ...] = ("all", "structure")
     crawl_behaviour = SegmentSeekerCrawler({"case_expression"})
     is_fix_compatible = True
 
