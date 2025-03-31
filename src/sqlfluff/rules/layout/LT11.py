@@ -1,7 +1,5 @@
 """Implementation of Rule LT11."""
 
-from typing import List
-
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.reflow.sequence import ReflowSequence
@@ -35,7 +33,7 @@ class Rule_LT11(BaseRule):
     is_fix_compatible = True
     crawl_behaviour = SegmentSeekerCrawler({"set_operator"})
 
-    def _eval(self, context: RuleContext) -> List[LintResult]:
+    def _eval(self, context: RuleContext) -> list[LintResult]:
         """Set operators should be surrounded by newlines.
 
         For any set operator we check if there is any NewLineSegment in the non-code

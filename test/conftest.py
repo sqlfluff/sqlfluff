@@ -3,7 +3,7 @@
 import hashlib
 import io
 import os
-from typing import List, NamedTuple, Tuple
+from typing import NamedTuple
 
 import pytest
 import yaml
@@ -39,7 +39,7 @@ class ParseExample(NamedTuple):
 
 def get_parse_fixtures(
     fail_on_missing_yml=False,
-) -> Tuple[List[ParseExample], List[Tuple[str, str, bool, str]]]:
+) -> tuple[list[ParseExample], list[tuple[str, str, bool, str]]]:
     """Search for all parsing fixtures."""
     parse_success_examples = []
     parse_structure_examples = []

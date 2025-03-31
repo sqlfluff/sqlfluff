@@ -1,21 +1,11 @@
 """Tools for more complex analysis of SELECT statements."""
 
 import logging
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from enum import Enum
 from functools import cached_property
-from typing import (
-    Dict,
-    Generic,
-    Iterator,
-    List,
-    NamedTuple,
-    Optional,
-    Type,
-    TypeVar,
-    Union,
-    cast,
-)
+from typing import Generic, NamedTuple, Optional, TypeVar, Union, cast
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
@@ -61,7 +51,7 @@ class WildcardInfo(NamedTuple):
     """Structure returned by Selectable.get_wildcard_info()."""
 
     segment: BaseSegment
-    tables: List[str]
+    tables: list[str]
 
 
 @dataclass
@@ -118,9 +108,9 @@ class Selectable:
                 table_reference_buffer=[],
             )
 
-    def get_wildcard_info(self) -> List[WildcardInfo]:
+    def get_wildcard_info(self) -> list[WildcardInfo]:
         """Find wildcard (*) targets in the SELECT."""
-        buff: List[WildcardInfo] = []
+        buff: list[WildcardInfo] = []
         # Some select-like statements don't have select_info
         # (e.g. test_exasol_invalid_foreign_key_from)
         if not self.select_info:  # pragma: no cover
@@ -173,12 +163,12 @@ class Query(Generic[T]):
 
     query_type: QueryType
     dialect: Dialect
-    selectables: List[Selectable] = field(default_factory=list)
-    ctes: Dict[str, T] = field(default_factory=dict)
+    selectables: list[Selectable] = field(default_factory=list)
+    ctes: dict[str, T] = field(default_factory=dict)
     # Parent scope. This query can "see" CTEs defined by parents.
     parent: Optional[T] = field(default=None)
     # subqueries are subselects in either the SELECT or FROM clause.
-    subqueries: List[T] = field(default_factory=list)
+    subqueries: list[T] = field(default_factory=list)
     cte_definition_segment: Optional[BaseSegment] = field(default=None)
     cte_name_segment: Optional[BaseSegment] = field(default=None)
     is_subquery: Optional[bool] = None
@@ -200,13 +190,13 @@ class Query(Generic[T]):
             cte.parent = self
 
     @property
-    def children(self: T) -> List[T]:
+    def children(self: T) -> list[T]:
         """Children could be CTEs, subselects or Others."""
         return list(self.ctes.values()) + self.subqueries
 
-    def as_dict(self: T) -> Dict:
+    def as_dict(self: T) -> dict:
         """Dict representation for logging/testing."""
-        result: Dict[str, Union[str, List[str], Dict, List[Dict]]] = {}
+        result: dict[str, Union[str, list[str], dict, list[dict]]] = {}
         if self.query_type != QueryType.Simple:
             result["query_type"] = self.query_type.name
         if self.selectables:
@@ -283,7 +273,7 @@ class Query(Generic[T]):
 
     @classmethod
     def _extract_subqueries(
-        cls: Type[T], selectable: Selectable, dialect: Dialect
+        cls: type[T], selectable: Selectable, dialect: Dialect
     ) -> Iterator[T]:
         """Given a Selectable, extract subqueries."""
         assert selectable.selectable.is_type(
@@ -302,7 +292,7 @@ class Query(Generic[T]):
             yield cls.from_segment(subselect, dialect=dialect)
 
     @classmethod
-    def from_root(cls: Type[T], root_segment: BaseSegment, dialect: Dialect) -> T:
+    def from_root(cls: type[T], root_segment: BaseSegment, dialect: Dialect) -> T:
         """Given a root segment, find the first appropriate selectable and analyse."""
         selectable_segment = next(
             # Could be a Selectable or a MERGE
@@ -314,7 +304,7 @@ class Query(Generic[T]):
 
     @classmethod
     def from_segment(
-        cls: Type[T],
+        cls: type[T],
         segment: BaseSegment,
         dialect: Dialect,
         parent: Optional[T] = None,
@@ -326,7 +316,7 @@ class Query(Generic[T]):
 
         selectables = []
         subqueries = []
-        cte_defs: List[BaseSegment] = []
+        cte_defs: list[BaseSegment] = []
         query_type = QueryType.Simple
 
         if segment.is_type("select_statement", *SUBSELECT_TYPES):

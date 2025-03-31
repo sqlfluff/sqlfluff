@@ -1,24 +1,11 @@
 """Defines the LintFix class, returned by rules when recommending a fix."""
 
 import logging
+from collections.abc import Iterable, Sized
 from itertools import chain
-from typing import (
-    Any,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Set,
-    Sized,
-    cast,
-)
+from typing import Any, Optional, cast
 
-from sqlfluff.core.parser import (
-    BaseSegment,
-    PositionMarker,
-    RawSegment,
-    SourceFix,
-)
+from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment, SourceFix
 from sqlfluff.core.templaters import RawFileSlice, TemplatedFile
 
 rules_logger = logging.getLogger("sqlfluff.rules")
@@ -63,7 +50,7 @@ class LintFix:
         if not anchor:  # pragma: no cover
             raise ValueError("Fixes must provide an anchor.")
         self.anchor = anchor
-        self.edit: Optional[List[BaseSegment]] = None
+        self.edit: Optional[list[BaseSegment]] = None
         if edit is not None:
             # Copy all the elements of edit to stop contamination.
             # We're about to start stripping the position markers
@@ -121,12 +108,12 @@ class LintFix:
         if self.edit_type == "delete":
             detail = f"delete:{self.anchor.raw!r}"
         elif self.edit_type in ("replace", "create_before", "create_after"):
-            seg_list = cast(List[BaseSegment], self.edit)
+            seg_list = cast(list[BaseSegment], self.edit)
             new_detail = "".join(s.raw for s in seg_list)
 
             if self.edit_type == "replace":
                 if self.is_just_source_edit():
-                    seg_list = cast(List[BaseSegment], self.edit)
+                    seg_list = cast(list[BaseSegment], self.edit)
                     detail = f"src-edt:{seg_list[0].source_fixes!r}"
                 else:
                     detail = f"edt:{self.anchor.raw!r}->{new_detail!r}"
@@ -139,7 +126,7 @@ class LintFix:
             f"@{self.anchor.pos_marker} {detail}>"
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialise this LintFix as a dict."""
         assert self.anchor
         _position = self.anchor.pos_marker
@@ -167,7 +154,7 @@ class LintFix:
             }
 
         # Otherwise it's a standard creation or a replace.
-        seg_list = cast(List[BaseSegment], self.edit)
+        seg_list = cast(list[BaseSegment], self.edit)
         _edit = "".join(s.raw for s in seg_list)
 
         if self.edit_type == "create_before":
@@ -217,7 +204,7 @@ class LintFix:
             # We have to get weird here to appease mypy --strict
             # mypy seems to have a bug where even though we check above to make sure
             # self.edit is not None it still thinks it could be None when doing the
-            # type check below. But if we use cast(List[BaseSegment], self.edit) then
+            # type check below. But if we use cast(list[BaseSegment], self.edit) then
             # it throws a redundant-cast error, because magically now it _does_ know
             # that self.edit is not None. So we have to cast to Sized for the len()
             # check and to Iterable[BaseSegment] for the looped check to make mypy
@@ -287,7 +274,7 @@ class LintFix:
 
     def get_fix_slices(
         self, templated_file: TemplatedFile, within_only: bool
-    ) -> Set[RawFileSlice]:
+    ) -> set[RawFileSlice]:
         """Returns slices touched by the fix."""
         # Goal: Find the raw slices touched by the fix. Two cases, based on
         # edit type:
@@ -328,8 +315,8 @@ class LintFix:
             return set()
         elif (
             self.edit_type == "replace"
-            and all(edit.is_type("raw") for edit in cast(List[RawSegment], self.edit))
-            and all(edit._source_fixes for edit in cast(List[RawSegment], self.edit))
+            and all(edit.is_type("raw") for edit in cast(list[RawSegment], self.edit))
+            and all(edit._source_fixes for edit in cast(list[RawSegment], self.edit))
         ):
             # As an exception to the general rule about "replace" fixes (where
             # they're only safe if they don't touch a templated section at all),
@@ -349,8 +336,8 @@ class LintFix:
                 # We can assume they're all raw and all have source fixes, because we
                 # check that above.
                 for fix in chain.from_iterable(
-                    cast(List[SourceFix], edit._source_fixes)
-                    for edit in cast(List[RawSegment], self.edit)
+                    cast(list[SourceFix], edit._source_fixes)
+                    for edit in cast(list[RawSegment], self.edit)
                 )
             ]
 
@@ -404,10 +391,10 @@ class LintFix:
     @staticmethod
     def _raw_slices_from_templated_slices(
         templated_file: TemplatedFile,
-        templated_slices: List[slice],
+        templated_slices: list[slice],
         file_end_slice: Optional[RawFileSlice] = None,
-    ) -> Set[RawFileSlice]:
-        raw_slices: Set[RawFileSlice] = set()
+    ) -> set[RawFileSlice]:
+        raw_slices: set[RawFileSlice] = set()
         for templated_slice in templated_slices:
             try:
                 raw_slices.update(

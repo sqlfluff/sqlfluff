@@ -4,7 +4,8 @@ This is a stub of a grammar, intended for use entirely as a
 terminator or similar alongside other matchers.
 """
 
-from typing import Optional, Sequence, Tuple
+from collections.abc import Sequence
+from typing import Optional
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.match_result import MatchResult
@@ -17,7 +18,7 @@ class NonCodeMatcher(Matchable):
     """An object which behaves like a matcher to match non-code."""
 
     def simple(
-        self, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
+        self, parse_context: ParseContext, crumbs: Optional[tuple[str, ...]] = None
     ) -> SimpleHintType:
         """This element doesn't work with simple."""
         return None

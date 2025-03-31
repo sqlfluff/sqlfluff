@@ -1,15 +1,12 @@
 """Base grammar, Ref, Anything and Nothing."""
 
 import copy
+from collections.abc import Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    List,
     Optional,
-    Sequence,
-    Set,
-    Tuple,
     TypeVar,
     Union,
 )
@@ -28,7 +25,7 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 def cached_method_for_parse_context(
-    func: Callable[[Any, ParseContext, Optional[Tuple[str]]], SimpleHintType],
+    func: Callable[[Any, ParseContext, Optional[tuple[str]]], SimpleHintType],
 ) -> Callable[..., SimpleHintType]:
     """A decorator to cache the output of this method for a given parse context.
 
@@ -40,7 +37,7 @@ def cached_method_for_parse_context(
     cache_key = "__cache_" + func.__name__
 
     def wrapped_method(
-        self: Any, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
+        self: Any, parse_context: ParseContext, crumbs: Optional[tuple[str]] = None
     ) -> SimpleHintType:
         """Cache the output of the method against a given parse context.
 
@@ -49,7 +46,7 @@ def cached_method_for_parse_context(
         ok.
         """
         try:
-            cache_tuple: Tuple[UUID, SimpleHintType] = self.__dict__[cache_key]
+            cache_tuple: tuple[UUID, SimpleHintType] = self.__dict__[cache_key]
             # Is the value for the current context?
             if cache_tuple[0] == parse_context.uuid:
                 # If so return it.
@@ -80,11 +77,11 @@ class BaseGrammar(Matchable):
     """
 
     is_meta = False
-    equality_kwargs: Tuple[str, ...] = ("_elements", "optional", "allow_gaps")
+    equality_kwargs: tuple[str, ...] = ("_elements", "optional", "allow_gaps")
     # All grammars are assumed to support STRICT mode by default.
     # If they wish to support other modes, they should declare
     # it by overriding this attribute.
-    supported_parse_modes: Set[ParseMode] = {ParseMode.STRICT}
+    supported_parse_modes: set[ParseMode] = {ParseMode.STRICT}
 
     @staticmethod
     def _resolve_ref(elem: Union[str, Matchable]) -> Matchable:
@@ -146,7 +143,7 @@ class BaseGrammar(Matchable):
         # We provide a common interface for any grammar that allows positional elements.
         # If *any* for the elements are a string and not a grammar, then this is a
         # shortcut to the Ref.keyword grammar by default.
-        self._elements: List[Matchable] = [self._resolve_ref(e) for e in args]
+        self._elements: list[Matchable] = [self._resolve_ref(e) for e in args]
 
         # Now we deal with the standard kwargs
         self.allow_gaps = allow_gaps
@@ -184,7 +181,7 @@ class BaseGrammar(Matchable):
 
     @cached_method_for_parse_context
     def simple(
-        self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
+        self, parse_context: ParseContext, crumbs: Optional[tuple[str]] = None
     ) -> SimpleHintType:
         """Does this matcher support a lowercase hash matching route?"""
         return None
@@ -224,11 +221,11 @@ class BaseGrammar(Matchable):
 
     def copy(
         self: T,
-        insert: Optional[List[Matchable]] = None,
+        insert: Optional[list[Matchable]] = None,
         at: Optional[int] = None,
         before: Optional[Matchable] = None,
-        remove: Optional[List[Matchable]] = None,
-        terminators: List[Union[str, Matchable]] = [],
+        remove: Optional[list[Matchable]] = None,
+        terminators: list[Union[str, Matchable]] = [],
         replace_terminators: bool = False,
         # NOTE: Optionally allow other kwargs to be provided to this
         # method for type compatibility. Any provided won't be used.
@@ -325,7 +322,7 @@ class BaseGrammar(Matchable):
 class Ref(BaseGrammar):
     """A kind of meta-grammar that references other grammars by name at runtime."""
 
-    equality_kwargs: Tuple[str, ...] = ("_ref", "optional", "allow_gaps")
+    equality_kwargs: tuple[str, ...] = ("_ref", "optional", "allow_gaps")
 
     def __init__(
         self,
@@ -358,7 +355,7 @@ class Ref(BaseGrammar):
 
     @cached_method_for_parse_context
     def simple(
-        self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
+        self, parse_context: ParseContext, crumbs: Optional[tuple[str]] = None
     ) -> SimpleHintType:
         """Does this matcher support a uppercase hash matching route?
 
@@ -399,7 +396,7 @@ class Ref(BaseGrammar):
         on the underlying class.
 
         Args:
-            segments (Tuple[BaseSegment, ...]): The sequence of segments
+            segments (tuple[BaseSegment, ...]): The sequence of segments
                 to match against.
             idx (int): Index of the element in the sequence.
             parse_context (ParseContext): The parse context.

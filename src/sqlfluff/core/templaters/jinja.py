@@ -7,19 +7,13 @@ import logging
 import os.path
 import pkgutil
 import sys
+from collections.abc import Iterable, Iterator
 from functools import reduce
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
     Optional,
-    Set,
-    Tuple,
-    Type,
     Union,
     cast,
 )
@@ -66,7 +60,7 @@ class UndefinedRecorder:
     unsafe_callable = False
     alters_data = False
 
-    def __init__(self, name: str, undefined_set: Set[str]) -> None:
+    def __init__(self, name: str, undefined_set: set[str]) -> None:
         self.name = name
         # Reference to undefined set to modify, it is assumed that the
         # calling code keeps a reference to this variable to they can
@@ -113,8 +107,8 @@ class JinjaTemplater(PythonTemplater):
 
     @staticmethod
     def _extract_macros_from_template(
-        template: str, env: Environment, ctx: Dict[str, Any]
-    ) -> Dict[str, "Macro"]:
+        template: str, env: Environment, ctx: dict[str, Any]
+    ) -> dict[str, "Macro"]:
         """Take a template string and extract any macros from it.
 
         Lovingly inspired by http://codyaray.com/2015/05/auto-load-jinja2-macros
@@ -127,7 +121,7 @@ class JinjaTemplater(PythonTemplater):
         from jinja2.runtime import Macro  # noqa
 
         # Iterate through keys exported from the loaded template string
-        context: Dict[str, Macro] = {}
+        context: dict[str, Macro] = {}
         # NOTE: `env.from_string()` will raise TemplateSyntaxError if `template`
         # is invalid.
         macro_template = env.from_string(template, globals=ctx)
@@ -150,15 +144,15 @@ class JinjaTemplater(PythonTemplater):
     @classmethod
     def _extract_macros_from_path(
         cls,
-        path: List[str],
+        path: list[str],
         env: Environment,
-        ctx: Dict[str, Any],
-        exclude_paths: Optional[List[str]] = None,
-    ) -> Dict[str, "Macro"]:
+        ctx: dict[str, Any],
+        exclude_paths: Optional[list[str]] = None,
+    ) -> dict[str, "Macro"]:
         """Take a path and extract macros from it.
 
         Args:
-            path (List[str]): A list of paths.
+            path (list[str]): A list of paths.
             env (Environment): The environment object.
             ctx (Dict): The context dictionary.
             exclude_paths (Optional[[List][str]]): A list of paths to exclude
@@ -170,7 +164,7 @@ class JinjaTemplater(PythonTemplater):
             ValueError: If a path does not exist.
             SQLTemplaterError: If there is an error in the Jinja macro file.
         """
-        macro_ctx: Dict[str, "Macro"] = {}
+        macro_ctx: dict[str, "Macro"] = {}
         for path_entry in path:
             # Does it exist? It should as this check was done on config load.
             if not os.path.exists(path_entry):
@@ -213,8 +207,8 @@ class JinjaTemplater(PythonTemplater):
         return macro_ctx
 
     def _extract_macros_from_config(
-        self, config: FluffConfig, env: Environment, ctx: Dict[str, Any]
-    ) -> Dict[str, "Macro"]:
+        self, config: FluffConfig, env: Environment, ctx: dict[str, Any]
+    ) -> dict[str, "Macro"]:
         """Take a config and load any macros from it.
 
         Args:
@@ -233,7 +227,7 @@ class JinjaTemplater(PythonTemplater):
             loaded_context = {}
 
         # Iterate to load macros
-        macro_ctx: Dict[str, "Macro"] = {}
+        macro_ctx: dict[str, "Macro"] = {}
         for value in loaded_context.values():
             try:
                 macro_ctx.update(
@@ -245,7 +239,7 @@ class JinjaTemplater(PythonTemplater):
                 )
         return macro_ctx
 
-    def _extract_libraries_from_config(self, config: FluffConfig) -> Dict[str, Any]:
+    def _extract_libraries_from_config(self, config: FluffConfig) -> dict[str, Any]:
         """Extracts libraries from the given configuration.
 
         This function iterates over the modules in the library path and
@@ -319,7 +313,7 @@ class JinjaTemplater(PythonTemplater):
 
     @classmethod
     def _crawl_tree(
-        cls, tree: jinja2.nodes.Node, variable_names: Set[str], raw: str
+        cls, tree: jinja2.nodes.Node, variable_names: set[str], raw: str
     ) -> Iterator[SQLTemplaterError]:
         """Crawl the tree looking for occurrences of the undeclared values."""
         # First iterate through children
@@ -371,7 +365,7 @@ class JinjaTemplater(PythonTemplater):
             class SafeFileSystemLoader(FileSystemLoader):
                 def get_source(
                     self, environment: Environment, name: str
-                ) -> Tuple[str, str, Callable[..., Any]]:
+                ) -> tuple[str, str, Callable[..., Any]]:
                     try:
                         if not isinstance(name, DummyUndefined):
                             return super().get_source(environment, name)
@@ -389,7 +383,7 @@ class JinjaTemplater(PythonTemplater):
             loader = SafeFileSystemLoader(final_search_path or [])
         else:
             loader = FileSystemLoader(final_search_path) if final_search_path else None
-        extensions: List[Union[str, Type[Extension]]] = ["jinja2.ext.do"]
+        extensions: list[Union[str, type[Extension]]] = ["jinja2.ext.do"]
         if self._apply_dbt_builtins(config):
             extensions.append(DBTTestExtension)
 
@@ -404,7 +398,7 @@ class JinjaTemplater(PythonTemplater):
 
     def _get_macros_path(
         self, config: Optional[FluffConfig], key: str
-    ) -> Optional[List[str]]:
+    ) -> Optional[list[str]]:
         """Get the list of macros paths from the provided config object.
 
         This method searches for a config section specified by the
@@ -421,7 +415,7 @@ class JinjaTemplater(PythonTemplater):
                 Also used for loading the excluding macros path from config.
 
         Returns:
-            Optional[List[str]]: The list of macros paths if found, None otherwise.
+            Optional[list[str]]: The list of macros paths if found, None otherwise.
         """
         if config:
             macros_path = config.get_section((self.templater_selector, self.name, key))
@@ -433,7 +427,7 @@ class JinjaTemplater(PythonTemplater):
 
     def _get_loader_search_path(
         self, config: Optional[FluffConfig]
-    ) -> Optional[List[str]]:
+    ) -> Optional[list[str]]:
         """Get the list of Jinja loader search paths from the provided config object.
 
         This method searches for a config section specified by the
@@ -448,7 +442,7 @@ class JinjaTemplater(PythonTemplater):
                 path section.
 
         Returns:
-            Optional[List[str]]: The list of loader search paths if found, None
+            Optional[list[str]]: The list of loader search paths if found, None
                 otherwise.
         """
         if config:
@@ -504,7 +498,7 @@ class JinjaTemplater(PythonTemplater):
         fname: Optional[str],
         config: Optional[FluffConfig],
         env: Environment,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get the templating context from the config.
 
         NOTE: This closely mirrors the `get_context` method which we inherit from the
@@ -565,7 +559,7 @@ class JinjaTemplater(PythonTemplater):
 
     def construct_render_func(
         self, fname: Optional[str] = None, config: Optional[FluffConfig] = None
-    ) -> Tuple[Environment, Dict[str, Any], Callable[[str], str]]:
+    ) -> tuple[Environment, dict[str, Any], Callable[[str], str]]:
         """Builds and returns objects needed to create and run templates.
 
         Args:
@@ -573,7 +567,7 @@ class JinjaTemplater(PythonTemplater):
             config (Optional[dict]): The configuration settings.
 
         Returns:
-            Tuple[Environment, dict, Callable[[str], str]]: A tuple
+            tuple[Environment, dict, Callable[[str], str]]: A tuple
             containing the following:
                 - env (Environment): An instance of the 'Environment' class.
                 - live_context (dict): A dictionary containing the live context.
@@ -613,10 +607,10 @@ class JinjaTemplater(PythonTemplater):
         self,
         in_str: str,
         syntax_tree: jinja2.nodes.Template,
-        undefined_variables: Set[str],
-    ) -> List[SQLTemplaterError]:
+        undefined_variables: set[str],
+    ) -> list[SQLTemplaterError]:
         """Generates violations for any undefined variables."""
-        violations: List[SQLTemplaterError] = []
+        violations: list[SQLTemplaterError] = []
         if undefined_variables:
             # Lets go through and find out where they are:
             for template_err_val in self._crawl_tree(
@@ -627,17 +621,17 @@ class JinjaTemplater(PythonTemplater):
 
     @staticmethod
     def _init_undefined_tracking(
-        live_context: Dict[str, Any],
+        live_context: dict[str, Any],
         potentially_undefined_variables: Iterable[str],
         ignore_templating: bool = False,
-    ) -> Set[str]:
+    ) -> set[str]:
         """Sets up tracing of undefined template variables.
 
         NOTE: This works by mutating the `live_context` which
         is being used by the environment.
         """
         # NOTE: This set is modified by the `UndefinedRecorder` when run.
-        undefined_variables: Set[str] = set()
+        undefined_variables: set[str] = set()
 
         for val in potentially_undefined_variables:
             if val not in live_context:
@@ -656,7 +650,7 @@ class JinjaTemplater(PythonTemplater):
         fname: str,
         config: Optional[FluffConfig] = None,
         formatter: Optional[FormatterInterface] = None,
-    ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
+    ) -> tuple[TemplatedFile, list[SQLTemplaterError]]:
         """Process a string and return the new string.
 
         Note that the arguments are enforced as keywords
@@ -681,7 +675,7 @@ class JinjaTemplater(PythonTemplater):
                 caught and displayed appropriately.
 
         Returns:
-            Tuple[TemplatedFile, List[SQLTemplaterError]]: A tuple containing the
+            tuple[TemplatedFile, list[SQLTemplaterError]]: A tuple containing the
             templated file and a list of violations.
         """
         if not config:  # pragma: no cover
@@ -760,7 +754,7 @@ class JinjaTemplater(PythonTemplater):
         render_func: Callable[[str], str],
         config: Optional[FluffConfig] = None,
         append_to_templated: str = "",
-    ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
+    ) -> tuple[list[RawFileSlice], list[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix.
 
         Args:
@@ -770,7 +764,7 @@ class JinjaTemplater(PythonTemplater):
             append_to_templated: Optional string to append to the template.
 
         Returns:
-            Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
+            tuple[list[RawFileSlice], list[TemplatedFileSlice], str]:
                 A tuple containing a list of raw file slices, a list of
                 templated file slices, and the templated string.
         """
@@ -786,8 +780,8 @@ class JinjaTemplater(PythonTemplater):
 
     @staticmethod
     def _rectify_templated_slices(
-        length_deltas: Dict[int, int], sliced_template: List[TemplatedFileSlice]
-    ) -> List[TemplatedFileSlice]:
+        length_deltas: dict[int, int], sliced_template: list[TemplatedFileSlice]
+    ) -> list[TemplatedFileSlice]:
         """This method rectifies the source slices of a variant template.
 
         :TRICKY: We want to yield variants that _look like_ they were
@@ -807,7 +801,7 @@ class JinjaTemplater(PythonTemplater):
         # a dict and b) because they may have been generated out of order.
         delta_stack = sorted(length_deltas.items(), key=lambda t: t[0])
 
-        adjusted_slices: List[TemplatedFileSlice] = []
+        adjusted_slices: list[TemplatedFileSlice] = []
         carried_delta = 0
         for tfs in sliced_template:
             if delta_stack:
@@ -840,10 +834,10 @@ class JinjaTemplater(PythonTemplater):
 
     @staticmethod
     def _calculate_variant_score(
-        raw_sliced: List[RawFileSlice],
-        sliced_file: List[TemplatedFileSlice],
-        uncovered_slices: Set[int],
-        original_source_slices: Dict[int, slice],
+        raw_sliced: list[RawFileSlice],
+        sliced_file: list[TemplatedFileSlice],
+        uncovered_slices: set[int],
+        original_source_slices: dict[int, slice],
     ) -> int:
         """Compute a score for the variant based from size of covered slices.
 
@@ -876,9 +870,9 @@ class JinjaTemplater(PythonTemplater):
         self,
         in_str: str,
         render_func: Callable[[str], str],
-        uncovered_slices: Set[int],
+        uncovered_slices: set[int],
         append_to_templated: str = "",
-    ) -> Iterator[Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]]:
+    ) -> Iterator[tuple[list[RawFileSlice], list[TemplatedFileSlice], str]]:
         """Address uncovered slices by tweaking the template to hit them.
 
         Args:
@@ -897,7 +891,7 @@ class JinjaTemplater(PythonTemplater):
 
         max_variants_generated = 10
         max_variants_returned = 5
-        variants: Dict[str, Tuple[int, JinjaTrace, Dict[int, int]]] = {}
+        variants: dict[str, tuple[int, JinjaTrace, dict[int, int]]] = {}
 
         # Create a mapping of the original source slices before modification so
         # we can adjust the positions post-modification.
@@ -913,7 +907,7 @@ class JinjaTemplater(PythonTemplater):
             # `length_deltas` is to keep track of the length changes associated
             # with the changes we're making so we can correct the positions in
             # the resulting template.
-            length_deltas: Dict[int, int] = {}
+            length_deltas: dict[int, int] = {}
             # Find a path that takes us to 'uncovered_slice'.
             choices = tracer_probe.move_to_slice(uncovered_slice, 0)
             for branch, options in choices.items():
@@ -973,7 +967,7 @@ class JinjaTemplater(PythonTemplater):
                     variants[variant_raw_str] = (score, trace, length_deltas)
 
         # Return the top-scoring variants.
-        sorted_variants: List[Tuple[int, JinjaTrace, Dict[int, int]]] = sorted(
+        sorted_variants: list[tuple[int, JinjaTrace, dict[int, int]]] = sorted(
             variants.values(), key=lambda v: v[0], reverse=True
         )
         for _, trace, deltas in sorted_variants[:max_variants_returned]:
@@ -998,7 +992,7 @@ class JinjaTemplater(PythonTemplater):
         fname: str,
         config: Optional[FluffConfig] = None,
         formatter: Optional[FormatterInterface] = None,
-    ) -> Iterator[Tuple[TemplatedFile, List[SQLTemplaterError]]]:
+    ) -> Iterator[tuple[TemplatedFile, list[SQLTemplaterError]]]:
         """Process a string and return one or more variant renderings.
 
         Note that the arguments are enforced as keywords
@@ -1064,14 +1058,14 @@ class JinjaTemplater(PythonTemplater):
             )
 
     @staticmethod
-    def _exclude_macros(macro_path: str, exclude_macros_path: List[str]) -> bool:
+    def _exclude_macros(macro_path: str, exclude_macros_path: list[str]) -> bool:
         """Determines if a macro is within the exclude macros path.
 
         These macros will be ignored and not loaded into context
 
         Args:
             macro_path (str): Str of the path to the macro
-            exclude_macros_path (List[str]): Str of the path to the macros to exclude
+            exclude_macros_path (list[str]): Str of the path to the macros to exclude
 
         Returns:
             bool: True if the macro should be excluded

@@ -1,7 +1,5 @@
 """Implementation of Rule JJ01."""
 
-from typing import List, Tuple
-
 from sqlfluff.core.parser.segments import BaseSegment, SourceFix
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
@@ -46,7 +44,7 @@ class Rule_JJ01(BaseRule):
     is_fix_compatible = True
 
     @staticmethod
-    def _get_whitespace_ends(s: str) -> Tuple[str, str, str, str, str]:
+    def _get_whitespace_ends(s: str) -> tuple[str, str, str, str, str]:
         """Remove tag ends and partition off any whitespace ends.
 
         This function assumes that we've already trimmed the string
@@ -108,7 +106,7 @@ class Rule_JJ01(BaseRule):
             # Otherwise recurse
             return cls._find_raw_at_src_idx(seg, src_idx)
 
-    def _eval(self, context: RuleContext) -> List[LintResult]:
+    def _eval(self, context: RuleContext) -> list[LintResult]:
         """Look for non-literal segments.
 
         NOTE: The existing crawlers don't filter very well for only templated

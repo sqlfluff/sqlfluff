@@ -1,0 +1,691 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f2dc490e4addcc723b8daddd1aee88756dfab7dfd52882fe32967fb77a56f935
+file:
+- statement:
+    begin_end_block:
+    - declare_segment:
+        keyword: DECLARE
+        naked_identifier: dept_rec
+        row_type_reference:
+          table_reference:
+            naked_identifier: departments
+          binary_operator: '%'
+          keyword: ROWTYPE
+        statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+          - naked_identifier: dept_rec
+          - dot: .
+          - naked_identifier: department_id
+          colon: ':'
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            numeric_literal: '10'
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+          - naked_identifier: dept_rec
+          - dot: .
+          - naked_identifier: department_name
+          colon: ':'
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            quoted_literal: "'Administration'"
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+          - naked_identifier: dept_rec
+          - dot: .
+          - naked_identifier: manager_id
+          colon: ':'
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            numeric_literal: '200'
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+          - naked_identifier: dept_rec
+          - dot: .
+          - naked_identifier: location_id
+          colon: ':'
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            numeric_literal: '1700'
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'dept_id:   '"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                column_reference:
+                - naked_identifier: dept_rec
+                - dot: .
+                - naked_identifier: department_id
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'dept_name: '"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                column_reference:
+                - naked_identifier: dept_rec
+                - dot: .
+                - naked_identifier: department_name
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'mgr_id:    '"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                column_reference:
+                - naked_identifier: dept_rec
+                - dot: .
+                - naked_identifier: manager_id
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'loc_id:    '"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                column_reference:
+                - naked_identifier: dept_rec
+                - dot: .
+                - naked_identifier: location_id
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+        keyword: DECLARE
+        naked_identifier: t1_row
+        row_type_reference:
+          table_reference:
+            naked_identifier: t1
+          binary_operator: '%'
+          keyword: ROWTYPE
+        statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'t1.c1 = '"
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: NVL
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        function:
+                          function_name:
+                            function_name_identifier: TO_CHAR
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                column_reference:
+                                - naked_identifier: t1_row
+                                - dot: .
+                                - naked_identifier: c1
+                              end_bracket: )
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'NULL'"
+                    - end_bracket: )
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'t1.c2 = '"
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            function_name_identifier: print
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                - naked_identifier: t1_row
+                - dot: .
+                - naked_identifier: c2
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: NVL
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        function:
+                          function_name:
+                            function_name_identifier: TO_CHAR
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                column_reference:
+                                - naked_identifier: t1_row
+                                - dot: .
+                                - naked_identifier: c2
+                              end_bracket: )
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'NULL'"
+                    - end_bracket: )
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+        keyword: DECLARE
+        cursor_variable:
+        - keyword: CURSOR
+        - naked_identifier: c
+        - keyword: IS
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: first_name
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: last_name
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: phone_number
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: employees
+        - statement_terminator: ;
+        naked_identifier: friend
+        row_type_reference:
+          table_reference:
+            naked_identifier: c
+          binary_operator: '%'
+          keyword: ROWTYPE
+        statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+          - naked_identifier: friend
+          - dot: .
+          - naked_identifier: first_name
+          colon: ':'
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            quoted_literal: "'John'"
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+          - naked_identifier: friend
+          - dot: .
+          - naked_identifier: last_name
+          colon: ':'
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            quoted_literal: "'Smith'"
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+          - naked_identifier: friend
+          - dot: .
+          - naked_identifier: phone_number
+          colon: ':'
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            quoted_literal: "'1-650-555-1234'"
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                - naked_identifier: friend
+                - dot: .
+                - naked_identifier: first_name
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - quoted_literal: "' '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                - naked_identifier: friend
+                - dot: .
+                - naked_identifier: last_name
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - quoted_literal: "', '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                - naked_identifier: friend
+                - dot: .
+                - naked_identifier: phone_number
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+        keyword: DECLARE
+        cursor_variable:
+        - keyword: CURSOR
+        - naked_identifier: c2
+        - keyword: IS
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: employee_id
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: email
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                - naked_identifier: employees
+                - dot: .
+                - naked_identifier: manager_id
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: location_id
+            from_clause:
+            - keyword: FROM
+            - from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: employees
+            - comma: ','
+            - from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: departments
+            where_clause:
+              keyword: WHERE
+              expression:
+              - column_reference:
+                - naked_identifier: employees
+                - dot: .
+                - naked_identifier: department_id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: departments
+                - dot: .
+                - naked_identifier: department_id
+        - statement_terminator: ;
+        naked_identifier: join_rec
+        row_type_reference:
+          table_reference:
+            naked_identifier: c2
+          binary_operator: '%'
+          keyword: ROWTYPE
+        statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        null_statement:
+          keyword: 'NULL'
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+        keyword: DECLARE
+        naked_identifier: t_rec
+        row_type_reference:
+          table_reference:
+            naked_identifier: t
+          binary_operator: '%'
+          keyword: ROWTYPE
+        statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          into_clause:
+            keyword: INTO
+            naked_identifier: t_rec
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: t
+          where_clause:
+            keyword: WHERE
+            expression:
+              keyword: ROWNUM
+              comparison_operator:
+                raw_comparison_operator: <
+              numeric_literal: '2'
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'c = '"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                column_reference:
+                - naked_identifier: t_rec
+                - dot: .
+                - naked_identifier: c
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - record_type:
+        - keyword: TYPE
+        - naked_identifier: name_rec
+        - keyword: IS
+        - keyword: RECORD
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: first
+          - column_type_reference:
+              column_reference:
+              - naked_identifier: employees
+              - dot: .
+              - naked_identifier: first_name
+              binary_operator: '%'
+              keyword: TYPE
+          - keyword: DEFAULT
+          - expression:
+              quoted_literal: "'John'"
+          - comma: ','
+          - naked_identifier: last
+          - column_type_reference:
+              column_reference:
+              - naked_identifier: employees
+              - dot: .
+              - naked_identifier: last_name
+              binary_operator: '%'
+              keyword: TYPE
+          - keyword: DEFAULT
+          - expression:
+              quoted_literal: "'Doe'"
+          - end_bracket: )
+      - statement_terminator: ;
+      - cursor_variable:
+        - keyword: CURSOR
+        - naked_identifier: c
+        - keyword: IS
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: first_name
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: last_name
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: employees
+        - statement_terminator: ;
+      - naked_identifier: target
+      - data_type:
+          data_type_identifier: name_rec
+      - statement_terminator: ;
+      - naked_identifier: source
+      - row_type_reference:
+          table_reference:
+            naked_identifier: c
+          binary_operator: '%'
+          keyword: ROWTYPE
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+          - naked_identifier: source
+          - dot: .
+          - naked_identifier: first_name
+          colon: ':'
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            quoted_literal: "'Jane'"
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+          - naked_identifier: source
+          - dot: .
+          - naked_identifier: last_name
+          colon: ':'
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            quoted_literal: "'Smith'"
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+              - quoted_literal: "'source: '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                - naked_identifier: source
+                - dot: .
+                - naked_identifier: first_name
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - quoted_literal: "' '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                - naked_identifier: source
+                - dot: .
+                - naked_identifier: last_name
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+            naked_identifier: target
+          colon: ':'
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            column_reference:
+              naked_identifier: source
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+              - quoted_literal: "'target: '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                - naked_identifier: target
+                - dot: .
+                - naked_identifier: first
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - quoted_literal: "' '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                - naked_identifier: target
+                - dot: .
+                - naked_identifier: last
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /

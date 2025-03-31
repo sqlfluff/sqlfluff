@@ -321,7 +321,9 @@ maintainers all merges since last release. Once we have a long enough list,
 we should prepare a release.
 
 A release PR can be created by maintainers via the
-["Create release pull request" GitHub Action](https://github.com/sqlfluff/sqlfluff/actions/workflows/create-release-pull-request.yaml).
+["Create release pull request" GitHub Action](https://github.com/sqlfluff/sqlfluff/actions/workflows/create-release-pull-request.yaml). Once this is done, it's a good idea to
+put a short post on the #contributing channel on slack so that people know
+there will be a release soon.
 
 As further PRs are merged, we may need to rerun the release script again
 (or alternatively just manually updating the branch). This can only be rerun
@@ -331,7 +333,11 @@ prevent overwriting it).
 Check out the release branch created by the GitHub Action locally and run
 the script. It will preserve any `Highlights` you have added and update the
 other sections with new contributions. It can be run as follows (you will
-need a [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) with "repo" permission):
+need a [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) with read & write permissions on the "Content"
+scope, and read permissions on the "Metadata" scope. The reason we need
+both read & write access on the "Content" scope is that only tokens with
+write access can see _draft_ releases, which is what we need access to).
+All maintainers should have sufficient access to generate such a token:
 
 ```shell
 source .venv/bin/activate
@@ -340,71 +346,26 @@ export GITHUB_TOKEN=gho_xxxxxxxx # Change to your token with "repo" permissions.
 python util.py release 2.0.3 # Change to your release number
 ```
 
-Below is the old list of release steps, but many are automated by the process
-described above.
+When all of the changes planned for the release have been merged, and
+the release PR is up to date. The maintainer running the release should
+write a short commentary in the `CHANGELOG.md` file, describing any features
+of note, and also celebrating new contributors. Check out old releases
+for inspiration!
 
-- [ ] Change the version in `setup.cfg` and `plugins/sqlfluff-templater-dbt/setup.cfg`
-- [ ] Update the stable_version in the `[sqlfluff_docs]` section of `setup.cfg`
-- [ ] Copy the draft releases from https://github.com/sqlfluff/sqlfluff/releases
-      to [CHANGELOG.md](CHANGELOG.md). These draft release notes have been created
-      by a GitHub Action on each PR merge.
-- [ ] If you pretend to create a new draft in GitHub and hit "Auto Generate Release
-      Notes", then it will basically recreate these notes (though in a slightly
-      different format), but also add a nice "First contributors" section, so can
-      copy that "First contributors" section too and then abandon that new draft
-      ([an issues](https://github.com/release-drafter/release-drafter/issues/1001)
-      has been raised to ask for this in Release Drafter GitHub Action).
-- [ ] Add markdown links to PRs as annoyingly GitHub doesn't do this automatically
-      when displaying Markdown files, like it does for comments. You can use regex
-      in most code editors to replace `\(#([0-9]*)\) @([^ ]*)$` to
-      `[#$1](https://github.com/sqlfluff/sqlfluff/pull/$1) [@$2](https://github.com/$2)`,
-      or if using the GitHub generated release notes then can replace
-      `by @([^ ]*) in https://github.com/sqlfluff/sqlfluff/pull/([0-9]*)$` to
-      `[#$2](https://github.com/sqlfluff/sqlfluff/pull/$2) [@$1](https://github.com/$1)`.
-- [ ] For the new contributors section, you can replace
-      `\* @([^ ]*) made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/([0-9]*)$`
-      with `* [@$1](https://github.com/$1) made their first contribution in [#$2](https://github.com/sqlfluff/sqlfluff/pull/$2)` to do this automatically).
-- [ ] Check each issue title is clear, and if not edit issue title (which will
-      automatically update Release notes on next PR merged, as the Draft one is
-      recreated in full each time). We also don't use
-      [conventional commit PR titles](https://www.conventionalcommits.org/en/v1.0.0/)
-      (e.g. `feat`) so make them more English readable. Make same edits locally
-      in [CHANGELOG.md](CHANGELOG.md).
-- [ ] Add a comment at the top to highlight the main things in this release.
-- [ ] If this is a non-patch release then update the `Notable changes` section in
-      `index.rst` with a brief summary of the new features added that made this a
-      non-patch release.
-- [ ] View the CHANGELOG in this branch on GitHub to ensure you didn't miss any
-      link conversions or other markup errors.
-- [ ] Open draft PR with those change a few days in advance to give contributors
-      notice. Tag those with open PRs in the PR in GitHub to give them time to merge
-      their work before the new release
-- [ ] Comment in #contributing slack channel about release candidate.
-- [ ] Update the draft PR as more changes get merged.
-- [ ] Get another contributor to approve the PR.
-- [ ] Merge the PR when looks like we've got all we’re going to get for this release.
-- [ ] Go to the [releases page](https://github.com/sqlfluff/sqlfluff/releases), edit
-      the release to be same as [CHANGELOG.md](CHANGELOG.md) (remember to remove your
-      release PR which doesn’t need to go in this). Add version tag and a title and
-      click “Publish release”.
-- [ ] Announce the release in the #general channel, with shout outs to those who
-      contributed many, or big items.
-- [ ] Announce the release on Twitter (@tunetheweb can do this or let him know your
-      Twitter handle if you want access to Tweet on SQLFluff’s behalf).
+When the PR is ready. Merge it. Once merged, follow these steps to actually
+publish the final release.
 
-:warning: **Before creating a new release, ensure that
-[setup.cfg](setup.cfg) is up-to-date with a new version** :warning:.
-If this is not done, PyPI will reject the package. Also, ensure you have used that
-version as a part of the tag and have described the changes accordingly.
+1. Edit the draft release on GitHub. Copy across the summary from the
+   `CHANGELOG.md`
+2. Update the title of the release to include the current date.
+3. Check that the tag for the release is set to the release version. The tag
+   will not have been created yet, so click the option to create the tag on
+   release.
+4. If this is an alpha release, make sure to set the "this is a pre-release"
+   option on the release. Otherwise leave it blank.
+5. When you're ready, click "Publish Release" and that will set off the automated
+   processes to publish the release to PyPi and Dockerhub.
+6. Finally, drop a note on #general on slack to let the community know there's
+   a new release out.
 
-#### Releasing Manually
-
-If for some reason the package needs to be submitted to PyPI manually, we use `twine`.
-You will need to be an admin to submit this to PyPI, and you will need a properly
-formatted `.pypirc` file. If you have managed all that then you can run:
-
-```shell
-tox -e publish-dist
-```
-
-... and the most recent version will be uploaded to PyPI.
+Then you're done!

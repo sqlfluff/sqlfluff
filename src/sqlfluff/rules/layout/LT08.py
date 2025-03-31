@@ -1,6 +1,6 @@
 """Implementation of Rule LT08."""
 
-from typing import List, Optional
+from typing import Optional
 
 from sqlfluff.core.parser import NewlineSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -42,7 +42,7 @@ class Rule_LT08(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"with_compound_statement"})
     is_fix_compatible = True
 
-    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
+    def _eval(self, context: RuleContext) -> Optional[list[LintResult]]:
         """Blank line expected but not found after CTE definition."""
         error_buffer = []
         global_comma_style = context.config.get(
