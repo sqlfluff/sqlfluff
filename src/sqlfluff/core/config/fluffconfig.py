@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterable
 from copy import copy, deepcopy
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 import pluggy
 
@@ -424,7 +425,7 @@ class FluffConfig:
 
         return cls(overrides=overrides, require_dialect=require_dialect)
 
-    def get_templater_class(self) -> type["RawTemplater"]:
+    def get_templater_class(self) -> type[RawTemplater]:
         """Get the configured templater class.
 
         .. note::
@@ -434,7 +435,7 @@ class FluffConfig:
            full templater. Instantiated templaters don't pickle well, so aren't
            automatically passed around between threads/processes.
         """
-        templater_lookup: dict[str, type["RawTemplater"]] = {
+        templater_lookup: dict[str, type[RawTemplater]] = {
             templater.name: templater
             for templater in chain.from_iterable(
                 self._plugin_manager.hook.get_templaters()
@@ -462,7 +463,7 @@ class FluffConfig:
                 "{}".format(templater_name, ", ".join(templater_lookup.keys()))
             )
 
-    def get_templater(self, **kwargs: Any) -> "RawTemplater":
+    def get_templater(self, **kwargs: Any) -> RawTemplater:
         """Instantiate the configured templater."""
         return self.get_templater_class()(**kwargs)
 

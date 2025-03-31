@@ -4810,7 +4810,10 @@ class CreateTaskSegment(BaseSegment):
                 Sequence(
                     "WAREHOUSE",
                     Ref("EqualsSegment"),
-                    Ref("ObjectReferenceSegment"),
+                    OneOf(
+                        Ref("ObjectReferenceSegment"),
+                        Ref("ReferencedVariableNameSegment"),
+                    ),
                 ),
                 Sequence(
                     "USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE",
@@ -4821,7 +4824,10 @@ class CreateTaskSegment(BaseSegment):
             Sequence(
                 "SCHEDULE",
                 Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("ReferencedVariableNameSegment"),
+                ),
             ),
             Sequence(
                 "ALLOW_OVERLAPPING_EXECUTION",
@@ -4849,6 +4855,7 @@ class CreateTaskSegment(BaseSegment):
                 "GRANTS",
             ),
             Ref("CommentEqualsClauseSegment"),
+            Ref("LogLevelEqualsSegment"),
         ),
         Sequence(
             "AFTER",

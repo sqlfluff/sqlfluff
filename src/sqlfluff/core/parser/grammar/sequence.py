@@ -2,9 +2,9 @@
 
 # NOTE: We rename the typing.Sequence here so it doesn't collide
 # with the grammar class that we're defining.
+from collections.abc import Sequence as SequenceType
 from os import getenv
 from typing import Optional, Union, cast
-from typing import Sequence as SequenceType
 
 from sqlfluff.core.helpers.slice import is_zero_slice
 from sqlfluff.core.parser.context import ParseContext
