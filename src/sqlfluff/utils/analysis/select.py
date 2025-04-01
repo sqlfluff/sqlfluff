@@ -218,7 +218,7 @@ def _get_lambda_argument_columns(
         "duckdb",
         "trino",
         "databricks",
-        "snowflake"
+        "snowflake",
     ]:
         # Only athena and sparksql are known to have lambda expressions,
         # so all other dialects will have zero lambda columns
