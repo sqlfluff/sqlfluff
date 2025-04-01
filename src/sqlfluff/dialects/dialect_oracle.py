@@ -544,6 +544,51 @@ oracle_dialect.add(
         ),
         Sequence("REUSE", "SETTINGS", optional=True),
     ),
+    IdentityClauseGrammar=Sequence(
+        "GENERATED",
+        OneOf(
+            "ALWAYS",
+            Sequence(
+                "BY",
+                "DEFAULT",
+                Sequence(
+                    "ON",
+                    "NULL",
+                    Sequence(
+                        "FOR",
+                        "INSERT",
+                        OneOf("ONLY", Sequence("AND", "UPDATE")),
+                        optional=True,
+                    ),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+        "AS",
+        "IDENTITY",
+        Bracketed(Ref("IdentityOptionsGrammar"), optional=True),
+    ),
+    IdentityOptionsGrammar=AnyNumberOf(
+        Sequence(
+            OneOf(
+                Sequence("START", "WITH"),
+                Sequence("INCREMENT", "BY"),
+                "MAXVALUE",
+                "MINVALUE",
+                "CACHE",
+            ),
+            Ref("NumericLiteralSegment"),
+            Sequence("LIMIT", "VALUE", optional=True),
+        ),
+        "NOMAXVALUE",
+        "NOMINVALUE",
+        "CYCLE",
+        "NOCYCLE",
+        "NOCACHE",
+        "ORDER",
+        "NOORDER",
+    ),
 )
 
 oracle_dialect.replace(
@@ -1197,6 +1242,7 @@ class ColumnDefinitionSegment(BaseSegment):
                 AnyNumberOf(
                     Ref("ColumnConstraintSegment", optional=True),
                 ),
+                Ref("IdentityClauseGrammar", optional=True),
             ),
         ),
     )
