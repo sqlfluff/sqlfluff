@@ -983,6 +983,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
             Bracketed(Ref("ExpressionSegment")),
             OneOf("STORED", "VIRTUAL", optional=True),
         ),
+        Sequence("SRID", Ref("NumericLiteralSegment")),
     )
 
 
