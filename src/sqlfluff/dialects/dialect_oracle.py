@@ -1378,7 +1378,9 @@ class PivotSegment(BaseSegment):
         Ref.keyword("XML", optional=True),
         Bracketed(
             Delimited(
-                Ref("FunctionSegment"), Ref("AliasExpressionSegment", optional=True)
+                Sequence(
+                    Ref("FunctionSegment"), Ref("AliasExpressionSegment", optional=True)
+                )
             ),
             Ref("PivotForInGrammar"),
         ),
