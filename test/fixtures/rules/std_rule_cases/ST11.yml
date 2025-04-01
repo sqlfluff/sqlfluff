@@ -187,3 +187,24 @@ test_mysql_identifier_with_backticks_should_not_except:
   configs:
     core:
       dialect: mysql
+
+test_pass_quoted_table_name:
+  pass_str: |
+    SELECT
+        test.one,
+        "test-2".two
+    FROM test
+    LEFT JOIN "test-2"
+        ON test.id = "test-2".id
+
+test_pass_quoted_brackets_table_name:
+  pass_str: |
+    SELECT
+        test.one,
+        [test-2].two
+    FROM test
+    LEFT JOIN [test-2]
+        ON test.id = [test-2].id
+  configs:
+    core:
+      dialect: tsql
