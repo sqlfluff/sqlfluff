@@ -158,13 +158,15 @@ def _iter_templated_patches(
                     # a consumed element of the source. We can use the tracking
                     # markers from the last segment to recreate where this element
                     # should be inserted in both source and template.
+                    # The slices must never go backwards so the end of the slice must
+                    # be greater than or equal to the start.
                     source_slice=slice(
                         source_idx,
-                        first_segment_pos.source_slice.start,
+                        max(first_segment_pos.source_slice.start, source_idx),
                     ),
                     templated_slice=slice(
                         templated_idx,
-                        first_segment_pos.templated_slice.start,
+                        max(first_segment_pos.templated_slice.start, templated_idx),
                     ),
                     patch_category="mid_point",
                     fixed_raw=insert_buff,
