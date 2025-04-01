@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7908a85e00986cbd6fb19e01e79d4a7184ec255792d56dc31510e47023a15563
+_hash: 2a465267004fcca4f200dfc991e9fb4af258ac367b6a44c8ac9e876d4aa7e26b
 file:
 - statement:
     alter_table_statement:
@@ -720,4 +720,23 @@ file:
     - keyword: TRUNCATE
     - keyword: PARTITION
     - naked_identifier: data_dt
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - naked_identifier: geo
+      - data_type:
+          data_type_identifier: GEOMETRY
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - column_constraint_segment:
+          keyword: SRID
+          numeric_literal: '4326'
 - statement_terminator: ;
