@@ -1,0 +1,66 @@
+rule: CP02,LT01
+
+# Sanity tests
+test_fail_cp02_fail_lt01:
+  fail_str: SELECT a,B
+  fix_str: SELECT a, b
+
+test_fail_cp02_pass_lt01:
+  fail_str: SELECT a, B
+  fix_str: SELECT a, b
+
+test_pass_cp02_fail_lt01:
+  fail_str: SELECT a,b
+  fix_str: SELECT a, b
+
+test_pass_cp02_pass_lt01:
+  pass_str: SELECT a, b
+
+# `ProblemHere` has two errors in the same location, but templating
+# previously caused issues with fixes. The two fixes should be
+#    1) Uppercase `PROBLEMHERE`
+#    2) Add a space after `PROBLEMHERE` and `(`
+test_fail_fix_cp02_lt01_with_templating_6678:
+  fail_str: |
+    create task ${env}_ENT_LANDING.SCHEMA_NAME.TASK_NAME
+        warehouse=${lnd_hist_wkl_default}
+        schedule='${repl_cdc_schedule}'
+    as
+        COPY INTO ${env}_ENT_LANDING.SCHEMA_NAME.ProblemHere(
+            ONE_OR_MORE_COLUMN_NAMES_HERE
+        )
+        FROM (
+            SELECT
+                *
+            FROM @${env}_ENT_COMMON.GLOBAL.FILEINGESTION_STAGE/file
+        )
+        FILE_FORMAT = (
+            TYPE = JSON
+        )
+        ON_ERROR = 'SKIP_FILE'
+    ;
+  fix_str: |
+    create task ${env}_ENT_LANDING.SCHEMA_NAME.TASK_NAME
+        warehouse = ${lnd_hist_wkl_default}
+        schedule = '${repl_cdc_schedule}'
+    as
+        COPY INTO ${env}_ENT_LANDING.SCHEMA_NAME.PROBLEMHERE (
+            ONE_OR_MORE_COLUMN_NAMES_HERE
+        )
+        FROM (
+            SELECT
+                *
+            FROM @${env}_ENT_COMMON.GLOBAL.FILEINGESTION_STAGE/file
+        )
+        FILE_FORMAT = (
+            TYPE = JSON
+        )
+        ON_ERROR = 'SKIP_FILE'
+    ;
+  configs:
+    core:
+      dialect: snowflake
+      templater: placeholder
+    templater:
+      placeholder:
+        param_style: flyway_var

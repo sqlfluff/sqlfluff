@@ -165,7 +165,7 @@ class OutputStreamFormatter(FormatterInterface):
             self._dispatch(self._format_path(path))
 
     def dispatch_template_header(
-        self, fname: str, linter_config: FluffConfig, file_config: FluffConfig
+        self, fname: str, linter_config: FluffConfig, file_config: Optional[FluffConfig]
     ) -> None:
         """Dispatch the header displayed before templating."""
         if self.verbosity > 1:
@@ -210,7 +210,7 @@ class OutputStreamFormatter(FormatterInterface):
                 f"{processes}"
             )
 
-    def dispatch_dialect_warning(self, dialect) -> None:
+    def dispatch_dialect_warning(self, dialect: str) -> None:
         """Dispatch a warning for dialects."""
         self._dispatch(self.format_dialect_warning(dialect))  # pragma: no cover
 
@@ -590,7 +590,7 @@ class OutputStreamFormatter(FormatterInterface):
         )
         return text_buffer.getvalue()
 
-    def format_dialect_warning(self, dialect) -> str:
+    def format_dialect_warning(self, dialect: str) -> str:
         """Output a warning for parsing errors."""
         return self.colorize(
             (

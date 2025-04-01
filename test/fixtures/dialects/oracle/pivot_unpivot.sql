@@ -65,3 +65,13 @@ unpivot
         (b_qty, b_value) as 'B'
     )
 );
+
+select * from (
+    select times_purchased, state_code
+    from customers t
+)
+pivot
+(
+    count(state_code) as state_code
+    for state_code in (any)
+);

@@ -203,7 +203,11 @@ ignore_imports = [
     # The plugin host need the BaseRule type for type checking, because one
     # of the hooks returns rules. It's otherwise not something we can import
     # at this layer.
-    "sqlfluff.core.plugin.hookspecs -> sqlfluff.core.rules.base"
+    "sqlfluff.core.plugin.hookspecs -> sqlfluff.core.rules.base",
+    # The formatter needs the LintedFile type for type checking (and the
+    # formatter is imported by lots of other things), and we aren't otherwise
+    # allowed to depend on the linter at this layer.
+    "sqlfluff.core.formatter -> sqlfluff.core.linter",
 ]
 
 
