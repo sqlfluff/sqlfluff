@@ -15,6 +15,7 @@ from sqlfluff.core.errors import (
     SQLParseError,
     SQLTemplaterError,
 )
+from sqlfluff.core.helpers.string import split_comma_separated_string
 from sqlfluff.core.rules import BaseRule, get_ruleset
 from sqlfluff.core.types import ConfigMappingType
 
@@ -138,7 +139,7 @@ def assert_rule_fail_in_sql(
     lint_errors: list[SQLLintError] = [
         v for v in all_violations if isinstance(v, SQLLintError)
     ]
-    if not any(v.rule.code == code for v in lint_errors):
+    if not any(v.rule.code in split_comma_separated_string(code) for v in lint_errors):
         assert linted.tree
         print(f"Parsed File:\n{linted.tree.stringify()}")
         pytest.fail(
@@ -158,8 +159,10 @@ def assert_rule_fail_in_sql(
     # Check that if it has made changes that this rule has set
     # `is_fix_compatible` appropriately.
     if fixed_sql != sql:
-        rule = get_rule_from_set(code, config=cfg)
-        assert rule.is_fix_compatible, (
+        assert any(
+            get_rule_from_set(rule, config=cfg).is_fix_compatible
+            for rule in split_comma_separated_string(code)
+        ), (
             f"Rule {code} returned fixes but does not specify "
             "'is_fix_compatible = True'."
         )
@@ -196,7 +199,7 @@ def assert_rule_pass_in_sql(
     # line of code.
     lint_result = linter.lint_string(sql, config=cfg, fname="<STR>")
     lint_errors = [v for v in lint_result.violations if isinstance(v, SQLLintError)]
-    if any(v.rule.code == code for v in lint_errors):
+    if any(v.rule.code in split_comma_separated_string(code) for v in lint_errors):
         print("Errors Found:")
         for e in lint_result.violations:
             print("    " + repr(e))

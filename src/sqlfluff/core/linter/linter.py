@@ -5,7 +5,7 @@ import logging
 import os
 import time
 from collections.abc import Iterator, Sequence
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 import regex
 from tqdm import tqdm
@@ -19,6 +19,7 @@ from sqlfluff.core.errors import (
     SQLParseError,
     SQLTemplaterError,
 )
+from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.helpers.file import get_encoding
 from sqlfluff.core.linter.common import (
     ParsedString,
@@ -62,7 +63,7 @@ class Linter:
     def __init__(
         self,
         config: Optional[FluffConfig] = None,
-        formatter: Any = None,
+        formatter: Optional[FormatterInterface] = None,
         dialect: Optional[str] = None,
         rules: Optional[list[str]] = None,
         user_rules: Optional[list[type[BaseRule]]] = None,
@@ -365,7 +366,7 @@ class Linter:
         fix: bool = False,
         fname: Optional[str] = None,
         templated_file: Optional["TemplatedFile"] = None,
-        formatter: Any = None,
+        formatter: Optional[FormatterInterface] = None,
     ) -> tuple[BaseSegment, list[SQLBaseError], Optional[IgnoreMask], RuleTimingsType]:
         """Lint and optionally fix a tree object."""
         # Keep track of the linting errors on the very first linter pass. The
@@ -386,7 +387,9 @@ class Linter:
 
         # Dispatch the output for the lint header
         if formatter:
-            formatter.dispatch_lint_header(fname, sorted(rule_pack.codes()))
+            formatter.dispatch_lint_header(
+                fname or "<filename>", sorted(rule_pack.codes())
+            )
 
         # Look for comment segments which might indicate lines to ignore.
         disable_noqa_except: Optional[str] = config.get("disable_noqa_except")
@@ -611,7 +614,7 @@ class Linter:
         parsed: ParsedString,
         rule_pack: RulePack,
         fix: bool = False,
-        formatter: Any = None,
+        formatter: Optional[FormatterInterface] = None,
         encoding: str = "utf8",
     ) -> LintedFile:
         """Lint a ParsedString and return a LintedFile."""
@@ -747,7 +750,10 @@ class Linter:
             fixable=True if fix else None, types=SQLParseError
         ):
             if formatter:  # pragma: no cover TODO?
-                formatter.dispatch_dialect_warning(parsed.config.get("dialect"))
+                formatter.dispatch_dialect_warning(
+                    # The dialect property is the string, not the dialect object
+                    cast(str, parsed.config.get("dialect"))
+                )
 
         return linted_file
 
@@ -778,7 +784,7 @@ class Linter:
         rendered: RenderedFile,
         rule_pack: RulePack,
         fix: bool = False,
-        formatter: Any = None,
+        formatter: Optional[FormatterInterface] = None,
     ) -> LintedFile:
         """Take a RenderedFile and return a LintedFile."""
         parsed = cls.parse_rendered(rendered)

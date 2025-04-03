@@ -100,7 +100,7 @@ class Rule_ST11(BaseRule):
         for table_reference in segment.recursive_crawl(
             "table_reference", no_recursive_seg_type="select_statement"
         ):
-            return table_reference.segments[-1].raw_upper
+            return table_reference.segments[-1].raw_normalized(casefold=False).upper()
         # If we can't find a reference, just return an empty string
         # to signal that there isn't one. This could be a case of a
         # VALUES clause, or anything else selectable which hasn't
