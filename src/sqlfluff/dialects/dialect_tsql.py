@@ -395,6 +395,21 @@ tsql_dialect.add(
         LiteralSegment,
         type="numeric_literal",
     ),
+    PlusComparisonSegment=StringParser(
+        "+", SymbolSegment, type="raw_comparison_operator"
+    ),
+    MinusComparisonSegment=StringParser(
+        "-", SymbolSegment, type="raw_comparison_operator"
+    ),
+    MultiplyComparisonSegment=StringParser(
+        "*", SymbolSegment, type="raw_comparison_operator"
+    ),
+    DivideComparisonSegment=StringParser(
+        "/", SymbolSegment, type="raw_comparison_operator"
+    ),
+    ModuloComparisonSegment=StringParser(
+        "%", SymbolSegment, type="raw_comparison_operator"
+    ),
 )
 
 tsql_dialect.replace(
@@ -640,6 +655,17 @@ tsql_dialect.replace(
         min_times=1,
     ),
     CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
+    ArithmeticBinaryOperatorGrammar=ansi_dialect.get_grammar(
+        "ArithmeticBinaryOperatorGrammar"
+    ).copy(
+        insert=[
+            Ref("AdditionAssignmentSegment"),
+            Ref("SubtractionAssignmentSegment"),
+            Ref("MultiplicationAssignmentSegment"),
+            Ref("DivisionAssignmentSegment"),
+            Ref("ModulusAssignmentSegment"),
+        ]
+    ),
 )
 
 
@@ -6734,3 +6760,48 @@ class ExpressionSegment(BaseSegment):
     match_grammar: Matchable = OneOf(
         Ref("Expression_A_Grammar"), Ref("NextValueSequenceSegment")
     )
+
+
+class AdditionAssignmentSegment(CompositeBinaryOperatorSegment):
+    """An addition assignment (`+=`) segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/add-equals-transact-sql?view=sql-server-ver16
+    """
+
+    match_grammar = Sequence(Ref("PlusComparisonSegment"), Ref("RawEqualsSegment"))
+
+
+class SubtractionAssignmentSegment(CompositeBinaryOperatorSegment):
+    """A subtraction assignment (`-=`) segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/subtract-equals-transact-sql?view=sql-server-ver16
+    """
+
+    match_grammar = Sequence(Ref("MinusComparisonSegment"), Ref("RawEqualsSegment"))
+
+
+class MultiplicationAssignmentSegment(CompositeBinaryOperatorSegment):
+    """A multiplication assignment (`*=`) segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/multiply-equals-transact-sql?view=sql-server-ver16
+    """
+
+    match_grammar = Sequence(Ref("MultiplyComparisonSegment"), Ref("RawEqualsSegment"))
+
+
+class DivisionAssignmentSegment(CompositeBinaryOperatorSegment):
+    """A division assignment (`/=`) segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/divide-equals-transact-sql?view=sql-server-ver16
+    """
+
+    match_grammar = Sequence(Ref("DivideComparisonSegment"), Ref("RawEqualsSegment"))
+
+
+class ModulusAssignmentSegment(CompositeBinaryOperatorSegment):
+    """A modulus assignment (`%=`) segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/multiply-equals-transact-sql?view=sql-server-ver16
+    """
+
+    match_grammar = Sequence(Ref("ModuloComparisonSegment"), Ref("RawEqualsSegment"))
