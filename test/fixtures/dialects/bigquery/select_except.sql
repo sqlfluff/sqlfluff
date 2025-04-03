@@ -1,5 +1,5 @@
 SELECT
-    * EXCEPT (seqnum) REPLACE (foo as bar, baz foobar)
+    * EXCEPT (seqnum) REPLACE (foo as bar, baz as foobar)
 FROM my_tbl;
 
 -- Catch potential bugs in unions
