@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2a465267004fcca4f200dfc991e9fb4af258ac367b6a44c8ac9e876d4aa7e26b
+_hash: c18ba015cd914b50316648a816d6ada1bb27af5048c9118ee44d75c11ea08365
 file:
 - statement:
     alter_table_statement:
@@ -710,6 +710,57 @@ file:
         keyword: COLLATE
         collation_reference:
           naked_identifier: utf8mb4_unicode_ci
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: CONVERT
+    - keyword: TO
+    - alter_option_segment:
+      - keyword: CHARACTER
+      - keyword: SET
+      - quoted_identifier: '`utf8mb4`'
+    - alter_option_segment:
+        keyword: COLLATE
+        collation_reference:
+          quoted_identifier: '`utf8mb4_unicode_ci`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: CONVERT
+    - keyword: TO
+    - alter_option_segment:
+      - keyword: CHARACTER
+      - keyword: SET
+      - quoted_identifier: "'utf8mb4'"
+    - alter_option_segment:
+        keyword: COLLATE
+        collation_reference:
+          quoted_literal: "'utf8mb4_unicode_ci'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: CONVERT
+    - keyword: TO
+    - alter_option_segment:
+      - keyword: CHARACTER
+      - keyword: SET
+      - quoted_identifier: '"utf8mb4"'
+    - alter_option_segment:
+        keyword: COLLATE
+        collation_reference:
+          quoted_literal: '"utf8mb4_unicode_ci"'
 - statement_terminator: ;
 - statement:
     alter_table_statement:

@@ -975,7 +975,15 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
 
     match_grammar: Matchable = OneOf(
         ansi.ColumnConstraintSegment.match_grammar,
-        Sequence("CHARACTER", "SET", Ref("NakedIdentifierSegment")),
+        Sequence(
+            "CHARACTER",
+            "SET",
+            OneOf(
+                Ref("SingleIdentifierGrammar"),
+                Ref("SingleQuotedIdentifierSegment"),
+                Ref("DoubleQuotedIdentifierSegment"),
+            ),
+        ),
         Sequence("COLLATE", Ref("CollationReferenceSegment")),
         Sequence(
             Sequence("GENERATED", "ALWAYS", optional=True),
@@ -2983,7 +2991,11 @@ class AlterOptionSegment(BaseSegment):
                 "CHARACTER",
                 "SET",
                 Ref("EqualsSegment", optional=True),
-                Ref("NakedIdentifierSegment"),
+                OneOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("SingleQuotedIdentifierSegment"),
+                    Ref("DoubleQuotedIdentifierSegment"),
+                ),
             ),
             Sequence(
                 Ref.keyword("DEFAULT", optional=True),
