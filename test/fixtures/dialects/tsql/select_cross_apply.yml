@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2e2c7637899f7476f622812d11b3143df72b03cec6987cf9a113dfdcd0e28ad4
+_hash: a34829c485512f48e84897bde203663c011c140c58cc7c5458d0cd96e7c106cb
 file:
   batch:
   - statement:
@@ -65,86 +65,6 @@ file:
   - statement:
       select_statement:
         select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-            column_reference:
-            - naked_identifier: d
-            - dot: .
-            - naked_identifier: DeptID
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-            - naked_identifier: d
-            - dot: .
-            - naked_identifier: DeptName
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              naked_identifier: DeptMgrID
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-            - naked_identifier: reps
-            - dot: .
-            - naked_identifier: EmpID
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-            - naked_identifier: reps
-            - dot: .
-            - naked_identifier: EmpLastName
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-            - naked_identifier: reps
-            - dot: .
-            - naked_identifier: EmpSalary
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  naked_identifier: Departments
-              alias_expression:
-                keyword: AS
-                naked_identifier: d
-            join_clause:
-            - keyword: CROSS
-            - keyword: APPLY
-            - from_expression_element:
-                table_expression:
-                  function:
-                    function_name:
-                      naked_identifier: dbo
-                      dot: .
-                      function_name_identifier: GetReports
-                    function_contents:
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                          - naked_identifier: d
-                          - dot: .
-                          - naked_identifier: DeptMgrID
-                        end_bracket: )
-                alias_expression:
-                  keyword: AS
-                  naked_identifier: reps
-        where_clause:
-          keyword: WHERE
-          expression:
-            column_reference:
-            - naked_identifier: d
-            - dot: .
-            - naked_identifier: DeptMgrID
-            comparison_operator:
-              raw_comparison_operator: '='
-            numeric_literal: '10'
-        statement_terminator: ;
-  - statement:
-      select_statement:
-        select_clause:
           keyword: SELECT
           select_clause_element:
             wildcard_expression:
@@ -182,56 +102,6 @@ file:
   - statement:
       select_statement:
         select_clause:
-          keyword: SELECT
-          select_clause_element:
-            wildcard_expression:
-              wildcard_identifier:
-                star: '*'
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  naked_identifier: Department
-              alias_expression:
-                naked_identifier: D
-            join_clause:
-            - keyword: OUTER
-            - keyword: APPLY
-            - from_expression_element:
-                table_expression:
-                  function:
-                    function_name:
-                      naked_identifier: dbo
-                      dot: .
-                      function_name_identifier: fn_GetAllEmployeeOfADepartment
-                    function_contents:
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                          - naked_identifier: D
-                          - dot: .
-                          - naked_identifier: DepartmentID
-                        end_bracket: )
-                alias_expression:
-                  keyword: AS
-                  naked_identifier: AllEmp
-        where_clause:
-          keyword: WHERE
-          expression:
-            column_reference:
-            - naked_identifier: D
-            - dot: .
-            - naked_identifier: DepartmentId
-            comparison_operator:
-              raw_comparison_operator: '='
-            numeric_literal: '10'
-        statement_terminator: ;
-  - statement:
-      select_statement:
-        select_clause:
         - keyword: select
         - select_clause_element:
             column_reference:
@@ -252,7 +122,8 @@ file:
                 table_reference:
                   naked_identifier: table1
               alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: s
             join_clause:
             - keyword: cross
@@ -289,6 +160,7 @@ file:
                           quoted_literal: "'{'"
                       - end_bracket: )
                 alias_expression:
-                  keyword: as
+                  alias_expression_operator:
+                    keyword: as
                   naked_identifier: sp
           statement_terminator: ;

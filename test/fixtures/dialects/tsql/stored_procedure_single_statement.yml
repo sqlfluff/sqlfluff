@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2984e93623faaae6a60faf9d25a16ca1ee8a7ba1a7cbd5ca721929c54fb60bf5
+_hash: f72fea07fbce9fd7f99022a43687f793f948bdd8983339af13975ea3e8c711ef
 file:
   batch:
     create_procedure_statement:
@@ -110,7 +110,8 @@ file:
                           data_type_identifier: BIGINT
                         end_bracket: )
                   alias_expression:
-                    keyword: AS
+                    alias_expression_operator:
+                      keyword: AS
                     quoted_identifier: '[POPULATION]'
               - comma: ','
               - select_clause_element:
@@ -132,7 +133,8 @@ file:
                           data_type_identifier: BIGINT
                         end_bracket: )
                   alias_expression:
-                    keyword: AS
+                    alias_expression_operator:
+                      keyword: AS
                     quoted_identifier: '[WEEKLY_COUNT]'
               - comma: ','
               - select_clause_element:
@@ -190,7 +192,8 @@ file:
                           data_type_identifier: DATE
                         end_bracket: )
                   alias_expression:
-                    keyword: AS
+                    alias_expression_operator:
+                      keyword: AS
                     quoted_identifier: '[WEEK_START]'
               - comma: ','
               - select_clause_element:
@@ -254,7 +257,8 @@ file:
                           data_type_identifier: DATE
                         end_bracket: )
                   alias_expression:
-                    keyword: AS
+                    alias_expression_operator:
+                      keyword: AS
                     quoted_identifier: '[WEEK_END]'
               - comma: ','
               - select_clause_element:
@@ -272,7 +276,8 @@ file:
                           data_type_identifier: FLOAT
                         end_bracket: )
                   alias_expression:
-                    keyword: AS
+                    alias_expression_operator:
+                      keyword: AS
                     quoted_identifier: '[RATE_14_DAY]'
               - comma: ','
               - select_clause_element:
@@ -290,7 +295,8 @@ file:
                           data_type_identifier: BIGINT
                         end_bracket: )
                   alias_expression:
-                    keyword: AS
+                    alias_expression_operator:
+                      keyword: AS
                     quoted_identifier: '[CUMULATIVE_COUNT]'
               - comma: ','
               - select_clause_element:
