@@ -21,6 +21,7 @@ env
 venv
 .venv
 .python-version
+uv.lock
 
 # Ignore coverage reports
 .coverage

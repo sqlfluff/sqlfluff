@@ -438,7 +438,7 @@ def test__templater_dbt_templating_absolute_path(
 
 
 @pytest.mark.parametrize(
-    "fname,exception_msg,exception_class",
+    ("fname", "exception_msg", "force_raise_compilation_error", "exception_class"),
     [
         (
             "compiler_error.sql",
@@ -446,6 +446,7 @@ def test__templater_dbt_templating_absolute_path(
             "(models/my_new_project/compiler_error.sql)\n  "
             "Unexpected end of template. Jinja was looking for the following tags: "
             "'endfor' or 'else'.",
+            False,
             SQLFluffUserError,
         ),
         (
@@ -454,6 +455,7 @@ def test__templater_dbt_templating_absolute_path(
             "Model 'model.my_new_project.unknown_ref' "
             "(models/my_new_project/unknown_ref.sql) depends on a node named "
             "'i_do_not_exist' which was not found",
+            False,
             SQLFluffUserError,
         ),
         (
@@ -462,6 +464,7 @@ def test__templater_dbt_templating_absolute_path(
             "Compilation Error in model unknown_macro "
             "(models/my_new_project/unknown_macro.sql)\n  'invalid_macro' is "
             "undefined. This can happen when calling a macro that does not exist.",
+            False,
             SQLTemplaterError,
         ),
         (
@@ -470,7 +473,15 @@ def test__templater_dbt_templating_absolute_path(
             # but in live testing, the inclusion of the triggering error sometimes
             # gives us something much more useful.
             "because dbt raised a fatal exception during compilation",
+            False,
             SQLFluffSkipFile,
+        ),
+        pytest.param(
+            "compile_missing_table.sql",
+            "Runtime Error",
+            True,
+            SQLTemplaterError,
+            id="force_raise_compilation_error",
         ),
     ],
 )
@@ -481,6 +492,7 @@ def test__templater_dbt_handle_exceptions(
     dbt_project_folder,
     fname,
     exception_msg,
+    force_raise_compilation_error,
     exception_class,
 ):
     """Test that exceptions during compilation are returned as violation."""
@@ -495,6 +507,9 @@ def test__templater_dbt_handle_exceptions(
     shutil.move(src_fpath, target_fpath)
     try:
         with pytest.raises(exception_class) as excinfo:
+            dbt_fluff_config["templater"]["dbt"][
+                "force_raise_compilation_error"
+            ] = force_raise_compilation_error
             dbt_templater.process(
                 in_str="",
                 fname=target_fpath,
@@ -590,6 +605,19 @@ def test__templater_dbt_handle_database_connection_failure(
     # NB: Replace slashes to deal with different platform paths being returned.
     error_message = excinfo.value.desc().replace("\\", "/")
     assert "dbt tried to connect to the database" in error_message
+
+
+def test__project_dir_from_env(dbt_templater, project_dir, monkeypatch):
+    """Test possibility to set project_dir from env variable."""
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"dbt": {"project_dir": None}},
+        }
+    )
+    assert dbt_templater._get_project_dir() == os.path.abspath(os.getcwd())
+    monkeypatch.setenv("DBT_PROJECT_DIR", project_dir)
+    assert dbt_templater._get_project_dir() == os.path.abspath(project_dir)
 
 
 def test__project_dir_does_not_exist_error(dbt_templater):
