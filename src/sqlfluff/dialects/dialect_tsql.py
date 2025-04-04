@@ -395,6 +395,10 @@ tsql_dialect.add(
         LiteralSegment,
         type="numeric_literal",
     ),
+    RawEqualsAliasSegment=StringParser("=", SymbolSegment, type="raw_alias_operator"),
+    EqualsComparisonSegment=StringParser(
+        "=", SymbolSegment, type="raw_comparison_operator"
+    ),
     PlusComparisonSegment=StringParser(
         "+", SymbolSegment, type="raw_comparison_operator"
     ),
@@ -812,6 +816,35 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     )
 
 
+class AliasExpressionSegment(ansi.AliasExpressionSegment):
+    """A reference to an object with an `AS` clause.
+
+    The optional AS keyword allows both implicit and explicit aliasing.
+    """
+
+    type = "alias_expression"
+    match_grammar: Matchable = Sequence(
+        Indent,
+        Ref("AliasExpressionAsOperatorSegment", optional=True),
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                # Column alias in VALUES clause
+                Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
+            ),
+            Ref("SingleQuotedIdentifierSegment"),
+        ),
+        Dedent,
+    )
+
+
+class AliasExpressionAsOperatorSegment(BaseSegment):
+    """Equals operator."""
+
+    type = "alias_expression_operator"
+    match_grammar: Matchable = Sequence(Ref.keyword("AS"))
+
+
 class AltAliasExpressionSegment(BaseSegment):
     """An alternative alias clause as used by tsql using `=`."""
 
@@ -823,8 +856,15 @@ class AltAliasExpressionSegment(BaseSegment):
             Ref("BracketedIdentifierSegment"),
             Ref("SingleQuotedIdentifierSegment"),
         ),
-        Ref("RawEqualsSegment"),
+        Ref("AliasExpressionEqualsOperatorSegment"),
     )
+
+
+class AliasExpressionEqualsOperatorSegment(BaseSegment):
+    """Equals operator."""
+
+    type = "alias_expression_operator"
+    match_grammar: Matchable = Sequence(Indent, Ref("RawEqualsSegment"), Dedent)
 
 
 class SelectClauseModifierSegment(BaseSegment):
