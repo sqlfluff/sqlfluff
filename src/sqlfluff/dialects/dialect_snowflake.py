@@ -78,7 +78,7 @@ snowflake_dialect.insert_lexer_matchers(
     [
         # Keyword assigner needed for keyword functions.
         StringLexer("parameter_assigner", "=>", CodeSegment),
-        StringLexer("function_assigner", "->", CodeSegment),
+        StringLexer("right_arrow", "->", CodeSegment),
         RegexLexer("stage_path", r"(?:@[^\s;)]+|'@[^']+')", CodeSegment),
         # Column selector
         # https://docs.snowflake.com/en/sql-reference/sql/select.html#parameters
@@ -222,6 +222,7 @@ snowflake_dialect.add(
     ParameterAssignerSegment=StringParser(
         "=>", SymbolSegment, type="parameter_assigner"
     ),
+    LambdaArrowSegment=StringParser("->", SymbolSegment, type="lambda_arrow"),
     FunctionAssignerSegment=StringParser("->", SymbolSegment, type="function_assigner"),
     # Walrus operator for Snowflake scripting block statements
     WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
@@ -9045,23 +9046,23 @@ class LambdaExpressionSegment(BaseSegment):
     https://docs.snowflake.com/en/user-guide/querying-semistructured#lambda-expressions
     """
 
-    type = "lambda_expression"
+    type = "lambda_function"
     match_grammar = Sequence(
         OneOf(
             Sequence(
-                Ref("NakedIdentifierSegment"),
+                Ref("ParameterNameSegment"),
                 Ref("DatatypeSegment", optional=True),
             ),
             Bracketed(
                 Delimited(
                     Sequence(
-                        Ref("NakedIdentifierSegment"),
+                        Ref("ParameterNameSegment"),
                         Ref("DatatypeSegment", optional=True),
                     )
                 )
             ),
         ),
-        Ref("FunctionAssignerSegment"),
+        Ref("LambdaArrowSegment"),
         Ref("ExpressionSegment"),
     )
 
