@@ -2979,6 +2979,8 @@ class AccessStatementSegment(BaseSegment):
         "STREAMLIT",
         "TASK",
         "PIPE",
+        "NOTEBOOK",
+        "MODEL",
     ]
 
     _schema_object_types = OneOf(
