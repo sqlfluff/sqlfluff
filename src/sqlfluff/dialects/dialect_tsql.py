@@ -395,10 +395,6 @@ tsql_dialect.add(
         LiteralSegment,
         type="numeric_literal",
     ),
-    RawEqualsAliasSegment=StringParser("=", SymbolSegment, type="raw_alias_operator"),
-    EqualsComparisonSegment=StringParser(
-        "=", SymbolSegment, type="raw_comparison_operator"
-    ),
     PlusComparisonSegment=StringParser(
         "+", SymbolSegment, type="raw_comparison_operator"
     ),
