@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ad529eb73bf8da610ceddcbb5d0a7f5cbfa86bc470a92596bf7c4c82704278c1
+_hash: 4bb34cc0fae734fe9df543795d67f932d654a12611aac7d862db174f9e2edfbc
 file:
   batch:
   - statement:
@@ -18,143 +18,169 @@ file:
   - statement:
       set_segment:
         keyword: SET
-        parameter: '@param1'
-        assignment_operator:
-          raw_comparison_operator: '='
-        expression:
-          numeric_literal: '1'
+        parameter_assignment:
+          parameter: '@param1'
+          assignment_operator:
+            raw_comparison_operator: '='
+          expression:
+            numeric_literal: '1'
         statement_terminator: ;
   - statement:
       set_segment:
       - keyword: SET
-      - parameter: '@param1'
-      - assignment_operator:
-          raw_comparison_operator: '='
-      - expression:
-          numeric_literal: '1'
+      - parameter_assignment:
+          parameter: '@param1'
+          assignment_operator:
+            raw_comparison_operator: '='
+          expression:
+            numeric_literal: '1'
       - comma: ','
-      - parameter: '@param2'
-      - assignment_operator:
-          raw_comparison_operator: '='
-      - expression:
-          numeric_literal: '2'
+      - parameter_assignment:
+          parameter: '@param2'
+          assignment_operator:
+            raw_comparison_operator: '='
+          expression:
+            numeric_literal: '2'
       - statement_terminator: ;
   - statement:
       set_segment:
       - keyword: SET
-      - parameter: '@param1'
-      - assignment_operator:
-          raw_comparison_operator: '='
-      - expression:
-          column_reference:
-            quoted_identifier: '"test, test"'
+      - parameter_assignment:
+          parameter: '@param1'
+          assignment_operator:
+            raw_comparison_operator: '='
+          expression:
+            column_reference:
+              quoted_identifier: '"test, test"'
       - comma: ','
-      - parameter: '@param2'
-      - assignment_operator:
-          raw_comparison_operator: '='
-      - expression:
-          numeric_literal: '2'
+      - parameter_assignment:
+          parameter: '@param2'
+          assignment_operator:
+            raw_comparison_operator: '='
+          expression:
+            numeric_literal: '2'
       - statement_terminator: ;
   - statement:
       set_segment:
       - keyword: SET
-      - parameter: '@param1'
-      - assignment_operator:
-          raw_comparison_operator: '='
-      - expression:
-          bracketed:
-          - start_bracket: (
-          - column_reference:
-              quoted_identifier: '"test"'
-          - comma: ','
-          - column_reference:
-              quoted_identifier: '"test"'
-          - end_bracket: )
+      - parameter_assignment:
+          parameter: '@param1'
+          assignment_operator:
+            raw_comparison_operator: '='
+          expression:
+            bracketed:
+            - start_bracket: (
+            - column_reference:
+                quoted_identifier: '"test"'
+            - comma: ','
+            - column_reference:
+                quoted_identifier: '"test"'
+            - end_bracket: )
       - comma: ','
-      - parameter: '@param2'
-      - assignment_operator:
-          raw_comparison_operator: '='
-      - expression:
-          numeric_literal: '2'
+      - parameter_assignment:
+          parameter: '@param2'
+          assignment_operator:
+            raw_comparison_operator: '='
+          expression:
+            numeric_literal: '2'
       - statement_terminator: ;
   - statement:
       set_segment:
       - keyword: SET
-      - parameter: '@param1'
-      - assignment_operator:
-          binary_operator: +
-          raw_comparison_operator: '='
-      - expression:
-          numeric_literal: '1'
+      - parameter_assignment:
+          parameter: '@param1'
+          assignment_operator:
+            binary_operator: +
+            raw_comparison_operator: '='
+          expression:
+            numeric_literal: '1'
       - comma: ','
-      - parameter: '@param2'
-      - assignment_operator:
-          binary_operator: '-'
-          raw_comparison_operator: '='
-      - expression:
-          numeric_literal: '2'
+      - parameter_assignment:
+          parameter: '@param2'
+          assignment_operator:
+            binary_operator: '-'
+            raw_comparison_operator: '='
+          expression:
+            numeric_literal: '2'
       - comma: ','
-      - parameter: '@param3'
-      - assignment_operator:
-          binary_operator: '*'
-          raw_comparison_operator: '='
-      - expression:
-          numeric_literal: '3'
+      - parameter_assignment:
+          parameter: '@param3'
+          assignment_operator:
+            binary_operator: '*'
+            raw_comparison_operator: '='
+          expression:
+            numeric_literal: '3'
       - comma: ','
-      - parameter: '@param4'
-      - assignment_operator:
-          binary_operator: /
-          raw_comparison_operator: '='
-      - expression:
-          numeric_literal: '4'
+      - parameter_assignment:
+          parameter: '@param4'
+          assignment_operator:
+            binary_operator: /
+            raw_comparison_operator: '='
+          expression:
+            numeric_literal: '4'
       - comma: ','
-      - parameter: '@param5'
-      - assignment_operator:
-          binary_operator: '%'
-          raw_comparison_operator: '='
-      - expression:
-          numeric_literal: '5'
+      - parameter_assignment:
+          parameter: '@param5'
+          assignment_operator:
+            binary_operator: '%'
+            raw_comparison_operator: '='
+          expression:
+            numeric_literal: '5'
       - comma: ','
-      - parameter: '@param5'
-      - assignment_operator:
-          binary_operator: ^
-          raw_comparison_operator: '='
-      - expression:
-          numeric_literal: '6'
+      - parameter_assignment:
+          parameter: '@param5'
+          assignment_operator:
+            binary_operator: ^
+            raw_comparison_operator: '='
+          expression:
+            numeric_literal: '6'
       - comma: ','
-      - parameter: '@param5'
-      - assignment_operator:
-          binary_operator:
-            ampersand: '&'
-          raw_comparison_operator: '='
-      - expression:
-          numeric_literal: '7'
+      - parameter_assignment:
+          parameter: '@param5'
+          assignment_operator:
+            binary_operator:
+              ampersand: '&'
+            raw_comparison_operator: '='
+          expression:
+            numeric_literal: '7'
       - comma: ','
-      - parameter: '@param5'
-      - assignment_operator:
-          binary_operator:
-            pipe: '|'
-          raw_comparison_operator: '='
-      - expression:
-          numeric_literal: '8'
+      - parameter_assignment:
+          parameter: '@param5'
+          assignment_operator:
+            binary_operator:
+              pipe: '|'
+            raw_comparison_operator: '='
+          expression:
+            numeric_literal: '8'
       - statement_terminator: ;
   - statement:
       set_segment:
         keyword: SET
-        parameter: '@param1'
-        assignment_operator:
-          raw_comparison_operator: '='
-        expression:
-          bracketed:
-            start_bracket: (
-            expression:
-              sequence_next_value:
-              - keyword: NEXT
-              - keyword: VALUE
-              - keyword: FOR
-              - object_reference:
-                - quoted_identifier: '[dbo]'
-                - dot: .
-                - quoted_identifier: '[SEQUENCE_NAME]'
-            end_bracket: )
+        parameter_assignment:
+          parameter: '@param1'
+          assignment_operator:
+            raw_comparison_operator: '='
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                sequence_next_value:
+                - keyword: NEXT
+                - keyword: VALUE
+                - keyword: FOR
+                - object_reference:
+                  - quoted_identifier: '[dbo]'
+                  - dot: .
+                  - quoted_identifier: '[SEQUENCE_NAME]'
+              end_bracket: )
+        statement_terminator: ;
+  - statement:
+      set_segment:
+        keyword: SET
+        parameter_assignment:
+          parameter: '@param1'
+          assignment_operator:
+            raw_comparison_operator: '='
+          expression:
+            null_literal: 'NULL'
         statement_terminator: ;
