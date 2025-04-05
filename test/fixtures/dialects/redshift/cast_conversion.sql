@@ -33,3 +33,6 @@ from tbl1;
 
 select col1::interval
 from tbl1;
+
+select cast(pg_namespace.nspname as information_schema.sql_identifier)
+from pg_namespace;
