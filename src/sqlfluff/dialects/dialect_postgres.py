@@ -275,6 +275,7 @@ postgres_dialect.patch_lexer_matchers(
     ]
 )
 
+postgres_dialect.sets("reserved_keywords").clear()
 postgres_dialect.sets("reserved_keywords").update(
     get_keywords(postgres_keywords, "reserved")
 )
