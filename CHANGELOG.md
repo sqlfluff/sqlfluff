@@ -10,6 +10,80 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.4.0] - 2025-03-30
+
+## Highlights
+
+## Highlights
+
+> Maintainers: Copy and paste the commentary from the changelog here.
+> Check that the name and tag are correct before releasing.
+> Publishing a GitHub release will trigger the deploy to pypi and dockerhub.
+
+## What’s Changed
+
+* New Rule: LT15 [#6641](https://github.com/sqlfluff/sqlfluff/pull/6641) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Additional cleanup for python 3.9 [#6758](https://github.com/sqlfluff/sqlfluff/pull/6758) [@keraion](https://github.com/keraion)
+* feat(snowflake): allow reference variables in create task  [#6759](https://github.com/sqlfluff/sqlfluff/pull/6759) [@mrlannigan](https://github.com/mrlannigan)
+* Always use utf-8 encoding for toml files [#6760](https://github.com/sqlfluff/sqlfluff/pull/6760) [@keraion](https://github.com/keraion)
+* Fix rule failures for MySQL/MariaDB with backticked identifiers [#6702](https://github.com/sqlfluff/sqlfluff/pull/6702) [@pprkut](https://github.com/pprkut)
+* `ON CONFLICT` indentation for Postgres [#6660](https://github.com/sqlfluff/sqlfluff/pull/6660) [@WillMatthews](https://github.com/WillMatthews)
+* Update release instructions [#6751](https://github.com/sqlfluff/sqlfluff/pull/6751) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add support for Oracle PL/SQL (Procedures, Functions, Packages, Triggers, Types, Cursors, Loops) [#6635](https://github.com/sqlfluff/sqlfluff/pull/6635) [@joaostorrer](https://github.com/joaostorrer)
+* Tighter typing of Rule configs [#6750](https://github.com/sqlfluff/sqlfluff/pull/6750) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix: column aliases should find the topmost alias [#6755](https://github.com/sqlfluff/sqlfluff/pull/6755) [@keraion](https://github.com/keraion)
+* AM08: Handle any-cased `UNNEST` [#6757](https://github.com/sqlfluff/sqlfluff/pull/6757) [@keraion](https://github.com/keraion)
+* Python 3.9+ Type simplifications [#6745](https://github.com/sqlfluff/sqlfluff/pull/6745) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Snowflake dynamic table fixes [#6748](https://github.com/sqlfluff/sqlfluff/pull/6748) [@ulixius9](https://github.com/ulixius9)
+* Update TSQL Execute Statement for Expressions [#6744](https://github.com/sqlfluff/sqlfluff/pull/6744) [@nathanthorell](https://github.com/nathanthorell)
+* Duckdb: Adding InsertStatementSegment for Duckdb specifics [#6740](https://github.com/sqlfluff/sqlfluff/pull/6740) [@nathanthorell](https://github.com/nathanthorell)
+* Drop support for Python 3.8 [#6743](https://github.com/sqlfluff/sqlfluff/pull/6743) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Fix tox config so that it supports spaces in the path name (#6726) [#6727](https://github.com/sqlfluff/sqlfluff/pull/6727) [@maxgrenderjones](https://github.com/maxgrenderjones)
+* BigQuery: support UNION ALL BY NAME and other new set operator modifiers [#6722](https://github.com/sqlfluff/sqlfluff/pull/6722) [@Robin-C](https://github.com/Robin-C)
+* Fill in gap in parsing `create user rsa_public_key=...` / snowflake [#6731](https://github.com/sqlfluff/sqlfluff/pull/6731) [@juli4nb4dillo](https://github.com/juli4nb4dillo)
+* Adds support for partition options in `ALTER TABLE` statements in MySQL. [#6742](https://github.com/sqlfluff/sqlfluff/pull/6742) [@joaostorrer](https://github.com/joaostorrer)
+* Update oracle reserved keywords. [#6730](https://github.com/sqlfluff/sqlfluff/pull/6730) [@joaostorrer](https://github.com/joaostorrer)
+* Add support in TSQL for Open Symmetric Key [#6736](https://github.com/sqlfluff/sqlfluff/pull/6736) [@nathanthorell](https://github.com/nathanthorell)
+* Cleaning: Remove Todo set tag from Snowflake ALTER TABLE statement [#6738](https://github.com/sqlfluff/sqlfluff/pull/6738) [@moreaupascal56](https://github.com/moreaupascal56)
+* SparkSQL: Make colon optional in `STRUCT` datatype [#6739](https://github.com/sqlfluff/sqlfluff/pull/6739) [@NormallyGaussian](https://github.com/NormallyGaussian)
+* Redshift: Support GROUP BY ALL [#6714](https://github.com/sqlfluff/sqlfluff/pull/6714) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Fix tests with Click 8.2 [#6706](https://github.com/sqlfluff/sqlfluff/pull/6706) [@cjwatson](https://github.com/cjwatson)
+* Remove `USER` from reserved words in Postgres. [#6707](https://github.com/sqlfluff/sqlfluff/pull/6707) [@joaostorrer](https://github.com/joaostorrer)
+* Add support for `key: value` syntax in functions in Postgres. [#6708](https://github.com/sqlfluff/sqlfluff/pull/6708) [@joaostorrer](https://github.com/joaostorrer)
+* Fill in Gap in Snowflake `DROP DYNAMIC TABLE` [#6673](https://github.com/sqlfluff/sqlfluff/pull/6673) [@LoganPrice344](https://github.com/LoganPrice344)
+* Fill in Gap in Snowflake `ALTER TABLE` Parsing [#6654](https://github.com/sqlfluff/sqlfluff/pull/6654) [@LoganPrice344](https://github.com/LoganPrice344)
+* Fill in Gap in Snowflake `CREATE AUTHENTICATION POLICY` Parsing [#6685](https://github.com/sqlfluff/sqlfluff/pull/6685) [@LoganPrice344](https://github.com/LoganPrice344)
+* Adds support for `JoinClauseSegment` in `DeleteStatementSegment` in Postgres [#6692](https://github.com/sqlfluff/sqlfluff/pull/6692) [@joaostorrer](https://github.com/joaostorrer)
+* Fix check constraints in `ALTER TABLE` statements in Oracle. [#6661](https://github.com/sqlfluff/sqlfluff/pull/6661) [@joaostorrer](https://github.com/joaostorrer)
+* Add support for Obevo annotations. [#6662](https://github.com/sqlfluff/sqlfluff/pull/6662) [@joaostorrer](https://github.com/joaostorrer)
+* Add support for `DEFAULT` keyword as function parameter in tsql. [#6663](https://github.com/sqlfluff/sqlfluff/pull/6663) [@joaostorrer](https://github.com/joaostorrer)
+* Fill in gap in `DECLARE` Syntax [#6665](https://github.com/sqlfluff/sqlfluff/pull/6665) [@LoganPrice344](https://github.com/LoganPrice344)
+* AL03: Lint for missing aliases on subqueries [#6666](https://github.com/sqlfluff/sqlfluff/pull/6666) [@keraion](https://github.com/keraion)
+* IN TABLE/CTE and implicit Array, Tuple support for ClickHouse [#6667](https://github.com/sqlfluff/sqlfluff/pull/6667) [@pheepa](https://github.com/pheepa)
+* ST11: Fix rule name in documentation for `noqa` [#6668](https://github.com/sqlfluff/sqlfluff/pull/6668) [@keraion](https://github.com/keraion)
+* Fill in Gap in Snowflake `ALTER TABLE` Parsing [#6671](https://github.com/sqlfluff/sqlfluff/pull/6671) [@LoganPrice344](https://github.com/LoganPrice344)
+* Allows Snowflake `CREATE ROW ACCESS POLICY` to Parse Quoted Policy Names [#6648](https://github.com/sqlfluff/sqlfluff/pull/6648) [@LoganPrice344](https://github.com/LoganPrice344)
+* Add support for `EVENT` statements in MySQL. [#6646](https://github.com/sqlfluff/sqlfluff/pull/6646) [@joaostorrer](https://github.com/joaostorrer)
+* Fill in Gap in Snowflake `Exception` Parsing [#6645](https://github.com/sqlfluff/sqlfluff/pull/6645) [@LoganPrice344](https://github.com/LoganPrice344)
+* Snowflake: Add TITLE parameter support in CREATE STREAMLIT statement [#6642](https://github.com/sqlfluff/sqlfluff/pull/6642) [@kawashiro](https://github.com/kawashiro)
+* TSQL: Add support for OPENQUERY [#6640](https://github.com/sqlfluff/sqlfluff/pull/6640) [@nathanthorell](https://github.com/nathanthorell)
+* Snowflake: Add support for CORTEX SEARCH SERVICE [#6639](https://github.com/sqlfluff/sqlfluff/pull/6639) [@sfc-gh-amauser](https://github.com/sfc-gh-amauser)
+* Add support for `WithCompoundStatementSegment` in procedures in Postgres [#6632](https://github.com/sqlfluff/sqlfluff/pull/6632) [@joaostorrer](https://github.com/joaostorrer)
+* Add support for `SET NEW.<column>` statements in MySQL. [#6634](https://github.com/sqlfluff/sqlfluff/pull/6634) [@joaostorrer](https://github.com/joaostorrer)
+* feat: Add missing parquet file format keywords to SF dialect [#6638](https://github.com/sqlfluff/sqlfluff/pull/6638) [@jjlkant](https://github.com/jjlkant)
+
+## New Contributors
+
+* [@jjlkant](https://github.com/jjlkant) made their first contribution in [#6638](https://github.com/sqlfluff/sqlfluff/pull/6638)
+* [@sfc-gh-amauser](https://github.com/sfc-gh-amauser) made their first contribution in [#6639](https://github.com/sqlfluff/sqlfluff/pull/6639)
+* [@cjwatson](https://github.com/cjwatson) made their first contribution in [#6706](https://github.com/sqlfluff/sqlfluff/pull/6706)
+* [@NormallyGaussian](https://github.com/NormallyGaussian) made their first contribution in [#6739](https://github.com/sqlfluff/sqlfluff/pull/6739)
+* [@juli4nb4dillo](https://github.com/juli4nb4dillo) made their first contribution in [#6731](https://github.com/sqlfluff/sqlfluff/pull/6731)
+* [@Robin-C](https://github.com/Robin-C) made their first contribution in [#6722](https://github.com/sqlfluff/sqlfluff/pull/6722)
+* [@maxgrenderjones](https://github.com/maxgrenderjones) made their first contribution in [#6727](https://github.com/sqlfluff/sqlfluff/pull/6727)
+* [@WillMatthews](https://github.com/WillMatthews) made their first contribution in [#6660](https://github.com/sqlfluff/sqlfluff/pull/6660)
+* [@mrlannigan](https://github.com/mrlannigan) made their first contribution in [#6759](https://github.com/sqlfluff/sqlfluff/pull/6759)
+
 ## [3.3.1] - 2025-02-05
 
 ## Highlights
