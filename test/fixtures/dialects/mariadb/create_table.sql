@@ -4,6 +4,24 @@ CREATE TABLE `foo` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE `foo` (
+  b VARCHAR(255) BINARY,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=`utf8mb4` COLLATE=`utf8mb4_unicode_ci`;
+
+CREATE TABLE `foo` (
+  b VARCHAR(255) BINARY,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET='utf8mb4' COLLATE='utf8mb4_unicode_ci';
+
+CREATE TABLE `foo` (
+  b VARCHAR(255) BINARY,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET="utf8mb4" COLLATE="utf8mb4_unicode_ci";
+
 create table `tickets` (
     `id` serial primary key,
     `material_number` varchar(255) default null,

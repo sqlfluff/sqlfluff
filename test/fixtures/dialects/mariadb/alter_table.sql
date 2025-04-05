@@ -77,3 +77,11 @@ ALTER TABLE `foo` ADD COLUMN d INT AS (a*abs(b));
 ALTER TABLE `foo` ADD COLUMN e TEXT AS (substr(c,b,b+1)) STORED;
 
 ALTER TABLE `foo` ADD COLUMN e TEXT AS (substr(c,b,b+1)) PERSISTENT;
+
+ALTER TABLE `foo` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+ALTER TABLE `foo` CONVERT TO CHARACTER SET `utf8mb4` COLLATE `utf8mb4_unicode_ci`;
+
+ALTER TABLE `foo` CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';
+
+ALTER TABLE `foo` CONVERT TO CHARACTER SET "utf8mb4" COLLATE "utf8mb4_unicode_ci";
