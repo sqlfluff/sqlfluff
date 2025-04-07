@@ -121,4 +121,3 @@ CREATE CATALOG INTEGRATION apache_iceberg_rest_bearer_int
   ENABLED = TRUE
   REFRESH_INTERVAL_SECONDS = 10
   COMMENT = '<string_literal>';
-

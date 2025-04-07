@@ -5097,6 +5097,8 @@ class CreateStatementSegment(BaseSegment):
                 Ref("QuotedLiteralSegment"),
             ),
         ),
+        # Next set are Storage Integration statements
+        # https://docs.snowflake.com/en/sql-reference/sql/create-catalog-integration
         AnySetOf(
             Sequence(
                 "CATALOG_SOURCE",
@@ -5226,7 +5228,6 @@ class CreateStatementSegment(BaseSegment):
                     )
                 ),
             ),
-            # Apache Iceberg REST specific params:
         ),
         # Next set are Pipe statements
         # https://docs.snowflake.com/en/sql-reference/sql/create-pipe.html
