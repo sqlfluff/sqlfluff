@@ -8,6 +8,11 @@ from sqlfluff.core.rules import BaseRule, ConfigInfo
 def get_configs_info() -> dict[str, ConfigInfo]:
     """Get additional rule config validations and descriptions."""
     return {
+        "subqueries_ignore_external_references": {
+            "validation": [True, False],
+            "definition": "If ``True``, parent query references are not included as "
+            "potentially ambiguous in subqueries. Defaults to ``False``.",
+        },
         "single_table_references": {
             "validation": ["consistent", "qualified", "unqualified"],
             "definition": "The expectation for references in single-table select.",
