@@ -29,6 +29,7 @@ from sqlfluff.core.parser import (
     TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.dialects import dialect_trino as trino
 from sqlfluff.dialects.dialect_athena_keywords import (
     athena_reserved_keywords,
     athena_unreserved_keywords,
@@ -271,6 +272,12 @@ athena_dialect.replace(
         # UNNEST can optionally have a WITH ORDINALITY clause
         insert=[
             Sequence("WITH", "ORDINALITY", optional=True),
+            Ref("WithinGroupClauseSegment"),
+        ]
+    ),
+    FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
+        insert=[
+            Ref("ListaggOverflowClauseSegment"),
         ]
     ),
     AlterTableDropColumnGrammar=Sequence(
@@ -279,6 +286,24 @@ athena_dialect.replace(
         Ref("SingleIdentifierGrammar"),
     ),
 )
+
+
+class WithinGroupClauseSegment(trino.WithinGroupClauseSegment):
+    """An WITHIN GROUP clause for window functions.
+
+    These are based on Trino.
+    https://docs.aws.amazon.com/athena/latest/ug/functions-env3.html
+    https://trino.io/docs/current/functions/aggregate.html#listagg
+    """
+
+
+class ListaggOverflowClauseSegment(trino.ListaggOverflowClauseSegment):
+    """ON OVERFLOW clause of listagg function.
+
+    These are based on Trino.
+    https://docs.aws.amazon.com/athena/latest/ug/functions-env3.html
+    https://trino.io/docs/current/functions/aggregate.html#listagg
+    """
 
 
 class ArrayTypeSegment(ansi.ArrayTypeSegment):
@@ -578,6 +603,15 @@ class RowFormatClauseSegment(BaseSegment):
                 Ref("SerdePropertiesGrammar", optional=True),
             ),
         ),
+    )
+
+
+class ValuesClauseSegment(ansi.ValuesClauseSegment):
+    """A `VALUES` clause within in `WITH`, `SELECT`, `INSERT`."""
+
+    match_grammar = Sequence(
+        "VALUES",
+        Delimited(Ref("ExpressionSegment")),
     )
 
 

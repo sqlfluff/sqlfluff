@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: de918110f4624905e63dfbfcf53363ddfa943b3e3542fc700f8619b3f8052843
+_hash: fdc37905abfaf5a30c04e752743976e53e5fcb5a11f89911bda62db65d0d613b
 file:
 - statement:
     select_statement:
@@ -144,7 +144,7 @@ file:
                 - keyword: 'ON'
                 - keyword: OVERFLOW
                 - keyword: TRUNCATE
-                - quoted_identifier: "'.....'"
+                - quoted_literal: "'.....'"
                 - keyword: WITH
                 - keyword: COUNT
               - end_bracket: )

@@ -1,0 +1,59 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: cc01280e7aa88ab978133c09b32a61723f86239e3a2ac1dbb7d5050c8f6e8cde
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          expression:
+            column_reference:
+            - naked_identifier: struct_column
+            - dot: .
+            - naked_identifier: inner_array
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '0'
+              end_square_bracket: ']'
+            semi_structured_expression:
+              dot: .
+              semi_structured_element: foo
+          alias_expression:
+            keyword: as
+            naked_identifier: inner_array__foo
+      - comma: ','
+      - select_clause_element:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: try_element_at
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                    - naked_identifier: struct_column
+                    - dot: .
+                    - naked_identifier: inner_array
+                - comma: ','
+                - expression:
+                    numeric_literal: '1'
+                - end_bracket: )
+            semi_structured_expression:
+              dot: .
+              semi_structured_element: foo
+          alias_expression:
+            keyword: as
+            naked_identifier: inner_array__foo2
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: src
+  statement_terminator: ;
