@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9f3c2e27d2d0d69837f87b5cf9864a70a48856d013b05649a9170d67acfde55d
+_hash: 35e5da93d81b34c2fdcafb0dac843742e9c1d2cdef535e372b98f5792ac7f6a9
 file:
 - statement:
     alter_storage_integration_statement:
@@ -51,10 +51,11 @@ file:
     - object_reference:
         naked_identifier: test_integration
     - keyword: set
-    - keyword: comment
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - quoted_literal: "'test comment'"
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'test comment'"
 - statement_terminator: ;
 - statement:
     alter_storage_integration_statement:
@@ -153,10 +154,11 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - boolean_literal: 'false'
-    - keyword: comment
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - quoted_literal: "'test comment'"
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'test comment'"
 - statement_terminator: ;
 - statement:
     alter_storage_integration_statement:
@@ -166,10 +168,11 @@ file:
     - object_reference:
         naked_identifier: test_integration
     - keyword: set
-    - keyword: comment
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - quoted_literal: "'test comment'"
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'test comment'"
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
@@ -395,10 +398,11 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - boolean_literal: 'true'
-    - keyword: comment
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - quoted_literal: "'test_comment'"
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'test_comment'"
     - keyword: azure_tenant_id
     - comparison_operator:
         raw_comparison_operator: '='
@@ -434,10 +438,11 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - boolean_literal: 'true'
-    - keyword: comment
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - quoted_literal: "'test_comment'"
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'test_comment'"
     - keyword: azure_tenant_id
     - comparison_operator:
         raw_comparison_operator: '='
