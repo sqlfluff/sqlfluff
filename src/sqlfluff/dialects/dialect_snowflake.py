@@ -4638,12 +4638,6 @@ class DynamicTableOptionsSegment(BaseSegment):
                 optional=True,
             ),
             Sequence(
-                "COMMENT",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-                optional=True,
-            ),
-            Sequence(
                 Ref.keyword("WITH", optional=True),
                 "ROW",
                 "ACCESS",
@@ -4661,6 +4655,66 @@ class DynamicTableOptionsSegment(BaseSegment):
                 "USER",
                 optional=True,
             ),
+        ),
+    )
+
+
+class IcebergTableOptionsSegment(BaseSegment):
+    """A Snowflake Iceberg Table Options segment.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-iceberg-table
+    """
+
+    type = "iceberg_table_options"
+
+    match_grammar = AnySetOf(
+        Sequence(
+            "EXTERNAL_VOLUME",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "CATALOG",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "CATALOG_TABLE_NAME",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "CATALOG_NAMESPACE",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "REPLACE_INVALID_CHARACTERS",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+            optional=True,
+        ),
+        Sequence(
+            "AUTO_REFRESH",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+            optional=True,
+        ),
+        Sequence(
+            "METADATA_FILE_PATH",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "BASE_LOCATION",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
         ),
     )
 
@@ -4770,6 +4824,8 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
                 optional=True,
             ),
+            Ref("IcebergTableOptionsSegment", optional=True),
+            Ref("DynamicTableOptionsSegment", optional=True),
             Ref("TagBracketedEqualsSegment", optional=True),
             Ref("CommentEqualsClauseSegment", optional=True),
             OneOf(
