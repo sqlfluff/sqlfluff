@@ -249,6 +249,12 @@ CREATE OR REPLACE TABLE some_table (
 CREATE OR ALTER TABLE some_table (
   id INTEGER NOT NULL
 );
+
+CREATE OR ALTER TABLE  some_table (
+  id INTEGER NOT NULL
+)
+DEFAULT_DDL_COLLATION = 'fr';
+
 CREATE ICEBERG TABLE db.archival.iceberg_report_invoicesummary
   (
     _v string,

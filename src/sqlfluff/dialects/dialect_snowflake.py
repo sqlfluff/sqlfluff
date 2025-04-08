@@ -4806,7 +4806,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             Sequence(
                 "DEFAULT_DDL_COLLATION",
                 Ref("EqualsSegment"),
-                Ref("QuotedLiteralGrammar"),
+                Ref("QuotedLiteralSegment"),
                 optional=True,
             ),
             Sequence(
