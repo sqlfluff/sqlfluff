@@ -115,6 +115,21 @@ test_pass_databricks_lambdas:
     core:
       dialect: databricks
 
+test_allow_unqualified_references_in_snowflake_lambdas:
+  pass_str: |
+    select
+        t.v,
+        o.v,
+        transform(t.arr1, x int -> x + 1) as f1,
+        filter(t.arr2, y -> y:value > 0) as f2,
+        reduce(o.arr, 0, (acc, val) -> acc + val) as f3
+    from some_table as t
+    inner join some_other_table as o
+        on t.id = o.id;
+  configs:
+    core:
+      dialect: snowflake
+
 test_allow_unqualified_references_in_athena_lambdas:
   pass_str: |
     select

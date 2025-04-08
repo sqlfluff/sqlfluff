@@ -530,7 +530,7 @@ class ListaggOverflowClauseSegment(BaseSegment):
             "ERROR",
             Sequence(
                 "TRUNCATE",
-                Ref("SingleQuotedIdentifierSegment", optional=True),
+                Ref("QuotedLiteralSegment", optional=True),
                 OneOf("WITH", "WITHOUT", optional=True),
                 Ref.keyword("COUNT", optional=True),
             ),

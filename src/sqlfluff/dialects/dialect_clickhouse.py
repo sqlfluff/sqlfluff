@@ -280,6 +280,7 @@ clickhouse_dialect.replace(
         TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
     ),
     AlterTableDropColumnGrammar=Sequence(
+        Ref("OnClusterClauseSegment", optional=True),
         "DROP",
         Ref.keyword("COLUMN"),
         Ref("IfExistsGrammar", optional=True),
@@ -547,6 +548,10 @@ class DatatypeSegment(BaseSegment):
                 optional=True,
             ),
         ),
+        Sequence(
+            StringParser("ARRAY", CodeSegment, type="data_type_identifier"),
+            Bracketed(Ref("DatatypeSegment")),
+        ),
     )
 
 
@@ -751,7 +756,11 @@ class OnClusterClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "ON",
         "CLUSTER",
-        Ref("SingleIdentifierGrammar"),
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            # Support for placeholders like '{cluster}'
+            Ref("QuotedLiteralSegment"),
+        ),
     )
 
 
@@ -1685,6 +1694,291 @@ class SystemStatementSegment(BaseSegment):
     )
 
 
+class AlterTableStatementSegment(BaseSegment):
+    """An `ALTER TABLE` statement for ClickHouse.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/alter/
+    """
+
+    type = "alter_table_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("OnClusterClauseSegment", optional=True),
+        OneOf(
+            # ALTER TABLE ... DROP COLUMN [IF EXISTS] name
+            Sequence(
+                "DROP",
+                "COLUMN",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),  # Column name
+            ),
+            # ALTER TABLE ... ADD COLUMN [IF NOT EXISTS] name [type]
+            Sequence(
+                "ADD",
+                "COLUMN",
+                Ref("IfNotExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),  # Column name
+                OneOf(
+                    # Regular column with type
+                    Sequence(
+                        Ref("DatatypeSegment"),  # Data type
+                        Sequence(
+                            "DEFAULT",
+                            Ref("ExpressionSegment"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "MATERIALIZED",
+                            Ref("ExpressionSegment"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "CODEC",
+                            Bracketed(
+                                Delimited(
+                                    OneOf(
+                                        Ref("FunctionSegment"),
+                                        Ref("SingleIdentifierGrammar"),
+                                    ),
+                                ),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                    # Alias column with type
+                    Sequence(
+                        Ref("DatatypeSegment"),  # Data type
+                        "ALIAS",
+                        Ref("ExpressionSegment"),
+                    ),
+                    # Alias column without type
+                    Sequence(
+                        "ALIAS",
+                        Ref("ExpressionSegment"),
+                    ),
+                    # Default could also be used without type
+                    Sequence(
+                        "DEFAULT",
+                        Ref("ExpressionSegment"),
+                    ),
+                    # Materialized could also be used without type
+                    Sequence(
+                        "MATERIALIZED",
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+                OneOf(
+                    Sequence(
+                        "AFTER",
+                        Ref("SingleIdentifierGrammar"),  # Column name
+                    ),
+                    "FIRST",
+                    optional=True,
+                ),
+            ),
+            # ALTER TABLE ... ADD ALIAS name FOR column_name
+            Sequence(
+                "ADD",
+                "ALIAS",
+                Ref("IfNotExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),  # Alias name
+                "FOR",
+                Ref("SingleIdentifierGrammar"),  # Column name
+            ),
+            # ALTER TABLE ... RENAME COLUMN [IF EXISTS] name to new_name
+            Sequence(
+                "RENAME",
+                "COLUMN",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),  # Column name
+                "TO",
+                Ref("SingleIdentifierGrammar"),  # New column name
+            ),
+            # ALTER TABLE ... COMMENT COLUMN [IF EXISTS] name 'Text comment'
+            Sequence(
+                "COMMENT",
+                "COLUMN",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),  # Column name
+                Ref("QuotedLiteralSegment"),  # Comment text
+            ),
+            # ALTER TABLE ... COMMENT 'Text comment'
+            Sequence(
+                "COMMENT",
+                Ref("QuotedLiteralSegment"),  # Comment text
+            ),
+            # ALTER TABLE ... MODIFY COMMENT 'Text comment'
+            Sequence(
+                "MODIFY",
+                "COMMENT",
+                Ref("QuotedLiteralSegment"),  # Comment text
+            ),
+            # ALTER TABLE ... MODIFY COLUMN [IF EXISTS] name [TYPE] [type]
+            Sequence(
+                "MODIFY",
+                "COLUMN",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),  # Column name
+                OneOf(
+                    # Type modification with explicit TYPE keyword
+                    Sequence(
+                        "TYPE",
+                        Ref("DatatypeSegment"),  # Data type
+                        Sequence(
+                            "DEFAULT",
+                            Ref("ExpressionSegment"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "MATERIALIZED",
+                            Ref("ExpressionSegment"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "CODEC",
+                            Bracketed(
+                                Delimited(
+                                    OneOf(
+                                        Ref("FunctionSegment"),
+                                        Ref("SingleIdentifierGrammar"),
+                                    ),
+                                ),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                    # Type modification without TYPE keyword
+                    Sequence(
+                        Ref("DatatypeSegment", optional=True),  # Data type
+                        Sequence(
+                            "DEFAULT",
+                            Ref("ExpressionSegment"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "MATERIALIZED",
+                            Ref("ExpressionSegment"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "CODEC",
+                            Bracketed(
+                                Delimited(
+                                    OneOf(
+                                        Ref("FunctionSegment"),
+                                        Ref("SingleIdentifierGrammar"),
+                                    ),
+                                ),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                    # Alias modification
+                    Sequence(
+                        "ALIAS",
+                        Ref("ExpressionSegment"),
+                    ),
+                    # Remove property
+                    Sequence(
+                        "REMOVE",
+                        OneOf(
+                            "ALIAS",
+                            "DEFAULT",
+                            "MATERIALIZED",
+                            "CODEC",
+                            "COMMENT",
+                            "TTL",
+                        ),
+                    ),
+                    # Modify setting
+                    Sequence(
+                        "MODIFY",
+                        "SETTING",
+                        Ref("SingleIdentifierGrammar"),  # Setting name
+                        Ref("EqualsSegment"),
+                        Ref("LiteralGrammar"),  # Setting value
+                    ),
+                    # Reset setting
+                    Sequence(
+                        "RESET",
+                        "SETTING",
+                        Ref("SingleIdentifierGrammar"),  # Setting name
+                    ),
+                    optional=True,
+                ),
+                OneOf(
+                    Sequence(
+                        "AFTER",
+                        Ref("SingleIdentifierGrammar"),  # Column name
+                    ),
+                    "FIRST",
+                    optional=True,
+                ),
+            ),
+            # ALTER TABLE ... ALTER COLUMN name [TYPE] [type]
+            Sequence(
+                "ALTER",
+                "COLUMN",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),  # Column name
+                OneOf(
+                    # With TYPE keyword
+                    Sequence(
+                        "TYPE",
+                        Ref("DatatypeSegment"),  # Data type
+                    ),
+                    # Without TYPE keyword
+                    Ref("DatatypeSegment"),  # Data type
+                ),
+                OneOf(
+                    Sequence(
+                        "AFTER",
+                        Ref("SingleIdentifierGrammar"),  # Column name
+                    ),
+                    "FIRST",
+                    optional=True,
+                ),
+            ),
+            # ALTER TABLE ... REMOVE TTL
+            Sequence(
+                "REMOVE",
+                "TTL",
+            ),
+            # ALTER TABLE ... MODIFY TTL expression
+            Sequence(
+                "MODIFY",
+                "TTL",
+                Ref("ExpressionSegment"),
+            ),
+            # ALTER TABLE ... MATERIALIZE COLUMN col
+            Sequence(
+                "MATERIALIZE",
+                "COLUMN",
+                Ref("SingleIdentifierGrammar"),  # Column name
+                OneOf(
+                    Sequence(
+                        "IN",
+                        "PARTITION",
+                        Ref("SingleIdentifierGrammar"),
+                    ),
+                    Sequence(
+                        "IN",
+                        "PARTITION",
+                        "ID",
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -1696,6 +1990,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropSettingProfileStatementSegment"),
             Ref("SystemStatementSegment"),
             Ref("RenameStatementSegment"),
+            Ref("AlterTableStatementSegment"),
         ]
     )
 

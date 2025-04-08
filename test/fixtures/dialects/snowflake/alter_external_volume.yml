@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 05de2d1cd77835b8aa9645b33d09ec595f068c0b16fba8541a8268f21fb1814b
+_hash: bc44ab2007eafd2710d91e23551e649b97f73c181224c8d4eb43b90fc7e467e2
 file:
 - statement:
     alter_external_volume_statement:
@@ -128,8 +128,9 @@ file:
     - external_volume_reference:
         naked_identifier: exvol6
     - keyword: SET
-    - keyword: COMMENT
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - quoted_literal: "'bar'"
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'bar'"
 - statement_terminator: ;
