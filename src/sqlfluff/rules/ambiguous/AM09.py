@@ -4,7 +4,6 @@ from typing import Optional, Tuple
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import FunctionalContext, sp
 
 
 class Rule_AM09(BaseRule):
