@@ -4638,12 +4638,6 @@ class DynamicTableOptionsSegment(BaseSegment):
                 optional=True,
             ),
             Sequence(
-                "COMMENT",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-                optional=True,
-            ),
-            Sequence(
                 Ref.keyword("WITH", optional=True),
                 "ROW",
                 "ACCESS",
@@ -4661,6 +4655,66 @@ class DynamicTableOptionsSegment(BaseSegment):
                 "USER",
                 optional=True,
             ),
+        ),
+    )
+
+
+class IcebergTableOptionsSegment(BaseSegment):
+    """A Snowflake Iceberg Table Options segment.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-iceberg-table
+    """
+
+    type = "iceberg_table_options"
+
+    match_grammar = AnySetOf(
+        Sequence(
+            "EXTERNAL_VOLUME",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "CATALOG",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "CATALOG_TABLE_NAME",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "CATALOG_NAMESPACE",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "REPLACE_INVALID_CHARACTERS",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+            optional=True,
+        ),
+        Sequence(
+            "AUTO_REFRESH",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+            optional=True,
+        ),
+        Sequence(
+            "METADATA_FILE_PATH",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "BASE_LOCATION",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
         ),
     )
 
@@ -4752,7 +4806,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             Sequence(
                 "DEFAULT_DDL_COLLATION",
                 Ref("EqualsSegment"),
-                Ref("QuotedLiteralGrammar"),
+                Ref("QuotedLiteralSegment"),
                 optional=True,
             ),
             Sequence(
@@ -4770,6 +4824,8 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
                 optional=True,
             ),
+            Ref("IcebergTableOptionsSegment", optional=True),
+            Ref("DynamicTableOptionsSegment", optional=True),
             Ref("TagBracketedEqualsSegment", optional=True),
             Ref("CommentEqualsClauseSegment", optional=True),
             OneOf(
@@ -4925,6 +4981,7 @@ class CreateStatementSegment(BaseSegment):
                     Sequence("NOTIFICATION", "INTEGRATION"),
                     Sequence("SECURITY", "INTEGRATION"),
                     Sequence("STORAGE", "INTEGRATION"),
+                    Sequence("CATALOG", "INTEGRATION"),
                     Sequence("MATERIALIZED", "VIEW"),
                     Sequence("MASKING", "POLICY"),
                     "PIPE",
@@ -5094,6 +5151,138 @@ class CreateStatementSegment(BaseSegment):
                 "COMMENT",
                 Ref("EqualsSegment"),
                 Ref("QuotedLiteralSegment"),
+            ),
+        ),
+        # Next set are Storage Integration statements
+        # https://docs.snowflake.com/en/sql-reference/sql/create-catalog-integration
+        AnySetOf(
+            Sequence(
+                "CATALOG_SOURCE",
+                Ref("EqualsSegment"),
+                OneOf("GLUE", "POLARIS", "ICEBERG_REST", "OBJECT_STORE"),
+            ),
+            Sequence(
+                "TABLE_FORMAT",
+                Ref("EqualsSegment"),
+                OneOf("ICEBERG", "DELTA", "ICEBERG_REST", "OBJECT_STORE"),
+            ),
+            Sequence(
+                "CATALOG_NAMESPACE",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence("ENABLED", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            Sequence(
+                "REFRESH_INTERVAL_SECONDS",
+                Ref("EqualsSegment"),
+                Ref("LiteralSegment"),
+            ),
+            Ref("CommentEqualsClauseSegment"),
+            # AWS Glue specific params:
+            Sequence(
+                OneOf("GLUE_AWS_ROLE_ARN"),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                OneOf("GLUE_CATALOG_ID"),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                OneOf("GLUE_REGION"),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # Apache Iceberg REST & Snowflake Open Catalog specific params:
+            Sequence(
+                "REST_CONFIG",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    AnySetOf(
+                        Sequence(
+                            "CATALOG_URI",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "CATALOG_NAME",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "PREFIX", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+                        ),
+                        Sequence(
+                            "CATALOG_API_TYPE",
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                "PUBLIC",
+                                "AWS_API_GATEWAY",
+                                "AWS_PRIVATE_API_GATEWAY",
+                                "AWS_GLUE",
+                            ),
+                        ),
+                    )
+                ),
+            ),
+            Sequence(
+                "REST_AUTHENTICATION",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    OneOf(
+                        # OAuth
+                        AnySetOf(
+                            Sequence("TYPE", Ref("EqualsSegment"), "OAUTH"),
+                            Sequence(
+                                "OAUTH_TOKEN_URI",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                            Sequence(
+                                "OAUTH_CLIENT_ID",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                            Sequence(
+                                "OAUTH_CLIENT_SECRET",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                            Sequence(
+                                "OAUTH_ALLOWED_SCOPES",
+                                Ref("EqualsSegment"),
+                                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                            ),
+                        ),
+                        Sequence(
+                            Sequence("TYPE", Ref("EqualsSegment"), "BEARER"),
+                            Sequence(
+                                "BEARER_TOKEN",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                        ),
+                        AnySetOf(
+                            Sequence("TYPE", Ref("EqualsSegment"), "SIGV4"),
+                            Sequence(
+                                "SIGV4_IAM_ROLE",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                            Sequence(
+                                "SIGV4_SIGNING_REGION",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                            Sequence(
+                                "SIGV4_EXTERNAL_ID",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                        ),
+                    )
+                ),
             ),
         ),
         # Next set are Pipe statements

@@ -1,0 +1,476 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e1c1cab2e4f80e8dd1ba19058f391a38d51f9df7be64aa646496f12e15d2a291
+file:
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: glue_int
+    - keyword: CATALOG_SOURCE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: GLUE
+    - keyword: TABLE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: ICEBERG
+    - keyword: GLUE_AWS_ROLE_ARN
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn'"
+    - keyword: GLUE_CATALOG_ID
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'catalog_id'"
+    - keyword: GLUE_REGION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'region.us.east'"
+    - keyword: CATALOG_NAMESPACE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'namespace'"
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: REFRESH_INTERVAL_SECONDS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '10'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: CATALOG
+    - keyword: INTEGRATION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: glue_int_2
+    - keyword: CATALOG_SOURCE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: GLUE
+    - keyword: TABLE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: ICEBERG
+    - keyword: GLUE_AWS_ROLE_ARN
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn'"
+    - keyword: GLUE_CATALOG_ID
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'catalog_id'"
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'false'
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: object_storage_int_iceberg
+    - keyword: CATALOG_SOURCE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: OBJECT_STORE
+    - keyword: TABLE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: ICEBERG
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: REFRESH_INTERVAL_SECONDS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '10'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'<string_literal>'"
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: object_storage_int_iceberg
+    - keyword: CATALOG_SOURCE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: OBJECT_STORE
+    - keyword: TABLE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: DELTA
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: CATALOG
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: snow_open_catalog_int
+    - keyword: CATALOG_SOURCE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: POLARIS
+    - keyword: TABLE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: ICEBERG
+    - keyword: CATALOG_NAMESPACE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_catalog_namespace'"
+    - keyword: REST_CONFIG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: CATALOG_URI
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'https://my_org_name-my_snowflake_open_catalog_account_name.snowflakecomputing.com/polaris/api/catalog'"
+      - keyword: CATALOG_NAME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my_catalog_name'"
+      - end_bracket: )
+    - keyword: REST_AUTHENTICATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: OAUTH
+      - keyword: OAUTH_CLIENT_ID
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my_client_id'"
+      - keyword: OAUTH_CLIENT_SECRET
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my_client_secret'"
+      - keyword: OAUTH_ALLOWED_SCOPES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+          start_bracket: (
+          quoted_literal: "'PRINCIPAL_ROLE:ALL'"
+          end_bracket: )
+      - end_bracket: )
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: CATALOG
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: snow_open_catalog_2_int
+    - keyword: CATALOG_SOURCE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: POLARIS
+    - keyword: TABLE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: ICEBERG
+    - keyword: CATALOG_NAMESPACE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_catalog_namespace'"
+    - keyword: REST_CONFIG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: CATALOG_URI
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'https://my_org_name-my_snowflake_open_catalog_account_name.snowflakecomputing.com/polaris/api/catalog'"
+      - keyword: CATALOG_NAME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my_catalog_name'"
+      - end_bracket: )
+    - keyword: REST_AUTHENTICATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: OAUTH
+      - keyword: OAUTH_CLIENT_ID
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my_client_id'"
+      - keyword: OAUTH_CLIENT_SECRET
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my_client_secret'"
+      - keyword: OAUTH_ALLOWED_SCOPES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: "'PRINCIPAL_ROLE:ALL'"
+        - comma: ','
+        - quoted_literal: "'OTHER_ROLE:ALL'"
+        - end_bracket: )
+      - end_bracket: )
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: apache_iceberg_rest_tabular_int
+    - keyword: CATALOG_SOURCE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: ICEBERG_REST
+    - keyword: TABLE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: ICEBERG
+    - keyword: CATALOG_NAMESPACE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'<namespace>'"
+    - keyword: REST_CONFIG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: CATALOG_URI
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'https://api.tabular.io/ws'"
+      - keyword: CATALOG_NAME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<tabular_warehouse_name>'"
+      - end_bracket: )
+    - keyword: REST_AUTHENTICATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: OAUTH
+      - keyword: OAUTH_TOKEN_URI
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'https://api.tabular.io/ws/v1/oauth/tokens'"
+      - keyword: OAUTH_CLIENT_ID
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<oauth_client_id>'"
+      - keyword: OAUTH_CLIENT_SECRET
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<oauth_client_secret>'"
+      - keyword: OAUTH_ALLOWED_SCOPES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+          start_bracket: (
+          quoted_literal: "'catalog'"
+          end_bracket: )
+      - end_bracket: )
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: REFRESH_INTERVAL_SECONDS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '10'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'<string_literal>'"
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: apache_iceberg_rest_sigv4_int
+    - keyword: CATALOG_SOURCE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: ICEBERG_REST
+    - keyword: TABLE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: ICEBERG
+    - keyword: CATALOG_NAMESPACE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'<namespace>'"
+    - keyword: REST_CONFIG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: CATALOG_URI
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'https://glue.us-west-2.amazonaws.com/iceberg'"
+      - keyword: CATALOG_API_TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: AWS_GLUE
+      - keyword: CATALOG_NAME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'123456789012'"
+      - end_bracket: )
+    - keyword: REST_AUTHENTICATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: SIGV4
+      - keyword: SIGV4_IAM_ROLE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'arn:aws:iam::123456789012:role/my-role'"
+      - keyword: SIGV4_SIGNING_REGION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'us-west-2'"
+      - end_bracket: )
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: REFRESH_INTERVAL_SECONDS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '10'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'<string_literal>'"
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: apache_iceberg_rest_bearer_int
+    - keyword: CATALOG_SOURCE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: ICEBERG_REST
+    - keyword: TABLE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: ICEBERG
+    - keyword: CATALOG_NAMESPACE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'<namespace>'"
+    - keyword: REST_CONFIG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: CATALOG_URI
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'https://glue.us-west-2.amazonaws.com/iceberg'"
+      - keyword: CATALOG_API_TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: AWS_GLUE
+      - keyword: CATALOG_NAME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'123456789012'"
+      - end_bracket: )
+    - keyword: REST_AUTHENTICATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: BEARER
+      - keyword: BEARER_TOKEN
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'bearer-token'"
+      - end_bracket: )
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: REFRESH_INTERVAL_SECONDS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '10'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'<string_literal>'"
+- statement_terminator: ;
