@@ -2612,9 +2612,7 @@ class AlterStorageIntegrationSegment(BaseSegment):
                 OneOf(
                     Ref("TagEqualsSegment", optional=True),
                     AnySetOf(
-                        Sequence(
-                            Ref("CommentEqualsClauseSegment"),
-                        ),
+                        Ref("CommentEqualsClauseSegment"),
                         Sequence(
                             "ENABLED",
                             Ref("EqualsSegment"),
