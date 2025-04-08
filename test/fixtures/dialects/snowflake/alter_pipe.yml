@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e420ce149b11c2ab44311a50476ee4c4f43a319f0b7b6a34155d1edc20d13011
+_hash: 9361058c94dc65161117f7795acc1bc937847abad8dd7e4aa24f35d559dbd493
 file:
 - statement:
     alter_pipe_segment:
@@ -125,4 +125,17 @@ file:
     - comma: ','
     - tag_reference:
         naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    alter_pipe_segment:
+    - keyword: ALTER
+    - keyword: PIPE
+    - object_reference:
+        naked_identifier: mypipe
+    - keyword: SET
+    - keyword: ERROR_INTEGRATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_notification_int
 - statement_terminator: ;

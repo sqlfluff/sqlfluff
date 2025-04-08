@@ -5937,6 +5937,11 @@ class AlterPipeSegment(BaseSegment):
                         Ref("EqualsSegment"),
                         Ref("BooleanLiteralGrammar"),
                     ),
+                    Sequence(
+                        "ERROR_INTEGRATION",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
                     Ref("CommentEqualsClauseSegment"),
                 ),
             ),
