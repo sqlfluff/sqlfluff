@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9315b4c172e0bf1ae67125034ad97c68730a35c856061ebdd6fe8a0fe9aaaaf7
+_hash: 92c0ae839885d5230a2f065196d23739a40abd13903e5cc388c05b5e088332ac
 file:
 - statement:
     create_statement:
@@ -45,8 +45,9 @@ file:
       - comma: ','
       - quoted_literal: "'xx.xxx.xxx.xx/xx'"
       - end_bracket: )
-    - keyword: COMMENT
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - quoted_literal: "'NW Policy'"
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'NW Policy'"
 - statement_terminator: ;

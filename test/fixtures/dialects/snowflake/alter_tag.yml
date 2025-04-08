@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7b9e5f58760c35358fe11c2fb3a57d0d6bf04160c13d3a842964a094a0f02e26
+_hash: 7b7e09a56344fdadd7ff393c05e13cddb05a33287681857b0038fc55a9d08568
 file:
 - statement:
     alter_tag_statement:
@@ -66,10 +66,11 @@ file:
     - object_reference:
         naked_identifier: my_tag
     - keyword: SET
-    - keyword: COMMENT
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - quoted_literal: "'this is a comment'"
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'this is a comment'"
 - statement_terminator: ;
 - statement:
     alter_tag_statement:
