@@ -438,7 +438,7 @@ def test__templater_dbt_templating_absolute_path(
 
 
 @pytest.mark.parametrize(
-    ("fname", "exception_msg", "force_raise_compilation_error", "exception_class"),
+    ("fname", "exception_msg", "dbt_skip_compilation_error", "exception_class"),
     [
         (
             "compiler_error.sql",
@@ -446,7 +446,7 @@ def test__templater_dbt_templating_absolute_path(
             "(models/my_new_project/compiler_error.sql)\n  "
             "Unexpected end of template. Jinja was looking for the following tags: "
             "'endfor' or 'else'.",
-            False,
+            True,
             SQLFluffUserError,
         ),
         (
@@ -455,7 +455,7 @@ def test__templater_dbt_templating_absolute_path(
             "Model 'model.my_new_project.unknown_ref' "
             "(models/my_new_project/unknown_ref.sql) depends on a node named "
             "'i_do_not_exist' which was not found",
-            False,
+            True,
             SQLFluffUserError,
         ),
         (
@@ -464,7 +464,7 @@ def test__templater_dbt_templating_absolute_path(
             "Compilation Error in model unknown_macro "
             "(models/my_new_project/unknown_macro.sql)\n  'invalid_macro' is "
             "undefined. This can happen when calling a macro that does not exist.",
-            False,
+            True,
             SQLTemplaterError,
         ),
         (
@@ -473,15 +473,15 @@ def test__templater_dbt_templating_absolute_path(
             # but in live testing, the inclusion of the triggering error sometimes
             # gives us something much more useful.
             "because dbt raised a fatal exception during compilation",
-            False,
+            True,
             SQLFluffSkipFile,
         ),
         pytest.param(
             "compile_missing_table.sql",
             "Runtime Error",
-            True,
+            False,
             SQLTemplaterError,
-            id="force_raise_compilation_error",
+            id="dbt_skip_compilation_error",
         ),
     ],
 )
@@ -492,7 +492,7 @@ def test__templater_dbt_handle_exceptions(
     dbt_project_folder,
     fname,
     exception_msg,
-    force_raise_compilation_error,
+    dbt_skip_compilation_error,
     exception_class,
 ):
     """Test that exceptions during compilation are returned as violation."""
@@ -505,11 +505,11 @@ def test__templater_dbt_handle_exceptions(
     # We move the file that throws an error in and out of the project directory
     # as dbt throws an error if a node fails to parse while computing the DAG
     shutil.move(src_fpath, target_fpath)
+    dbt_fluff_config["templater"]["dbt"][
+        "dbt_skip_compilation_error"
+    ] = dbt_skip_compilation_error
     try:
         with pytest.raises(exception_class) as excinfo:
-            dbt_fluff_config["templater"]["dbt"][
-                "force_raise_compilation_error"
-            ] = force_raise_compilation_error
             dbt_templater.process(
                 in_str="",
                 fname=target_fpath,
