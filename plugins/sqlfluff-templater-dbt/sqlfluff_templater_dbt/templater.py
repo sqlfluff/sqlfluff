@@ -446,7 +446,7 @@ class DbtTemplater(JinjaTemplater):
 
     def _get_dbt_skip_compilation_error(self) -> bool:
         return self.sqlfluff_config.get(
-            "dbt_skip_compilation_error", ["templater", "dbt"], True
+            "dbt_skip_compilation_error", section=["templater", "dbt"], default=True
         )
 
     def sequence_files(
