@@ -14,9 +14,9 @@ def test__rules__std_AM09_missing_order_by() -> None:
 
     results_AM09 = [r for r in result if r["code"] == "AM09"]
     assert len(results_AM09) == 1
-    assert (
-        results_AM09[0]["description"]
-        == "LIMIT and OFFSET are used without ORDER BY, which may lead to non-deterministic results."
+    assert results_AM09[0]["description"] == (
+        "LIMIT and OFFSET are used without ORDER BY,"
+        " which may lead to non-deterministic results."
     )
 
 
@@ -42,5 +42,20 @@ def test__rules__std_AM09_no_limit_or_offset() -> None:
     """
     result = sqlfluff.lint(sql)
 
+    results_AM09 = [r for r in result if r["code"] == "AM09"]
+    assert len(results_AM09) == 0
+
+
+def test__rules__std_AM09_non_select_statement() -> None:
+    """Test case for non-SELECT statements.
+
+    (should return None for AM09).
+    """
+    sql = """
+    CREATE TABLE foo (id INT, name TEXT);
+    """
+    result = sqlfluff.lint(sql)
+
+    # Ensure no AM09 violations are reported
     results_AM09 = [r for r in result if r["code"] == "AM09"]
     assert len(results_AM09) == 0

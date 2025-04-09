@@ -59,7 +59,10 @@ class Rule_AM09(BaseRule):
             anchor_segment = has_limit or has_offset
             return LintResult(
                 anchor=anchor_segment,
-                description="LIMIT and OFFSET are used without ORDER BY, which may lead to non-deterministic results.",
+                description=(
+                    "LIMIT and OFFSET are used without ORDER BY,"
+                    " which may lead to non-deterministic results."
+                ),
             )
 
         return None  # No issues found
