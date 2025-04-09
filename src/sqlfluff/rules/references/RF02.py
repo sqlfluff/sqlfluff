@@ -43,6 +43,14 @@ class Rule_RF02(Rule_AL04):
     aliases = ("L027",)
     groups = ("all", "references")
     # Crawl behaviour is defined in AL04
+    config_keywords = [
+        "subqueries_ignore_external_references",
+    ]
+
+    # Config type hints
+    ignore_words_regex: str
+    ignore_words_list: list[str]
+    subqueries_ignore_external_references: bool
 
     def _lint_references_and_aliases(
         self,
@@ -54,9 +62,6 @@ class Rule_RF02(Rule_AL04):
         parent_select: Optional[BaseSegment],
         rule_context: RuleContext,
     ) -> Optional[list[LintResult]]:
-        # Config type hints
-        self.ignore_words_regex: str
-
         if parent_select:
             parent_select_info = get_select_statement_info(
                 parent_select, rule_context.dialect
@@ -70,6 +75,7 @@ class Rule_RF02(Rule_AL04):
                             rule_context.segment
                         )
                         or is_from
+                        or self.subqueries_ignore_external_references
                     ):
                         # Skip the subquery alias itself or if the subquery is inside
                         # of a `from` or `join`` clause that isn't a nested where clause
