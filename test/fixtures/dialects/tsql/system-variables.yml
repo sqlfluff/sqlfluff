@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: be997bb95ccd1ed890e72a446c3418a44eb32babce3c243dd4b5aeca6f9b528d
+_hash: f48e5ea4c4812bdd02fd76a9f02a1c9a32548abbdda9f3f5067c68765a0d7f77
 file:
 - batch:
   - statement:
@@ -74,7 +74,8 @@ file:
           select_clause_element:
             system_variable: '@@IDENTITY'
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               quoted_identifier: "'Identity'"
         statement_terminator: ;
 - go_statement:
@@ -95,7 +96,8 @@ file:
           select_clause_element:
             system_variable: '@@PACK_RECEIVED'
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               quoted_identifier: "'Packets Received'"
         statement_terminator: ;
 - go_statement:

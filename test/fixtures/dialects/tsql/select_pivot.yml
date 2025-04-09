@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a8bd8803eea4c80243dcdab9d39b0ac0ae64712396b88044d12edce297a8cf86
+_hash: 658b2cd7fdaf7f77b397d666c7f8634693458446cd5e982a10add871039ae053
 file:
 - batch:
   - statement:
@@ -29,7 +29,8 @@ file:
                 table_reference:
                   naked_identifier: table1
               alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: t1
             from_pivot_expression:
             - keyword: pivot
@@ -88,7 +89,8 @@ file:
                 table_reference:
                   naked_identifier: table1
               alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: t1
             from_pivot_expression:
               keyword: pivot
@@ -142,7 +144,8 @@ file:
               dot: .
               quoted_identifier: '[Month Number]'
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: Month
         from_clause:
           keyword: FROM
