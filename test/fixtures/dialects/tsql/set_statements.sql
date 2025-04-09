@@ -33,3 +33,7 @@ SET @param1 += 1,
 -- Param with sequence in expression
 SET @param1 = (NEXT VALUE FOR [dbo].[SEQUENCE_NAME])
 ;
+
+-- Param set to NULL value is treated as assignment not comparison (issue #6000)
+SET @param1 = NULL
+;
