@@ -99,6 +99,7 @@ You can set the dbt project directory, profiles directory and profile with:
     running `dbt debug --config-dir`.
 
 .. note::
+
     A fatal error can be raised at compile time. That can sometimes happen for SQLFluff related reasons (it used
     to happen if we tried to compile ephemeral models in the wrong order), but more often because a macro tries to query
     a table at compile time which doesn't exist.
