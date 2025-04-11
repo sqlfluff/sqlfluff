@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ef47342cb90c145fdf75d20cc2d6569ccebf36e3dc8e2355e98d8abf0335f471
+_hash: 476cc57edc866e2f094073317cba6f7ec5e582250d9590a2f18601a8fb9d33fb
 file:
 - statement:
     create_table_statement:
@@ -536,23 +536,6 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-<<<<<<< HEAD
-        naked_identifier: my_table
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          naked_identifier: num
-          data_type:
-          - data_type_identifier: INT
-          - bracketed_arguments:
-              bracketed:
-                start_bracket: (
-                numeric_literal: '5'
-                end_bracket: )
-          - keyword: UNSIGNED
-          - keyword: ZEROFILL
-        end_bracket: )
-=======
         naked_identifier: geom
     - bracketed:
       - start_bracket: (
@@ -575,5 +558,106 @@ file:
             keyword: SRID
             numeric_literal: '4326'
       - end_bracket: )
->>>>>>> main
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: num
+          data_type:
+            data_type_identifier: INT
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '5'
+                end_bracket: )
+            keyword: SIGNED
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: num
+          data_type:
+            data_type_identifier: INT
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '5'
+                end_bracket: )
+            keyword: UNSIGNED
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: num
+          data_type:
+            data_type_identifier: INT
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '5'
+                end_bracket: )
+            keyword: ZEROFILL
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: num
+          data_type:
+          - data_type_identifier: INT
+          - bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '5'
+                end_bracket: )
+          - keyword: UNSIGNED
+          - keyword: ZEROFILL
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: num
+          data_type:
+          - data_type_identifier: INT
+          - bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '5'
+                end_bracket: )
+          - keyword: ZEROFILL
+          - keyword: UNSIGNED
+        end_bracket: )
 - statement_terminator: ;

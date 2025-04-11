@@ -1032,7 +1032,6 @@ class DatatypeSegment(BaseSegment):
             AnyNumberOf(
                 "UNSIGNED",  # UNSIGNED MySQL
                 Ref("CharCharacterSetGrammar"),
-                "ZEROFILL",
                 optional=True,
             ),
         ),
