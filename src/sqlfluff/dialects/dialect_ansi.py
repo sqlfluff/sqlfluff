@@ -1029,7 +1029,7 @@ class DatatypeSegment(BaseSegment):
             ),
             # There may be no brackets for some data types
             Ref("BracketedArguments", optional=True),
-            OneOf(
+            AnyNumberOf(
                 "UNSIGNED",  # UNSIGNED MySQL
                 Ref("CharCharacterSetGrammar"),
                 optional=True,
