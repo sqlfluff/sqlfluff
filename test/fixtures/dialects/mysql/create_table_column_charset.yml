@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f2c0b6a7781e5ac8b770f06d49f23f0556e6c70e8d26d5485bbeb6bf0f2f041c
+_hash: efab774d6c07279415890eb13474495f22cac70e996ce62c77ecd672cc2dfa25
 file:
-  statement:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -31,4 +31,85 @@ file:
             collation_reference:
               naked_identifier: latin1_german1_ci
         end_bracket: )
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+        start_bracket: (
+        column_definition:
+        - naked_identifier: col1
+        - data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '5'
+                end_bracket: )
+        - column_constraint_segment:
+          - keyword: CHARACTER
+          - keyword: SET
+          - quoted_identifier: '`latin1`'
+        - column_constraint_segment:
+            keyword: COLLATE
+            collation_reference:
+              quoted_identifier: '`latin1_german1_ci`'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+        start_bracket: (
+        column_definition:
+        - naked_identifier: col1
+        - data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '5'
+                end_bracket: )
+        - column_constraint_segment:
+          - keyword: CHARACTER
+          - keyword: SET
+          - quoted_identifier: "'latin1'"
+        - column_constraint_segment:
+            keyword: COLLATE
+            collation_reference:
+              quoted_literal: "'latin1_german1_ci'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+        start_bracket: (
+        column_definition:
+        - naked_identifier: col1
+        - data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '5'
+                end_bracket: )
+        - column_constraint_segment:
+          - keyword: CHARACTER
+          - keyword: SET
+          - quoted_identifier: '"latin1"'
+        - column_constraint_segment:
+            keyword: COLLATE
+            collation_reference:
+              quoted_literal: '"latin1_german1_ci"'
+        end_bracket: )
+- statement_terminator: ;

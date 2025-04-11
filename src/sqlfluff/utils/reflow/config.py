@@ -3,13 +3,13 @@
 # Until we have a proper structure this will work.
 # TODO: Migrate this to the config file.
 from dataclasses import dataclass
-from typing import AbstractSet, Any, Dict, FrozenSet, Optional, Set
+from typing import AbstractSet, Any, Optional
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.utils.reflow.depthmap import DepthInfo
 
-ConfigElementType = Dict[str, str]
-ConfigDictType = Dict[str, ConfigElementType]
+ConfigElementType = dict[str, str]
+ConfigDictType = dict[str, ConfigElementType]
 
 
 @dataclass()
@@ -62,7 +62,7 @@ class ReflowConfig:
     """
 
     _config_dict: ConfigDictType
-    config_types: Set[str]
+    config_types: set[str]
     # In production, these values are almost _always_ set because we
     # use `.from_fluff_config`, but the defaults are here to aid in
     # testing.
@@ -70,7 +70,7 @@ class ReflowConfig:
     indent_unit: str = "    "
     max_line_length: int = 80
     hanging_indents: bool = False
-    skip_indentation_in: FrozenSet[str] = frozenset()
+    skip_indentation_in: frozenset[str] = frozenset()
     allow_implicit_indents: bool = False
     trailing_comments: str = "before"
     ignore_comment_lines: bool = False

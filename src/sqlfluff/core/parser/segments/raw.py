@@ -4,7 +4,7 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
-from typing import Any, Callable, Dict, FrozenSet, List, Optional, Tuple, Union, cast
+from typing import Any, Callable, Optional, Union, cast
 from uuid import uuid4
 
 import regex as re
@@ -32,13 +32,13 @@ class RawSegment(BaseSegment):
         # `type` argument here, but for more precise inheritance
         # we suggest using the `instance_types` option.
         type: Optional[str] = None,
-        instance_types: Tuple[str, ...] = (),
-        trim_start: Optional[Tuple[str, ...]] = None,
-        trim_chars: Optional[Tuple[str, ...]] = None,
-        source_fixes: Optional[List[SourceFix]] = None,
+        instance_types: tuple[str, ...] = (),
+        trim_start: Optional[tuple[str, ...]] = None,
+        trim_chars: Optional[tuple[str, ...]] = None,
+        source_fixes: Optional[list[SourceFix]] = None,
         uuid: Optional[int] = None,
-        quoted_value: Optional[Tuple[str, Union[int, str]]] = None,
-        escape_replacements: Optional[List[Tuple[str, str]]] = None,
+        quoted_value: Optional[tuple[str, Union[int, str]]] = None,
+        escape_replacements: Optional[list[tuple[str, str]]] = None,
         casefold: Optional[Callable[[str], str]] = None,
     ):
         """Initialise raw segment.
@@ -58,7 +58,7 @@ class RawSegment(BaseSegment):
         self.pos_marker: PositionMarker = pos_marker  # type: ignore
         # Set the segments attribute to be an empty tuple.
         self.segments = ()
-        self.instance_types: Tuple[str, ...]
+        self.instance_types: tuple[str, ...]
         if type:
             assert not instance_types, "Cannot set `type` and `instance_types`."
             self.instance_types = (type,)
@@ -117,12 +117,12 @@ class RawSegment(BaseSegment):
         return self._raw_upper
 
     @property
-    def raw_segments(self) -> List["RawSegment"]:
+    def raw_segments(self) -> list["RawSegment"]:
         """Returns self to be compatible with calls to its superclass."""
         return [self]
 
     @property
-    def class_types(self) -> FrozenSet[str]:
+    def class_types(self) -> frozenset[str]:
         """The set of full types for this segment, including inherited.
 
         Add the surrogate type for raw segments.
@@ -130,7 +130,7 @@ class RawSegment(BaseSegment):
         return frozenset(self.instance_types) | super().class_types
 
     @property
-    def source_fixes(self) -> List[SourceFix]:
+    def source_fixes(self) -> list[SourceFix]:
         """Return any source fixes as list."""
         return self._source_fixes or []
 
@@ -152,7 +152,7 @@ class RawSegment(BaseSegment):
             return True
         return self.class_is_type(*seg_type)
 
-    def get_raw_segments(self) -> List["RawSegment"]:
+    def get_raw_segments(self) -> list["RawSegment"]:
         """Iterate raw segments, mostly for searching."""
         return [self]
 
@@ -242,13 +242,13 @@ class RawSegment(BaseSegment):
         return f"{self.raw!r}"
 
     def edit(
-        self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None
+        self, raw: Optional[str] = None, source_fixes: Optional[list[SourceFix]] = None
     ) -> "RawSegment":
         """Create a new segment, with exactly the same position but different content.
 
         Args:
             raw (Optional[str]): The new content for the segment.
-            source_fixes (Optional[List[SourceFix]]): A list of fixes to be applied to
+            source_fixes (Optional[list[SourceFix]]): A list of fixes to be applied to
                 the segment.
 
         Returns:
@@ -272,7 +272,7 @@ class RawSegment(BaseSegment):
             source_fixes=source_fixes or self.source_fixes,
         )
 
-    def _get_raw_segment_kwargs(self) -> Dict[str, Any]:
+    def _get_raw_segment_kwargs(self) -> dict[str, Any]:
         return {
             "quoted_value": self.quoted_value,
             "escape_replacements": self.escape_replacements,
@@ -284,8 +284,8 @@ class RawSegment(BaseSegment):
     @classmethod
     def from_result_segments(
         cls,
-        result_segments: Tuple[BaseSegment, ...],
-        segment_kwargs: Dict[str, Any],
+        result_segments: tuple[BaseSegment, ...],
+        segment_kwargs: dict[str, Any],
     ) -> "RawSegment":
         """Create a RawSegment from result segments."""
         assert len(result_segments) == 1

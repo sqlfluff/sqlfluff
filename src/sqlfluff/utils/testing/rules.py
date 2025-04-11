@@ -1,16 +1,8 @@
 """Testing utils for rule plugins."""
 
+from collections.abc import Collection
 from glob import glob
-from typing import (
-    Collection,
-    Dict,
-    List,
-    NamedTuple,
-    Optional,
-    Set,
-    Tuple,
-    Union,
-)
+from typing import NamedTuple, Optional, Union
 
 import pytest
 import yaml
@@ -23,11 +15,12 @@ from sqlfluff.core.errors import (
     SQLParseError,
     SQLTemplaterError,
 )
+from sqlfluff.core.helpers.string import split_comma_separated_string
 from sqlfluff.core.rules import BaseRule, get_ruleset
 from sqlfluff.core.types import ConfigMappingType
 
-FixDictType = Dict[str, Union[str, int]]
-ViolationDictType = Dict[str, Union[str, int, bool, List[FixDictType]]]
+FixDictType = dict[str, Union[str, int]]
+ViolationDictType = dict[str, Union[str, int, bool, list[FixDictType]]]
 
 
 class RuleTestCase(NamedTuple):
@@ -37,12 +30,12 @@ class RuleTestCase(NamedTuple):
     desc: Optional[str] = None
     pass_str: Optional[str] = None
     fail_str: Optional[str] = None
-    violations: Optional[Set[ViolationDictType]] = None
+    violations: Optional[set[ViolationDictType]] = None
     fix_str: Optional[str] = None
-    violations_after_fix: Optional[Set[ViolationDictType]] = None
+    violations_after_fix: Optional[set[ViolationDictType]] = None
     configs: Optional[ConfigMappingType] = None
     skip: Optional[str] = None
-    line_numbers: List[int] = []
+    line_numbers: list[int] = []
 
     def evaluate(self) -> None:
         """Evaluate the test case.
@@ -56,7 +49,7 @@ class RuleTestCase(NamedTuple):
 
 def load_test_cases(
     test_cases_path: str,
-) -> Tuple[List[str], List[RuleTestCase]]:
+) -> tuple[list[str], list[RuleTestCase]]:
     """Load rule test cases from YAML files.
 
     Args:
@@ -107,8 +100,8 @@ def assert_rule_fail_in_sql(
     code: str,
     sql: str,
     configs: Optional[ConfigMappingType] = None,
-    line_numbers: Optional[List[int]] = None,
-) -> Tuple[str, List[SQLBaseError]]:
+    line_numbers: Optional[list[int]] = None,
+) -> tuple[str, list[SQLBaseError]]:
     """Assert that a given rule does fail on the given sql.
 
     Args:
@@ -143,10 +136,10 @@ def assert_rule_fail_in_sql(
     ]
     if parse_errors:
         pytest.fail(f"Found the following parse errors in test case: {parse_errors}")
-    lint_errors: List[SQLLintError] = [
+    lint_errors: list[SQLLintError] = [
         v for v in all_violations if isinstance(v, SQLLintError)
     ]
-    if not any(v.rule.code == code for v in lint_errors):
+    if not any(v.rule.code in split_comma_separated_string(code) for v in lint_errors):
         assert linted.tree
         print(f"Parsed File:\n{linted.tree.stringify()}")
         pytest.fail(
@@ -166,8 +159,10 @@ def assert_rule_fail_in_sql(
     # Check that if it has made changes that this rule has set
     # `is_fix_compatible` appropriately.
     if fixed_sql != sql:
-        rule = get_rule_from_set(code, config=cfg)
-        assert rule.is_fix_compatible, (
+        assert any(
+            get_rule_from_set(rule, config=cfg).is_fix_compatible
+            for rule in split_comma_separated_string(code)
+        ), (
             f"Rule {code} returned fixes but does not specify "
             "'is_fix_compatible = True'."
         )
@@ -204,7 +199,7 @@ def assert_rule_pass_in_sql(
     # line of code.
     lint_result = linter.lint_string(sql, config=cfg, fname="<STR>")
     lint_errors = [v for v in lint_result.violations if isinstance(v, SQLLintError)]
-    if any(v.rule.code == code for v in lint_errors):
+    if any(v.rule.code in split_comma_separated_string(code) for v in lint_errors):
         print("Errors Found:")
         for e in lint_result.violations:
             print("    " + repr(e))
@@ -215,7 +210,7 @@ def assert_rule_pass_in_sql(
 
 
 def assert_rule_raises_violations_in_file(
-    rule: str, fpath: str, violations: List[Tuple[int, int]], fluff_config: FluffConfig
+    rule: str, fpath: str, violations: list[tuple[int, int]], fluff_config: FluffConfig
 ) -> None:
     """Assert that a given rule raises given errors in specific positions of a file.
 
@@ -245,7 +240,7 @@ def prep_violations(
 
 
 def assert_violations_before_fix(
-    test_case: RuleTestCase, violations_before_fix: List[SQLBaseError]
+    test_case: RuleTestCase, violations_before_fix: list[SQLBaseError]
 ) -> None:
     """Assert that the given violations are found in the given sql."""
     print("# Asserting Violations Before Fix")

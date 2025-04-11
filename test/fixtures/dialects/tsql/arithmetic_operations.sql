@@ -1,0 +1,11 @@
+DECLARE @I INT = 0;
+SELECT @I + 1;
+SELECT @I += 2;
+SELECT @I - 3;
+SELECT @I -= 4;
+SELECT @I * 5;
+SELECT @I *= 6;
+SELECT @I / 7;
+SELECT @I /= 8;
+SELECT @I % 9;
+SELECT @I %= 10;

@@ -1,6 +1,7 @@
 """Implementation of Rule CV06."""
 
-from typing import List, NamedTuple, Optional, Sequence, cast
+from collections.abc import Sequence
+from typing import NamedTuple, Optional, cast
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment, RawSegment, SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -276,8 +277,8 @@ class Rule_CV06(BaseRule):
         parent_segment: BaseSegment,
         anchor_segment: BaseSegment,
         whitespace_deletions: Segments,
-        create_segments: List[BaseSegment],
-    ) -> List[LintFix]:
+        create_segments: list[BaseSegment],
+    ) -> list[LintFix]:
         anchor_segment = self._choose_anchor_segment(
             parent_segment, "create_after", anchor_segment, filter_meta=True
         )
@@ -378,7 +379,7 @@ class Rule_CV06(BaseRule):
             )
         return None
 
-    def _eval(self, context: RuleContext) -> List[LintResult]:
+    def _eval(self, context: RuleContext) -> list[LintResult]:
         """Statements must end with a semi-colon."""
         # Config type hints
         self.multiline_newline: bool

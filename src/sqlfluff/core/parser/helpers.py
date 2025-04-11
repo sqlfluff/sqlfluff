@@ -1,6 +1,6 @@
 """Helpers for the parser module."""
 
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 from sqlfluff.core.errors import SQLParseError
 
@@ -8,15 +8,15 @@ if TYPE_CHECKING:
     from sqlfluff.core.parser.segments import BaseSegment  # pragma: no cover
 
 
-def join_segments_raw(segments: Tuple["BaseSegment", ...]) -> str:
+def join_segments_raw(segments: tuple["BaseSegment", ...]) -> str:
     """Make a string from the joined `raw` attributes of an iterable of segments."""
     return "".join(s.raw for s in segments)
 
 
 def check_still_complete(
-    segments_in: Tuple["BaseSegment", ...],
-    matched_segments: Tuple["BaseSegment", ...],
-    unmatched_segments: Tuple["BaseSegment", ...],
+    segments_in: tuple["BaseSegment", ...],
+    matched_segments: tuple["BaseSegment", ...],
+    unmatched_segments: tuple["BaseSegment", ...],
 ) -> bool:
     """Check that the segments in are the same as the segments out."""
     initial_str = join_segments_raw(segments_in)
@@ -32,9 +32,9 @@ def check_still_complete(
 
 
 def trim_non_code_segments(
-    segments: Tuple["BaseSegment", ...],
-) -> Tuple[
-    Tuple["BaseSegment", ...], Tuple["BaseSegment", ...], Tuple["BaseSegment", ...]
+    segments: tuple["BaseSegment", ...],
+) -> tuple[
+    tuple["BaseSegment", ...], tuple["BaseSegment", ...], tuple["BaseSegment", ...]
 ]:
     """Take segments and split off surrounding non-code segments as appropriate.
 

@@ -1,6 +1,6 @@
 """Implementation of Rule CP02."""
 
-from typing import List, Optional
+from typing import Optional
 
 from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
@@ -95,7 +95,7 @@ class Rule_CP02(Rule_CP01):
     ]
     _description_elem = "Unquoted identifiers"
 
-    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
+    def _eval(self, context: RuleContext) -> Optional[list[LintResult]]:
         # Return None if identifier is case-sensitive property to enable Change
         # Data Feed
         # https://docs.delta.io/2.0.0/delta-change-data-feed.html#enable-change-data-feed

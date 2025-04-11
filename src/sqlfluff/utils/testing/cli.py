@@ -1,15 +1,15 @@
 """Testing utils for working with the CLIs."""
 
 import inspect
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from click.testing import CliRunner, Result
 
 
 def invoke_assert_code(
     ret_code: int = 0,
-    args: Optional[List[Any]] = None,
-    kwargs: Optional[Dict[str, Any]] = None,
+    args: Optional[list[Any]] = None,
+    kwargs: Optional[dict[str, Any]] = None,
     cli_input: Optional[str] = None,
     assert_stdout_contains: str = "",
     assert_stderr_contains: str = "",

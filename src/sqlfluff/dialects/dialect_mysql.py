@@ -975,7 +975,15 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
 
     match_grammar: Matchable = OneOf(
         ansi.ColumnConstraintSegment.match_grammar,
-        Sequence("CHARACTER", "SET", Ref("NakedIdentifierSegment")),
+        Sequence(
+            "CHARACTER",
+            "SET",
+            OneOf(
+                Ref("SingleIdentifierGrammar"),
+                Ref("SingleQuotedIdentifierSegment"),
+                Ref("DoubleQuotedIdentifierSegment"),
+            ),
+        ),
         Sequence("COLLATE", Ref("CollationReferenceSegment")),
         Sequence(
             Sequence("GENERATED", "ALWAYS", optional=True),
@@ -983,6 +991,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
             Bracketed(Ref("ExpressionSegment")),
             OneOf("STORED", "VIRTUAL", optional=True),
         ),
+        Sequence("SRID", Ref("NumericLiteralSegment")),
     )
 
 
@@ -1664,6 +1673,47 @@ class AlterTableStatementSegment(BaseSegment):
                 # CONVERT TO CHARACTER SET charset_name [COLLATE collation_name]
                 Sequence("CONVERT", "TO", AnyNumberOf(Ref("AlterOptionSegment"))),
             ),
+            optional=True,
+        ),
+        Sequence(
+            OneOf(
+                "ADD",
+                "DROP",
+                "DISCARD",
+                "IMPORT",
+                "TRUNCATE",
+                "COALESCE",
+                "REORGANIZE",
+                "EXCHANGE",
+                "ANALYZE",
+                "CHECK",
+                "OPTIMIZE",
+                "REBUILD",
+                "REPAIR",
+                "REMOVE",
+            ),
+            OneOf("PARTITION", "PARTITIONING"),
+            OneOf(
+                Ref("SingleIdentifierGrammar"),
+                Ref("NumericLiteralSegment"),
+                "ALL",
+                Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+            ),
+            Ref.keyword("TABLESPACE", optional=True),
+            Sequence(
+                "WITH",
+                "TABLE",
+                Ref("TableReference"),
+                OneOf("WITH", "WITHOUT"),
+                "VALIDATION",
+                optional=True,
+            ),
+            Sequence(
+                "INTO",
+                Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+                optional=True,
+            ),
+            optional=True,
         ),
     )
 
@@ -2941,7 +2991,11 @@ class AlterOptionSegment(BaseSegment):
                 "CHARACTER",
                 "SET",
                 Ref("EqualsSegment", optional=True),
-                Ref("NakedIdentifierSegment"),
+                OneOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("SingleQuotedIdentifierSegment"),
+                    Ref("DoubleQuotedIdentifierSegment"),
+                ),
             ),
             Sequence(
                 Ref.keyword("DEFAULT", optional=True),

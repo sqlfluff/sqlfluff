@@ -1,13 +1,11 @@
 """The jinja rules plugin bundle."""
 
-from typing import List, Type
-
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import BaseRule
 
 
 @hookimpl
-def get_rules() -> List[Type[BaseRule]]:
+def get_rules() -> list[type[BaseRule]]:
     """Get plugin rules.
 
     NOTE: Rules are imported only on fetch to manage import times

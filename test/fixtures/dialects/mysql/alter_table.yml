@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ee68ea9bd1cb7046d3097b3a102cb26418f69a38bf5cfc3dd1e99a020ad77a58
+_hash: c18ba015cd914b50316648a816d6ada1bb27af5048c9118ee44d75c11ea08365
 file:
 - statement:
     alter_table_statement:
@@ -716,6 +716,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
+<<<<<<< HEAD
         naked_identifier: my_table
     - keyword: MODIFY
     - column_definition:
@@ -727,4 +728,80 @@ file:
         column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
+=======
+        quoted_identifier: '`foo`'
+    - keyword: CONVERT
+    - keyword: TO
+    - alter_option_segment:
+      - keyword: CHARACTER
+      - keyword: SET
+      - quoted_identifier: '`utf8mb4`'
+    - alter_option_segment:
+        keyword: COLLATE
+        collation_reference:
+          quoted_identifier: '`utf8mb4_unicode_ci`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: CONVERT
+    - keyword: TO
+    - alter_option_segment:
+      - keyword: CHARACTER
+      - keyword: SET
+      - quoted_identifier: "'utf8mb4'"
+    - alter_option_segment:
+        keyword: COLLATE
+        collation_reference:
+          quoted_literal: "'utf8mb4_unicode_ci'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: CONVERT
+    - keyword: TO
+    - alter_option_segment:
+      - keyword: CHARACTER
+      - keyword: SET
+      - quoted_identifier: '"utf8mb4"'
+    - alter_option_segment:
+        keyword: COLLATE
+        collation_reference:
+          quoted_literal: '"utf8mb4_unicode_ci"'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: CUST
+    - keyword: TRUNCATE
+    - keyword: PARTITION
+    - naked_identifier: data_dt
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - naked_identifier: geo
+      - data_type:
+          data_type_identifier: GEOMETRY
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - column_constraint_segment:
+          keyword: SRID
+          numeric_literal: '4326'
+>>>>>>> main
 - statement_terminator: ;

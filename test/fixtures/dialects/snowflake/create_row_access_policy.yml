@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1a0a2037d2d40af831eadf08d1c019c8b05d457e56b4559ead0c4fbe00a339a2
+_hash: f5a47e570e363960aee0787bdb9dcebb1e1cf7fd52ef4594ad7d1e2ba226b51c
 file:
 - statement:
     create_row_access_policy_statement:
@@ -103,10 +103,11 @@ file:
     - function_assigner: ->
     - expression:
         boolean_literal: 'TRUE'
-    - keyword: COMMENT
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - quoted_literal: "'My Comment'"
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'My Comment'"
 - statement_terminator: ;
 - statement:
     create_row_access_policy_statement:
@@ -149,10 +150,11 @@ file:
     - function_assigner: ->
     - expression:
         boolean_literal: 'TRUE'
-    - keyword: COMMENT
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - quoted_literal: "'My Comment'"
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'My Comment'"
 - statement_terminator: ;
 - statement:
     create_row_access_policy_statement:

@@ -7,7 +7,7 @@ import sys
 import time
 from itertools import chain
 from logging import LogRecord
-from typing import Callable, Optional, Tuple
+from typing import Callable, Optional
 
 import click
 
@@ -18,10 +18,7 @@ from tqdm import tqdm
 
 from sqlfluff.cli import EXIT_ERROR, EXIT_FAIL, EXIT_SUCCESS
 from sqlfluff.cli.autocomplete import dialect_shell_complete, shell_completion_enabled
-from sqlfluff.cli.formatters import (
-    OutputStreamFormatter,
-    format_linting_result_header,
-)
+from sqlfluff.cli.formatters import OutputStreamFormatter, format_linting_result_header
 from sqlfluff.cli.helpers import LazySequence, get_package_version
 from sqlfluff.cli.outputstream import OutputStream, make_output_stream
 
@@ -440,7 +437,7 @@ def get_linter_and_formatter(
     cfg: FluffConfig,
     output_stream: Optional[OutputStream] = None,
     show_lint_violations: bool = False,
-) -> Tuple[Linter, OutputStreamFormatter]:
+) -> tuple[Linter, OutputStreamFormatter]:
     """Get a linter object given a config."""
     try:
         # We're just making sure it exists at this stage.
@@ -583,7 +580,7 @@ def dump_file_payload(filename: Optional[str], payload: str) -> None:
 )
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def lint(
-    paths: Tuple[str],
+    paths: tuple[str],
     format: str,
     write_output: Optional[str],
     annotation_level: str,
@@ -931,7 +928,7 @@ def _paths_fix(
         if check and formatter.verbosity >= 0:
             click.echo("==== fixing violations ====")
 
-        click.echo(f"{num_fixable} " "fixable linting violations found")
+        click.echo(f"{num_fixable} fixable linting violations found")
 
         if check:
             click.echo(
@@ -1058,7 +1055,7 @@ def _paths_fix(
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def fix(
     force: bool,
-    paths: Tuple[str],
+    paths: tuple[str],
     check: bool = False,
     bench: bool = False,
     quiet: bool = False,
@@ -1157,7 +1154,7 @@ def fix(
 )
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def cli_format(
-    paths: Tuple[str],
+    paths: tuple[str],
     bench: bool = False,
     fixed_suffix: str = "",
     logger: Optional[logging.Logger] = None,

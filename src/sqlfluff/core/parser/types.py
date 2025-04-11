@@ -1,7 +1,7 @@
 """Complex Type helpers."""
 
 from enum import Enum
-from typing import TYPE_CHECKING, FrozenSet, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.matchable import Matchable
@@ -11,11 +11,11 @@ if TYPE_CHECKING:  # pragma: no cover
 DialectElementType = Union["Matchable", "SegmentGenerator"]
 
 # Simple hints has a set of strings first and a set of types second.
-SimpleHintType = Optional[Tuple[FrozenSet[str], FrozenSet[str]]]
+SimpleHintType = Optional[tuple[frozenset[str], frozenset[str]]]
 
 # The content type of the set of bracket pairs.
 # bracket_type, start_ref, end_ref, persists
-BracketPairTuple = Tuple[str, str, str, bool]
+BracketPairTuple = tuple[str, str, str, bool]
 
 # Define the potential parse modes. These are used in grammars
 # to define how greedy they are in claiming unmatched segments.

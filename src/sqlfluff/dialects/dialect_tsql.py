@@ -395,6 +395,21 @@ tsql_dialect.add(
         LiteralSegment,
         type="numeric_literal",
     ),
+    PlusComparisonSegment=StringParser(
+        "+", SymbolSegment, type="raw_comparison_operator"
+    ),
+    MinusComparisonSegment=StringParser(
+        "-", SymbolSegment, type="raw_comparison_operator"
+    ),
+    MultiplyComparisonSegment=StringParser(
+        "*", SymbolSegment, type="raw_comparison_operator"
+    ),
+    DivideComparisonSegment=StringParser(
+        "/", SymbolSegment, type="raw_comparison_operator"
+    ),
+    ModuloComparisonSegment=StringParser(
+        "%", SymbolSegment, type="raw_comparison_operator"
+    ),
 )
 
 tsql_dialect.replace(
@@ -640,6 +655,17 @@ tsql_dialect.replace(
         min_times=1,
     ),
     CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
+    ArithmeticBinaryOperatorGrammar=ansi_dialect.get_grammar(
+        "ArithmeticBinaryOperatorGrammar"
+    ).copy(
+        insert=[
+            Ref("AdditionAssignmentSegment"),
+            Ref("SubtractionAssignmentSegment"),
+            Ref("MultiplicationAssignmentSegment"),
+            Ref("DivisionAssignmentSegment"),
+            Ref("ModulusAssignmentSegment"),
+        ]
+    ),
 )
 
 
@@ -702,6 +728,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateMasterKeySegment"),
             Ref("AlterMasterKeySegment"),
             Ref("DropMasterKeySegment"),
+            Ref("OpenSymmetricKeySegment"),
             Ref("CreateLoginStatementSegment"),
             Ref("SetContextInfoSegment"),
         ],
@@ -4864,8 +4891,14 @@ class ExecuteScriptSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf("EXEC", "EXECUTE"),
         Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
-        OptionallyBracketed(
-            OneOf(Ref("ObjectReferenceSegment"), Ref("QuotedLiteralSegment"))
+        OneOf(
+            OptionallyBracketed(
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                )
+            ),
+            Bracketed(Ref("BaseExpressionElementGrammar")),
         ),
         Indent,
         Sequence(
@@ -6683,6 +6716,39 @@ class DropMasterKeySegment(BaseSegment):
     )
 
 
+class OpenSymmetricKeySegment(BaseSegment):
+    """A `OPEN SYMMETRIC KEY` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/open-symmetric-key-transact-sql
+
+    type = "open_symmetric_key_statement"
+
+    # WITH PASSWORD = 'password'
+    _with_password = Sequence(
+        "WITH",
+        "PASSWORD",
+        Ref("EqualsSegment"),
+        Ref("QuotedLiteralSegment"),
+        optional=True,
+    )
+    _decryption_mechanism = OneOf(
+        Sequence("CERTIFICATE", Ref("ObjectReferenceSegment"), _with_password),
+        Sequence("ASYMMETRIC", "KEY", Ref("ObjectReferenceSegment"), _with_password),
+        Sequence("SYMMETRIC", "KEY", Ref("ObjectReferenceSegment")),
+        Sequence("PASSWORD", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+    )
+
+    match_grammar: Matchable = Sequence(
+        "OPEN",
+        "SYMMETRIC",
+        "KEY",
+        Ref("ObjectReferenceSegment"),
+        "DECRYPTION",
+        "BY",
+        _decryption_mechanism,
+    )
+
+
 class ExpressionSegment(BaseSegment):
     """An expression, either arithmetic or boolean.
 
@@ -6694,3 +6760,48 @@ class ExpressionSegment(BaseSegment):
     match_grammar: Matchable = OneOf(
         Ref("Expression_A_Grammar"), Ref("NextValueSequenceSegment")
     )
+
+
+class AdditionAssignmentSegment(CompositeBinaryOperatorSegment):
+    """An addition assignment (`+=`) segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/add-equals-transact-sql?view=sql-server-ver16
+    """
+
+    match_grammar = Sequence(Ref("PlusComparisonSegment"), Ref("RawEqualsSegment"))
+
+
+class SubtractionAssignmentSegment(CompositeBinaryOperatorSegment):
+    """A subtraction assignment (`-=`) segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/subtract-equals-transact-sql?view=sql-server-ver16
+    """
+
+    match_grammar = Sequence(Ref("MinusComparisonSegment"), Ref("RawEqualsSegment"))
+
+
+class MultiplicationAssignmentSegment(CompositeBinaryOperatorSegment):
+    """A multiplication assignment (`*=`) segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/multiply-equals-transact-sql?view=sql-server-ver16
+    """
+
+    match_grammar = Sequence(Ref("MultiplyComparisonSegment"), Ref("RawEqualsSegment"))
+
+
+class DivisionAssignmentSegment(CompositeBinaryOperatorSegment):
+    """A division assignment (`/=`) segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/divide-equals-transact-sql?view=sql-server-ver16
+    """
+
+    match_grammar = Sequence(Ref("DivideComparisonSegment"), Ref("RawEqualsSegment"))
+
+
+class ModulusAssignmentSegment(CompositeBinaryOperatorSegment):
+    """A modulus assignment (`%=`) segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/multiply-equals-transact-sql?view=sql-server-ver16
+    """
+
+    match_grammar = Sequence(Ref("ModuloComparisonSegment"), Ref("RawEqualsSegment"))

@@ -1,7 +1,7 @@
 """Definition of the BaseFileSegment."""
 
 from abc import abstractmethod
-from typing import Optional, Set, Tuple
+from typing import Optional
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.markers import PositionMarker
@@ -24,7 +24,7 @@ class BaseFileSegment(BaseSegment):
 
     def __init__(
         self,
-        segments: Tuple[BaseSegment, ...],
+        segments: tuple[BaseSegment, ...],
         pos_marker: Optional[PositionMarker] = None,
         fname: Optional[str] = None,
     ):
@@ -37,13 +37,13 @@ class BaseFileSegment(BaseSegment):
         return self._file_path
 
     @abstractmethod
-    def get_table_references(self) -> Set[str]:
+    def get_table_references(self) -> set[str]:
         """Use parsed tree to extract table references."""
 
     @classmethod
     def root_parse(
         cls,
-        segments: Tuple[BaseSegment, ...],
+        segments: tuple[BaseSegment, ...],
         parse_context: ParseContext,
         fname: Optional[str] = None,
     ) -> "BaseFileSegment":
@@ -91,7 +91,7 @@ class BaseFileSegment(BaseSegment):
         _matched = match.apply(segments)
         _unmatched = segments[match.matched_slice.stop : _end_idx]
 
-        content: Tuple[BaseSegment, ...]
+        content: tuple[BaseSegment, ...]
         if not match:
             content = (
                 UnparsableSegment(

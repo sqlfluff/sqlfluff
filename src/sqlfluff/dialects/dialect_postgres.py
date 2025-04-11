@@ -14,6 +14,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     IdentifierSegment,
+    ImplicitIndent,
     Indent,
     LiteralKeywordSegment,
     LiteralSegment,
@@ -274,6 +275,7 @@ postgres_dialect.patch_lexer_matchers(
     ]
 )
 
+postgres_dialect.sets("reserved_keywords").clear()
 postgres_dialect.sets("reserved_keywords").update(
     get_keywords(postgres_keywords, "reserved")
 )
@@ -5003,7 +5005,9 @@ class ConflictActionSegment(BaseSegment):
             "NOTHING",
             Sequence(
                 "UPDATE",
+                Indent,
                 "SET",
+                ImplicitIndent,
                 Delimited(
                     OneOf(
                         Sequence(
@@ -5026,7 +5030,9 @@ class ConflictActionSegment(BaseSegment):
                         ),
                     )
                 ),
+                Dedent,
                 Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
+                Dedent,
             ),
         ),
     )

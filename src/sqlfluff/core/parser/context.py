@@ -11,18 +11,9 @@ and match depth of the current operation.
 import logging
 import uuid
 from collections import defaultdict
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterator,
-    List,
-    NoReturn,
-    Optional,
-    Sequence,
-    Tuple,
-)
+from typing import TYPE_CHECKING, Any, NoReturn, Optional
 
 from tqdm import tqdm
 
@@ -63,13 +54,13 @@ class ParseContext:
     def __init__(
         self,
         dialect: "Dialect",
-        indentation_config: Optional[Dict[str, Any]] = None,
+        indentation_config: Optional[dict[str, Any]] = None,
     ) -> None:
         """Initialize a new instance of the class.
 
         Args:
             dialect (Dialect): The dialect used for parsing.
-            indentation_config (Optional[Dict[str, Any]], optional): The indentation
+            indentation_config (Optional[dict[str, Any]], optional): The indentation
                 configuration used by Indent and Dedent to control the intended
                 indentation of certain features. Defaults to None.
         """
@@ -84,20 +75,20 @@ class ParseContext:
         self.uuid = uuid.uuid4()
         # A dict for parse caching. This is reset for each file,
         # but persists for the duration of an individual file parse.
-        self._parse_cache: Dict[Tuple[Any, ...], "MatchResult"] = {}
+        self._parse_cache: dict[tuple[Any, ...], "MatchResult"] = {}
         # A dictionary for keeping track of some statistics on parsing
         # for performance optimisation.
         # Focused around BaseGrammar._longest_trimmed_match().
         # Initialise only with "next_counts", the rest will be int
         # and are dealt with in .increment().
-        self.parse_stats: Dict[str, Any] = {"next_counts": defaultdict(int)}
+        self.parse_stats: dict[str, Any] = {"next_counts": defaultdict(int)}
         # The following attributes are only accessible via a copy
         # and not in the init method.
         # NOTE: We default to the name `File` which is not
         # particularly informative, does indicate the root segment.
         self.match_segment: str = "File"
-        self._match_stack: List[str] = []
-        self._parse_stack: List[str] = []
+        self._match_stack: list[str] = []
+        self._parse_stack: list[str] = []
         self.match_depth = 0
         self.parse_depth = 0
         # self.terminators is a tuple to afford some level of isolation
@@ -105,7 +96,7 @@ class ParseContext:
         # a little more overhead than a list, but we manage this by only
         # copying it when necessary.
         # NOTE: Includes inherited parent terminators.
-        self.terminators: Tuple["Matchable", ...] = ()
+        self.terminators: tuple["Matchable", ...] = ()
         # Value for holding a reference to the progress bar.
         self._tqdm: Optional[tqdm[NoReturn]] = None
         # Variable to store whether we're tracking progress. When looking
@@ -142,7 +133,7 @@ class ParseContext:
         self,
         clear_terminators: bool = False,
         push_terminators: Optional[Sequence["Matchable"]] = None,
-    ) -> Tuple[int, Tuple["Matchable", ...]]:
+    ) -> tuple[int, tuple["Matchable", ...]]:
         """Set the terminators used in the class.
 
         This private method sets the terminators used in the class. If
@@ -159,7 +150,7 @@ class ParseContext:
             Defaults to None.
 
         Returns:
-            Tuple[int, Tuple["Matchable", ...]]: A tuple containing the
+            tuple[int, tuple["Matchable", ...]]: A tuple containing the
             number of terminators appended and the original terminators.
         """
         _appended = 0
@@ -183,7 +174,7 @@ class ParseContext:
     def _reset_terminators(
         self,
         appended: int,
-        terminators: Tuple["Matchable", ...],
+        terminators: tuple["Matchable", ...],
         clear_terminators: bool = False,
     ) -> None:
         """Reset the terminators attribute of the class.
@@ -196,7 +187,7 @@ class ParseContext:
 
         Args:
             appended (int): The number of terminators that were appended.
-            terminators (Tuple["Matchable", ...]): The original terminators.
+            terminators (tuple["Matchable", ...]): The original terminators.
             clear_terminators (bool, optional): If True, clear the terminators attribute
                 completely. Defaults to False.
         """
@@ -301,12 +292,12 @@ class ParseContext:
         self._current_char = char_idx
         return None
 
-    def stack(self) -> Tuple[Tuple[str, ...], Tuple[str, ...]]:  # pragma: no cover
+    def stack(self) -> tuple[tuple[str, ...], tuple[str, ...]]:  # pragma: no cover
         """Return stacks as a tuples so that it can't be edited."""
         return tuple(self._parse_stack), tuple(self._match_stack)
 
     def check_parse_cache(
-        self, loc_key: Tuple[Any, ...], matcher_key: str
+        self, loc_key: tuple[Any, ...], matcher_key: str
     ) -> Optional["MatchResult"]:
         """Check against the parse cache for a pre-existing match.
 
@@ -315,7 +306,7 @@ class ParseContext:
         return self._parse_cache.get((loc_key, matcher_key))
 
     def put_parse_cache(
-        self, loc_key: Tuple[Any, ...], matcher_key: str, match: "MatchResult"
+        self, loc_key: tuple[Any, ...], matcher_key: str, match: "MatchResult"
     ) -> None:
         """Store a match in the cache for later retrieval."""
         self._parse_cache[(loc_key, matcher_key)] = match

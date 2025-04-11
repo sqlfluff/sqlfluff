@@ -4,19 +4,9 @@ This should be the default response from any `match` method.
 """
 
 from collections import defaultdict
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    DefaultDict,
-    Dict,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, DefaultDict, Optional, Union
 
 from sqlfluff.core.helpers.slice import slice_length
 from sqlfluff.core.parser.markers import PositionMarker
@@ -66,15 +56,15 @@ class MatchResult:
     # Reference to the kind of segment to create.
     # NOTE: If this is null, it means we've matched a sequence of segments
     # but not yet created a container to put them in.
-    matched_class: Optional[Type["BaseSegment"]] = None
+    matched_class: Optional[type["BaseSegment"]] = None
     # kwargs to pass to the segment on creation.
-    segment_kwargs: Dict[str, Any] = field(default_factory=dict)
+    segment_kwargs: dict[str, Any] = field(default_factory=dict)
     # Types and indices to add in new segments (they'll be meta segments)
-    insert_segments: Tuple[Tuple[int, Type["MetaSegment"]], ...] = field(
+    insert_segments: tuple[tuple[int, type["MetaSegment"]], ...] = field(
         default_factory=tuple
     )
     # Child segment matches (this is the recursive bit)
-    child_matches: Tuple["MatchResult", ...] = field(default_factory=tuple)
+    child_matches: tuple["MatchResult", ...] = field(default_factory=tuple)
 
     def __post_init__(self) -> None:
         """Do some lightweight validation post instantiation."""
@@ -125,7 +115,7 @@ class MatchResult:
     def append(
         self,
         other: "MatchResult",
-        insert_segments: Tuple[Tuple[int, Type["MetaSegment"]], ...] = (),
+        insert_segments: tuple[tuple[int, type["MetaSegment"]], ...] = (),
     ) -> "MatchResult":
         """Combine another subsequent match onto this one.
 
@@ -144,7 +134,7 @@ class MatchResult:
         # match.
         assert self.matched_slice.stop <= other.matched_slice.start
         new_slice = slice(self.matched_slice.start, other.matched_slice.stop)
-        child_matches: Tuple[MatchResult, ...] = ()
+        child_matches: tuple[MatchResult, ...] = ()
         for match in (self, other):
             # If it's got a matched class, add it as a child.
             if match.matched_class:
@@ -163,9 +153,9 @@ class MatchResult:
 
     def wrap(
         self,
-        outer_class: Type["BaseSegment"],
-        insert_segments: Tuple[Tuple[int, Type["MetaSegment"]], ...] = (),
-        segment_kwargs: Dict[str, Any] = {},
+        outer_class: type["BaseSegment"],
+        insert_segments: tuple[tuple[int, type["MetaSegment"]], ...] = (),
+        segment_kwargs: dict[str, Any] = {},
     ) -> "MatchResult":
         """Wrap this result with an outer class.
 
@@ -179,7 +169,7 @@ class MatchResult:
             assert not insert_segments, "Cannot wrap inserts onto an empty match."
             return self
 
-        child_matches: Tuple[MatchResult, ...]
+        child_matches: tuple[MatchResult, ...]
         if self.matched_class:
             # If the match already has a class, then make
             # the current one and child match and clear the
@@ -200,7 +190,7 @@ class MatchResult:
             child_matches=child_matches,
         )
 
-    def apply(self, segments: Tuple["BaseSegment", ...]) -> Tuple["BaseSegment", ...]:
+    def apply(self, segments: tuple["BaseSegment", ...]) -> tuple["BaseSegment", ...]:
         """Actually this match to segments to instantiate.
 
         This turns a theoretical match into a nested structure of segments.
@@ -210,7 +200,7 @@ class MatchResult:
         and any inserts. If there are overlaps, then we have a problem, and we
         should abort.
         """
-        result_segments: Tuple["BaseSegment", ...] = ()
+        result_segments: tuple["BaseSegment", ...] = ()
         if not slice_length(self.matched_slice):
             assert not self.matched_class, (
                 "Tried to apply zero length MatchResult with "
@@ -240,7 +230,7 @@ class MatchResult:
 
         # Which are the locations we need to care about?
         trigger_locs: DefaultDict[
-            int, List[Union[MatchResult, Type["MetaSegment"]]]
+            int, list[Union[MatchResult, type["MetaSegment"]]]
         ] = defaultdict(list)
         # Add the inserts first...
         for insert in self.insert_segments:

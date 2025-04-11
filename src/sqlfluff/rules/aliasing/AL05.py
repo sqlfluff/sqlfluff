@@ -2,7 +2,7 @@
 
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import List, Set, cast
+from typing import cast
 
 from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser.segments import BaseSegment, RawSegment
@@ -23,8 +23,8 @@ from sqlfluff.utils.functional import Segments, sp
 class AL05Query(Query):
     """Query subclass with custom AL05 info."""
 
-    aliases: List[AliasInfo] = field(default_factory=list)
-    tbl_refs: Set[str] = field(default_factory=set)
+    aliases: list[AliasInfo] = field(default_factory=list)
+    tbl_refs: set[str] = field(default_factory=set)
 
 
 class Rule_AL05(BaseRule):
@@ -74,7 +74,7 @@ class Rule_AL05(BaseRule):
     alias_case_check: str
 
     def _eval(self, context: RuleContext) -> EvalResultType:
-        violations: List[LintResult] = []
+        violations: list[LintResult] = []
         assert context.segment.is_type("select_statement")
         # Exit early if the SELECT does not define any aliases.
         select_info = get_select_statement_info(context.segment, context.dialect)

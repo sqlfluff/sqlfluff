@@ -8,16 +8,12 @@ rather than the individual file caching in the `file` module.
 
 from __future__ import annotations
 
-try:
-    from importlib.resources import files
-except ImportError:  # pragma: no cover
-    # fallback for python <=3.8
-    from importlib_resources import files  # type: ignore
-
 import logging
 import os
 import os.path
 import sys
+from functools import cache
+from importlib.resources import files
 from pathlib import Path
 from typing import (
     Optional,
@@ -28,7 +24,6 @@ import platformdirs.macos
 import platformdirs.unix
 
 from sqlfluff.core.config.file import (
-    cache,
     load_config_file_as_dict,
     load_config_string_as_dict,
 )

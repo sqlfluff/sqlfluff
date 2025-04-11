@@ -1,14 +1,11 @@
 """Surrogate class for working with Segment collections."""
 
+from collections.abc import Iterable, Iterator
 from typing import (
     Any,
     Callable,
-    Iterable,
-    Iterator,
-    List,
     Optional,
     SupportsIndex,
-    Tuple,
     Union,
     overload,
 )
@@ -20,7 +17,7 @@ from sqlfluff.utils.functional.raw_file_slices import RawFileSlices
 PredicateType = Callable[[BaseSegment], bool]
 
 
-class Segments(Tuple[BaseSegment, ...]):
+class Segments(tuple[BaseSegment, ...]):
     """Encapsulates a sequence of one or more BaseSegments.
 
     The segments may or may not be contiguous in a parse tree.
@@ -31,7 +28,7 @@ class Segments(Tuple[BaseSegment, ...]):
         cls, *segments: BaseSegment, templated_file: Optional[TemplatedFile] = None
     ) -> "Segments":
         """Override new operator."""
-        return super(Segments, cls).__new__(cls, segments)
+        return super().__new__(cls, segments)
 
     def __init__(
         self, *_: BaseSegment, templated_file: Optional[TemplatedFile] = None
@@ -106,7 +103,7 @@ class Segments(Tuple[BaseSegment, ...]):
 
     def recursive_crawl_all(self) -> "Segments":  # pragma: no cover
         """Recursively crawl all descendant segments."""
-        segments: List[BaseSegment] = []
+        segments: list[BaseSegment] = []
         for s in self:
             for i in s.recursive_crawl_all():
                 segments.append(i)
@@ -114,7 +111,7 @@ class Segments(Tuple[BaseSegment, ...]):
 
     def recursive_crawl(self, *seg_type: str, recurse_into: bool = True) -> "Segments":
         """Recursively crawl for segments of a given type."""
-        segments: List[BaseSegment] = []
+        segments: list[BaseSegment] = []
         for s in self:
             for i in s.recursive_crawl(*seg_type, recurse_into=recurse_into):
                 segments.append(i)
@@ -125,7 +122,7 @@ class Segments(Tuple[BaseSegment, ...]):
         predicate: Optional[PredicateType] = None,
     ) -> "Segments":
         """Returns an object with children of the segments in this object."""
-        child_segments: List[BaseSegment] = []
+        child_segments: list[BaseSegment] = []
         for s in self:
             for child in s.segments:
                 if predicate is None or predicate(child):
@@ -188,7 +185,7 @@ class Segments(Tuple[BaseSegment, ...]):
         except IndexError:
             return default
 
-    def apply(self, fn: Callable[[BaseSegment], Any]) -> List[Any]:
+    def apply(self, fn: Callable[[BaseSegment], Any]) -> list[Any]:
         """Apply function to every item."""
         return [fn(s) for s in self]
 

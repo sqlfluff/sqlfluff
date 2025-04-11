@@ -2,7 +2,7 @@
 
 import logging
 from collections import defaultdict
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.parser import (
@@ -24,7 +24,7 @@ if TYPE_CHECKING:  # pragma: no cover
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 
 
-def _unpack_constraint(constraint: str, strip_newlines: bool) -> Tuple[str, bool]:
+def _unpack_constraint(constraint: str, strip_newlines: bool) -> tuple[str, bool]:
     """Unpack a spacing constraint.
 
     Used as a helper function in `determine_constraints`.
@@ -59,7 +59,7 @@ def determine_constraints(
     prev_block: Optional["ReflowBlock"],
     next_block: Optional["ReflowBlock"],
     strip_newlines: bool = False,
-) -> Tuple[str, str, bool]:
+) -> tuple[str, str, bool]:
     """Given the surrounding blocks, determine appropriate constraints."""
     # Start with the defaults.
     pre_constraint, strip_newlines = _unpack_constraint(
@@ -112,12 +112,12 @@ def determine_constraints(
 
 
 def process_spacing(
-    segment_buffer: List[RawSegment], strip_newlines: bool = False
-) -> Tuple[List[RawSegment], Optional[RawSegment], List[LintResult]]:
+    segment_buffer: list[RawSegment], strip_newlines: bool = False
+) -> tuple[list[RawSegment], Optional[RawSegment], list[LintResult]]:
     """Given the existing spacing, extract information and do basic pruning."""
-    removal_buffer: List[RawSegment] = []
-    result_buffer: List[LintResult] = []
-    last_whitespace: List[RawSegment] = []
+    removal_buffer: list[RawSegment] = []
+    result_buffer: list[LintResult] = []
+    last_whitespace: list[RawSegment] = []
 
     # Loop through the existing segments looking for spacing.
     for seg in segment_buffer:
@@ -230,7 +230,7 @@ def _determine_aligned_inline_spacing(
             siblings.append(sibling)
         else:
             reflow_logger.debug(
-                "    Purging a sibling because they're blocked " "by a boundary: %s",
+                "    Purging a sibling because they're blocked by a boundary: %s",
                 sibling,
             )
 
@@ -241,7 +241,7 @@ def _determine_aligned_inline_spacing(
 
     # Purge any siblings which are either on the same line or on another line and
     # have another index
-    siblings_by_line: Dict[int, List[BaseSegment]] = defaultdict(list)
+    siblings_by_line: dict[int, list[BaseSegment]] = defaultdict(list)
     for sibling in siblings:
         _pos = sibling.pos_marker
         assert _pos
@@ -320,7 +320,7 @@ def _determine_aligned_inline_spacing(
 
 def _extract_alignment_config(
     constraint: str,
-) -> Tuple[str, Optional[str], Optional[str]]:
+) -> tuple[str, Optional[str], Optional[str]]:
     """Helper function to break apart an alignment config.
 
     >>> _extract_alignment_config("align:alias_expression")
@@ -351,9 +351,9 @@ def handle_respace__inline_with_space(
     prev_block: Optional["ReflowBlock"],
     next_block: Optional["ReflowBlock"],
     root_segment: BaseSegment,
-    segment_buffer: List[RawSegment],
+    segment_buffer: list[RawSegment],
     last_whitespace: RawSegment,
-) -> Tuple[List[RawSegment], List[LintResult]]:
+) -> tuple[list[RawSegment], list[LintResult]]:
     """Check inline spacing is the right size.
 
     This forms one of the cases handled by .respace_point().
@@ -422,9 +422,7 @@ def handle_respace__inline_with_space(
                 reflow_logger.info("Unable to find position marker for alignment.")
                 next_pos = None
                 desired_space = " "
-                desc = (
-                    "Expected only single space. " "Found " f"{last_whitespace.raw!r}."
-                )
+                desc = f"Expected only single space. Found {last_whitespace.raw!r}."
 
             if next_pos:
                 desired_space = _determine_aligned_inline_spacing(
@@ -453,10 +451,10 @@ def handle_respace__inline_with_space(
             else:  # pragma: no cover
                 # This clause isn't has no test coverage because next_block is
                 # normally provided.
-                desc = "Expected only single space. Found " f"{last_whitespace.raw!r}."
+                desc = f"Expected only single space. Found {last_whitespace.raw!r}."
             desired_space = " "
 
-        new_results: List[LintResult] = []
+        new_results: list[LintResult] = []
 
         if last_whitespace.raw != desired_space:
             new_seg = last_whitespace.edit(desired_space)
@@ -487,10 +485,10 @@ def handle_respace__inline_without_space(
     post_constraint: str,
     prev_block: Optional["ReflowBlock"],
     next_block: Optional["ReflowBlock"],
-    segment_buffer: List[RawSegment],
-    existing_results: List[LintResult],
+    segment_buffer: list[RawSegment],
+    existing_results: list[LintResult],
     anchor_on: str = "before",
-) -> Tuple[List[RawSegment], List[LintResult], bool]:
+) -> tuple[list[RawSegment], list[LintResult], bool]:
     """Ensure spacing is the right size.
 
     This forms one of the cases handled by .respace_point().

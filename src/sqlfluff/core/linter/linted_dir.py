@@ -4,7 +4,8 @@ This stores the idea of a collection of linted files at a single start path
 
 """
 
-from typing import Dict, Iterable, List, Optional, Tuple, Type, TypedDict, Union
+from collections.abc import Iterable
+from typing import Optional, TypedDict, Union
 
 from sqlfluff.core.errors import (
     CheckTuple,
@@ -16,17 +17,16 @@ from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES, LintedFile
 from sqlfluff.core.parser.segments.base import BaseSegment
 
-LintingRecord = TypedDict(
-    "LintingRecord",
-    {
-        "filepath": str,
-        "violations": List[SerializedObject],
-        # Things like file length
-        "statistics": Dict[str, int],
-        # Raw timings, in seconds, for both rules and steps
-        "timings": Dict[str, float],
-    },
-)
+
+class LintingRecord(TypedDict):
+    """A class to store the linted file statistics."""
+
+    filepath: str
+    violations: list[SerializedObject]
+    # Things like file length
+    statistics: dict[str, int]
+    # Raw timings, in seconds, for both rules and steps
+    timings: dict[str, float]
 
 
 class LintedDir:
@@ -42,23 +42,23 @@ class LintedDir:
     """
 
     def __init__(self, path: str, retain_files: bool = True) -> None:
-        self.files: List[LintedFile] = []
+        self.files: list[LintedFile] = []
         self.path: str = path
         self.retain_files: bool = retain_files
         # Records
-        self._records: List[LintingRecord] = []
+        self._records: list[LintingRecord] = []
         # Stats
         self._num_files: int = 0
         self._num_clean: int = 0
         self._num_unclean: int = 0
         self._num_violations: int = 0
         self.num_unfiltered_tmp_prs_errors: int = 0
-        self._unfiltered_tmp_prs_errors_map: Dict[str, int] = {}
+        self._unfiltered_tmp_prs_errors_map: dict[str, int] = {}
         self.num_tmp_prs_errors: int = 0
         self.num_unfixable_lint_errors: int = 0
         # Timing
-        self.step_timings: List[Dict[str, float]] = []
-        self.rule_timings: List[Tuple[str, str, float]] = []
+        self.step_timings: list[dict[str, float]] = []
+        self.rule_timings: list[tuple[str, str, float]] = []
 
     def add(self, file: LintedFile) -> None:
         """Add a file to this path.
@@ -140,7 +140,7 @@ class LintedDir:
 
     def check_tuples(
         self, raise_on_non_linting_violations: bool = True
-    ) -> List[CheckTuple]:
+    ) -> list[CheckTuple]:
         """Compress all the tuples into one list.
 
         NB: This is a little crude, as you can't tell which
@@ -157,7 +157,7 @@ class LintedDir:
 
     def check_tuples_by_path(
         self, raise_on_non_linting_violations: bool = True
-    ) -> Dict[str, List[CheckTuple]]:
+    ) -> dict[str, list[CheckTuple]]:
         """Fetch all check_tuples from all contained `LintedDir` objects.
 
         Returns:
@@ -175,7 +175,7 @@ class LintedDir:
 
     def num_violations(
         self,
-        types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
+        types: Optional[Union[type[SQLBaseError], Iterable[type[SQLBaseError]]]] = None,
         fixable: Optional[bool] = None,
     ) -> int:
         """Count the number of violations in the path."""
@@ -184,12 +184,12 @@ class LintedDir:
         )
 
     def get_violations(
-        self, rules: Optional[Union[str, Tuple[str, ...]]] = None
-    ) -> List[SQLBaseError]:
+        self, rules: Optional[Union[str, tuple[str, ...]]] = None
+    ) -> list[SQLBaseError]:
         """Return a list of violations in the path."""
         return [v for file in self.files for v in file.get_violations(rules=rules)]
 
-    def as_records(self) -> List[LintingRecord]:
+    def as_records(self) -> list[LintingRecord]:
         """Return the result as a list of dictionaries.
 
         Each record contains a key specifying the filepath, and a list of violations.
@@ -198,7 +198,7 @@ class LintedDir:
         """
         return self._records
 
-    def stats(self) -> Dict[str, int]:
+    def stats(self) -> dict[str, int]:
         """Return a dict containing linting stats about this path."""
         return {
             "files": self._num_files,
@@ -211,14 +211,14 @@ class LintedDir:
         self,
         formatter: Optional[FormatterInterface] = None,
         fixed_file_suffix: str = "",
-    ) -> Dict[str, Union[bool, str]]:
+    ) -> dict[str, Union[bool, str]]:
         """Persist changes to files in the given path.
 
         This also logs the output as we go using the formatter if present.
         """
         assert self.retain_files, "cannot `persist_changes()` without `retain_files`"
         # Run all the fixes for all the files and return a dict
-        buffer: Dict[str, Union[bool, str]] = {}
+        buffer: dict[str, Union[bool, str]] = {}
         for file in self.files:
             buffer[file.path] = file.persist_tree(
                 suffix=fixed_file_suffix, formatter=formatter

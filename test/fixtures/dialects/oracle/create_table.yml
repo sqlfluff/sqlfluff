@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c5e9bc766712d02ab700df17b3bc93e54f7b06c6fad0462b9a87a9713eb30a8
+_hash: da6ee42f9933d5f09ad9c2c749bac9574d04873451b82b48689f7b171d20022f
 file:
 - statement:
     create_table_statement:
@@ -80,4 +80,49 @@ file:
           data_type:
             data_type_identifier: DATE
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+        start_bracket: (
+        column_definition:
+        - naked_identifier: id
+        - data_type:
+            data_type_identifier: NUMBER
+        - keyword: GENERATED
+        - keyword: AS
+        - keyword: IDENTITY
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t2
+    - bracketed:
+        start_bracket: (
+        column_definition:
+        - naked_identifier: id
+        - data_type:
+            data_type_identifier: NUMBER
+        - keyword: GENERATED
+        - keyword: BY
+        - keyword: DEFAULT
+        - keyword: AS
+        - keyword: IDENTITY
+        - bracketed:
+          - start_bracket: (
+          - keyword: START
+          - keyword: WITH
+          - numeric_literal: '100'
+          - keyword: INCREMENT
+          - keyword: BY
+          - numeric_literal: '10'
+          - end_bracket: )
+        end_bracket: )
 - statement_terminator: ;

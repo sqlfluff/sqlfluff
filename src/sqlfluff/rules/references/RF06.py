@@ -1,7 +1,7 @@
 """Implementation of Rule RF06."""
 
 from functools import cached_property
-from typing import TYPE_CHECKING, List, Optional, Type, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 import regex
 
@@ -147,7 +147,7 @@ class Rule_RF06(BaseRule):
     # Ignore "password_auth" type to allow quotes around passwords within
     # `CREATE USER` statements in Exasol dialect.
     # `EXECUTE AS` clauses in TSQL also require quotes.
-    _ignore_types: List[str] = ["password_auth", "execute_as_clause"]
+    _ignore_types: list[str] = ["password_auth", "execute_as_clause"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Unnecessary quoted identifier."""
@@ -232,7 +232,7 @@ class Rule_RF06(BaseRule):
         )
         anti_template = cast(str, naked_identifier_parser.anti_template)
         NakedIdentifierSegment = cast(
-            Type[CodeSegment], context.dialect.get_segment("IdentifierSegment")
+            type[CodeSegment], context.dialect.get_segment("IdentifierSegment")
         )
 
         # For this to be a candidate for unquoting, it must:
@@ -283,7 +283,7 @@ class Rule_RF06(BaseRule):
         )
 
     @cached_property
-    def ignore_words_list(self) -> List[str]:
+    def ignore_words_list(self) -> list[str]:
         """Words that the rule should ignore.
 
         Cached so that it's only evaluated on the first pass.

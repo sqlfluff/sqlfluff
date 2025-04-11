@@ -1,6 +1,6 @@
 """Implementation of Rule LT12."""
 
-from typing import List, Optional, Tuple, cast
+from typing import Optional, cast
 
 from sqlfluff.core.helpers.string import get_trailing_whitespace_from_string
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
@@ -10,7 +10,7 @@ from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.utils.functional import FunctionalContext, Segments, sp, tsp
 
 
-def get_trailing_newlines(segment: BaseSegment) -> List[BaseSegment]:
+def get_trailing_newlines(segment: BaseSegment) -> list[BaseSegment]:
     """Returns list of trailing newlines in the tree."""
     result = []
     for seg in segment.recursive_crawl_all(reverse=True):
@@ -21,9 +21,9 @@ def get_trailing_newlines(segment: BaseSegment) -> List[BaseSegment]:
     return result
 
 
-def get_last_segment(segment: Segments) -> Tuple[List[BaseSegment], Segments]:
+def get_last_segment(segment: Segments) -> tuple[list[BaseSegment], Segments]:
     """Returns rightmost & lowest descendant and its "parent stack"."""
-    parent_stack: List[BaseSegment] = []
+    parent_stack: list[BaseSegment] = []
     while True:
         children = segment.children()
         if children:

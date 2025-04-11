@@ -432,6 +432,12 @@ class DatatypeSegment(BaseSegment):
             Ref("BracketedArguments", optional=True),
         ),
         "ANYELEMENT",
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DotSegment"),
+            Ref("DatatypeIdentifierSegment"),
+            allow_gaps=False,
+        ),
     )
 
 

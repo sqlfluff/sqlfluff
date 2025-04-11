@@ -1,17 +1,17 @@
 """Base implementation for the plugin."""
 
-from typing import Any, Dict, List, Type
+from typing import Any
 
 from sqlfluff.core.config import load_config_resource
 from sqlfluff.core.plugin import hookimpl
-from sqlfluff.core.rules import BaseRule
+from sqlfluff.core.rules import BaseRule, ConfigInfo
 from sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
 from sqlfluff.core.rules.loader import get_rules_from_path
 from sqlfluff.core.templaters import RawTemplater, core_templaters
 
 
 @hookimpl
-def get_rules() -> List[Type[BaseRule]]:
+def get_rules() -> list[type[BaseRule]]:
     """Get plugin rules.
 
     NOTE: All standard rules will eventually be loaded as
@@ -22,14 +22,14 @@ def get_rules() -> List[Type[BaseRule]]:
 
 
 @hookimpl
-def get_templaters() -> List[Type[RawTemplater]]:
+def get_templaters() -> list[type[RawTemplater]]:
     """Get templaters."""
     templaters = list(t for t in core_templaters())
     return templaters
 
 
 @hookimpl
-def load_default_config() -> Dict[str, Any]:
+def load_default_config() -> dict[str, Any]:
     """Loads the default configuration for the plugin."""
     return load_config_resource(
         package="sqlfluff.core",
@@ -38,6 +38,6 @@ def load_default_config() -> Dict[str, Any]:
 
 
 @hookimpl
-def get_configs_info() -> Dict[str, Any]:
+def get_configs_info() -> dict[str, ConfigInfo]:
     """Get rule config validations and descriptions."""
     return STANDARD_CONFIG_INFO_DICT
