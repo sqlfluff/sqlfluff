@@ -80,3 +80,38 @@ ALTER TABLE table_with_ttl MODIFY COLUMN column_ttl REMOVE TTL;
 ALTER TABLE table_with_ttl REMOVE TTL;
 ALTER TABLE table_with_ttl ON CLUSTER '{cluster}' REMOVE TTL;
 ALTER TABLE table_name ON CLUSTER '{cluster}' MODIFY TTL event_time + INTERVAL 3 MONTH;
+
+-- ALIAS examples
+ALTER TABLE x ADD COLUMN y Int32 ALIAS z + 10;
+ALTER TABLE x ON CLUSTER '{cluster}' ADD COLUMN IF NOT EXISTS y Float32 ALIAS z * 100;
+ALTER TABLE x MODIFY COLUMN y ALIAS z/10;
+ALTER TABLE x ON CLUSTER '{cluster}' MODIFY COLUMN y REMOVE ALIAS;
+
+-- Basic ALTER TABLE MODIFY QUERY examples
+ALTER TABLE mv MODIFY QUERY SELECT * FROM source_table;
+ALTER TABLE mv MODIFY QUERY SELECT id, name, value FROM source_table WHERE value > 0;
+
+-- With ON CLUSTER clause
+ALTER TABLE mv ON CLUSTER cluster1 MODIFY QUERY SELECT * FROM source_table;
+ALTER TABLE mv ON CLUSTER '{cluster}' MODIFY QUERY SELECT id, name, value FROM source_table WHERE value > 0;
+
+-- With complex SELECT queries
+ALTER TABLE mv MODIFY QUERY
+  SELECT
+    id,
+    name,
+    sum(value) AS total_value
+  FROM source_table
+  GROUP BY id, name
+  HAVING total_value > 100
+  ORDER BY total_value DESC
+  LIMIT 10;
+
+ALTER TABLE mv MODIFY QUERY
+  SELECT
+    t1.id,
+    t1.name,
+    t2.value
+  FROM table1 AS t1
+  JOIN table2 AS t2 ON t1.id = t2.id
+  WHERE t1.active = 1;

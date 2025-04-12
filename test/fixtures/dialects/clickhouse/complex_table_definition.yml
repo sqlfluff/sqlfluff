@@ -1,0 +1,695 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5f17ac6287097aa73c1c8827b2104869d2f67d1a7ba0fb63abf4e61982bf3c68
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_name
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          quoted_identifier: '`id`'
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`timestamp`'
+          data_type:
+            data_type_identifier: DateTime64
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              comma: ','
+              quoted_literal: "'UTC'"
+              end_bracket: )
+          keyword: CODEC
+          bracketed:
+            start_bracket: (
+            function:
+              function_name:
+                function_name_identifier: Delta
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '8'
+                  end_bracket: )
+            comma: ','
+            naked_identifier: LZ4
+            end_bracket: )
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`value_raw`'
+          data_type:
+            data_type_identifier: Float32
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`category`'
+          data_type:
+            data_type_identifier: LowCardinality
+            bracketed:
+              start_bracket: (
+              data_type:
+                data_type_identifier: String
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`status`'
+          data_type:
+            data_type_identifier: Enum8
+            bracketed:
+            - start_bracket: (
+            - quoted_literal: "'ACTIVE'"
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1'
+            - comma: ','
+            - quoted_literal: "'INACTIVE'"
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '2'
+            - comma: ','
+            - quoted_literal: "'PENDING'"
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '3'
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`description`'
+          data_type:
+            data_type_identifier: Nullable
+            bracketed:
+              start_bracket: (
+              data_type:
+                data_type_identifier: String
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`tags`'
+          data_type:
+            data_type_identifier: Array
+            bracketed:
+              start_bracket: (
+              data_type:
+                data_type_identifier: String
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`value_calculated`'
+          data_type:
+            data_type_identifier: Float32
+          keyword: ALIAS
+          expression:
+            column_reference:
+              naked_identifier: value_raw
+            binary_operator: /
+            bracketed:
+              start_bracket: (
+              expression:
+              - numeric_literal: '3600'
+              - binary_operator: /
+              - numeric_literal: '30'
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`flag_active`'
+          data_type:
+            data_type_identifier: Int8
+          keyword: ALIAS
+          expression:
+            function:
+              function_name:
+                function_name_identifier: if
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: status
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    quoted_literal: "'ACTIVE'"
+                - comma: ','
+                - expression:
+                    numeric_literal: '1'
+                - comma: ','
+                - expression:
+                    numeric_literal: '0'
+                - end_bracket: )
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`value_with_dict`'
+          data_type:
+            data_type_identifier: Float32
+          keyword: ALIAS
+          expression:
+            column_reference:
+              naked_identifier: value_raw
+            binary_operator: '*'
+            function:
+              function_name:
+                function_name_identifier: dictGetOrDefault
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'dictionary.lookup'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'key'"
+                - comma: ','
+                - expression:
+                    bracketed:
+                      start_bracket: (
+                      column_reference:
+                        naked_identifier: category
+                      comma: ','
+                      quoted_literal: "'CATEGORY'"
+                      end_bracket: )
+                - comma: ','
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: toDateTime
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: timestamp
+                          end_bracket: )
+                - comma: ','
+                - expression:
+                    numeric_literal: '0.'
+                - end_bracket: )
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`description_is_null`'
+          data_type:
+            data_type_identifier: UInt8
+          keyword: MATERIALIZED
+          expression:
+            column_reference:
+              naked_identifier: description
+            keyword: IS
+            null_literal: 'NULL'
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`coordinates`'
+          data_type:
+            data_type_identifier: Tuple
+            bracketed:
+            - start_bracket: (
+            - data_type:
+                data_type_identifier: Float64
+            - comma: ','
+            - data_type:
+                data_type_identifier: Float64
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`named_point`'
+          data_type:
+            data_type_identifier: Tuple
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: x
+            - data_type:
+                data_type_identifier: Float64
+            - comma: ','
+            - naked_identifier: y
+            - data_type:
+                data_type_identifier: Float64
+            - comma: ','
+            - naked_identifier: z
+            - data_type:
+                data_type_identifier: Float64
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`properties`'
+          data_type:
+            data_type_identifier: Map
+            bracketed:
+            - start_bracket: (
+            - data_type:
+                data_type_identifier: String
+            - comma: ','
+            - data_type:
+                data_type_identifier: String
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`json_data`'
+          data_type:
+            data_type_identifier: JSON
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`nested_data`'
+          data_type:
+            data_type_identifier: Nested
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: key
+            - data_type:
+                data_type_identifier: String
+            - comma: ','
+            - naked_identifier: value
+            - data_type:
+                data_type_identifier: Float64
+            - comma: ','
+            - naked_identifier: timestamp
+            - data_type:
+                data_type_identifier: DateTime
+            - end_bracket: )
+      - end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
+        settings_clause:
+          keyword: SETTINGS
+          naked_identifier: index_granularity
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '8192'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: ADD
+    - keyword: COLUMN
+    - quoted_identifier: '`new_column`'
+    - data_type:
+        data_type_identifier: Float32
+    - keyword: CODEC
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: Delta
+      - comma: ','
+      - naked_identifier: LZ4
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: ADD
+    - keyword: COLUMN
+    - quoted_identifier: '`new_alias_column`'
+    - data_type:
+        data_type_identifier: Float32
+    - keyword: ALIAS
+    - expression:
+        column_reference:
+          naked_identifier: value_raw
+        binary_operator: '*'
+        numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: ADD
+    - keyword: COLUMN
+    - quoted_identifier: '`new_materialized_column`'
+    - data_type:
+        data_type_identifier: Float32
+    - keyword: MATERIALIZED
+    - expression:
+        column_reference:
+          naked_identifier: value_raw
+        binary_operator: '*'
+        numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: ADD
+    - keyword: COLUMN
+    - quoted_identifier: '`new_default_column`'
+    - data_type:
+        data_type_identifier: Float32
+    - keyword: DEFAULT
+    - expression:
+        numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: ADD
+    - keyword: COLUMN
+    - quoted_identifier: '`new_enum_column`'
+    - data_type:
+        data_type_identifier: Enum8
+        bracketed:
+        - start_bracket: (
+        - quoted_literal: "'VALUE1'"
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '1'
+        - comma: ','
+        - quoted_literal: "'VALUE2'"
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '2'
+        - comma: ','
+        - quoted_literal: "'VALUE3'"
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '3'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: ADD
+    - keyword: COLUMN
+    - quoted_identifier: '`new_lowcard_column`'
+    - data_type:
+        data_type_identifier: LowCardinality
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: String
+          end_bracket: )
+    - keyword: DEFAULT
+    - expression:
+        quoted_literal: "'DEFAULT_VALUE'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: ADD
+    - keyword: COLUMN
+    - quoted_identifier: '`new_datetime_column`'
+    - data_type:
+        data_type_identifier: DateTime64
+        bracketed:
+          start_bracket: (
+          numeric_literal: '3'
+          comma: ','
+          quoted_literal: "'UTC'"
+          end_bracket: )
+    - keyword: CODEC
+    - bracketed:
+        start_bracket: (
+        function:
+          function_name:
+            function_name_identifier: Delta
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '8'
+              end_bracket: )
+        comma: ','
+        naked_identifier: LZ4
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: ADD
+    - keyword: COLUMN
+    - quoted_identifier: '`new_nullable_column`'
+    - data_type:
+        data_type_identifier: Nullable
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: Float32
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: ADD
+    - keyword: COLUMN
+    - quoted_identifier: '`new_json_column`'
+    - data_type:
+        data_type_identifier: JSON
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - quoted_identifier: '`value_raw`'
+    - data_type:
+        data_type_identifier: Float64
+    - keyword: CODEC
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: Delta
+      - comma: ','
+      - naked_identifier: LZ4
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - quoted_identifier: '`value_calculated`'
+    - data_type:
+        data_type_identifier: Float64
+    - keyword: ALIAS
+    - expression:
+        column_reference:
+          naked_identifier: value_raw
+        binary_operator: /
+        bracketed:
+          start_bracket: (
+          expression:
+          - numeric_literal: '3600'
+          - binary_operator: /
+          - numeric_literal: '30'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - quoted_identifier: '`flag_active`'
+    - data_type:
+        data_type_identifier: Int8
+    - keyword: MATERIALIZED
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: if
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  naked_identifier: status
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'ACTIVE'"
+            - comma: ','
+            - expression:
+                numeric_literal: '1'
+            - comma: ','
+            - expression:
+                numeric_literal: '0'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - quoted_identifier: '`category`'
+    - data_type:
+        data_type_identifier: LowCardinality
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: String
+          end_bracket: )
+    - keyword: DEFAULT
+    - expression:
+        quoted_literal: "'UNKNOWN_CATEGORY'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - quoted_identifier: '`value_with_dict`'
+    - keyword: REMOVE
+    - keyword: ALIAS
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: DROP
+    - keyword: COLUMN
+    - quoted_identifier: '`new_column`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: RENAME
+    - keyword: COLUMN
+    - quoted_identifier: '`new_column`'
+    - keyword: TO
+    - quoted_identifier: '`new_column_renamed`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: ADD
+    - keyword: COLUMN
+    - quoted_identifier: '`complex_alias`'
+    - data_type:
+        data_type_identifier: Float32
+    - keyword: ALIAS
+    - expression:
+        column_reference:
+          naked_identifier: value_raw
+        binary_operator: '*'
+        function:
+          function_name:
+            function_name_identifier: dictGetOrDefault
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                quoted_literal: "'dictionary.lookup'"
+            - comma: ','
+            - expression:
+                quoted_literal: "'price'"
+            - comma: ','
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  column_reference:
+                    naked_identifier: category
+                  comma: ','
+                  quoted_literal: "'RESOURCE_TYPE'"
+                  end_bracket: )
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: toDateTime
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: timestamp
+                      end_bracket: )
+            - comma: ','
+            - expression:
+                numeric_literal: '0.'
+            - end_bracket: )
+- statement_terminator: ;
