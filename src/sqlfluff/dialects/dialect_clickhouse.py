@@ -1313,10 +1313,30 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
             Sequence(
                 "TO",
                 Ref("TableReferenceSegment"),
+                # Add support for column list in TO clause
+                Bracketed(
+                    Delimited(
+                        Ref("SingleIdentifierGrammar"),
+                    ),
+                    optional=True,
+                ),
                 Ref("TableEngineSegment", optional=True),
             ),
             Sequence(
                 Ref("TableEngineSegment", optional=True),
+                # Add support for PARTITION BY clause
+                Sequence(
+                    "PARTITION",
+                    "BY",
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+                # Add support for ORDER BY clause
+                Ref("MergeTreesOrderByClauseSegment", optional=True),
+                # Add support for TTL clause
+                Ref("TableTTLSegment", optional=True),
+                # Add support for SETTINGS clause
+                Ref("SettingsClauseSegment", optional=True),
                 Sequence("POPULATE", optional=True),
             ),
         ),
