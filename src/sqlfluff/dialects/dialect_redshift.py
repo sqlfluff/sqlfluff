@@ -812,7 +812,7 @@ class CreateTableStatementSegment(BaseSegment):
         Bracketed(
             Delimited(
                 # Columns and comment syntax:
-                AnyNumberOf(
+                OneOf(
                     Sequence(
                         Ref("ColumnReferenceSegment"),
                         Ref("DatatypeSegment"),
