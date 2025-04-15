@@ -1266,9 +1266,11 @@ class ReplaceClauseSegment(BaseSegment):
         "REPLACE",
         Bracketed(
             Delimited(
-                # Not *really* a select target element. It behaves exactly
-                # the same way however.
-                Ref("SelectClauseElementSegment"),
+                Sequence(
+                    Ref("BaseExpressionElementGrammar"),
+                    "AS",
+                    Ref("SingleIdentifierGrammar"),
+                )
             )
         ),
     )
