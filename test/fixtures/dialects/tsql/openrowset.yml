@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 85e6ba7c26e6d76db153fcfdb0de246904129a19d56a6b82546e61d46e67c348
+_hash: 705d4b95efafed60cf7ce05e9a5968eb96d683e0d772e32d9ecd633cfc19d2e7
 file:
 - batch:
     statement:
@@ -313,48 +313,40 @@ file:
                     keyword: WITH
                     bracketed:
                     - start_bracket: (
-                    - column_definition:
-                        quoted_identifier: '[country_code]'
-                        data_type:
-                          data_type_identifier: VARCHAR
-                          bracketed_arguments:
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                numeric_literal: '5'
-                              end_bracket: )
-                        column_constraint_segment:
-                          keyword: COLLATE
-                          collation_reference:
-                            naked_identifier: Latin1_General_BIN2
+                    - quoted_identifier: '[country_code]'
+                    - data_type:
+                        data_type_identifier: VARCHAR
+                        bracketed_arguments:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              numeric_literal: '5'
+                            end_bracket: )
+                    - keyword: COLLATE
+                    - collation_reference:
+                        naked_identifier: Latin1_General_BIN2
                     - comma: ','
-                    - column_definition:
-                      - quoted_identifier: '[country_name]'
-                      - data_type:
-                          data_type_identifier: VARCHAR
-                          bracketed_arguments:
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                numeric_literal: '100'
-                              end_bracket: )
-                      - column_constraint_segment:
-                          keyword: COLLATE
-                          collation_reference:
-                            naked_identifier: Latin1_General_BIN2
-                      - column_constraint_segment:
-                          on_partition_or_filegroup_statement:
-                            numeric_literal: '2'
+                    - quoted_identifier: '[country_name]'
+                    - data_type:
+                        data_type_identifier: VARCHAR
+                        bracketed_arguments:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              numeric_literal: '100'
+                            end_bracket: )
+                    - keyword: COLLATE
+                    - collation_reference:
+                        naked_identifier: Latin1_General_BIN2
+                    - numeric_literal: '2'
                     - comma: ','
-                    - column_definition:
-                        quoted_identifier: '[year]'
-                        data_type:
-                          data_type_identifier: smallint
+                    - quoted_identifier: '[year]'
+                    - data_type:
+                        data_type_identifier: smallint
                     - comma: ','
-                    - column_definition:
-                        quoted_identifier: '[population]'
-                        data_type:
-                          data_type_identifier: bigint
+                    - quoted_identifier: '[population]'
+                    - data_type:
+                        data_type_identifier: bigint
                     - end_bracket: )
               alias_expression:
                 keyword: as
@@ -395,63 +387,52 @@ file:
                     keyword: WITH
                     bracketed:
                     - start_bracket: (
-                    - column_definition:
-                        quoted_identifier: '[stateName]'
-                        data_type:
-                          data_type_identifier: VARCHAR
-                          bracketed_arguments:
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                numeric_literal: '50'
-                              end_bracket: )
+                    - quoted_identifier: '[stateName]'
+                    - data_type:
+                        data_type_identifier: VARCHAR
+                        bracketed_arguments:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              numeric_literal: '50'
+                            end_bracket: )
                     - comma: ','
-                    - column_definition:
-                        quoted_identifier: '[stateName_explicit_path]'
-                        data_type:
-                          data_type_identifier: VARCHAR
-                          bracketed_arguments:
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                numeric_literal: '50'
-                              end_bracket: )
-                        column_constraint_segment:
-                          on_partition_or_filegroup_statement:
-                            quoted_literal: "'$.stateName'"
+                    - quoted_identifier: '[stateName_explicit_path]'
+                    - data_type:
+                        data_type_identifier: VARCHAR
+                        bracketed_arguments:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              numeric_literal: '50'
+                            end_bracket: )
+                    - quoted_literal: "'$.stateName'"
                     - comma: ','
-                    - column_definition:
-                        quoted_identifier: '[COUNTYNAME]'
-                        data_type:
-                          data_type_identifier: VARCHAR
-                          bracketed_arguments:
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                numeric_literal: '50'
-                              end_bracket: )
+                    - quoted_identifier: '[COUNTYNAME]'
+                    - data_type:
+                        data_type_identifier: VARCHAR
+                        bracketed_arguments:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              numeric_literal: '50'
+                            end_bracket: )
                     - comma: ','
-                    - column_definition:
-                        quoted_identifier: '[countyName_explicit_path]'
-                        data_type:
-                          data_type_identifier: VARCHAR
-                          bracketed_arguments:
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                numeric_literal: '50'
-                              end_bracket: )
-                        column_constraint_segment:
-                          on_partition_or_filegroup_statement:
-                            quoted_literal: "'$.COUNTYNAME'"
+                    - quoted_identifier: '[countyName_explicit_path]'
+                    - data_type:
+                        data_type_identifier: VARCHAR
+                        bracketed_arguments:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              numeric_literal: '50'
+                            end_bracket: )
+                    - quoted_literal: "'$.COUNTYNAME'"
                     - comma: ','
-                    - column_definition:
-                        quoted_identifier: '[population]'
-                        data_type:
-                          data_type_identifier: bigint
-                        column_constraint_segment:
-                          on_partition_or_filegroup_statement:
-                            quoted_literal: "'strict $.population'"
+                    - quoted_identifier: '[population]'
+                    - data_type:
+                        data_type_identifier: bigint
+                    - quoted_literal: "'strict $.population'"
                     - end_bracket: )
               alias_expression:
                 keyword: AS

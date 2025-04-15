@@ -4164,7 +4164,7 @@ class OpenRowSetSegment(BaseSegment):
 
 
 class OpenRowSetWithClauseSegment(BaseSegment):
-    """A `WITH` clause of an `OPENROWSET()` table-valued function.
+    """A `WITH` clause of an `OPENROWSET()` segment.
 
     https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/develop-openrowset#syntax
     """
@@ -4176,11 +4176,13 @@ class OpenRowSetWithClauseSegment(BaseSegment):
         Bracketed(
             Delimited(
                 Sequence(
-                    Ref("ColumnDefinitionSegment"),
+                    Ref("SingleIdentifierGrammar"),  # Column name
+                    Ref("DatatypeSegment"),  # Column type
+                    Bracketed(Ref("NumericLiteralSegment"), optional=True),
                     Ref("CollateGrammar", optional=True),
                     OneOf(
-                        RegexParser(r"[0-9]+", CodeSegment, type="column_ordinal"),
-                        Ref("QuotedIdentifierSegment"),  # json path
+                        Ref("NumericLiteralSegment"),  # Column ordinal
+                        Ref("QuotedLiteralSegment"),  # JSON path
                         optional=True,
                     ),
                 )
