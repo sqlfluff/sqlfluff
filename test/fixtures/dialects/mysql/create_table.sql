@@ -4,6 +4,24 @@ CREATE TABLE `foo` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE `foo` (
+  b VARCHAR(255) BINARY,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=`utf8mb4` COLLATE=`utf8mb4_unicode_ci`;
+
+CREATE TABLE `foo` (
+  b VARCHAR(255) BINARY,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET='utf8mb4' COLLATE='utf8mb4_unicode_ci';
+
+CREATE TABLE `foo` (
+  b VARCHAR(255) BINARY,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET="utf8mb4" COLLATE="utf8mb4_unicode_ci";
+
 create table `tickets` (
     `id` serial primary key,
     `material_number` varchar(255) default null,
@@ -38,3 +56,13 @@ CREATE TABLE geom (
     p POINT SRID 0,
     g GEOMETRY NOT NULL SRID 4326
 );
+
+CREATE TABLE my_table (num INT(5) SIGNED);
+
+CREATE TABLE my_table (num INT(5) UNSIGNED);
+
+CREATE TABLE my_table (num INT(5) ZEROFILL);
+
+CREATE TABLE my_table (num INT(5) UNSIGNED ZEROFILL);
+
+CREATE TABLE my_table (num INT(5) ZEROFILL UNSIGNED);

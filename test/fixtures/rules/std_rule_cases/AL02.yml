@@ -129,3 +129,14 @@ test_fail_alias_expression_oracle_columns:
   configs:
     core:
       dialect: oracle
+
+test_pass_bigquery_replace_clause_implicit:
+  pass_str: |
+    select * replace (concat(name, "_new") AS name_test)
+    FROM my_db.test;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      aliasing.column:
+        aliasing: implicit

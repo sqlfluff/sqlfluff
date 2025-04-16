@@ -160,3 +160,5 @@ create table public.t2
     c3 int,
     foreign key (c1, c2) references public.t1 (c1, c2)
 );
+
+create table test(col1 varchar(max));

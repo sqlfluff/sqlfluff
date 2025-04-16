@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2a465267004fcca4f200dfc991e9fb4af258ac367b6a44c8ac9e876d4aa7e26b
+_hash: c8a7fe8dcb085ff2a0982fc0527700dea9ff1de40aa673913850f24a32248caa
 file:
 - statement:
     alter_table_statement:
@@ -716,6 +716,57 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: CONVERT
+    - keyword: TO
+    - alter_option_segment:
+      - keyword: CHARACTER
+      - keyword: SET
+      - quoted_identifier: '`utf8mb4`'
+    - alter_option_segment:
+        keyword: COLLATE
+        collation_reference:
+          quoted_identifier: '`utf8mb4_unicode_ci`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: CONVERT
+    - keyword: TO
+    - alter_option_segment:
+      - keyword: CHARACTER
+      - keyword: SET
+      - quoted_identifier: "'utf8mb4'"
+    - alter_option_segment:
+        keyword: COLLATE
+        collation_reference:
+          quoted_literal: "'utf8mb4_unicode_ci'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: CONVERT
+    - keyword: TO
+    - alter_option_segment:
+      - keyword: CHARACTER
+      - keyword: SET
+      - quoted_identifier: '"utf8mb4"'
+    - alter_option_segment:
+        keyword: COLLATE
+        collation_reference:
+          quoted_literal: '"utf8mb4_unicode_ci"'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
         naked_identifier: CUST
     - keyword: TRUNCATE
     - keyword: PARTITION
@@ -739,4 +790,86 @@ file:
       - column_constraint_segment:
           keyword: SRID
           numeric_literal: '4326'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: MODIFY
+    - column_definition:
+        naked_identifier: num
+        data_type:
+          data_type_identifier: INT
+          keyword: SIGNED
+        column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: MODIFY
+    - column_definition:
+        naked_identifier: num
+        data_type:
+          data_type_identifier: INT
+          keyword: UNSIGNED
+        column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: MODIFY
+    - column_definition:
+        naked_identifier: num
+        data_type:
+          data_type_identifier: INT
+          keyword: ZEROFILL
+        column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: MODIFY
+    - column_definition:
+        naked_identifier: num
+        data_type:
+        - data_type_identifier: INT
+        - keyword: UNSIGNED
+        - keyword: ZEROFILL
+        column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: MODIFY
+    - column_definition:
+        naked_identifier: num
+        data_type:
+        - data_type_identifier: INT
+        - keyword: ZEROFILL
+        - keyword: UNSIGNED
+        column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
 - statement_terminator: ;

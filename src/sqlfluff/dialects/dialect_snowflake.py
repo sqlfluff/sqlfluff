@@ -78,7 +78,7 @@ snowflake_dialect.insert_lexer_matchers(
     [
         # Keyword assigner needed for keyword functions.
         StringLexer("parameter_assigner", "=>", CodeSegment),
-        StringLexer("function_assigner", "->", CodeSegment),
+        StringLexer("right_arrow", "->", CodeSegment),
         RegexLexer("stage_path", r"(?:@[^\s;)]+|'@[^']+')", CodeSegment),
         # Column selector
         # https://docs.snowflake.com/en/sql-reference/sql/select.html#parameters
@@ -222,6 +222,7 @@ snowflake_dialect.add(
     ParameterAssignerSegment=StringParser(
         "=>", SymbolSegment, type="parameter_assigner"
     ),
+    LambdaArrowSegment=StringParser("->", SymbolSegment, type="lambda_arrow"),
     FunctionAssignerSegment=StringParser("->", SymbolSegment, type="function_assigner"),
     # Walrus operator for Snowflake scripting block statements
     WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
@@ -1080,11 +1081,7 @@ class CreateExternalVolumeStatementSegment(BaseSegment):
             Sequence(
                 "ALLOW_WRITES", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
             ),
-            Sequence(
-                "COMMENT",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-            ),
+            Ref("CommentEqualsClauseSegment"),
             optional=True,
         ),
     )
@@ -1173,9 +1170,7 @@ class AlterExternalVolumeStatementSegment(BaseSegment):
             ),
             Sequence(
                 "SET",
-                "COMMENT",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
+                Ref("CommentEqualsClauseSegment"),
             ),
         ),
     )
@@ -2617,9 +2612,7 @@ class AlterStorageIntegrationSegment(BaseSegment):
                 OneOf(
                     Ref("TagEqualsSegment", optional=True),
                     AnySetOf(
-                        Sequence(
-                            "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
-                        ),
+                        Ref("CommentEqualsClauseSegment"),
                         Sequence(
                             "ENABLED",
                             Ref("EqualsSegment"),
@@ -2979,6 +2972,8 @@ class AccessStatementSegment(BaseSegment):
         "STREAMLIT",
         "TASK",
         "PIPE",
+        "NOTEBOOK",
+        "MODEL",
     ]
 
     _schema_object_types = OneOf(
@@ -3452,11 +3447,7 @@ class AlterNetworkPolicyStatementSegment(BaseSegment):
                         Ref("EqualsSegment"),
                         Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
                     ),
-                    Sequence(
-                        "COMMENT",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
+                    Ref("CommentEqualsClauseSegment"),
                 ),
             ),
             Sequence(
@@ -4332,9 +4323,7 @@ class AlterRoleStatementSegment(BaseSegment):
                 OneOf(
                     Ref("RoleReferenceSegment"),
                     Ref("TagEqualsSegment"),
-                    Sequence(
-                        "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
-                    ),
+                    Ref("CommentEqualsClauseSegment"),
                 ),
             ),
             Sequence(
@@ -4634,12 +4623,7 @@ class DynamicTableOptionsSegment(BaseSegment):
                 Ref("NumericLiteralSegment"),
                 optional=True,
             ),
-            Sequence(
-                "COMMENT",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-                optional=True,
-            ),
+            Ref("CommentEqualsClauseSegment", optional=True),
             Sequence(
                 Ref.keyword("WITH", optional=True),
                 "ROW",
@@ -4675,6 +4659,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Ref("AlterOrReplaceGrammar", optional=True),
         Ref("TemporaryTransientGrammar", optional=True),
         Ref.keyword("DYNAMIC", optional=True),
+        Ref.keyword("HYBRID", optional=True),
         Ref.keyword("ICEBERG", optional=True),
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
@@ -4998,11 +4983,7 @@ class CreateStatementSegment(BaseSegment):
                 "OUTBOUND",
                 optional=True,
             ),
-            Sequence(
-                "COMMENT",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-            ),
+            Ref("CommentEqualsClauseSegment"),
             # For tags
             Sequence(
                 "ALLOWED_VALUES",
@@ -5087,11 +5068,7 @@ class CreateStatementSegment(BaseSegment):
                     )
                 ),
             ),
-            Sequence(
-                "COMMENT",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-            ),
+            Ref("CommentEqualsClauseSegment"),
         ),
         # Next set are Pipe statements
         # https://docs.snowflake.com/en/sql-reference/sql/create-pipe.html
@@ -5147,10 +5124,8 @@ class CreateStatementSegment(BaseSegment):
                 Ref("DatatypeSegment"),
                 Ref("FunctionAssignerSegment"),
                 Ref("ExpressionSegment"),
-                Sequence(
-                    "COMMENT",
-                    Ref("EqualsSegment"),
-                    Ref("QuotedLiteralSegment"),
+                Ref(
+                    "CommentEqualsClauseSegment",
                     optional=True,
                 ),
                 optional=True,
@@ -5397,11 +5372,7 @@ class AlterViewStatementSegment(BaseSegment):
                 "TO",
                 Ref("TableReferenceSegment"),
             ),
-            Sequence(
-                "COMMENT",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-            ),
+            Ref("CommentEqualsClauseSegment"),
             Sequence(
                 "UNSET",
                 "COMMENT",
@@ -5933,6 +5904,11 @@ class AlterPipeSegment(BaseSegment):
                         "PIPE_EXECUTION_PAUSED",
                         Ref("EqualsSegment"),
                         Ref("BooleanLiteralGrammar"),
+                    ),
+                    Sequence(
+                        "ERROR_INTEGRATION",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
                     ),
                     Ref("CommentEqualsClauseSegment"),
                 ),
@@ -7491,10 +7467,8 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
         "ROLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("RoleReferenceSegment"),
-        Sequence(
-            "COMMENT",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+        Ref(
+            "CommentEqualsClauseSegment",
             optional=True,
         ),
     )
@@ -7520,10 +7494,8 @@ class CreateDatabaseRoleStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("DatabaseRoleReferenceSegment"),
-        Sequence(
-            "COMMENT",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+        Ref(
+            "CommentEqualsClauseSegment",
             optional=True,
         ),
     )
@@ -9043,23 +9015,23 @@ class LambdaExpressionSegment(BaseSegment):
     https://docs.snowflake.com/en/user-guide/querying-semistructured#lambda-expressions
     """
 
-    type = "lambda_expression"
+    type = "lambda_function"
     match_grammar = Sequence(
         OneOf(
             Sequence(
-                Ref("NakedIdentifierSegment"),
+                Ref("ParameterNameSegment"),
                 Ref("DatatypeSegment", optional=True),
             ),
             Bracketed(
                 Delimited(
                     Sequence(
-                        Ref("NakedIdentifierSegment"),
+                        Ref("ParameterNameSegment"),
                         Ref("DatatypeSegment", optional=True),
                     )
                 )
             ),
         ),
-        Ref("FunctionAssignerSegment"),
+        Ref("LambdaArrowSegment"),
         Ref("ExpressionSegment"),
     )
 
@@ -9119,7 +9091,7 @@ class PasswordPolicyOptionsSegment(BaseSegment):
         Sequence(
             "PASSWORD_HISTORY", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
         ),
-        Sequence("COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+        Ref("CommentEqualsClauseSegment"),
     )
 
 
@@ -9228,10 +9200,8 @@ class CreateRowAccessPolicyStatementSegment(BaseSegment):
         "BOOLEAN",
         Ref("FunctionAssignerSegment"),
         Ref("ExpressionSegment"),
-        Sequence(
-            "COMMENT",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+        Ref(
+            "CommentEqualsClauseSegment",
             optional=True,
         ),
     )
@@ -9303,9 +9273,7 @@ class AlterTagStatementSegment(BaseSegment):
             ),
             Sequence(
                 "SET",
-                "COMMENT",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
+                Ref("CommentEqualsClauseSegment"),
             ),
             Sequence("UNSET", "COMMENT"),
             Sequence(
@@ -9457,10 +9425,8 @@ class CreateAuthenticationPolicySegment(BaseSegment):
             ),
             optional=True,
         ),
-        Sequence(
-            "COMMENT",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+        Ref(
+            "CommentEqualsClauseSegment",
             optional=True,
         ),
     )

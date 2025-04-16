@@ -115,6 +115,21 @@ test_pass_databricks_lambdas:
     core:
       dialect: databricks
 
+test_allow_unqualified_references_in_snowflake_lambdas:
+  pass_str: |
+    select
+        t.v,
+        o.v,
+        transform(t.arr1, x int -> x + 1) as f1,
+        filter(t.arr2, y -> y:value > 0) as f2,
+        reduce(o.arr, 0, (acc, val) -> acc + val) as f3
+    from some_table as t
+    inner join some_other_table as o
+        on t.id = o.id;
+  configs:
+    core:
+      dialect: snowflake
+
 test_allow_unqualified_references_in_athena_lambdas:
   pass_str: |
     select
@@ -366,12 +381,11 @@ test_pass_ignore_words_regex_column_name:
         ignore_words_regex: ^_
 
 test_pass_ignore_words_regex_bigquery_declare_example:
-  pass_str:
-    DECLARE _test INT64 DEFAULT 42;
+  pass_str: DECLARE _test INT64 DEFAULT 42;
     SELECT _test
     FROM t_table1
     LEFT JOIN t_table_2
-        ON TRUE
+    ON TRUE
   configs:
     core:
       dialect: bigquery
@@ -381,8 +395,7 @@ test_pass_ignore_words_regex_bigquery_declare_example:
 
 test_pass_redshift:
   # This was failing in issue 3380.
-  pass_str:
-    SELECT account.id
+  pass_str: SELECT account.id
     FROM salesforce_sd.account
     INNER JOIN salesforce_sd."user" ON salesforce_sd."user".id = account.ownerid
   configs:
@@ -391,23 +404,22 @@ test_pass_redshift:
 
 test_pass_tsql:
   # This was failing in issue 3342.
-  pass_str:
-    select
-        psc.col1
+  pass_str: select
+    psc.col1
     from
-        tbl1 as psc
+    tbl1 as psc
     where
-        exists
-        (
-            select 1 as data
-            from
-                tbl2 as pr
-            join tbl2 as c on c.cid = pr.cid
-            where
-                c.col1 = 'x'
-                and pr.col2 <= convert(date, getdate())
-                and pr.pid = psc.pid
-        )
+    exists
+    (
+    select 1 as data
+    from
+    tbl2 as pr
+    join tbl2 as c on c.cid = pr.cid
+    where
+    c.col1 = 'x'
+    and pr.col2 <= convert(date, getdate())
+    and pr.pid = psc.pid
+    )
   configs:
     core:
       dialect: tsql
@@ -529,3 +541,59 @@ test_pass_ignore_deeper_alias_6389:
     LEFT JOIN stats_this_month AS tm
       ON tm.x = t.x
     WHERE _stats IS NOT NULL;
+
+test_fail_unqual_refs_multi_table_statements_ignore_external_references:
+  fail_str: |
+    SELECT a, b
+    FROM foo
+    LEFT JOIN vee ON vee.a = foo.a
+  configs:
+    rules:
+      references.qualification:
+        subqueries_ignore_external_references: True
+
+test_fail_unqual_refs_multi_table_statements_subq_ignore_external_references:
+  fail_str: |
+    SELECT a
+    FROM (
+        SELECT a, b
+        FROM foo
+        LEFT JOIN vee ON vee.a = foo.a
+    )
+  configs:
+    rules:
+      references.qualification:
+        subqueries_ignore_external_references: True
+
+test_pass_unreferenced_subquery_column_subqueries_ignore_external_references:
+  pass_str: |
+    SELECT a
+    FROM foo
+    WHERE a IN (SELECT a FROM bar)
+  configs:
+    rules:
+      references.qualification:
+        subqueries_ignore_external_references: True
+
+test_pass_select_scalar_subquery_subqueries_ignore_external_references:
+  pass_str: |
+    SELECT
+        (SELECT max(id) FROM foo2) AS f1
+    FROM bar;
+  configs:
+    rules:
+      references.qualification:
+        subqueries_ignore_external_references: True
+
+test_pass_exists_subquery_subqueries_ignore_external_references:
+  pass_str: |
+    SELECT id
+    FROM bar
+    WHERE EXISTS (
+        SELECT 1 FROM foo2
+        WHERE bar.id = id
+    );
+  configs:
+    rules:
+      references.qualification:
+        subqueries_ignore_external_references: True

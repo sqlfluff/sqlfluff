@@ -180,6 +180,7 @@ trino_dialect.replace(
     PostFunctionGrammar=ansi_dialect.get_grammar("PostFunctionGrammar").copy(
         insert=[
             Ref("WithinGroupClauseSegment"),
+            Ref("WithOrdinalityClauseSegment"),
         ],
     ),
     FunctionContentsGrammar=AnyNumberOf(
@@ -496,6 +497,22 @@ class AnalyzeStatementSegment(BaseSegment):
     )
 
 
+class WithOrdinalityClauseSegment(BaseSegment):
+    """A WITH ORDINALITY AS t(name1, name2) clause for CROSS JOIN UNNEST(...).
+
+    https://trino.io/docs/current/sql/select.html#unnest
+
+    Trino supports an optional WITH ORDINALITY clause on UNNEST, which
+    adds a numerical ordinality column to the UNNEST result.
+    """
+
+    type = "withordinality_clause"
+    match_grammar = Sequence(
+        "WITH",
+        "ORDINALITY",
+    )
+
+
 class WithinGroupClauseSegment(BaseSegment):
     """An WITHIN GROUP clause for window functions.
 
@@ -530,7 +547,7 @@ class ListaggOverflowClauseSegment(BaseSegment):
             "ERROR",
             Sequence(
                 "TRUNCATE",
-                Ref("SingleQuotedIdentifierSegment", optional=True),
+                Ref("QuotedLiteralSegment", optional=True),
                 OneOf("WITH", "WITHOUT", optional=True),
                 Ref.keyword("COUNT", optional=True),
             ),

@@ -249,3 +249,41 @@ CREATE OR REPLACE TABLE some_table (
 CREATE OR ALTER TABLE some_table (
   id INTEGER NOT NULL
 );
+
+
+-- Hybrid tables
+
+CREATE HYBRID TABLE foo (id NUMBER PRIMARY KEY);
+
+CREATE OR REPLACE HYBRID TABLE ref_hybrid_table (
+    col1 VARCHAR(32) PRIMARY KEY,
+    col2 NUMBER(38,0) UNIQUE
+);
+
+CREATE OR REPLACE HYBRID TABLE fk_hybrid_table (
+    col1 VARCHAR(32) PRIMARY KEY,
+    col2 NUMBER(38,0),
+    col3 NUMBER(38,0),
+    FOREIGN KEY (col2) REFERENCES ref_hybrid_table(col2),
+    INDEX index_col3 (col3)
+);
+
+CREATE OR REPLACE HYBRID TABLE target_hybrid_table (
+    col1 VARCHAR(32) PRIMARY KEY,
+    col2 NUMBER(38,0) UNIQUE,
+    col3 NUMBER(38,0),
+    INDEX index_col3 (col3)
+    )
+  AS SELECT col1, col2, col3 FROM source_table;
+
+CREATE OR REPLACE HYBRID TABLE dept_employees (
+  employee_id INT PRIMARY KEY,
+  department_id VARCHAR(200)
+  )
+AS SELECT employee_id, department_id FROM company_employees;
+
+CREATE OR REPLACE HYBRID TABLE application_log (
+  id NUMBER PRIMARY KEY AUTOINCREMENT,
+  col1 VARCHAR(20),
+  col2 VARCHAR(20) NOT NULL
+  );

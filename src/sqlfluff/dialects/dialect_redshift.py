@@ -16,6 +16,7 @@ from sqlfluff.core.parser import (
     IdentifierSegment,
     ImplicitIndent,
     Indent,
+    LiteralKeywordSegment,
     Matchable,
     Nothing,
     OneOf,
@@ -25,6 +26,7 @@ from sqlfluff.core.parser import (
     RegexParser,
     SegmentGenerator,
     Sequence,
+    StringParser,
     WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -208,6 +210,11 @@ redshift_dialect.replace(
             casefold=str.lower,
         )
     ),
+    LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
+        insert=[
+            Ref("MaxLiteralSegment"),
+        ]
+    ),
 )
 
 redshift_dialect.patch_lexer_matchers(
@@ -263,6 +270,7 @@ redshift_dialect.add(
             "UNLIMITED",
         ),
     ),
+    MaxLiteralSegment=StringParser("max", LiteralKeywordSegment, type="max_literal"),
 )
 
 
@@ -432,6 +440,12 @@ class DatatypeSegment(BaseSegment):
             Ref("BracketedArguments", optional=True),
         ),
         "ANYELEMENT",
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DotSegment"),
+            Ref("DatatypeIdentifierSegment"),
+            allow_gaps=False,
+        ),
     )
 
 
@@ -798,7 +812,7 @@ class CreateTableStatementSegment(BaseSegment):
         Bracketed(
             Delimited(
                 # Columns and comment syntax:
-                AnyNumberOf(
+                OneOf(
                     Sequence(
                         Ref("ColumnReferenceSegment"),
                         Ref("DatatypeSegment"),

@@ -975,7 +975,15 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
 
     match_grammar: Matchable = OneOf(
         ansi.ColumnConstraintSegment.match_grammar,
-        Sequence("CHARACTER", "SET", Ref("NakedIdentifierSegment")),
+        Sequence(
+            "CHARACTER",
+            "SET",
+            OneOf(
+                Ref("SingleIdentifierGrammar"),
+                Ref("SingleQuotedIdentifierSegment"),
+                Ref("DoubleQuotedIdentifierSegment"),
+            ),
+        ),
         Sequence("COLLATE", Ref("CollationReferenceSegment")),
         Sequence(
             Sequence("GENERATED", "ALWAYS", optional=True),
@@ -2983,7 +2991,11 @@ class AlterOptionSegment(BaseSegment):
                 "CHARACTER",
                 "SET",
                 Ref("EqualsSegment", optional=True),
-                Ref("NakedIdentifierSegment"),
+                OneOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("SingleQuotedIdentifierSegment"),
+                    Ref("DoubleQuotedIdentifierSegment"),
+                ),
             ),
             Sequence(
                 Ref.keyword("DEFAULT", optional=True),
@@ -3169,4 +3181,52 @@ class DropEventStatementSegment(BaseSegment):
         "EVENT",
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
+    )
+
+
+class DatatypeSegment(BaseSegment):
+    """A data type segment.
+
+    Supports timestamp with(out) time zone. Doesn't currently support intervals.
+    """
+
+    type = "data_type"
+    match_grammar: Matchable = OneOf(
+        Ref("TimeWithTZGrammar"),
+        Sequence(
+            "DOUBLE",
+            "PRECISION",
+        ),
+        Sequence(
+            OneOf(
+                Sequence(
+                    OneOf("CHARACTER", "BINARY"),
+                    OneOf("VARYING", Sequence("LARGE", "OBJECT")),
+                ),
+                Sequence(
+                    # Some dialects allow optional qualification of data types with
+                    # schemas
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DotSegment"),
+                        allow_gaps=False,
+                        optional=True,
+                    ),
+                    Ref("DatatypeIdentifierSegment"),
+                    allow_gaps=False,
+                ),
+            ),
+            # There may be no brackets for some data types
+            Ref("BracketedArguments", optional=True),
+            OneOf(
+                Ref("CharCharacterSetGrammar"),
+                "SIGNED",
+                "UNSIGNED",
+                "ZEROFILL",
+                Sequence("ZEROFILL", "UNSIGNED"),
+                Sequence("UNSIGNED", "ZEROFILL"),
+                optional=True,
+            ),
+        ),
+        Ref("ArrayTypeSegment"),
     )
