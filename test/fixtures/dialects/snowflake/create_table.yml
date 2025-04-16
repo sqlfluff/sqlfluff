@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5d4b6d7646ce4ee8e93c1feaf510e562e0f8b2e0809d475dcf24fd32bb29a3a9
+_hash: d1cf8c04033c3892f01cf3c31cb5a85864c839bb9d2a4618b22fa1e35ed48096
 file:
 - statement:
     create_table_statement:
@@ -328,11 +328,12 @@ file:
           keyword: comment
           quoted_literal: "'a column comment'"
         end_bracket: )
-    - comment_equals_clause:
-        keyword: comment
-        comparison_operator:
-          raw_comparison_operator: '='
-        quoted_literal: "'a table comment'"
+    - dynamic_table_options:
+        comment_equals_clause:
+          keyword: comment
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'a table comment'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -2185,12 +2186,12 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - boolean_literal: 'FALSE'
-    - comment_equals_clause:
-        keyword: COMMENT
-        comparison_operator:
-          raw_comparison_operator: '='
-        quoted_literal: "'<string_literal>'"
     - dynamic_table_options:
+        comment_equals_clause:
+          keyword: COMMENT
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'<string_literal>'"
         tag_bracketed_equals:
         - keyword: WITH
         - keyword: TAG
@@ -2235,11 +2236,12 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - boolean_literal: 'false'
-    - comment_equals_clause:
-        keyword: COMMENT
-        comparison_operator:
-          raw_comparison_operator: '='
-        quoted_literal: "'<string_literal>'"
+    - dynamic_table_options:
+        comment_equals_clause:
+          keyword: COMMENT
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'<string_literal>'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
