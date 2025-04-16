@@ -518,12 +518,12 @@ class DatatypeSegment(BaseSegment):
         ),
         # LowCardinality(Type)
         Sequence(
-            StringParser("LowCardinality", CodeSegment, type="data_type_identifier"),
+            StringParser("LOWCARDINALITY", CodeSegment, type="data_type_identifier"),
             Bracketed(Ref("DatatypeSegment")),
         ),
         # DateTime64(precision, 'timezone')
         Sequence(
-            StringParser("DateTime64", CodeSegment, type="data_type_identifier"),
+            StringParser("DATETIME64", CodeSegment, type="data_type_identifier"),
             Bracketed(
                 Delimited(
                     OneOf(
@@ -537,7 +537,7 @@ class DatatypeSegment(BaseSegment):
         ),
         # DateTime('timezone')
         Sequence(
-            StringParser("DateTime", CodeSegment, type="data_type_identifier"),
+            StringParser("DATETIME", CodeSegment, type="data_type_identifier"),
             Bracketed(
                 Ref("QuotedLiteralSegment"),  # timezone
                 optional=True,
@@ -545,17 +545,17 @@ class DatatypeSegment(BaseSegment):
         ),
         # FixedString(length)
         Sequence(
-            StringParser("FixedString", CodeSegment, type="data_type_identifier"),
+            StringParser("FIXEDSTRING", CodeSegment, type="data_type_identifier"),
             Bracketed(Ref("NumericLiteralSegment")),  # length
         ),
         # Array(Type)
         Sequence(
-            StringParser("Array", CodeSegment, type="data_type_identifier"),
+            StringParser("ARRQY", CodeSegment, type="data_type_identifier"),
             Bracketed(Ref("DatatypeSegment")),
         ),
         # Map(KeyType, ValueType)
         Sequence(
-            StringParser("Map", CodeSegment, type="data_type_identifier"),
+            StringParser("MAP", CodeSegment, type="data_type_identifier"),
             Bracketed(
                 Delimited(
                     Ref("DatatypeSegment"),
@@ -565,7 +565,7 @@ class DatatypeSegment(BaseSegment):
         ),
         # Tuple(Type1, Type2) or Tuple(name1 Type1, name2 Type2)
         Sequence(
-            StringParser("Tuple", CodeSegment, type="data_type_identifier"),
+            StringParser("TUPLE", CodeSegment, type="data_type_identifier"),
             Bracketed(
                 Delimited(
                     OneOf(
@@ -586,7 +586,7 @@ class DatatypeSegment(BaseSegment):
         ),
         # Nested(name1 Type1, name2 Type2)
         Sequence(
-            StringParser("Nested", CodeSegment, type="data_type_identifier"),
+            StringParser("NESTED", CodeSegment, type="data_type_identifier"),
             Bracketed(
                 Delimited(
                     Sequence(
@@ -602,8 +602,8 @@ class DatatypeSegment(BaseSegment):
         # Enum8('val1' = 1, 'val2' = 2)
         Sequence(
             OneOf(
-                StringParser("Enum8", CodeSegment, type="data_type_identifier"),
-                StringParser("Enum16", CodeSegment, type="data_type_identifier"),
+                StringParser("ENUM8", CodeSegment, type="data_type_identifier"),
+                StringParser("ENUM16", CodeSegment, type="data_type_identifier"),
             ),
             Bracketed(
                 Delimited(
