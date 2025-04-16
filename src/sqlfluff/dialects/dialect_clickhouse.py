@@ -550,7 +550,7 @@ class DatatypeSegment(BaseSegment):
         ),
         # Array(Type)
         Sequence(
-            StringParser("ARRQY", CodeSegment, type="data_type_identifier"),
+            StringParser("ARRAY", CodeSegment, type="data_type_identifier"),
             Bracketed(Ref("DatatypeSegment")),
         ),
         # Map(KeyType, ValueType)
