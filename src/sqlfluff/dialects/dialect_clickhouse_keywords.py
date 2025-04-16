@@ -227,6 +227,7 @@ UNRESERVED_KEYWORDS = [
     "PROFILE",
     "PROJECTION",
     "QUARTER",
+    "QUERY",
     "QUOTA",
     "QUEUES",
     "RANGE",

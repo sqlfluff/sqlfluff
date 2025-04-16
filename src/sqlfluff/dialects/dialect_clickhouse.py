@@ -511,9 +511,110 @@ class DatatypeSegment(BaseSegment):
 
     type = "data_type"
     match_grammar = OneOf(
+        # Nullable(Type)
         Sequence(
             StringParser("NULLABLE", CodeSegment, type="data_type_identifier"),
             Bracketed(Ref("DatatypeSegment")),
+        ),
+        # LowCardinality(Type)
+        Sequence(
+            StringParser("LOWCARDINALITY", CodeSegment, type="data_type_identifier"),
+            Bracketed(Ref("DatatypeSegment")),
+        ),
+        # DateTime64(precision, 'timezone')
+        Sequence(
+            StringParser("DATETIME64", CodeSegment, type="data_type_identifier"),
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Ref("NumericLiteralSegment"),  # precision
+                        Ref("QuotedLiteralSegment"),  # timezone
+                    ),
+                    delimiter=Ref("CommaSegment"),
+                    optional=True,
+                )
+            ),
+        ),
+        # DateTime('timezone')
+        Sequence(
+            StringParser("DATETIME", CodeSegment, type="data_type_identifier"),
+            Bracketed(
+                Ref("QuotedLiteralSegment"),  # timezone
+                optional=True,
+            ),
+        ),
+        # FixedString(length)
+        Sequence(
+            StringParser("FIXEDSTRING", CodeSegment, type="data_type_identifier"),
+            Bracketed(Ref("NumericLiteralSegment")),  # length
+        ),
+        # Array(Type)
+        Sequence(
+            StringParser("ARRAY", CodeSegment, type="data_type_identifier"),
+            Bracketed(Ref("DatatypeSegment")),
+        ),
+        # Map(KeyType, ValueType)
+        Sequence(
+            StringParser("MAP", CodeSegment, type="data_type_identifier"),
+            Bracketed(
+                Delimited(
+                    Ref("DatatypeSegment"),
+                    delimiter=Ref("CommaSegment"),
+                )
+            ),
+        ),
+        # Tuple(Type1, Type2) or Tuple(name1 Type1, name2 Type2)
+        Sequence(
+            StringParser("TUPLE", CodeSegment, type="data_type_identifier"),
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        # Named tuple element: name Type
+                        Sequence(
+                            OneOf(
+                                Ref("SingleIdentifierGrammar"),
+                                Ref("QuotedIdentifierSegment"),
+                            ),
+                            Ref("DatatypeSegment"),
+                        ),
+                        # Regular tuple element: just Type
+                        Ref("DatatypeSegment"),
+                    ),
+                    delimiter=Ref("CommaSegment"),
+                )
+            ),
+        ),
+        # Nested(name1 Type1, name2 Type2)
+        Sequence(
+            StringParser("NESTED", CodeSegment, type="data_type_identifier"),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DatatypeSegment"),
+                    ),
+                    delimiter=Ref("CommaSegment"),
+                )
+            ),
+        ),
+        # JSON data type
+        StringParser("JSON", CodeSegment, type="data_type_identifier"),
+        # Enum8('val1' = 1, 'val2' = 2)
+        Sequence(
+            OneOf(
+                StringParser("ENUM8", CodeSegment, type="data_type_identifier"),
+                StringParser("ENUM16", CodeSegment, type="data_type_identifier"),
+            ),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("QuotedLiteralSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    delimiter=Ref("CommaSegment"),
+                )
+            ),
         ),
         # double args
         Sequence(
@@ -1212,10 +1313,30 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
             Sequence(
                 "TO",
                 Ref("TableReferenceSegment"),
+                # Add support for column list in TO clause
+                Bracketed(
+                    Delimited(
+                        Ref("SingleIdentifierGrammar"),
+                    ),
+                    optional=True,
+                ),
                 Ref("TableEngineSegment", optional=True),
             ),
             Sequence(
                 Ref("TableEngineSegment", optional=True),
+                # Add support for PARTITION BY clause
+                Sequence(
+                    "PARTITION",
+                    "BY",
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+                # Add support for ORDER BY clause
+                Ref("MergeTreesOrderByClauseSegment", optional=True),
+                # Add support for TTL clause
+                Ref("TableTTLSegment", optional=True),
+                # Add support for SETTINGS clause
+                Ref("SettingsClauseSegment", optional=True),
                 Sequence("POPULATE", optional=True),
             ),
         ),
@@ -1840,6 +1961,11 @@ class AlterTableStatementSegment(BaseSegment):
                             optional=True,
                         ),
                         Sequence(
+                            "ALIAS",
+                            Ref("ExpressionSegment"),
+                            optional=True,
+                        ),
+                        Sequence(
                             "CODEC",
                             Bracketed(
                                 Delimited(
@@ -1847,6 +1973,7 @@ class AlterTableStatementSegment(BaseSegment):
                                         Ref("FunctionSegment"),
                                         Ref("SingleIdentifierGrammar"),
                                     ),
+                                    delimiter=Ref("CommaSegment"),
                                 ),
                             ),
                             optional=True,
@@ -1866,6 +1993,11 @@ class AlterTableStatementSegment(BaseSegment):
                             optional=True,
                         ),
                         Sequence(
+                            "ALIAS",
+                            Ref("ExpressionSegment"),
+                            optional=True,
+                        ),
+                        Sequence(
                             "CODEC",
                             Bracketed(
                                 Delimited(
@@ -1873,6 +2005,7 @@ class AlterTableStatementSegment(BaseSegment):
                                         Ref("FunctionSegment"),
                                         Ref("SingleIdentifierGrammar"),
                                     ),
+                                    delimiter=Ref("CommaSegment"),
                                 ),
                             ),
                             optional=True,
@@ -1882,6 +2015,11 @@ class AlterTableStatementSegment(BaseSegment):
                     Sequence(
                         "ALIAS",
                         Ref("ExpressionSegment"),
+                    ),
+                    # Remove alias
+                    Sequence(
+                        "REMOVE",
+                        "ALIAS",
                     ),
                     # Remove property
                     Sequence(
@@ -1954,6 +2092,12 @@ class AlterTableStatementSegment(BaseSegment):
                 "MODIFY",
                 "TTL",
                 Ref("ExpressionSegment"),
+            ),
+            # ALTER TABLE ... MODIFY QUERY select_statement
+            Sequence(
+                "MODIFY",
+                "QUERY",
+                Ref("SelectStatementSegment"),
             ),
             # ALTER TABLE ... MATERIALIZE COLUMN col
             Sequence(
@@ -2076,5 +2220,65 @@ class IntervalExpressionSegment(BaseSegment):
                 Ref("ExpressionSegment"),
                 Ref("DatetimeUnitSegment"),
             ),
+        ),
+    )
+
+
+class ColumnDefinitionSegment(BaseSegment):
+    """A column definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    Supports ClickHouse specific options like CODEC, ALIAS, MATERIALIZED, etc.
+    """
+
+    type = "column_definition"
+    match_grammar = Sequence(
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Ref("QuotedIdentifierSegment"),
+        ),
+        Ref("DatatypeSegment"),
+        AnyNumberOf(
+            OneOf(
+                # DEFAULT expression
+                Sequence(
+                    "DEFAULT",
+                    OneOf(
+                        Ref("LiteralGrammar"),
+                        Ref("FunctionSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+                # ALIAS expression
+                Sequence(
+                    "ALIAS",
+                    Ref("ExpressionSegment"),
+                ),
+                # MATERIALIZED expression
+                Sequence(
+                    "MATERIALIZED",
+                    Ref("ExpressionSegment"),
+                ),
+                # CODEC(...)
+                Sequence(
+                    "CODEC",
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("FunctionSegment"),
+                                Ref("SingleIdentifierGrammar"),
+                            ),
+                            delimiter=Ref("CommaSegment"),
+                        ),
+                    ),
+                ),
+                # COMMENT 'text'
+                Sequence(
+                    "COMMENT",
+                    Ref("QuotedLiteralSegment"),
+                ),
+                # Column constraint
+                Ref("ColumnConstraintSegment"),
+            ),
+            optional=True,
         ),
     )
