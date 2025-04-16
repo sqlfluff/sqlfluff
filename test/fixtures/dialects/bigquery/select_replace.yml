@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c2e5f397744adea51b0abb464fe2d12d5d807ec9b62dfadfaec91d8b49e0f9ad
+_hash: 8dde32d162f5fb4141f9a7861ff0470d6b8cd8198fbf1623a93c9161dc81e0a3
 file:
 - statement:
     select_statement:
@@ -17,22 +17,20 @@ file:
               keyword: REPLACE
               bracketed:
                 start_bracket: (
-                select_clause_element:
-                  function:
-                    function_name:
-                      function_name_identifier: CAST
-                    function_contents:
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          numeric_literal: '1'
-                        keyword: AS
-                        data_type:
-                          data_type_identifier: BOOLEAN
-                        end_bracket: )
-                  alias_expression:
-                    keyword: AS
-                    naked_identifier: foo
+                function:
+                  function_name:
+                    function_name_identifier: CAST
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '1'
+                      keyword: AS
+                      data_type:
+                        data_type_identifier: BOOLEAN
+                      end_bracket: )
+                keyword: AS
+                naked_identifier: foo
                 end_bracket: )
       from_clause:
         keyword: FROM
@@ -63,11 +61,9 @@ file:
               keyword: replace
               bracketed:
                 start_bracket: (
-                select_clause_element:
-                  quoted_literal: "'thing'"
-                  alias_expression:
-                    keyword: as
-                    naked_identifier: foo
+                quoted_literal: "'thing'"
+                keyword: as
+                naked_identifier: foo
                 end_bracket: )
       from_clause:
         keyword: from
@@ -89,21 +85,17 @@ file:
               keyword: REPLACE
               bracketed:
               - start_bracket: (
-              - select_clause_element:
-                  expression:
-                    column_reference:
-                      naked_identifier: quantity
-                    binary_operator: /
-                    numeric_literal: '2'
-                  alias_expression:
-                    keyword: AS
+              - expression:
+                  column_reference:
                     naked_identifier: quantity
+                  binary_operator: /
+                  numeric_literal: '2'
+              - keyword: AS
+              - naked_identifier: quantity
               - comma: ','
-              - select_clause_element:
-                  quoted_literal: "'thing'"
-                  alias_expression:
-                    keyword: as
-                    naked_identifier: foo
+              - quoted_literal: "'thing'"
+              - keyword: as
+              - naked_identifier: foo
               - end_bracket: )
       from_clause:
         keyword: from

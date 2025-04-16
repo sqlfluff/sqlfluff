@@ -1081,11 +1081,7 @@ class CreateExternalVolumeStatementSegment(BaseSegment):
             Sequence(
                 "ALLOW_WRITES", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
             ),
-            Sequence(
-                "COMMENT",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-            ),
+            Ref("CommentEqualsClauseSegment"),
             optional=True,
         ),
     )
@@ -1174,9 +1170,7 @@ class AlterExternalVolumeStatementSegment(BaseSegment):
             ),
             Sequence(
                 "SET",
-                "COMMENT",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
+                Ref("CommentEqualsClauseSegment"),
             ),
         ),
     )
@@ -2618,9 +2612,7 @@ class AlterStorageIntegrationSegment(BaseSegment):
                 OneOf(
                     Ref("TagEqualsSegment", optional=True),
                     AnySetOf(
-                        Sequence(
-                            "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
-                        ),
+                        Ref("CommentEqualsClauseSegment"),
                         Sequence(
                             "ENABLED",
                             Ref("EqualsSegment"),
@@ -3455,11 +3447,7 @@ class AlterNetworkPolicyStatementSegment(BaseSegment):
                         Ref("EqualsSegment"),
                         Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
                     ),
-                    Sequence(
-                        "COMMENT",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
+                    Ref("CommentEqualsClauseSegment"),
                 ),
             ),
             Sequence(
@@ -4335,9 +4323,7 @@ class AlterRoleStatementSegment(BaseSegment):
                 OneOf(
                     Ref("RoleReferenceSegment"),
                     Ref("TagEqualsSegment"),
-                    Sequence(
-                        "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
-                    ),
+                    Ref("CommentEqualsClauseSegment"),
                 ),
             ),
             Sequence(
@@ -4637,12 +4623,7 @@ class DynamicTableOptionsSegment(BaseSegment):
                 Ref("NumericLiteralSegment"),
                 optional=True,
             ),
-            Sequence(
-                "COMMENT",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-                optional=True,
-            ),
+            Ref("CommentEqualsClauseSegment", optional=True),
             Sequence(
                 Ref.keyword("WITH", optional=True),
                 "ROW",
@@ -5064,11 +5045,7 @@ class CreateStatementSegment(BaseSegment):
                 "OUTBOUND",
                 optional=True,
             ),
-            Sequence(
-                "COMMENT",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-            ),
+            Ref("CommentEqualsClauseSegment"),
             # For tags
             Sequence(
                 "ALLOWED_VALUES",
@@ -5153,11 +5130,7 @@ class CreateStatementSegment(BaseSegment):
                     )
                 ),
             ),
-            Sequence(
-                "COMMENT",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-            ),
+            Ref("CommentEqualsClauseSegment"),
         ),
         # Next set are Storage Integration statements
         # https://docs.snowflake.com/en/sql-reference/sql/create-catalog-integration
@@ -5345,10 +5318,8 @@ class CreateStatementSegment(BaseSegment):
                 Ref("DatatypeSegment"),
                 Ref("FunctionAssignerSegment"),
                 Ref("ExpressionSegment"),
-                Sequence(
-                    "COMMENT",
-                    Ref("EqualsSegment"),
-                    Ref("QuotedLiteralSegment"),
+                Ref(
+                    "CommentEqualsClauseSegment",
                     optional=True,
                 ),
                 optional=True,
@@ -5595,11 +5566,7 @@ class AlterViewStatementSegment(BaseSegment):
                 "TO",
                 Ref("TableReferenceSegment"),
             ),
-            Sequence(
-                "COMMENT",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-            ),
+            Ref("CommentEqualsClauseSegment"),
             Sequence(
                 "UNSET",
                 "COMMENT",
@@ -6131,6 +6098,11 @@ class AlterPipeSegment(BaseSegment):
                         "PIPE_EXECUTION_PAUSED",
                         Ref("EqualsSegment"),
                         Ref("BooleanLiteralGrammar"),
+                    ),
+                    Sequence(
+                        "ERROR_INTEGRATION",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
                     ),
                     Ref("CommentEqualsClauseSegment"),
                 ),
@@ -7689,10 +7661,8 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
         "ROLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("RoleReferenceSegment"),
-        Sequence(
-            "COMMENT",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+        Ref(
+            "CommentEqualsClauseSegment",
             optional=True,
         ),
     )
@@ -7718,10 +7688,8 @@ class CreateDatabaseRoleStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("DatabaseRoleReferenceSegment"),
-        Sequence(
-            "COMMENT",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+        Ref(
+            "CommentEqualsClauseSegment",
             optional=True,
         ),
     )
@@ -9317,7 +9285,7 @@ class PasswordPolicyOptionsSegment(BaseSegment):
         Sequence(
             "PASSWORD_HISTORY", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
         ),
-        Sequence("COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+        Ref("CommentEqualsClauseSegment"),
     )
 
 
@@ -9426,10 +9394,8 @@ class CreateRowAccessPolicyStatementSegment(BaseSegment):
         "BOOLEAN",
         Ref("FunctionAssignerSegment"),
         Ref("ExpressionSegment"),
-        Sequence(
-            "COMMENT",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+        Ref(
+            "CommentEqualsClauseSegment",
             optional=True,
         ),
     )
@@ -9501,9 +9467,7 @@ class AlterTagStatementSegment(BaseSegment):
             ),
             Sequence(
                 "SET",
-                "COMMENT",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
+                Ref("CommentEqualsClauseSegment"),
             ),
             Sequence("UNSET", "COMMENT"),
             Sequence(
@@ -9655,10 +9619,8 @@ class CreateAuthenticationPolicySegment(BaseSegment):
             ),
             optional=True,
         ),
-        Sequence(
-            "COMMENT",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+        Ref(
+            "CommentEqualsClauseSegment",
             optional=True,
         ),
     )
