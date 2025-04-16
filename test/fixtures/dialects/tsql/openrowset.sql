@@ -42,3 +42,32 @@ SELECT TOP 10 *
 from OPENROWSET(BULK 'https://pandemicdatalake.blob.core.windows.net/public/curated/covid-19/ecdc_cases/latest/ecdc_cases.parquet',
     FORMAT = 'PARQUET') as rows
 GO
+
+SELECT TOP 10 *
+FROM OPENROWSET(
+      BULK 'https://pandemicdatalake.blob.core.windows.net/public/curated/covid-19/ecdc_cases/latest/ecdc_cases.parquet',
+      FORMAT = 'PARQUET'
+   )
+WITH (
+    [country_code] VARCHAR(5) COLLATE Latin1_General_BIN2,
+    [country_name] VARCHAR(100) COLLATE Latin1_General_BIN2 2,
+    [year] smallint,
+    [population] bigint
+) as rows
+GO
+
+SELECT
+    TOP 1 *
+FROM OPENROWSET(
+        BULK 'https://azureopendatastorage.blob.core.windows.net/censusdatacontainer/release/us_population_county/year=20*/*.parquet',
+        FORMAT='PARQUET'
+    )
+WITH (
+    [stateName] VARCHAR(50),
+    [stateName_explicit_path] VARCHAR(50) '$.stateName',
+    [COUNTYNAME] VARCHAR(50),
+    [countyName_explicit_path] VARCHAR(50) '$.COUNTYNAME',
+    [population] bigint 'strict $.population'
+)
+AS [r]
+GO
