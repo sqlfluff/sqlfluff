@@ -4638,6 +4638,12 @@ class DynamicTableOptionsSegment(BaseSegment):
                 optional=True,
             ),
             Sequence(
+                "COMMENT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
                 Ref.keyword("WITH", optional=True),
                 "ROW",
                 "ACCESS",
