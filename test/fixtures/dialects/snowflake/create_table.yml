@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b2d228f2e9be21de2cc8be6a73386fd33c251a5e50fb05e986bb9b51618849e7
+_hash: b1491f391013a73740cf90e6bd9b84ce3f7b0710a699e65ad8d98c89ebb4ad77
 file:
 - statement:
     create_table_statement:
@@ -1988,4 +1988,318 @@ file:
           - keyword: NOT
           - keyword: 'NULL'
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: HYBRID
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: NUMBER
+          column_constraint_segment:
+            constraint_properties_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: HYBRID
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ref_hybrid_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: col1
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '32'
+                end_bracket: )
+          column_constraint_segment:
+            constraint_properties_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+      - comma: ','
+      - column_definition:
+          naked_identifier: col2
+          data_type:
+            data_type_identifier: NUMBER
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '38'
+              - comma: ','
+              - numeric_literal: '0'
+              - end_bracket: )
+          column_constraint_segment:
+            constraint_properties_segment:
+              keyword: UNIQUE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: HYBRID
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: fk_hybrid_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: col1
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '32'
+                end_bracket: )
+          column_constraint_segment:
+            constraint_properties_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+      - comma: ','
+      - column_definition:
+          naked_identifier: col2
+          data_type:
+            data_type_identifier: NUMBER
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '38'
+              - comma: ','
+              - numeric_literal: '0'
+              - end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: col3
+          data_type:
+            data_type_identifier: NUMBER
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '38'
+              - comma: ','
+              - numeric_literal: '0'
+              - end_bracket: )
+      - comma: ','
+      - constraint_properties_segment:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col2
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: ref_hybrid_table
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col2
+            end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: INDEX
+          data_type:
+            data_type_identifier: index_col3
+          bracketed:
+            start_bracket: (
+            word: col3
+            end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: HYBRID
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: target_hybrid_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: col1
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '32'
+                end_bracket: )
+          column_constraint_segment:
+            constraint_properties_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+      - comma: ','
+      - column_definition:
+          naked_identifier: col2
+          data_type:
+            data_type_identifier: NUMBER
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '38'
+              - comma: ','
+              - numeric_literal: '0'
+              - end_bracket: )
+          column_constraint_segment:
+            constraint_properties_segment:
+              keyword: UNIQUE
+      - comma: ','
+      - column_definition:
+          naked_identifier: col3
+          data_type:
+            data_type_identifier: NUMBER
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '38'
+              - comma: ','
+              - numeric_literal: '0'
+              - end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: INDEX
+          data_type:
+            data_type_identifier: index_col3
+          bracketed:
+            start_bracket: (
+            word: col3
+            end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col3
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: HYBRID
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: dept_employees
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: employee_id
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+            constraint_properties_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+      - comma: ','
+      - column_definition:
+          naked_identifier: department_id
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '200'
+                end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: employee_id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: department_id
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: company_employees
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: HYBRID
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: application_log
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: NUMBER
+          column_constraint_segment:
+            constraint_properties_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+            keyword: AUTOINCREMENT
+      - comma: ','
+      - column_definition:
+          naked_identifier: col1
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: col2
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - end_bracket: )
 - statement_terminator: ;
