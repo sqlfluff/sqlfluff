@@ -84,10 +84,11 @@ You can set the dbt project directory, profiles directory and profile with:
 .. code-block:: cfg
 
     [sqlfluff:templater:dbt]
-    project_dir = <relative or absolute path to dbt_project directory>
-    profiles_dir = <relative or absolute path to the directory that contains the profiles.yml file>
+    project_dir = <relative or absolute path to dbt_project directory, can be overridden by env var DBT_PROJECT_DIR>
+    profiles_dir = <relative or absolute path to the directory that contains the profiles.yml file, can be overridden by env var DBT_PROFILES_DIR>
     profile = <dbt profile>
     target = <dbt target>
+    dbt_skip_compilation_error = <True or False, default is True>
 
 .. note::
 
@@ -96,6 +97,14 @@ You can set the dbt project directory, profiles directory and profile with:
     operating systems (e.g. Linux or macOS), the default profile directory is
     `~/.dbt/`. On Windows, you can determine your default profile directory by
     running `dbt debug --config-dir`.
+
+.. note::
+
+    A fatal error can be raised at compile time. That can sometimes happen for SQLFluff related reasons (it used
+    to happen if we tried to compile ephemeral models in the wrong order), but more often because a macro tries to query
+    a table at compile time which doesn't exist.
+    By default, `dbt_skip_compilation_error` parameter is set to `True`, that's why such errors will be ignored.
+    However if you want to see them, you can set it to `False` and SQLFluff will raise a fatal error.
 
 To use builtin dbt Jinja functions SQLFluff provides a configuration option
 that enables usage within templates.

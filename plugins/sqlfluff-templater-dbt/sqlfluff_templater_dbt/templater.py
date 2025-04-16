@@ -180,6 +180,7 @@ class DbtTemplater(JinjaTemplater):
         self.project_dir = None
         self.profiles_dir = None
         self.working_dir = os.getcwd()
+        self.dbt_skip_compilation_error = True
         super().__init__(override_context=override_context)
 
     def config_pairs(self):
@@ -406,6 +407,7 @@ class DbtTemplater(JinjaTemplater):
                 self.sqlfluff_config.get_section(
                     (self.templater_selector, self.name, "project_dir")
                 )
+                or os.getenv("DBT_PROJECT_DIR")
                 or os.getcwd()
             )
         )
@@ -441,6 +443,13 @@ class DbtTemplater(JinjaTemplater):
         )
 
         return cli_vars if cli_vars else {}
+
+    def _get_dbt_skip_compilation_error(self) -> bool:
+        return self.sqlfluff_config.get(
+            val="dbt_skip_compilation_error",
+            section=(self.templater_selector, self.name),
+            default=True,
+        )
 
     def sequence_files(
         self, fnames: list[str], config=None, formatter=None
@@ -543,6 +552,7 @@ class DbtTemplater(JinjaTemplater):
         self.sqlfluff_config = config
         self.project_dir = self._get_project_dir()
         self.profiles_dir = self._get_profiles_dir()
+        self.dbt_skip_compilation_error = self._get_dbt_skip_compilation_error()
         fname_absolute_path = os.path.abspath(fname) if fname != "stdin" else fname
 
         # NOTE: dbt exceptions are caught and handled safely for pickling by the outer
@@ -702,6 +712,8 @@ class DbtTemplater(JinjaTemplater):
                 # to happen if we tried to compile ephemeral models in the
                 # wrong order), but more often because a macro tries to query
                 # a table at compile time which doesn't exist.
+                if self.dbt_skip_compilation_error is False:
+                    raise SQLTemplaterError(str(err))
                 raise SQLFluffSkipFile(
                     f"Skipped file {fname} because dbt raised a fatal "
                     f"exception during compilation: {err!s}"
