@@ -287,4 +287,3 @@ CREATE OR REPLACE HYBRID TABLE application_log (
   col1 VARCHAR(20),
   col2 VARCHAR(20) NOT NULL
   );
-
