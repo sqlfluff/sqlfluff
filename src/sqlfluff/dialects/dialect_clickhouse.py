@@ -513,7 +513,7 @@ class DatatypeSegment(BaseSegment):
     match_grammar = OneOf(
         # Nullable(Type)
         Sequence(
-            StringParser("Nullable", CodeSegment, type="data_type_identifier"),
+            StringParser("NULLABLE", CodeSegment, type="data_type_identifier"),
             Bracketed(Ref("DatatypeSegment")),
         ),
         # LowCardinality(Type)
