@@ -4623,7 +4623,6 @@ class DynamicTableOptionsSegment(BaseSegment):
                 Ref("NumericLiteralSegment"),
                 optional=True,
             ),
-            Ref("CommentEqualsClauseSegment", optional=True),
             Sequence(
                 Ref.keyword("WITH", optional=True),
                 "ROW",
