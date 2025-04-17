@@ -10,18 +10,51 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [3.4.0] - 2025-03-30
+## [3.4.0] - 2025-04-17
 
 ## Highlights
 
-## Highlights
+This release brings a couple of breaking changes:
+* We have dropped support for Python 3.8
+* We have a new rule: `LT15` (`layout.newlines`). This rule allows you to control the number of consecutive
+  blank lines both inside, and outside of queries.
 
-> Maintainers: Copy and paste the commentary from the changelog here.
-> Check that the name and tag are correct before releasing.
-> Publishing a GitHub release will trigger the deploy to pypi and dockerhub.
+We also have a host of dialect improvements, bugfixes, and general code clean-up. This release has *79* contributions in it!
+
+Also, welcome to the **thirteen** new contributors! Thanks for your contributions!
 
 ## What’s Changed
 
+* Clickhouse: support more complex types and functions in table definition [#6804](https://github.com/sqlfluff/sqlfluff/pull/6804) [@LSturtew](https://github.com/LSturtew)
+* feat: Add possibility to set dbt project_dir as environment variable [#6737](https://github.com/sqlfluff/sqlfluff/pull/6737) [@svdimchenko](https://github.com/svdimchenko)
+* Add support for `ZEROFILL` columns in MySQL. [#6735](https://github.com/sqlfluff/sqlfluff/pull/6735) [@joaostorrer](https://github.com/joaostorrer)
+* RF02: Add config for ignoring external references found in subqueries [#6791](https://github.com/sqlfluff/sqlfluff/pull/6791) [@keraion](https://github.com/keraion)
+* Fix `CREATE TABLE` statements in Redshift. [#6808](https://github.com/sqlfluff/sqlfluff/pull/6808) [@joaostorrer](https://github.com/joaostorrer)
+* Improve support for `CREATE USER` statements in Oracle. [#6809](https://github.com/sqlfluff/sqlfluff/pull/6809) [@joaostorrer](https://github.com/joaostorrer)
+* Add support for the WITH clause for an OPENROWSET in T-SQL [#6810](https://github.com/sqlfluff/sqlfluff/pull/6810) [@rayz90](https://github.com/rayz90)
+* Add hybrid tables to Snowflake dialect [#6812](https://github.com/sqlfluff/sqlfluff/pull/6812) [@moreaupascal56](https://github.com/moreaupascal56)
+* Trino Dialect - Parse UNNEST (...) WITH ORDINALITY [#6813](https://github.com/sqlfluff/sqlfluff/pull/6813) [@rileymcdowell](https://github.com/rileymcdowell)
+* Adds support for `varchar(max)` in Redshift. [#6806](https://github.com/sqlfluff/sqlfluff/pull/6806) [@joaostorrer](https://github.com/joaostorrer)
+* BigQuery: Make select replace `AS` not optional [#6780](https://github.com/sqlfluff/sqlfluff/pull/6780) [@keraion](https://github.com/keraion)
+* CI: Update add-to-release-notes to use ubuntu-latest [#6798](https://github.com/sqlfluff/sqlfluff/pull/6798) [@keraion](https://github.com/keraion)
+* CI: mirror image deployment to ghcr.io [#6790](https://github.com/sqlfluff/sqlfluff/pull/6790) [@keraion](https://github.com/keraion)
+* add ERROR_INTEGRATION to AlterPipeSegment [#6796](https://github.com/sqlfluff/sqlfluff/pull/6796) [@moreaupascal56](https://github.com/moreaupascal56)
+* Housekeeping: snowflake use CommentEqualsClauseSegment everywhere [#6795](https://github.com/sqlfluff/sqlfluff/pull/6795) [@moreaupascal56](https://github.com/moreaupascal56)
+* Allow quoted charset identifiers for MySQL/MariaDB [#6781](https://github.com/sqlfluff/sqlfluff/pull/6781) [@pprkut](https://github.com/pprkut)
+* Fix reserved keywords in Postgres. [#6782](https://github.com/sqlfluff/sqlfluff/pull/6782) [@joaostorrer](https://github.com/joaostorrer)
+* Adds support for user defined datatypes in Redshift. [#6783](https://github.com/sqlfluff/sqlfluff/pull/6783) [@joaostorrer](https://github.com/joaostorrer)
+* improve alter table statement handling for clickhouse dialect [#6787](https://github.com/sqlfluff/sqlfluff/pull/6787) [@LSturtew](https://github.com/LSturtew)
+* Athena: Support some Trino-based v3 functions [#6788](https://github.com/sqlfluff/sqlfluff/pull/6788) [@keraion](https://github.com/keraion)
+* SparkSQL/Databricks: Support dot sign operator [#6789](https://github.com/sqlfluff/sqlfluff/pull/6789) [@keraion](https://github.com/keraion)
+* RF02: do not trigger on snowflake lambda anonymous parameters [#6689](https://github.com/sqlfluff/sqlfluff/pull/6689) [@shervinmathieu](https://github.com/shervinmathieu)
+* Adding additional object to grant statement in snowflake dialect [#6779](https://github.com/sqlfluff/sqlfluff/pull/6779) [@SteveFrensch](https://github.com/SteveFrensch)
+* Adds support for `+=`, `-=`, `*=`, `/=` and `%=` operators in tsql. [#6756](https://github.com/sqlfluff/sqlfluff/pull/6756) [@joaostorrer](https://github.com/joaostorrer)
+* ST11: Fix quoted table name comparisons [#6768](https://github.com/sqlfluff/sqlfluff/pull/6768) [@keraion](https://github.com/keraion)
+* Formatter Stub Types [#6761](https://github.com/sqlfluff/sqlfluff/pull/6761) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* CP02, LT01: Fix duplicated elements generated from a `FixPatch` ordering conflict [#6769](https://github.com/sqlfluff/sqlfluff/pull/6769) [@keraion](https://github.com/keraion)
+* Added support for geospatial data for MySQL [#6765](https://github.com/sqlfluff/sqlfluff/pull/6765) [@AidanHarveyNelson](https://github.com/AidanHarveyNelson)
+* Adds support for identity clause in `CREATE TABLE` and `ALTER TABLE` statements in Oracle. [#6767](https://github.com/sqlfluff/sqlfluff/pull/6767) [@joaostorrer](https://github.com/joaostorrer)
+* Fix `PivotSegment` to accept alias in `FunctionSegment` in Oracle. [#6766](https://github.com/sqlfluff/sqlfluff/pull/6766) [@joaostorrer](https://github.com/joaostorrer)
 * New Rule: LT15 [#6641](https://github.com/sqlfluff/sqlfluff/pull/6641) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * Additional cleanup for python 3.9 [#6758](https://github.com/sqlfluff/sqlfluff/pull/6758) [@keraion](https://github.com/keraion)
 * feat(snowflake): allow reference variables in create task  [#6759](https://github.com/sqlfluff/sqlfluff/pull/6759) [@mrlannigan](https://github.com/mrlannigan)
@@ -72,8 +105,8 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * Add support for `SET NEW.<column>` statements in MySQL. [#6634](https://github.com/sqlfluff/sqlfluff/pull/6634) [@joaostorrer](https://github.com/joaostorrer)
 * feat: Add missing parquet file format keywords to SF dialect [#6638](https://github.com/sqlfluff/sqlfluff/pull/6638) [@jjlkant](https://github.com/jjlkant)
 
-## New Contributors
 
+## New Contributors
 * [@jjlkant](https://github.com/jjlkant) made their first contribution in [#6638](https://github.com/sqlfluff/sqlfluff/pull/6638)
 * [@sfc-gh-amauser](https://github.com/sfc-gh-amauser) made their first contribution in [#6639](https://github.com/sqlfluff/sqlfluff/pull/6639)
 * [@cjwatson](https://github.com/cjwatson) made their first contribution in [#6706](https://github.com/sqlfluff/sqlfluff/pull/6706)
@@ -83,6 +116,10 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * [@maxgrenderjones](https://github.com/maxgrenderjones) made their first contribution in [#6727](https://github.com/sqlfluff/sqlfluff/pull/6727)
 * [@WillMatthews](https://github.com/WillMatthews) made their first contribution in [#6660](https://github.com/sqlfluff/sqlfluff/pull/6660)
 * [@mrlannigan](https://github.com/mrlannigan) made their first contribution in [#6759](https://github.com/sqlfluff/sqlfluff/pull/6759)
+* [@SteveFrensch](https://github.com/SteveFrensch) made their first contribution in [#6779](https://github.com/sqlfluff/sqlfluff/pull/6779)
+* [@shervinmathieu](https://github.com/shervinmathieu) made their first contribution in [#6689](https://github.com/sqlfluff/sqlfluff/pull/6689)
+* [@LSturtew](https://github.com/LSturtew) made their first contribution in [#6787](https://github.com/sqlfluff/sqlfluff/pull/6787)
+* [@svdimchenko](https://github.com/svdimchenko) made their first contribution in [#6737](https://github.com/sqlfluff/sqlfluff/pull/6737)
 
 ## [3.3.1] - 2025-02-05
 
