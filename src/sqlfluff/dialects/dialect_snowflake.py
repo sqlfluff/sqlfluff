@@ -4719,6 +4719,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Ref("AlterOrReplaceGrammar", optional=True),
         Ref("TemporaryTransientGrammar", optional=True),
         Ref.keyword("DYNAMIC", optional=True),
+        Ref.keyword("HYBRID", optional=True),
         Ref.keyword("ICEBERG", optional=True),
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),

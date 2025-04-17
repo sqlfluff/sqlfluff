@@ -4159,6 +4159,35 @@ class OpenRowSetSegment(BaseSegment):
                 ),
             ),
         ),
+        Ref("OpenRowSetWithClauseSegment", optional=True),
+    )
+
+
+class OpenRowSetWithClauseSegment(BaseSegment):
+    """A `WITH` clause of an `OPENROWSET()` segment.
+
+    https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/develop-openrowset#syntax
+    """
+
+    type = "openrowset_with_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),  # Column name
+                    Ref("DatatypeSegment"),  # Column type
+                    Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                    Ref("CollateGrammar", optional=True),
+                    OneOf(
+                        Ref("NumericLiteralSegment"),  # Column ordinal
+                        Ref("QuotedLiteralSegment"),  # JSON path
+                        optional=True,
+                    ),
+                )
+            )
+        ),
     )
 
 

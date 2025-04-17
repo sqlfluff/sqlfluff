@@ -191,15 +191,21 @@ oracle_dialect.sets("unreserved_keywords").update(
         "COMPILE",
         "COMPOUND",
         "CONSTANT",
+        "CONTAINER",
         "CROSSEDITION",
         "CURSOR",
         "DEBUG",
+        "DIGEST",
         "EDITIONABLE",
         "EDITIONING",
         "ELSIF",
         "ERROR",
+        "EXPIRE",
+        "EXTERNALLY",
         "FOLLOWS",
         "FORALL",
+        "GLOBALLY",
+        "HTTP",
         "INDICES",
         "ISOPEN",
         "KEEP",
@@ -220,6 +226,8 @@ oracle_dialect.sets("unreserved_keywords").update(
         "PIPELINED",
         "PRAGMA",
         "PRECEDES",
+        "PROFILE",
+        "QUOTA",
         "RAISE",
         "RECORD",
         "RESULT_CACHE",
@@ -230,6 +238,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "SHARING",
         "SPECIFICATION",
         "SQL_MACRO",
+        "UNLIMITED",
         "VARRAY",
     ]
 )
@@ -588,6 +597,10 @@ oracle_dialect.add(
         "NOCACHE",
         "ORDER",
         "NOORDER",
+    ),
+    SizeClauseGrammar=Sequence(
+        Ref("NumericLiteralSegment"),
+        RegexParser(r"[KMGTPE]?", LiteralSegment, type="size_prefix"),
     ),
 )
 
@@ -2708,4 +2721,69 @@ class ReturnStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "RETURN",
         Ref("ExpressionSegment", optional=True),
+    )
+
+
+class CreateUserStatementSegment(BaseSegment):
+    """A `CREATE USER` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/CREATE-USER.html
+    """
+
+    type = "create_user_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "USER",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("RoleReferenceSegment"),
+        OneOf(
+            Sequence(
+                "IDENTIFIED",
+                OneOf(
+                    Sequence(
+                        "BY",
+                        Ref("SingleIdentifierGrammar"),
+                        Sequence(
+                            Ref.keyword("HTTP", optional=True),
+                            "DIGEST",
+                            OneOf("ENABLE", "DISABLE"),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        OneOf("EXTERNALLY", "GLOBALLY"),
+                        Sequence(
+                            "AS",
+                            OneOf(
+                                Ref("QuotedIdentifierSegment"),
+                                Ref("SingleQuotedIdentifierSegment"),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                ),
+            ),
+            Sequence("NO", "AUTHENTICATION"),
+        ),
+        AnyNumberOf(
+            Ref("DefaultCollationClauseGrammar"),
+            Sequence(
+                OneOf(
+                    Sequence("DEFAULT", "TABLESPACE"),
+                    Sequence(
+                        Ref.keyword("LOCAL", optional=True), "TEMPORARY", "TABLESPACE"
+                    ),
+                    Sequence(
+                        "QUOTA", OneOf(Ref("SizeClauseGrammar"), "UNLIMITED"), "ON"
+                    ),
+                    "PROFILE",
+                ),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence("PASSWORD", "EXPIRE"),
+            Sequence("ACCOUNT", OneOf("LOCK", "UNLOCK")),
+            Sequence("ENABLE", "EDITIONS"),
+            Sequence("CONTAINER", Ref("EqualsSegment"), OneOf("CURRENT", "ALL")),
+            Sequence("READ", OneOf("ONLY", "WRITE")),
+        ),
     )
