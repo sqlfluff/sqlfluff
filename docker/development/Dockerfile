@@ -22,4 +22,3 @@ COPY . .
 
 # Install sqlfluff and the dbt templater in editable mode.
 RUN pip install -e . -e plugins/sqlfluff-templater-dbt
-
