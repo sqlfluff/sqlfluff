@@ -42,7 +42,9 @@
                             },
                             "whitespace": " ",
                             "alias_expression": {
-                                "keyword": "as",
+                                "alias_expression_operator": {
+                                  "keyword": "as"
+                                },
                                 "whitespace": "  ",
                                 "naked_identifier": "fOO"
                             }
