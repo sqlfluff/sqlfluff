@@ -2910,6 +2910,7 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
     """
 
     match_grammar = Sequence(
+        Indent,
         Ref("AliasExpressionAsOperatorSegment", optional=True),
         OneOf(
             # maybe table alias and column aliases
