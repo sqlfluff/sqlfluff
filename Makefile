@@ -17,7 +17,7 @@ fresh: ## Build the development container from scratch
 	docker-compose build --no-cache development
 
 shell: ## Start a bash session in the development container
-	docker-compose run --rm development
+	docker-compose exec development bash
 
 start: ## Start the development container
 	docker-compose up -d

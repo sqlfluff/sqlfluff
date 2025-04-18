@@ -5,8 +5,7 @@ WORKDIR /app
 ENV PYTHONPATH=/app;/app/src
 
 # Install Git
-RUN apt-get -y update
-RUN apt-get -y install git
+RUN apt-get -y update && apt-get -y install git && apt-get clean
 
 COPY requirements_dev.txt /requirements_dev.txt
 
