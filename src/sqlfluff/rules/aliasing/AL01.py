@@ -63,13 +63,15 @@ class Rule_AL01(BaseRule):
 
         assert context.segment.is_type("alias_expression")
         if context.parent_stack[-1].is_type(*self._target_parent_types):
-            # Search for an AS keyword.
-            as_keyword: Optional[BaseSegment]
-            for as_keyword in context.segment.segments:
-                if as_keyword.raw_upper == "AS":
+            # Find the AS keyword inside the alias_expression_operator segment
+            as_keyword: Optional[BaseSegment] = None
+            for segment in context.segment.segments:
+                if segment.is_type("alias_expression_operator"):
+                    for alias_segments in segment.segments:
+                        if alias_segments.raw_upper == "AS":
+                            as_keyword = alias_segments
+                            break
                     break
-            else:
-                as_keyword = None
 
             if as_keyword:
                 if self.aliasing == "implicit":
