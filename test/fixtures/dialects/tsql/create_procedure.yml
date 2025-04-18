@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1e3dbbb369e77aad853148e94e4f042e480957913603cebc2117f389ec4d52d3
+_hash: 1cb33494c6391c9f57c5c092b68812d6a76045b23ee09f6b48f765592a26c2b1
 file:
 - batch:
     create_procedure_statement:
@@ -228,29 +228,30 @@ file:
           - statement:
               set_segment:
                 keyword: SET
-                parameter: '@output'
-                assignment_operator:
-                  raw_comparison_operator: '='
-                expression:
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      select_statement:
-                        select_clause:
-                          keyword: SELECT
-                          select_clause_element:
-                            column_reference:
-                              naked_identifier: tinyint_value
-                        from_clause:
-                          keyword: FROM
-                          from_expression:
-                            from_expression_element:
-                              table_expression:
-                                table_reference:
-                                - naked_identifier: dbo
-                                - dot: .
-                                - naked_identifier: TEST
-                    end_bracket: )
+                parameter_assignment:
+                  parameter: '@output'
+                  assignment_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        select_statement:
+                          select_clause:
+                            keyword: SELECT
+                            select_clause_element:
+                              column_reference:
+                                naked_identifier: tinyint_value
+                          from_clause:
+                            keyword: FROM
+                            from_expression:
+                              from_expression_element:
+                                table_expression:
+                                  table_reference:
+                                  - naked_identifier: dbo
+                                  - dot: .
+                                  - naked_identifier: TEST
+                      end_bracket: )
                 statement_terminator: ;
           - statement:
               if_then_statement:

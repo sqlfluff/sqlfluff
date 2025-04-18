@@ -801,6 +801,7 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     match_grammar = OneOf(
         # *, blah.*, blah.blah.*, etc.
         Ref("WildcardExpressionSegment"),
+        Ref("ParameterAssignmentSegment"),
         Sequence(
             Ref("AltAliasExpressionSegment"),
             Ref("BaseExpressionElementGrammar"),
@@ -2847,18 +2848,28 @@ class SetStatementSegment(BaseSegment):
                         Ref("QualifiedNumericLiteralSegment"),
                     ),
                 ),
-                Sequence(
-                    Ref("ParameterNameSegment"),
-                    Ref("AssignmentOperatorSegment"),
-                    OneOf(
-                        Ref("ExpressionSegment"),
-                        Ref("SelectableGrammar"),
-                    ),
-                ),
+                Ref("ParameterAssignmentSegment"),
             ),
         ),
         Dedent,
         Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class ParameterAssignmentSegment(BaseSegment):
+    """Assigning a value to a parameter.
+
+    Used in both SET and the now-deprecated SELECT statements
+    """
+
+    type = "parameter_assignment"
+    match_grammar = Sequence(
+        Ref("ParameterNameSegment"),
+        Ref("AssignmentOperatorSegment"),
+        OneOf(
+            Ref("ExpressionSegment"),
+            Ref("SelectableGrammar"),
+        ),
     )
 
 
