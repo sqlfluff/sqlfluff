@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 67da5fee840c85cbc40a5375461b76125f0a1a43e01d41f293de3acdf9e2220a
+_hash: 27830f0fd50b9699888afcbadd2a68ab8ca0c00adc18a1f5e258b26151f62feb
 file:
 - statement:
     create_materialized_view_statement:
@@ -800,7 +800,8 @@ file:
                       naked_identifier: value
                   end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: total_value
         - comma: ','
         - select_clause_element:
@@ -812,7 +813,8 @@ file:
                   start_bracket: (
                   end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: count
         - comma: ','
         - select_clause_element:
@@ -827,7 +829,8 @@ file:
                       naked_identifier: value
                   end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: avg_value
         from_clause:
           keyword: FROM
@@ -931,7 +934,8 @@ file:
             column_reference:
               naked_identifier: _timestamp_ms
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: processedAt
         from_clause:
           keyword: FROM
@@ -976,7 +980,8 @@ file:
             column_reference:
               naked_identifier: _timestamp_ms
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: processedAt
         - comma: ','
         - select_clause_element:
@@ -985,7 +990,8 @@ file:
             - dot: .
             - naked_identifier: measuredAt
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: measuredAt
         - comma: ','
         - select_clause_element:
@@ -994,7 +1000,8 @@ file:
             - dot: .
             - naked_identifier: value
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: value
         - comma: ','
         - select_clause_element:
@@ -1003,7 +1010,8 @@ file:
             - dot: .
             - naked_identifier: name
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: name
         from_clause:
           keyword: FROM
@@ -1054,7 +1062,8 @@ file:
             column_reference:
               naked_identifier: _ingestedAt
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: ingestedAt
         - comma: ','
         - select_clause_element:
@@ -1082,7 +1091,8 @@ file:
                                   naked_identifier: ingestedAt
                               end_bracket: )
                         alias_expression:
-                          keyword: AS
+                          alias_expression_operator:
+                            keyword: AS
                           naked_identifier: _ingestedAt
                     - comma: ','
                     - select_clause_element:
@@ -1101,7 +1111,8 @@ file:
                                   naked_identifier: objectIdentfier
                               end_bracket: )
                         alias_expression:
-                          keyword: AS
+                          alias_expression_operator:
+                            keyword: AS
                           naked_identifier: objectList
                     from_clause:
                       keyword: FROM
@@ -1155,7 +1166,8 @@ file:
             column_reference:
               naked_identifier: _ingestedAt
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: ingestedAt
         - comma: ','
         - select_clause_element:
@@ -1191,7 +1203,8 @@ file:
                                   naked_identifier: ingestedAt
                               end_bracket: )
                         alias_expression:
-                          keyword: AS
+                          alias_expression_operator:
+                            keyword: AS
                           naked_identifier: _ingestedAt
                     - comma: ','
                     - select_clause_element:
@@ -1203,7 +1216,8 @@ file:
                               start_bracket: (
                               end_bracket: )
                         alias_expression:
-                          keyword: AS
+                          alias_expression_operator:
+                            keyword: AS
                           naked_identifier: valueCount
                     - comma: ','
                     - select_clause_element:
@@ -1243,7 +1257,8 @@ file:
                                 numeric_literal: '1000'
                               end_bracket: )
                         alias_expression:
-                          keyword: AS
+                          alias_expression_operator:
+                            keyword: AS
                           naked_identifier: cumulativeLagSeconds
                     from_clause:
                       keyword: FROM
@@ -1293,21 +1308,24 @@ file:
             column_reference:
               naked_identifier: _topic
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: topic
         - comma: ','
         - select_clause_element:
             column_reference:
               naked_identifier: _partition
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: kafka_partition
         - comma: ','
         - select_clause_element:
             column_reference:
               naked_identifier: _offset
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: offset
         - comma: ','
         - select_clause_element:
@@ -1331,21 +1349,24 @@ file:
                           end_bracket: )
                 - end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: processedAt
         - comma: ','
         - select_clause_element:
             column_reference:
               naked_identifier: _raw_message
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: raw_message
         - comma: ','
         - select_clause_element:
             column_reference:
               naked_identifier: _error
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: error
         from_clause:
           keyword: FROM
