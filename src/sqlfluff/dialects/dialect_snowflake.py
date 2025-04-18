@@ -4965,6 +4965,7 @@ class CreateStatementSegment(BaseSegment):
                     Sequence("RESOURCE", "MONITOR"),
                     "SHARE",
                     "TAG",
+                    Sequence("API", "INTEGRATION"),
                     Sequence("NOTIFICATION", "INTEGRATION"),
                     Sequence("SECURITY", "INTEGRATION"),
                     Sequence("STORAGE", "INTEGRATION"),
@@ -4983,6 +4984,70 @@ class CreateStatementSegment(BaseSegment):
         ),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
+        # Next set are Notification Integration statements
+        # https://docs.snowflake.com/en/sql-reference/sql/create-api-integration.html
+        AnySetOf(
+            Sequence(
+                "API_PROVIDER",
+                Ref("EqualsSegment"),
+                OneOf(
+                    "AWS_API_GATEWAY",
+                    "AWS_PRIVATE_API_GATEWAY",
+                    "AWS_GOV_API_GATEWAY",
+                    "AWS_GOV_PRIVATE_API_GATEWAY",
+                    "AZURE_API_MANAGEMENT",
+                    "GOOGLE_API_GATEWAY",
+                    "GIT_HTTPS_API",
+                ),
+            ),
+            Sequence(
+                "API_ALLOWED_PREFIXES",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            Sequence(
+                "API_BLOCKED_PREFIXES",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            Sequence("API_KEY", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+            Sequence("ENABLED", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            # AWS specific params:
+            Sequence(
+                "API_AWS_ROLE_ARN", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+            ),
+            # Azure specific params:
+            Sequence(
+                "AZURE_TENANT_ID", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+            ),
+            Sequence(
+                "AZURE_AD_APPLICATION_ID",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # GCP specific params:
+            Sequence(
+                "GOOGLE_AUDIENCE", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+            ),
+            # Git specific params:
+            Sequence(
+                "ALLOWED_AUTHENTICATION_SECRETS",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    OneOf(
+                        "ALL",
+                        "NONE",
+                        Delimited(
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    )
+                ),
+            ),
+        ),
         # Next set are Notification Integration statements
         # https://docs.snowflake.com/en/sql-reference/sql/create-notification-integration.html
         AnySetOf(

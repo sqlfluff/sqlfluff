@@ -1,0 +1,323 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: db04b682b527a7ca3c967d2d10aecf0f9194f71940b2224a8af7a0a2df8366e2
+file:
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: API
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: aws
+    - keyword: API_PROVIDER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: aws_api_gateway
+    - keyword: API_AWS_ROLE_ARN
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:iam::123456789012:role/my_cloud_account_role'"
+    - keyword: API_ALLOWED_PREFIXES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'https://xyz.execute-api.us-west-2.amazonaws.com/production'"
+        end_bracket: )
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: API
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: aws2
+    - keyword: API_PROVIDER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: aws_private_api_gateway
+    - keyword: API_AWS_ROLE_ARN
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:iam::123456789012:role/my_cloud_account_role'"
+    - keyword: API_ALLOWED_PREFIXES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'https://xyz.execute-api.us-west-2.amazonaws.com/production'"
+        end_bracket: )
+    - keyword: API_KEY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'123'"
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'blabla'"
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: API
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: aws3
+    - keyword: API_PROVIDER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: aws_gov_api_gateway
+    - keyword: API_AWS_ROLE_ARN
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:iam::123456789012:role/my_cloud_account_role'"
+    - keyword: API_ALLOWED_PREFIXES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'https://xyz.execute-api.us-west-2.amazonaws.com/production'"
+        end_bracket: )
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: API
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: aws4
+    - keyword: API_PROVIDER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: aws_gov_private_api_gateway
+    - keyword: API_AWS_ROLE_ARN
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:iam::123456789012:role/my_cloud_account_role'"
+    - keyword: API_ALLOWED_PREFIXES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'https://xyz.execute-api.us-west-2.amazonaws.com/production'"
+        end_bracket: )
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: API
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: azure
+    - keyword: API_PROVIDER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: azure_api_management
+    - keyword: AZURE_TENANT_ID
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'<tenant_id>'"
+    - keyword: AZURE_AD_APPLICATION_ID
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'<azure_application_id>'"
+    - keyword: API_KEY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'<api_key>'"
+    - keyword: API_ALLOWED_PREFIXES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'go'"
+        end_bracket: )
+    - keyword: API_BLOCKED_PREFIXES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'do_not_go'"
+        end_bracket: )
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: API
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: google
+    - keyword: API_PROVIDER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: google_api_gateway
+    - keyword: GOOGLE_AUDIENCE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'<google_audience_claim>'"
+    - keyword: API_ALLOWED_PREFIXES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'go'"
+        end_bracket: )
+    - keyword: ENABLED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: API
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: git
+    - keyword: API_PROVIDER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: git_https_api
+    - keyword: GOOGLE_AUDIENCE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'<google_audience_claim>'"
+    - keyword: API_ALLOWED_PREFIXES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'go'"
+        end_bracket: )
+    - keyword: ALLOWED_AUTHENTICATION_SECRETS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'pedo mellon a minno'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: API
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: git2
+    - keyword: API_PROVIDER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: git_https_api
+    - keyword: GOOGLE_AUDIENCE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'<google_audience_claim>'"
+    - keyword: ALLOWED_AUTHENTICATION_SECRETS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        keyword: all
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: API
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: git3
+    - keyword: API_PROVIDER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: git_https_api
+    - keyword: GOOGLE_AUDIENCE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'<google_audience_claim>'"
+    - keyword: API_ALLOWED_PREFIXES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'go'"
+        end_bracket: )
+    - keyword: ALLOWED_AUTHENTICATION_SECRETS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        keyword: none
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: API
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: git2
+    - keyword: API_PROVIDER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: git_https_api
+    - keyword: GOOGLE_AUDIENCE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'<google_audience_claim>'"
+    - keyword: ALLOWED_AUTHENTICATION_SECRETS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'pedo'"
+      - comma: ','
+      - quoted_literal: "'mellon a'"
+      - comma: ','
+      - quoted_literal: "'minno'"
+      - end_bracket: )
+- statement_terminator: ;
