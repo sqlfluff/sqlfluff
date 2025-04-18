@@ -521,7 +521,7 @@ class Bracketed(Sequence):
             )
 
         # If there's a gap, add it as a child match
-        child_matches = (start_match,)
+        child_matches: tuple[MatchResult, ...] = (start_match,)
         if not is_zero_slice(content_match.matched_slice):
             if content_match.matched_class:
                 child_matches += (content_match,)
