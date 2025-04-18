@@ -17,6 +17,7 @@ from sqlfluff.core.parser.grammar.conditional import Conditional
 from sqlfluff.core.parser.match_algorithms import (
     skip_start_index_forward_to_code,
     skip_stop_index_backward_to_code,
+    trim_to_terminator,
 )
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
@@ -498,11 +499,15 @@ class Bracketed(Sequence):
 
         # Skip whitespace if allowed
         if self.allow_gaps:
-            content_start_idx = skip_start_index_forward_to_code(segments, content_start_idx)
+            content_start_idx = skip_start_index_forward_to_code(
+                segments, content_start_idx
+            )
 
         # Match the content with the end bracket as a terminator
         with parse_context.deeper_match(
-            name="Bracketed-Content", clear_terminators=True, push_terminators=[end_bracket]
+            name="Bracketed-Content",
+            clear_terminators=True,
+            push_terminators=[end_bracket],
         ) as ctx:
             content_match = super().match(segments, content_start_idx, ctx)
 
@@ -511,7 +516,9 @@ class Bracketed(Sequence):
 
         # Skip whitespace if allowed
         if self.allow_gaps:
-            end_bracket_idx = skip_start_index_forward_to_code(segments, end_bracket_idx)
+            end_bracket_idx = skip_start_index_forward_to_code(
+                segments, end_bracket_idx
+            )
 
         # If there's a gap, add it as a child match
         child_matches = (start_match,)
