@@ -38,9 +38,14 @@ test_fail_explicit_column_implicit:
 test_pass_tsql_alternative_alias:
   # Test explicit column alias
   pass_str: select alias1 = col1
-  configs:
+  configs: &tsql_dialect
     core:
       dialect: tsql
+
+test_pass_tsql_alternative_alias_no_spaces:
+  # Test explicit column alias
+  pass_str: select alias1=col1
+  configs: *tsql_dialect
 
 test_fail_alias_ending_equals:
   # Test explicit column alias doesn't catch false positives
