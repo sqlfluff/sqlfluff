@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6a27b8ae7a6f9285335a6cf70230fffd09a3d062ba4f3985deddef562a666279
+_hash: 3bcb021048e7ac8cbdc4f47aced2fd2a06a68b80d3ebb8537c8b8e1b9195e9ee
 file:
 - statement:
     insert_statement:
@@ -714,7 +714,8 @@ file:
                       end_bracket: )
                 end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_expression_operator:
+                  keyword: AS
                 naked_identifier: tmp
                 bracketed:
                   start_bracket: (
@@ -739,7 +740,8 @@ file:
                         table_reference:
                           naked_identifier: megatable
                       alias_expression:
-                        keyword: AS
+                        alias_expression_operator:
+                          keyword: AS
                         naked_identifier: mt
                 where_clause:
                   keyword: WHERE
@@ -853,37 +855,4 @@ file:
     - conflict_action:
       - keyword: DO
       - keyword: NOTHING
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: prompt_variants
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: test
-      - comma: ','
-      - column_reference:
-          naked_identifier: test2
-      - end_bracket: )
-    - select_statement:
-        select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-            column_reference:
-              naked_identifier: test
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              naked_identifier: test2
-    - keyword: RETURNING
-    - expression:
-        column_reference:
-          naked_identifier: test
-    - comma: ','
-    - expression:
-        column_reference:
-          naked_identifier: test2
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e8970d53dc1e63820d007088503f6aba77822de88bd36dfa2eba44a34bf97409
+_hash: 797b7831072b72a5511cb3e0bad4e3dd341e02476a24bd882ee19231a158ec81
 file:
 - statement:
     create_materialized_view_statement:
@@ -59,7 +59,8 @@ file:
                       naked_identifier: qtysold
                   end_bracket: )
             alias_expression:
-              keyword: as
+              alias_expression_operator:
+                keyword: as
               naked_identifier: sold
         from_clause:
         - keyword: from
@@ -212,7 +213,8 @@ file:
             column_reference:
               naked_identifier: ball
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: baseball
         from_clause:
           keyword: FROM

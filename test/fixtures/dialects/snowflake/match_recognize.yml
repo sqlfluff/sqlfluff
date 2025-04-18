@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 73b8c2a969f626561db3d163dd18051cb9bc3f08f03ece62f6ee457430ea3602
+_hash: aa129c0d2a2d958d29645350f1dcb799f8543a28a42ed33b64717cc6227b1a93
 file:
 - statement:
     select_statement:
@@ -45,7 +45,8 @@ file:
                       start_bracket: (
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: match_number
             - comma: ','
             - expression:
@@ -60,7 +61,8 @@ file:
                           naked_identifier: price_date
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: start_date
             - comma: ','
             - expression:
@@ -75,7 +77,8 @@ file:
                           naked_identifier: price_date
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: end_date
             - comma: ','
             - expression:
@@ -88,7 +91,8 @@ file:
                       star: '*'
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: rows_in_sequence
             - comma: ','
             - expression:
@@ -104,7 +108,8 @@ file:
                         star: '*'
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: num_decreases
             - comma: ','
             - expression:
@@ -120,7 +125,8 @@ file:
                         star: '*'
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: num_increases
             - keyword: one
             - keyword: row
@@ -260,7 +266,8 @@ file:
                       start_bracket: (
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 quoted_identifier: '"MATCH_NUMBER"'
             - comma: ','
             - expression:
@@ -272,7 +279,8 @@ file:
                       start_bracket: (
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: msq
             - comma: ','
             - expression:
@@ -284,7 +292,8 @@ file:
                       start_bracket: (
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: cl
             - keyword: all
             - keyword: rows
@@ -371,7 +380,8 @@ file:
                       start_bracket: (
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 quoted_identifier: '"MATCH_NUMBER"'
             - keyword: all
             - keyword: rows
@@ -469,7 +479,8 @@ file:
                       start_bracket: (
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 quoted_identifier: '"MATCH_NUMBER"'
             - comma: ','
             - expression:
@@ -481,7 +492,8 @@ file:
                       start_bracket: (
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: cl
             - keyword: all
             - keyword: rows
@@ -600,7 +612,8 @@ file:
                         - naked_identifier: price
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 quoted_identifier: '"FINAL FIRST(LT45.price)"'
             - comma: ','
             - keyword: final
@@ -618,7 +631,8 @@ file:
                         - naked_identifier: price
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 quoted_identifier: '"FINAL LAST(LT45.price)"'
             - keyword: all
             - keyword: rows
@@ -701,7 +715,8 @@ file:
                       start_bracket: (
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: match_number
             - comma: ','
             - expression:
@@ -716,7 +731,8 @@ file:
                           naked_identifier: price_date
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: start_date
             - comma: ','
             - expression:
@@ -731,7 +747,8 @@ file:
                           naked_identifier: price_date
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: end_date
             - comma: ','
             - expression:
@@ -744,7 +761,8 @@ file:
                       star: '*'
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: rows_in_sequence
             - comma: ','
             - expression:
@@ -760,7 +778,8 @@ file:
                         star: '*'
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: num_decreases
             - comma: ','
             - expression:
@@ -776,7 +795,8 @@ file:
                         star: '*'
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: num_increases
             - keyword: one
             - keyword: row
@@ -910,7 +930,8 @@ file:
                       start_bracket: (
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: match_number
             - comma: ','
             - expression:
@@ -925,7 +946,8 @@ file:
                           naked_identifier: price_date
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: start_date
             - comma: ','
             - expression:
@@ -940,7 +962,8 @@ file:
                           naked_identifier: price_date
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: end_date
             - comma: ','
             - expression:
@@ -953,7 +976,8 @@ file:
                       star: '*'
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: rows_in_sequence
             - comma: ','
             - expression:
@@ -969,7 +993,8 @@ file:
                         star: '*'
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: num_decreases
             - comma: ','
             - expression:
@@ -985,7 +1010,8 @@ file:
                         star: '*'
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: num_increases
             - keyword: one
             - keyword: row
@@ -1115,7 +1141,8 @@ file:
                       start_bracket: (
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: match_number
             - comma: ','
             - expression:
@@ -1130,7 +1157,8 @@ file:
                           naked_identifier: price_date
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: start_date
             - comma: ','
             - expression:
@@ -1145,7 +1173,8 @@ file:
                           naked_identifier: price_date
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: end_date
             - comma: ','
             - expression:
@@ -1158,7 +1187,8 @@ file:
                       star: '*'
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: rows_in_sequence
             - comma: ','
             - expression:
@@ -1174,7 +1204,8 @@ file:
                         star: '*'
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: num_decreases
             - comma: ','
             - expression:
@@ -1190,7 +1221,8 @@ file:
                         star: '*'
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: num_increases
             - keyword: one
             - keyword: row
@@ -1306,7 +1338,8 @@ file:
                       start_bracket: (
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: match_number
             - comma: ','
             - expression:
@@ -1321,7 +1354,8 @@ file:
                           naked_identifier: price_date
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: start_date
             - comma: ','
             - expression:
@@ -1336,7 +1370,8 @@ file:
                           naked_identifier: price_date
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: end_date
             - comma: ','
             - expression:
@@ -1349,7 +1384,8 @@ file:
                       star: '*'
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: rows_in_sequence
             - comma: ','
             - expression:
@@ -1365,7 +1401,8 @@ file:
                         star: '*'
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: num_decreases
             - comma: ','
             - expression:
@@ -1381,7 +1418,8 @@ file:
                         star: '*'
                       end_bracket: )
             - alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: num_increases
             - keyword: one
             - keyword: row

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d37389d892d5385c4fc28ff2a4c5810937d41431223e25834af62a6ef83980b7
+_hash: 17fa68c04d12e88364dc74b6f92e1493ec842d03e701690c33b0e27412bc8ae6
 file:
 - statement:
     select_statement:
@@ -31,7 +31,8 @@ file:
                   - naked_identifier: sometime
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -67,7 +68,8 @@ file:
                   - naked_identifier: sometime
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -103,7 +105,8 @@ file:
                   - naked_identifier: sometime
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -139,7 +142,8 @@ file:
                   - naked_identifier: sometime
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -175,7 +179,8 @@ file:
                   - naked_identifier: sometime
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -211,7 +216,8 @@ file:
                   - naked_identifier: sometime
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -247,7 +253,8 @@ file:
                   - naked_identifier: sometime
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -283,7 +290,8 @@ file:
                   - naked_identifier: sometime
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -319,7 +327,8 @@ file:
                   - naked_identifier: sometime
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -355,7 +364,8 @@ file:
                   - naked_identifier: sometime
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -391,7 +401,8 @@ file:
                   - naked_identifier: sometime
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -427,7 +438,8 @@ file:
                   - naked_identifier: sometime
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -463,7 +475,8 @@ file:
                   - naked_identifier: sometime
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -497,7 +510,8 @@ file:
             - dot: .
             - naked_identifier: data
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -537,7 +551,8 @@ file:
             - dot: .
             - naked_identifier: data
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -569,7 +584,8 @@ file:
                 keyword: TIME
               quoted_literal: "'03:00'"
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -606,7 +622,8 @@ file:
             - dot: .
             - naked_identifier: data
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -643,7 +660,8 @@ file:
             - dot: .
             - naked_identifier: data
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -680,7 +698,8 @@ file:
             - dot: .
             - naked_identifier: data
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -713,7 +732,8 @@ file:
             - dot: .
             - naked_identifier: data
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -747,7 +767,8 @@ file:
             - dot: .
             - naked_identifier: data
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -781,7 +802,8 @@ file:
             - dot: .
             - naked_identifier: data
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM
@@ -821,7 +843,8 @@ file:
             - dot: .
             - naked_identifier: data
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: a
       from_clause:
         keyword: FROM

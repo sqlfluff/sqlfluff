@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8f114cde32c9e26c8cb69e0d57fdfa3eee4e0e7dd98a4a705e015636b1297f05
+_hash: a1b04916574e94e304d2da2f3683f2646c359da60fa78a2501042a8f32450bc5
 file:
 - statement:
     with_compound_statement:
@@ -20,7 +20,8 @@ file:
               - select_clause_element:
                   numeric_literal: '10'
                   alias_expression:
-                    keyword: AS
+                    alias_expression_operator:
+                      keyword: AS
                     naked_identifier: shop_id
               - comma: ','
               - select_clause_element:
@@ -35,7 +36,8 @@ file:
                             : 6}'"
                         end_bracket: )
                   alias_expression:
-                    keyword: AS
+                    alias_expression_operator:
+                      keyword: AS
                     naked_identifier: inventory
           - set_operator:
             - keyword: UNION
@@ -46,7 +48,8 @@ file:
               - select_clause_element:
                   numeric_literal: '20'
                   alias_expression:
-                    keyword: AS
+                    alias_expression_operator:
+                      keyword: AS
                     naked_identifier: shop_id
               - comma: ','
               - select_clause_element:
@@ -60,7 +63,8 @@ file:
                           quoted_literal: "'{\"pear_count\": 10, \"other_data\": 42}'"
                         end_bracket: )
                   alias_expression:
-                    keyword: AS
+                    alias_expression_operator:
+                      keyword: AS
                     naked_identifier: inventory
           - set_operator:
             - keyword: UNION
@@ -71,7 +75,8 @@ file:
               - select_clause_element:
                   numeric_literal: '30'
                   alias_expression:
-                    keyword: AS
+                    alias_expression_operator:
+                      keyword: AS
                     naked_identifier: shop_id
               - comma: ','
               - select_clause_element:
@@ -86,7 +91,8 @@ file:
                             \ 5}'"
                         end_bracket: )
                   alias_expression:
-                    keyword: AS
+                    alias_expression_operator:
+                      keyword: AS
                     naked_identifier: inventory
           end_bracket: )
       select_statement:
@@ -135,14 +141,16 @@ file:
           column_reference:
             naked_identifier: attr
           alias_expression:
-            keyword: as
+            alias_expression_operator:
+              keyword: as
             naked_identifier: attribute_name
       - comma: ','
       - select_clause_element:
           column_reference:
             naked_identifier: val
           alias_expression:
-            keyword: as
+            alias_expression_operator:
+              keyword: as
             naked_identifier: object_value
       from_clause:
       - keyword: FROM
@@ -162,7 +170,8 @@ file:
               - dot: .
               - naked_identifier: c_orders
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: o
       - comma: ','
       - from_expression:

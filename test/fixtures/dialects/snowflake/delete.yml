@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ebfa67a74f2c11ab6f7f3b464b9046dc119fef9e7938acc264322711dfc5c4d1
+_hash: e529a9c9bec4aa2f4e681234a978f6716ae3a1f9011cc4302e1ed7cff92c684f
 file:
 - statement:
     delete_statement:
@@ -19,7 +19,8 @@ file:
     - table_reference:
         naked_identifier: leased_bicycles
     - alias_expression:
-        keyword: as
+        alias_expression_operator:
+          keyword: as
         naked_identifier: lb
 - statement_terminator: ;
 - statement:
@@ -82,14 +83,16 @@ file:
     - table_reference:
         naked_identifier: leased_bicycles
     - alias_expression:
-        keyword: as
+        alias_expression_operator:
+          keyword: as
         naked_identifier: lb
     - keyword: using
     - table_expression:
         table_reference:
           naked_identifier: returned_bicycles
     - alias_expression:
-        keyword: as
+        alias_expression_operator:
+          keyword: as
         naked_identifier: rb
     - where_clause:
         keyword: where
@@ -179,21 +182,24 @@ file:
     - table_reference:
         naked_identifier: leased_bicycles
     - alias_expression:
-        keyword: as
+        alias_expression_operator:
+          keyword: as
         naked_identifier: lb
     - keyword: using
     - table_expression:
         table_reference:
           naked_identifier: returned_bicycles
     - alias_expression:
-        keyword: as
+        alias_expression_operator:
+          keyword: as
         naked_identifier: rb
     - comma: ','
     - table_expression:
         table_reference:
           naked_identifier: broken_bicycles
     - alias_expression:
-        keyword: as
+        alias_expression_operator:
+          keyword: as
         naked_identifier: bb
     - where_clause:
         keyword: where
@@ -282,7 +288,8 @@ file:
                 column_reference:
                   naked_identifier: bicycle_id
                 alias_expression:
-                  keyword: as
+                  alias_expression_operator:
+                    keyword: as
                   naked_identifier: bicycle_id
             from_clause:
               keyword: from
@@ -293,7 +300,8 @@ file:
                       naked_identifier: returned_bicycles
           end_bracket: )
     - alias_expression:
-        keyword: as
+        alias_expression_operator:
+          keyword: as
         naked_identifier: returned
     - where_clause:
         keyword: where
@@ -326,7 +334,8 @@ file:
                 column_reference:
                   naked_identifier: bicycle_id
                 alias_expression:
-                  keyword: as
+                  alias_expression_operator:
+                    keyword: as
                   naked_identifier: bicycle_id
             from_clause:
               keyword: from
@@ -344,7 +353,8 @@ file:
               - numeric_literal: '2'
           end_bracket: )
     - alias_expression:
-        keyword: as
+        alias_expression_operator:
+          keyword: as
         naked_identifier: returned
     - where_clause:
         keyword: where

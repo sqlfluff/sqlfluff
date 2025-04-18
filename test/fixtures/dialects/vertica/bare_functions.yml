@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d95d33f57843cbc311efc5356de62f3701b5f984393f6fe5ab3a075c592da3ff
+_hash: b8d8bb3f97ba5c4a54e78fbf247f39fe849402c367544db0130e0ec116835a3e
 file:
   statement:
     select_statement:
@@ -12,36 +12,42 @@ file:
       - select_clause_element:
           bare_function: current_timestamp
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: col1
       - comma: ','
       - select_clause_element:
           bare_function: current_time
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: col2
       - comma: ','
       - select_clause_element:
           bare_function: current_date
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: col3
       - comma: ','
       - select_clause_element:
           bare_function: localtime
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: col4
       - comma: ','
       - select_clause_element:
           bare_function: localtimestamp
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: col5
       - comma: ','
       - select_clause_element:
           bare_function: sysdate
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: col6
   statement_terminator: ;

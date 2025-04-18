@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1678003851e93f5df35bd014b22981e2baa9577d3f19fe1e337531d85e046255
+_hash: fb44b7fd6a90f77cc3de1204839424b23c642f062eec5f32bf4fbbb83164f2e9
 file:
 - statement:
     select_statement:
@@ -177,7 +177,8 @@ file:
                     star: '*'
                     end_bracket: )
             - alias_expression:
-                keyword: AS
+                alias_expression_operator:
+                  keyword: AS
                 naked_identifier: count
             - keyword: FOR
             - column_reference:
@@ -188,19 +189,22 @@ file:
               - expression:
                   numeric_literal: '1'
               - alias_expression:
-                  keyword: AS
+                  alias_expression_operator:
+                    keyword: AS
                   naked_identifier: high
               - comma: ','
               - expression:
                   numeric_literal: '2'
               - alias_expression:
-                  keyword: AS
+                  alias_expression_operator:
+                    keyword: AS
                   naked_identifier: low
               - comma: ','
               - expression:
                   null_literal: 'NULL'
               - alias_expression:
-                  keyword: AS
+                  alias_expression_operator:
+                    keyword: AS
                   naked_identifier: na
               - end_bracket: )
             - end_bracket: )
@@ -262,7 +266,8 @@ file:
                       star: '*'
                       end_bracket: )
               - alias_expression:
-                  keyword: AS
+                  alias_expression_operator:
+                    keyword: AS
                   naked_identifier: num_ate_food
               - keyword: FOR
               - column_reference:
@@ -399,6 +404,7 @@ file:
               - end_bracket: )
             - end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: quality_matrix
 - statement_terminator: ;

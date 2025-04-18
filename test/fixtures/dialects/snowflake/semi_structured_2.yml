@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a720837903ff876f4ee7516d52de72abaa89209df48cac70b765bb2ab8a73073
+_hash: 27c13510a3fa5a8df85e67256101f2687602224a91fbb1f2522f7d8fd206cf13
 file:
   statement:
     select_statement:
@@ -23,7 +23,8 @@ file:
               data_type:
                 data_type_identifier: string
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: TO_PHONE_NUMBER
       - comma: ','
       - select_clause_element:
@@ -40,7 +41,8 @@ file:
               data_type:
                 data_type_identifier: string
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: FROM_PHONE_NUMBER
       from_clause:
         keyword: FROM

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1990b4af5802da510221d29c2552c25cb7df21d3115cdb0cbedb2da0325fc22a
+_hash: fd8787c1851d9dd98b5c167d64afa2e7764f7c4a54c59aa40769336d66b0f350
 file:
 - statement:
     select_statement:
@@ -48,7 +48,8 @@ file:
                   - keyword: DESC
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: rnk
       from_clause:
         keyword: FROM
@@ -115,7 +116,8 @@ file:
                       naked_identifier: orderdate
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: rolling_sum
       from_clause:
         keyword: FROM

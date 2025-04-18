@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8e303009ea0fee97fdd82ba3a867285e263a491cd6a4ab7ab7f97dcd01798cea
+_hash: bfa0466d669c8d14b603a13f71136422d8afc48e99e1c72b75d35fec21d14a0d
 file:
 - statement:
     select_statement:
@@ -67,7 +67,8 @@ file:
                     numeric_literal: '12'
               - end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: FEC_CIERRE_EST_ULT12
       - comma: ','
       - select_clause_element:
@@ -86,7 +87,8 @@ file:
                   quoted_literal: "'YYYYMM'"
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: CAST_STATEMENT_EXAMPLE
       from_clause:
         keyword: FROM
@@ -215,7 +217,8 @@ file:
                     naked_identifier: vld_to
               - end_bracket: )
           alias_expression:
-            keyword: as
+            alias_expression_operator:
+              keyword: as
             naked_identifier: vld_prd
       from_clause:
         keyword: from

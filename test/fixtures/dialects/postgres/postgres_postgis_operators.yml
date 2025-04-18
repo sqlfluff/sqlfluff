@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7a559e5d88b5558190b02596acf6c0846eb5f46fa7ca6fb1c52349affd236bb9
+_hash: 9569449454f54fc9440959ceaa7b984ef399929e593a57a0adf5a599d2d199bb
 file:
 - statement:
     select_statement:
@@ -35,7 +35,8 @@ file:
             - dot: .
             - naked_identifier: column2
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: overlap
       from_clause:
       - keyword: FROM
@@ -73,7 +74,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl1
       - comma: ','
       - from_expression:
@@ -97,7 +99,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl2
 - statement_terminator: ;
 - statement:
@@ -128,7 +131,8 @@ file:
             - dot: .
             - naked_identifier: column2
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: overlaps_3d
       - comma: ','
       - select_clause_element:
@@ -145,7 +149,8 @@ file:
             - dot: .
             - naked_identifier: column2
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: overlaps_2d
       from_clause:
       - keyword: FROM
@@ -183,7 +188,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl1
       - comma: ','
       - from_expression:
@@ -207,7 +213,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl2
 - statement_terminator: ;
 - statement:
@@ -240,7 +247,8 @@ file:
             - dot: .
             - naked_identifier: column2
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: overleft
       from_clause:
       - keyword: FROM
@@ -265,7 +273,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl1
       - comma: ','
       - from_expression:
@@ -315,7 +324,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl2
 - statement_terminator: ;
 - statement:
@@ -346,7 +356,8 @@ file:
             - dot: .
             - naked_identifier: column2
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: overbelow
       from_clause:
       - keyword: FROM
@@ -371,7 +382,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl1
       - comma: ','
       - from_expression:
@@ -421,7 +433,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl2
 - statement_terminator: ;
 - statement:
@@ -454,7 +467,8 @@ file:
             - dot: .
             - naked_identifier: column2
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: overright
       from_clause:
       - keyword: FROM
@@ -479,7 +493,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl1
       - comma: ','
       - from_expression:
@@ -529,7 +544,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl2
 - statement_terminator: ;
 - statement:
@@ -562,7 +578,8 @@ file:
             - dot: .
             - naked_identifier: column2
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: strict_left
       from_clause:
       - keyword: FROM
@@ -587,7 +604,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl1
       - comma: ','
       - from_expression:
@@ -637,7 +655,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl2
 - statement_terminator: ;
 - statement:
@@ -668,7 +687,8 @@ file:
             - dot: .
             - naked_identifier: column2
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: below
       from_clause:
       - keyword: FROM
@@ -693,7 +713,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl1
       - comma: ','
       - from_expression:
@@ -743,7 +764,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl2
 - statement_terminator: ;
 - statement:
@@ -795,7 +817,8 @@ file:
             - dot: .
             - naked_identifier: column2
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: strict_right
       from_clause:
       - keyword: FROM
@@ -820,7 +843,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl1
       - comma: ','
       - from_expression:
@@ -870,7 +894,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl2
 - statement_terminator: ;
 - statement:
@@ -901,7 +926,8 @@ file:
             - dot: .
             - naked_identifier: column2
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: contained
       from_clause:
       - keyword: FROM
@@ -926,7 +952,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl1
       - comma: ','
       - from_expression:
@@ -976,7 +1003,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl2
 - statement_terminator: ;
 - statement:
@@ -1007,7 +1035,8 @@ file:
             - dot: .
             - naked_identifier: column2
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: overabove
       from_clause:
       - keyword: FROM
@@ -1032,7 +1061,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl1
       - comma: ','
       - from_expression:
@@ -1082,7 +1112,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl2
 - statement_terminator: ;
 - statement:
@@ -1113,7 +1144,8 @@ file:
             - dot: .
             - naked_identifier: column2
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: above
       from_clause:
       - keyword: FROM
@@ -1138,7 +1170,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl1
       - comma: ','
       - from_expression:
@@ -1188,7 +1221,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl2
 - statement_terminator: ;
 - statement:
@@ -1219,7 +1253,8 @@ file:
             - dot: .
             - naked_identifier: column2
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: contains
       from_clause:
       - keyword: FROM
@@ -1244,7 +1279,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl1
       - comma: ','
       - from_expression:
@@ -1294,7 +1330,8 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: tbl2
 - statement_terminator: ;
 - statement:
@@ -1315,7 +1352,8 @@ file:
               data_type:
                 data_type_identifier: geometry
           alias_expression:
-            keyword: as
+            alias_expression_operator:
+              keyword: as
             naked_identifier: equality
 - statement_terminator: ;
 - statement:
@@ -1341,7 +1379,8 @@ file:
                       data_type_identifier: geometry
               - end_bracket: )
           alias_expression:
-            keyword: as
+            alias_expression_operator:
+              keyword: as
             naked_identifier: d
       - comma: ','
       - select_clause_element:
@@ -1493,7 +1532,8 @@ file:
                                 numeric_literal: '2249'
                             - end_bracket: )
                       alias_expression:
-                        keyword: As
+                        alias_expression_operator:
+                          keyword: As
                         naked_identifier: b_dist
                   - comma: ','
                   - select_clause_element:
@@ -1526,7 +1566,8 @@ file:
                                   - end_bracket: )
                           - end_bracket: )
                       alias_expression:
-                        keyword: As
+                        alias_expression_operator:
+                          keyword: As
                         naked_identifier: act_dist
                   from_clause:
                     keyword: FROM
@@ -1536,7 +1577,8 @@ file:
                           table_reference:
                             naked_identifier: bos_roads
                         alias_expression:
-                          keyword: As
+                          alias_expression_operator:
+                            keyword: As
                           naked_identifier: b
                   orderby_clause:
                   - keyword: ORDER
@@ -1553,7 +1595,8 @@ file:
                     numeric_literal: '100'
                 end_bracket: )
             alias_expression:
-              keyword: As
+              alias_expression_operator:
+                keyword: As
               naked_identifier: foo
       orderby_clause:
       - keyword: ORDER
@@ -1597,7 +1640,8 @@ file:
                             data_type_identifier: geometry
                     - end_bracket: )
                 alias_expression:
-                  keyword: as
+                  alias_expression_operator:
+                    keyword: as
                   naked_identifier: d
             - comma: ','
             - select_clause_element:
@@ -1683,7 +1727,8 @@ file:
                             data_type_identifier: geometry
                     - end_bracket: )
                 alias_expression:
-                  keyword: as
+                  alias_expression_operator:
+                    keyword: as
                   naked_identifier: d
             - comma: ','
             - select_clause_element:
