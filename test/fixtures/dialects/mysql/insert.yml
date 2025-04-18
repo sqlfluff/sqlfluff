@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f26042eddf4339d9869fb9f5ad624003347b83461901ce6ffb122617abf6c2d9
+_hash: 5348117b8493ae6d25e5397cf3f547cb4d8844d98e97384880819c854fec8f42
 file:
 - statement:
     insert_statement:
@@ -77,7 +77,8 @@ file:
                         - column_reference:
                             naked_identifier: d
                         alias_expression:
-                          keyword: AS
+                          alias_expression_operator:
+                            keyword: AS
                           naked_identifier: e
                     from_clause:
                       keyword: FROM
@@ -88,7 +89,8 @@ file:
                               naked_identifier: t2
                   end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_expression_operator:
+                  keyword: AS
                 naked_identifier: dt
 - statement_terminator: ;
 - statement:
@@ -323,7 +325,8 @@ file:
                         - column_reference:
                             naked_identifier: d
                         alias_expression:
-                          keyword: AS
+                          alias_expression_operator:
+                            keyword: AS
                           naked_identifier: e
                     from_clause:
                       keyword: FROM
@@ -334,7 +337,8 @@ file:
                               naked_identifier: t2
                   end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_expression_operator:
+                  keyword: AS
                 naked_identifier: dt
     - upsert_clause_list:
       - keyword: 'ON'
@@ -384,7 +388,8 @@ file:
                         - column_reference:
                             naked_identifier: d
                         alias_expression:
-                          keyword: AS
+                          alias_expression_operator:
+                            keyword: AS
                           naked_identifier: e
                     from_clause:
                       keyword: FROM
