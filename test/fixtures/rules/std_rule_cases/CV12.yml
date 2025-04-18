@@ -46,6 +46,13 @@ test_noop_positional_join_duckdb:
     core:
       dialect: duckdb
 
+test_noop_outer_apply_tsql:
+  pass_str: |
+    SELECT foo.a, bar.b FROM foo OUTER APPLY bar(foo.a) AS bar WHERE bar.x > 3;
+  configs:
+    core:
+      dialect: tsql
+
 test_fail_unqualified:
   # ambiguous, fail without fix
   fail_str: |
