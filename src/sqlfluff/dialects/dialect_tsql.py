@@ -812,35 +812,6 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     )
 
 
-class AliasExpressionSegment(ansi.AliasExpressionSegment):
-    """A reference to an object with an `AS` clause.
-
-    The optional AS keyword allows both implicit and explicit aliasing.
-    """
-
-    type = "alias_expression"
-    match_grammar: Matchable = Sequence(
-        Indent,
-        Ref("AliasExpressionAsOperatorSegment", optional=True),
-        OneOf(
-            Sequence(
-                Ref("SingleIdentifierGrammar"),
-                # Column alias in VALUES clause
-                Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
-            ),
-            Ref("SingleQuotedIdentifierSegment"),
-        ),
-        Dedent,
-    )
-
-
-class AliasExpressionAsOperatorSegment(BaseSegment):
-    """Equals operator."""
-
-    type = "alias_expression_operator"
-    match_grammar: Matchable = Sequence(Ref.keyword("AS"))
-
-
 class AltAliasExpressionSegment(BaseSegment):
     """An alternative alias clause as used by tsql using `=`."""
 
