@@ -6,6 +6,7 @@ from collections.abc import Sequence as SequenceType
 from os import getenv
 from typing import Optional, Union, cast
 
+from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.helpers.slice import is_zero_slice
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (
@@ -14,15 +15,15 @@ from sqlfluff.core.parser.grammar.base import (
 )
 from sqlfluff.core.parser.grammar.conditional import Conditional
 from sqlfluff.core.parser.match_algorithms import (
-    resolve_bracket,
     skip_start_index_forward_to_code,
     skip_stop_index_backward_to_code,
-    trim_to_terminator,
 )
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import (
     BaseSegment,
+    BracketedSegment,
+    Dedent,
     Indent,
     MetaSegment,
     TemplateSegment,
@@ -466,15 +467,10 @@ class Bracketed(Sequence):
     ) -> MatchResult:
         """Match a bracketed sequence of elements.
 
-        Once we've confirmed the existence of the initial opening bracket,
-        this grammar delegates to `resolve_bracket()` to recursively close
-        any brackets we fund until the initial opening bracket has been
-        closed.
+        This implementation matches a bracketed expression without recursion or seeking ahead.
+        It simply matches: start bracket, content, end bracket in sequence.
 
-        After the closing point of the bracket has been established, we then
-        match the content against the elements of this grammar (as options,
-        not as a sequence). How the grammar behaves on different content
-        depends on the `parse_mode`:
+        How the grammar behaves on different content depends on the `parse_mode`:
 
         - If the parse mode is `GREEDY`, this always returns a match if
           the opening and closing brackets are found. Anything unexpected
@@ -484,109 +480,101 @@ class Bracketed(Sequence):
           one of the elements of the grammar. Otherwise no match.
         """
         # Rehydrate the bracket segments in question.
-        # bracket_persists controls whether we make a BracketedSegment or not.
         start_bracket, end_bracket, bracket_persists = self.get_bracket_from_dialect(
             parse_context
         )
-        # Allow optional override for special bracket-like things
         start_bracket = self.start_bracket or start_bracket
         end_bracket = self.end_bracket or end_bracket
 
-        # Otherwise try and match the segments directly.
-        # Look for the first bracket
-        with parse_context.deeper_match(name="Bracketed-Start") as ctx:
+        # Try to match the first bracket
+        with parse_context.deeper_match(name="Bracketed-StartBracket") as ctx:
             start_match = start_bracket.match(segments, idx, ctx)
 
         if not start_match:
-            # Can't find the opening bracket. No Match.
             return MatchResult.empty_at(idx)
 
-        # NOTE: Ideally we'd match on the _content_ next, providing we were sure
-        # we wouldn't hit the end. But it appears the terminator logic isn't
-        # robust enough for that yet. Until then, we _first_ look for the closing
-        # bracket and _then_ match on the inner content.
-        bracketed_match = resolve_bracket(
-            segments,
-            opening_match=start_match,
-            opening_matcher=start_bracket,
-            start_brackets=[start_bracket],
-            end_brackets=[end_bracket],
-            bracket_persists=[bracket_persists],
-            parse_context=parse_context,
-        )
+        # Starting position for content matching after the start bracket
+        content_start_idx = start_match.matched_slice.stop
 
-        # If the brackets couldn't be resolved, then it will raise a parsing error
-        # that means we can assert that brackets have been matched if there is no
-        # error.
-        assert bracketed_match
-
-        # The bracketed_match will also already have been wrapped as a
-        # BracketedSegment including the references to start and end brackets.
-        # We only need to add content.
-
-        # Work forward through any gaps at the start and end.
-        # NOTE: We assume that all brackets are single segment.
-        _idx = start_match.matched_slice.stop
-        _end_idx = bracketed_match.matched_slice.stop - 1
+        # Skip whitespace if allowed
         if self.allow_gaps:
-            _idx = skip_start_index_forward_to_code(segments, _idx)
-            _end_idx = skip_stop_index_backward_to_code(segments, _end_idx, _idx)
+            content_start_idx = skip_start_index_forward_to_code(segments, content_start_idx)
 
-        # Try and match content, clearing and adding the closing bracket
-        # to the terminators.
+        # Match the content with the end bracket as a terminator
         with parse_context.deeper_match(
-            name="Bracketed", clear_terminators=True, push_terminators=[end_bracket]
+            name="Bracketed-Content", clear_terminators=True, push_terminators=[end_bracket]
         ) as ctx:
-            # NOTE: This slice is a bit of a hack, but it's the only
-            # reliable way so far to make sure we don't "over match" when
-            # presented with a potential terminating bracket.
-            content_match = super().match(segments[:_end_idx], _idx, ctx)
+            content_match = super().match(segments, content_start_idx, ctx)
 
-        # No complete match within the brackets? Stop here and return unmatched.
-        if (
-            not content_match.matched_slice.stop == _end_idx
-            and self.parse_mode == ParseMode.STRICT
-        ):
-            return MatchResult.empty_at(idx)
+        # Get position after content for end bracket check
+        gap_start = end_bracket_idx = content_match.matched_slice.stop
 
-        # What's between the final match and the content. Hopefully just gap?
-        intermediate_slice = slice(
-            # NOTE: Assumes that brackets are always of size 1.
-            content_match.matched_slice.stop,
-            bracketed_match.matched_slice.stop - 1,
-        )
-        if not self.allow_gaps and not is_zero_slice(intermediate_slice):
-            # NOTE: In this clause, content_match will never have matched. Either
-            # we're in STRICT mode, and would have exited in the `return` above,
-            # or we're in GREEDY mode and the `super().match()` will have already
-            # claimed the whole sequence with nothing left. This clause is
-            # effectively only accessible in a bracketed section which doesn't
-            # allow whitespace but nonetheless has some, which is fairly rare.
-            expected = str(self._elements)
-            # Whatever is in the gap should be marked as an UnparsableSegment.
-            child_match = MatchResult(
-                intermediate_slice,
-                UnparsableSegment,
-                segment_kwargs={"expected": expected},
+        # Skip whitespace if allowed
+        if self.allow_gaps:
+            end_bracket_idx = skip_start_index_forward_to_code(segments, end_bracket_idx)
+
+        # If there's a gap, add it as a child match
+        child_matches = (start_match,)
+        if not is_zero_slice(content_match.matched_slice):
+            if content_match.matched_class:
+                child_matches += (content_match,)
+            else:
+                child_matches += content_match.child_matches
+        if end_bracket_idx > gap_start:
+            gap_match = MatchResult(
+                matched_slice=slice(gap_start, end_bracket_idx),
+                matched_class=None,
+                segment_kwargs={},
+                insert_segments=(),
+                child_matches=(),
             )
-            content_match = content_match.append(child_match)
+            child_matches += (gap_match,)
 
-        # We now have content and bracketed matches. Depending on whether the intent
-        # is to wrap or not we should construct the response.
-        _content_matches: tuple[MatchResult, ...]
-        if content_match.matched_class:
-            _content_matches = bracketed_match.child_matches + (content_match,)
-        else:
-            _content_matches = (
-                bracketed_match.child_matches + content_match.child_matches
+        # Check if we've run out of segments
+        if end_bracket_idx >= len(segments):
+            # No end bracket found
+            if self.parse_mode == ParseMode.STRICT:
+                return MatchResult.empty_at(idx)
+            raise SQLParseError(
+                "Couldn't find closing bracket for opening bracket.",
+                segment=segments[start_match.matched_slice.start],
             )
 
-        # NOTE: Whether a bracket is wrapped or unwrapped (i.e. the effect of
-        # `bracket_persists`, is controlled by `resolve_bracket`)
-        return MatchResult(
-            matched_slice=bracketed_match.matched_slice,
-            matched_class=bracketed_match.matched_class,
-            segment_kwargs=bracketed_match.segment_kwargs,
-            insert_segments=bracketed_match.insert_segments,
-            child_matches=_content_matches,
+        # Try to match the end bracket
+        with parse_context.deeper_match(name="Bracketed-EndBracket") as ctx:
+            end_match = end_bracket.match(segments, end_bracket_idx, ctx)
+
+        if not end_match:
+            # No end bracket found
+            if self.parse_mode == ParseMode.STRICT:
+                return MatchResult.empty_at(idx)
+            raise SQLParseError(
+                "Couldn't find closing bracket for opening bracket.",
+                segment=segments[start_match.matched_slice.start],
+            )
+
+        # Add end bracket match
+        child_matches += (end_match,)
+
+        # Create the final match result
+        result = MatchResult(
+            matched_slice=slice(idx, end_match.matched_slice.stop),
+            matched_class=None,
+            segment_kwargs={},
+            insert_segments=(
+                (start_match.matched_slice.stop, Indent),
+                (end_match.matched_slice.start, Dedent),
+            ),
+            child_matches=child_matches,
         )
+
+        # Wrap in a BracketedSegment if needed
+        if bracket_persists:
+            result = result.wrap(
+                BracketedSegment,
+                segment_kwargs={
+                    "start_bracket": (segments[idx],),
+                    "end_bracket": (segments[end_bracket_idx],),
+                },
+            )
+        return result
