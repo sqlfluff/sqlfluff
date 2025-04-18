@@ -2121,7 +2121,6 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
         ),
         # Some functions alias several columns in brackets () like mapkeys or explode
         Sequence(
-            Indent,
             Ref("AliasExpressionAsOperatorSegment", optional=True),
             Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
             Dedent,
