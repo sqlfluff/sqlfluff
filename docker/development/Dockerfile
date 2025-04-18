@@ -1,16 +1,18 @@
-FROM python:3.9-slim-bullseye
+FROM python:3.12
 
-RUN apt update \
-&& apt -y install libpq-dev gcc
 # Set separate working directory for easier debugging.
 WORKDIR /app
+ENV PYTHONPATH=/app;/app/src
 
+# Install Git
+RUN apt-get -y update
+RUN apt-get -y install git
+
+COPY requirements_dev.txt /requirements_dev.txt
+
+#Install Dependencies
 RUN --mount=type=cache,target=/root/.cache/pip pip install --upgrade pip setuptools wheel
-
-# Install requirements separately
-# to take advantage of layer caching.
-COPY requirements*.txt .
-RUN --mount=type=cache,target=/root/.cache/pip pip install --upgrade -r requirements_dev.txt
+RUN --mount=type=cache,target=/root/.cache/pip pip install -r /requirements_dev.txt --upgrade --default-timeout=100
 
 # Set up dbt-related dependencies.
 RUN --mount=type=cache,target=/root/.cache/pip pip install dbt-postgres
@@ -20,3 +22,4 @@ COPY . .
 
 # Install sqlfluff and the dbt templater in editable mode.
 RUN pip install -e . -e plugins/sqlfluff-templater-dbt
+
