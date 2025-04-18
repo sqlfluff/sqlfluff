@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1d58bf94708913cacaaba3f74d74ed4f96125976ea3aecc043fd2beb5cc1ee38
+_hash: c2bacdbb03ca1cac766956e9d96b974b702539d1d4b31753492c50810005a119
 file:
 - batch:
     statement:
@@ -357,7 +357,8 @@ file:
                         data_type_identifier: bigint
                     - end_bracket: )
               alias_expression:
-                keyword: as
+                alias_expression_operator:
+                  keyword: as
                 naked_identifier: rows
 - go_statement:
     keyword: GO
@@ -443,7 +444,8 @@ file:
                     - quoted_literal: "'strict $.population'"
                     - end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_expression_operator:
+                  keyword: AS
                 quoted_identifier: '[r]'
 - go_statement:
     keyword: GO

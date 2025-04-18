@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e374d620cc21a4b90578a4bcf72a3a68f9d3007682de699b6818812a756d6a56
+_hash: 260f89d23dd9db00a40066dc0acd5091e8e365094de6d426e57d956f07eedc86
 file:
 - statement:
     with_compound_statement:
@@ -29,7 +29,8 @@ file:
                   - quoted_literal: "'c'"
                   - end_square_bracket: ']'
                 alias_expression:
-                  keyword: AS
+                  alias_expression_operator:
+                    keyword: AS
                   naked_identifier: array_column
           end_bracket: )
       select_statement:
@@ -74,7 +75,8 @@ file:
                     - keyword: WITH
                     - keyword: ORDINALITY
                 alias_expression:
-                  keyword: AS
+                  alias_expression_operator:
+                    keyword: AS
                   naked_identifier: u
                   bracketed:
                     start_bracket: (
@@ -108,7 +110,8 @@ file:
                   - quoted_literal: "'c'"
                   - end_square_bracket: ']'
                 alias_expression:
-                  keyword: AS
+                  alias_expression_operator:
+                    keyword: AS
                   naked_identifier: array_column
           end_bracket: )
       select_statement:
@@ -186,7 +189,8 @@ file:
                   - quoted_literal: "'c'"
                   - end_square_bracket: ']'
                 alias_expression:
-                  keyword: AS
+                  alias_expression_operator:
+                    keyword: AS
                   naked_identifier: array_column
           end_bracket: )
       select_statement:
@@ -264,7 +268,8 @@ file:
                   - quoted_literal: "'c'"
                   - end_square_bracket: ']'
                 alias_expression:
-                  keyword: AS
+                  alias_expression_operator:
+                    keyword: AS
                   naked_identifier: array_column1
             - comma: ','
             - select_clause_element:
@@ -278,7 +283,8 @@ file:
                   - numeric_literal: '2'
                   - end_square_bracket: ']'
                 alias_expression:
-                  keyword: AS
+                  alias_expression_operator:
+                    keyword: AS
                   naked_identifier: array_column2
           end_bracket: )
       select_statement:
@@ -335,7 +341,8 @@ file:
                     - keyword: WITH
                     - keyword: ORDINALITY
                 alias_expression:
-                  keyword: AS
+                  alias_expression_operator:
+                    keyword: AS
                   naked_identifier: u
                   bracketed:
                     start_bracket: (
@@ -369,7 +376,8 @@ file:
                   - numeric_literal: '2'
                   - end_square_bracket: ']'
                 alias_expression:
-                  keyword: AS
+                  alias_expression_operator:
+                    keyword: AS
                   naked_identifier: array_column
           end_bracket: )
       select_statement:
@@ -405,7 +413,8 @@ file:
                           - naked_identifier: array_column
                         end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_expression_operator:
+                    keyword: AS
                   naked_identifier: u
                   bracketed:
                     start_bracket: (
