@@ -249,6 +249,8 @@ def test__parser__grammar_sequence_modes(
 @pytest.mark.parametrize(
     "input_seed,mode,sequence,kwargs,output_tuple",
     [
+        # A strict asymmetric bracket shouldn't match
+        (["(", "a"], ParseMode.STRICT, ["a"], {}, ()),
         # A sequence that isn't bracketed shouldn't match.
         # Regardless of mode.
         (["a"], ParseMode.STRICT, ["a"], {}, ()),
@@ -494,8 +496,7 @@ def test__parser__grammar_bracketed_modes(
 @pytest.mark.parametrize(
     "input_seed,mode,sequence",
     [
-        # Unclosed brackets always raise errors.
-        (["(", "a"], ParseMode.STRICT, ["a"]),
+        # Unclosed greedy brackets always raise errors.
         (["(", "a"], ParseMode.GREEDY, ["a"]),
     ],
 )
