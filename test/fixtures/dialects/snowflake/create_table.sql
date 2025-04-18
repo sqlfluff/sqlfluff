@@ -250,6 +250,69 @@ CREATE OR ALTER TABLE some_table (
   id INTEGER NOT NULL
 );
 
+CREATE OR ALTER TABLE  some_table (
+  id INTEGER NOT NULL
+)
+DEFAULT_DDL_COLLATION = 'fr';
+
+-- Iceberg tables
+
+CREATE ICEBERG TABLE db.archival.iceberg_report_invoicesummary
+  (
+    _v string,
+    partition_date date,
+    clientid string,
+    invoiceclientid string
+  )
+  EXTERNAL_VOLUME='iceberg_ext_vol'
+  CATALOG='SNOWFLAKE'
+  BASE_LOCATION ='report_invoicesummary';
+
+CREATE ICEBERG TABLE iceberg1
+  (
+    value string,
+    partition_date date,
+    clientid string,
+    amount INTEGER
+  )
+CLUSTER BY amount
+EXTERNAL_VOLUME = '<external_volume_name>'
+CATALOG = 'SNOWFLAKE'
+BASE_LOCATION = '<relative_path_from_external_volume>'
+COPY GRANTS
+AS SELECT * from example;
+
+CREATE  ICEBERG TABLE iceberg2 LIKE example
+CLUSTER BY (amount) (amount number)
+COPY GRANTS;
+
+CREATE ICEBERG TABLE iceberg_glue
+EXTERNAL_VOLUME = '<external_volume_name>'
+CATALOG = '<catalog_integration_name>'
+CATALOG_TABLE_NAME = '<catalog_table_name'
+CATALOG_NAMESPACE = '<catalog_namespace>'
+REPLACE_INVALID_CHARACTERS = TRUE
+AUTO_REFRESH = FALSE
+COMMENT = '<string_literal>'
+WITH TAG ( tag1='r', tag2 = 'rr' )
+;
+
+CREATE OR REPLACE ICEBERG TABLE iceberg_object_storage
+EXTERNAL_VOLUME = '<external_volume_name>'
+CATALOG = '<catalog_integration_name>'
+METADATA_FILE_PATH = '<metadata_file_path>'
+REPLACE_INVALID_CHARACTERS = false
+COMMENT = '<string_literal>'
+;
+
+CREATE OR REPLACE ICEBERG TABLE iceberg_object_delta
+  BASE_LOCATION = '<relative_path_from_external_volume>'
+;
+
+CREATE OR REPLACE ICEBERG TABLE iceberg_object_snowflake_open_catalog
+  CATALOG_TABLE_NAME = '<rest_catalog_table_name>'
+;
+
 
 -- Hybrid tables
 

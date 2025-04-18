@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b1491f391013a73740cf90e6bd9b84ce3f7b0710a699e65ad8d98c89ebb4ad77
+_hash: 0ea7f7b22af5634e74a1081ac96406a6f42c2eef9e2d4256aa7b1f99910b1f42
 file:
 - statement:
     create_table_statement:
@@ -909,21 +909,22 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - boolean_literal: 'TRUE'
-    - tag_bracketed_equals:
-      - keyword: WITH
-      - keyword: TAG
-      - bracketed:
-          start_bracket: (
-          tag_reference:
-          - naked_identifier: account_objects
-          - dot: .
-          - naked_identifier: tags
-          - dot: .
-          - naked_identifier: IRM
-          comparison_operator:
-            raw_comparison_operator: '='
-          quoted_literal: "'{\"IRM\":[{\"Primary\":\"ABC123\"}]}'"
-          end_bracket: )
+    - dynamic_table_options:
+        tag_bracketed_equals:
+        - keyword: WITH
+        - keyword: TAG
+        - bracketed:
+            start_bracket: (
+            tag_reference:
+            - naked_identifier: account_objects
+            - dot: .
+            - naked_identifier: tags
+            - dot: .
+            - naked_identifier: IRM
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'{\"IRM\":[{\"Primary\":\"ABC123\"}]}'"
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -1988,6 +1989,287 @@ file:
           - keyword: NOT
           - keyword: 'NULL'
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        end_bracket: )
+    - keyword: DEFAULT_DDL_COLLATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'fr'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: ICEBERG
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: archival
+      - dot: .
+      - naked_identifier: iceberg_report_invoicesummary
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: _v
+          data_type:
+            data_type_identifier: string
+      - comma: ','
+      - column_definition:
+          naked_identifier: partition_date
+          data_type:
+            data_type_identifier: date
+      - comma: ','
+      - column_definition:
+          naked_identifier: clientid
+          data_type:
+            data_type_identifier: string
+      - comma: ','
+      - column_definition:
+          naked_identifier: invoiceclientid
+          data_type:
+            data_type_identifier: string
+      - end_bracket: )
+    - iceberg_table_options:
+      - keyword: EXTERNAL_VOLUME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'iceberg_ext_vol'"
+      - keyword: CATALOG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'SNOWFLAKE'"
+      - keyword: BASE_LOCATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'report_invoicesummary'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: ICEBERG
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: iceberg1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: value
+          data_type:
+            data_type_identifier: string
+      - comma: ','
+      - column_definition:
+          naked_identifier: partition_date
+          data_type:
+            data_type_identifier: date
+      - comma: ','
+      - column_definition:
+          naked_identifier: clientid
+          data_type:
+            data_type_identifier: string
+      - comma: ','
+      - column_definition:
+          naked_identifier: amount
+          data_type:
+            data_type_identifier: INTEGER
+      - end_bracket: )
+    - dynamic_table_options:
+      - keyword: CLUSTER
+      - keyword: BY
+      - expression:
+          column_reference:
+            naked_identifier: amount
+      - keyword: EXTERNAL_VOLUME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<external_volume_name>'"
+      - keyword: CATALOG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'SNOWFLAKE'"
+      - keyword: BASE_LOCATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<relative_path_from_external_volume>'"
+    - keyword: COPY
+    - keyword: GRANTS
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: example
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: ICEBERG
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: iceberg2
+    - keyword: LIKE
+    - table_reference:
+        naked_identifier: example
+    - keyword: CLUSTER
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: amount
+        end_bracket: )
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: amount
+          data_type:
+            data_type_identifier: number
+        end_bracket: )
+    - keyword: COPY
+    - keyword: GRANTS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: ICEBERG
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: iceberg_glue
+    - iceberg_table_options:
+      - keyword: EXTERNAL_VOLUME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<external_volume_name>'"
+      - keyword: CATALOG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<catalog_integration_name>'"
+      - keyword: CATALOG_TABLE_NAME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<catalog_table_name'"
+      - keyword: CATALOG_NAMESPACE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<catalog_namespace>'"
+      - keyword: REPLACE_INVALID_CHARACTERS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: AUTO_REFRESH
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'<string_literal>'"
+    - dynamic_table_options:
+        tag_bracketed_equals:
+        - keyword: WITH
+        - keyword: TAG
+        - bracketed:
+          - start_bracket: (
+          - tag_reference:
+              naked_identifier: tag1
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'r'"
+          - comma: ','
+          - tag_reference:
+              naked_identifier: tag2
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'rr'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: ICEBERG
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: iceberg_object_storage
+    - iceberg_table_options:
+      - keyword: EXTERNAL_VOLUME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<external_volume_name>'"
+      - keyword: CATALOG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<catalog_integration_name>'"
+      - keyword: METADATA_FILE_PATH
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<metadata_file_path>'"
+      - keyword: REPLACE_INVALID_CHARACTERS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'false'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'<string_literal>'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: ICEBERG
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: iceberg_object_delta
+    - iceberg_table_options:
+        keyword: BASE_LOCATION
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'<relative_path_from_external_volume>'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: ICEBERG
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: iceberg_object_snowflake_open_catalog
+    - iceberg_table_options:
+        keyword: CATALOG_TABLE_NAME
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'<rest_catalog_table_name>'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
