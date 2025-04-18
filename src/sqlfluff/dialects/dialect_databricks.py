@@ -1223,7 +1223,7 @@ class AliasExpressionSegment(sparksql.AliasExpressionSegment):
     """
 
     match_grammar = Sequence(
-        Ref.keyword("AS", optional=True),
+        Ref("AliasExpressionAsOperatorSegment", optional=True),
         OneOf(
             # maybe table alias and column aliases
             Sequence(

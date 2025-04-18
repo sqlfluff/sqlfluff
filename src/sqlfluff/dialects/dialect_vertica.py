@@ -2108,7 +2108,7 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
 
     match_grammar: Matchable = OneOf(
         Sequence(
-            Ref.keyword("AS", optional=True),
+            Ref("AliasExpressionAsOperatorSegment", optional=True),
             OneOf(
                 Sequence(
                     Ref("SingleIdentifierGrammar"),
@@ -2122,7 +2122,7 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
         # Some functions alias several columns in brackets () like mapkeys or explode
         Sequence(
             Indent,
-            Ref.keyword("AS"),
+            Ref("AliasExpressionAsOperatorSegment", optional=True),
             Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
             Dedent,
         ),
