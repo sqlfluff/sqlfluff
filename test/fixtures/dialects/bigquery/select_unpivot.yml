@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7ae3af309e693b3d3a22d339e25a49727a20c9575cebaf26d47657c313dc9bdd
+_hash: 49aa2d046cfdd4f1319edb132b9232470bd40d15403f787920056135b8388366
 file:
 - statement:
     with_compound_statement:
@@ -20,31 +20,36 @@ file:
               - select_clause_element:
                   quoted_literal: "'Kale'"
                   alias_expression:
-                    keyword: as
+                    alias_expression_operator:
+                      keyword: as
                     naked_identifier: product
               - comma: ','
               - select_clause_element:
                   numeric_literal: '51'
                   alias_expression:
-                    keyword: as
+                    alias_expression_operator:
+                      keyword: as
                     naked_identifier: Q1
               - comma: ','
               - select_clause_element:
                   numeric_literal: '23'
                   alias_expression:
-                    keyword: as
+                    alias_expression_operator:
+                      keyword: as
                     naked_identifier: Q2
               - comma: ','
               - select_clause_element:
                   numeric_literal: '45'
                   alias_expression:
-                    keyword: as
+                    alias_expression_operator:
+                      keyword: as
                     naked_identifier: Q3
               - comma: ','
               - select_clause_element:
                   numeric_literal: '3'
                   alias_expression:
-                    keyword: as
+                    alias_expression_operator:
+                      keyword: as
                     naked_identifier: Q4
           - set_operator:
             - keyword: UNION
@@ -298,7 +303,8 @@ file:
           column_reference:
             naked_identifier: a
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             quoted_identifier: "'barry'"
       from_clause:
         keyword: FROM

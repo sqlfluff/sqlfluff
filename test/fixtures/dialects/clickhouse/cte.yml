@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cf87fc097aa163e1f1b17a27be3cfb4147b9625b1c67e75529ae6d911fa9a254
+_hash: e1e5b8aa654c37e25d93272dec443c5b2becd94e1680b0179bfafbc71937c6c9
 file:
 - statement:
     with_compound_statement:
@@ -19,7 +19,8 @@ file:
                   select_clause_element:
                     numeric_literal: '1'
                     alias_expression:
-                      keyword: as
+                      alias_expression_operator:
+                        keyword: as
                       naked_identifier: p
             end_bracket: )
         keyword: as
@@ -38,7 +39,8 @@ file:
                     numeric_literal: '1'
                   end_bracket: )
             alias_expression:
-              keyword: as
+              alias_expression_operator:
+                keyword: as
               naked_identifier: Test_string
         - comma: ','
         - select_clause_element:
@@ -55,7 +57,8 @@ file:
                     numeric_literal: '3'
                 - end_bracket: )
             alias_expression:
-              keyword: as
+              alias_expression_operator:
+                keyword: as
               naked_identifier: Test_dateTime64
         - comma: ','
         - select_clause_element:
@@ -72,7 +75,8 @@ file:
                     quoted_literal: "'TestNull'"
                 - end_bracket: )
             alias_expression:
-              keyword: as
+              alias_expression_operator:
+                keyword: as
               naked_identifier: testIf
         - comma: ','
         - select_clause_element:
@@ -89,14 +93,16 @@ file:
                     quoted_literal: "'abc'"
                 - end_bracket: )
             alias_expression:
-              keyword: as
+              alias_expression_operator:
+                keyword: as
               naked_identifier: testJSON
         - comma: ','
         - select_clause_element:
             column_reference:
               naked_identifier: test_param
             alias_expression:
-              keyword: as
+              alias_expression_operator:
+                keyword: as
               naked_identifier: param
 - statement_terminator: ;
 - statement:
@@ -266,7 +272,8 @@ file:
               binary_operator: '*'
               numeric_literal: '100'
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: table_disk_usage
         - comma: ','
         - select_clause_element:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9e6d69083f9246ef541cf6bef4e56437167999604d4812b5b6f39aaa8d39ff0e
+_hash: 20b1321c476e8fdebc4a45ed7a6d534a4a6636bfb0e52067a343aa03cee293b5
 file:
 - statement:
     select_statement:
@@ -25,7 +25,8 @@ file:
                     naked_identifier: quantity
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: sum_quantity
       from_clause:
         keyword: FROM
@@ -68,7 +69,8 @@ file:
                     naked_identifier: quantity
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: sum_quantity
       from_clause:
         keyword: FROM
@@ -119,7 +121,8 @@ file:
                     naked_identifier: quantity
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: sum_quantity
       from_clause:
         keyword: FROM
@@ -162,7 +165,8 @@ file:
                     naked_identifier: quantity
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: sum_quantity
       from_clause:
         keyword: FROM
@@ -213,7 +217,8 @@ file:
                     naked_identifier: quantity
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: sum_quantity
       from_clause:
         keyword: FROM
@@ -256,7 +261,8 @@ file:
                     naked_identifier: quantity
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_expression_operator:
+              keyword: AS
             naked_identifier: sum_quantity
       from_clause:
         keyword: FROM

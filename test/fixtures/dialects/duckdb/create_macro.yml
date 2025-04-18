@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 839a1407d83ceccb10a6dffa4e9a3de44b2b2101ab1c02cfe4dd630af6c6c7a9
+_hash: d664808209f0882fd6e8d0a9dbe335c71e01764d9010911be7d81749e24e386e
 file:
 - statement:
     create_function_statement:
@@ -117,7 +117,8 @@ file:
                     select_clause_element:
                       numeric_literal: '1'
                       alias_expression:
-                        keyword: AS
+                        alias_expression_operator:
+                          keyword: AS
                         naked_identifier: a
                 end_bracket: )
             select_statement:
@@ -265,13 +266,15 @@ file:
         - select_clause_element:
             quoted_literal: "'Hello'"
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: column1
         - comma: ','
         - select_clause_element:
             quoted_literal: "'World'"
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: column2
 - statement_terminator: ;
 - statement:
@@ -298,14 +301,16 @@ file:
             column_reference:
               naked_identifier: col1_value
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: column1
         - comma: ','
         - select_clause_element:
             column_reference:
               naked_identifier: col2_value
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: column2
 - statement_terminator: ;
 - statement:
@@ -336,14 +341,16 @@ file:
               column_reference:
                 naked_identifier: col1_value
               alias_expression:
-                keyword: AS
+                alias_expression_operator:
+                  keyword: AS
                 naked_identifier: column1
           - comma: ','
           - select_clause_element:
               column_reference:
                 naked_identifier: col2_value
               alias_expression:
-                keyword: AS
+                alias_expression_operator:
+                  keyword: AS
                 naked_identifier: column2
       - set_operator:
         - keyword: UNION
@@ -354,13 +361,15 @@ file:
           - select_clause_element:
               quoted_literal: "'Hello'"
               alias_expression:
-                keyword: AS
+                alias_expression_operator:
+                  keyword: AS
                 naked_identifier: col1_value
           - comma: ','
           - select_clause_element:
               numeric_literal: '456'
               alias_expression:
-                keyword: AS
+                alias_expression_operator:
+                  keyword: AS
                 naked_identifier: col2_value
 - statement_terminator: ;
 - statement:

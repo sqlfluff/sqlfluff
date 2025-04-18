@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 810c383fd675268069dac38e1c65569cd4c38f0e11685e57874c8a1a2a407047
+_hash: b6d616daa97a5cd71c973031817c4b32d723f85ecb77dab56cc9ceda46794715
 file:
 - statement:
     create_source_kafka_statement:
@@ -54,7 +54,8 @@ file:
               binary_operator: ->>
               quoted_literal: "'field1'"
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: field_1
         - comma: ','
         - select_clause_element:
@@ -64,7 +65,8 @@ file:
               binary_operator: ->>
               quoted_literal: "'field2'"
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: field_2
         - comma: ','
         - select_clause_element:
@@ -74,7 +76,8 @@ file:
               binary_operator: ->>
               quoted_literal: "'field3'"
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: field_3
         from_clause:
           keyword: FROM
@@ -106,7 +109,8 @@ file:
                             data_type:
                               keyword: jsonb
                         alias_expression:
-                          keyword: AS
+                          alias_expression_operator:
+                            keyword: AS
                           naked_identifier: data
                     from_clause:
                       keyword: FROM

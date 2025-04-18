@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f15cd480a09880e728084ea3f301f2e785d92fdbd2f63528f9468f68db87cdb5
+_hash: 2de1a6ad22b594c4bccaf4d0af618e3022241ff75108baaa5f517b4d6f318d7f
 file:
 - statement:
     select_statement:
@@ -76,7 +76,8 @@ file:
                         quoted_literal: '"2008-12-25 05:30:00+00"'
                       end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_expression_operator:
+                    keyword: AS
                   naked_identifier: timestamp_value
           end_bracket: )
       select_statement:
@@ -102,7 +103,8 @@ file:
                         quoted_literal: '"UTC"'
                   end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: the_day_utc
         - comma: ','
         - select_clause_element:
@@ -125,7 +127,8 @@ file:
                         quoted_literal: '"America/Los_Angeles"'
                   end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: the_day_california
         from_clause:
           keyword: FROM

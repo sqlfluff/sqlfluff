@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: da4c5c9fc7c3929c137019196d2e5ce8892c9e20f7f556c3ccda41993dd8183f
+_hash: d85c61314965bb180b579c723c55c9cb6fbe3239872d451243f0d728f351c227
 file:
 - statement:
     merge_statement:
@@ -327,7 +327,8 @@ file:
                 - dot: .
                 - naked_identifier: customer_id
                 alias_expression:
-                  keyword: AS
+                  alias_expression_operator:
+                    keyword: AS
                   naked_identifier: merge_unique_key
             - comma: ','
             - select_clause_element:
@@ -352,7 +353,8 @@ file:
             - select_clause_element:
                 null_literal: 'NULL'
                 alias_expression:
-                  keyword: AS
+                  alias_expression_operator:
+                    keyword: AS
                   naked_identifier: merge_unique_key
             - comma: ','
             - select_clause_element:
@@ -550,7 +552,8 @@ file:
               - dot: .
               - naked_identifier: new_value
               alias_expression:
-                keyword: AS
+                alias_expression_operator:
+                  keyword: AS
                 naked_identifier: new_value
           - comma: ','
           - select_clause_element:
@@ -561,7 +564,8 @@ file:
               - dot: .
               - naked_identifier: deleted
               alias_expression:
-                keyword: AS
+                alias_expression_operator:
+                  keyword: AS
                 naked_identifier: deleted
           from_clause:
             keyword: FROM
@@ -605,7 +609,8 @@ file:
                                       - end_bracket: )
                                 end_bracket: )
                           alias_expression:
-                            keyword: AS
+                            alias_expression_operator:
+                              keyword: AS
                             naked_identifier: latest
                       from_clause:
                         keyword: FROM

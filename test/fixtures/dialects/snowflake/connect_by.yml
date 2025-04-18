@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e14025f4c73fa53449dcd09a84dd1f56407ecfa362d611a04ff98af56aebcef5
+_hash: d05934947c415ec6ca0431119b2e50852ef649950861452cebbc48e904868b56
 file:
 - statement:
     select_statement:
@@ -149,7 +149,8 @@ file:
                   quoted_literal: "' -> '"
               - end_bracket: )
           alias_expression:
-            keyword: as
+            alias_expression_operator:
+              keyword: as
             naked_identifier: path
       from_clause:
         keyword: from
@@ -204,7 +205,8 @@ file:
           column_reference:
             naked_identifier: title
           alias_expression:
-            keyword: as
+            alias_expression_operator:
+              keyword: as
             naked_identifier: root_title
       from_clause:
         keyword: from
@@ -318,13 +320,15 @@ file:
               - select_clause_element:
                   quoted_literal: "'A'"
                   alias_expression:
-                    keyword: as
+                    alias_expression_operator:
+                      keyword: as
                     naked_identifier: foo
               - comma: ','
               - select_clause_element:
                   quoted_literal: "'B'"
                   alias_expression:
-                    keyword: as
+                    alias_expression_operator:
+                      keyword: as
                     naked_identifier: bar
           - set_operator:
             - keyword: union
@@ -335,13 +339,15 @@ file:
               - select_clause_element:
                   quoted_literal: "'B'"
                   alias_expression:
-                    keyword: as
+                    alias_expression_operator:
+                      keyword: as
                     naked_identifier: foo
               - comma: ','
               - select_clause_element:
                   quoted_literal: "'C'"
                   alias_expression:
-                    keyword: as
+                    alias_expression_operator:
+                      keyword: as
                     naked_identifier: bar
           end_bracket: )
       select_statement:
@@ -357,7 +363,8 @@ file:
             column_reference:
               naked_identifier: bar
             alias_expression:
-              keyword: as
+              alias_expression_operator:
+                keyword: as
               naked_identifier: connect_by_root
         - comma: ','
         - select_clause_element:
@@ -375,7 +382,8 @@ file:
                     quoted_literal: "''"
                 - end_bracket: )
             alias_expression:
-              keyword: as
+              alias_expression_operator:
+                keyword: as
               naked_identifier: path
         from_clause:
           keyword: from

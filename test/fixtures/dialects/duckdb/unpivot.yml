@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 016cf6f3605137989ec5dc5f117db0d3b4997a664b4145886f57d8ab35ed6bf4
+_hash: 3b8c028f725cae68fe0aad41f63463873f17e7f6596a509972d2f8e71c03e3db
 file:
 - statement:
     simplified_unpivot:
@@ -86,7 +86,8 @@ file:
           naked_identifier: mar
       - end_bracket: )
     - alias_expression:
-        keyword: AS
+        alias_expression_operator:
+          keyword: AS
         naked_identifier: q1
     - comma: ','
     - bracketed:
@@ -101,7 +102,8 @@ file:
           naked_identifier: jun
       - end_bracket: )
     - alias_expression:
-        keyword: AS
+        alias_expression_operator:
+          keyword: AS
         naked_identifier: q2
     - keyword: INTO
     - keyword: NAME
@@ -276,7 +278,8 @@ file:
                 - naked_identifier: mar
                 - end_bracket: )
               - alias_expression:
-                  keyword: AS
+                  alias_expression_operator:
+                    keyword: AS
                   naked_identifier: q1
               - comma: ','
               - bracketed:
@@ -288,7 +291,8 @@ file:
                 - naked_identifier: jun
                 - end_bracket: )
               - alias_expression:
-                  keyword: AS
+                  alias_expression_operator:
+                    keyword: AS
                   naked_identifier: q2
               - end_bracket: )
             - end_bracket: )

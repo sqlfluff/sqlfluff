@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1e65f7acd862a28274e5580fffd56ab59a5b79106773b98453d6b4d0b66dfaf9
+_hash: 4793e27f12b4a8a54ecb3ba8926afbdcd75fe764f70281c6e1037bfce85d604c
 file:
 - statement:
     select_statement:
@@ -62,7 +62,8 @@ file:
           - start_bracket: (
           - quoted_literal: "'NY'"
           - alias_expression:
-              keyword: as
+              alias_expression_operator:
+                keyword: as
               naked_identifier: new_york
           - comma: ','
           - quoted_literal: "'CT'"
@@ -237,19 +238,22 @@ file:
           - column_reference:
               naked_identifier: product_a
           - alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               quoted_identifier: "'A'"
           - comma: ','
           - column_reference:
               naked_identifier: product_b
           - alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               quoted_identifier: "'B'"
           - comma: ','
           - column_reference:
               naked_identifier: product_c
           - alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               quoted_identifier: "'C'"
           - end_bracket: )
         - end_bracket: )
@@ -286,19 +290,22 @@ file:
           - column_reference:
               naked_identifier: product_a
           - alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               quoted_identifier: "'A'"
           - comma: ','
           - column_reference:
               naked_identifier: product_b
           - alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               quoted_identifier: "'B'"
           - comma: ','
           - column_reference:
               naked_identifier: product_c
           - alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               quoted_identifier: "'C'"
           - end_bracket: )
         - end_bracket: )
@@ -345,7 +352,8 @@ file:
                 naked_identifier: a_value
             - end_bracket: )
           - alias_expression:
-              keyword: as
+              alias_expression_operator:
+                keyword: as
               quoted_identifier: "'A'"
           - comma: ','
           - bracketed:
@@ -357,7 +365,8 @@ file:
                 naked_identifier: b_value
             - end_bracket: )
           - alias_expression:
-              keyword: as
+              alias_expression_operator:
+                keyword: as
               quoted_identifier: "'B'"
           - end_bracket: )
         - end_bracket: )
@@ -412,7 +421,8 @@ file:
                     naked_identifier: state_code
                 end_bracket: )
         - alias_expression:
-            keyword: as
+            alias_expression_operator:
+              keyword: as
             naked_identifier: state_code
         - keyword: for
         - column_reference:

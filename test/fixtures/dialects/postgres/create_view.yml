@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 75ecad5fbe335560df4e2eb042a1f1a6e4ead7fb50e681f3004acf18f06cdd1e
+_hash: 84b5b91791ecfad76be11edaa3561ad3d851c00ea61e585e2ff617f15e135fa6
 file:
 - statement:
     create_view_statement:
@@ -49,7 +49,8 @@ file:
                 keyword: text
               quoted_literal: "'Hello World'"
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: hello
 - statement_terminator: ;
 - statement:
@@ -69,7 +70,8 @@ file:
                 keyword: text
               quoted_literal: "'Hello World'"
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: hello
 - statement_terminator: ;
 - statement:
@@ -89,7 +91,8 @@ file:
                 keyword: text
               quoted_literal: "'Hello World'"
             alias_expression:
-              keyword: AS
+              alias_expression_operator:
+                keyword: AS
               naked_identifier: hello
 - statement_terminator: ;
 - statement:
@@ -496,7 +499,8 @@ file:
               column_reference:
                 quoted_identifier: '"group_id"'
               alias_expression:
-                keyword: AS
+                alias_expression_operator:
+                  keyword: AS
                 quoted_identifier: '"node_id"'
           - comma: ','
           - select_clause_element:
@@ -514,7 +518,8 @@ file:
                     start_square_bracket: '['
                     end_square_bracket: ']'
               alias_expression:
-                keyword: AS
+                alias_expression_operator:
+                  keyword: AS
                 quoted_identifier: '"ancestors"'
           - comma: ','
           - select_clause_element:
@@ -538,7 +543,8 @@ file:
                     start_square_bracket: '['
                     end_square_bracket: ']'
               alias_expression:
-                keyword: AS
+                alias_expression_operator:
+                  keyword: AS
                 quoted_identifier: '"path"'
           - comma: ','
           - select_clause_element:
@@ -558,7 +564,8 @@ file:
                     start_square_bracket: '['
                     end_square_bracket: ']'
               alias_expression:
-                keyword: AS
+                alias_expression_operator:
+                  keyword: AS
                 quoted_identifier: '"path_nodes"'
           from_clause:
             keyword: FROM
@@ -660,7 +667,8 @@ file:
             column_reference:
               naked_identifier: col1
             alias_expression:
-              keyword: as
+              alias_expression_operator:
+                keyword: as
               naked_identifier: collation
         from_clause:
           keyword: from

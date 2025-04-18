@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b65a1a966a8dd1bcc2bd1e9db40e00d2103e47e8ba47c4f5af5e3c957007a140
+_hash: e7d0c6d68d68182b30094837099c1653620cde90a6bcf8b2e330f203f817526e
 file:
 - statement:
     select_statement:
@@ -21,7 +21,8 @@ file:
           - quoted_literal: "'Y-Wing'"
           - end_square_bracket: ']'
           alias_expression:
-            keyword: as
+            alias_expression_operator:
+              keyword: as
             naked_identifier: starfighter_list
       - comma: ','
       - select_clause_element:
@@ -38,7 +39,8 @@ file:
               quoted_literal: "'Can''t in fact destroy a star'"
           - end_curly_bracket: '}'
           alias_expression:
-            keyword: as
+            alias_expression_operator:
+              keyword: as
             naked_identifier: star_destroyer_facts
 - statement_terminator: ;
 - statement:
@@ -56,7 +58,8 @@ file:
             - numeric_literal: '2'
             - end_square_bracket: ']'
           alias_expression:
-            keyword: as
+            alias_expression_operator:
+              keyword: as
             naked_identifier: dont_forget_the_b_wing
       from_clause:
         keyword: FROM
@@ -80,7 +83,8 @@ file:
                       - quoted_literal: "'Y-Wing'"
                       - end_square_bracket: ']'
                       alias_expression:
-                        keyword: as
+                        alias_expression_operator:
+                          keyword: as
                         naked_identifier: starfighter_list
                 end_bracket: )
 - statement_terminator: ;
@@ -99,7 +103,8 @@ file:
                 numeric_literal: '3'
               end_square_bracket: ']'
           alias_expression:
-            keyword: as
+            alias_expression_operator:
+              keyword: as
             naked_identifier: nearly_soloed
 - statement_terminator: ;
 - statement:
@@ -141,7 +146,8 @@ file:
                         - quoted_literal: "'High'"
                       - end_curly_bracket: '}'
                       alias_expression:
-                        keyword: as
+                        alias_expression_operator:
+                          keyword: as
                         naked_identifier: planet
                 end_bracket: )
 - statement_terminator: ;
