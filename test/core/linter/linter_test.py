@@ -102,6 +102,7 @@ def test__linter__get_violations_filter_rules(rules, num_violations):
     """Test filtering violations by which rules were violated."""
     lntr = Linter(dialect="ansi")
     lint_result = lntr.lint_string("select a, b FROM tbl c order BY d")
+
     assert len(lint_result.get_violations(rules=rules)) == num_violations
 
 
