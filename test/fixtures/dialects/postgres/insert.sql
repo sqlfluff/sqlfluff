@@ -77,3 +77,14 @@ ON CONFLICT (
   , COALESCE(val2, '')
 )
 DO NOTHING;
+
+INSERT INTO prompt_variants (
+    test,
+    test2
+)
+SELECT
+    test,
+    test2
+RETURNING
+  test,
+  test2;
