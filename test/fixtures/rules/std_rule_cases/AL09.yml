@@ -14,8 +14,8 @@ test_pass_no_self_alias_tsql:
     pass_str: |
         select
             no_alias,
-            col_b = rename_alias,
-            max(sum) = max_sum
+            rename_alias = col_b,
+            max_sum = max(sum)
         from foo
     configs: &tsql_dialect
         core:
@@ -27,9 +27,9 @@ test_pass_no_self_alias_tsql_no_spaces:
     pass_str: |
         select
             no_alias,
-            alias AS alias_here,
             col_b=rename_alias,
-            max(sum)=max_sum
+            rename_alias_2 AS col_c,
+            max_sum=max(sum)
         from foo
     configs: *tsql_dialect
 
@@ -63,7 +63,7 @@ test_fail_no_quotes_same_case_tsql:
         select
             this_alias_is_fine = col_a,
             col_b = col_b,
-            COL_C = COL_C,
+            COL_C AS COL_C,
             Col_D = Col_D,
             col_e col_e,
             COL_F COL_F,
