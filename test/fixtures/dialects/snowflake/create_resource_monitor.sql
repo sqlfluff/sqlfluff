@@ -1,4 +1,4 @@
-create resource monitor test;
+create resource monitor if not exists test;
 
 
 create or replace resource monitor limiter with credit_quota = 1;

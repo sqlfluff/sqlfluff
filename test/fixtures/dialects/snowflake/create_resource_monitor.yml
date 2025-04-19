@@ -3,13 +3,16 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bf15810de6377ed14ef180cbb051a3f9449ec044d0f45b97932917f5388ae4eb
+_hash: 4e1faddf1dd5bd418ca998637547f49fd69e040ba07fd93422c0599fd647d7cf
 file:
 - statement:
     create_statement:
     - keyword: create
     - keyword: resource
     - keyword: monitor
+    - keyword: if
+    - keyword: not
+    - keyword: exists
     - object_reference:
         naked_identifier: test
 - statement_terminator: ;
