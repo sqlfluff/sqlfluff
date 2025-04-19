@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 659e665c8f52d679cb6a0e18130936633d57a219e67ec38923d71264d24ac50d
+_hash: 96b31d22d7c8a1855cdb56a3d40b65e2484e73c5774e4035c326602d642b548e
 file:
   batch:
   - statement:
@@ -60,8 +60,7 @@ file:
                 quoted_literal: "'This product is too heavy to ship and is only available\
                   \ for pickup.'"
                 alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: ShippingStatus
             from_clause:
               keyword: FROM
@@ -98,8 +97,7 @@ file:
             - select_clause_element:
                 quoted_literal: "'This product is available for shipping or pickup.'"
                 alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: ShippingStatus
             from_clause:
               keyword: FROM

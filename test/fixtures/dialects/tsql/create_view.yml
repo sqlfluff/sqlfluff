@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 22eb132b8389d7eaf45462e6e1dad95466764098f220131a0b3520eeb20e9f35
+_hash: 2d0aa261b7da723b43a93987396d4d51d13a16e2e3719158393d48539e330d39
 file:
   batch:
   - statement:
@@ -43,8 +43,7 @@ file:
                         naked_identifier: TotalDue
                     end_bracket: )
               alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: TotalSales
           from_clause:
             keyword: FROM
@@ -119,8 +118,7 @@ file:
                         naked_identifier: TotalDue
                     end_bracket: )
               alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: TotalSales
           from_clause:
             keyword: FROM
@@ -192,8 +190,7 @@ file:
               - column_reference:
                   naked_identifier: ReceivedQty
               alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: RejectRatio
           - comma: ','
           - select_clause_element:

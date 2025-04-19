@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8bbe401dc7fbfabc1d34080ff885e8f3716ac886157be74718c1a04214b5e296
+_hash: 699a6a586420e3b3e3a479b7b90571e8a409698cf0c7fcc277b1f9ea3f3e2274
 file:
 - statement:
     simplified_pivot:
@@ -183,8 +183,7 @@ file:
                 naked_identifier: Population
             end_bracket: )
     - alias_expression:
-        alias_expression_operator:
-          keyword: AS
+        alias_operator: AS
         naked_identifier: total
     - comma: ','
     - function:
@@ -198,8 +197,7 @@ file:
                 naked_identifier: Population
             end_bracket: )
     - alias_expression:
-        alias_expression_operator:
-          keyword: AS
+        alias_operator: AS
         naked_identifier: max
     - groupby_clause:
       - keyword: GROUP
@@ -639,8 +637,7 @@ file:
                         naked_identifier: Population
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: total
             - comma: ','
             - function:
@@ -654,8 +651,7 @@ file:
                         naked_identifier: Population
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: count
             - keyword: FOR
             - naked_identifier: Year

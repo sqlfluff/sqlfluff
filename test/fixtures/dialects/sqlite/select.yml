@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 711f82866a6caa7b0a815ef781b97a5d354a50c55f4e5970ec9511ae8a9adf92
+_hash: 79fc278104d6520ec3d510efe8220760514cb688dd04664f62e0bcdf28253913
 file:
 - statement:
     select_statement:
@@ -43,8 +43,7 @@ file:
                     naked_identifier: light
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: trips
       from_clause:
         keyword: FROM
@@ -126,8 +125,7 @@ file:
                         data_type_identifier: real
                       end_bracket: )
                 alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: time_spent
             from_clause:
               keyword: FROM
@@ -182,8 +180,7 @@ file:
             column_reference:
               naked_identifier: branch
             alias_expression:
-              alias_expression_operator:
-                keyword: as
+              alias_operator: as
               naked_identifier: name
         - comma: ','
         - select_clause_element:
@@ -201,8 +198,7 @@ file:
                     data_type_identifier: real
                   end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: as
+              alias_operator: as
               naked_identifier: time_spent
         - comma: ','
         - select_clause_element:
@@ -246,8 +242,7 @@ file:
                     data_type_identifier: real
                   end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: as
+              alias_operator: as
               naked_identifier: time_percentage
         from_clause:
           keyword: FROM
@@ -286,8 +281,7 @@ file:
                                 data_type_identifier: real
                               end_bracket: )
                         alias_expression:
-                          alias_expression_operator:
-                            keyword: AS
+                          alias_operator: AS
                           naked_identifier: time_spent
                     from_clause:
                       keyword: FROM

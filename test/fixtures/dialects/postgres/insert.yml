@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ea2e32868aa5f8c1f6dc21558110f546f6b59d39c416e1ee0f85209386416d5a
+_hash: dd06f437c1f568fd32f7d3b02d614b0fd132e0da056ce36bd64a28aa61c123b7
 file:
 - statement:
     insert_statement:
@@ -119,8 +119,7 @@ file:
     - table_reference:
         naked_identifier: distributors
     - alias_expression:
-        alias_expression_operator:
-          keyword: AS
+        alias_operator: AS
         naked_identifier: d
     - bracketed:
       - start_bracket: (
@@ -307,8 +306,7 @@ file:
         column_reference:
           naked_identifier: bar
     - alias_expression:
-        alias_expression_operator:
-          keyword: AS
+        alias_operator: AS
         naked_identifier: some_alias
 - statement_terminator: ;
 - statement:
@@ -373,16 +371,14 @@ file:
         column_reference:
           naked_identifier: bar
     - alias_expression:
-        alias_expression_operator:
-          keyword: AS
+        alias_operator: AS
         naked_identifier: alias1
     - comma: ','
     - expression:
         column_reference:
           naked_identifier: baz
     - alias_expression:
-        alias_expression_operator:
-          keyword: AS
+        alias_operator: AS
         naked_identifier: alias2
 - statement_terminator: ;
 - statement:
@@ -474,8 +470,7 @@ file:
     - table_reference:
         naked_identifier: foo
     - alias_expression:
-        alias_expression_operator:
-          keyword: AS
+        alias_operator: AS
         naked_identifier: f
     - bracketed:
       - start_bracket: (
@@ -719,8 +714,7 @@ file:
                       end_bracket: )
                 end_bracket: )
               alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: tmp
                 bracketed:
                   start_bracket: (
@@ -745,8 +739,7 @@ file:
                         table_reference:
                           naked_identifier: megatable
                       alias_expression:
-                        alias_expression_operator:
-                          keyword: AS
+                        alias_operator: AS
                         naked_identifier: mt
                 where_clause:
                   keyword: WHERE

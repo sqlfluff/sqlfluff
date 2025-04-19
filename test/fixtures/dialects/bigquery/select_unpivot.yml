@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ddc6e3e0d1cb7cbd94ae13b2cb542829bd992b585d67b4612e0ae0201b8c0463
+_hash: 2bc4c12ce63c1dce5f583e3081c6299212a691b91293121637ddc54a534be1fc
 file:
 - statement:
     with_compound_statement:
@@ -20,36 +20,31 @@ file:
               - select_clause_element:
                   quoted_literal: "'Kale'"
                   alias_expression:
-                    alias_expression_operator:
-                      keyword: as
+                    alias_operator: as
                     naked_identifier: product
               - comma: ','
               - select_clause_element:
                   numeric_literal: '51'
                   alias_expression:
-                    alias_expression_operator:
-                      keyword: as
+                    alias_operator: as
                     naked_identifier: Q1
               - comma: ','
               - select_clause_element:
                   numeric_literal: '23'
                   alias_expression:
-                    alias_expression_operator:
-                      keyword: as
+                    alias_operator: as
                     naked_identifier: Q2
               - comma: ','
               - select_clause_element:
                   numeric_literal: '45'
                   alias_expression:
-                    alias_expression_operator:
-                      keyword: as
+                    alias_operator: as
                     naked_identifier: Q3
               - comma: ','
               - select_clause_element:
                   numeric_literal: '3'
                   alias_expression:
-                    alias_expression_operator:
-                      keyword: as
+                    alias_operator: as
                     naked_identifier: Q4
           - set_operator:
             - keyword: UNION
@@ -149,26 +144,22 @@ file:
               - start_bracket: (
               - naked_identifier: Q1
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   numeric_literal: '1'
               - comma: ','
               - naked_identifier: Q2
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   numeric_literal: '2'
               - comma: ','
               - naked_identifier: Q3
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   numeric_literal: '3'
               - comma: ','
               - naked_identifier: Q4
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   numeric_literal: '4'
               - end_bracket: )
             - end_bracket: )
@@ -284,8 +275,7 @@ file:
                 - naked_identifier: Q2
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   quoted_literal: "'semester_1'"
               - comma: ','
               - bracketed:
@@ -295,8 +285,7 @@ file:
                 - naked_identifier: Q4
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   quoted_literal: "'semester_2'"
               - end_bracket: )
             - end_bracket: )
@@ -309,8 +298,7 @@ file:
           column_reference:
             naked_identifier: a
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             quoted_identifier: "'barry'"
       from_clause:
         keyword: FROM
@@ -341,8 +329,7 @@ file:
                 - naked_identifier: D
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   quoted_literal: '"year_2011"'
               - comma: ','
               - bracketed:
@@ -352,8 +339,7 @@ file:
                 - naked_identifier: F
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   quoted_literal: '"year_2012"'
               - end_bracket: )
             - end_bracket: )
@@ -399,8 +385,7 @@ file:
                 - naked_identifier: foo3
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   numeric_literal: '1'
               - comma: ','
               - bracketed:
@@ -412,8 +397,7 @@ file:
                 - naked_identifier: foo6
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   numeric_literal: '2'
               - comma: ','
               - bracketed:
@@ -425,8 +409,7 @@ file:
                 - naked_identifier: foo9
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   numeric_literal: '3'
               - end_bracket: )
             - end_bracket: )

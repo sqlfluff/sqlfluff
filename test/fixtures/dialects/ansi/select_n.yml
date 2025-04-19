@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bd06585ef325824817a60e941071b0e859ed9597deb1b9c2e4fbbf0302d069f6
+_hash: 249f7fc3ad4bfdea85acc1d84b13129a1dadc435b9cfe42d17039f84c61dff31
 file:
   statement:
     select_statement:
@@ -15,8 +15,7 @@ file:
           - dot: .
           - naked_identifier: business_type
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: business_type_left
       - comma: ','
       - select_clause_element:
@@ -25,8 +24,7 @@ file:
           - dot: .
           - naked_identifier: business_type
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: business_type_right
       from_clause:
         keyword: FROM
@@ -36,8 +34,7 @@ file:
               table_reference:
                 naked_identifier: benchmark_summaries
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: exists_left
           join_clause:
           - keyword: FULL
@@ -47,8 +44,7 @@ file:
                 table_reference:
                   naked_identifier: business_types
               alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: exists_right
           - join_on_condition:
               keyword: 'ON'

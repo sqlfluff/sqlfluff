@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4a70098bca832d056b3085a4fff756cbda82d5ca5bed901cd2f1b368c7c95436
+_hash: ef9b029a7a4c9f5b98dd0454add23ab030ade863de2c298c6b48ab2a6ee2ec15
 file:
 - statement:
     meta_command_statement:
@@ -61,15 +61,13 @@ file:
         - select_clause_element:
             quoted_literal: "'hello'"
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: var1
         - comma: ','
         - select_clause_element:
             numeric_literal: '10'
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: var2
     - meta_command: \gset
     - select_statement:
@@ -78,15 +76,13 @@ file:
         - select_clause_element:
             quoted_literal: "'hello'"
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: var1
         - comma: ','
         - select_clause_element:
             numeric_literal: '10'
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: var2
     - meta_command: \gset result_
     - select_statement:
@@ -122,8 +118,7 @@ file:
                           numeric_literal: '123'
                   end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: as
+              alias_operator: as
               naked_identifier: is_customer
         - comma: ','
         - select_clause_element:
@@ -156,8 +151,7 @@ file:
                           numeric_literal: '456'
                   end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: as
+              alias_operator: as
               naked_identifier: is_employee
     - meta_command: \gset
     - select_statement:
@@ -166,8 +160,7 @@ file:
           select_clause_element:
             quoted_literal: "'hello'"
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: my_psql_var
     - meta_command: \gset
     - select_statement:

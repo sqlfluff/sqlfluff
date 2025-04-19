@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: be448c3930630cab50109d816c7a6ae7ea133ea5a69ae7118c1be4587304ef7a
+_hash: 3a9d91ae378f6c5e3c4ee325fdabecdcd62c5f6740365ba0462f01c64092c05e
 file:
 - statement:
     select_statement:
@@ -21,8 +21,7 @@ file:
               colon: ':'
               semi_structured_element: value
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: uncasted
       - comma: ','
       - select_clause_element:
@@ -37,8 +36,7 @@ file:
               data_type:
                 data_type_identifier: bigint
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: field_id
       - comma: ','
       - select_clause_element:
@@ -53,8 +51,7 @@ file:
               data_type:
                 data_type_identifier: STRING
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: field_val
       - comma: ','
       - select_clause_element:
@@ -71,8 +68,7 @@ file:
             - dot: .
             - semi_structured_element: foo
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: another_val
       - comma: ','
       - select_clause_element:
@@ -101,8 +97,7 @@ file:
               data_type:
                 data_type_identifier: bigint
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: another_val
       - comma: ','
       - select_clause_element:
@@ -117,8 +112,7 @@ file:
               dot: .
               semi_structured_element: array_element_property
           alias_expression:
-            alias_expression_operator:
-              keyword: as
+            alias_operator: as
             naked_identifier: test_array_access
       from_clause:
       - keyword: FROM
@@ -172,8 +166,7 @@ file:
                   - numeric_literal: '6'
                   - end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: lat
       - comma: ','
       - select_clause_element:
@@ -199,8 +192,7 @@ file:
                   - numeric_literal: '6'
                   - end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: lng
       from_clause:
         keyword: FROM

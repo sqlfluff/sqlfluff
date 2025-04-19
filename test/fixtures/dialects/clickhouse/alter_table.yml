@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c8dd0bf508f64e881fd392e4e078d5b9eef954bb1a8b01bd2b8cb31da2117201
+_hash: bb9d2ee6bdf1ed8232fdba21632c15d744b3d72f86be21892b307d2473bc27fe
 file:
 - statement:
     alter_table_statement:
@@ -1168,8 +1168,7 @@ file:
                       naked_identifier: value
                   end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: total_value
         from_clause:
           keyword: FROM
@@ -1241,8 +1240,7 @@ file:
                 table_reference:
                   naked_identifier: table1
               alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: t1
             join_clause:
               keyword: JOIN
@@ -1251,8 +1249,7 @@ file:
                   table_reference:
                     naked_identifier: table2
                 alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: t2
               join_on_condition:
                 keyword: 'ON'

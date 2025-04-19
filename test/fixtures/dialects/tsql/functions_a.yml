@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4e80e16764f710fd3e43a473d68c0a0e08bee35f1e745cc3d4dbddad2b2ba0c2
+_hash: 292b1c822ffc222027e3cac1a779441df334ec944320cf2cf1c952ff1518fd9d
 file:
 - batch:
     statement:
@@ -22,8 +22,7 @@ file:
                       naked_identifier: t
                   end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: t_date
         - comma: ','
         - select_clause_element:
@@ -41,8 +40,7 @@ file:
                     numeric_literal: '2'
                 - end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: b_round
         - comma: ','
         - select_clause_element:
@@ -82,8 +80,7 @@ file:
                           end_bracket: )
                 - end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: compound
         - comma: ','
         - select_clause_element:
@@ -105,8 +102,7 @@ file:
                       naked_identifier: column1
                 - end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: column1_lastmonth
         - comma: ','
         - select_clause_element:
@@ -128,8 +124,7 @@ file:
                 - numeric_literal: '23'
                 - end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: column1_varchar
         from_clause:
           keyword: FROM
@@ -248,8 +243,7 @@ file:
                               naked_identifier: enc
                   end_bracket: )
               alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: a
             join_clause:
             - keyword: LEFT

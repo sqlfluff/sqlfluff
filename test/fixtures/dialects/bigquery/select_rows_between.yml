@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 25b90bd32a00724ac579064d34a724c4db4fe3cc1f61a1caf302ff3cc41dfd85
+_hash: 237465be3baaf49322ed3029d456a6517f39f00ee754ac7d478cdf9794662248
 file:
   statement:
     select_statement:
@@ -61,8 +61,7 @@ file:
                   - keyword: ROW
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: cumulative_number_of_affected_accounts
       from_clause:
         keyword: FROM

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f355a8fe44084032ddb2f705f5c389e3e1b131c36946491312d21b65e8c2988f
+_hash: 4e24617730ec7baa3ce5ff8a6d2d6b297003ccf11364e932f3faf09d6458740e
 file:
 - statement:
     delete_statement:
@@ -99,8 +99,7 @@ file:
               table_reference:
                 naked_identifier: orders
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: t1
       where_clause:
         keyword: WHERE

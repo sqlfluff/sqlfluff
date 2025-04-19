@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7184389a806249a597401d6b2d7cfba3994179027348ea5a4d3ca2ba0e253bde
+_hash: 590f5fe7867cd021c09b6891b807d44b31ef936581518d2b1a221d5702d1e8fc
 file:
 - statement:
     with_compound_statement:
@@ -19,15 +19,13 @@ file:
             - select_clause_element:
                 numeric_literal: '1'
                 alias_expression:
-                  alias_expression_operator:
-                    keyword: as
+                  alias_operator: as
                   naked_identifier: id
             - comma: ','
             - select_clause_element:
                 quoted_literal: "'test'"
                 alias_expression:
-                  alias_expression_operator:
-                    keyword: as
+                  alias_operator: as
                   naked_identifier: name
           end_bracket: )
       select_statement:
@@ -69,15 +67,13 @@ file:
             - select_clause_element:
                 numeric_literal: '1'
                 alias_expression:
-                  alias_expression_operator:
-                    keyword: as
+                  alias_operator: as
                   naked_identifier: id
             - comma: ','
             - select_clause_element:
                 quoted_literal: "'test'"
                 alias_expression:
-                  alias_expression_operator:
-                    keyword: as
+                  alias_operator: as
                   naked_identifier: name
           end_bracket: )
       select_statement:
@@ -116,15 +112,13 @@ file:
             - select_clause_element:
                 numeric_literal: '1'
                 alias_expression:
-                  alias_expression_operator:
-                    keyword: as
+                  alias_operator: as
                   naked_identifier: id
             - comma: ','
             - select_clause_element:
                 quoted_literal: "'test'"
                 alias_expression:
-                  alias_expression_operator:
-                    keyword: as
+                  alias_operator: as
                   naked_identifier: name
           end_bracket: )
       select_statement:
@@ -166,15 +160,13 @@ file:
             - select_clause_element:
                 numeric_literal: '1'
                 alias_expression:
-                  alias_expression_operator:
-                    keyword: as
+                  alias_operator: as
                   naked_identifier: id
             - comma: ','
             - select_clause_element:
                 quoted_literal: "'test'"
                 alias_expression:
-                  alias_expression_operator:
-                    keyword: as
+                  alias_operator: as
                   naked_identifier: name
           end_bracket: )
       select_statement:

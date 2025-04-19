@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0467f85a39c5403b799271bb9f57ddac6b4796f5e5bf3533e4ad22ea9901ac19
+_hash: 6895d50664c0ad65ed918f77a5bf25ce5b0ef6f13d98a6f7dfe9e480d4f2a9d2
 file:
 - batch:
     statement:
@@ -13,8 +13,7 @@ file:
           select_clause_element:
             numeric_literal: '1'
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: RegionCode
         from_clause:
           keyword: FROM
@@ -99,8 +98,7 @@ file:
                     table_reference:
                       naked_identifier: P
                   alias_expression:
-                    alias_expression_operator:
-                      keyword: AS
+                    alias_operator: AS
                     naked_identifier: P_1
               - join_clause:
                 - keyword: LEFT
@@ -111,8 +109,7 @@ file:
                       table_reference:
                         naked_identifier: IP
                     alias_expression:
-                      alias_expression_operator:
-                        keyword: AS
+                      alias_operator: AS
                       naked_identifier: IP_1
                 - join_on_condition:
                     keyword: 'ON'
@@ -160,8 +157,7 @@ file:
                     table_reference:
                       naked_identifier: P
                   alias_expression:
-                    alias_expression_operator:
-                      keyword: AS
+                    alias_operator: AS
                     naked_identifier: P_2
               - join_clause:
                 - keyword: LEFT
@@ -172,8 +168,7 @@ file:
                       table_reference:
                         naked_identifier: IP
                     alias_expression:
-                      alias_expression_operator:
-                        keyword: AS
+                      alias_operator: AS
                       naked_identifier: IP_2
                 - join_on_condition:
                     keyword: 'ON'
@@ -243,8 +238,7 @@ file:
           select_clause_element:
             numeric_literal: '1'
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: RegionCode
         from_clause:
           keyword: FROM
@@ -326,8 +320,7 @@ file:
                 - dot: .
                 - naked_identifier: Test1
               alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: tst1
             join_clause:
             - keyword: LEFT
@@ -342,8 +335,7 @@ file:
                     - dot: .
                     - naked_identifier: Test2
                   alias_expression:
-                    alias_expression_operator:
-                      keyword: AS
+                    alias_operator: AS
                     naked_identifier: tst2
                   join_clause:
                   - keyword: INNER
@@ -355,8 +347,7 @@ file:
                         - dot: .
                         - naked_identifier: FilterTable
                       alias_expression:
-                        alias_expression_operator:
-                          keyword: AS
+                        alias_operator: AS
                         naked_identifier: fltr1
                   - join_on_condition:
                       keyword: 'ON'

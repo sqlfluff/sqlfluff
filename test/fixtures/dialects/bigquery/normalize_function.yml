@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d17e8af341c699f511183f89d741f6ab82f1ef30871461a3ae10b7a1baf8f07c
+_hash: 9ecfccd40fa228bff21751d3c562d649bf24428d3b4109d39e9809da68311eb7
 file:
 - statement:
     select_statement:
@@ -26,8 +26,7 @@ file:
                 keyword: NFD
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: a
       - comma: ','
       - select_clause_element:
@@ -43,8 +42,7 @@ file:
                 keyword: NFD
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: b
       - comma: ','
       - select_clause_element:
@@ -60,8 +58,7 @@ file:
                 keyword: NFD
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: c
       - comma: ','
       - select_clause_element:
@@ -77,8 +74,7 @@ file:
                 keyword: NFD
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: d
 - statement_terminator: ;
 - statement:
@@ -102,8 +98,7 @@ file:
           - column_reference:
               naked_identifier: b
           alias_expression:
-            alias_expression_operator:
-              keyword: as
+            alias_operator: as
             naked_identifier: normalized
       from_clause:
         keyword: FROM
@@ -126,8 +121,7 @@ file:
                               quoted_literal: "'\\u00ea'"
                             end_bracket: )
                       alias_expression:
-                        alias_expression_operator:
-                          keyword: as
+                        alias_operator: as
                         naked_identifier: a
                   - comma: ','
                   - select_clause_element:
@@ -141,8 +135,7 @@ file:
                               quoted_literal: "'\\u0065\\u0302'"
                             end_bracket: )
                       alias_expression:
-                        alias_expression_operator:
-                          keyword: as
+                        alias_operator: as
                         naked_identifier: b
                 end_bracket: )
 - statement_terminator: ;
@@ -186,8 +179,7 @@ file:
                             - end_square_bracket: ']'
                           end_bracket: )
                   alias_expression:
-                    alias_expression_operator:
-                      keyword: AS
+                    alias_operator: AS
                     naked_identifier: name
           end_bracket: )
       select_statement:
@@ -207,8 +199,7 @@ file:
                   keyword: NFKC
                   end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: normalized_name
         - comma: ','
         - select_clause_element:
@@ -221,8 +212,7 @@ file:
                   star: '*'
                   end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: name_count
         from_clause:
           keyword: FROM
@@ -273,8 +263,7 @@ file:
                       naked_identifier: b
                   end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: as
+            alias_operator: as
             naked_identifier: normalized
       - comma: ','
       - select_clause_element:
@@ -302,8 +291,7 @@ file:
                       naked_identifier: b
                   end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: as
+            alias_operator: as
             naked_identifier: normalized_with_case_folding
       from_clause:
         keyword: FROM
@@ -318,15 +306,13 @@ file:
                   - select_clause_element:
                       quoted_literal: "'The red barn'"
                       alias_expression:
-                        alias_expression_operator:
-                          keyword: AS
+                        alias_operator: AS
                         naked_identifier: a
                   - comma: ','
                   - select_clause_element:
                       quoted_literal: "'The Red Barn'"
                       alias_expression:
-                        alias_expression_operator:
-                          keyword: AS
+                        alias_operator: AS
                         naked_identifier: b
                 end_bracket: )
 - statement_terminator: ;
@@ -371,8 +357,7 @@ file:
                   keyword: NFD
                   end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: nfd
       - comma: ','
       - select_clause_element:
@@ -404,8 +389,7 @@ file:
                   keyword: NFC
                   end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: nfc
       - comma: ','
       - select_clause_element:
@@ -437,8 +421,7 @@ file:
                   keyword: NFKD
                   end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: nkfd
       - comma: ','
       - select_clause_element:
@@ -470,6 +453,5 @@ file:
                   keyword: NFKC
                   end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: nkfc

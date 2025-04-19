@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 369849b7b8f7b4268a5db26288883038a3bdda1235416bb9524e1f43456f1feb
+_hash: 36f678ffdd91f4b1903a52653a2c693d162d96723b6663d1ef92957741334317
 file:
 - statement:
     select_statement:
@@ -29,8 +29,7 @@ file:
               table_reference:
                 naked_identifier: trades
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: t
           join_clause:
           - keyword: ASOF
@@ -40,8 +39,7 @@ file:
                 table_reference:
                   naked_identifier: prices
               alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: p
           - join_on_condition:
               keyword: 'ON'
@@ -85,8 +83,7 @@ file:
               table_reference:
                 naked_identifier: trades
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: t
           join_clause:
           - keyword: ASOF
@@ -97,8 +94,7 @@ file:
                 table_reference:
                   naked_identifier: prices
               alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: p
           - join_on_condition:
               keyword: 'ON'
@@ -142,8 +138,7 @@ file:
               table_reference:
                 naked_identifier: trades
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: t
           join_clause:
           - keyword: ASOF
@@ -154,8 +149,7 @@ file:
                 table_reference:
                   naked_identifier: prices
               alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: p
           - join_on_condition:
               keyword: 'ON'
@@ -199,8 +193,7 @@ file:
               table_reference:
                 naked_identifier: trades
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: t
           join_clause:
           - keyword: ASOF
@@ -212,8 +205,7 @@ file:
                 table_reference:
                   naked_identifier: prices
               alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: p
           - join_on_condition:
               keyword: 'ON'
@@ -257,8 +249,7 @@ file:
               table_reference:
                 naked_identifier: trades
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: t
           join_clause:
           - keyword: ASOF
@@ -269,8 +260,7 @@ file:
                 table_reference:
                   naked_identifier: prices
               alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: p
           - join_on_condition:
               keyword: 'ON'
@@ -314,8 +304,7 @@ file:
               table_reference:
                 naked_identifier: trades
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: t
           join_clause:
           - keyword: ASOF
@@ -326,8 +315,7 @@ file:
                 table_reference:
                   naked_identifier: prices
               alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: p
           - join_on_condition:
               keyword: 'ON'
@@ -401,8 +389,7 @@ file:
             dot: .
             naked_identifier_all: when
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: trade_when
       - comma: ','
       - select_clause_element:
@@ -411,8 +398,7 @@ file:
             dot: .
             naked_identifier_all: when
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: price_when
       - comma: ','
       - select_clause_element:
@@ -426,8 +412,7 @@ file:
               table_reference:
                 naked_identifier: trades
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: t
           join_clause:
           - keyword: ASOF
@@ -438,8 +423,7 @@ file:
                 table_reference:
                   naked_identifier: prices
               alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: p
           - keyword: USING
           - bracketed:

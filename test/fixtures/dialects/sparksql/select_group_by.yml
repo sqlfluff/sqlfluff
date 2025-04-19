@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d16968272e3c0bae9a791ce5dbc82b63bd7e821aed4455b201dc7d73d748f98e
+_hash: c1e6aa9c3073993636439a238e50cdf3a810140cee0e3284d2c7d2322a97ac02
 file:
 - statement:
     select_statement:
@@ -25,8 +25,7 @@ file:
                     naked_identifier: quantity
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: sum_quantity
       from_clause:
         keyword: FROM
@@ -66,8 +65,7 @@ file:
                     naked_identifier: quantity
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: sum_quantity
       from_clause:
         keyword: FROM
@@ -105,8 +103,7 @@ file:
                     naked_identifier: quantity
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: sum_quantity
       - comma: ','
       - select_clause_element:
@@ -121,8 +118,7 @@ file:
                     naked_identifier: quantity
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: max_quantity
       from_clause:
         keyword: FROM
@@ -163,8 +159,7 @@ file:
                     naked_identifier: city
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: count_distinct_city
       from_clause:
         keyword: FROM
@@ -214,8 +209,7 @@ file:
                 - end_bracket: )
               end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             quoted_identifier: '`sum(quantity)`'
       from_clause:
         keyword: FROM
@@ -259,8 +253,7 @@ file:
                     naked_identifier: quantity
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: sum_quantity
       from_clause:
         keyword: FROM
@@ -339,8 +332,7 @@ file:
                     naked_identifier: quantity
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: sum_quantity
       from_clause:
         keyword: FROM
@@ -424,8 +416,7 @@ file:
                     naked_identifier: quantity
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: sum_quantity
       from_clause:
         keyword: FROM
@@ -510,8 +501,7 @@ file:
                     naked_identifier: quantity
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: sum_quantity
       from_clause:
         keyword: FROM
@@ -564,8 +554,7 @@ file:
                     naked_identifier: quantity
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: sum_quantity
       from_clause:
         keyword: FROM
@@ -635,8 +624,7 @@ file:
               - keyword: NULLS
               - end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: first_age
       - comma: ','
       - select_clause_element:
@@ -651,8 +639,7 @@ file:
                     naked_identifier: id
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: last_id
       - comma: ','
       - select_clause_element:
@@ -667,8 +654,7 @@ file:
                     naked_identifier: id
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: sum_id
       from_clause:
         keyword: FROM
@@ -700,8 +686,7 @@ file:
                 star: '*'
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: record_count
       from_clause:
         keyword: FROM
@@ -744,8 +729,7 @@ file:
                 star: '*'
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: record_count
       from_clause:
         keyword: FROM
@@ -789,8 +773,7 @@ file:
                 star: '*'
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: record_count
       from_clause:
         keyword: FROM
@@ -837,8 +820,7 @@ file:
                 star: '*'
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: record_count
       from_clause:
         keyword: FROM

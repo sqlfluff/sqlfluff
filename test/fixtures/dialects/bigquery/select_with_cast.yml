@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0a913945e4c796244018af01b5076c9567a7d411848f0541b7a9f80084c90906
+_hash: 6b81985ac6c836e98e358ff272952dfaaff1ce7c1e2160a4d5ca2eba23993265
 file:
 - statement:
     select_statement:
@@ -92,8 +92,7 @@ file:
                   quoted_literal: "'ASCII'"
               - end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: bytes_to_string
 - statement_terminator: ;
 - statement:
@@ -119,7 +118,6 @@ file:
                   quoted_literal: "'YYYY-MM-DD HH24:MI:SS TZH:TZM'"
               - end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: date_time_to_string
 - statement_terminator: ;

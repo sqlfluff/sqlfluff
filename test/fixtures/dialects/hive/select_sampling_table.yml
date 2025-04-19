@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5077556aabc5fb6cca758f55025acaa65625dcff9506c92d9ec7333bc0745cfa
+_hash: 425b01f326117a64a5a219b980159437a962f4710e0b8ca75b3199aa4b5e57f1
 file:
 - statement:
     select_statement:
@@ -94,8 +94,7 @@ file:
                 keyword: PERCENT
                 end_bracket: )
               alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: s
 - statement_terminator: ;
 - statement:

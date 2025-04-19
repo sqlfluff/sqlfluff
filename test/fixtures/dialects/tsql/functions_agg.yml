@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9f2fc3f0327d50a562924c2507cd52dae449c5bf342195bfd665ab0f26b2f17b
+_hash: e3d986e6b310499b6127f032bdd8a56ba47a48e95218816e5b82ce0649852cbb
 file:
   batch:
   - statement:
@@ -38,8 +38,7 @@ file:
                       naked_identifier: v
                   end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: as
+              alias_operator: as
               naked_identifier: column_name1
         - comma: ','
         - select_clause_element:
@@ -75,8 +74,7 @@ file:
                       naked_identifier: Name
                   end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: MedianCont
         - comma: ','
         - select_clause_element:
@@ -112,8 +110,7 @@ file:
                       naked_identifier: Name
                   end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: MedianDisc
         from_clause:
           keyword: from

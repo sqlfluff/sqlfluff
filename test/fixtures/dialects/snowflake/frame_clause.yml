@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ff51eee862046153f21144e696d7f277ab429189641f5113aaf31872834692f9
+_hash: 7fc6318a8edad26981fdd6d5d2cd5be2194bc4bf9e06e9224cd384cc8e2820ea
 file:
 - statement:
     select_statement:
@@ -53,8 +53,7 @@ file:
                   - keyword: ROW
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: vehicle_type_id_last_value
       from_clause:
         keyword: FROM
@@ -104,8 +103,7 @@ file:
                   - keyword: ROW
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: trailing_7d_sum_amount
       from_clause:
         keyword: FROM
