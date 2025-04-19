@@ -188,6 +188,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "BODY",
         "BULK_EXCEPTIONS",
         "BULK_ROWCOUNT",
+        "BYTE",
         "COMPILE",
         "COMPOUND",
         "CONSTANT",
