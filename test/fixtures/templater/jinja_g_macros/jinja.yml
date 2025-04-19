@@ -29,8 +29,7 @@ file:
               data_type:
                 keyword: int
           alias_expression:
-            alias_expression_operator:
-              keyword: as
+            alias_operator: as
             naked_identifier: id
       - comma: ','
       - select_clause_element:
@@ -46,8 +45,7 @@ file:
               - quoted_literal: "'name'"
               end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: as
+            alias_operator: as
             naked_identifier: name
       from_clause:
         keyword: from
@@ -71,8 +69,7 @@ file:
                           table_reference:
                             naked_identifier: sb_route_events
                         alias_expression:
-                          alias_expression_operator:
-                            keyword: as
+                          alias_operator: as
                           naked_identifier: s
                   where_clause:
                     keyword: where
@@ -106,6 +103,5 @@ file:
                       end_bracket: )
                 end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: as
+              alias_operator: as
               naked_identifier: e

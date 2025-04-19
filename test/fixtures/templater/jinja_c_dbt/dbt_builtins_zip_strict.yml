@@ -7,14 +7,12 @@ file:
             column_reference:
               naked_identifier: c1
             alias_expression:
-              alias_expression_operator:
-                keyword: as
+              alias_operator: as
               naked_identifier: a1
         - comma: ','
         - select_clause_element:
             column_reference:
               naked_identifier: c2
             alias_expression:
-              alias_expression_operator:
-                keyword: as
+              alias_operator: as
               naked_identifier: a2
