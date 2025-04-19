@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 952fbc7e6e4d7c996cd031172a4ec89bd65b65ac3e110315d705f74f8188d3ac
+_hash: 8be81e3626c296ffb80258aa0645f407c71a023e653cf313573245e9fc9eeaf6
 file:
   batch:
   - statement:
@@ -36,7 +36,7 @@ file:
                           quoted_literal: "N'[1,2,3,4]'"
                         end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_operator: AS
                   naked_identifier: productTypes
             - join_on_condition:
                 keyword: 'ON'
@@ -99,7 +99,7 @@ file:
                     - quoted_literal: "'$.sql:identity()'"
                     - end_bracket: )
               alias_expression:
-                keyword: as
+                alias_operator: as
                 naked_identifier: months
           statement_terminator: ;
   - statement:
@@ -191,7 +191,7 @@ file:
             column_reference:
               naked_identifier: value
             alias_expression:
-              keyword: AS
+              alias_operator: AS
               naked_identifier: Reason
         from_clause:
           keyword: FROM
@@ -321,7 +321,7 @@ file:
                       - quoted_literal: "'$.geo.latitude'"
                       - end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_operator: AS
                   naked_identifier: location
           statement_terminator: ;
   - statement:
@@ -417,7 +417,7 @@ file:
               dot: .
               quoted_identifier: '[key]'
             alias_expression:
-              keyword: AS
+              alias_operator: AS
               quoted_identifier: '[Order]'
         - comma: ','
         - select_clause_element:
@@ -446,7 +446,7 @@ file:
                         parameter: '@JSON'
                       end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: root
             join_clause:
             - keyword: CROSS
@@ -466,6 +466,6 @@ file:
                           - naked_identifier: value
                         end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_operator: AS
                   naked_identifier: TheValues
           statement_terminator: ;

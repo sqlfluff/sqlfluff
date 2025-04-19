@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 635450b803f4fe377a44b7a779d606732cced3432e14d6aab4e7e59cd78fddc1
+_hash: ffd2cae25b8d6a00cbe1f0a82f99678ed4e82fe600657d82bffe67e17e7a8b65
 file:
 - statement:
     select_statement:
@@ -31,7 +31,7 @@ file:
                       - end_bracket: )
                   end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: num_value
 - statement_terminator: ;
 - statement:
@@ -55,7 +55,7 @@ file:
                       end_bracket: )
                   end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: num_value
 - statement_terminator: ;
 - statement:
@@ -79,7 +79,7 @@ file:
                       end_bracket: )
                   end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: num_value
 - statement_terminator: ;
 - statement:
@@ -103,7 +103,7 @@ file:
                       end_bracket: )
                   end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: num_value
 - statement_terminator: ;
 - statement:
@@ -127,7 +127,7 @@ file:
                       end_bracket: )
                   end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: num_value
 - statement_terminator: ;
 - statement:
@@ -151,7 +151,7 @@ file:
                       numeric_literal: '0'
                   - end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: num_value
 - statement_terminator: ;
 - statement:
@@ -180,6 +180,6 @@ file:
                       - end_bracket: )
                   end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: num_value
 - statement_terminator: ;

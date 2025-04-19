@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6fd16abb1e16d68af2879d792f79b8d29beac4bec857e28203e377573cf107d1
+_hash: f0113ea1ddcd3f743146063a65a71f32e5b7fdd6562ee46049327615d39003d0
 file:
   statement:
     select_statement:
@@ -18,7 +18,7 @@ file:
                 start_bracket: (
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: CURRENT_ACCOUNT
       - comma: ','
       - select_clause_element:
@@ -30,7 +30,7 @@ file:
                 start_bracket: (
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: CURRENT_ROLE
       - comma: ','
       - select_clause_element:
@@ -42,7 +42,7 @@ file:
                 start_bracket: (
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: CURRENT_REGION
       - comma: ','
       - select_clause_element:
@@ -54,7 +54,7 @@ file:
                 start_bracket: (
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: CURRENT_SESSION
       - comma: ','
       - select_clause_element:
@@ -66,7 +66,7 @@ file:
                 start_bracket: (
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: CURRENT_USER
       - comma: ','
       - select_clause_element:
@@ -78,7 +78,7 @@ file:
                 start_bracket: (
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: CURRENT_ACCOUNT_NAME
       - comma: ','
       - select_clause_element:
@@ -90,5 +90,5 @@ file:
                 start_bracket: (
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: CURRENT_ORGANIZATION_NAME

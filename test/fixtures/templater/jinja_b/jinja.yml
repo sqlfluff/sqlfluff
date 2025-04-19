@@ -15,7 +15,7 @@ file:
                   - numeric_literal: 6
               - whitespace: " "
               - alias_expression:
-                  - keyword: as
+                  - alias_operator: as
                   - whitespace: " "
                   - naked_identifier: a
           - comma: ","
@@ -28,7 +28,7 @@ file:
                   - numeric_literal: 14
               - whitespace: " "
               - alias_expression:
-                  - keyword: as
+                  - alias_operator: as
                   - whitespace: " "
                   - naked_identifier: b
       - newline: "\n"

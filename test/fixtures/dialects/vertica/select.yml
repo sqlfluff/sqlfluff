@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 81dff6951792526333c0948e979cdfd183bbd58721afe5f4c607b3f816f1ada0
+_hash: 6d300efd77e1ce73ede0cf8d488be2668855455a20c3318128b3fb710afb2dad
 file:
 - statement:
     select_statement:
@@ -201,7 +201,7 @@ file:
                     naked_identifier: annual_salary
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: highest_salary
       from_clause:
         keyword: FROM
@@ -423,7 +423,7 @@ file:
                         naked_identifier: geom
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: SEL_0
       from_clause:
         keyword: FROM
@@ -458,7 +458,7 @@ file:
                     naked_identifier: first_bid
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: avg_bid
       from_clause:
         keyword: FROM
@@ -490,7 +490,7 @@ file:
                                 naked_identifier: bid1
                             end_bracket: )
                       alias_expression:
-                        keyword: AS
+                        alias_operator: AS
                         naked_identifier: first_bid
                   from_clause:
                     keyword: FROM
@@ -536,7 +536,7 @@ file:
                         end_bracket: )
                 end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator: AS
               naked_identifier: resultOfGFI
       groupby_clause:
       - keyword: GROUP

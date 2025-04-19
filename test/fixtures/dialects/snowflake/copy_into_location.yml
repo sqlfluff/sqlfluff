@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 215378e53e3ceab47fdae800dcd04c108a695df3b46d387fb1a5b09c1a449435
+_hash: 7b1c0d0bf13d57000ba3c200323c62a82e018f4ecd4a535073131b8dfef5d563
 file:
 - statement:
     copy_into_location_statement:
@@ -80,7 +80,7 @@ file:
                       data_type_identifier: INTEGER
                     end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: LISTING_ADDRESS_POSTALCODE
           from_clause:
           - keyword: FROM
@@ -109,7 +109,7 @@ file:
                             naked_identifier: ZIPS
                         end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_operator: AS
                   naked_identifier: Z
           where_clause:
             keyword: WHERE

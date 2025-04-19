@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f8a43f0a13569e849958bf2bced90a8f0fdfddebf945c36152fb90a797306eaf
+_hash: 861406ad5ab6c904632a87fa01078ef74c889dee077b116cd1f26886a8199399
 file:
 - statement:
     select_statement:
@@ -40,7 +40,7 @@ file:
                     naked_identifier: villainy
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: total_scum_and_villainy
       from_clause:
         keyword: FROM
@@ -94,7 +94,7 @@ file:
                     naked_identifier: villainy
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: total_scum_and_villainy
       from_clause:
         keyword: FROM
@@ -128,7 +128,7 @@ file:
                     naked_identifier: civility
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: total_civility
       from_clause:
         keyword: FROM

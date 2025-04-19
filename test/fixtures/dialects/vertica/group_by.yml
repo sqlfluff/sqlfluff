@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b08df3ef30d97e66864145a795bf8fd7f3fe368b8a844aec6e4119d1c305fe25
+_hash: 270553d99c8ffbc21e50e5548510de9bca9ae0054bf9ff08a1c60303c8cc1d44
 file:
 - statement:
     select_statement:
@@ -64,7 +64,7 @@ file:
                     naked_identifier: deal_size
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             quoted_identifier: '"Biggest Deal"'
       from_clause:
         keyword: FROM
@@ -99,7 +99,7 @@ file:
                     naked_identifier: deal_size
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             quoted_identifier: '"Biggest Deal"'
       from_clause:
         keyword: FROM

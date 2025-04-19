@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d48b7901afbfc3cd29d9c20e9c16ac2e5b173a4c3f6e0e0109f52ffb026a3235
+_hash: f2b1920bd9227e64ff1703edd7ee88678f58e64a80dcd0e519d1cf46731ac1b2
 file:
 - statement:
     select_statement:
@@ -16,7 +16,7 @@ file:
             binary_operator: +
             numeric_literal: '1'
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             quoted_identifier: "'amount'"
       from_clause:
         keyword: FROM
@@ -37,7 +37,7 @@ file:
             binary_operator: +
             numeric_literal: '1'
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             quoted_identifier: "'höhe'"
       from_clause:
         keyword: FROM
@@ -58,7 +58,7 @@ file:
             binary_operator: '*'
             numeric_literal: '2'
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             quoted_identifier: "'amount'"
       from_clause:
         keyword: FROM
@@ -79,7 +79,7 @@ file:
             binary_operator: '*'
             numeric_literal: '2'
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             quoted_identifier: "'höhe'"
       from_clause:
         keyword: FROM
@@ -213,7 +213,7 @@ file:
           column_reference:
             naked_identifier: itemkey
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: key
       - comma: ','
       - select_clause_element:
@@ -239,7 +239,7 @@ file:
                     naked_identifier: itemprice
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: prices
       from_clause:
         keyword: FROM
@@ -267,7 +267,7 @@ file:
           column_reference:
             naked_identifier: ключтовара
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: key
       - comma: ','
       - select_clause_element:
@@ -293,7 +293,7 @@ file:
                     naked_identifier: ценатовара
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: цены
       from_clause:
         keyword: FROM
@@ -338,7 +338,7 @@ file:
               - quoted_literal: "'0.5'"
               - end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: median
       from_clause:
         keyword: FROM
@@ -378,7 +378,7 @@ file:
               - quoted_literal: "'0.5'"
               - end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: διάμεσος
       from_clause:
         keyword: FROM
@@ -443,7 +443,7 @@ file:
                         naked_identifier: customer_state
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: PERCENTILE_CONT
       from_clause:
         keyword: FROM
@@ -523,7 +523,7 @@ file:
                         naked_identifier: état_du_client
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: PERCENTILE_CONT
       from_clause:
         keyword: FROM
@@ -603,7 +603,7 @@ file:
                         naked_identifier: customer_state
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: PERCENTILE_DISC
       from_clause:
         keyword: FROM
@@ -689,7 +689,7 @@ file:
                         naked_identifier: état_du_client
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: PERCENTILE_DISC
       from_clause:
         keyword: FROM
@@ -775,7 +775,7 @@ file:
                         naked_identifier: customer_state
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: PERCENTILE_CONT
       from_clause:
         keyword: FROM
@@ -861,7 +861,7 @@ file:
                         naked_identifier: état_du_client
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: PERCENTILE_CONT
       from_clause:
         keyword: FROM
@@ -1373,7 +1373,7 @@ file:
                       column_reference:
                         naked_identifier: eruptions
                       alias_expression:
-                        keyword: AS
+                        alias_operator: AS
                         naked_identifier: obs
                   - comma: ','
                   - select_clause_element:
@@ -1393,7 +1393,7 @@ file:
                           - quoted_literal: "'myLinearRegModel'"
                           - end_bracket: )
                       alias_expression:
-                        keyword: AS
+                        alias_operator: AS
                         naked_identifier: prediction
                   from_clause:
                     keyword: FROM
@@ -1404,7 +1404,7 @@ file:
                             naked_identifier: faithful_testing
                 end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator: AS
               naked_identifier: PredictionOutput
 - statement_terminator: ;
 - statement:
@@ -1445,7 +1445,7 @@ file:
                       column_reference:
                         naked_identifier: извержения
                       alias_expression:
-                        keyword: AS
+                        alias_operator: AS
                         naked_identifier: наблюдения
                   - comma: ','
                   - select_clause_element:
@@ -1465,7 +1465,7 @@ file:
                           - quoted_literal: "'myLinearRegModel'"
                           - end_bracket: )
                       alias_expression:
-                        keyword: AS
+                        alias_operator: AS
                         naked_identifier: прогноз
                   from_clause:
                     keyword: FROM
@@ -1476,7 +1476,7 @@ file:
                             naked_identifier: верное_испытание
                 end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator: AS
               naked_identifier: РезультатПрогноза
 - statement_terminator: ;
 - statement:
@@ -1492,7 +1492,7 @@ file:
               numeric_literal: '0'
               end_square_bracket: ']'
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: q0
       - comma: ','
       - select_clause_element:
@@ -1504,7 +1504,7 @@ file:
               numeric_literal: '1'
               end_square_bracket: ']'
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: q1
       - comma: ','
       - select_clause_element:
@@ -1516,7 +1516,7 @@ file:
               numeric_literal: '2'
               end_square_bracket: ']'
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: q2
       - comma: ','
       - select_clause_element:
@@ -1528,7 +1528,7 @@ file:
               numeric_literal: '3'
               end_square_bracket: ']'
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: q3
       - comma: ','
       - select_clause_element:
@@ -1540,7 +1540,7 @@ file:
               numeric_literal: '4'
               end_square_bracket: ']'
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: q4
       from_clause:
         keyword: FROM
@@ -1569,7 +1569,7 @@ file:
                           - quoted_literal: "'0, 0.25, 0.5, 0.75, 1'"
                           - end_bracket: )
                       alias_expression:
-                        keyword: AS
+                        alias_operator: AS
                         naked_identifier: ps
                   from_clause:
                     keyword: FROM
@@ -1585,7 +1585,7 @@ file:
                       naked_identifier: state
                 end_bracket: )
             alias_expression:
-              keyword: as
+              alias_operator: as
               naked_identifier: s1
 - statement_terminator: ;
 - statement:
@@ -1601,7 +1601,7 @@ file:
               numeric_literal: '0'
               end_square_bracket: ']'
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: q0
       - comma: ','
       - select_clause_element:
@@ -1613,7 +1613,7 @@ file:
               numeric_literal: '1'
               end_square_bracket: ']'
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: q1
       - comma: ','
       - select_clause_element:
@@ -1625,7 +1625,7 @@ file:
               numeric_literal: '2'
               end_square_bracket: ']'
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: q2
       - comma: ','
       - select_clause_element:
@@ -1637,7 +1637,7 @@ file:
               numeric_literal: '3'
               end_square_bracket: ']'
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: q3
       - comma: ','
       - select_clause_element:
@@ -1649,7 +1649,7 @@ file:
               numeric_literal: '4'
               end_square_bracket: ']'
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: q4
       from_clause:
         keyword: FROM
@@ -1678,7 +1678,7 @@ file:
                           - quoted_literal: "'0, 0.25, 0.5, 0.75, 1'"
                           - end_bracket: )
                       alias_expression:
-                        keyword: AS
+                        alias_operator: AS
                         naked_identifier: pz
                   from_clause:
                     keyword: FROM
@@ -1694,7 +1694,7 @@ file:
                       naked_identifier: Staat
                 end_bracket: )
             alias_expression:
-              keyword: as
+              alias_operator: as
               naked_identifier: s1
 - statement_terminator: ;
 - statement:

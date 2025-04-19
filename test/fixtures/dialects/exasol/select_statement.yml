@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 94a5fbf4619e3ecb9e25fab9d9caed53b87ba63398bf253b89c9ac116afe4762
+_hash: af5e6dfdb4d34a066255fc9ac3862f445f187bbe471cc77009ae93a510b44f4a
 file:
 - statement:
     select_statement:
@@ -128,7 +128,7 @@ file:
                     naked_identifier: price
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: volume
       from_clause:
         keyword: FROM
@@ -169,7 +169,7 @@ file:
                     naked_identifier: price
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: volume
       from_clause:
         keyword: FROM
@@ -264,7 +264,7 @@ file:
                       naked_identifier: price
                   end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator: AS
               naked_identifier: volume
         - comma: ','
         - select_clause_element:
@@ -476,7 +476,7 @@ file:
             - quoted_literal: "'d'"
             - end_bracket: )
           - alias_expression:
-              keyword: AS
+              alias_operator: AS
               naked_identifier: mylist
               bracketed:
                 start_bracket: (
@@ -661,7 +661,7 @@ file:
                 - quoted_literal: "'y'"
                 - end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_operator: AS
                   naked_identifier: x
                   bracketed:
                     start_bracket: (
@@ -705,7 +705,7 @@ file:
                     - end_bracket: )
                 - end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_operator: AS
                   naked_identifier: x
                   bracketed:
                     start_bracket: (
@@ -769,7 +769,7 @@ file:
                     numeric_literal: '3'
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator: AS
               naked_identifier: xs
               bracketed:
                 start_bracket: (
@@ -1051,7 +1051,7 @@ file:
                 star: '*'
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: a
       - comma: ','
       - select_clause_element:
@@ -1086,7 +1086,7 @@ file:
                     naked_identifier: x
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: x
       from_clause:
         keyword: FROM
@@ -1114,7 +1114,7 @@ file:
           column_reference:
             naked_identifier: c1
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: cx
       - comma: ','
       - select_clause_element:
@@ -1127,7 +1127,7 @@ file:
                 star: '*'
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: cc
       from_clause:
         keyword: FROM
@@ -1153,7 +1153,7 @@ file:
           column_reference:
             naked_identifier: c1
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: cx
       from_clause:
         keyword: FROM
@@ -1189,7 +1189,7 @@ file:
                 star: '*'
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: c
       from_clause:
         keyword: FROM
@@ -1524,7 +1524,7 @@ file:
         select_clause_element:
           quoted_literal: "'ABC'"
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: c1
       from_clause:
         keyword: FROM
@@ -1620,7 +1620,7 @@ file:
                     start_bracket: (
                     end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator: AS
               naked_identifier: nummer
         from_clause:
           keyword: FROM
@@ -1782,7 +1782,7 @@ file:
             - quoted_literal: "'7'"
             - keyword: DAY
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: late_2020_mondays
       - comma: ','
       - select_clause_element:
@@ -1792,7 +1792,7 @@ file:
             column_reference:
               naked_identifier: v
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: five_times_table
       from_clause:
         keyword: FROM
@@ -1806,7 +1806,7 @@ file:
               - keyword: AND
               - numeric_literal: '9'
             alias_expression:
-              keyword: AS
+              alias_operator: AS
               naked_identifier: v
               bracketed:
                 start_bracket: (
@@ -1946,7 +1946,7 @@ file:
           - keyword: LIKE
           - quoted_literal: "'a_d'"
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: res1
       - comma: ','
       - select_clause_element:
@@ -1955,7 +1955,7 @@ file:
           - keyword: like
           - quoted_literal: "'%%d'"
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: res2
 - statement_terminator: ;
 - statement:
@@ -1969,7 +1969,7 @@ file:
           - keyword: LIKE
           - quoted_literal: "'a_d'"
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: res1
       - comma: ','
       - select_clause_element:
@@ -1978,7 +1978,7 @@ file:
           - keyword: like
           - quoted_literal: "'%%d'"
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: res2
 - statement_terminator: ;
 - statement:
@@ -1991,7 +1991,7 @@ file:
           - keyword: REGEXP_LIKE
           - quoted_literal: "'(?i).*[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}.*'"
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: contains_email
 - statement_terminator: ;
 - statement:
@@ -2005,7 +2005,7 @@ file:
           - keyword: REGEXP_LIKE
           - quoted_literal: "'(?i).*[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}.*'"
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: contains_email
 - statement_terminator: ;
 - statement:
@@ -2018,7 +2018,7 @@ file:
             binary_operator: '-'
             numeric_literal: '1'
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: dt
       from_clause:
         keyword: from

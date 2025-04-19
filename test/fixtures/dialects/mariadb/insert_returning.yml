@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 778b69ed660190c0933251827c15abb586d4064415475e3c3d97ae65cd3bc9ff
+_hash: 4509960206ce6458702c9a838084629f14f6783029a7fcc6e8c69afb285cf36a
 file:
 - statement:
     insert_statement:
@@ -90,7 +90,7 @@ file:
                         - column_reference:
                             naked_identifier: d
                         alias_expression:
-                          keyword: AS
+                          alias_operator: AS
                           naked_identifier: e
                     from_clause:
                       keyword: FROM
@@ -101,7 +101,7 @@ file:
                               naked_identifier: t2
                   end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: dt
     - returning_clause:
       - keyword: RETURNING
@@ -388,7 +388,7 @@ file:
                         - column_reference:
                             naked_identifier: d
                         alias_expression:
-                          keyword: AS
+                          alias_operator: AS
                           naked_identifier: e
                     from_clause:
                       keyword: FROM
@@ -399,7 +399,7 @@ file:
                               naked_identifier: t2
                   end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: dt
     - upsert_clause_list:
       - keyword: 'ON'
@@ -462,7 +462,7 @@ file:
                         - column_reference:
                             naked_identifier: d
                         alias_expression:
-                          keyword: AS
+                          alias_operator: AS
                           naked_identifier: e
                     from_clause:
                       keyword: FROM

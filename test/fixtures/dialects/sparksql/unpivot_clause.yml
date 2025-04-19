@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: de64ad2af662f2c6b546ba322499432535cf5b5d3cba347363053ab657fe24ea
+_hash: 8fad3e8cc97a987c6e40084fe6e5ef7563b4818b7263e4a24ea7eb138052ab6f
 file:
 - statement:
     select_statement:
@@ -78,30 +78,30 @@ file:
                 - column_reference:
                     naked_identifier: q1
                 - alias_expression:
-                    keyword: AS
+                    alias_operator: AS
                     naked_identifier: Q1
                 - comma: ','
                 - column_reference:
                     naked_identifier: q2
                 - alias_expression:
-                    keyword: AS
+                    alias_operator: AS
                     naked_identifier: Q2
                 - comma: ','
                 - column_reference:
                     naked_identifier: q3
                 - alias_expression:
-                    keyword: AS
+                    alias_operator: AS
                     naked_identifier: Q3
                 - comma: ','
                 - column_reference:
                     naked_identifier: q4
                 - alias_expression:
-                    keyword: AS
+                    alias_operator: AS
                     naked_identifier: Q4
                 - end_bracket: )
               end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: up
 - statement_terminator: ;
 - statement:
@@ -146,7 +146,7 @@ file:
                       naked_identifier: q2
                   - end_bracket: )
                 - alias_expression:
-                    keyword: AS
+                    alias_operator: AS
                     naked_identifier: H1
                 - comma: ','
                 - bracketed:
@@ -158,7 +158,7 @@ file:
                       naked_identifier: q4
                   - end_bracket: )
                 - alias_expression:
-                    keyword: AS
+                    alias_operator: AS
                     naked_identifier: H2
                 - end_bracket: )
               end_bracket: )
@@ -194,19 +194,19 @@ file:
                 - column_reference:
                     naked_identifier: q1
                 - alias_expression:
-                    keyword: AS
+                    alias_operator: AS
                     quoted_identifier: '`Jan-Mar`'
                 - comma: ','
                 - column_reference:
                     naked_identifier: q2
                 - alias_expression:
-                    keyword: AS
+                    alias_operator: AS
                     quoted_identifier: '`Apr-Jun`'
                 - comma: ','
                 - column_reference:
                     naked_identifier: q3
                 - alias_expression:
-                    keyword: AS
+                    alias_operator: AS
                     quoted_identifier: '`Jul-Sep`'
                 - comma: ','
                 - column_reference:
@@ -214,7 +214,7 @@ file:
                   - dot: .
                   - naked_identifier: q4
                 - alias_expression:
-                    keyword: AS
+                    alias_operator: AS
                     quoted_identifier: '`Oct-Dec`'
                 - end_bracket: )
               end_bracket: )
@@ -240,19 +240,19 @@ file:
                 - column_reference:
                     naked_identifier: q1
                 - alias_expression:
-                    keyword: AS
+                    alias_operator: AS
                     quoted_identifier: '`Jan-Mar`'
                 - comma: ','
                 - column_reference:
                     naked_identifier: q2
                 - alias_expression:
-                    keyword: AS
+                    alias_operator: AS
                     quoted_identifier: '`Apr-Jun`'
                 - comma: ','
                 - column_reference:
                     naked_identifier: q3
                 - alias_expression:
-                    keyword: AS
+                    alias_operator: AS
                     quoted_identifier: '`Jul-Sep`'
                 - comma: ','
                 - column_reference:
@@ -260,7 +260,7 @@ file:
                   - dot: .
                   - naked_identifier: q4
                 - alias_expression:
-                    keyword: AS
+                    alias_operator: AS
                     quoted_identifier: '`Oct-Dec`'
                 - end_bracket: )
               end_bracket: )

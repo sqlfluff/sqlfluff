@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 58899b2debfbe736d6b7c090b8364f4c79796493ed06fc53d5e4919cd45ddaad
+_hash: 087d881717a6f871ae9e01616ce19cb5ecc2d050663ce71c372d5aa472a18274
 file:
 - statement:
     select_statement:
@@ -713,7 +713,7 @@ file:
           - dot: .
           - naked_identifier: product_description
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: product_description
       from_clause:
         keyword: FROM
@@ -727,7 +727,7 @@ file:
                 - dot: .
                 - naked_identifier: product_dimension
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: product_dimension
             join_clause:
             - keyword: SEMI
@@ -745,7 +745,7 @@ file:
                           - dot: .
                           - naked_identifier: qty_in_stock
                           alias_expression:
-                            keyword: AS
+                            alias_operator: AS
                             naked_identifier: qty_in_stock
                       from_clause:
                         keyword: FROM
@@ -757,11 +757,11 @@ file:
                               - dot: .
                               - naked_identifier: inventory_fact
                             alias_expression:
-                              keyword: AS
+                              alias_operator: AS
                               naked_identifier: inventory_fact
                     end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_operator: AS
                   naked_identifier: subQ_1
             - join_on_condition:
                 keyword: 'ON'
@@ -791,7 +791,7 @@ file:
           - dot: .
           - naked_identifier: product_description
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: product_description
       from_clause:
         keyword: FROM
@@ -805,7 +805,7 @@ file:
                 - dot: .
                 - naked_identifier: product_dimension
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: product_dimension
             join_clause:
             - keyword: NULLAWARE
@@ -824,7 +824,7 @@ file:
                           - dot: .
                           - naked_identifier: qty_in_stock
                           alias_expression:
-                            keyword: AS
+                            alias_operator: AS
                             naked_identifier: qty_in_stock
                       from_clause:
                         keyword: FROM
@@ -836,11 +836,11 @@ file:
                               - dot: .
                               - naked_identifier: inventory_fact
                             alias_expression:
-                              keyword: AS
+                              alias_operator: AS
                               naked_identifier: inventory_fact
                     end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_operator: AS
                   naked_identifier: subQ_1
             - join_on_condition:
                 keyword: 'ON'
@@ -870,7 +870,7 @@ file:
           - dot: .
           - naked_identifier: product_key
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: product_key
       - comma: ','
       - select_clause_element:
@@ -879,7 +879,7 @@ file:
           - dot: .
           - naked_identifier: product_description
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: product_description
       from_clause:
         keyword: FROM
@@ -893,7 +893,7 @@ file:
                 - dot: .
                 - naked_identifier: product_dimension
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: product_dimension
             join_clause:
             - keyword: SEMIALL
@@ -911,7 +911,7 @@ file:
                           - dot: .
                           - naked_identifier: product_key
                           alias_expression:
-                            keyword: AS
+                            alias_operator: AS
                             naked_identifier: product_key
                       from_clause:
                         keyword: FROM
@@ -923,11 +923,11 @@ file:
                               - dot: .
                               - naked_identifier: inventory_fact
                             alias_expression:
-                              keyword: AS
+                              alias_operator: AS
                               naked_identifier: inventory_fact
                     end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_operator: AS
                   naked_identifier: subQ_1
             - join_on_condition:
                 keyword: 'ON'
@@ -957,7 +957,7 @@ file:
           - dot: .
           - naked_identifier: product_key
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: product_key
       - comma: ','
       - select_clause_element:
@@ -966,7 +966,7 @@ file:
           - dot: .
           - naked_identifier: product_description
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: product_description
       from_clause:
         keyword: FROM
@@ -980,7 +980,7 @@ file:
                 - dot: .
                 - naked_identifier: product_dimension
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: product_dimension
             join_clause:
             - keyword: ANTI
@@ -998,7 +998,7 @@ file:
                           - dot: .
                           - naked_identifier: product_key
                           alias_expression:
-                            keyword: AS
+                            alias_operator: AS
                             quoted_identifier: '"inventory_fact.product_key"'
                       from_clause:
                         keyword: FROM
@@ -1010,11 +1010,11 @@ file:
                               - dot: .
                               - naked_identifier: inventory_fact
                             alias_expression:
-                              keyword: AS
+                              alias_operator: AS
                               naked_identifier: inventory_fact
                     end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_operator: AS
                   naked_identifier: subQ_1
             - join_on_condition:
                 keyword: 'ON'

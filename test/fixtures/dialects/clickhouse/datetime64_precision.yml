@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 21229aedcf3c2f7bbc08f000918f35e29eb04cad440579c2cc54c485feafb031
+_hash: 7baee2431031d99797defffcf9c401827cdd12334a2a495d23f5fa47507bab5a
 file:
 - statement:
     select_statement:
@@ -17,7 +17,7 @@ file:
               data_type:
                 data_type_identifier: DateTime64
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: datetime
 - statement_terminator: ;
 - statement:
@@ -35,7 +35,7 @@ file:
                   start_bracket: (
                   end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: datetime
 - statement_terminator: ;
 - statement:
@@ -54,7 +54,7 @@ file:
                   numeric_literal: '3'
                   end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: datetime
 - statement_terminator: ;
 - statement:
@@ -75,7 +75,7 @@ file:
                   quoted_literal: "'Europe/Paris'"
                   end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: datetime
 - statement_terminator: ;
 - statement:
@@ -94,6 +94,6 @@ file:
                   numeric_literal: '6'
                   end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: datetime
 - statement_terminator: ;

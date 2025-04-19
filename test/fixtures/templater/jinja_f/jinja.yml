@@ -35,7 +35,7 @@ file:
                   - keyword: END
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: shop_word
       - comma: ","
       - select_clause_element:
@@ -66,7 +66,7 @@ file:
                   - keyword: END
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: products_word
       - comma: ","
       - select_clause_element:
@@ -97,7 +97,7 @@ file:
                   - keyword: END
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: code_word
       - comma: ","
       - select_clause_element:
@@ -128,7 +128,7 @@ file:
                   data_type_identifier: FLOAT64
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: v0
       - comma: ","
       - select_clause_element:
@@ -159,7 +159,7 @@ file:
                   data_type_identifier: FLOAT64
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: v1
       from_clause:
         keyword: FROM

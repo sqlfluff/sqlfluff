@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 93b284a4e5cb4a7dac28c7a882c48befb7e0dda59543f42565720a1883dd319e
+_hash: 33c845d77f4ac2eeb1538f0c7689a76dad210f5c523a28921bf4ec16465e2021
 file:
 - statement:
     select_statement:
@@ -34,7 +34,7 @@ file:
                     numeric_literal: '0'
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: sample_filter
       - comma: ','
       - select_clause_element:
@@ -59,7 +59,7 @@ file:
                       semi_structured_element: value
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: sample_transform
       - comma: ','
       - select_clause_element:
@@ -86,7 +86,7 @@ file:
                       semi_structured_element: val
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: sample_transform_with_type
       from_clause:
         keyword: FROM
@@ -147,7 +147,7 @@ file:
                       end_bracket: )
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: sample_filter
       - comma: ','
       - select_clause_element:
@@ -169,7 +169,7 @@ file:
                       naked_identifier: j
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: sample_transform
       - comma: ','
       - select_clause_element:
@@ -192,7 +192,7 @@ file:
                   boolean_literal: 'true'
               - end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: sample_other
       from_clause:
         keyword: FROM

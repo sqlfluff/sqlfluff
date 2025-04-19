@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ae68b7a391f641e287c05a42e5fb2c2ffb2ba56545ef2c3abca0d13d85d92d7f
+_hash: 2441d9e6e11a559ae359780ddea84bf08aa3856ca53af33266b1de13bf374a5b
 file:
 - batch:
     statement:
@@ -24,7 +24,7 @@ file:
                 - dot: .
                 - naked_identifier: Customer
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: c
             join_clause:
             - keyword: INNER
@@ -36,7 +36,7 @@ file:
                   - dot: .
                   - naked_identifier: CustomerAddress
                 alias_expression:
-                  keyword: AS
+                  alias_operator: AS
                   naked_identifier: ca
             - join_on_condition:
                 keyword: 'ON'
@@ -242,7 +242,7 @@ file:
                           - dot: .
                           - naked_identifier: Customer
                         alias_expression:
-                          keyword: AS
+                          alias_operator: AS
                           naked_identifier: e
                       join_on_condition:
                         keyword: 'ON'
@@ -310,7 +310,7 @@ file:
                   - dot: .
                   - naked_identifier: Employee
                 alias_expression:
-                  keyword: AS
+                  alias_operator: AS
                   naked_identifier: e1
       - set_operator:
           keyword: UNION
@@ -331,7 +331,7 @@ file:
                   - dot: .
                   - naked_identifier: Employee
                 alias_expression:
-                  keyword: AS
+                  alias_operator: AS
                   naked_identifier: e2
       - option_clause:
           keyword: OPTION
@@ -369,7 +369,7 @@ file:
                       naked_identifier: LineTotal
                   end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator: AS
               naked_identifier: Total
         from_clause:
           keyword: FROM
@@ -444,7 +444,7 @@ file:
                       naked_identifier: LineTotal
                   end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator: AS
               naked_identifier: Total
         from_clause:
           keyword: FROM
@@ -688,7 +688,7 @@ file:
                 - dot: .
                 - naked_identifier: SalesOrderHeader
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: h
             join_clause:
             - keyword: INNER
@@ -700,7 +700,7 @@ file:
                   - dot: .
                   - naked_identifier: SalesOrderDetail
                 alias_expression:
-                  keyword: AS
+                  alias_operator: AS
                   naked_identifier: d
                 post_table_expression:
                   keyword: WITH
@@ -787,7 +787,7 @@ file:
                 - dot: .
                 - naked_identifier: SalesOrderHeader
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: h
             join_clause:
             - keyword: INNER
@@ -799,7 +799,7 @@ file:
                   - dot: .
                   - naked_identifier: SalesOrderDetail
                 alias_expression:
-                  keyword: AS
+                  alias_operator: AS
                   naked_identifier: d
                 post_table_expression:
                   keyword: WITH
@@ -895,7 +895,7 @@ file:
                 - dot: .
                 - naked_identifier: SalesOrderHeader
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: h
             join_clause:
             - keyword: INNER
@@ -907,7 +907,7 @@ file:
                   - dot: .
                   - naked_identifier: SalesOrderDetail
                 alias_expression:
-                  keyword: AS
+                  alias_operator: AS
                   naked_identifier: d
                 post_table_expression:
                   keyword: WITH

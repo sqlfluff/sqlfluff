@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9475bf138df2b698b5fcdea7d4d615c8ea76ce29b7e3f08dc3b1b10335f5b6a8
+_hash: fa8ebfddcae79e9770badb0677382ee40f676d4de8b08db8ac7d19132be55b11
 file:
 - batch:
     statement:
@@ -39,7 +39,7 @@ file:
           select_clause_element:
             numeric_literal: '1'
             alias_expression:
-              keyword: AS
+              alias_operator: AS
               naked_identifier: a
         for_clause:
         - keyword: FOR
@@ -56,7 +56,7 @@ file:
           select_clause_element:
             numeric_literal: '1'
             alias_expression:
-              keyword: AS
+              alias_operator: AS
               naked_identifier: a
         for_clause:
         - keyword: FOR
@@ -90,7 +90,7 @@ file:
                 table_reference:
                   hash_identifier: '#tabClass'
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: c
             join_clause:
             - keyword: RIGHT
@@ -100,7 +100,7 @@ file:
                   table_reference:
                     hash_identifier: '#tabStudent'
                 alias_expression:
-                  keyword: AS
+                  alias_operator: AS
                   naked_identifier: s
             - join_on_condition:
                 keyword: 'ON'
@@ -142,7 +142,7 @@ file:
           select_clause_element:
             numeric_literal: '1'
             alias_expression:
-              keyword: AS
+              alias_operator: AS
               naked_identifier: a
         for_clause:
         - keyword: FOR
@@ -241,7 +241,7 @@ file:
           select_clause_element:
             numeric_literal: '1'
             alias_expression:
-              keyword: as
+              alias_operator: as
               naked_identifier: Tag
         from_clause:
           keyword: FROM
@@ -253,7 +253,7 @@ file:
                 - dot: .
                 - naked_identifier: Employee
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: E
         for_clause:
         - keyword: FOR
@@ -310,7 +310,7 @@ file:
           select_clause_element:
             numeric_literal: '1'
             alias_expression:
-              keyword: AS
+              alias_operator: AS
               naked_identifier: a
         for_clause:
         - keyword: FOR

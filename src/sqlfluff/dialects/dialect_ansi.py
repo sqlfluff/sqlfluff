@@ -774,6 +774,7 @@ ansi_dialect.add(
         Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
         Sequence("NO", "MAXVALUE"),
     ),
+    AliasAsKeyword=StringParser("AS", KeywordSegment, type="alias_operator"),
 )
 
 
@@ -1279,7 +1280,7 @@ class AliasExpressionSegment(BaseSegment):
     type = "alias_expression"
     match_grammar: Matchable = Sequence(
         Indent,
-        Ref.keyword("AS", optional=True),
+        Ref("AliasAsKeyword", optional=True),
         OneOf(
             Sequence(
                 Ref("SingleIdentifierGrammar"),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2e2c7637899f7476f622812d11b3143df72b03cec6987cf9a113dfdcd0e28ad4
+_hash: c9718def485c9e531e5eebb923fc39239157f0110e8dda10dbf0610f5be7d935
 file:
   batch:
   - statement:
@@ -107,7 +107,7 @@ file:
                 table_reference:
                   naked_identifier: Departments
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: d
             join_clause:
             - keyword: CROSS
@@ -129,7 +129,7 @@ file:
                           - naked_identifier: DeptMgrID
                         end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_operator: AS
                   naked_identifier: reps
         where_clause:
           keyword: WHERE
@@ -216,7 +216,7 @@ file:
                           - naked_identifier: DepartmentID
                         end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_operator: AS
                   naked_identifier: AllEmp
         where_clause:
           keyword: WHERE
@@ -252,7 +252,7 @@ file:
                 table_reference:
                   naked_identifier: table1
               alias_expression:
-                keyword: as
+                alias_operator: as
                 naked_identifier: s
             join_clause:
             - keyword: cross
@@ -289,6 +289,6 @@ file:
                           quoted_literal: "'{'"
                       - end_bracket: )
                 alias_expression:
-                  keyword: as
+                  alias_operator: as
                   naked_identifier: sp
           statement_terminator: ;

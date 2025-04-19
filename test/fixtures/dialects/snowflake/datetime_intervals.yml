@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f7696effa6445f4fa1aec8a5d0ca9e14d9c7e319124db358e501ea8f8dac8a4c
+_hash: 7555248be7c0062bb2a64605e83b3c6bce3eff0fe63a7cc9eb8ebed0579c9ea2
 file:
 - statement:
     select_statement:
@@ -78,7 +78,7 @@ file:
               \ 7 minutes, 8 seconds,\n                            1000 milliseconds,\
               \ 4000000 microseconds, 5000000001 nanoseconds'"
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: complex_interval1
 - statement_terminator: ;
 - statement:
@@ -102,7 +102,7 @@ file:
               \                                1000 ms, 445343232 us, 898498273498\
               \ ns'"
           alias_expression:
-            keyword: as
+            alias_operator: as
             naked_identifier: complex_interval2
 - statement_terminator: ;
 - statement:

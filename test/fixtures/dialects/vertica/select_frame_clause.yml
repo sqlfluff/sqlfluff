@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 73716a4505382ef8300f0b2e7781dad19c1a6ac140805472b897b67b13047253
+_hash: 11f59576cdd304fea6a0c1f848e935766e3c7ed40fa120c5c2a371beecdc1985
 file:
 - statement:
     select_statement:
@@ -362,7 +362,7 @@ file:
                         naked_identifier: customer_state
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator: AS
             naked_identifier: PERCENTILE_CONT
       from_clause:
         keyword: FROM
@@ -433,7 +433,7 @@ file:
                       naked_identifier: hire_date
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator: as
             quoted_identifier: '"stddev"'
       from_clause:
         keyword: FROM

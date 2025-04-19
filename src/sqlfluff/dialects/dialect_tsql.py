@@ -410,6 +410,7 @@ tsql_dialect.add(
     ModuloComparisonSegment=StringParser(
         "%", SymbolSegment, type="raw_comparison_operator"
     ),
+    AliasEqualKeyword=StringParser("=", SymbolSegment, type="alias_operator"),
 )
 
 tsql_dialect.replace(
@@ -823,7 +824,9 @@ class AltAliasExpressionSegment(BaseSegment):
             Ref("BracketedIdentifierSegment"),
             Ref("SingleQuotedIdentifierSegment"),
         ),
-        Ref("RawEqualsSegment"),
+        Indent,
+        Ref("AliasEqualKeyword"),
+        Dedent,
     )
 
 

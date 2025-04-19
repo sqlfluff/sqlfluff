@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b7e00d6e76ba083393dd9dac558bd15b8a5b991e76c8012ff290b745c84fd3db
+_hash: 78b320170303cb04a97635abbf6568d4e65cc3edc7c0f76fa09b2ddc9b3186b5
 file:
   statement:
     select_statement:
@@ -16,7 +16,7 @@ file:
       - select_clause_element:
           quoted_literal: '`timestamp`'
           alias_expression:
-            keyword: as
+            alias_operator: as
             quoted_identifier: '`timestamp`'
       from_clause:
         keyword: FROM

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 49abefe3bed2c50e43327eb248530658405c819fd69dca82bec2ce7d76559f6c
+_hash: bcc0582bd9ac678e60edb7e102b7117f5a3383f6500dfa851f6b6706b6ab3a0f
 file:
 - statement:
     create_table_statement:
@@ -769,7 +769,7 @@ file:
             select_clause_element:
               quoted_literal: "'A'"
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: B
         end_bracket: )
     - td_table_constraint:
@@ -796,7 +796,7 @@ file:
             select_clause_element:
               quoted_literal: "'A'"
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: B
         end_bracket: )
     - td_table_constraint:
@@ -823,7 +823,7 @@ file:
             select_clause_element:
               quoted_literal: "'A'"
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: B
         end_bracket: )
     - td_table_constraint:
@@ -847,7 +847,7 @@ file:
             select_clause_element:
               quoted_literal: "'A'"
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: B
         end_bracket: )
     - td_table_constraint:
@@ -873,7 +873,7 @@ file:
             select_clause_element:
               quoted_literal: "'A'"
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: B
         end_bracket: )
     - td_table_constraint:
@@ -900,7 +900,7 @@ file:
             select_clause_element:
               quoted_literal: "'A'"
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: B
         end_bracket: )
     - td_table_constraint:
@@ -926,7 +926,7 @@ file:
             select_clause_element:
               quoted_literal: "'A'"
               alias_expression:
-                keyword: AS
+                alias_operator: AS
                 naked_identifier: B
         end_bracket: )
     - td_table_constraint:
