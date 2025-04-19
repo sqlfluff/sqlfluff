@@ -113,12 +113,13 @@ class Rule_CV12(BaseRule):
             ]
 
             if any(
-                kw.raw_upper in ("CROSS", "POSITIONAL", "USING")
+                kw.raw_upper in ("CROSS", "POSITIONAL", "USING", "APPLY")
                 for kw in join_clause_keywords
             ):
                 # If explicit CROSS JOIN is used, disregard lack of condition
                 # If explicit POSITIONAL JOIN is used, disregard lack of condition
                 # If explicit JOIN USING is used, disregard lack of condition
+                # If explicit CROSS/OUTER APPLY is used, disregard lack of condition
                 continue
 
             this_join_condition = join_clause.get_child("join_on_condition")
