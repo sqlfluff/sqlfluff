@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d7c11e5bc888a11ee5652ac2975c8efc0a7f6e10dd256061cd7d1f7ddd5ef1fc
+_hash: 0417dca96caea8ca9d807213e9cb3a9ed5bace83d1f31f489cf40e5caf878633
 file:
   statement:
     select_statement:
@@ -23,8 +23,7 @@ file:
                   binary_operator: +
                   numeric_literal: '3'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: as
+                  alias_operator: as
                   naked_identifier: movie_count
               - comma: ','
               - expression:
@@ -33,8 +32,7 @@ file:
                   binary_operator: '*'
                   numeric_literal: '1000'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: as
+                  alias_operator: as
                   naked_identifier: show_count
               - end_bracket: )
       from_clause:

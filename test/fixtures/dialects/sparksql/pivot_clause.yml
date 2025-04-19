@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d204c5ace6d2a10dccb1760d865f2a46f0130eb4d364151a51c1d5e5815594a9
+_hash: afb9d1c6505407c225dd4bd04a11901c225930937fd9d0e5515c45434c221138
 file:
 - statement:
     select_statement:
@@ -34,8 +34,7 @@ file:
                         naked_identifier: age
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: a
             - keyword: FOR
             - naked_identifier: name
@@ -45,8 +44,7 @@ file:
                 expression:
                   quoted_literal: "'John'"
                 alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: john
                 end_bracket: )
             - end_bracket: )
@@ -80,8 +78,7 @@ file:
                         naked_identifier: age
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: a
             - keyword: FOR
             - naked_identifier: name
@@ -91,15 +88,13 @@ file:
               - expression:
                   quoted_literal: "'John'"
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: john
               - comma: ','
               - expression:
                   quoted_literal: "'Mike'"
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: mike
               - end_bracket: )
             - end_bracket: )
@@ -133,8 +128,7 @@ file:
                         naked_identifier: age
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: a
             - keyword: FOR
             - bracketed:
@@ -147,15 +141,13 @@ file:
               - expression:
                   quoted_literal: "'John'"
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: john
               - comma: ','
               - expression:
                   quoted_literal: "'Mike'"
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: mike
               - end_bracket: )
             - end_bracket: )
@@ -189,8 +181,7 @@ file:
                         naked_identifier: age
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: a
             - keyword: FOR
             - naked_identifier: name
@@ -200,15 +191,13 @@ file:
               - expression:
                   quoted_literal: "'John'"
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: john
               - comma: ','
               - expression:
                   quoted_literal: "'Mike'"
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: mike
               - end_bracket: )
             - end_bracket: )
@@ -246,8 +235,7 @@ file:
                         naked_identifier: age
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: a
             - comma: ','
             - function:
@@ -261,8 +249,7 @@ file:
                         naked_identifier: class
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: c
             - keyword: FOR
             - naked_identifier: name
@@ -272,15 +259,13 @@ file:
               - expression:
                   quoted_literal: "'John'"
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: john
               - comma: ','
               - expression:
                   quoted_literal: "'Mike'"
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: mike
               - end_bracket: )
             - end_bracket: )
@@ -318,8 +303,7 @@ file:
                         naked_identifier: age
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: a
             - comma: ','
             - function:
@@ -333,8 +317,7 @@ file:
                         naked_identifier: class
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: c
             - keyword: FOR
             - naked_identifier: name
@@ -344,15 +327,13 @@ file:
               - expression:
                   quoted_literal: "'John'"
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: john
               - comma: ','
               - expression:
                   quoted_literal: "'Mike'"
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: mike
               - end_bracket: )
             - end_bracket: )
@@ -390,8 +371,7 @@ file:
                         naked_identifier: age
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: a
             - comma: ','
             - function:
@@ -405,8 +385,7 @@ file:
                         naked_identifier: class
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: c
             - keyword: FOR
             - naked_identifier: name
@@ -424,8 +403,7 @@ file:
                     numeric_literal: '30'
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: c1
               - comma: ','
               - bracketed:
@@ -437,8 +415,7 @@ file:
                     numeric_literal: '40'
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: c2
               - end_bracket: )
             - end_bracket: )
@@ -466,8 +443,7 @@ file:
               table_reference:
                 naked_identifier: person
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: p
           pivot_clause:
             keyword: PIVOT
@@ -484,8 +460,7 @@ file:
                         naked_identifier: age
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: a
             - comma: ','
             - function:
@@ -499,8 +474,7 @@ file:
                         naked_identifier: class
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: c
             - keyword: FOR
             - naked_identifier: name
@@ -518,8 +492,7 @@ file:
                     numeric_literal: '30'
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: c1
               - comma: ','
               - bracketed:
@@ -531,8 +504,7 @@ file:
                     numeric_literal: '40'
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: c2
               - end_bracket: )
             - end_bracket: )
@@ -570,8 +542,7 @@ file:
                         naked_identifier: age
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: a
             - comma: ','
             - function:
@@ -585,8 +556,7 @@ file:
                         naked_identifier: class
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: c
             - keyword: FOR
             - bracketed:
@@ -601,8 +571,7 @@ file:
               - expression:
                   quoted_literal: "'John'"
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: c1
               - comma: ','
               - bracketed:
@@ -614,8 +583,7 @@ file:
                     numeric_literal: '40'
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: c2
               - end_bracket: )
             - end_bracket: )
@@ -656,8 +624,7 @@ file:
                 binary_operator: /
                 numeric_literal: 1e9
             - alias_expression:
-                alias_expression_operator:
-                  keyword: as
+                alias_operator: as
                 naked_identifier: min_timestamp_s
             - keyword: FOR
             - naked_identifier: run_id
@@ -668,16 +635,14 @@ file:
                   column_reference:
                     naked_identifier: test_run_id
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: as
+                  alias_operator: as
                   naked_identifier: test
               - comma: ','
               - expression:
                   column_reference:
                     naked_identifier: ctrl_run_id
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: as
+                  alias_operator: as
                   naked_identifier: ctrl
               - end_bracket: )
             - end_bracket: )
@@ -720,8 +685,7 @@ file:
                             naked_identifier: sales
                 end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: s
         - pivot_clause:
             keyword: PIVOT
@@ -738,8 +702,7 @@ file:
                         naked_identifier: sales
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: total
             - comma: ','
             - function:
@@ -753,8 +716,7 @@ file:
                         naked_identifier: sales
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: avg
             - keyword: FOR
             - naked_identifier: quarter
@@ -764,29 +726,25 @@ file:
               - expression:
                   numeric_literal: '1'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q1
               - comma: ','
               - expression:
                   numeric_literal: '2'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q2
               - comma: ','
               - expression:
                   numeric_literal: '3'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q3
               - comma: ','
               - expression:
                   numeric_literal: '4'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q4
               - end_bracket: )
             - end_bracket: )
@@ -805,8 +763,7 @@ file:
                         naked_identifier: q1_avg
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: total
             - keyword: FOR
             - naked_identifier: year

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2b034b6474ca0aa1f9ac6d04e7d9e2547b0f59dc0cd27b21e3dc995262c6b713
+_hash: 4cc72771b56731d9596b4a7acff926debaa92551f3a9d77be14ed2865d224ace
 file:
 - statement:
     select_statement:
@@ -54,8 +54,7 @@ file:
                         naked_identifier: sales
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: sales
             - keyword: FOR
             - naked_identifier: quarter
@@ -65,29 +64,25 @@ file:
               - expression:
                   numeric_literal: '1'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q1
               - comma: ','
               - expression:
                   numeric_literal: '2'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q2
               - comma: ','
               - expression:
                   numeric_literal: '3'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q3
               - comma: ','
               - expression:
                   numeric_literal: '4'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q4
               - end_bracket: )
             - end_bracket: )
@@ -153,8 +148,7 @@ file:
                         naked_identifier: sales
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: sales
             - keyword: FOR
             - bracketed:
@@ -175,8 +169,7 @@ file:
                     quoted_literal: "'east'"
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q1_east
               - comma: ','
               - bracketed:
@@ -188,8 +181,7 @@ file:
                     quoted_literal: "'west'"
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q1_west
               - comma: ','
               - bracketed:
@@ -201,8 +193,7 @@ file:
                     quoted_literal: "'east'"
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q2_east
               - comma: ','
               - bracketed:
@@ -214,8 +205,7 @@ file:
                     quoted_literal: "'west'"
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q2_west
               - comma: ','
               - bracketed:
@@ -227,8 +217,7 @@ file:
                     quoted_literal: "'east'"
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q3_east
               - comma: ','
               - bracketed:
@@ -240,8 +229,7 @@ file:
                     quoted_literal: "'west'"
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q3_west
               - comma: ','
               - bracketed:
@@ -253,8 +241,7 @@ file:
                     quoted_literal: "'east'"
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q4_east
               - comma: ','
               - bracketed:
@@ -266,8 +253,7 @@ file:
                     quoted_literal: "'west'"
                 - end_bracket: )
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q4_west
               - end_bracket: )
             - end_bracket: )
@@ -325,8 +311,7 @@ file:
                             naked_identifier: sales
                 end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: s
           pivot_clause:
             keyword: PIVOT
@@ -343,8 +328,7 @@ file:
                         naked_identifier: sales
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: sales
             - keyword: FOR
             - naked_identifier: quarter
@@ -354,29 +338,25 @@ file:
               - expression:
                   numeric_literal: '1'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q1
               - comma: ','
               - expression:
                   numeric_literal: '2'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q2
               - comma: ','
               - expression:
                   numeric_literal: '3'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q3
               - comma: ','
               - expression:
                   numeric_literal: '4'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q4
               - end_bracket: )
             - end_bracket: )
@@ -450,8 +430,7 @@ file:
                             naked_identifier: sales
                 end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: s
           pivot_clause:
             keyword: PIVOT
@@ -468,8 +447,7 @@ file:
                         naked_identifier: sales
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: total
             - comma: ','
             - function:
@@ -483,8 +461,7 @@ file:
                         naked_identifier: sales
                     end_bracket: )
             - alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: avg
             - keyword: FOR
             - naked_identifier: quarter
@@ -494,29 +471,25 @@ file:
               - expression:
                   numeric_literal: '1'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q1
               - comma: ','
               - expression:
                   numeric_literal: '2'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q2
               - comma: ','
               - expression:
                   numeric_literal: '3'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q3
               - comma: ','
               - expression:
                   numeric_literal: '4'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q4
               - end_bracket: )
             - end_bracket: )
@@ -577,29 +550,25 @@ file:
               - expression:
                   numeric_literal: '1'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q1
               - comma: ','
               - expression:
                   numeric_literal: '2'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q2
               - comma: ','
               - expression:
                   numeric_literal: '3'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q3
               - comma: ','
               - expression:
                   numeric_literal: '4'
               - alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: q4
               - end_bracket: )
             - end_bracket: )

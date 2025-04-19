@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ffdcd1d0ffa144aea16ed0d22eec8d0df4e51be9de065460d08d8bb58e81b0b7
+_hash: 9051115bd079756f7bd4fdc2604b9ed13f234df0f1a8698906a0ebe35af44fbc
 file:
   batch:
     statement:
@@ -76,8 +76,7 @@ file:
                         naked_identifier: NumberOfOrders
                     end_bracket: )
               alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 quoted_identifier: '"Average Sales Per Person"'
           from_clause:
             keyword: FROM

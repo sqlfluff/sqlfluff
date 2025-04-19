@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 454be58259867af67cc06db845180a394ccd6d3f7dd8e26468359f26d07ad86e
+_hash: 01c98bad98f15a1df79c0d8887db1f5468d85b0edc8e998cea4847c1105eca67
 file:
 - statement:
     select_statement:
@@ -22,8 +22,7 @@ file:
                 numeric_literal: '0'
                 end_square_bracket: ']'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: channel
       - comma: ','
       - select_clause_element:
@@ -42,8 +41,7 @@ file:
                 numeric_literal: '2'
                 end_square_bracket: ']'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: channel2
       - comma: ','
       - select_clause_element:
@@ -63,8 +61,7 @@ file:
                 numeric_literal: '1'
                 end_square_bracket: ']'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: channel3
       - comma: ','
       - select_clause_element:
@@ -86,8 +83,7 @@ file:
             - data_type:
                 data_type_identifier: string
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: channel4
       from_clause:
         keyword: FROM
@@ -123,8 +119,7 @@ file:
             - data_type:
                 data_type_identifier: string
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: name
       from_clause:
         keyword: FROM
@@ -158,8 +153,7 @@ file:
             - data_type:
                 data_type_identifier: text
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: name
       - comma: ','
       - select_clause_element:
@@ -174,8 +168,7 @@ file:
             - data_type:
                 data_type_identifier: object
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: details
       - comma: ','
       - select_clause_element:
@@ -196,8 +189,7 @@ file:
             - data_type:
                 data_type_identifier: timestamp_ntz
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: created
       - comma: ','
       - select_clause_element:
@@ -218,8 +210,7 @@ file:
             - data_type:
                 data_type_identifier: timestamp_ntz
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: updated
       - comma: ','
       - select_clause_element:
@@ -240,8 +231,7 @@ file:
             - data_type:
                 data_type_identifier: number
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: id
       from_clause:
         keyword: FROM

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4a88e18cb82fab40966017a1874661ee44675d8c8bc9e99703aec2e1ad29ba70
+_hash: 435275bd00a2f00052e41c9bf825091284d852922708e28c5c9f8a2a6c9a0d3c
 file:
   batch:
     statement:
@@ -26,8 +26,7 @@ file:
                     - naked_identifier: date
                   end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               quoted_identifier: '[beginningOfYear]'
         - comma: ','
         - select_clause_element:
@@ -46,8 +45,7 @@ file:
                     - naked_identifier: date
                   end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               quoted_identifier: '[FirstOfMonth]'
         - comma: ','
         - select_clause_element:
@@ -66,8 +64,7 @@ file:
                     - naked_identifier: date
                   end_bracket: )
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               quoted_identifier: '[Today]'
         from_clause:
           keyword: FROM

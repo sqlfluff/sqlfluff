@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 70fd2575488737d9a52fef230576374f84a1e77ced8b82af15de8598d23463eb
+_hash: 5b4da206798ec39856e812620dc04566dd9bb57176b680ec7c614d8d73a0867b
 file:
   statement:
     select_statement:
@@ -24,8 +24,7 @@ file:
               dot: .
               naked_identifier: b
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: field
       - comma: ','
       - select_clause_element:
@@ -43,8 +42,7 @@ file:
               dot: .
               star: '*'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: wildcard
       - comma: ','
       - select_clause_element:
@@ -64,8 +62,7 @@ file:
             - dot: .
             - naked_identifier: c
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: field_with_field
       - comma: ','
       - select_clause_element:
@@ -85,8 +82,7 @@ file:
             - dot: .
             - star: '*'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: field_with_wildcard
       - comma: ','
       - select_clause_element:
@@ -117,8 +113,7 @@ file:
               dot: .
               star: '*'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: field_with_offset_wildcard
       - comma: ','
       - select_clause_element:
@@ -149,8 +144,7 @@ file:
               dot: .
               star: '*'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: field_with_safe_offset_wildcard
       - comma: ','
       - select_clause_element:
@@ -181,8 +175,7 @@ file:
               dot: .
               star: '*'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: field_with_ordinal_wildcard
       - comma: ','
       - select_clause_element:
@@ -213,8 +206,7 @@ file:
               dot: .
               naked_identifier: a
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: field_with_ordinal_field
       from_clause:
         keyword: FROM

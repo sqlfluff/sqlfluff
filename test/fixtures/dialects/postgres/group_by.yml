@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 08a97e8ea5da0de710785846069bb8644176d8cf09229179f4484bcabfab5836
+_hash: 586248cdbc7d97e170bc50bd2a399a68fc850fbf9b1915326f3d981720e29f36
 file:
 - statement:
     select_statement:
@@ -33,8 +33,7 @@ file:
                     naked_identifier: city
               - end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: grp_idx
       - comma: ','
       - select_clause_element:
@@ -50,8 +49,7 @@ file:
                     naked_identifier: id
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: num_total
       - comma: ','
       - select_clause_element:
@@ -75,8 +73,7 @@ file:
                   naked_identifier: is_poi
               end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: num_poi
       - comma: ','
       - select_clause_element:
@@ -100,8 +97,7 @@ file:
                   naked_identifier: is_gov
               end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: num_gov
       from_clause:
         keyword: FROM
@@ -179,8 +175,7 @@ file:
                     naked_identifier: city
               - end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: grp_idx
       - comma: ','
       - select_clause_element:
@@ -196,8 +191,7 @@ file:
                     naked_identifier: id
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: num_total
       - comma: ','
       - select_clause_element:
@@ -221,8 +215,7 @@ file:
                   naked_identifier: is_poi
               end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: num_poi
       - comma: ','
       - select_clause_element:
@@ -246,8 +239,7 @@ file:
                   naked_identifier: is_gov
               end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: num_gov
       from_clause:
         keyword: FROM
@@ -310,8 +302,7 @@ file:
                     naked_identifier: city
               - end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: grp_idx
       - comma: ','
       - select_clause_element:
@@ -327,8 +318,7 @@ file:
                     naked_identifier: id
                 end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: num_total
       - comma: ','
       - select_clause_element:
@@ -352,8 +342,7 @@ file:
                   naked_identifier: is_poi
               end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: num_poi
       - comma: ','
       - select_clause_element:
@@ -377,8 +366,7 @@ file:
                   naked_identifier: is_gov
               end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: num_gov
       from_clause:
         keyword: FROM

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 811ad5a14ee4c3af841e1a9c84ccef15b071458117c39774d5b9074bbdcf5a0e
+_hash: ad7d6d35bb246445a6b0e7dc8a4a04919209e922e71b67a06c8314a86a5acaf5
 file:
 - statement:
     select_statement:
@@ -82,8 +82,7 @@ file:
                     naked_identifier: start_dt
               - end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: date_add_micro
       - comma: ','
       - select_clause_element:
@@ -104,8 +103,7 @@ file:
                     naked_identifier: end_dt
               - end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: datediff_milli
       - comma: ','
       - select_clause_element:
@@ -125,8 +123,7 @@ file:
                     naked_identifier: start_dt
               - end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: dateadd_min
       - comma: ','
       - select_clause_element:
@@ -147,8 +144,7 @@ file:
                     naked_identifier: end_dt
               - end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: datediff_hr
       - comma: ','
       - select_clause_element:
@@ -168,8 +164,7 @@ file:
                     naked_identifier: start_dt
               - end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: ts_add_day_of_yr
       - comma: ','
       - select_clause_element:
@@ -190,8 +185,7 @@ file:
                     naked_identifier: end_dt
               - end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: ts_diff_week
       - comma: ','
       - select_clause_element:
@@ -211,8 +205,7 @@ file:
                     naked_identifier: start_dt
               - end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: date_add_month
       - comma: ','
       - select_clause_element:
@@ -232,8 +225,7 @@ file:
                     naked_identifier: start_dt
               - end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: date_add_quarter
       - comma: ','
       - select_clause_element:
@@ -253,8 +245,7 @@ file:
                     naked_identifier: start_dt
               - end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: date_add_year
       from_clause:
         keyword: FROM

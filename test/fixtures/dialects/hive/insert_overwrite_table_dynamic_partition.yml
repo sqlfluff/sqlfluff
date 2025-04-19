@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f2ad94d8f50f4fd4c5c9b6ff88bce8d15de0ef5405c54a36eb06448a09370861
+_hash: 80899a2e5ef4a8d943409ccf5f3f96d7dec77ae81ddd6b58c7ec4feb9dea9c7a
 file:
 - statement:
     insert_statement:
@@ -37,8 +37,7 @@ file:
         - select_clause_element:
             quoted_literal: "'test_bar'"
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: b
         from_clause:
           keyword: FROM
@@ -73,15 +72,13 @@ file:
         - select_clause_element:
             quoted_literal: "'test_foo'"
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: a
         - comma: ','
         - select_clause_element:
             quoted_literal: "'test_bar'"
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: b
         from_clause:
           keyword: FROM

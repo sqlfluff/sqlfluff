@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c80fd5e0d82ae1eda9f34ffb1b0824a3900664dcaf21321bf564b146744b872c
+_hash: 85e7cfafc61ed064cdfa37706efc65d871bb742a9ee66f1a5b1bd24467871bd3
 file:
   statement:
     select_statement:
@@ -57,8 +57,7 @@ file:
                   - naked_identifier: creator_id
               - end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: part1
       - comma: ','
       - select_clause_element:
@@ -82,8 +81,7 @@ file:
             object_reference:
               naked_identifier: id
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: part2
       - comma: ','
       - select_clause_element:
@@ -107,7 +105,6 @@ file:
             object_reference:
               naked_identifier: id
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: part3
   statement_terminator: ;

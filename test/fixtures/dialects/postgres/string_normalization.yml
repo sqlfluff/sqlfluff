@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 884b8fec5ca907205542dc88b343526e2407a990bd4c67b95c698567ce8d90a7
+_hash: d446875df10c04b1306850220dda89cee703f4e3612fad35b5ba146b6a7ff165
 file:
 - statement:
     select_statement:
@@ -20,8 +20,7 @@ file:
               - keyword: NORMALIZED
               end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: is_normalized
       from_clause:
         keyword: FROM
@@ -47,8 +46,7 @@ file:
               - keyword: NORMALIZED
               end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: is_normalized
       from_clause:
         keyword: FROM
@@ -74,8 +72,7 @@ file:
               - keyword: NORMALIZED
               end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: is_normalized
       from_clause:
         keyword: FROM
@@ -101,8 +98,7 @@ file:
               - keyword: NORMALIZED
               end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: is_normalized
       from_clause:
         keyword: FROM
@@ -128,8 +124,7 @@ file:
               - keyword: NORMALIZED
               end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: is_normalized
       from_clause:
         keyword: FROM
@@ -155,8 +150,7 @@ file:
               - keyword: NORMALIZED
               end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: is_normalized
       from_clause:
         keyword: FROM
@@ -183,8 +177,7 @@ file:
               - keyword: NORMALIZED
               end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: is_normalized
       from_clause:
         keyword: FROM
@@ -211,8 +204,7 @@ file:
               - keyword: NORMALIZED
               end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: is_normalized
       from_clause:
         keyword: FROM
@@ -239,8 +231,7 @@ file:
               - keyword: NORMALIZED
               end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: is_normalized
       from_clause:
         keyword: FROM
@@ -267,8 +258,7 @@ file:
               - keyword: NORMALIZED
               end_bracket: )
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: is_normalized
       from_clause:
         keyword: FROM

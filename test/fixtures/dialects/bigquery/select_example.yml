@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: af0a6d0c74545552b173da454959b706e43581faed693674d695514224f01c45
+_hash: 103701530265f21f2c4e57e51b644d83f230790dd8d1530a2430fbab65f6a6f1
 file:
   statement:
     with_compound_statement:
@@ -80,13 +80,11 @@ file:
                                               - end_bracket: )
                                         end_bracket: )
                                 alias_expression:
-                                  alias_expression_operator:
-                                    keyword: AS
+                                  alias_operator: AS
                                   naked_identifier: num
                         end_bracket: )
                 alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: bits
             - comma: ','
             - select_clause_element:
@@ -236,8 +234,7 @@ file:
                   column_reference:
                     naked_identifier: audience_size
                 alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: relative_abundance
             from_clause:
               keyword: FROM

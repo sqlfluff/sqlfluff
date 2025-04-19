@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 219218b33081687bf5c12337458296bac1f2c79b81015eb868d84ac2e7e2ce20
+_hash: c7c3763256c2eecccd62d19487a50d5084d15ab9d85b7f7d9dc2720d376bfeca
 file:
 - statement:
     select_statement:
@@ -12,8 +12,7 @@ file:
         select_clause_element:
           numeric_literal: '1'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             quoted_identifier: '`one`'
 - statement_terminator: ;
 - statement:
@@ -23,8 +22,7 @@ file:
         select_clause_element:
           numeric_literal: '2'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             quoted_identifier: "'two'"
 - statement_terminator: ;
 - statement:
@@ -34,8 +32,7 @@ file:
         select_clause_element:
           numeric_literal: '3'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             quoted_identifier: '"three"'
 - statement_terminator: ;
 - statement:
@@ -45,7 +42,6 @@ file:
         select_clause_element:
           numeric_literal: '4'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             quoted_identifier: '"four""_with_escaped_double_quotes"'
 - statement_terminator: ;

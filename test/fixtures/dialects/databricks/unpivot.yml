@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d0c87275f5454e7f0b338d9659c41a5ea49816e4fd01b8f11cb0971fcc60840f
+_hash: d653ee06c789045f0e04eca7062cee7a86328c694f73192b7c8290686a6ccc61
 file:
 - statement:
     select_statement:
@@ -36,22 +36,19 @@ file:
                 - column_reference:
                     naked_identifier: q1
                 - alias_expression:
-                    alias_expression_operator:
-                      keyword: AS
+                    alias_operator: AS
                     quoted_identifier: '`Jan-Mar`'
                 - comma: ','
                 - column_reference:
                     naked_identifier: q2
                 - alias_expression:
-                    alias_expression_operator:
-                      keyword: AS
+                    alias_operator: AS
                     quoted_identifier: '`Apr-Jun`'
                 - comma: ','
                 - column_reference:
                     naked_identifier: q3
                 - alias_expression:
-                    alias_expression_operator:
-                      keyword: AS
+                    alias_operator: AS
                     quoted_identifier: '`Jul-Sep`'
                 - comma: ','
                 - column_reference:
@@ -59,8 +56,7 @@ file:
                   - dot: .
                   - naked_identifier: q4
                 - alias_expression:
-                    alias_expression_operator:
-                      keyword: AS
+                    alias_operator: AS
                     quoted_identifier: '`Oct-Dec`'
                 - end_bracket: )
               end_bracket: )
@@ -110,8 +106,7 @@ file:
                       naked_identifier: phone1
                   - end_bracket: )
                 - alias_expression:
-                    alias_expression_operator:
-                      keyword: AS
+                    alias_operator: AS
                     naked_identifier: primary
                 - comma: ','
                 - bracketed:
@@ -126,8 +121,7 @@ file:
                       naked_identifier: phone2
                   - end_bracket: )
                 - alias_expression:
-                    alias_expression_operator:
-                      keyword: AS
+                    alias_operator: AS
                     naked_identifier: secondary
                 - end_bracket: )
               end_bracket: )

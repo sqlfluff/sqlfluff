@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3f6b7fc317aef15d3a599d6f19b6b586694239d28fc3616b28503df8515d551f
+_hash: 24e03f8aee318a770954af3ba59c4b7e8e9ae5d76099cdec66cde50a7dc15d98
 file:
   statement:
     set_expression:
@@ -13,8 +13,7 @@ file:
           select_clause_element:
             numeric_literal: '1'
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: a
     - set_operator:
       - keyword: UNION
@@ -25,8 +24,7 @@ file:
           select_clause_element:
             numeric_literal: '1'
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: a
     - orderby_clause:
       - keyword: ORDER

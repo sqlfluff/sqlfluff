@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 559519cf1dadb922ef8e657407c0a1b3ab6865d0a99fedcbcc6a3681c0f8dca8
+_hash: e3afae08242f8f4573966c3c33b78740e7d6d13eae910a6481aeab5c0992081a
 file:
 - statement:
     select_statement:
@@ -112,8 +112,7 @@ file:
               table_reference:
                 naked_identifier: test_overlaps1
             alias_expression:
-              alias_expression_operator:
-                keyword: AS
+              alias_operator: AS
               naked_identifier: t1
           join_clause:
           - keyword: LEFT
@@ -123,8 +122,7 @@ file:
                 table_reference:
                   naked_identifier: test_overlaps2
               alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: t2
       where_clause:
         keyword: WHERE

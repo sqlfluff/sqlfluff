@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a211ac22b532be99ab664ce2f399e6dd260408a0d1d60e05474306954a70b863
+_hash: 8c559c6fd3218410cf6a621e3691ecc1c77a3233897692635d8e5535df97b2a0
 file:
   batch:
   - statement:
@@ -20,8 +20,7 @@ file:
             - dot: .
             - naked_identifier: date_column1
             alias_expression:
-              alias_expression_operator:
-                keyword: as
+              alias_operator: as
               naked_identifier: last_date_column1
         from_clause:
           keyword: from
@@ -195,8 +194,7 @@ file:
                 - dot: .
                 - naked_identifier: Person
               alias_expression:
-                alias_expression_operator:
-                  keyword: AS
+                alias_operator: AS
                 naked_identifier: pp
           - join_clause:
             - keyword: INNER
@@ -208,8 +206,7 @@ file:
                   - dot: .
                   - naked_identifier: Employee
                 alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: e
             - join_on_condition:
                 keyword: 'ON'
@@ -234,8 +231,7 @@ file:
                   - dot: .
                   - naked_identifier: EmployeePayHistory
                 alias_expression:
-                  alias_expression_operator:
-                    keyword: AS
+                  alias_operator: AS
                   naked_identifier: r
             - join_on_condition:
                 keyword: 'ON'

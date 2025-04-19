@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 82093be67c1b3300ba1346c9bc5ef6d2589ff17e8ec12e223f47b48fde6e24e0
+_hash: 9cafccb74020ae88434f3844510345fead3b4a8bcbfb02cb18a2d1a008450051
 file:
 - statement:
     select_statement:
@@ -198,8 +198,7 @@ file:
               data_type:
                 keyword: VARCHAR
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: status
       - comma: ','
       - select_clause_element:
@@ -220,8 +219,7 @@ file:
               - expression:
                   quoted_literal: "'UTC'"
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: started_at
       - comma: ','
       - select_clause_element:
@@ -242,8 +240,7 @@ file:
               - expression:
                   quoted_literal: "'UTC'"
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: ended_at
       - comma: ','
       - select_clause_element:
@@ -264,8 +261,7 @@ file:
               - expression:
                   quoted_literal: "'UTC'"
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: created_at
       - comma: ','
       - select_clause_element:
@@ -286,8 +282,7 @@ file:
               data_type:
                 keyword: VARCHAR
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: communication_request_fhir_reference_origin
       - comma: ','
       - select_clause_element:

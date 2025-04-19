@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c5acac42b7ace8e221ee063c2d3892ba9d2f2877f406a56e289b75fdef52bf9e
+_hash: dfe4f3a2cf0982797c353d8d344fc7f26be778cb9cf6733a693a04e8b24904fa
 file:
 - statement:
     select_statement:
@@ -12,8 +12,7 @@ file:
         select_clause_element:
           quoted_literal: "'Hello, World!'"
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -23,8 +22,7 @@ file:
         select_clause_element:
           quoted_literal: "'SPARK SQL'"
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -34,8 +32,7 @@ file:
         select_clause_element:
           quoted_literal: "\"it's $10.\""
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -45,8 +42,7 @@ file:
         select_clause_element:
           bytes_quoted_literal: "X'123456'"
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -56,8 +52,7 @@ file:
         select_clause_element:
           null_literal: 'NULL'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -67,8 +62,7 @@ file:
         select_clause_element:
           boolean_literal: 'TRUE'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -78,8 +72,7 @@ file:
         select_clause_element:
           boolean_literal: 'FALSE'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -91,8 +84,7 @@ file:
             sign_indicator: '-'
             numeric_literal: '2147483648'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -102,8 +94,7 @@ file:
         select_clause_element:
           numeric_literal: 9223372036854775807l
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -115,8 +106,7 @@ file:
             sign_indicator: '-'
             numeric_literal: 32Y
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -126,8 +116,7 @@ file:
         select_clause_element:
           numeric_literal: 482S
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -137,8 +126,7 @@ file:
         select_clause_element:
           numeric_literal: '12.578'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -150,8 +138,7 @@ file:
             sign_indicator: '-'
             numeric_literal: '0.1234567'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -163,8 +150,7 @@ file:
             sign_indicator: '-'
             numeric_literal: '.1234567'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -174,8 +160,7 @@ file:
         select_clause_element:
           numeric_literal: '123.'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -185,8 +170,7 @@ file:
         select_clause_element:
           numeric_literal: 123.BD
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -196,8 +180,7 @@ file:
         select_clause_element:
           numeric_literal: 5E2
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -207,8 +190,7 @@ file:
         select_clause_element:
           numeric_literal: 5D
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -220,8 +202,7 @@ file:
             sign_indicator: '-'
             numeric_literal: 5BD
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -231,8 +212,7 @@ file:
         select_clause_element:
           numeric_literal: 12.578e-2d
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -244,8 +224,7 @@ file:
             sign_indicator: '-'
             numeric_literal: .1234567E+2BD
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -257,8 +236,7 @@ file:
             sign_indicator: +
             numeric_literal: '3.e+3'
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -270,8 +248,7 @@ file:
             sign_indicator: '-'
             numeric_literal: 3.E-3D
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -282,8 +259,7 @@ file:
           keyword: DATE
           date_constructor_literal: "'1997'"
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -294,8 +270,7 @@ file:
           keyword: DATE
           date_constructor_literal: "'1997-01'"
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -306,8 +281,7 @@ file:
           keyword: DATE
           date_constructor_literal: "'2011-11-11'"
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -318,8 +292,7 @@ file:
           keyword: TIMESTAMP
           date_constructor_literal: "'1997-01-31 09:26:56.123'"
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -330,8 +303,7 @@ file:
           keyword: TIMESTAMP
           date_constructor_literal: "'1997-01-31 09:26:56.66666666UTC+08:00'"
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -342,8 +314,7 @@ file:
           keyword: TIMESTAMP
           date_constructor_literal: "'1997-01'"
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -359,8 +330,7 @@ file:
             - keyword: TO
             - date_part: MONTH
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -377,8 +347,7 @@ file:
             - keyword: TO
             - date_part: SECOND
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -392,8 +361,7 @@ file:
               numeric_literal: '3'
               date_part: YEAR
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -411,8 +379,7 @@ file:
               signed_quoted_literal: "'3'"
               date_part: MINUTE
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -458,7 +425,6 @@ file:
               numeric_literal: '9'
               date_part: MICROSECONDS
           alias_expression:
-            alias_expression_operator:
-              keyword: AS
+            alias_operator: AS
             naked_identifier: col
 - statement_terminator: ;
