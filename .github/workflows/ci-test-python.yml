@@ -65,10 +65,10 @@ jobs:
       # NOTE: We have a separate job for coverage reporting because
       # it impacts performance and slows the test suite significantly.
       if: ${{ inputs.coverage }}
-      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- --cov=sqlfluff -n 8 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
+      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- --cov=sqlfluff -n 2 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
     - name: Run the tests (without coverage)
       if: ${{ !inputs.coverage }}
-      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- -n 8 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
+      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- -n 2 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
 
     - name: Rename coverage files with suffix
       # NOTE: We do this because we're using the same tox environment for multiple
