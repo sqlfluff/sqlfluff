@@ -2432,7 +2432,7 @@ class UnpivotAliasExpressionSegment(BaseSegment):
     type = "alias_expression"
     match_grammar = Sequence(
         Indent,
-        Ref("AliasAsOperator", optional=True),
+        Ref("AliasAsKeyword", optional=True),
         OneOf(
             Ref("QuotedLiteralSegment"),
             Ref("NumericLiteralSegment"),

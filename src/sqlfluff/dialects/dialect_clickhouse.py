@@ -735,7 +735,7 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
     type = "alias_expression"
     match_grammar: Matchable = Sequence(
         Indent,
-        Ref("AliasAsOperator", optional=True),
+        Ref("AliasAsKeyword", optional=True),
         OneOf(
             Sequence(
                 Ref("SingleIdentifierGrammar"),
