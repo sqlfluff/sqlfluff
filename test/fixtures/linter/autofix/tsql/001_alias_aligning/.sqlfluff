@@ -1,0 +1,4 @@
+[sqlfluff:layout:type:alias_operator]
+spacing_before = align
+align_within = select_clause
+align_scope = bracketed
