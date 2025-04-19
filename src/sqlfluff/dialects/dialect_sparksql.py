@@ -2911,7 +2911,7 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
 
     match_grammar = Sequence(
         Indent,
-        Ref("AliasAsOperator", optional=True),
+        Ref("AliasAsKeyword", optional=True),
         OneOf(
             # maybe table alias and column aliases
             Sequence(
