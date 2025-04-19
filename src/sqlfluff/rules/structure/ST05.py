@@ -198,11 +198,20 @@ class Rule_ST05(BaseRule):
             new_select = ctes.compose_select(
                 output_select_clone, case_preference=case_preference
             )
+            lint_result.fixes = [
+                LintFix.replace(
+                    segment[0],
+                    edit_segments=[new_select],
+                )
+            ]
             seq = ReflowSequence.from_around_target(
-                segment[0],
+                # Which element should we pass, the original (segment[0]) or
+                # the one we replace it with (new_select)?
+                # segment[0],
+                new_select,
                 context.parent_stack[0],
                 config=context.config,
-                sides="both"
+                sides="both",
             )
             lint_result.fixes = seq.get_fixes()
             lint_result.fixes += fixes
