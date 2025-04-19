@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5a2eac3d5e8513beb33d3032b380eb39d87c37ababa89c2006b45da8aecf0b5e
+_hash: 762ab854ca910e4d7691d14d0c772a1a0f5545e8a9815e4bbce5f1e3b8720bf1
 file:
 - statement:
     create_external_table_statement:

@@ -7,6 +7,7 @@ from typing import NamedTuple
 
 import pytest
 import yaml
+from yaml import CDumper, CLoader
 
 from sqlfluff.cli.commands import quoted_presenter
 from sqlfluff.core import FluffConfig
@@ -129,7 +130,7 @@ def compute_parse_tree_hash(tree):
         r = tree.as_record(code_only=True, show_raw=True)
         if r:
             r_io = io.StringIO()
-            yaml.dump(r, r_io, sort_keys=False, allow_unicode=True)
+            yaml.dump(r, r_io, sort_keys=False, allow_unicode=True, Dumper=CDumper)
             result = hashlib.blake2s(r_io.getvalue().encode("utf-8")).hexdigest()
             return result
     return None
@@ -141,7 +142,7 @@ def load_yaml(fpath):
     with open(fpath, encoding="utf8") as f:
         raw = f.read()
     # Parse the yaml
-    obj = yaml.safe_load(raw)
+    obj = yaml.load(raw, Loader=CLoader)
     # Return the parsed and structured object
     _hash = None
     if obj:

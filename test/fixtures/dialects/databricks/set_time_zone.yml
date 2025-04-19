@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 34b8602b50cd1a742888a49293b066a3d19c413df01ca983419426fe46d1cd63
+_hash: 08c7d43e7a4b042dd59c903967e9582479d8888514a054e04049a5111ff76602
 file:
 - statement:
     set_timezone_statement:

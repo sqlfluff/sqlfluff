@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: df12c2e4312b5167eee081db51c9bef0059974d4742d2aa9f315fcb238a4d169
+_hash: 3ae8495d1e0bc05b141ca33ffbca299a332118c02725468fad98933f43c9215d
 file:
 - statement:
     insert_overwrite_directory_hive_fmt_statement:
