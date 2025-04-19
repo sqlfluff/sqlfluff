@@ -117,13 +117,13 @@ class Rule_AL01(BaseRule):
 
                 # TODO: fix this nicely
                 # For now it this is a patch fix to make sure that the `AS` keyword is
-                # being identified as an alias_operator. If we do not do this, we have
-                # a problem when aligning is being done on the alias_operator.
-                # If we do this above, we have an error when the respace() operation
-                # is being called.
-
-                # Find the keyword segment in the edit based on uuid and add the
-                # instance type to it.
+                # being identified as an alias_operator. If we do not do this, then the
+                # newly added `AS` keyword is not being aligned with the other
+                # `alias_operator` siblings.
+                # However, if we do this above, we get an error when the respace()
+                # operation is being called.
+                # As such this is a patch fix that finds the keyword segment in the
+                # LintFix edit based on the uuid, and fixes the instance type
                 for f in fixes:
                     if f.edit is None:
                         continue
