@@ -335,26 +335,6 @@ def test__parser__grammar_sequence_modes(
             {"allow_gaps": False},
             (),
         ),
-        (
-            ["(", " ", ")"],
-            ParseMode.GREEDY,
-            [],
-            # Greedy matching, without allowing gaps, should return unparsable.
-            # NOTE: This functionality doesn't get used much.
-            {"allow_gaps": False},
-            (
-                (
-                    "bracketed",
-                    (
-                        ("start_bracket", "("),
-                        ("indent", ""),
-                        ("unparsable", (("whitespace", " "),)),
-                        ("dedent", ""),
-                        ("end_bracket", ")"),
-                    ),
-                ),
-            ),
-        ),
         # Happy path content match.
         (
             ["(", "a", ")"],
@@ -494,16 +474,25 @@ def test__parser__grammar_bracketed_modes(
 
 
 @pytest.mark.parametrize(
-    "input_seed,mode,sequence",
+    "input_seed,mode,sequence,kwargs",
     [
         # Unclosed greedy brackets always raise errors.
-        (["(", "a"], ParseMode.GREEDY, ["a"]),
+        (["(", "a"], ParseMode.GREEDY, ["a"], {}),
+        (
+            ["(", " ", ")"],
+            ParseMode.GREEDY,
+            [],
+            # Greedy matching, without allowing gaps, should raise a parsing error.
+            # NOTE: This functionality doesn't get used much.
+            {"allow_gaps": False},
+        ),
     ],
 )
 def test__parser__grammar_bracketed_error_modes(
     input_seed,
     mode,
     sequence,
+    kwargs,
     structural_parse_mode_test,
 ):
     """Test the Bracketed grammar with various parse modes."""
@@ -513,7 +502,7 @@ def test__parser__grammar_bracketed_error_modes(
             Bracketed,
             sequence,
             [],
-            {},
+            kwargs,
             mode,
             slice(None, None),
             (),
