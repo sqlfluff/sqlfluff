@@ -1253,15 +1253,6 @@ class ArrayAccessorSegment(BaseSegment):
     )
 
 
-class AliasedObjectReferenceSegment(BaseSegment):
-    """A reference to an object with an `AS` clause."""
-
-    type = "object_reference"
-    match_grammar: Matchable = Sequence(
-        Ref("ObjectReferenceSegment"), Ref("AliasExpressionSegment")
-    )
-
-
 ansi_dialect.add(
     # This is a hook point to allow subclassing for other dialects
     AliasedTableReferenceGrammar=Sequence(
