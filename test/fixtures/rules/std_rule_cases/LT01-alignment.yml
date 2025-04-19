@@ -143,7 +143,7 @@ test_excess_space_without_align_alias_tsql:
       dialect: tsql
     layout:
       type:
-        alias_expression_operator:
+        alias_operator:
           spacing_before: single
 
 test_excess_space_with_align_alias_tsql:
@@ -165,7 +165,7 @@ test_excess_space_with_align_alias_tsql:
       dialect: tsql
     layout:
       type:
-        alias_expression_operator:
+        alias_operator:
           spacing_before: align
           align_within: select_clause
           align_scope: bracketed
@@ -208,7 +208,7 @@ test_excess_space_with_align_alias_wider_tsql:
       dialect: tsql
     layout:
       type:
-        alias_expression_operator:
+        alias_operator:
           spacing_before: align
           align_within: select_statement
           align_scope: bracketed
