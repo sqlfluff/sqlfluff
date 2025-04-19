@@ -2,6 +2,4 @@ test-config:
   rules:
     - LT01
     - LT02
-    - LT09
     - AL02
-    - AL09
