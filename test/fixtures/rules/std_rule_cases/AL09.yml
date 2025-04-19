@@ -27,6 +27,7 @@ test_pass_no_self_alias_tsql_no_spaces:
     pass_str: |
         select
             no_alias,
+            alias AS alias_here,
             col_b=rename_alias,
             max(sum)=max_sum
         from foo
