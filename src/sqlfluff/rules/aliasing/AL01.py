@@ -96,10 +96,10 @@ class Rule_AL01(BaseRule):
                     raise NotImplementedError(
                         "Failed to find identifier. Raise this as a bug on GitHub."
                     )
-                return LintResult(
-                    anchor=context.segment,
-                    # Work out the insertion and reflow fixes.
-                    fixes=ReflowSequence.from_around_target(
+
+                keyword_segment = KeywordSegment("AS")
+                fixes = (
+                    ReflowSequence.from_around_target(
                         identifier,
                         context.parent_stack[0],
                         config=context.config,
@@ -107,11 +107,30 @@ class Rule_AL01(BaseRule):
                         sides="before",
                     )
                     .insert(
-                        KeywordSegment("AS"),
+                        keyword_segment,
                         target=identifier,
                         pos="before",
                     )
                     .respace()
-                    .get_fixes(),
+                    .get_fixes()
                 )
+
+                # TODO: fix this nicely
+                # For now it this is a patch fix to make sure that the `AS` keyword is
+                # being identified as an alias_operator. If we do not do this, we have
+                # a problem when aligning is being done on the alias_operator.
+                # If we do this above, we have an error when the respace() operation
+                # is being called.
+
+                # Find the keyword segment in the edit based on uuid and add the
+                # instance type to it.
+                for f in fixes:
+                    if f.edit is None:
+                        continue
+                    for e in f.edit:
+                        if e.uuid == keyword_segment.uuid:
+                            e.instance_types = ("alias_operator",)
+                            break
+
+                return LintResult(anchor=context.segment, fixes=fixes)
         return None
