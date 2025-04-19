@@ -15,8 +15,8 @@ file:
           newline: "\n"
           whitespace: ' '
           alias_expression:
-            indent: ''
             alias_expression_operator:
+              indent: ''
               keyword: AS
             whitespace: ' '
             naked_identifier: other_id
