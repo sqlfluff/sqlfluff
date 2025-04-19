@@ -128,6 +128,18 @@ Additionally if a dbt virtual environment was specified, you will also have
 A different dbt plugin can be selected by changing the appropriate file under `constraints`
 for the desired package and version.
 
+#### Developing in Docker
+
+To build a simple interactive Docker container, run the following commands:
+```shell
+make build
+make shell
+```
+This container installs all Python dependencies, and mounts the project directory into
+the container. It installs SQLFluff in editable mode. The nuts and bolts are in
+place such that git should work seamlessly inside the container. It'll also install
+the dbt templater plugin.
+
 ### Wiki
 
 We have a [GitHub wiki](https://github.com/sqlfluff/sqlfluff/wiki) with some
@@ -268,24 +280,12 @@ tox -e cov-init,dbt019-py39,cov-report-dbt -- plugins/sqlfluff-templater-dbt
 
 For more information on adding and running test cases see the [Parser Test README](test/fixtures/dialects/README.md) and the [Rules Test README](test/fixtures/rules/std_rule_cases/README.md).
 
-#### Running dbt templater tests in Docker Compose
+#### Running dbt templater tests in Docker
 
-NOTE: If you prefer, you can develop and debug the dbt templater using a
-Docker Compose environment. It's a simple two-container configuration:
-* `app`: Hosts the SQLFluff development environment. The host's source
-  directory is mounted into the container, so you can iterate on code
-  changes without having to constantly rebuild and restart the container.
-* `postgres`: Hosts a transient Postgres database instance.
-
-Steps to use the Docker Compose environment:
-* Install Docker on your machine.
-* Run `plugins/sqlfluff-templater-dbt/docker/startup` to create the containers.
-* Run `plugins/sqlfluff-templater-dbt/docker/shell` to start a bash session
-  in the `app` container.
-
-Inside the container, run:
+The development Docker container has the dbt templater plugin installed,
+so you can run the tests inside the container. Inside the container, run:
 ```
-py.test -v plugins/sqlfluff-templater-dbt/test/
+pytest -v plugins/sqlfluff-templater-dbt/test/
 ```
 
 ### Pre-Commit Config
