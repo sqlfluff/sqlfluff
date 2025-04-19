@@ -2108,7 +2108,8 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
 
     match_grammar: Matchable = OneOf(
         Sequence(
-            Ref("AliasExpressionAsOperatorSegment", optional=True),
+            Indent,
+            Ref("AliasAsOperator", optional=True),
             OneOf(
                 Sequence(
                     Ref("SingleIdentifierGrammar"),
@@ -2118,10 +2119,12 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
                 Sequence(Bracketed(Ref("SingleIdentifierListSegment"), optional=True)),
                 Ref("SingleQuotedIdentifierSegment"),
             ),
+            Dedent,
         ),
         # Some functions alias several columns in brackets () like mapkeys or explode
         Sequence(
-            Ref("AliasExpressionAsOperatorSegment", optional=True),
+            Indent,
+            Ref("AliasAsOperator", optional=True),
             Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
             Dedent,
         ),
