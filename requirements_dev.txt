@@ -23,6 +23,7 @@ hypothesis
 pytest
 pytest-cov
 pytest-xdist
+tox
 
 # MyPy
 # ----
