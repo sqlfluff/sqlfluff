@@ -774,6 +774,7 @@ ansi_dialect.add(
         Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
         Sequence("NO", "MAXVALUE"),
     ),
+    AliasAsOperator=StringParser("AS", SymbolSegment, type="alias_expression_operator"),
 )
 
 
@@ -1269,7 +1270,8 @@ class AliasExpressionSegment(BaseSegment):
 
     type = "alias_expression"
     match_grammar: Matchable = Sequence(
-        Ref("AliasExpressionAsOperatorSegment", optional=True),
+        Indent,
+        Ref("AliasAsOperator", optional=True),
         OneOf(
             Sequence(
                 Ref("SingleIdentifierGrammar"),
@@ -1282,11 +1284,14 @@ class AliasExpressionSegment(BaseSegment):
     )
 
 
-class AliasExpressionAsOperatorSegment(BaseSegment):
-    """The as alias expression operator."""
-
-    type = "alias_expression_operator"
-    match_grammar: Matchable = Sequence(Indent, Ref.keyword("AS"))
+# class AliasExpressionAsOperatorSegment(BaseSegment):
+#     """The as alias expression operator."""
+#
+#     type = "alias_expression_operator"
+#     match_grammar: Matchable = Sequence(
+#         # Indent,
+#         Ref.keyword("AS")
+#     )
 
 
 class ShorthandCastSegment(BaseSegment):
