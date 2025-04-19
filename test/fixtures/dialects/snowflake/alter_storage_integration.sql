@@ -111,4 +111,5 @@ alter storage integration if exists azure_int set
   storage_blocked_locations = (
     'azure://myaccount.blob.core.windows.net/mycontainer/path3/',
     'azure://myaccount.blob.core.windows.net/mycontainer/path4/'
-    );
+    )
+  use_privatelink_endpoint = true;

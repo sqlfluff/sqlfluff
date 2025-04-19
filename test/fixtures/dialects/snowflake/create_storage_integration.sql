@@ -66,4 +66,6 @@ create storage integration azure_int
   storage_provider = 'azure'
   enabled = true
   azure_tenant_id = '<tenant_id>'
-  storage_allowed_locations = ('azure://myaccount.blob.core.windows.net/mycontainer/path1/', 'azure://myaccount.blob.core.windows.net/mycontainer/path2/');
+  storage_allowed_locations = ('azure://myaccount.blob.core.windows.net/mycontainer/path1/', 'azure://myaccount.blob.core.windows.net/mycontainer/path2/')
+  use_privatelink_endpoint = false;
+  ;

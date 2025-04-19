@@ -2618,6 +2618,11 @@ class AlterStorageIntegrationSegment(BaseSegment):
                             Ref("EqualsSegment"),
                             Ref("BooleanLiteralGrammar"),
                         ),
+                        Sequence(
+                            "USE_PRIVATELINK_ENDPOINT",
+                            Ref("EqualsSegment"),
+                            Ref("BooleanLiteralGrammar"),
+                        ),
                         OneOf(
                             AnySetOf(
                                 Sequence(
@@ -5196,8 +5201,13 @@ class CreateStatementSegment(BaseSegment):
                 ),
             ),
             Ref("CommentEqualsClauseSegment"),
+            Sequence(
+                "USE_PRIVATELINK_ENDPOINT",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
         ),
-        # Next set are Storage Integration statements
+        # Next set are Catalog Integration statements
         # https://docs.snowflake.com/en/sql-reference/sql/create-catalog-integration
         AnySetOf(
             Sequence(
