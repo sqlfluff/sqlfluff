@@ -5144,6 +5144,16 @@ class CreateStatementSegment(BaseSegment):
                     ),
                 ),
             ),
+            Sequence(
+                "ALLOWED_NETWORK_RULE_LIST",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            ),
+            Sequence(
+                "BLOCKED_NETWORK_RULE_LIST",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            ),
         ),
         # Next set are Storage Integration statements
         # https://docs.snowflake.com/en/sql-reference/sql/create-storage-integration.html
