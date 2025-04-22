@@ -2715,6 +2715,33 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     )
 
 
+class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
+    """An extension of the star expression for Redshift."""
+
+    match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
+        insert=[
+            # Optional Exclude
+            Ref("ExcludeClauseSegment", optional=True),
+        ]
+    )
+
+
+class ExcludeClauseSegment(BaseSegment):
+    """A Redshift SELECT EXCLUDE clause.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_EXCLUDE_list.html
+    """
+
+    type = "select_exclude_clause"
+    match_grammar = Sequence(
+        "EXCLUDE",
+        OneOf(
+            Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+            Ref("SingleIdentifierGrammar"),
+        ),
+    )
+
+
 class GroupByClauseSegment(postgres.GroupByClauseSegment):
     """A `GROUP BY` clause like in `SELECT`."""
 
