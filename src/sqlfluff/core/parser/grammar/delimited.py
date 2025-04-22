@@ -185,8 +185,7 @@ class Delimited(OneOf):
 
 
 class OptionallyDelimited(AnyNumberOf):
-    """A grammar that matches an arbitrary number of elements optionally
-    separated by a delimiter.
+    """Match a number of elements optionally separated by a delimiter.
 
     Note that if there are multiple elements passed in that they will be treated
     as different options of what can be delimited, rather than a sequence.
