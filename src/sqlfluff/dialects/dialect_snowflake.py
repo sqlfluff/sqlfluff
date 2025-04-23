@@ -2953,7 +2953,7 @@ class AccessStatementSegment(BaseSegment):
         Sequence("APPLY", "SESSION", "POLICY"),
         Sequence("APPLY", "TAG"),
         Sequence("ATTACH", "POLICY"),
-        Sequence("EXECUTE", OneOf("ALERT", "TASK")),
+        Sequence("EXECUTE", OneOf("ALERT",Sequence(Ref.keyword("MANAGED", optional=True),"TASK"))),
         Sequence("IMPORT", "SHARE"),
         Sequence(
             "MANAGE",
@@ -3044,6 +3044,7 @@ class AccessStatementSegment(BaseSegment):
         Sequence(
             OneOf(
                 Sequence("RESOURCE", "MONITOR"),
+                Sequence("EXTERNAL", "VOLUME"),
                 "WAREHOUSE",
                 "DATABASE",
                 "DOMAIN",
