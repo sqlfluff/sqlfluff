@@ -153,8 +153,13 @@ class Rule_RF01(BaseRule):
         # - They are the target table, similar to an INSERT or UPDATE
         #   statement, thus not expected to match a table in the FROM
         #   clause.
+        # Likewise in T-SQL SELECT @parameter = NEXT VALUE FOR table
         if ref_path:
-            return any(ps.segment.is_type("into_table_clause") for ps in ref_path)
+            return any(
+                ps.segment.is_type("into_table_clause")
+                or ps.segment.is_type("sequence_next_value")
+                for ps in ref_path
+            )
         else:
             return False  # pragma: no cover
 
