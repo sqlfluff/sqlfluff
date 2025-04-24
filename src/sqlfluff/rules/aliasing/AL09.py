@@ -142,7 +142,7 @@ class Rule_AL09(BaseRule):
             )
 
             # if we do not have an alias identifier we can continue
-            if not alias_identifier:
+            if not alias_identifier:  # pragma: no cover
                 continue
 
             alias_keyword_raw = getattr(

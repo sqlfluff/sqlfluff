@@ -125,12 +125,11 @@ class Rule_AL01(BaseRule):
                 # As such this is a patch fix that finds the keyword segment in the
                 # LintFix edit based on the uuid, and fixes the instance type
                 for f in fixes:
-                    if f.edit is None:
-                        continue
-                    for e in f.edit:
-                        if e.uuid == keyword_segment.uuid:
-                            e.instance_types = ("alias_operator",)
-                            break
+                    if f.edit:
+                        for e in f.edit:
+                            if e.uuid == keyword_segment.uuid:
+                                e.instance_types = ("alias_operator",)
+                                break
 
                 return LintResult(anchor=context.segment, fixes=fixes)
         return None
