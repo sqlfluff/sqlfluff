@@ -1436,6 +1436,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ExceptionBlockStatementSegment"),
             Ref("DropDynamicTableSegment"),
             Ref("CreateAuthenticationPolicySegment"),
+            Ref("DropResourceMonitorStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -2615,6 +2616,11 @@ class AlterStorageIntegrationSegment(BaseSegment):
                         Ref("CommentEqualsClauseSegment"),
                         Sequence(
                             "ENABLED",
+                            Ref("EqualsSegment"),
+                            Ref("BooleanLiteralGrammar"),
+                        ),
+                        Sequence(
+                            "USE_PRIVATELINK_ENDPOINT",
                             Ref("EqualsSegment"),
                             Ref("BooleanLiteralGrammar"),
                         ),
@@ -5138,6 +5144,16 @@ class CreateStatementSegment(BaseSegment):
                     ),
                 ),
             ),
+            Sequence(
+                "ALLOWED_NETWORK_RULE_LIST",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            ),
+            Sequence(
+                "BLOCKED_NETWORK_RULE_LIST",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            ),
         ),
         # Next set are Storage Integration statements
         # https://docs.snowflake.com/en/sql-reference/sql/create-storage-integration.html
@@ -5196,8 +5212,13 @@ class CreateStatementSegment(BaseSegment):
                 ),
             ),
             Ref("CommentEqualsClauseSegment"),
+            Sequence(
+                "USE_PRIVATELINK_ENDPOINT",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
         ),
-        # Next set are Storage Integration statements
+        # Next set are Catalog Integration statements
         # https://docs.snowflake.com/en/sql-reference/sql/create-catalog-integration
         AnySetOf(
             Sequence(
@@ -7525,6 +7546,7 @@ class ShowStatementSegment(BaseSegment):
         Sequence("EXTERNAL", "VOLUMES"),
         Sequence("PASSWORD", "POLICIES"),
         Sequence("CORTEX", "SEARCH", "SERVICES"),
+        Sequence("RESOURCE", "MONITORS"),
     )
 
     _object_scope_types = OneOf(
@@ -7829,6 +7851,7 @@ class CreateResourceMonitorStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Sequence("RESOURCE", "MONITOR"),
         Ref("ObjectReferenceSegment"),
         "WITH",
@@ -7850,6 +7873,21 @@ class AlterResourceMonitorStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         "SET",
         Ref("ResourceMonitorOptionsSegment"),
+    )
+
+
+class DropResourceMonitorStatementSegment(BaseSegment):
+    """A `DROP RESOURCE MONITOR` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-resource-monitor
+    """
+
+    type = "drop_resource_monitor_statement"
+    match_grammar = Sequence(
+        "DROP",
+        Sequence("RESOURCE", "MONITOR"),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
     )
 
 

@@ -463,4 +463,8 @@ file:
       - comma: ','
       - bucket_path: "'azure://myaccount.blob.core.windows.net/mycontainer/path4/'"
       - end_bracket: )
+    - keyword: use_privatelink_endpoint
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
 - statement_terminator: ;

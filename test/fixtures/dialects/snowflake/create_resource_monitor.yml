@@ -10,6 +10,9 @@ file:
     - keyword: create
     - keyword: resource
     - keyword: monitor
+    - keyword: if
+    - keyword: not
+    - keyword: exists
     - object_reference:
         naked_identifier: test
 - statement_terminator: ;

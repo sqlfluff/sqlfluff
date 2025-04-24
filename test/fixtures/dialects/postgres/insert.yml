@@ -854,3 +854,36 @@ file:
       - keyword: DO
       - keyword: NOTHING
 - statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: prompt_variants
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: test
+      - comma: ','
+      - column_reference:
+          naked_identifier: test2
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: test
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: test2
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: test
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: test2
+- statement_terminator: ;
