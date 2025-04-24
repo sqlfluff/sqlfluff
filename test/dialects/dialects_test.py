@@ -67,8 +67,7 @@ def test__dialect__base_file_parse(dialect, file):
     parsed: Optional[ParsedString] = lex_and_parse(config_overrides, raw)
     if not parsed:  # Empty file case
         return
-    print(f"Post-parse structure: {parsed.tree.to_tuple(show_raw=True)}")
-    print(f"Post-parse structure: {parsed.tree.stringify()}")
+
     # Check we're all there.
     assert parsed.tree.raw == raw
     # Check that there's nothing unparsable
