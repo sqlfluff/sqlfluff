@@ -413,6 +413,8 @@ UNRESERVED_KEYWORDS = [
     "IO",
     "ISOLATION",
     "JSON",
+    "JSON_ARRAY",
+    "JSON_OBJECT",
     "KEEP",
     "KEEPDEFAULTS",
     "KEEPFIXED",
