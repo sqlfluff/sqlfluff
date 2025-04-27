@@ -5,7 +5,7 @@ from typing import Optional, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar import Ref
-from sqlfluff.core.parser.grammar.anyof import AnyNumberOf, OneOf
+from sqlfluff.core.parser.grammar.anyof import OneOf
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 from sqlfluff.core.parser.match_algorithms import (
     longest_match,
