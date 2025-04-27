@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 42fc7c652b12f6b81590456a053332797aaf08485fd4787029091946f0ddb213
+_hash: d55a961588891c217b6c306300d3e1b1aabccc75ef044a3f6a6dbfac656a77b2
 file:
   statement:
     alter_task_statement:

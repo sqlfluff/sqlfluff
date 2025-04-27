@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0b4b5f77bd55d4361375bd19915c13f6a9f0ee98744911bca5a3fc39be5afebc
+_hash: d6768381740897c18bd4d77635ea8afe62219c79f093d769df8066cf13948b87
 file:
 - statement:
     alter_connection_rotate_keys:
