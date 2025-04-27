@@ -33,6 +33,8 @@ class Delimited(OneOf):
         "min_delimiters",
     )
 
+    optional_delimiter: bool = False
+
     def __init__(
         self,
         *args: Union[Matchable, str],
@@ -153,8 +155,13 @@ class Delimited(OneOf):
                 )
 
             if not match:
-                # Failed to match next element, stop here.
-                break
+                if seeking_delimiter and self.optional_delimiter:
+                    # Failed to match a delimiter, but it's optional, so loop again.
+                    seeking_delimiter = False
+                    continue
+                else:
+                    # Failed to match next element, stop here.
+                    break
 
             # Otherwise we _did_ match. Handle it.
             if seeking_delimiter:
@@ -184,51 +191,11 @@ class Delimited(OneOf):
         return working_match
 
 
-class OptionallyDelimited(AnyNumberOf):
+class OptionallyDelimited(Delimited):
     """Match a number of elements optionally separated by a delimiter.
 
     Note that if there are multiple elements passed in that they will be treated
     as different options of what can be delimited, rather than a sequence.
     """
 
-    equality_kwargs: tuple[str, ...] = (
-        "_elements",
-        "optional",
-        "allow_gaps",
-        "delimiter",
-        "allow_trailing",
-        "terminator",
-        "min_delimiters",
-    )
-
-    def __init__(
-        self,
-        *args: Union[Matchable, str],
-        delimiter: Union[Matchable, str] = Ref("CommaSegment"),
-        allow_trailing: bool = False,
-        terminators: Sequence[Union[Matchable, str]] = (),
-        reset_terminators: bool = False,
-        min_delimiters: int = 0,
-        bracket_pairs_set: str = "bracket_pairs",
-        allow_gaps: bool = True,
-        optional: bool = False,
-    ) -> None:
-        """Initialize the class object with the provided arguments."""
-        super().__init__(
-            *args,
-            Delimited(
-                *args,
-                delimiter=delimiter,
-                allow_trailing=allow_trailing,
-                terminators=terminators,
-                reset_terminators=reset_terminators,
-                min_delimiters=min_delimiters,
-                bracket_pairs_set=bracket_pairs_set,
-                allow_gaps=allow_gaps,
-                optional=optional,
-            ),
-            terminators=terminators,
-            reset_terminators=reset_terminators,
-            allow_gaps=allow_gaps,
-            optional=optional,
-        )
+    optional_delimiter: bool = True
