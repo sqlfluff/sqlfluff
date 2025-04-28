@@ -126,7 +126,7 @@ class Linter:
         config_encoding: str = file_config.get("encoding", default="autodetect")
         encoding = get_encoding(fname=fname, config_encoding=config_encoding)
         # Check file size before loading.
-        limit = file_config.get("large_file_skip_byte_limit")
+        limit = int(file_config.get("large_file_skip_byte_limit"))
         if limit:
             # Get the file size
             file_size = os.path.getsize(fname)
