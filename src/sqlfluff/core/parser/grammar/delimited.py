@@ -33,6 +33,8 @@ class Delimited(OneOf):
         "min_delimiters",
     )
 
+    optional_delimiter: bool = False
+
     def __init__(
         self,
         *args: Union[Matchable, str],
@@ -153,8 +155,13 @@ class Delimited(OneOf):
                 )
 
             if not match:
-                # Failed to match next element, stop here.
-                break
+                if seeking_delimiter and self.optional_delimiter:
+                    # Failed to match a delimiter, but it's optional, so loop again.
+                    seeking_delimiter = False
+                    continue
+                else:
+                    # Failed to match next element, stop here.
+                    break
 
             # Otherwise we _did_ match. Handle it.
             if seeking_delimiter:
@@ -182,3 +189,13 @@ class Delimited(OneOf):
             return MatchResult.empty_at(idx)
 
         return working_match
+
+
+class OptionallyDelimited(Delimited):
+    """Match a number of elements optionally separated by a delimiter.
+
+    Note that if there are multiple elements passed in that they will be treated
+    as different options of what can be delimited, rather than a sequence.
+    """
+
+    optional_delimiter: bool = True

@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7d9c1cad22f1d566ca1c1f7e47b24dcf30accfe043d563c7f70b8bc26ce4cbd0
+_hash: 035722cb5505bcccdf54000e9dd1a4daa7a3e939427af3abb123eaec262fdc5a
 file:
-  statement:
+- statement:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
@@ -28,4 +28,46 @@ file:
         raw_comparison_operator: '='
     - object_reference:
         naked_identifier: person
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+        quoted_identifier: '"John"'
+    - keyword: SET
+    - parameter: DEFAULT_ROLE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: JOHNNY
+    - parameter: DEFAULT_WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: FEU
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+        quoted_identifier: '"John"'
+    - keyword: SET
+    - parameter: DEFAULT_ROLE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: JOHNNY
+    - parameter: DEFAULT_WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: FEU
+    - comma: ','
+    - parameter: COMMENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        quoted_identifier: '"Foo"'
+- statement_terminator: ;
