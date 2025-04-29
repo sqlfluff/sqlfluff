@@ -126,8 +126,16 @@ class Linter:
         config_encoding: str = file_config.get("encoding", default="autodetect")
         encoding = get_encoding(fname=fname, config_encoding=config_encoding)
         # Check file size before loading.
-        limit = int(file_config.get("large_file_skip_byte_limit"))
+        limit = file_config.get("large_file_skip_byte_limit")
+        
         if limit:
+            # make sure the limit becomes an integer
+            try:
+                limit = int(limit)
+            except ValueError:
+                raise ValueError("large_file_skip_byte_limit parameter from config cannot be converted to integer")
+            except TypeError:
+                raise TypeError("failed to get large_file_skip_byte_limit parameter from config")
             # Get the file size
             file_size = os.path.getsize(fname)
             if file_size > limit:
