@@ -94,6 +94,23 @@ def test__linter__lint_string_vs_file(path):
         lntr.lint_string(sql_str).check_tuples() == lntr.lint_path(path).check_tuples()
     )
 
+@pytest.mark.parametrize("byte_lim, raises", [(0, False), (None, True), (200, False), ("200", False), ("Not a Valid value", True)])
+def test__linter__large_file_skip_byte_limit__setting(byte_lim, raises):
+    """
+    Test whether linter can handle custom values for large_file_skip_byte_limit setting.
+    Linter should raise an error only in cases where the value really is invalid.
+    """
+    config = FluffConfig(overrides={"large_file_skip_byte_limit": filesize, "dialect": "ansi"})
+
+    try:
+        Linter.load_raw_file_and_config(
+            "test/fixtures/linter/indentation_errors.sql", config
+        )
+        assert not raises
+    except ValueError, TypeError:
+        assert raises
+
+
 
 @pytest.mark.parametrize(
     "rules,num_violations", [(None, 7), ("CP01", 2), (("LT01", "LT12"), 1)]
