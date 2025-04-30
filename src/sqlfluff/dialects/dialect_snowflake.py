@@ -26,6 +26,7 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
+    OptionallyDelimited,
     ParseMode,
     Ref,
     RegexLexer,
@@ -7726,7 +7727,7 @@ class AlterUserStatementSegment(BaseSegment):
             # we will just use that.
             Sequence(
                 "SET",
-                Delimited(
+                OptionallyDelimited(
                     Sequence(
                         Ref("ParameterNameSegment"),
                         Ref("EqualsSegment"),
