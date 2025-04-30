@@ -41,7 +41,7 @@ KNOWN_STYLES = {
     "dollar": regex.compile(
         r"(?<![:\w\x5c])\${?(?P<param_name>[\w_]+)}?", regex.UNICODE
     ),
-    # e.g. WHERE bla = $name or WHERE bla = ${name} (DbUp compatible)
+    # e.g. WHERE bla = $name$ (DbUp compatible)
     "dollar_surround": regex.compile(
         r"(?<![:\w\x5c])\$(?P<param_name>[\w_]+)\$?", regex.UNICODE
     ),
