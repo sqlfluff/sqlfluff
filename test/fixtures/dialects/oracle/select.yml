@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c3b973d4e1aa3c31a15cff622e0ba6a9594f7b1b5b2e7cab38350f4da817a957
+_hash: 7af02b3736ee5d5184d7f9a3145506f5ef95a3af84d202ff38f999784ea48d94
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
       - keyword: select
@@ -29,4 +29,22 @@ file:
                 naked_identifier: item_errors
             alias_expression:
               naked_identifier: error
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: quantity
+            binary_operator: /
+            numeric_literal: '100'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: inventory
+- statement_terminator: ;
