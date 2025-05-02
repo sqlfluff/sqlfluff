@@ -10,6 +10,7 @@ from sqlfluff.core.parser.grammar import (
     Nothing,
     OneOf,
     OptionallyBracketed,
+    OptionallyDelimited,
     Ref,
     Sequence,
 )
@@ -86,6 +87,7 @@ __all__ = (
     "Anything",
     "Nothing",
     "OptionallyBracketed",
+    "OptionallyDelimited",
     "Conditional",
     "StringParser",
     "MultiStringParser",
