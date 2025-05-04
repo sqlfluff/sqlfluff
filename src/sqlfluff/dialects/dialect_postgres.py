@@ -1811,6 +1811,7 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
             "FROM",
             "WHERE",
             Sequence("ORDER", "BY"),
+            Sequence("ON", "CONFLICT"),
             "LIMIT",
             "RETURNING",
             "OVERLAPS",
