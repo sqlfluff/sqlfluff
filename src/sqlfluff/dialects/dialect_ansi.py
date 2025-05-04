@@ -2819,7 +2819,6 @@ class SelectStatementSegment(BaseSegment):
             Ref("OffsetClauseSegment", optional=True),
             Ref("FetchClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
-            Ref("OffsetClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),
         ],
         # Overwrite the terminators, because we want to remove some.
