@@ -2716,8 +2716,9 @@ class FetchClauseSegment(BaseSegment):
             optional=True,
         ),
         OneOf("ROW", "ROWS"),
-        OneOf("ONLY", Sequence("WITH", "TIES"))
+        OneOf("ONLY", Sequence("WITH", "TIES")),
     )
+
 
 class OffsetClauseSegment(BaseSegment):
     """An `OFFSET` clause like in `SELECT`."""
@@ -2731,6 +2732,7 @@ class OffsetClauseSegment(BaseSegment):
         ),
         OneOf("ROW", "ROWS"),
     )
+
 
 class NamedWindowExpressionSegment(BaseSegment):
     """Named window expression."""

@@ -1472,6 +1472,7 @@ class AlterProcedureStatementSegment(BaseSegment):
         ),
     )
 
+
 class OffsetClauseSegment(ansi.OffsetClauseSegment):
     """A `OFFSET` clause like in `SELECT`."""
 
@@ -1487,6 +1488,7 @@ class OffsetClauseSegment(ansi.OffsetClauseSegment):
         ),
         Dedent,
     )
+
 
 class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE PROCEDURE` statement.
@@ -1739,6 +1741,7 @@ class ForClauseSegment(BaseSegment):
             optional=True,
         ),
     )
+
 
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Overrides ANSI Statement, to allow for SELECT INTO statements."""
