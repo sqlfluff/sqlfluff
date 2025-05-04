@@ -116,7 +116,10 @@ postgres_dialect.insert_lexer_matchers(
             r"->>?|#>>?|@[>@?]|<@|\?[|&]?|#-",
             SymbolSegment,
         ),
-        # L2 nearest neighbor (<->), inner product (<#>), cosine distance (<=>), and L1 distance (<+>)
+        # L2 nearest neighbor (<->),
+        # inner product (<#>),
+        # cosine distance (<=>),
+        # and L1 distance (<+>)
         RegexLexer(
             "pgvector_operator",
             r"<->|<#>|<=>|<\+>",
