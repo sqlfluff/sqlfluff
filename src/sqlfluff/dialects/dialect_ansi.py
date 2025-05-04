@@ -763,7 +763,7 @@ ansi_dialect.add(
     ListComprehensionGrammar=Nothing(),
     TimeWithTZGrammar=Sequence(
         OneOf("TIME", "TIMESTAMP"),
-        Bracketed(Ref("NumericLiteralSegment"), optional=True),
+        Ref("BracketedArguments", optional=True),
         Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
     ),
     SequenceMinValueGrammar=OneOf(
