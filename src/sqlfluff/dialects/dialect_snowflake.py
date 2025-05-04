@@ -9668,7 +9668,7 @@ class DropIcebergTableStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
     )
-    
+
 
 class DropDynamicTableSegment(BaseSegment):
     """Drop dynamic table segment."""
