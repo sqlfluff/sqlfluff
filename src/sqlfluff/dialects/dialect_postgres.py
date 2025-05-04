@@ -1472,6 +1472,21 @@ class AlterProcedureStatementSegment(BaseSegment):
         ),
     )
 
+class OffsetClauseSegment(ansi.OffsetClauseSegment):
+    """A `OFFSET` clause like in `SELECT`."""
+
+    type = "offset_clause"
+    match_grammar: Matchable = Sequence(
+        "OFFSET",
+        Indent,
+        OneOf(
+            # Allow a number by itself OR
+            Ref("NumericLiteralSegment"),
+            # An arbitrary expression
+            Ref("ExpressionSegment"),
+        ),
+        Dedent,
+    )
 
 class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE PROCEDURE` statement.
@@ -1725,27 +1740,6 @@ class ForClauseSegment(BaseSegment):
         ),
     )
 
-
-class FetchClauseSegment(ansi.FetchClauseSegment):
-    """A `FETCH` clause like in `SELECT."""
-
-    type = "fetch_clause"
-    match_grammar: Matchable = Sequence(
-        "FETCH",
-        OneOf(
-            "FIRST",
-            "NEXT",
-        ),
-        OneOf(
-            Ref("NumericLiteralSegment"),
-            Ref("ExpressionSegment", exclude=Ref.keyword("ROW")),
-            optional=True,
-        ),
-        OneOf("ROW", "ROWS"),
-        OneOf("ONLY", Sequence("WITH", "TIES")),
-    )
-
-
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Overrides ANSI Statement, to allow for SELECT INTO statements."""
 
@@ -1776,6 +1770,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("NamedWindowSegment", optional=True),
             Ref("OrderByClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
+            Ref("OffsetClauseSegment", optional=True),
             Ref("FetchClauseSegment", optional=True),
             Ref("ForClauseSegment", optional=True),
         ],

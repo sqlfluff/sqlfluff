@@ -2716,9 +2716,21 @@ class FetchClauseSegment(BaseSegment):
             optional=True,
         ),
         OneOf("ROW", "ROWS"),
-        "ONLY",
+        OneOf("ONLY", Sequence("WITH", "TIES"))
     )
 
+class OffsetClauseSegment(BaseSegment):
+    """An `OFFSET` clause like in `SELECT`."""
+
+    type = "offset_clause"
+    match_grammar: Matchable = Sequence(
+        "OFFSET",
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("ExpressionSegment", exclude=Ref.keyword("ROW")),
+        ),
+        OneOf("ROW", "ROWS"),
+    )
 
 class NamedWindowExpressionSegment(BaseSegment):
     """Named window expression."""
@@ -2804,8 +2816,10 @@ class SelectStatementSegment(BaseSegment):
     match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
+            Ref("OffsetClauseSegment", optional=True),
             Ref("FetchClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
+            Ref("OffsetClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),
         ],
         # Overwrite the terminators, because we want to remove some.
