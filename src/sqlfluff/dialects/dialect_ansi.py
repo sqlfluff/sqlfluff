@@ -523,6 +523,7 @@ ansi_dialect.add(
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("WithDataClauseSegment"),
         "FETCH",
+        "OFFSET",
     ),
     WhereClauseTerminatorGrammar=OneOf(
         "LIMIT",

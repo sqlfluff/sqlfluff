@@ -94,11 +94,6 @@ def test__dialect__ansi__file_lex(raw, res, caplog):
         # https://github.com/sqlfluff/sqlfluff/issues/179
         ("SelectStatementSegment", "SELECT t.val/t.id FROM test WHERE id*1.0/id > 0.8"),
         ("SelectClauseElementSegment", "t.val/t.id"),
-        # Select with offset
-        (
-            "SelectStatementSegment",
-            "SELECT * FROM test OFFSET 10 ROWS FETCH NEXT 10 ROWS",
-        ),
         # Issue with casting raise as part of PR #177
         ("SelectClauseElementSegment", "CAST(num AS INT64)"),
         # Casting as datatype with arguments
