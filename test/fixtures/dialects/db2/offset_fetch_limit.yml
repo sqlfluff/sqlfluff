@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bb6668580cab1d5ba77814a708ceb1b5620c07843c91a67014b43c0edec4771d
+_hash: 935dc8eb530784fd063ef92dd5a2231ef2ff737c84d9721772fc0f5783ef2d28
 file:
 - statement:
     select_statement:
@@ -19,11 +19,51 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: table_name
-      limit_clause:
-        offset_clause:
-        - keyword: offset
+      offset_clause:
+      - keyword: offset
+      - numeric_literal: '2'
+      - keyword: row
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            naked_identifier: column_name
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table_name
+      offset_clause:
+      - keyword: offset
+      - numeric_literal: '2'
+      - keyword: rows
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            naked_identifier: column_name
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table_name
+      offset_clause:
+      - keyword: offset
+      - expression:
+        - numeric_literal: '1'
+        - binary_operator: +
         - numeric_literal: '2'
-        - keyword: row
+      - keyword: row
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -39,11 +79,13 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: table_name
-      limit_clause:
-        offset_clause:
-        - keyword: offset
+      offset_clause:
+      - keyword: offset
+      - expression:
+        - numeric_literal: '1'
+        - binary_operator: +
         - numeric_literal: '2'
-        - keyword: rows
+      - keyword: rows
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -59,14 +101,17 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: table_name
-      limit_clause:
-        offset_clause:
-        - keyword: offset
-        - expression:
-          - numeric_literal: '1'
-          - binary_operator: +
-          - numeric_literal: '2'
-        - keyword: row
+      offset_clause:
+      - keyword: offset
+      - expression:
+          bracketed:
+            start_bracket: (
+            expression:
+            - numeric_literal: '1'
+            - binary_operator: +
+            - numeric_literal: '2'
+            end_bracket: )
+      - keyword: row
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -82,68 +127,17 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: table_name
-      limit_clause:
-        offset_clause:
-        - keyword: offset
-        - expression:
-          - numeric_literal: '1'
-          - binary_operator: +
-          - numeric_literal: '2'
-        - keyword: rows
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          column_reference:
-            naked_identifier: column_name
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: table_name
-      limit_clause:
-        offset_clause:
-        - keyword: offset
-        - expression:
-            bracketed:
-              start_bracket: (
-              expression:
-              - numeric_literal: '1'
-              - binary_operator: +
-              - numeric_literal: '2'
-              end_bracket: )
-        - keyword: row
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          column_reference:
-            naked_identifier: column_name
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: table_name
-      limit_clause:
-        offset_clause:
-        - keyword: offset
-        - expression:
-            bracketed:
-              start_bracket: (
-              expression:
-              - numeric_literal: '1'
-              - binary_operator: +
-              - numeric_literal: '2'
-              end_bracket: )
-        - keyword: rows
+      offset_clause:
+      - keyword: offset
+      - expression:
+          bracketed:
+            start_bracket: (
+            expression:
+            - numeric_literal: '1'
+            - binary_operator: +
+            - numeric_literal: '2'
+            end_bracket: )
+      - keyword: rows
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -345,43 +339,72 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: table_name
-      limit_clause:
-        offset_clause:
-        - keyword: offset
+      offset_clause:
+      - keyword: offset
+      - numeric_literal: '1'
+      - keyword: row
+      fetch_clause:
+      - keyword: fetch
+      - keyword: first
+      - numeric_literal: '2'
+      - keyword: row
+      - keyword: only
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            naked_identifier: column_name
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table_name
+      offset_clause:
+      - keyword: offset
+      - numeric_literal: '1'
+      - keyword: row
+      fetch_clause:
+      - keyword: fetch
+      - keyword: first
+      - numeric_literal: '2'
+      - keyword: rows
+      - keyword: only
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            naked_identifier: column_name
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table_name
+      offset_clause:
+      - keyword: offset
+      - expression:
         - numeric_literal: '1'
-        - keyword: row
-        fetch_clause:
-        - keyword: fetch
-        - keyword: first
+        - binary_operator: +
         - numeric_literal: '2'
-        - keyword: row
-        - keyword: only
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          column_reference:
-            naked_identifier: column_name
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: table_name
-      limit_clause:
-        offset_clause:
-        - keyword: offset
+      - keyword: row
+      fetch_clause:
+      - keyword: fetch
+      - keyword: first
+      - expression:
         - numeric_literal: '1'
-        - keyword: row
-        fetch_clause:
-        - keyword: fetch
-        - keyword: first
+        - binary_operator: +
         - numeric_literal: '2'
-        - keyword: rows
-        - keyword: only
+      - keyword: row
+      - keyword: only
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -397,55 +420,22 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: table_name
-      limit_clause:
-        offset_clause:
-        - keyword: offset
-        - expression:
-          - numeric_literal: '1'
-          - binary_operator: +
-          - numeric_literal: '2'
-        - keyword: row
-        fetch_clause:
-        - keyword: fetch
-        - keyword: first
-        - expression:
-          - numeric_literal: '1'
-          - binary_operator: +
-          - numeric_literal: '2'
-        - keyword: row
-        - keyword: only
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          column_reference:
-            naked_identifier: column_name
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: table_name
-      limit_clause:
-        offset_clause:
-        - keyword: offset
-        - expression:
-          - numeric_literal: '1'
-          - binary_operator: +
-          - numeric_literal: '2'
-        - keyword: row
-        fetch_clause:
-        - keyword: fetch
-        - keyword: first
-        - expression:
-          - numeric_literal: '1'
-          - binary_operator: +
-          - numeric_literal: '2'
-        - keyword: rows
-        - keyword: only
+      offset_clause:
+      - keyword: offset
+      - expression:
+        - numeric_literal: '1'
+        - binary_operator: +
+        - numeric_literal: '2'
+      - keyword: row
+      fetch_clause:
+      - keyword: fetch
+      - keyword: first
+      - expression:
+        - numeric_literal: '1'
+        - binary_operator: +
+        - numeric_literal: '2'
+      - keyword: rows
+      - keyword: only
 - statement_terminator: ;
 - statement:
     select_statement:
