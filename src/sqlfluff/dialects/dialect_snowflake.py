@@ -5979,7 +5979,6 @@ class JsonFileFormatTypeParameters(BaseSegment):
     )
 
 
-
 class AvroFileFormatTypeParameters(BaseSegment):
     """A Snowflake File Format Type Options segment for AVRO.
 
