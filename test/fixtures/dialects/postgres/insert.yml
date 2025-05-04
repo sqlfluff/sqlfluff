@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e9af5a43a5e31164342fe32a99cee9e8b0ac3f334ec64a8d61ad1af7c4064db4
+_hash: 5e250b74b81dba3b751a4bb213fb7cc6bbb9df9d64504cb18ea3038087281d23
 file:
 - statement:
     insert_statement:
@@ -886,4 +886,60 @@ file:
     - expression:
         column_reference:
           naked_identifier: test2
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: baz
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: state
+      - comma: ','
+      - column_reference:
+          naked_identifier: state_changed_at
+      - comma: ','
+      - column_reference:
+          naked_identifier: instance_id
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            numeric_literal: '1'
+        - comma: ','
+        - select_clause_element:
+            numeric_literal: '2'
+        - comma: ','
+        - select_clause_element:
+            numeric_literal: '3'
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_target:
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: instance_id
+          end_bracket: )
+    - conflict_action:
+      - keyword: DO
+      - keyword: UPDATE
+      - keyword: SET
+      - column_reference:
+          naked_identifier: state
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: foo
+      - comma: ','
+      - column_reference:
+          naked_identifier: state_changed_at
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: bar
 - statement_terminator: ;
