@@ -31,6 +31,9 @@ from sqlfluff.dialects.dialect_postgres_keywords import (
         ("SelectClauseElementSegment", "c is not null as c_notnull"),
         ("SelectClauseElementSegment", "c isnull as c_isnull"),
         ("SelectClauseElementSegment", "c notnull as c_notnull"),
+        # Select with offset
+        ("SelectStatementSegment", "SELECT * FROM test OFFSET 10"),
+        ("SelectStatementSegment", "SELECT * FROM test LIMIT 20 OFFSET 10"),
         ("ArrayAccessorSegment", "[2:10]"),
         ("ArrayAccessorSegment", "[:10]"),
         ("ArrayAccessorSegment", "[2:]"),
