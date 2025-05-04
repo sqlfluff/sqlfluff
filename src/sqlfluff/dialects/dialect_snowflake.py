@@ -5775,9 +5775,6 @@ class CreateFileFormatSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         # TYPE = <FILE_FORMAT> is included in below parameter segments.
         # It is valid syntax to have TYPE = <FILE_FORMAT> after other parameters.
-        # Below parameters are either Delimited/AnyNumberOf.
-        # Snowflake does allow mixed but this is not supported.
-        # @TODO: Update below when an OptionallyDelimited Class is available.
         OneOf(
             Ref("CsvFileFormatTypeParameters"),
             Ref("JsonFileFormatTypeParameters"),
@@ -5840,7 +5837,7 @@ class CsvFileFormatTypeParameters(BaseSegment):
 
     type = "csv_file_format_type_parameters"
 
-    _file_format_type_parameter = OneOf(
+    match_grammar = OptionallyDelimited(
         Sequence(
             "TYPE",
             Ref("EqualsSegment"),
@@ -5918,10 +5915,6 @@ class CsvFileFormatTypeParameters(BaseSegment):
         ),
     )
 
-    match_grammar = OneOf(
-        Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
-    )
-
 
 class JsonFileFormatTypeParameters(BaseSegment):
     """A Snowflake File Format Type Options segment for JSON.
@@ -5931,7 +5924,7 @@ class JsonFileFormatTypeParameters(BaseSegment):
 
     type = "json_file_format_type_parameters"
 
-    _file_format_type_parameter = OneOf(
+    match_grammar = OptionallyDelimited(
         Sequence(
             "TYPE",
             Ref("EqualsSegment"),
@@ -5985,9 +5978,6 @@ class JsonFileFormatTypeParameters(BaseSegment):
         ),
     )
 
-    match_grammar = OneOf(
-        Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
-    )
 
 
 class AvroFileFormatTypeParameters(BaseSegment):
@@ -5998,7 +5988,7 @@ class AvroFileFormatTypeParameters(BaseSegment):
 
     type = "avro_file_format_type_parameters"
 
-    _file_format_type_parameter = OneOf(
+    match_grammar = OptionallyDelimited(
         Sequence(
             "TYPE",
             Ref("EqualsSegment"),
@@ -6024,10 +6014,6 @@ class AvroFileFormatTypeParameters(BaseSegment):
         ),
     )
 
-    match_grammar = OneOf(
-        Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
-    )
-
 
 class OrcFileFormatTypeParameters(BaseSegment):
     """A Snowflake File Format Type Options segment for ORC.
@@ -6037,7 +6023,7 @@ class OrcFileFormatTypeParameters(BaseSegment):
 
     type = "orc_file_format_type_parameters"
 
-    _file_format_type_parameter = OneOf(
+    match_grammar = OptionallyDelimited(
         Sequence(
             "TYPE",
             Ref("EqualsSegment"),
@@ -6062,10 +6048,6 @@ class OrcFileFormatTypeParameters(BaseSegment):
         ),
     )
 
-    match_grammar = OneOf(
-        Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
-    )
-
 
 class ParquetFileFormatTypeParameters(BaseSegment):
     """A Snowflake File Format Type Options segment for PARQUET.
@@ -6075,7 +6057,7 @@ class ParquetFileFormatTypeParameters(BaseSegment):
 
     type = "parquet_file_format_type_parameters"
 
-    _file_format_type_parameter = OneOf(
+    match_grammar = OptionallyDelimited(
         Sequence(
             "TYPE",
             Ref("EqualsSegment"),
@@ -6116,10 +6098,6 @@ class ParquetFileFormatTypeParameters(BaseSegment):
         ),
     )
 
-    match_grammar = OneOf(
-        Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
-    )
-
 
 class XmlFileFormatTypeParameters(BaseSegment):
     """A Snowflake File Format Type Options segment for XML.
@@ -6129,7 +6107,7 @@ class XmlFileFormatTypeParameters(BaseSegment):
 
     type = "xml_file_format_type_parameters"
 
-    _file_format_type_parameter = OneOf(
+    match_grammar = OptionallyDelimited(
         Sequence(
             "TYPE",
             Ref("EqualsSegment"),
@@ -6163,10 +6141,6 @@ class XmlFileFormatTypeParameters(BaseSegment):
             Ref("EqualsSegment"),
             Ref("BooleanLiteralGrammar"),
         ),
-    )
-
-    match_grammar = OneOf(
-        Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
     )
 
 
