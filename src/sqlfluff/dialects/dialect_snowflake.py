@@ -1436,6 +1436,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterTagStatementSegment"),
             Ref("ExceptionBlockStatementSegment"),
             Ref("DropDynamicTableSegment"),
+            Ref("DropIcebergTableStatementSegment"),
             Ref("CreateAuthenticationPolicySegment"),
             Ref("DropResourceMonitorStatementSegment"),
         ],
@@ -9649,6 +9650,23 @@ class ExceptionBlockStatementSegment(BaseSegment):
                 Ref("StatementSegment"),
             ),
         ),
+    )
+
+
+class DropIcebergTableStatementSegment(BaseSegment):
+    """`DROP ICEBERG TABLE` statement.
+
+    Snowflake syntax reference:
+    https://docs.snowflake.com/en/sql-reference/sql/drop-table.html
+    """
+
+    type = "drop_iceberg_table_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "ICEBERG",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
     )
 
 
