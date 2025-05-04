@@ -116,6 +116,12 @@ postgres_dialect.insert_lexer_matchers(
             r"->>?|#>>?|@[>@?]|<@|\?[|&]?|#-",
             SymbolSegment,
         ),
+        # L2 nearest neighbor (<->), inner product (<#>), cosine distance (<=>), and L1 distance (<+>)
+        RegexLexer(
+            "pgvector_operator",
+            r"<->|<#>|<=>|<\+>",
+            SymbolSegment,
+        ),
         # r"|".join(
         #     re.escape(operator)
         #     for operator in [
@@ -342,6 +348,9 @@ postgres_dialect.add(
     PostgisOperatorSegment=TypedParser(
         "postgis_operator", SymbolSegment, type="binary_operator"
     ),
+    PgvectorOperatorSegment=TypedParser(
+        "pgvector_operator", SymbolSegment, type="binary_operator"
+    ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
     # N.B. this MultilineConcatenateDelimiterGrammar is only created
     # to parse multiline-concatenated string literals
@@ -438,6 +447,7 @@ postgres_dialect.replace(
         Ref("NotExtendLeftSegment"),
         Ref("AdjacentSegment"),
         Ref("PostgisOperatorSegment"),
+        Ref("PgvectorOperatorSegment"),
     ),
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
