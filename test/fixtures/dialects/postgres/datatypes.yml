@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8ed9095e6968d0e0707fc92d9e3f21a4231398b4babcea898b95923bc2419705
+_hash: 7ece17f5ffc617f174ce2ca9d1a0dc541cbac65db272aba6f895573e6cb6586d
 file:
 - statement:
     create_table_statement:
@@ -320,20 +320,22 @@ file:
       - data_type:
           datetime_type_identifier:
             keyword: time
-            bracketed:
-              start_bracket: (
-              numeric_literal: '4'
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '4'
+                end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: d
       - data_type:
           datetime_type_identifier:
           - keyword: time
-          - bracketed:
-              start_bracket: (
-              numeric_literal: '4'
-              end_bracket: )
+          - bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '4'
+                end_bracket: )
           - keyword: with
           - keyword: time
           - keyword: zone
@@ -343,10 +345,11 @@ file:
       - data_type:
           datetime_type_identifier:
           - keyword: time
-          - bracketed:
-              start_bracket: (
-              numeric_literal: '4'
-              end_bracket: )
+          - bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '4'
+                end_bracket: )
           - keyword: without
           - keyword: time
           - keyword: zone
@@ -356,20 +359,22 @@ file:
       - data_type:
           datetime_type_identifier:
             keyword: timestamp
-            bracketed:
-              start_bracket: (
-              numeric_literal: '4'
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '4'
+                end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: g
       - data_type:
           datetime_type_identifier:
           - keyword: timestamp
-          - bracketed:
-              start_bracket: (
-              numeric_literal: '4'
-              end_bracket: )
+          - bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '4'
+                end_bracket: )
           - keyword: with
           - keyword: time
           - keyword: zone
@@ -379,10 +384,11 @@ file:
       - data_type:
           datetime_type_identifier:
           - keyword: timestamp
-          - bracketed:
-              start_bracket: (
-              numeric_literal: '4'
-              end_bracket: )
+          - bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '4'
+                end_bracket: )
           - keyword: without
           - keyword: time
           - keyword: zone
