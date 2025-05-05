@@ -1,0 +1,1645 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 33e557d6c3d43f86d6563c11accdd27d045c576e02ffc5a5eb908c9b187c7936
+file:
+- statement:
+    pipe_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: Produce
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      quoted_literal: "'apples'"
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: item
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '2'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: sales
+                end_bracket: )
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: item
+            alias_expression:
+              keyword: AS
+              naked_identifier: fruit_name
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      quoted_literal: "'apples'"
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: item
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '2'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: sales
+                end_bracket: )
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        extend_clause:
+          keyword: EXTEND
+          expression:
+            column_reference:
+              naked_identifier: item
+            keyword: IN
+            bracketed:
+            - start_bracket: (
+            - quoted_literal: "'carrots'"
+            - comma: ','
+            - quoted_literal: "'oranges'"
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: is_orange
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+    - from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '2'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: x
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '3'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: y
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: t
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        set_clause_list:
+        - keyword: SET
+        - set_clause:
+            column_reference:
+              naked_identifier: x
+            comparison_operator:
+              raw_comparison_operator: '='
+            expression:
+            - column_reference:
+                naked_identifier: x
+            - binary_operator: '*'
+            - column_reference:
+                naked_identifier: x
+        - comma: ','
+        - set_clause:
+            column_reference:
+              naked_identifier: y
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '8'
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: x
+            alias_expression:
+              keyword: AS
+              naked_identifier: original_x
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: x
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: y
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+    - from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '1'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: x
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '2'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: y
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: t
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        drop_column_clause:
+          keyword: DROP
+          column_reference:
+            naked_identifier: x
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: x
+            alias_expression:
+              keyword: AS
+              naked_identifier: original_x
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: y
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+    - from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '1'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: x
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '2'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: y
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: t
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        rename_column_clause:
+          keyword: RENAME
+          column_reference:
+            naked_identifier: y
+          alias_expression:
+            keyword: AS
+            naked_identifier: renamed_y
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: y
+            alias_expression:
+              keyword: AS
+              naked_identifier: t_y
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+    - from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '1'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: x
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '2'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: y
+                end_bracket: )
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        alias_expression:
+          keyword: AS
+          naked_identifier: t
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        rename_column_clause:
+          keyword: RENAME
+          column_reference:
+            naked_identifier: y
+          alias_expression:
+            keyword: AS
+            naked_identifier: renamed_y
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: y
+            alias_expression:
+              keyword: AS
+              naked_identifier: t_y
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+    - from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: sales
+            comparison_operator:
+            - raw_comparison_operator: '>'
+            - raw_comparison_operator: '='
+            numeric_literal: '3'
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        limit_clause:
+        - keyword: LIMIT
+        - numeric_literal: '10'
+        - keyword: OFFSET
+        - numeric_literal: '4'
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: sales
+        - keyword: DESC
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: Produce
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        aggregate_clause:
+          keyword: AGGREGATE
+          function:
+            function_name:
+              function_name_identifier: SUM
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: sales
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: total_sales
+          group_and_orderby_clause:
+          - keyword: GROUP
+          - keyword: AND
+          - keyword: ORDER
+          - keyword: BY
+          - column_reference:
+              naked_identifier: category
+          - comma: ','
+          - column_reference:
+              naked_identifier: item
+          - keyword: DESC
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+    - from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: Produce
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        aggregate_clause:
+          keyword: AGGREGATE
+          function:
+            function_name:
+              function_name_identifier: SUM
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: sales
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: total_sales
+          group_and_orderby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+              naked_identifier: category
+          - comma: ','
+          - column_reference:
+              naked_identifier: item
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: category
+        - comma: ','
+        - column_reference:
+            naked_identifier: item
+        - keyword: DESC
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: Produce
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        aggregate_clause:
+        - keyword: AGGREGATE
+        - function:
+            function_name:
+              function_name_identifier: SUM
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: sales
+                end_bracket: )
+        - alias_expression:
+            keyword: AS
+            naked_identifier: total_sales
+        - keyword: ASC
+        - group_and_orderby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+              naked_identifier: item
+          - comma: ','
+          - column_reference:
+              naked_identifier: category
+          - keyword: DESC
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+    - from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: Produce
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        aggregate_clause:
+          keyword: AGGREGATE
+          function:
+            function_name:
+              function_name_identifier: SUM
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: sales
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: total_sales
+          group_and_orderby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+              naked_identifier: item
+          - comma: ','
+          - column_reference:
+              naked_identifier: category
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: category
+        - keyword: DESC
+        - comma: ','
+        - column_reference:
+            naked_identifier: total_sales
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        set_operator_clause:
+        - set_operator:
+          - keyword: UNION
+          - keyword: ALL
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '1'
+            end_bracket: )
+        - comma: ','
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '2'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        set_operator_clause:
+        - set_operator:
+          - keyword: UNION
+          - keyword: DISTINCT
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '1'
+            end_bracket: )
+        - comma: ','
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '2'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        set_operator_clause:
+          set_operator:
+          - keyword: UNION
+          - keyword: ALL
+          - keyword: BY
+          - keyword: NAME
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  numeric_literal: '20'
+                  alias_expression:
+                    keyword: AS
+                    naked_identifier: two_digit
+              - comma: ','
+              - select_clause_element:
+                  numeric_literal: '2'
+                  alias_expression:
+                    keyword: AS
+                    naked_identifier: one_digit
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        set_operator_clause:
+        - set_operator:
+          - keyword: INTERSECT
+          - keyword: DISTINCT
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '1'
+            end_bracket: )
+        - comma: ','
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '2'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        set_operator_clause:
+        - set_operator:
+          - keyword: INTERSECT
+          - keyword: DISTINCT
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  wildcard_expression:
+                    wildcard_identifier:
+                      star: '*'
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      function:
+                        function_name:
+                          function_name_identifier: UNNEST
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              typed_array_literal:
+                                array_type:
+                                  keyword: ARRAY
+                                  start_angle_bracket: <
+                                  data_type:
+                                    data_type_identifier: INT64
+                                  end_angle_bracket: '>'
+                                array_literal:
+                                - start_square_bracket: '['
+                                - numeric_literal: '2'
+                                - comma: ','
+                                - numeric_literal: '3'
+                                - comma: ','
+                                - numeric_literal: '3'
+                                - comma: ','
+                                - numeric_literal: '5'
+                                - end_square_bracket: ']'
+                            end_bracket: )
+                    alias_expression:
+                      keyword: AS
+                      naked_identifier: number
+            end_bracket: )
+        - comma: ','
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  wildcard_expression:
+                    wildcard_identifier:
+                      star: '*'
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      function:
+                        function_name:
+                          function_name_identifier: UNNEST
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              typed_array_literal:
+                                array_type:
+                                  keyword: ARRAY
+                                  start_angle_bracket: <
+                                  data_type:
+                                    data_type_identifier: INT64
+                                  end_angle_bracket: '>'
+                                array_literal:
+                                - start_square_bracket: '['
+                                - numeric_literal: '3'
+                                - comma: ','
+                                - numeric_literal: '3'
+                                - comma: ','
+                                - numeric_literal: '4'
+                                - comma: ','
+                                - numeric_literal: '5'
+                                - end_square_bracket: ']'
+                            end_bracket: )
+                    alias_expression:
+                      keyword: AS
+                      naked_identifier: number
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        set_operator_clause:
+        - set_operator:
+          - keyword: EXCEPT
+          - keyword: DISTINCT
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '1'
+            end_bracket: )
+        - comma: ','
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '2'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        set_operator_clause:
+        - set_operator:
+          - keyword: EXCEPT
+          - keyword: DISTINCT
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  wildcard_expression:
+                    wildcard_identifier:
+                      star: '*'
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      function:
+                        function_name:
+                          function_name_identifier: UNNEST
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              typed_array_literal:
+                                array_type:
+                                  keyword: ARRAY
+                                  start_angle_bracket: <
+                                  data_type:
+                                    data_type_identifier: INT64
+                                  end_angle_bracket: '>'
+                                array_literal:
+                                - start_square_bracket: '['
+                                - numeric_literal: '1'
+                                - comma: ','
+                                - numeric_literal: '2'
+                                - end_square_bracket: ']'
+                            end_bracket: )
+                    alias_expression:
+                      keyword: AS
+                      naked_identifier: number
+            end_bracket: )
+        - comma: ','
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  wildcard_expression:
+                    wildcard_identifier:
+                      star: '*'
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      function:
+                        function_name:
+                          function_name_identifier: UNNEST
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              typed_array_literal:
+                                array_type:
+                                  keyword: ARRAY
+                                  start_angle_bracket: <
+                                  data_type:
+                                    data_type_identifier: INT64
+                                  end_angle_bracket: '>'
+                                array_literal:
+                                - start_square_bracket: '['
+                                - numeric_literal: '1'
+                                - comma: ','
+                                - numeric_literal: '4'
+                                - end_square_bracket: ']'
+                            end_bracket: )
+                    alias_expression:
+                      keyword: AS
+                      naked_identifier: number
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        set_operator_clause:
+          set_operator:
+          - keyword: EXCEPT
+          - keyword: DISTINCT
+          - keyword: BY
+          - keyword: NAME
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  numeric_literal: '10'
+                  alias_expression:
+                    keyword: AS
+                    naked_identifier: two_digit
+              - comma: ','
+              - select_clause_element:
+                  numeric_literal: '1'
+                  alias_expression:
+                    keyword: AS
+                    naked_identifier: one_digit
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+    - from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        join_clause:
+        - keyword: LEFT
+        - keyword: JOIN
+        - from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      quoted_literal: '"apples"'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: item
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '123'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: id
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: produce_data
+        - join_on_condition:
+            keyword: 'ON'
+            expression:
+            - column_reference:
+              - naked_identifier: produce_sales
+              - dot: .
+              - naked_identifier: item
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+              - naked_identifier: produce_data
+              - dot: .
+              - naked_identifier: item
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: produce_sales
+            - dot: .
+            - naked_identifier: item
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: sales
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+    - from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: input_table
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        call_operator:
+          call_statement:
+            keyword: CALL
+            procedure_name:
+              procedure_name_identifier: tvf1
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: arg1
+              end_bracket: )
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        call_operator:
+          call_statement:
+            keyword: CALL
+            procedure_name:
+              procedure_name_identifier: tvf2
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  naked_identifier: arg2
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: arg3
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: mydataset
+              - dot: .
+              - naked_identifier: Produce
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        call_operator:
+          call_statement:
+            keyword: CALL
+            procedure_name:
+              procedure_name_identifier: APPENDS
+            bracketed:
+            - start_bracket: (
+            - expression:
+                null_literal: 'NULL'
+            - comma: ','
+            - expression:
+                null_literal: 'NULL'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: LargeTable
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        sample_expression:
+        - keyword: TABLESAMPLE
+        - keyword: SYSTEM
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '1'
+            keyword: PERCENT
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        pivot_operator:
+          from_pivot_expression:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: SUM
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: sales
+                    end_bracket: )
+            - keyword: FOR
+            - pivot_for_clause:
+                column_reference:
+                  naked_identifier: quarter
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - quoted_literal: "'Q1'"
+              - comma: ','
+              - quoted_literal: "'Q2'"
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        unpivot_operator:
+          from_unpivot_expression:
+            keyword: UNPIVOT
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: sales
+            - keyword: FOR
+            - naked_identifier: quarter
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: Q1
+              - comma: ','
+              - naked_identifier: Q2
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                function:
+                  function_name:
+                    function_name_identifier: UNNEST
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        typed_array_literal:
+                          array_type:
+                            keyword: ARRAY
+                            start_angle_bracket: <
+                            data_type:
+                              data_type_identifier: INT64
+                            end_angle_bracket: '>'
+                          array_literal:
+                          - start_square_bracket: '['
+                          - numeric_literal: '1'
+                          - comma: ','
+                          - numeric_literal: '2'
+                          - comma: ','
+                          - numeric_literal: '3'
+                          - end_square_bracket: ']'
+                      end_bracket: )
+              alias_expression:
+                keyword: AS
+                naked_identifier: number
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        set_operator_clause:
+        - set_operator:
+          - keyword: UNION
+          - keyword: DISTINCT
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '1'
+            end_bracket: )
+        - comma: ','
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '2'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      with_compound_statement:
+        keyword: WITH
+        common_table_expression:
+          naked_identifier: NumbersTable
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            set_expression:
+            - select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    numeric_literal: '1'
+                    alias_expression:
+                      keyword: AS
+                      naked_identifier: one_digit
+                - comma: ','
+                - select_clause_element:
+                    numeric_literal: '10'
+                    alias_expression:
+                      keyword: AS
+                      naked_identifier: two_digit
+            - set_operator:
+              - keyword: UNION
+              - keyword: ALL
+            - select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    numeric_literal: '2'
+                - comma: ','
+                - select_clause_element:
+                    numeric_literal: '20'
+            - set_operator:
+              - keyword: UNION
+              - keyword: ALL
+            - select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    numeric_literal: '3'
+                - comma: ','
+                - select_clause_element:
+                    numeric_literal: '30'
+            end_bracket: )
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: one_digit
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: two_digit
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: NumbersTable
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        set_operator_clause:
+          set_operator:
+          - keyword: INTERSECT
+          - keyword: DISTINCT
+          - keyword: BY
+          - keyword: NAME
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  numeric_literal: '10'
+                  alias_expression:
+                    keyword: AS
+                    naked_identifier: two_digit
+              - comma: ','
+              - select_clause_element:
+                  numeric_literal: '1'
+                  alias_expression:
+                    keyword: AS
+                    naked_identifier: one_digit
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      bracketed:
+        start_bracket: (
+        set_expression:
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                quoted_literal: "'apples'"
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: item
+            - comma: ','
+            - select_clause_element:
+                numeric_literal: '2'
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: sales
+        - set_operator:
+          - keyword: UNION
+          - keyword: ALL
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                quoted_literal: "'bananas'"
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: item
+            - comma: ','
+            - select_clause_element:
+                numeric_literal: '5'
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: sales
+        - set_operator:
+          - keyword: UNION
+          - keyword: ALL
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                quoted_literal: "'apples'"
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: item
+            - comma: ','
+            - select_clause_element:
+                numeric_literal: '7'
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: sales
+        end_bracket: )
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        aggregate_clause:
+        - keyword: AGGREGATE
+        - function:
+            function_name:
+              function_name_identifier: COUNT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+        - alias_expression:
+            keyword: AS
+            naked_identifier: num_items
+        - comma: ','
+        - function:
+            function_name:
+              function_name_identifier: SUM
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: sales
+                end_bracket: )
+        - alias_expression:
+            keyword: AS
+            naked_identifier: total_sales
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+    - bracketed:
+        start_bracket: (
+        set_expression:
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                quoted_literal: '"000123"'
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: id
+            - comma: ','
+            - select_clause_element:
+                quoted_literal: '"apples"'
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: item
+            - comma: ','
+            - select_clause_element:
+                numeric_literal: '2'
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: sales
+        - set_operator:
+          - keyword: UNION
+          - keyword: ALL
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                quoted_literal: '"000456"'
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: id
+            - comma: ','
+            - select_clause_element:
+                quoted_literal: '"bananas"'
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: item
+            - comma: ','
+            - select_clause_element:
+                numeric_literal: '5'
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: sales
+        end_bracket: )
+    - alias_expression:
+        keyword: AS
+        naked_identifier: sales_table
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        aggregate_clause:
+          keyword: AGGREGATE
+          function:
+            function_name:
+              function_name_identifier: SUM
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: sales
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: total_sales
+          group_and_orderby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+              naked_identifier: id
+          - comma: ','
+          - column_reference:
+              naked_identifier: item
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        alias_expression:
+          keyword: AS
+          naked_identifier: t1
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        join_clause:
+          keyword: JOIN
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '456'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: id
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: '"yellow"'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: color
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: t2
+          join_on_condition:
+            keyword: 'ON'
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: CAST
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                      - naked_identifier: t1
+                      - dot: .
+                      - naked_identifier: id
+                    keyword: AS
+                    data_type:
+                      data_type_identifier: INT64
+                    end_bracket: )
+              comparison_operator:
+                raw_comparison_operator: '='
+              column_reference:
+              - naked_identifier: t2
+              - dot: .
+              - naked_identifier: id
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: t2
+            - dot: .
+            - naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: total_sales
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: color
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              keyword: AS
+              naked_identifier: x
+        - comma: ','
+        - select_clause_element:
+            numeric_literal: '2'
+            alias_expression:
+              keyword: AS
+              naked_identifier: y
+        - comma: ','
+        - select_clause_element:
+            numeric_literal: '3'
+            alias_expression:
+              keyword: AS
+              naked_identifier: z
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        alias_expression:
+          keyword: AS
+          naked_identifier: t
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        rename_column_clause:
+          keyword: RENAME
+          column_reference:
+            naked_identifier: y
+          alias_expression:
+            keyword: AS
+            naked_identifier: renamed_y
+    - pipe_operator_clause:
+        pipe_operator: '|>'
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: y
+            alias_expression:
+              keyword: AS
+              naked_identifier: t_y
+- statement_terminator: ;
+- statement:
+    pipe_statement:
+      bracketed:
+        start_bracket: (
+        set_expression:
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                quoted_literal: "'apples'"
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: item
+            - comma: ','
+            - select_clause_element:
+                numeric_literal: '2'
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: sales
+        - set_operator:
+          - keyword: UNION
+          - keyword: ALL
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                quoted_literal: "'carrots'"
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: item
+            - comma: ','
+            - select_clause_element:
+                numeric_literal: '8'
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: sales
+        end_bracket: )
+      pipe_operator_clause:
+        pipe_operator: '|>'
+        extend_clause:
+          keyword: EXTEND
+          expression:
+            column_reference:
+              naked_identifier: item
+            keyword: IN
+            bracketed:
+            - start_bracket: (
+            - quoted_literal: "'carrots'"
+            - comma: ','
+            - quoted_literal: "'oranges'"
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: is_orange
+- statement_terminator: ;
