@@ -561,7 +561,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
         before=Ref("OrderByClauseSegment", optional=True),
         terminators=[
             Ref("PipeOperatorSegment"),
-        ]
+        ],
     )
 
 
@@ -573,7 +573,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
         before=Ref("OverlapsClauseSegment", optional=True),
         terminators=[
             Ref("PipeOperatorSegment"),
-        ]
+        ],
     )
 
 
@@ -3340,7 +3340,7 @@ class PipeStatementSegment(BaseSegment):
             Ref("SelectableGrammar"),
             Ref("AliasExpressionSegment", optional=True),
             AnyNumberOf(Ref("PipeOperatorClauseSegment"), min_times=1),
-        )
+        ),
     )
 
 
@@ -3371,7 +3371,7 @@ class PipeOperatorClauseSegment(BaseSegment):
             Ref("SamplingExpressionSegment"),
             Ref("PivotOperatorSegment"),
             Ref("UnpivotOperatorSegment"),
-        )
+        ),
     )
 
 
@@ -3423,7 +3423,7 @@ class RenameColumnClauseSegment(BaseSegment):
                 Ref("ColumnReferenceSegment"),
                 Ref("AliasExpressionSegment"),
             ),
-        )
+        ),
     )
 
 
@@ -3526,6 +3526,7 @@ class PivotOperatorSegment(BaseSegment):
         Ref("FromPivotExpressionSegment"),
         Ref("AliasExpressionSegment", optional=True),
     )
+
 
 class UnpivotOperatorSegment(BaseSegment):
     """An Unpivot operator."""
