@@ -107,7 +107,7 @@ def test__linter__large_file_skip_byte_limit__setting(byte_lim, raises):
             "test/fixtures/linter/indentation_errors.sql", config
         )
         assert not raises
-    except ValueError, TypeError:
+    except (ValueError, TypeError):
         assert raises
 
 
