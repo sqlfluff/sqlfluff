@@ -213,6 +213,7 @@ redshift_dialect.replace(
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("MaxLiteralSegment"),
+            Ref("DollarNumericLiteralSegment"),
         ]
     ),
 )
@@ -2786,4 +2787,34 @@ class MergeStatementSegment(ansi.MergeStatementSegment):
         remove=[
             Ref("MergeMatchSegment"),
         ],
+    )
+
+
+class PrepareStatementSegment(postgres.PrepareStatementSegment):
+    """A `PREPARE` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_PREPARE.html
+    """
+
+    type = "prepare_statement"
+    match_grammar = Sequence(
+        "PREPARE",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
+        "AS",
+        Ref("SelectableGrammar"),
+    )
+
+
+class DeallocateStatementSegment(postgres.DeallocateStatementSegment):
+    """A `DEALLOCATE` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_DEALLOCATE.html
+    """
+
+    type = "deallocate_statement"
+    match_grammar = Sequence(
+        "DEALLOCATE",
+        Ref.keyword("PREPARE", optional=True),
+        Ref("ObjectReferenceSegment"),
     )
