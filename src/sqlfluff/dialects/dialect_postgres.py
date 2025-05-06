@@ -4836,6 +4836,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropForeignTableStatement"),
             Ref("CreateOperatorStatementSegment"),
             Ref("AlterForeignTableStatementSegment"),
+            Ref("PrepareStatementSegment"),
+            Ref("ExecuteStatementSegment"),
+            Ref("DeallocateStatementSegment"),
         ],
     )
 
@@ -6640,4 +6643,54 @@ class AlterForeignTableActionSegment(AlterTableActionSegment):
                 ),
             )
         ]
+    )
+
+
+class PrepareStatementSegment(BaseSegment):
+    """A `PREPARE` statement.
+
+    https://www.postgresql.org/docs/current/sql-prepare.html
+    """
+
+    type = "prepare_statement"
+    match_grammar = Sequence(
+        "PREPARE",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
+        "AS",
+        OneOf(
+            Ref("SelectableGrammar"),
+            Ref("MergeStatementSegment"),
+        ),
+    )
+
+
+class ExecuteStatementSegment(BaseSegment):
+    """A `EXECUTE` statement.
+
+    https://www.postgresql.org/docs/current/sql-execute.html
+    """
+
+    type = "execute_statement"
+    match_grammar = Sequence(
+        "EXECUTE",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(Delimited(Ref("ExpressionSegment")), optional=True),
+    )
+
+
+class DeallocateStatementSegment(BaseSegment):
+    """A `DEALLOCATE` statement.
+
+    https://www.postgresql.org/docs/current/sql-deallocate.html
+    """
+
+    type = "deallocate_statement"
+    match_grammar = Sequence(
+        "DEALLOCATE",
+        Ref.keyword("PREPARE", optional=True),
+        OneOf(
+            Ref("ObjectReferenceSegment"),
+            "ALL",
+        ),
     )
