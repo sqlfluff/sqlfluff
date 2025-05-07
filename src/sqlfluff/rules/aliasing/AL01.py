@@ -2,7 +2,7 @@
 
 from typing import Optional, cast
 
-from sqlfluff.core.parser import BaseSegment, KeywordSegment, RawSegment
+from sqlfluff.core.parser import BaseSegment, KeywordSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.reflow import ReflowSequence
@@ -82,7 +82,7 @@ class Rule_AL01(BaseRule):
                             context.parent_stack[0],
                             config=context.config,
                         )
-                        .without(cast(RawSegment, as_keyword))
+                        .without(as_keyword)
                         .respace()
                         .get_fixes(),
                     )
