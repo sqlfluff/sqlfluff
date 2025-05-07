@@ -14,7 +14,8 @@ file:
       - select_clause_element:
           quoted_literal: "'{{ a_tag_which_should_be_treated_as_raw }}'"
           alias_expression:
-            alias_operator: as
+            alias_operator:
+              keyword: as
             naked_identifier: col3
       from_clause:
         keyword: FROM

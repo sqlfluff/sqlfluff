@@ -47,7 +47,8 @@ file:
           - keyword: LIKE
           - quoted_literal: "'%social history:  {%'"
           alias_expression:
-            alias_operator: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: foo
       from_clause:
         keyword: FROM
