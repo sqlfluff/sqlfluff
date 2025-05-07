@@ -1,10 +1,10 @@
 """Implementation of Rule AL01."""
-
 from typing import Optional, cast
 
-from sqlfluff.core.parser import BaseSegment, KeywordSegment
-from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.parser import BaseSegment, KeywordSegment, WhitespaceSegment
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext, LintFix
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.dialects.dialect_ansi import AsAliasOperatorSegment
 from sqlfluff.utils.reflow import ReflowSequence
 
 
@@ -64,27 +64,19 @@ class Rule_AL01(BaseRule):
         assert context.segment.is_type("alias_expression")
         if context.parent_stack[-1].is_type(*self._target_parent_types):
             # Search for an AS keyword.
-            as_keyword: Optional[BaseSegment]
-            for as_keyword in context.segment.segments:
-                if as_keyword.raw_upper == "AS":
-                    break
-            else:
-                as_keyword = None
+            as_keyword: Optional[BaseSegment] = context.segment.get_child("alias_operator")
 
             if as_keyword:
                 if self.aliasing == "implicit":
                     self.logger.debug("Removing AS keyword and respacing.")
+                    whitespace: Optional[BaseSegment] = context.segment.get_child("whitespace")
+                    fixes = [LintFix.delete(as_keyword)]
+                    if whitespace:
+                        fixes.append(LintFix.delete(whitespace))
+
                     return LintResult(
                         anchor=as_keyword,
-                        # Generate the fixes to remove and respace accordingly.
-                        fixes=ReflowSequence.from_around_target(
-                            as_keyword,
-                            context.parent_stack[0],
-                            config=context.config,
-                        )
-                        .without(as_keyword)
-                        .respace()
-                        .get_fixes(),
+                        fixes=fixes,
                     )
 
             elif self.aliasing != "implicit":
@@ -96,40 +88,12 @@ class Rule_AL01(BaseRule):
                     raise NotImplementedError(
                         "Failed to find identifier. Raise this as a bug on GitHub."
                     )
-
-                keyword_segment = KeywordSegment("AS")
-                fixes = (
-                    ReflowSequence.from_around_target(
-                        identifier,
-                        context.parent_stack[0],
-                        config=context.config,
-                        # Only reflow before, otherwise we catch too much.
-                        sides="before",
-                    )
-                    .insert(
-                        keyword_segment,
-                        target=identifier,
-                        pos="before",
-                    )
-                    .respace()
-                    .get_fixes()
-                )
-
-                # TODO: fix this nicely
-                # For now it this is a patch fix to make sure that the `AS` keyword is
-                # being identified as an alias_operator. If we do not do this, then the
-                # newly added `AS` keyword is not being aligned with the other
-                # `alias_operator` siblings.
-                # However, if we do this above, we get an error when the respace()
-                # operation is being called.
-                # As such this is a patch fix that finds the keyword segment in the
-                # LintFix edit based on the uuid, and fixes the instance type
-                for f in fixes:
-                    if f.edit:
-                        for e in f.edit:
-                            if e.uuid == keyword_segment.uuid:
-                                e.instance_types = ("alias_operator",)
-                                break
-
-                return LintResult(anchor=context.segment, fixes=fixes)
+                as_alias_operator_segment = AsAliasOperatorSegment(segments=(KeywordSegment("AS"),))
+                ## is the pre sibling has already a leading whitespace we do not need an additional leading whitespace
+                has_leading_whitespace = context.siblings_pre and isinstance(context.siblings_pre[-1], WhitespaceSegment)
+                if not has_leading_whitespace:
+                    edit_segments = [WhitespaceSegment(), as_alias_operator_segment, WhitespaceSegment()]
+                else:
+                    edit_segments = [as_alias_operator_segment, WhitespaceSegment()]
+                return LintResult(anchor=context.segment, fixes=[LintFix.create_before(identifier, edit_segments)])
         return None
