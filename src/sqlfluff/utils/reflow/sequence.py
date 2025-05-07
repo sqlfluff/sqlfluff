@@ -298,73 +298,29 @@ class ReflowSequence:
             f"Target [{target}] not found in ReflowSequence."
         )
 
-    # def without(self, target: RawSegment) -> "ReflowSequence":
-    #     """Returns a new :obj:`ReflowSequence` without the specified segment.
-    #
-    #     This generates appropriate deletion :obj:`LintFix` objects
-    #     to direct the linter to remove those elements.
-    #     """
-    #     removal_idx = self._find_element_idx_with(target)
-    #     if removal_idx == 0 or removal_idx == len(self.elements) - 1:
-    #         raise NotImplementedError(  # pragma: no cover
-    #             "Unexpected removal at one end of a ReflowSequence."
-    #         )
-    #     if isinstance(self.elements[removal_idx], ReflowPoint):
-    #         raise NotImplementedError(  # pragma: no cover
-    #             "Not expected removal of whitespace in ReflowSequence."
-    #         )
-    #     merged_point = ReflowPoint(
-    #         segments=self.elements[removal_idx - 1].segments
-    #         + self.elements[removal_idx + 1].segments,
-    #     )
-    #     return ReflowSequence(
-    #         elements=self.elements[: removal_idx - 1]
-    #         + [merged_point]
-    #         + self.elements[removal_idx + 2 :],
-    #         root_segment=self.root_segment,
-    #         reflow_config=self.reflow_config,
-    #         depth_map=self.depth_map,
-    #         # Generate the fix to do the removal.
-    #         lint_results=[LintResult(target, [LintFix.delete(target)])],
-    #     )
-
-    def without(self, target: BaseSegment) -> "ReflowSequence":
+    def without(self, target: RawSegment) -> "ReflowSequence":
         """Returns a new :obj:`ReflowSequence` without the specified segment.
 
         This generates appropriate deletion :obj:`LintFix` objects
         to direct the linter to remove those elements.
         """
-        target_raws = target.raw_segments
-        assert target_raws
-        current_raws = list(
-            chain.from_iterable(elem.segments for elem in self.elements)
-        )
-        start_idx = current_raws.index(target_raws[0])
-        last_idx = current_raws.index(target_raws[-1])
-
-        if start_idx == 0 or last_idx == len(self.elements) - 1:
+        removal_idx = self._find_element_idx_with(target)
+        if removal_idx == 0 or removal_idx == len(self.elements) - 1:
             raise NotImplementedError(  # pragma: no cover
                 "Unexpected removal at one end of a ReflowSequence."
             )
-        if start_idx == last_idx:
-            if isinstance(self.elements[start_idx], ReflowPoint):
-                raise NotImplementedError(  # pragma: no cover
-                    "Not expected removal of whitespace in ReflowSequence."
-                )
-
+        if isinstance(self.elements[removal_idx], ReflowPoint):
+            raise NotImplementedError(  # pragma: no cover
+                "Not expected removal of whitespace in ReflowSequence."
+            )
         merged_point = ReflowPoint(
-            segments=self.elements[start_idx].segments
-            + self.elements[last_idx].segments,
+            segments=self.elements[removal_idx - 1].segments
+            + self.elements[removal_idx + 1].segments,
         )
-        # elements = (
-        #     current_raws[:start_idx] + [merged_point] + current_raws[last_idx + 1 :]
-        # )
-        # lint_result = [LintResult(target, [LintFix.delete(target)])]
-
         return ReflowSequence(
-            elements=current_raws[:start_idx]
+            elements=self.elements[: removal_idx - 1]
             + [merged_point]
-            + current_raws[last_idx + 1 :],
+            + self.elements[removal_idx + 2 :],
             root_segment=self.root_segment,
             reflow_config=self.reflow_config,
             depth_map=self.depth_map,
