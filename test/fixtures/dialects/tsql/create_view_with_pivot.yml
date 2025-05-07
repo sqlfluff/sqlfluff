@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c426069189f24794770b5ba9727b31926fa2441e7200ced116fb290eda59724
+_hash: f26c258d9b159c8497649ba7c4917b7290beacdd3bc036c48779b3faa80d992c
 file:
   batch:
     statement:
@@ -23,7 +23,8 @@ file:
           - select_clause_element:
               quoted_literal: "'AverageCost'"
               alias_expression:
-                alias_operator: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: Cost_Sorted_By_Production_Days
           - comma: ','
           - select_clause_element:
@@ -73,7 +74,8 @@ file:
                               - naked_identifier: Product
                     end_bracket: )
                 alias_expression:
-                  alias_operator: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: SourceTable
               from_pivot_expression:
               - keyword: PIVOT

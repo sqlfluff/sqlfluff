@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 512befd5eefbcb350a71c4ddee072129437d1bf6d289dd1a665bba51e9245ad0
+_hash: ac90b1cbf372890a0cdd68884d7cb6035083f8dfde4433230a8afbae43d79000
 file:
   batch:
   - statement:
@@ -80,6 +80,7 @@ file:
                   start_bracket: (
                   end_bracket: )
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: MyContextInfo
         statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5378ec4849ecefcddd973b88da24cc306df12b918139ed0c0b6db6d4410a42ae
+_hash: 1ecaf1f891f1aa2d4a8fc222034bc116a601d0b70b09290aea7d1dd8f8be30e3
 file:
   statement:
     select_statement:
@@ -39,7 +39,8 @@ file:
             quoted_literal: "'a'"
             end_square_bracket: ']'
           alias_expression:
-            alias_operator: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: strcol1
       - comma: ','
       - select_clause_element:
@@ -55,7 +56,8 @@ file:
               quoted_literal: "'b'"
               end_square_bracket: ']'
           alias_expression:
-            alias_operator: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: strcol2
       - comma: ','
       - select_clause_element:
@@ -64,7 +66,8 @@ file:
             numeric_literal: '1.0'
             end_square_bracket: ']'
           alias_expression:
-            alias_operator: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: numcol1
       - comma: ','
       - select_clause_element:
@@ -80,7 +83,8 @@ file:
               numeric_literal: '1.4'
               end_square_bracket: ']'
           alias_expression:
-            alias_operator: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: numcol2
       - comma: ','
       - select_clause_element:
@@ -95,7 +99,8 @@ file:
                   - start_bracket: (
                   - quoted_literal: '"Rudisha"'
                   - alias_expression:
-                      alias_operator: AS
+                      alias_operator:
+                        keyword: AS
                       naked_identifier: name
                   - comma: ','
                   - array_literal:
@@ -109,12 +114,14 @@ file:
                     - numeric_literal: '26.1'
                     - end_square_bracket: ']'
                   - alias_expression:
-                      alias_operator: AS
+                      alias_operator:
+                        keyword: AS
                       naked_identifier: splits
                   - end_bracket: )
             end_square_bracket: ']'
           alias_expression:
-            alias_operator: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: struct1
       - comma: ','
       - select_clause_element:
@@ -140,5 +147,6 @@ file:
               dot: .
               naked_identifier: a
           alias_expression:
-            alias_operator: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: struct_safe_offset

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3231a7e2a9bd4f9eeca843a1db6f97d66a1d6c2978f66d25c4447fd347da9260
+_hash: 7b5dfecf743200d0813d4bac9997313367da50a6853befb0e6ebae63bde3b244
 file:
 - multi_statement_segment:
     create_procedure_statement:
@@ -170,7 +170,8 @@ file:
                       - dot: .
                       - naked_identifier: partitioned_table1
                     alias_expression:
-                      alias_operator: AS
+                      alias_operator:
+                        keyword: AS
                       naked_identifier: t1
                   join_clause:
                     keyword: JOIN
@@ -181,7 +182,8 @@ file:
                         - dot: .
                         - naked_identifier: partitioned_table2
                       alias_expression:
-                        alias_operator: AS
+                        alias_operator:
+                          keyword: AS
                         naked_identifier: t2
                     join_on_condition:
                       keyword: 'ON'

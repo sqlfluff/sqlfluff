@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fe0ed2a0683f4a9d8b227bcccd301fd8fafd7775d031dfcc9fd5e5452c435de0
+_hash: 32ab1e024dcd9a27f1127abd3b4ee84258d7bf27bae0045f7bfbe862d5d83c0b
 file:
   statement:
     select_statement:
@@ -57,7 +57,8 @@ file:
                   boolean_literal: 'FALSE'
             - keyword: END
           alias_expression:
-            alias_operator: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: is_leap_year
       from_clause:
         keyword: FROM

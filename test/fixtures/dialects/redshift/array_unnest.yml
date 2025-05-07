@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3fc99725d9b9a5ad2469da441f1ce2cf47081614764d7a0b4e177a43a4d5b722
+_hash: e093f4f5e0c82351e8b64bb61bb4b4291c51f04d1d195f0a4981eaaa7d2eeaf8
 file:
 - statement:
     with_compound_statement:
@@ -20,7 +20,8 @@ file:
               - select_clause_element:
                   numeric_literal: '10'
                   alias_expression:
-                    alias_operator: AS
+                    alias_operator:
+                      keyword: AS
                     naked_identifier: shop_id
               - comma: ','
               - select_clause_element:
@@ -34,7 +35,8 @@ file:
                           quoted_literal: "'[1, 2]'"
                         end_bracket: )
                   alias_expression:
-                    alias_operator: AS
+                    alias_operator:
+                      keyword: AS
                     naked_identifier: inventory
           - set_operator:
             - keyword: UNION
@@ -45,7 +47,8 @@ file:
               - select_clause_element:
                   numeric_literal: '20'
                   alias_expression:
-                    alias_operator: AS
+                    alias_operator:
+                      keyword: AS
                     naked_identifier: shop_id
               - comma: ','
               - select_clause_element:
@@ -59,7 +62,8 @@ file:
                           quoted_literal: "'[3, 4, 5]'"
                         end_bracket: )
                   alias_expression:
-                    alias_operator: AS
+                    alias_operator:
+                      keyword: AS
                     naked_identifier: inventory
           - set_operator:
             - keyword: UNION
@@ -70,7 +74,8 @@ file:
               - select_clause_element:
                   numeric_literal: '30'
                   alias_expression:
-                    alias_operator: AS
+                    alias_operator:
+                      keyword: AS
                     naked_identifier: shop_id
               - comma: ','
               - select_clause_element:
@@ -84,7 +89,8 @@ file:
                           quoted_literal: "'[6, 7, 8, 9]'"
                         end_bracket: )
                   alias_expression:
-                    alias_operator: AS
+                    alias_operator:
+                      keyword: AS
                     naked_identifier: inventory
           end_bracket: )
       select_statement:
@@ -138,14 +144,16 @@ file:
           - dot: .
           - naked_identifier: o_orderkey
           alias_expression:
-            alias_operator: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: orderkey
       - comma: ','
       - select_clause_element:
           column_reference:
             naked_identifier: index
           alias_expression:
-            alias_operator: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: orderkey_index
       from_clause:
       - keyword: FROM
@@ -203,7 +211,8 @@ file:
               data_type:
                 keyword: VARCHAR
           alias_expression:
-            alias_operator: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: value_b
       - comma: ','
       - select_clause_element:
@@ -234,7 +243,8 @@ file:
               data_type:
                 keyword: FLOAT8
           alias_expression:
-            alias_operator: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: value_c
       from_clause:
       - keyword: FROM

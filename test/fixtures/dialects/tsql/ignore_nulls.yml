@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 92c01e437ba8dae8168662fba16b88f214304fee757c0dd28cbc76b4fc01dd3e
+_hash: 4707e00fe08873a6633dfe082e20b582274ce0690293bcf930777e658ab46c60
 file:
   batch:
     statement:
@@ -43,7 +43,8 @@ file:
                         quoted_identifier: '[reismutatie starttijdstip]'
                   end_bracket: )
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               quoted_identifier: '[entrypunt]'
         from_clause:
           keyword: FROM

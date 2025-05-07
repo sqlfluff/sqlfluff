@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d653ee06c789045f0e04eca7062cee7a86328c694f73192b7c8290686a6ccc61
+_hash: 419ab218aadf6da05de18b4a9e706f421f5ce1313140ac20ed4a2426c57cdb33
 file:
 - statement:
     select_statement:
@@ -36,19 +36,22 @@ file:
                 - column_reference:
                     naked_identifier: q1
                 - alias_expression:
-                    alias_operator: AS
+                    alias_operator:
+                      keyword: AS
                     quoted_identifier: '`Jan-Mar`'
                 - comma: ','
                 - column_reference:
                     naked_identifier: q2
                 - alias_expression:
-                    alias_operator: AS
+                    alias_operator:
+                      keyword: AS
                     quoted_identifier: '`Apr-Jun`'
                 - comma: ','
                 - column_reference:
                     naked_identifier: q3
                 - alias_expression:
-                    alias_operator: AS
+                    alias_operator:
+                      keyword: AS
                     quoted_identifier: '`Jul-Sep`'
                 - comma: ','
                 - column_reference:
@@ -56,7 +59,8 @@ file:
                   - dot: .
                   - naked_identifier: q4
                 - alias_expression:
-                    alias_operator: AS
+                    alias_operator:
+                      keyword: AS
                     quoted_identifier: '`Oct-Dec`'
                 - end_bracket: )
               end_bracket: )
@@ -106,7 +110,8 @@ file:
                       naked_identifier: phone1
                   - end_bracket: )
                 - alias_expression:
-                    alias_operator: AS
+                    alias_operator:
+                      keyword: AS
                     naked_identifier: primary
                 - comma: ','
                 - bracketed:
@@ -121,7 +126,8 @@ file:
                       naked_identifier: phone2
                   - end_bracket: )
                 - alias_expression:
-                    alias_operator: AS
+                    alias_operator:
+                      keyword: AS
                     naked_identifier: secondary
                 - end_bracket: )
               end_bracket: )

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e767e97edf6c897e433493926d91d2fae1173bf7b307e7b5b2f939838ff3b401
+_hash: 96ba28b45c02cd4ae856cbf38fdec62fa5d503e11da64e4f9cbc3042513950ea
 file:
 - statement:
     select_statement:
@@ -38,7 +38,8 @@ file:
                     data_type_identifier: Date32
                 - end_bracket: )
           alias_expression:
-            alias_operator: as
+            alias_operator:
+              keyword: as
             naked_identifier: struct
 - statement_terminator: ;
 - statement:
@@ -74,7 +75,8 @@ file:
                     data_type_identifier: Date32
                 - end_bracket: )
           alias_expression:
-            alias_operator: as
+            alias_operator:
+              keyword: as
             naked_identifier: struct
 - statement_terminator: ;
 - statement:
@@ -96,6 +98,7 @@ file:
               data_type:
                 quoted_identifier: '`Tuple(id Int64, name String, created_at Date32)`'
           alias_expression:
-            alias_operator: as
+            alias_operator:
+              keyword: as
             naked_identifier: struct
 - statement_terminator: ;

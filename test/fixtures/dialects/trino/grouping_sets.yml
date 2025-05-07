@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0ebf05d154e7daaa8c2a8a30cb3545063347f232030d062c2066da60cbaa22f6
+_hash: f9bceb6c6582f68314a2a832fb20711b9610e6799791898457a70f9acceba56e
 file:
   statement:
     with_compound_statement:
@@ -69,7 +69,8 @@ file:
                       naked_identifier: price
                   end_bracket: )
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: volume
         - comma: ','
         - select_clause_element:

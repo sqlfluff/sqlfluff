@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a000e2151aa7294e593c382b7b45a8e1f087607dd5b70c2b38b4285ee64bc93a
+_hash: 6b675edb84da45893d181be8d3ed15a1e761bc7f0cff3a32062b2218fc599435
 file:
 - statement:
     select_statement:
@@ -21,7 +21,8 @@ file:
               table_reference:
                 naked_identifier: a
             alias_expression:
-              alias_operator: as
+              alias_operator:
+                keyword: as
               naked_identifier: foo
         - join_clause:
             keyword: JOIN
@@ -36,7 +37,8 @@ file:
                 table_reference:
                   naked_identifier: c
               alias_expression:
-                alias_operator: as
+                alias_operator:
+                  keyword: as
                 naked_identifier: foobar
         - join_clause:
             keyword: JOIN
@@ -51,7 +53,8 @@ file:
               table_reference:
                 naked_identifier: e
             alias_expression:
-              alias_operator: as
+              alias_operator:
+                keyword: as
               naked_identifier: bar
         - join_clause:
             keyword: JOIN
@@ -73,7 +76,8 @@ file:
                         quoted_literal: "'blah'"
                       end_bracket: )
               alias_expression:
-                alias_operator: as
+                alias_operator:
+                  keyword: as
                 naked_identifier: tbl_func
         - join_clause:
             keyword: JOIN
@@ -88,7 +92,8 @@ file:
               table_reference:
                 naked_identifier: baz
             alias_expression:
-              alias_operator: as
+              alias_operator:
+                keyword: as
               naked_identifier: buzz
 - statement_terminator: ;
 - statement:
@@ -101,7 +106,8 @@ file:
           - dot: .
           - naked_identifier: f1
           alias_expression:
-            alias_operator: as
+            alias_operator:
+              keyword: as
             naked_identifier: f1
       - comma: ','
       - select_clause_element:
@@ -110,7 +116,8 @@ file:
           - dot: .
           - naked_identifier: f2
           alias_expression:
-            alias_operator: as
+            alias_operator:
+              keyword: as
             naked_identifier: f2
       - comma: ','
       - select_clause_element:
@@ -119,7 +126,8 @@ file:
           - dot: .
           - naked_identifier: f3
           alias_expression:
-            alias_operator: as
+            alias_operator:
+              keyword: as
             naked_identifier: f3
       - comma: ','
       - select_clause_element:
@@ -128,7 +136,8 @@ file:
           - dot: .
           - naked_identifier: f4
           alias_expression:
-            alias_operator: as
+            alias_operator:
+              keyword: as
             naked_identifier: f4
       - comma: ','
       - select_clause_element:
@@ -137,7 +146,8 @@ file:
           - dot: .
           - naked_identifier: f5
           alias_expression:
-            alias_operator: as
+            alias_operator:
+              keyword: as
             naked_identifier: f5
       from_clause:
         keyword: FROM
@@ -147,7 +157,8 @@ file:
               table_reference:
                 naked_identifier: t1
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: c
         - join_clause:
           - keyword: LEFT
@@ -157,7 +168,8 @@ file:
                 table_reference:
                   naked_identifier: t2
               alias_expression:
-                alias_operator: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: co
           - join_on_condition:
               keyword: 'ON'
@@ -180,7 +192,8 @@ file:
                 table_reference:
                   naked_identifier: t3
               alias_expression:
-                alias_operator: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: po
           - join_on_condition:
               keyword: 'ON'
@@ -211,7 +224,8 @@ file:
                         - dot: .
                         - naked_identifier: _tmp
                         alias_expression:
-                          alias_operator: as
+                          alias_operator:
+                            keyword: as
                           naked_identifier: _tmp
                     from_clause:
                       keyword: FROM
@@ -236,11 +250,13 @@ file:
                                           naked_identifier: t4
                               end_bracket: )
                           alias_expression:
-                            alias_operator: AS
+                            alias_operator:
+                              keyword: AS
                             naked_identifier: t
                   end_bracket: )
               alias_expression:
-                alias_operator: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: l_ccc
           - join_on_condition:
               keyword: 'ON'
@@ -263,7 +279,8 @@ file:
                 table_reference:
                   naked_identifier: t5
               alias_expression:
-                alias_operator: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: cc
           - join_on_condition:
               keyword: 'ON'
@@ -296,7 +313,8 @@ file:
                           - dot: .
                           - naked_identifier: _tmp
                           alias_expression:
-                            alias_operator: AS
+                            alias_operator:
+                              keyword: AS
                             naked_identifier: _tmp
                       from_clause:
                         keyword: FROM
@@ -321,11 +339,13 @@ file:
                                             naked_identifier: t6
                                 end_bracket: )
                             alias_expression:
-                              alias_operator: AS
+                              alias_operator:
+                                keyword: AS
                               naked_identifier: t
                     end_bracket: )
                 alias_expression:
-                  alias_operator: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: l_c2c_c
                 join_clause:
                 - keyword: LEFT
@@ -343,7 +363,8 @@ file:
                               - dot: .
                               - naked_identifier: _tmp
                               alias_expression:
-                                alias_operator: AS
+                                alias_operator:
+                                  keyword: AS
                                 naked_identifier: _tmp
                           - comma: ','
                           - select_clause_element:
@@ -401,11 +422,13 @@ file:
                                                             naked_identifier: t7
                                                 end_bracket: )
                                             alias_expression:
-                                              alias_operator: AS
+                                              alias_operator:
+                                                keyword: AS
                                               naked_identifier: t
                                     end_bracket: )
                                 alias_expression:
-                                  alias_operator: AS
+                                  alias_operator:
+                                    keyword: AS
                                   naked_identifier: h
                               join_clause:
                               - keyword: LEFT
@@ -430,7 +453,8 @@ file:
                                                   naked_identifier: t8
                                       end_bracket: )
                                   alias_expression:
-                                    alias_operator: AS
+                                    alias_operator:
+                                      keyword: AS
                                     naked_identifier: a1
                               - join_on_condition:
                                   keyword: 'ON'
@@ -447,7 +471,8 @@ file:
                                     - naked_identifier: id
                         end_bracket: )
                     alias_expression:
-                      alias_operator: AS
+                      alias_operator:
+                        keyword: AS
                       naked_identifier: c2c
                 - join_on_condition:
                     keyword: 'ON'
@@ -484,7 +509,8 @@ file:
                 table_reference:
                   naked_identifier: t9
               alias_expression:
-                alias_operator: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: c_ph
           - join_on_condition:
               keyword: 'ON'

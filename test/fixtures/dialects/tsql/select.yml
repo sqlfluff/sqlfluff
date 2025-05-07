@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8dca5576a689787e963faf4306746ef17e04e6978bbc76c4aadd84e2db212229
+_hash: c9d70c8706ca7f6a3f9cedbdaca742b5b8945576c8d35f8bd8124e5993c41156
 file:
   batch:
   - statement:
@@ -218,7 +218,8 @@ file:
         - select_clause_element:
             quoted_literal: "'TSQL'"
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               quoted_identifier: "'s escaping quotes test'"
         - comma: ','
         - select_clause_element:
@@ -448,7 +449,8 @@ file:
                 - keyword: desc
                 end_bracket: )
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               quoted_identifier: '[RN]'
         - comma: ','
         - select_clause_element:
@@ -475,7 +477,8 @@ file:
                 - keyword: desc
                 end_bracket: )
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               quoted_identifier: '[R]'
         - comma: ','
         - select_clause_element:
@@ -502,7 +505,8 @@ file:
                 - keyword: desc
                 end_bracket: )
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               quoted_identifier: '[DR]'
         - comma: ','
         - select_clause_element:
@@ -530,7 +534,8 @@ file:
                 - keyword: desc
                 end_bracket: )
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               quoted_identifier: '[NT]'
         - comma: ','
         - select_clause_element:
@@ -621,7 +626,8 @@ file:
                 - keyword: DESC
                 end_bracket: )
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: Subselect_Partition
         - comma: ','
         - select_clause_element:
@@ -674,7 +680,8 @@ file:
                 - keyword: DESC
                 end_bracket: )
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: Coalesce_Partition
         - comma: ','
         - select_clause_element:
@@ -734,7 +741,8 @@ file:
         - select_clause_element:
             alias_expression:
               quoted_identifier: '[preceding]'
-              alias_operator: '='
+              alias_operator:
+                raw_comparison_operator: '='
             function:
               function_name:
                 function_name_identifier: count
@@ -766,7 +774,8 @@ file:
         - select_clause_element:
             alias_expression:
               quoted_identifier: '[central]'
-              alias_operator: '='
+              alias_operator:
+                raw_comparison_operator: '='
             function:
               function_name:
                 function_name_identifier: count
@@ -798,7 +807,8 @@ file:
         - select_clause_element:
             alias_expression:
               quoted_identifier: '[following]'
-              alias_operator: '='
+              alias_operator:
+                raw_comparison_operator: '='
             function:
               function_name:
                 function_name_identifier: count
@@ -830,7 +840,8 @@ file:
         - select_clause_element:
             alias_expression:
               naked_identifier: EqualsAlias
-              alias_operator: '='
+              alias_operator:
+                raw_comparison_operator: '='
             column_reference:
               naked_identifier: ColumnName
         - comma: ','
@@ -838,7 +849,8 @@ file:
             column_reference:
               naked_identifier: OtherColumnName
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: AsAlias
         - comma: ','
         - select_clause_element:
@@ -939,7 +951,8 @@ file:
         - select_clause_element:
             quoted_literal: "'Tabellen'"
             alias_expression:
-              alias_operator: as
+              alias_operator:
+                keyword: as
               naked_identifier: Objekt
         - comma: ','
         - select_clause_element:
@@ -952,7 +965,8 @@ file:
                   star: '*'
                   end_bracket: )
             alias_expression:
-              alias_operator: as
+              alias_operator:
+                keyword: as
               naked_identifier: Anzahl
         from_clause:
           keyword: from

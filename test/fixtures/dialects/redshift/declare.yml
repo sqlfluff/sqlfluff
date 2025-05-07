@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e29b78fa07c58d2b4e696df39b076ee178ea71df28d6860c7485639e6565918f
+_hash: aec9b21db511704d87981c9569cebcfe8fc258f47804deec8ce5fc335d902607
 file:
 - statement:
     declare_statement:
@@ -56,7 +56,8 @@ file:
             - column_reference:
                 naked_identifier: qtysold
             alias_expression:
-              alias_operator: as
+              alias_operator:
+                keyword: as
               naked_identifier: costperticket
         - comma: ','
         - select_clause_element:

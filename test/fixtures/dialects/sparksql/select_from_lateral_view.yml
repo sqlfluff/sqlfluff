@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f7eabd82e4f2aca2d10bda7c96e4c31e58a8a06a5a8bd50f6067d28de0961f92
+_hash: 67f53a11fc46f46f8aff10b4787811a1dc41dd5ac766b751a19395f52fb5603d
 file:
 - statement:
     select_statement:
@@ -113,7 +113,8 @@ file:
                 star: '*'
                 end_bracket: )
           alias_expression:
-            alias_operator: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: record_count
       from_clause:
         keyword: FROM
@@ -508,7 +509,8 @@ file:
               table_reference:
                 naked_identifier: person
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: p
           lateral_view_clause:
           - keyword: LATERAL
@@ -566,7 +568,8 @@ file:
               table_reference:
                 naked_identifier: person
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: p
           lateral_view_clause:
           - keyword: LATERAL
@@ -618,7 +621,8 @@ file:
               table_reference:
                 naked_identifier: person
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: p
           lateral_view_clause:
           - keyword: LATERAL
@@ -675,7 +679,8 @@ file:
               table_reference:
                 naked_identifier: person
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: p
           lateral_view_clause:
           - keyword: LATERAL
@@ -741,7 +746,8 @@ file:
                       - end_bracket: )
                 end_bracket: )
           alias_expression:
-            alias_operator: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: ptc
       from_clause:
         keyword: FROM
@@ -751,7 +757,8 @@ file:
               table_reference:
                 naked_identifier: table1
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: t1
           join_clause:
           - keyword: LEFT
@@ -761,7 +768,8 @@ file:
                 table_reference:
                   naked_identifier: table2
               alias_expression:
-                alias_operator: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: t2
           - join_on_condition:
               keyword: 'ON'

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a36c2b094ce4876a0af9b1fc3d74e4580e4f89d048b56c7bbb9ce73f1d7f26a9
+_hash: 2b1daecfc7f7e1b68f441bcaede8c6e723b285165cab40e2bd7788dc4d9cc36d
 file:
 - statement:
     select_statement:
@@ -21,7 +21,8 @@ file:
               table_reference:
                 naked_identifier: table
             alias_expression:
-              alias_operator: as
+              alias_operator:
+                keyword: as
               naked_identifier: t
       prewhere_clause:
         keyword: PREWHERE
@@ -48,7 +49,8 @@ file:
               table_reference:
                 naked_identifier: table
             alias_expression:
-              alias_operator: as
+              alias_operator:
+                keyword: as
               naked_identifier: t
       prewhere_clause:
         keyword: PREWHERE
@@ -80,7 +82,8 @@ file:
               table_reference:
                 naked_identifier: table
             alias_expression:
-              alias_operator: as
+              alias_operator:
+                keyword: as
               naked_identifier: t
       prewhere_clause:
         keyword: PREWHERE
@@ -118,7 +121,8 @@ file:
               table_reference:
                 naked_identifier: table
             alias_expression:
-              alias_operator: as
+              alias_operator:
+                keyword: as
               naked_identifier: t
       prewhere_clause:
         keyword: PREWHERE
@@ -164,7 +168,8 @@ file:
               table_reference:
                 naked_identifier: table
             alias_expression:
-              alias_operator: as
+              alias_operator:
+                keyword: as
               naked_identifier: t
       prewhere_clause:
         keyword: PREWHERE

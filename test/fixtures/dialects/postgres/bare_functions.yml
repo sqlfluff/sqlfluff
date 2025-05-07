@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 95d07f880512d56e42ddcb41eb6d6d7308514000c36ae6dcdf9f70ab1ad432a4
+_hash: f1508c504e4eedd31dec9bc5b9e2213d2fceeb15d4707f8aaed123a7a8e3e67a
 file:
   statement:
     select_statement:
@@ -12,66 +12,77 @@ file:
       - select_clause_element:
           bare_function: current_date
           alias_expression:
-            alias_operator: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: col1
       - comma: ','
       - select_clause_element:
           bare_function: current_timestamp
           alias_expression:
-            alias_operator: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: col2
       - comma: ','
       - select_clause_element:
           bare_function: current_time
           alias_expression:
-            alias_operator: as
+            alias_operator:
+              keyword: as
             naked_identifier: col3
       - comma: ','
       - select_clause_element:
           bare_function: localtime
           alias_expression:
-            alias_operator: as
+            alias_operator:
+              keyword: as
             naked_identifier: col4
       - comma: ','
       - select_clause_element:
           bare_function: localtimestamp
           alias_expression:
-            alias_operator: as
+            alias_operator:
+              keyword: as
             naked_identifier: col5
       - comma: ','
       - select_clause_element:
           bare_function: current_role
           alias_expression:
-            alias_operator: as
+            alias_operator:
+              keyword: as
             naked_identifier: col6
       - comma: ','
       - select_clause_element:
           bare_function: current_schema
           alias_expression:
-            alias_operator: as
+            alias_operator:
+              keyword: as
             naked_identifier: col7
       - comma: ','
       - select_clause_element:
           bare_function: current_user
           alias_expression:
-            alias_operator: as
+            alias_operator:
+              keyword: as
             naked_identifier: col8
       - comma: ','
       - select_clause_element:
           bare_function: session_user
           alias_expression:
-            alias_operator: as
+            alias_operator:
+              keyword: as
             naked_identifier: col9
       - comma: ','
       - select_clause_element:
           bare_function: system_user
           alias_expression:
-            alias_operator: as
+            alias_operator:
+              keyword: as
             naked_identifier: col10
       - comma: ','
       - select_clause_element:
           bare_function: user
           alias_expression:
-            alias_operator: as
+            alias_operator:
+              keyword: as
             naked_identifier: col11
   statement_terminator: ;

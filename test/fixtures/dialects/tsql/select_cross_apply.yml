@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a97fc3169b2c184b28ab7c9a36babfe33d8a14243e40a88286fafab48b5a3349
+_hash: 70a659b03e18eb966422c6ae7e3ff75ac3840dd748eacbb124064e0baa82e65f
 file:
   batch:
   - statement:
@@ -107,7 +107,8 @@ file:
                 table_reference:
                   naked_identifier: Departments
               alias_expression:
-                alias_operator: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: d
             join_clause:
             - keyword: CROSS
@@ -129,7 +130,8 @@ file:
                           - naked_identifier: DeptMgrID
                         end_bracket: )
                 alias_expression:
-                  alias_operator: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: reps
         where_clause:
           keyword: WHERE
@@ -216,7 +218,8 @@ file:
                           - naked_identifier: DepartmentID
                         end_bracket: )
                 alias_expression:
-                  alias_operator: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: AllEmp
         where_clause:
           keyword: WHERE
@@ -252,7 +255,8 @@ file:
                 table_reference:
                   naked_identifier: table1
               alias_expression:
-                alias_operator: as
+                alias_operator:
+                  keyword: as
                 naked_identifier: s
             join_clause:
             - keyword: cross
@@ -289,6 +293,7 @@ file:
                           quoted_literal: "'{'"
                       - end_bracket: )
                 alias_expression:
-                  alias_operator: as
+                  alias_operator:
+                    keyword: as
                   naked_identifier: sp
           statement_terminator: ;

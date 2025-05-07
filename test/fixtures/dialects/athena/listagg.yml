@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e4f895ed9e20917e8ae51e66f9ad09267d30ec4c826be87acd57333be4e8f579
+_hash: f42c3532ac9e21473d48ac1b81e8c867135e4517e7e04202778ea746e4fd39fa
 file:
 - statement:
     select_statement:
@@ -15,7 +15,8 @@ file:
           - dot: .
           - naked_identifier: material_number
           alias_expression:
-            alias_operator: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: material_number_composition
       - comma: ','
       - select_clause_element:
@@ -51,7 +52,8 @@ file:
                 - keyword: ASC
                 end_bracket: )
           alias_expression:
-            alias_operator: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: composition
       from_clause:
         keyword: FROM
@@ -61,7 +63,8 @@ file:
               table_reference:
                 naked_identifier: article_composition
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: composition
       groupby_clause:
       - keyword: GROUP
@@ -119,7 +122,8 @@ file:
                     naked_identifier: '10_000_000'
                 end_bracket: )
           alias_expression:
-            alias_operator: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: megacities
       from_clause:
         keyword: FROM
@@ -186,7 +190,8 @@ file:
                     - end_bracket: )
               end_bracket: )
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: t
               bracketed:
                 start_bracket: (
@@ -263,7 +268,8 @@ file:
                     quoted_literal: "'c'"
               end_bracket: )
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: t
               bracketed:
                 start_bracket: (
@@ -326,7 +332,8 @@ file:
                     quoted_literal: "'c'"
               end_bracket: )
             alias_expression:
-              alias_operator: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: t
               bracketed:
                 start_bracket: (
