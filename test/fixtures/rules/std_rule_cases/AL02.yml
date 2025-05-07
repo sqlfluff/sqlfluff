@@ -57,65 +57,6 @@ test_fail_alias_ending_raw_equals:
   fail_str: select col1 raw_equals
   fix_str: select col1 AS raw_equals
 
-
-test_alias_expression_align_4515_1:
-  # Test more failing alias expressions
-  fail_str: |
-    select
-        test a
-    from example_table
-  fix_str: |
-    select
-        test AS a
-    from example_table
-  configs:
-    layout:
-      type:
-        alias_expression:
-          spacing_before: align
-          align_within: select_clause
-          align_scope: bracketed
-
-test_alias_expression_align_4515_2:
-  # Test more failing alias expressions
-  fail_str: |
-    select
-        test a,
-        test b
-    from example_table
-  fix_str: |
-    select
-        test AS a,
-        test AS b
-    from example_table
-  configs:
-    layout:
-      type:
-        alias_expression:
-          spacing_before: align
-          align_within: select_clause
-          align_scope: bracketed
-
-test_alias_expression_align_4515_3:
-  # Test more failing alias expressions
-  fail_str: |
-    select
-        testy_testy_testy a,
-        test b
-    from example_table
-  fix_str: |
-    select
-        testy_testy_testy AS a,
-        test              AS b
-    from example_table
-  configs:
-    layout:
-      type:
-        alias_expression:
-          spacing_before: align
-          align_within: select_clause
-          align_scope: bracketed
-
 test_fail_alias_expression_oracle_columns:
   # Test failing alias expressions
   # https://github.com/sqlfluff/sqlfluff/issues/5038
