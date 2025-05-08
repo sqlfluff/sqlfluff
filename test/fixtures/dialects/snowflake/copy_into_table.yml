@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 47bc838dcb3958123d9e5b6c9dd76d71b7a00a06f46c1d08622ba0d54d423d01
+_hash: bb1866f50d55e35a9207b2e6b5e1cd61a384d7ec40f6a021d63bf43146ca148b
 file:
 - statement:
     copy_into_table_statement:
@@ -448,6 +448,10 @@ file:
               raw_comparison_operator: '='
             file_type: JSON
           end_bracket: )
+    - keyword: LOAD_UNCERTAIN_FILES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
     - keyword: INCLUDE_METADATA
     - comparison_operator:
         raw_comparison_operator: '='
