@@ -11,6 +11,8 @@ from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLLexError
 from sqlfluff.core.helpers.slice import is_zero_slice, offset_slice, to_tuple
 from sqlfluff.core.parser.markers import PositionMarker
+
+# from rsqlfluff import PositionMarker
 from sqlfluff.core.parser.segments import (
     BaseSegment,
     Dedent,
@@ -887,3 +889,22 @@ class Lexer:
                     f"{template.templated_str[template_slice]!r}"
                 )
         return templated_buff
+
+
+try:
+    from rsqlfluff import Lexer as RSLexer, Token
+
+    RSLexer.lex_ = RSLexer.lex
+
+    def lex(
+        self, raw: Union[str, TemplatedFile]
+    ) -> tuple[tuple[BaseSegment, ...], list[SQLLexError]]:
+        """Take a string or TemplatedFile and return segments."""
+        tokens, errors = RSLexer.lex_(self, raw)
+        return [RawSegment.from_rstoken(token) for token in tokens], errors
+
+    RSLexer.lex = lex
+    Lexer = RSLexer
+    lexer_logger.info("Using rsqlfluff lexer.")
+except ImportError:
+    pass

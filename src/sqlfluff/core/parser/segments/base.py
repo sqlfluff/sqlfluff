@@ -12,6 +12,7 @@ Here we define:
 from __future__ import annotations
 
 import logging
+import time
 import weakref
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
@@ -32,6 +33,8 @@ from uuid import uuid4
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.markers import PositionMarker
+
+# from rsqlfluff import PositionMarker
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.types import SimpleHintType
@@ -185,6 +188,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         pos_marker: Optional[PositionMarker] = None,
         uuid: Optional[int] = None,
     ) -> None:
+        print(f"class name: {self.__class__.__name__} {time.monotonic()}")
         if len(segments) == 0:  # pragma: no cover
             raise RuntimeError(
                 "Setting {} with a zero length segment set. This shouldn't "
@@ -192,24 +196,33 @@ class BaseSegment(metaclass=SegmentMetaclass):
             )
 
         if not pos_marker:
+            print(f"no pos marker: {self.__class__.__name__} {time.monotonic()}")
             # If no pos given, work it out from the children.
             if all(seg.pos_marker for seg in segments):
+                # print("getting position from children")
                 pos_marker = PositionMarker.from_child_markers(
-                    *(seg.pos_marker for seg in segments)
+                    [seg.pos_marker for seg in segments]
                 )
 
         assert not hasattr(self, "parse_grammar"), "parse_grammar is deprecated."
 
+        print(f"set pos marker: {self.__class__.__name__} {time.monotonic()}")
         self.pos_marker = pos_marker
+        print(f"set segments: {self.__class__.__name__} {time.monotonic()}")
         self.segments: tuple[BaseSegment, ...] = segments
         # Tracker for matching when things start moving.
         # NOTE: We're storing the .int attribute so that it's swifter
         # for comparisons.
+        print(f"set uuid: {self.__class__.__name__} {time.monotonic()}")
         self.uuid = uuid or uuid4().int
 
+        print(f"set as parent: {self.__class__.__name__} {time.monotonic()}")
         self.set_as_parent(recurse=False)
+        print(f"validate non code ends: {self.__class__.__name__} {time.monotonic()}")
         self.validate_non_code_ends()
+        print(f"recalculate caches: {self.__class__.__name__} {time.monotonic()}")
         self._recalculate_caches()
+        print(f"ending class name: {self.__class__.__name__} {time.monotonic()}")
 
     def __setattr__(self, key: str, value: Any) -> None:
         try:
@@ -272,6 +285,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         """Set state during process of unpickling."""
+        # print(f"running __setstate__ for : {self.__class__.__name__}")
         self.__dict__ = state.copy()
         # Once state is ingested - repopulate, NOT recursing.
         # Child segments will do it for themselves on unpickling.
@@ -685,11 +699,24 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def set_as_parent(self, recurse: bool = True) -> None:
         """Set this segment as parent for child all segments."""
+        print(f"running set_as_parent: {self.__class__.__name__} {time.monotonic()}")
         for idx, seg in enumerate(self.segments):
+            print(
+                f"loop set_as_parent {idx} {seg}: {self.__class__.__name__} {time.monotonic()}"
+            )
             seg.set_parent(self, idx)
             # Recurse if not disabled
-            if recurse:
-                seg.set_as_parent(recurse=recurse)
+            if not recurse:
+                print(
+                    f"continue set_as_parent {idx}: {self.__class__.__name__} {time.monotonic()}"
+                )
+                continue
+            print(
+                f"recurse set_as_parent {idx}: {self.__class__.__name__} {time.monotonic()}"
+            )
+            seg.set_as_parent(recurse=recurse)
+            print("loop1")
+        print(f"finish set_as_parent: {self.__class__.__name__} {time.monotonic()}")
 
     def set_parent(self, parent: BaseSegment, idx: int) -> None:
         """Set the weak reference to the parent.
@@ -701,8 +728,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
         initialised the parent yet (because we call this method during
         the instantiation of the parent).
         """
+        print(f"running set_parent: {self.__class__.__name__} {time.monotonic()}")
         self._parent = weakref.ref(parent)
+        print(f"set_parent idx: {idx} {self.__class__.__name__} {time.monotonic()}")
         self._parent_idx = idx
+        print(f"finish set_parent: {self.__class__.__name__} {time.monotonic()}")
 
     def get_parent(self) -> Optional[tuple[BaseSegment, int]]:
         """Get the parent segment, with some validation.
@@ -873,6 +903,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         source object, but at the same time we should be mindful of what
         _needs_ to be copied to avoid a deep copy where one isn't required.
         """
+        # print(f"making copy of {self.__class__.__name__}")
         cls = self.__class__
         new_segment = cls.__new__(cls)
         # Position markers are immutable, and it's important that we keep
@@ -1074,6 +1105,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         references as we go). This tries to be as efficient in that process as
         possible.
         """
+        # print(f"running path_to: {self.__class__.__name__}")
         # Return empty if they are the same segment.
         if self is other:
             return []  # pragma: no cover
@@ -1236,6 +1268,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         segment_kwargs: dict[str, Any],
     ) -> BaseSegment:
         """Create an instance of this class from a tuple of matched segments."""
+        print(type(cls), result_segments, segment_kwargs)
         return cls(segments=result_segments, **segment_kwargs)
 
 

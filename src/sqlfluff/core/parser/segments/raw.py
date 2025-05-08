@@ -11,6 +11,7 @@ import regex as re
 
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
+from rsqlfluff import Token
 
 
 class RawSegment(BaseSegment):
@@ -47,6 +48,7 @@ class RawSegment(BaseSegment):
         If pos_marker is not provided, it is assume that this will be
         inserted later as part of a reposition phase.
         """
+        # print(f"class name raw: {self.__class__.__name__}")
         if raw is not None:  # NB, raw *can* be an empty string and be valid
             self._raw = raw
         else:
@@ -78,6 +80,7 @@ class RawSegment(BaseSegment):
         self.escape_replacements = escape_replacements
         self.casefold = casefold
         self._raw_value: str = self._raw_normalized()
+        # print(f"class name raw end: {self.__class__.__name__}")
 
     def __repr__(self) -> str:
         # This is calculated at __init__, because all elements are immutable
@@ -297,6 +300,33 @@ class RawSegment(BaseSegment):
             pos_marker=raw_seg.pos_marker,
             **new_segment_kwargs,
         )
+
+    @classmethod
+    def from_rstoken(
+        cls,
+        token: Token,
+    ):
+        """Create a RawSegment from an RSQL token."""
+        segment = cls(
+            raw=token.raw,
+            pos_marker=token.pos_marker,
+            instance_types=token.instance_types,
+            trim_start=token.trim_start,
+            trim_chars=token.trim_chars,
+            source_fixes=token.source_fixes,
+            uuid=token.uuid,
+            # quoted_value=token.quoted_value,
+            # escape_replacements=token.escape_replacements,
+            # casefold=token.casefold,
+        )
+        segment.type = token.type
+        segment._is_code = token.is_code
+        segment._is_comment = token.is_comment
+        segment._is_whitespace = token.is_whitespace
+        segment.indent_val = token.indent_val
+        segment.is_meta = token.is_meta
+        # segment.is_implicit = token.is_implicit
+        segment._preface_modifier = token.preface_modifier
 
 
 __all__ = [

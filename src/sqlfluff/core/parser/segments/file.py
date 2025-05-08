@@ -1,10 +1,13 @@
 """Definition of the BaseFileSegment."""
 
 from abc import abstractmethod
+import time
 from typing import Optional
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.markers import PositionMarker
+
+# from rsqlfluff import PositionMarker
 from sqlfluff.core.parser.segments.base import BaseSegment, UnparsableSegment
 
 
@@ -83,13 +86,19 @@ class BaseFileSegment(BaseSegment):
         with parse_context.progress_bar(_closing_position):
             # NOTE: Don't call .match() on the segment class itself, but go
             # straight to the match grammar inside.
+            print(f"matching: {time.monotonic()}")
             match = cls.match_grammar.match(
                 segments[:_end_idx], _start_idx, parse_context
             )
+            print(f"finish matching: {time.monotonic()}")
+            print(f"finish matching2: {time.monotonic()}")
 
         parse_context.logger.info("Root Match:\n%s", match.stringify())
+        print(f"applying: {time.monotonic()}")
         _matched = match.apply(segments)
+        print(f"finish apply: {time.monotonic()}")
         _unmatched = segments[match.matched_slice.stop : _end_idx]
+        print("got unmatched")
 
         content: tuple[BaseSegment, ...]
         if not match:
