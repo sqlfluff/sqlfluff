@@ -327,6 +327,7 @@ class RawSegment(BaseSegment):
         segment.is_meta = token.is_meta
         # segment.is_implicit = token.is_implicit
         segment._preface_modifier = token.preface_modifier
+        return segment
 
 
 __all__ = [
