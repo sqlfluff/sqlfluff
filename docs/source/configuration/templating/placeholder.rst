@@ -50,6 +50,9 @@ A few common styles are supported:
     -- dollar
     WHERE bla = $my_name or WHERE bla = ${my_name}
 
+    -- dollar_surround (DbUp compatible variable)
+    WHERE bla = $my_name$
+
     -- question_mark
     WHERE bla = ?
 
