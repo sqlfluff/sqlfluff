@@ -4292,7 +4292,9 @@ class CopyOptionsSegment(BaseSegment):
             "INCLUDE_QUERY_ID", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
         ),
         Sequence("DETAILED_OUTPUT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-        Sequence("LOAD_UNCERTAIN_FILES", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "LOAD_UNCERTAIN_FILES", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
     ]
 
     match_grammar = AnySetOf(*_copy_options_matchables)
