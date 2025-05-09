@@ -378,7 +378,7 @@ class ColumnDefinitionSegment(BaseSegment):
             ),
             Sequence(
                 OneOf("DATETIME", "TIMESTAMP"),
-                Bracketed(Ref("NumericLiteralSegment"), optional=True),  # Precision
+                Ref("BracketedArguments", optional=True),  # Precision
                 AnyNumberOf(
                     # Allow NULL/NOT NULL, DEFAULT, and ON UPDATE in any order
                     Sequence(Sequence("NOT", optional=True), "NULL", optional=True),

@@ -534,6 +534,7 @@ tsql_dialect.replace(
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("DelimiterGrammar"),
+        "WINDOW",
     ),
     # Replace ANSI LikeGrammar to remove TSQL non-keywords RLIKE and ILIKE
     LikeGrammar=Sequence(
@@ -891,6 +892,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Ref("WhereClauseSegment", optional=True),
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
+        Ref("NamedWindowSegment", optional=True),
     )
 
 
@@ -3074,6 +3076,19 @@ class ReplicateFunctionNameSegment(BaseSegment):
     match_grammar = Sequence("REPLICATE")
 
 
+class JsonFunctionNameSegment(BaseSegment):
+    """JSON functions name segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-object-transact-sql
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = OneOf("JSON_ARRAY", "JSON_OBJECT")
+
+
 class RankFunctionNameSegment(BaseSegment):
     """Rank function name segment.
 
@@ -3272,6 +3287,58 @@ class ReplicateFunctionContentsSegment(BaseSegment):
     )
 
 
+class JsonFunctionContentsSegment(BaseSegment):
+    """JSON function contents."""
+
+    type = "function_contents"
+
+    _json_null_clause = OneOf(
+        Sequence("NULL", "ON", "NULL"),
+        Sequence("ABSENT", "ON", "NULL"),
+        optional=True,
+    )
+
+    _json_key_value = Sequence(
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("ParameterNameSegment"),
+        ),
+        Ref("ColonSegment"),
+        Sequence(
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("LiteralGrammar"),
+                Ref("NumericLiteralSegment"),
+                Ref("ColumnReferenceSegment"),
+                Ref("ParameterNameSegment"),
+                Ref("FunctionSegment"),
+                Bracketed(Ref("SelectStatementSegment")),
+                "NULL",
+            ),
+            _json_null_clause,
+        ),
+        allow_gaps=True,
+    )
+
+    match_grammar = OneOf(
+        Bracketed(
+            Delimited(
+                AnyNumberOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("ColumnReferenceSegment"),
+                    Ref("ParameterNameSegment"),
+                    "NULL",
+                    _json_null_clause,
+                )
+            )
+        ),
+        Bracketed(
+            Delimited(_json_key_value, _json_null_clause),
+        ),
+    )
+
+
 class RankFunctionContentsSegment(BaseSegment):
     """Rank Function contents."""
 
@@ -3306,11 +3373,7 @@ class FunctionSegment(BaseSegment):
         Sequence(
             Ref("RankFunctionNameSegment"),
             Ref("RankFunctionContentsSegment"),
-            "OVER",
-            Bracketed(
-                Ref("PartitionClauseSegment", optional=True),
-                Ref("OrderByClauseSegment"),
-            ),
+            Ref("OverClauseSegment"),
         ),
         Sequence(
             # https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql
@@ -3349,6 +3412,10 @@ class FunctionSegment(BaseSegment):
             ),
             Ref("FunctionContentsSegment"),
             Ref("PostFunctionGrammar", optional=True),
+        ),
+        Sequence(
+            Ref("JsonFunctionNameSegment"),
+            Ref("JsonFunctionContentsSegment"),
         ),
     )
 
@@ -5254,21 +5321,6 @@ class RaiserrorStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-    )
-
-
-class WindowSpecificationSegment(BaseSegment):
-    """Window specification within OVER(...).
-
-    Overriding ANSI to remove window name option not supported by TSQL
-    """
-
-    type = "window_specification"
-    match_grammar = Sequence(
-        Ref("PartitionClauseSegment", optional=True),
-        Ref("OrderByClauseSegment", optional=True),
-        Ref("FrameClauseSegment", optional=True),
-        optional=True,
     )
 
 

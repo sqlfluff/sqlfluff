@@ -1,0 +1,94 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f3133cc68a9911fec64385aed744780a68309de60782f7108f4e25cf18940133
+file:
+- statement:
+    security_label_statement:
+    - keyword: SECURITY
+    - keyword: LABEL
+    - keyword: FOR
+    - object_reference:
+        naked_identifier: selinux
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: IS
+    - quoted_literal: "'system_u:object_r:sepgsql_table_t:s0'"
+- statement_terminator: ;
+- statement:
+    security_label_statement:
+    - keyword: SECURITY
+    - keyword: LABEL
+    - keyword: FOR
+    - object_reference:
+        naked_identifier: selinux
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: IS
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    security_label_statement:
+    - keyword: SECURITY
+    - keyword: LABEL
+    - keyword: 'ON'
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: show_credit
+    - bracketed:
+        start_bracket: (
+        data_type:
+          keyword: int
+        end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'system_u:object_r:sepgsql_trusted_proc_exec_t:s0'"
+- statement_terminator: ;
+- statement:
+    security_label_statement:
+    - keyword: SECURITY
+    - keyword: LABEL
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: customer
+      - dot: .
+      - naked_identifier: credit
+    - keyword: IS
+    - quoted_literal: "'system_u:object_r:sepgsql_secret_table_t:s0'"
+- statement_terminator: ;
+- statement:
+    security_label_statement:
+    - keyword: SECURITY
+    - keyword: LABEL
+    - keyword: FOR
+    - object_reference:
+        naked_identifier: anon
+    - keyword: 'ON'
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: skynet
+    - keyword: IS
+    - quoted_literal: "'MASKED'"
+- statement_terminator: ;
+- statement:
+    security_label_statement:
+    - keyword: SECURITY
+    - keyword: LABEL
+    - keyword: FOR
+    - object_reference:
+        naked_identifier: anon
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: customer
+      - dot: .
+      - naked_identifier: first_name
+    - keyword: IS
+    - quoted_literal: "'MASKED WITH FUNCTION anon.dummy_first_name()'"
+- statement_terminator: ;
