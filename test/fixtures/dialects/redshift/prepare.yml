@@ -1,0 +1,155 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 398fef8cc69b64f5b9b0a771f4a8f4369c8587523cdc0d7a78806c24927f21da
+file:
+- statement:
+    prepare_statement:
+    - keyword: PREPARE
+    - object_reference:
+        naked_identifier: select_statement
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table1
+- statement_terminator: ;
+- statement:
+    prepare_statement:
+    - keyword: PREPARE
+    - object_reference:
+        naked_identifier: insert_statement
+    - keyword: AS
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: table1
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              numeric_literal: '1'
+          - comma: ','
+          - expression:
+              quoted_literal: "'foo'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    prepare_statement:
+    - keyword: PREPARE
+    - object_reference:
+        naked_identifier: update_statement
+    - keyword: AS
+    - update_statement:
+        keyword: UPDATE
+        table_reference:
+          naked_identifier: table1
+        set_clause_list:
+          keyword: SET
+          set_clause:
+            column_reference:
+              naked_identifier: col2
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'bar'"
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: col1
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    prepare_statement:
+    - keyword: PREPARE
+    - object_reference:
+        naked_identifier: delete_statement
+    - keyword: AS
+    - delete_statement:
+      - keyword: DELETE
+      - keyword: FROM
+      - table_reference:
+          naked_identifier: table1
+      - where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: col1
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    prepare_statement:
+    - keyword: PREPARE
+    - object_reference:
+        naked_identifier: parametrized_statement_1
+    - bracketed:
+        start_bracket: (
+        data_type:
+          keyword: int
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  dollar_numeric_literal: $1
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    prepare_statement:
+    - keyword: PREPARE
+    - object_reference:
+        naked_identifier: parametrized_statement_2
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          keyword: int
+      - comma: ','
+      - data_type:
+          keyword: character
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            dollar_numeric_literal: $1
+        - comma: ','
+        - select_clause_element:
+            dollar_numeric_literal: $2
+- statement_terminator: ;
