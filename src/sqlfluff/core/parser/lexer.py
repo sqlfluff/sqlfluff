@@ -901,7 +901,10 @@ try:
     ) -> tuple[tuple[BaseSegment, ...], list[SQLLexError]]:
         """Take a string or TemplatedFile and return segments."""
         tokens, errors = RSLexer.lex_(self, raw)
-        return [RawSegment.from_rstoken(token) for token in tokens], errors
+        first_token = tokens[0]
+        assert first_token
+        tf = first_token.pos_marker.templated_file
+        return [RawSegment.from_rstoken(token, tf) for token in tokens], errors
 
     RSLexer.lex = lex
     Lexer = RSLexer

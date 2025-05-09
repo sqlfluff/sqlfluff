@@ -256,8 +256,17 @@ class PositionMarker:
         """Serialise the source position."""
         return self.templated_file.source_position_dict_from_slice(self.source_slice)
 
-
-try:
-    PositionMarker = RSPositionMarker
-finally:
-    pass
+    @classmethod
+    def from_rs_position_marker(
+        cls,
+        rs_position_marker: "RSPositionMarker",
+        templated_file: "TemplatedFile",
+    ) -> "PositionMarker":
+        """Create a PositionMarker from an RSPositionMarker."""
+        return cls(
+            source_slice=rs_position_marker.source_slice,
+            templated_slice=rs_position_marker.templated_slice,
+            templated_file=templated_file,
+            working_line_no=rs_position_marker.working_line_no,
+            working_line_pos=rs_position_marker.working_line_pos,
+        )
