@@ -6,29 +6,34 @@ file:
       - select_clause_element:
           numeric_literal: '2'
           alias_expression:
-            keyword: as
+            alias_operator:
+              keyword: as
             naked_identifier: col2
       - comma: ','
       - select_clause_element:
           numeric_literal: '4'
           alias_expression:
-            keyword: as
+            alias_operator:
+              keyword: as
             naked_identifier: col4
       - comma: ','
       - select_clause_element:
           numeric_literal: '6'
           alias_expression:
-            keyword: as
+            alias_operator:
+              keyword: as
             naked_identifier: col6
       - comma: ','
       - select_clause_element:
           numeric_literal: '8'
           alias_expression:
-            keyword: as
+            alias_operator:
+              keyword: as
             naked_identifier: col8
       - comma: ','
       - select_clause_element:
           numeric_literal: '10'
           alias_expression:
-            keyword: as
+            alias_operator:
+              keyword: as
             naked_identifier: col10

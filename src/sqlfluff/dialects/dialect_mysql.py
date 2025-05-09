@@ -345,7 +345,7 @@ mysql_dialect.add(
 )
 
 
-class AliasExpressionSegment(BaseSegment):
+class AliasExpressionSegment(ansi.AliasExpressionSegment):
     """A reference to an object with an `AS` clause.
 
     The optional AS keyword allows both implicit and explicit aliasing.
@@ -354,7 +354,7 @@ class AliasExpressionSegment(BaseSegment):
     type = "alias_expression"
     match_grammar = Sequence(
         Indent,
-        Ref.keyword("AS", optional=True),
+        Ref("AsAliasOperatorSegment", optional=True),
         OneOf(
             Ref("SingleIdentifierGrammar"),
             Ref("SingleQuotedIdentifierSegment"),

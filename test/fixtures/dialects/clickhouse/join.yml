@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3663cde32794a1a331b71c90f13498faca0941a890a2531754353bda3813e871
+_hash: 82a0d04e0efa48e7c7ab723e92edbf36134c8df2a274c2481deed302c8a8a1f4
 file:
 - statement:
     select_statement:
@@ -723,7 +723,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: LEFT
@@ -754,7 +755,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: LEFT
@@ -785,7 +787,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: LEFT
@@ -816,7 +819,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: LEFT
@@ -886,7 +890,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -918,7 +923,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -950,7 +956,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -982,7 +989,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -1052,7 +1060,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: SEMI
@@ -1083,7 +1092,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: ANY
@@ -1114,7 +1124,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: ALL
@@ -1145,7 +1156,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: ASOF
@@ -1218,7 +1230,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -1250,7 +1263,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -1282,7 +1296,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -1314,7 +1329,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -1349,7 +1365,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: LEFT
@@ -1380,7 +1397,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: LEFT
@@ -1451,7 +1469,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: LEFT
@@ -1483,7 +1502,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: LEFT
@@ -1515,7 +1535,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: LEFT
@@ -1547,7 +1568,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: LEFT
@@ -1579,7 +1601,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -1611,7 +1634,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -1684,7 +1708,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -1717,7 +1742,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -1750,7 +1776,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -1783,7 +1810,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -1927,7 +1955,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: RIGHT
@@ -1958,7 +1987,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: RIGHT
@@ -1989,7 +2019,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: RIGHT
@@ -2059,7 +2090,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -2091,7 +2123,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -2123,7 +2156,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -2193,7 +2227,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: SEMI
@@ -2224,7 +2259,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: ANY
@@ -2255,7 +2291,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: ALL
@@ -2325,7 +2362,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -2357,7 +2395,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -2389,7 +2428,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -2421,7 +2461,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: RIGHT
@@ -2452,7 +2493,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: RIGHT
@@ -2484,7 +2526,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: RIGHT
@@ -2516,7 +2559,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: RIGHT
@@ -2548,7 +2592,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: RIGHT
@@ -2580,7 +2625,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -2612,7 +2658,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -2645,7 +2692,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -2678,7 +2726,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -2711,7 +2760,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -2866,7 +2916,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: FULL
@@ -2897,7 +2948,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: FULL
@@ -2927,7 +2979,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: FULL
@@ -2959,7 +3012,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -2991,7 +3045,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -3022,7 +3077,8 @@ file:
               table_reference:
                 naked_identifier: test1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: t1
           join_clause:
           - keyword: GLOBAL
@@ -3123,7 +3179,8 @@ file:
                             naked_identifier: test1
                 end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: t2
           array_join_clause:
           - keyword: ARRAY
@@ -3132,7 +3189,8 @@ file:
               column_reference:
                 naked_identifier: arr
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -3160,11 +3218,13 @@ file:
                       - numeric_literal: '2'
                       - end_square_bracket: ']'
                       alias_expression:
-                        keyword: AS
+                        alias_operator:
+                          keyword: AS
                         naked_identifier: arr
                 end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: t1
           array_join_clause:
           - keyword: LEFT
@@ -3174,7 +3234,8 @@ file:
               column_reference:
                 naked_identifier: arr
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -3203,11 +3264,13 @@ file:
                       - numeric_literal: '2'
                       - end_square_bracket: ']'
                       alias_expression:
-                        keyword: AS
+                        alias_operator:
+                          keyword: AS
                         naked_identifier: arr
                 end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: t1
           array_join_clause:
           - keyword: ARRAY
@@ -3242,11 +3305,13 @@ file:
                       - numeric_literal: '2'
                       - end_square_bracket: ']'
                       alias_expression:
-                        keyword: AS
+                        alias_operator:
+                          keyword: AS
                         naked_identifier: arr
                 end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: t1
           array_join_clause:
           - keyword: LEFT
@@ -3282,7 +3347,8 @@ file:
                       - numeric_literal: '2'
                       - end_square_bracket: ']'
                       alias_expression:
-                        keyword: AS
+                        alias_operator:
+                          keyword: AS
                         naked_identifier: arr
                   - comma: ','
                   - select_clause_element:
@@ -3293,11 +3359,13 @@ file:
                       - numeric_literal: '4'
                       - end_square_bracket: ']'
                       alias_expression:
-                        keyword: AS
+                        alias_operator:
+                          keyword: AS
                         naked_identifier: arr2
                 end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: t1
           array_join_clause:
           - keyword: ARRAY
@@ -3339,7 +3407,8 @@ file:
                       - numeric_literal: '2'
                       - end_square_bracket: ']'
                       alias_expression:
-                        keyword: AS
+                        alias_operator:
+                          keyword: AS
                         naked_identifier: arr
                   - comma: ','
                   - select_clause_element:
@@ -3350,11 +3419,13 @@ file:
                       - numeric_literal: '4'
                       - end_square_bracket: ']'
                       alias_expression:
-                        keyword: AS
+                        alias_operator:
+                          keyword: AS
                         naked_identifier: arr2
                 end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: t1
           array_join_clause:
           - keyword: ARRAY
@@ -3363,14 +3434,16 @@ file:
               column_reference:
                 naked_identifier: arr
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: x
           - comma: ','
           - select_clause_element:
               column_reference:
                 naked_identifier: arr2
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: y
 - statement_terminator: ;
 - statement:
@@ -3413,7 +3486,8 @@ file:
               - quoted_literal: "'2'"
               - end_square_bracket: ']'
               alias_expression:
-                keyword: as
+                alias_operator:
+                  keyword: as
                 naked_identifier: cg
           - comma: ','
           - select_clause_element:
@@ -3430,7 +3504,8 @@ file:
                       quoted_literal: "'1,2'"
                   - end_bracket: )
               alias_expression:
-                keyword: as
+                alias_operator:
+                  keyword: as
                 naked_identifier: ch
 - statement_terminator: ;
 - statement:
@@ -3462,7 +3537,8 @@ file:
                         naked_identifier: x
                 end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: t1
           array_join_clause:
           - keyword: ARRAY

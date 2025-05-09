@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 36403e664435e85a58a2f9863ed08a411bcedd0b733c7ca365176dd01d45eb4e
+_hash: b6b6764cc3073636b3fd1cc45be9aae79045f732e7cf74c2d0590c663ece8748
 file:
 - batch:
     statement:
@@ -109,14 +109,16 @@ file:
               column_reference:
                 naked_identifier: NEW_DATE_OF_REPORT_UNIX
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: NEW_DATE_UNIX
           - comma: ','
           - select_clause_element:
               column_reference:
                 naked_identifier: OLD_DATE_OF_REPORT_UNIX
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: OLD_DATE_UNIX
           - comma: ','
           - select_clause_element:
@@ -146,7 +148,8 @@ file:
                         naked_identifier: OLD_VALUE
                 - keyword: END
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: OLD_VALUE
           - comma: ','
           - select_clause_element:
@@ -170,7 +173,8 @@ file:
                         quoted_identifier: '[DIFFERENCE]'
                 - keyword: END
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 quoted_identifier: '[DIFFERENCE]'
           from_clause:
             keyword: FROM

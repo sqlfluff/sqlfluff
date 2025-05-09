@@ -80,14 +80,10 @@ class Rule_AL08(BaseRule):
             alias_expression = clause_element.get_child("alias_expression")
             column_alias: Optional[BaseSegment] = None
             if alias_expression:
-                # Get the alias (it will be the next code element after AS)
-                seg: Optional[BaseSegment] = None
-                for seg in alias_expression.segments:
-                    if not seg or not seg.is_code or seg.raw_upper == "AS":
-                        continue
-                    break
-                assert seg
-                column_alias = seg
+                # The alias can be the naked_identifier or the quoted_identifier
+                column_alias = alias_expression.get_child(
+                    "naked_identifier", "quoted_identifier"
+                )
             # No alias, the only other thing we'll track are column references.
             else:
                 column_reference = clause_element.get_child("column_reference")

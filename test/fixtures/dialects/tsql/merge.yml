@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fd2fbafead0b2bfab2d4d53a0a68ddd0e9e1be6c41456091707fcc20077dbcb1
+_hash: 0d3e1a239cfc078f09e11cf7d587ef50fa821012b42cb3e13079f6e3d457e410
 file:
 - batch:
     statement:
@@ -473,7 +473,8 @@ file:
         - dot: .
         - naked_identifier: UnitMeasure
       - alias_expression:
-          keyword: AS
+          alias_operator:
+            keyword: AS
           naked_identifier: tgt
       - keyword: USING
       - bracketed:
@@ -488,7 +489,8 @@ file:
                 parameter: '@Name'
           end_bracket: )
       - alias_expression:
-          keyword: as
+          alias_operator:
+            keyword: as
           naked_identifier: src
           bracketed:
             start_bracket: (
@@ -593,7 +595,8 @@ file:
         - dot: .
         - naked_identifier: ProductInventory
       - alias_expression:
-          keyword: AS
+          alias_operator:
+            keyword: AS
           naked_identifier: tgt
       - keyword: USING
       - bracketed:
@@ -626,7 +629,8 @@ file:
                     - dot: .
                     - naked_identifier: SalesOrderDetail
                   alias_expression:
-                    keyword: AS
+                    alias_operator:
+                      keyword: AS
                     naked_identifier: sod
                 join_clause:
                   keyword: JOIN
@@ -637,7 +641,8 @@ file:
                       - dot: .
                       - naked_identifier: SalesOrderHeader
                     alias_expression:
-                      keyword: AS
+                      alias_operator:
+                        keyword: AS
                       naked_identifier: soh
                   join_on_condition:
                     keyword: 'ON'
@@ -667,7 +672,8 @@ file:
                 naked_identifier: ProductID
           end_bracket: )
       - alias_expression:
-          keyword: as
+          alias_operator:
+            keyword: as
           naked_identifier: src
           bracketed:
             start_bracket: (
@@ -801,7 +807,8 @@ file:
         - dot: .
         - naked_identifier: ProductInventory
       - alias_expression:
-          keyword: AS
+          alias_operator:
+            keyword: AS
           naked_identifier: pi
       - keyword: USING
       - bracketed:
@@ -834,7 +841,8 @@ file:
                     - dot: .
                     - naked_identifier: SalesOrderDetail
                   alias_expression:
-                    keyword: AS
+                    alias_operator:
+                      keyword: AS
                     naked_identifier: sod
                 join_clause:
                   keyword: JOIN
@@ -845,7 +853,8 @@ file:
                       - dot: .
                       - naked_identifier: SalesOrderHeader
                     alias_expression:
-                      keyword: AS
+                      alias_operator:
+                        keyword: AS
                       naked_identifier: soh
                   join_on_condition:
                     keyword: 'ON'
@@ -876,7 +885,8 @@ file:
                 naked_identifier: ProductID
           end_bracket: )
       - alias_expression:
-          keyword: AS
+          alias_operator:
+            keyword: AS
           naked_identifier: src
           bracketed:
             start_bracket: (
@@ -980,7 +990,8 @@ file:
             - dot: .
             - naked_identifier: Quantity
           - alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: NewQty
           - comma: ','
           - column_reference:
@@ -988,7 +999,8 @@ file:
             - dot: .
             - naked_identifier: Quantity
           - alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: PreviousQty
     statement_terminator: ;
 - go_statement:
@@ -1051,7 +1063,8 @@ file:
                                   - dot: .
                                   - naked_identifier: table2
                                 alias_expression:
-                                  keyword: as
+                                  alias_operator:
+                                    keyword: as
                                   naked_identifier: gr
                         end_bracket: )
                     - alias_expression:
@@ -1096,7 +1109,8 @@ file:
                           - naked_identifier: columnC
                     end_bracket: )
                 alias_expression:
-                  keyword: as
+                  alias_operator:
+                    keyword: as
                   naked_identifier: upd
             statement_terminator: ;
 - go_statement:
@@ -1116,7 +1130,8 @@ file:
             keyword: PAGLOCK
           end_bracket: )
       - alias_expression:
-          keyword: AS
+          alias_operator:
+            keyword: AS
           naked_identifier: tgt
       - keyword: USING
       - bracketed:
@@ -1131,7 +1146,8 @@ file:
                 parameter: '@Name'
           end_bracket: )
       - alias_expression:
-          keyword: as
+          alias_operator:
+            keyword: as
           naked_identifier: src
           bracketed:
             start_bracket: (
@@ -1254,7 +1270,8 @@ file:
             - end_bracket: )
         - end_bracket: )
       - alias_expression:
-          keyword: AS
+          alias_operator:
+            keyword: AS
           naked_identifier: pi
       - keyword: USING
       - bracketed:
@@ -1287,7 +1304,8 @@ file:
                     - dot: .
                     - naked_identifier: SalesOrderDetail
                   alias_expression:
-                    keyword: AS
+                    alias_operator:
+                      keyword: AS
                     naked_identifier: sod
                 join_clause:
                   keyword: JOIN
@@ -1298,7 +1316,8 @@ file:
                       - dot: .
                       - naked_identifier: SalesOrderHeader
                     alias_expression:
-                      keyword: AS
+                      alias_operator:
+                        keyword: AS
                       naked_identifier: soh
                   join_on_condition:
                     keyword: 'ON'
@@ -1329,7 +1348,8 @@ file:
                 naked_identifier: ProductID
           end_bracket: )
       - alias_expression:
-          keyword: AS
+          alias_operator:
+            keyword: AS
           naked_identifier: src
           bracketed:
             start_bracket: (
@@ -1433,7 +1453,8 @@ file:
             - dot: .
             - naked_identifier: Quantity
           - alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: NewQty
           - comma: ','
           - column_reference:
@@ -1441,7 +1462,8 @@ file:
             - dot: .
             - naked_identifier: Quantity
           - alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: PreviousQty
     statement_terminator: ;
 - go_statement:
@@ -1464,11 +1486,13 @@ file:
               select_clause_element:
                 numeric_literal: '1'
                 alias_expression:
-                  keyword: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: i
           end_bracket: )
       - alias_expression:
-          keyword: AS
+          alias_operator:
+            keyword: AS
           naked_identifier: source
       - join_on_condition:
           keyword: 'ON'
