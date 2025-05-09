@@ -203,10 +203,10 @@ class MatchResult:
         and any inserts. If there are overlaps, then we have a problem, and we
         should abort.
         """
-        print(f"apply 1: {time.monotonic()}")
+        # print(f"apply 1: {time.monotonic()}")
         result_segments: tuple["BaseSegment", ...] = ()
         if not slice_length(self.matched_slice):
-            print(f"apply 2: {time.monotonic()}")
+            # print(f"apply 2: {time.monotonic()}")
             assert not self.matched_class, (
                 "Tried to apply zero length MatchResult with "
                 "`matched_class`. This MatchResult is invalid. "
@@ -218,10 +218,10 @@ class MatchResult:
                 f"Result: {self}"
             )
             if self.insert_segments:
-                print(f"apply 3: {time.monotonic()}")
+                # print(f"apply 3: {time.monotonic()}")
                 assert segments, "Cannot insert segments without reference position."
                 for idx, seg in self.insert_segments:
-                    print(f"apply 4: {time.monotonic()}")
+                    # print(f"apply 4: {time.monotonic()}")
                     assert idx == self.matched_slice.start, (
                         f"Tried to insert @{idx} outside of matched "
                         f"slice {self.matched_slice}"
@@ -234,24 +234,24 @@ class MatchResult:
             f"Matched slice ({self.matched_slice}) sits outside segment "
             f"bounds: {len(segments)}"
         )
-        print(f"apply 5: {time.monotonic()}")
+        # print(f"apply 5: {time.monotonic()}")
 
         # Which are the locations we need to care about?
         trigger_locs: DefaultDict[
             int, list[Union[MatchResult, type["MetaSegment"]]]
         ] = defaultdict(list)
         # Add the inserts first...
-        print(f"apply 6: {time.monotonic()}")
+        # print(f"apply 6: {time.monotonic()}")
         for insert in self.insert_segments:
             trigger_locs[insert[0]].append(insert[1])
         # ...and then the matches
-        print(f"apply 7: {time.monotonic()}")
+        # print(f"apply 7: {time.monotonic()}")
         for match in self.child_matches:
             trigger_locs[match.matched_slice.start].append(match)
 
         # Then work through creating any subsegments.
         max_idx = self.matched_slice.start
-        print(f"apply 8: {time.monotonic()}")
+        # print(f"apply 8: {time.monotonic()}")
         for idx in sorted(trigger_locs.keys()):
             # Have we passed any untouched segments?
             if idx > max_idx:
@@ -264,7 +264,7 @@ class MatchResult:
                     "overlapping child matches. This MatchResult was "
                     "wrongly constructed."
                 )
-            print(f"apply 9: {time.monotonic()}")
+            # print(f"apply 9: {time.monotonic()}")
             # Then work through each of the triggers.
             for trigger in trigger_locs[idx]:
                 # If it's a match, apply it.
@@ -281,18 +281,18 @@ class MatchResult:
 
         # If we finish working through the triggers and there's
         # still something left, then add that too.
-        print(f"apply 10: {time.monotonic()}")
+        # print(f"apply 10: {time.monotonic()}")
         if max_idx < self.matched_slice.stop:
             result_segments += segments[max_idx : self.matched_slice.stop]
 
-        print(f"apply 11: {time.monotonic()}")
+        # print(f"apply 11: {time.monotonic()}")
         if not self.matched_class:
             return result_segments
 
-        print(f"apply 12: {time.monotonic()}")
+        # print(f"apply 12: {time.monotonic()}")
         # Otherwise construct the subsegment
         new_seg: "BaseSegment" = self.matched_class.from_result_segments(
             result_segments, self.segment_kwargs
         )
-        print(f"apply 13: ({self.matched_class}) {time.monotonic()}")
+        # print(f"apply 13: ({self.matched_class}) {time.monotonic()}")
         return (new_seg,)

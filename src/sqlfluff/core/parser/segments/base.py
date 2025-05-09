@@ -188,7 +188,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         pos_marker: Optional[PositionMarker] = None,
         uuid: Optional[int] = None,
     ) -> None:
-        print(f"class name: {self.__class__.__name__} {time.monotonic()}")
+        # print(f"class name: {self.__class__.__name__} {time.monotonic()}")
         if len(segments) == 0:  # pragma: no cover
             raise RuntimeError(
                 "Setting {} with a zero length segment set. This shouldn't "
@@ -196,7 +196,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             )
 
         if not pos_marker:
-            print(f"no pos marker: {self.__class__.__name__} {time.monotonic()}")
+            # print(f"no pos marker: {self.__class__.__name__} {time.monotonic()}")
             # If no pos given, work it out from the children.
             if all(seg.pos_marker for seg in segments):
                 # print("getting position from children")
@@ -206,23 +206,23 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         assert not hasattr(self, "parse_grammar"), "parse_grammar is deprecated."
 
-        print(f"set pos marker: {self.__class__.__name__} {time.monotonic()}")
+        # print(f"set pos marker: {self.__class__.__name__} {time.monotonic()}")
         self.pos_marker = pos_marker
-        print(f"set segments: {self.__class__.__name__} {time.monotonic()}")
+        # print(f"set segments: {self.__class__.__name__} {time.monotonic()}")
         self.segments: tuple[BaseSegment, ...] = segments
         # Tracker for matching when things start moving.
         # NOTE: We're storing the .int attribute so that it's swifter
         # for comparisons.
-        print(f"set uuid: {self.__class__.__name__} {time.monotonic()}")
+        # print(f"set uuid: {self.__class__.__name__} {time.monotonic()}")
         self.uuid = uuid or uuid4().int
 
-        print(f"set as parent: {self.__class__.__name__} {time.monotonic()}")
+        # print(f"set as parent: {self.__class__.__name__} {time.monotonic()}")
         self.set_as_parent(recurse=False)
-        print(f"validate non code ends: {self.__class__.__name__} {time.monotonic()}")
+        # print(f"validate non code ends: {self.__class__.__name__} {time.monotonic()}")
         self.validate_non_code_ends()
-        print(f"recalculate caches: {self.__class__.__name__} {time.monotonic()}")
+        # print(f"recalculate caches: {self.__class__.__name__} {time.monotonic()}")
         self._recalculate_caches()
-        print(f"ending class name: {self.__class__.__name__} {time.monotonic()}")
+        # print(f"ending class name: {self.__class__.__name__} {time.monotonic()}")
 
     def __setattr__(self, key: str, value: Any) -> None:
         try:
@@ -699,24 +699,24 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def set_as_parent(self, recurse: bool = True) -> None:
         """Set this segment as parent for child all segments."""
-        print(f"running set_as_parent: {self.__class__.__name__} {time.monotonic()}")
+        # print(f"running set_as_parent: {self.__class__.__name__} {time.monotonic()}")
         for idx, seg in enumerate(self.segments):
-            print(
-                f"loop set_as_parent {idx} {seg}: {self.__class__.__name__} {time.monotonic()}"
-            )
+            # print(
+                # f"loop set_as_parent {idx} {seg}: {self.__class__.__name__} {time.monotonic()}"
+            # )
             seg.set_parent(self, idx)
             # Recurse if not disabled
             if not recurse:
-                print(
-                    f"continue set_as_parent {idx}: {self.__class__.__name__} {time.monotonic()}"
-                )
+                # print(
+                    # f"continue set_as_parent {idx}: {self.__class__.__name__} {time.monotonic()}"
+                # )
                 continue
-            print(
-                f"recurse set_as_parent {idx}: {self.__class__.__name__} {time.monotonic()}"
-            )
+            # print(
+                # f"recurse set_as_parent {idx}: {self.__class__.__name__} {time.monotonic()}"
+            # )
             seg.set_as_parent(recurse=recurse)
-            print("loop1")
-        print(f"finish set_as_parent: {self.__class__.__name__} {time.monotonic()}")
+            # print("loop1")
+        # print(f"finish set_as_parent: {self.__class__.__name__} {time.monotonic()}")
 
     def set_parent(self, parent: BaseSegment, idx: int) -> None:
         """Set the weak reference to the parent.
@@ -728,11 +728,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
         initialised the parent yet (because we call this method during
         the instantiation of the parent).
         """
-        print(f"running set_parent: {self.__class__.__name__} {time.monotonic()}")
+        # print(f"running set_parent: {self.__class__.__name__} {time.monotonic()}")
         self._parent = weakref.ref(parent)
-        print(f"set_parent idx: {idx} {self.__class__.__name__} {time.monotonic()}")
+        # print(f"set_parent idx: {idx} {self.__class__.__name__} {time.monotonic()}")
         self._parent_idx = idx
-        print(f"finish set_parent: {self.__class__.__name__} {time.monotonic()}")
+        # print(f"finish set_parent: {self.__class__.__name__} {time.monotonic()}")
 
     def get_parent(self) -> Optional[tuple[BaseSegment, int]]:
         """Get the parent segment, with some validation.
@@ -1268,7 +1268,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         segment_kwargs: dict[str, Any],
     ) -> BaseSegment:
         """Create an instance of this class from a tuple of matched segments."""
-        print(type(cls), result_segments, segment_kwargs)
+        # print(type(cls), result_segments, segment_kwargs)
         return cls(segments=result_segments, **segment_kwargs)
 
 
