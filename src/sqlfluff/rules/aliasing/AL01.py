@@ -5,7 +5,6 @@ from sqlfluff.core.parser import BaseSegment, KeywordSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext, LintFix
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.dialects.dialect_ansi import AsAliasOperatorSegment
-from sqlfluff.utils.reflow import ReflowSequence
 
 
 class Rule_AL01(BaseRule):
@@ -70,9 +69,10 @@ class Rule_AL01(BaseRule):
                 if self.aliasing == "implicit":
                     self.logger.debug("Removing AS keyword and respacing.")
                     whitespace: Optional[BaseSegment] = context.segment.get_child("whitespace")
-                    fixes = [LintFix.delete(as_keyword)]
                     if whitespace:
-                        fixes.append(LintFix.delete(whitespace))
+                        fixes = [LintFix.delete(whitespace), LintFix.delete(as_keyword)]
+                    else:
+                        fixes = [LintFix.delete(as_keyword)]
 
                     return LintResult(
                         anchor=as_keyword,
@@ -89,11 +89,12 @@ class Rule_AL01(BaseRule):
                         "Failed to find identifier. Raise this as a bug on GitHub."
                     )
                 as_alias_operator_segment = AsAliasOperatorSegment(segments=(KeywordSegment("AS"),))
-                ## is the pre sibling has already a leading whitespace we do not need an additional leading whitespace
+                # if the pre sibling has already a leading whitespace at it's tail
+                # we do not need an additional leading whitespace
                 has_leading_whitespace = context.siblings_pre and isinstance(context.siblings_pre[-1], WhitespaceSegment)
-                if not has_leading_whitespace:
-                    edit_segments = [WhitespaceSegment(), as_alias_operator_segment, WhitespaceSegment()]
-                else:
+                if has_leading_whitespace:
                     edit_segments = [as_alias_operator_segment, WhitespaceSegment()]
+                else:
+                    edit_segments = [WhitespaceSegment(), as_alias_operator_segment, WhitespaceSegment()]
                 return LintResult(anchor=context.segment, fixes=[LintFix.create_before(identifier, edit_segments)])
         return None
