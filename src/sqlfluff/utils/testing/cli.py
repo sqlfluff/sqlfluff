@@ -21,7 +21,7 @@ def invoke_assert_code(
     if cli_input:
         kwargs["input"] = cli_input
     if "mix_stderr" in inspect.signature(CliRunner).parameters:  # pragma: no cover
-        runner = CliRunner(mix_stderr=False)  # type: ignore[call-arg]
+        runner = CliRunner(mix_stderr=False)  # type: ignore[call-arg,unused-ignore]
     else:  # pragma: no cover
         runner = CliRunner()
     result = runner.invoke(*args, **kwargs)
