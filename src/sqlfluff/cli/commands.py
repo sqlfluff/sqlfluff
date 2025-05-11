@@ -366,6 +366,11 @@ def lint_options(f: Callable) -> Callable:
         default=False,
         help="Warn about unneeded '-- noqa:' comments.",
     )(f)
+    f = click.option(
+        "--disregard-sqlfluffignores",
+        is_flag=True,
+        help="Perform the operation regardless of .sqlfluffignore configurations",
+    )(f)
     return f
 
 
@@ -572,11 +577,6 @@ def dump_file_payload(filename: Optional[str], payload: str) -> None:
         "If set, the exit code will always be zero, regardless of violations "
         "found. This is potentially useful during rollout."
     ),
-)
-@click.option(
-    "--disregard-sqlfluffignores",
-    is_flag=True,
-    help="Perform the operation regardless of .sqlfluffignore configurations",
 )
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def lint(
@@ -889,6 +889,7 @@ def _paths_fix(
     show_lint_violations,
     check: bool = False,
     persist_timing: Optional[str] = None,
+    ignore_files: bool = True,
 ) -> None:
     """Handle fixing from paths."""
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
@@ -901,6 +902,7 @@ def _paths_fix(
             paths,
             fix=True,
             ignore_non_existent_files=False,
+            ignore_files=ignore_files,
             processes=processes,
             # If --check is set, then don't apply any fixes until the end.
             apply_fixes=not check,
@@ -1056,6 +1058,7 @@ def _paths_fix(
 def fix(
     force: bool,
     paths: tuple[str],
+    disregard_sqlfluffignores: bool,
     check: bool = False,
     bench: bool = False,
     quiet: bool = False,
@@ -1139,6 +1142,7 @@ def fix(
                 show_lint_violations,
                 check=check,
                 persist_timing=persist_timing,
+                ignore_files=not disregard_sqlfluffignores,
             )
 
 
@@ -1155,6 +1159,7 @@ def fix(
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def cli_format(
     paths: tuple[str],
+    disregard_sqlfluffignores: bool,
     bench: bool = False,
     fixed_suffix: str = "",
     logger: Optional[logging.Logger] = None,
@@ -1240,6 +1245,7 @@ def cli_format(
                 bench=bench,
                 show_lint_violations=False,
                 persist_timing=persist_timing,
+                ignore_files=not disregard_sqlfluffignores,
             )
 
 
