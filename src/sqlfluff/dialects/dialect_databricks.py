@@ -657,12 +657,10 @@ class CreateViewStatementSegment(sparksql.CreateViewStatementSegment):
 
     match_grammar = sparksql.CreateViewStatementSegment.match_grammar.copy(
         insert=[
-            OneOf(
-                Sequence(
-                    Ref.keyword("PRIVATE", optional=True),
-                    Ref.keyword("MATERIALIZED"),
-                ),
-                Ref.keyword("MATERIALIZED", optional=True),
+            Sequence(
+                Ref.keyword("PRIVATE", optional=True),
+                Ref.keyword("MATERIALIZED"),
+                optional=True,
             ),
         ],
         before=Ref.keyword("MATERIALIZED", optional=True),
