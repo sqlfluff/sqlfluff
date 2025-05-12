@@ -123,6 +123,8 @@ configuration file.
     [sqlfluff:templater:jinja:macros]
     # Macros provided as builtins for dbt projects
     dbt_ref = {% macro ref(model_ref) %}{{model_ref}}{% endmacro %}
+    # Cross cross project or package aware ref
+    # dbt_ref = {% macro ref(package_or_model, model_ref=none) %}{% if model_ref %}{{model_ref}}{% else %}{{ package_or_model }}{% endif %}{% endmacro %}
     dbt_source = {% macro source(source_name, table) %}{{source_name}}_{{table}}{% endmacro %}
     dbt_config = {% macro config() %}{% for k in kwargs %}{% endfor %}{% endmacro %}
     dbt_var = {% macro var(variable, default='') %}item{% endmacro %}
