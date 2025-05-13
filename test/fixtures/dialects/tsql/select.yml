@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dfad790e3da22bf2d0c8377be1492a9aea3419bbff8d3353cbe74a54e47d18cf
+_hash: 3edcc09561d20cd0fb8d7b838b25f430c7d4cb4544cec22b035967ffa8daa0f2
 file:
   batch:
   - statement:
@@ -429,24 +429,26 @@ file:
                 bracketed:
                   start_bracket: (
                   end_bracket: )
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                partitionby_clause:
-                - keyword: PARTITION
-                - keyword: BY
-                - column_reference:
-                    quoted_identifier: '[EventNM]'
-                - comma: ','
-                - column_reference:
-                    quoted_identifier: '[PersonID]'
-                orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
-                - column_reference:
-                    quoted_identifier: '[DateofEvent]'
-                - keyword: desc
-                end_bracket: )
+              over_clause:
+                keyword: OVER
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - column_reference:
+                        quoted_identifier: '[EventNM]'
+                    - comma: ','
+                    - column_reference:
+                        quoted_identifier: '[PersonID]'
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                        quoted_identifier: '[DateofEvent]'
+                    - keyword: desc
+                  end_bracket: )
             alias_expression:
               keyword: AS
               quoted_identifier: '[RN]'
@@ -459,21 +461,23 @@ file:
                 bracketed:
                   start_bracket: (
                   end_bracket: )
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                partitionby_clause:
-                - keyword: PARTITION
-                - keyword: BY
-                - column_reference:
-                    quoted_identifier: '[EventNM]'
-                orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
-                - column_reference:
-                    quoted_identifier: '[DateofEvent]'
-                - keyword: desc
-                end_bracket: )
+              over_clause:
+                keyword: OVER
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - column_reference:
+                        quoted_identifier: '[EventNM]'
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                        quoted_identifier: '[DateofEvent]'
+                    - keyword: desc
+                  end_bracket: )
             alias_expression:
               keyword: AS
               quoted_identifier: '[R]'
@@ -486,21 +490,23 @@ file:
                 bracketed:
                   start_bracket: (
                   end_bracket: )
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                partitionby_clause:
-                - keyword: PARTITION
-                - keyword: BY
-                - column_reference:
-                    quoted_identifier: '[EventNM]'
-                orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
-                - column_reference:
-                    quoted_identifier: '[DateofEvent]'
-                - keyword: desc
-                end_bracket: )
+              over_clause:
+                keyword: OVER
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - column_reference:
+                        quoted_identifier: '[EventNM]'
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                        quoted_identifier: '[DateofEvent]'
+                    - keyword: desc
+                  end_bracket: )
             alias_expression:
               keyword: AS
               quoted_identifier: '[DR]'
@@ -514,21 +520,23 @@ file:
                   start_bracket: (
                   numeric_literal: '5'
                   end_bracket: )
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                partitionby_clause:
-                - keyword: PARTITION
-                - keyword: BY
-                - column_reference:
-                    quoted_identifier: '[EventNM]'
-                orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
-                - column_reference:
-                    quoted_identifier: '[DateofEvent]'
-                - keyword: desc
-                end_bracket: )
+              over_clause:
+                keyword: OVER
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - column_reference:
+                        quoted_identifier: '[EventNM]'
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                        quoted_identifier: '[DateofEvent]'
+                    - keyword: desc
+                  end_bracket: )
             alias_expression:
               keyword: AS
               quoted_identifier: '[NT]'
@@ -573,53 +581,55 @@ file:
                 bracketed:
                   start_bracket: (
                   end_bracket: )
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                partitionby_clause:
-                - keyword: PARTITION
-                - keyword: BY
-                - bracketed:
-                    start_bracket: (
-                    expression:
-                      select_statement:
-                        select_clause:
-                          keyword: SELECT
-                          select_clause_element:
-                            column_reference:
-                              naked_identifier: mediaty
-                        from_clause:
-                          keyword: FROM
-                          from_expression:
-                            from_expression_element:
-                              table_expression:
-                                table_reference:
-                                - naked_identifier: dbo
+              over_clause:
+                keyword: OVER
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - bracketed:
+                        start_bracket: (
+                        expression:
+                          select_statement:
+                            select_clause:
+                              keyword: SELECT
+                              select_clause_element:
+                                column_reference:
+                                  naked_identifier: mediaty
+                            from_clause:
+                              keyword: FROM
+                              from_expression:
+                                from_expression_element:
+                                  table_expression:
+                                    table_reference:
+                                    - naked_identifier: dbo
+                                    - dot: .
+                                    - naked_identifier: MediaTypes
+                                  alias_expression:
+                                    naked_identifier: ms
+                            where_clause:
+                              keyword: WHERE
+                              expression:
+                              - column_reference:
+                                - naked_identifier: ms
                                 - dot: .
-                                - naked_identifier: MediaTypes
-                              alias_expression:
-                                naked_identifier: ms
-                        where_clause:
-                          keyword: WHERE
-                          expression:
-                          - column_reference:
-                            - naked_identifier: ms
-                            - dot: .
-                            - naked_identifier: MediaTypeID
-                          - comparison_operator:
-                              raw_comparison_operator: '='
-                          - column_reference:
-                            - naked_identifier: f
-                            - dot: .
-                            - naked_identifier: mediatypeid
-                    end_bracket: )
-                orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
-                - column_reference:
-                    naked_identifier: AdjustedPriorityScore
-                - keyword: DESC
-                end_bracket: )
+                                - naked_identifier: MediaTypeID
+                              - comparison_operator:
+                                  raw_comparison_operator: '='
+                              - column_reference:
+                                - naked_identifier: f
+                                - dot: .
+                                - naked_identifier: mediatypeid
+                        end_bracket: )
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                        naked_identifier: AdjustedPriorityScore
+                    - keyword: DESC
+                  end_bracket: )
             alias_expression:
               keyword: AS
               naked_identifier: Subselect_Partition
@@ -632,47 +642,49 @@ file:
                 bracketed:
                   start_bracket: (
                   end_bracket: )
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                partitionby_clause:
-                - keyword: PARTITION
-                - keyword: BY
-                - expression:
-                    function:
-                      function_name:
-                        keyword: COALESCE
-                      function_contents:
-                        bracketed:
-                        - start_bracket: (
-                        - expression:
-                            column_reference:
-                              naked_identifier: NPI1
-                        - comma: ','
-                        - expression:
-                            column_reference:
-                              naked_identifier: NPI2
-                        - end_bracket: )
-                orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
-                - expression:
-                    function:
-                      function_name:
-                        keyword: COALESCE
-                      function_contents:
-                        bracketed:
-                        - start_bracket: (
-                        - expression:
-                            column_reference:
-                              naked_identifier: SystemEffectiveDTS1
-                        - comma: ','
-                        - expression:
-                            column_reference:
-                              naked_identifier: SystemEffectiveDTS2
-                        - end_bracket: )
-                - keyword: DESC
-                end_bracket: )
+              over_clause:
+                keyword: OVER
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - expression:
+                        function:
+                          function_name:
+                            keyword: COALESCE
+                          function_contents:
+                            bracketed:
+                            - start_bracket: (
+                            - expression:
+                                column_reference:
+                                  naked_identifier: NPI1
+                            - comma: ','
+                            - expression:
+                                column_reference:
+                                  naked_identifier: NPI2
+                            - end_bracket: )
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - expression:
+                        function:
+                          function_name:
+                            keyword: COALESCE
+                          function_contents:
+                            bracketed:
+                            - start_bracket: (
+                            - expression:
+                                column_reference:
+                                  naked_identifier: SystemEffectiveDTS1
+                            - comma: ','
+                            - expression:
+                                column_reference:
+                                  naked_identifier: SystemEffectiveDTS2
+                            - end_bracket: )
+                    - keyword: DESC
+                  end_bracket: )
             alias_expression:
               keyword: AS
               naked_identifier: Coalesce_Partition
@@ -685,30 +697,32 @@ file:
                 bracketed:
                   start_bracket: (
                   end_bracket: )
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                partitionby_clause:
-                - keyword: PARTITION
-                - keyword: BY
-                - bracketed:
-                    start_bracket: (
-                    column_reference:
-                      naked_identifier: DayInMonth
-                    end_bracket: )
-                - comma: ','
-                - bracketed:
-                    start_bracket: (
-                    column_reference:
-                      naked_identifier: DaySuffix
-                    end_bracket: )
-                orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
-                - column_reference:
-                    naked_identifier: Month
-                - keyword: ASC
-                end_bracket: )
+              over_clause:
+                keyword: OVER
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - bracketed:
+                        start_bracket: (
+                        column_reference:
+                          naked_identifier: DayInMonth
+                        end_bracket: )
+                    - comma: ','
+                    - bracketed:
+                        start_bracket: (
+                        column_reference:
+                          naked_identifier: DaySuffix
+                        end_bracket: )
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                        naked_identifier: Month
+                    - keyword: ASC
+                  end_bracket: )
         - comma: ','
         - select_clause_element:
             function:

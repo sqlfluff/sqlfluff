@@ -234,6 +234,7 @@ RESERVED_KEYWORDS = [
     "WHEN",
     "WHERE",
     "WHILE",
+    "WINDOW",
     "WITH",
     "WRITETEXT",
 ]

@@ -1,0 +1,107 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: fac9e775bff9da87541d948b9e3ece47b3ba9ac94ae461398cea92904b1fac16
+file:
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: PRIVATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: dlt_private_mat_view
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - data_type:
+          primitive_type:
+            keyword: STRING
+      - keyword: COMMENT
+      - quoted_literal: "'a'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - data_type:
+          primitive_type:
+            keyword: TIMESTAMP
+      - keyword: COMMENT
+      - quoted_literal: "'b'"
+      - end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: "'DLT private materialized view'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: live
+                - dot: .
+                - naked_identifier: dlt_bronze
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: PRIVATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: dlt_refresh_private_mat_view
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - data_type:
+          primitive_type:
+            keyword: STRING
+      - keyword: COMMENT
+      - quoted_literal: "'a'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - data_type:
+          primitive_type:
+            keyword: TIMESTAMP
+      - keyword: COMMENT
+      - quoted_literal: "'b'"
+      - end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: "'DLT refreshed private materialized view'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: live
+                - dot: .
+                - naked_identifier: dlt_bronze
+- statement_terminator: ;
