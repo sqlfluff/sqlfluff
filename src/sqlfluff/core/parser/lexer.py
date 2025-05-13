@@ -892,7 +892,7 @@ class Lexer:
 
 
 try:
-    from rsqlfluff import RsLexer, RsToken
+    from rsqlfluff import RsLexer
 
     RsLexer.lex_ = RsLexer.lex
 
@@ -904,7 +904,14 @@ try:
         first_token = tokens[0]
         assert first_token
         tf = first_token.pos_marker.templated_file
-        return tuple(RawSegment.from_rstoken(token, tf) for token in tokens), errors
+        segment_type = {"placeholder": TemplateSegment}
+        return (
+            tuple(
+                segment_type.get(token.type, RawSegment).from_rstoken(token, tf)
+                for token in tokens
+            ),
+            errors,
+        )
 
     RsLexer.lex = lex
     Lexer = RsLexer

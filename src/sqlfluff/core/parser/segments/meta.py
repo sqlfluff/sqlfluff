@@ -271,3 +271,15 @@ class TemplateSegment(MetaSegment):
             source_fixes=sf,
             block_uuid=self.block_uuid,
         )
+
+    @classmethod
+    def from_rstoken(cls, token, tf):
+        """Create a TemplateSegment from a token."""
+        print("templatesegment from_rstoken")
+        segment = cls(
+            pos_marker=PositionMarker.from_rs_position_marker(token.pos_marker, tf),
+            source_str=token.source_str,
+            block_type=token.block_type,
+            block_uuid=token.block_uuid,
+        )
+        return segment

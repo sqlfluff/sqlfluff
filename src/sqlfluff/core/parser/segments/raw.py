@@ -321,6 +321,7 @@ class RawSegment(BaseSegment):
             # escape_replacements=token.escape_replacements,
             # casefold=token.casefold,
         )
+        segment.type = token.type
         segment._is_code = token.is_code
         segment._is_comment = token.is_comment
         segment._is_whitespace = token.is_whitespace
