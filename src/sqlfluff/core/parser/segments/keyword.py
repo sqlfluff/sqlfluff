@@ -4,7 +4,7 @@ from typing import Callable, Optional, Union
 
 from sqlfluff.core.parser.markers import PositionMarker
 
-# from rsqlfluff import PositionMarker
+# from rsqlfluff import RsPositionMarker
 from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.parser.segments.common import WordSegment
 

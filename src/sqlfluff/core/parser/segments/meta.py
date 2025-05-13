@@ -7,7 +7,7 @@ from uuid import UUID
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.markers import PositionMarker
 
-# from rsqlfluff import PositionMarker
+# from rsqlfluff import RsPositionMarker
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix

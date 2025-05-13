@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, Optional
 from sqlfluff.core.helpers.slice import zero_slice
 
 try:
-    from rsqlfluff import PositionMarker as RSPositionMarker
+    from rsqlfluff import RsPositionMarker
 except ImportError:
     pass
 
