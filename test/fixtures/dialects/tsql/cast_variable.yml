@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8578a560678d2553af3a7e017ff480f13c135db56ab048efc87221c764fe7d3b
+_hash: f0d6ed4515b8bc43701b4f6fbd3ae50b9b9f43470178a3f4f0f741439f7d0e4e
 file:
   batch:
   - statement:
@@ -59,7 +59,8 @@ file:
             - dot: .
             - naked_identifier: personid
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: personid
         - comma: ','
         - select_clause_element:
@@ -82,7 +83,8 @@ file:
                         end_bracket: )
                   end_bracket: )
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: DataRefreshDate
         from_clause:
           keyword: from
