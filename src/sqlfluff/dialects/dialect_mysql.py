@@ -305,6 +305,7 @@ mysql_dialect.replace(
         )
     ),
     LikeGrammar=OneOf("LIKE", "RLIKE", "REGEXP"),
+    CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
 )
 
 mysql_dialect.add(
@@ -984,7 +985,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
                 Ref("DoubleQuotedIdentifierSegment"),
             ),
         ),
-        Sequence("COLLATE", Ref("CollationReferenceSegment")),
+        Ref("CollateGrammar"),
         Sequence(
             Sequence("GENERATED", "ALWAYS", optional=True),
             "AS",

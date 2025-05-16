@@ -648,6 +648,28 @@ class CreateDatabaseStatementSegment(sparksql.CreateDatabaseStatementSegment):
     )
 
 
+class CreateViewStatementSegment(sparksql.CreateViewStatementSegment):
+    """A `CREATE VIEW` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-view
+    https://docs.databricks.com/aws/en/dlt-ref/dlt-sql-ref-create-materialized-view
+    """
+
+    match_grammar = sparksql.CreateViewStatementSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref.keyword("PRIVATE", optional=True),
+                Ref.keyword("MATERIALIZED"),
+                optional=True,
+            ),
+        ],
+        before=Ref.keyword("MATERIALIZED", optional=True),
+        remove=[
+            Ref.keyword("MATERIALIZED", optional=True),
+        ],
+    )
+
+
 class MaskStatementSegment(BaseSegment):
     """A `MASK` statement.
 
