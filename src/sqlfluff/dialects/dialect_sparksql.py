@@ -2257,7 +2257,7 @@ class LateralViewClauseSegment(BaseSegment):
         Ref("CommaSegment", optional=True),
         Indent,
         "LATERAL",
-        OneOf("VIEW",optional=True),
+        Ref.keyword("VIEW",optional=True),
         Ref.keyword("OUTER", optional=True),
         Ref("FunctionSegment"),
         OneOf(
