@@ -98,3 +98,14 @@ test_fail_missing_clause_and_stmt_qualified:
     SELECT foo.a, bar.b FROM schema.foo JOIN schema.bar WHERE schema.foo.x = schema.bar.y AND schema.foo.x = 3
   fix_str: |
     SELECT foo.a, bar.b FROM schema.foo JOIN schema.bar ON schema.foo.x = schema.bar.y WHERE schema.foo.x = 3
+
+test_fail_join_with_bracketed_join:
+  fail_str: |
+    SELECT * FROM
+      bar
+      JOIN (
+        foo1
+        JOIN foo2 ON (foo1.id = foo2.id)
+      )
+    WHERE
+      bar.id = foo1.id;
