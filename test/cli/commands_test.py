@@ -790,6 +790,29 @@ def test__cli__command_lint_skip_ignore_files():
     assert "LT12" in result.stdout.strip()
 
 
+@pytest.mark.parametrize(
+    "command",
+    [
+        (fix),
+        (cli_format),
+    ],
+)
+def test__cli__command_fix_skip_ignore_files(command):
+    """Check "ignore file" is skipped when --disregard-sqlfluffignores flag is set."""
+    runner = CliRunner()
+    result = runner.invoke(
+        command,
+        [
+            "test/fixtures/linter/sqlfluffignore/path_b/query_c.sql",
+            "--disregard-sqlfluffignores",
+            "-x",
+            "_fix",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "LT12" in result.stdout.strip()
+
+
 def test__cli__command_lint_ignore_local_config():
     """Test that --ignore-local_config ignores .sqlfluff file as expected."""
     runner = CliRunner()
