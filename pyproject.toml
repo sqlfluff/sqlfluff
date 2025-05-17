@@ -70,7 +70,7 @@ dependencies = [
     "platformdirs",
     # To get the encoding of files.
     "chardet",
-    # Click can includle breaking changes in minor releases. Make sure to test
+    # Click can include breaking changes in minor releases. Make sure to test
     # well before updating upper bound.
     "click<=8.3.0",
     "colorama>=0.3",
