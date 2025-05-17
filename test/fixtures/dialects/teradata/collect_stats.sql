@@ -28,3 +28,10 @@ collect statistics
  column (Org_Unit_Code),
  column (Parent_Org_Unit_Code, Parent_Org_Unit_Type, Parent_Entity_Code)
 on sandbox_db.Org_Descendant;
+
+COLLECT STATISTICS ON table_1 COLUMN (column_1, column_2);
+
+COLLECT STATISTICS ON orders
+COLUMN (quant_ord, PARTITION, quant_shpd);
+
+COLLECT STATISTICS ON table_1 COLUMN PARTITION;
