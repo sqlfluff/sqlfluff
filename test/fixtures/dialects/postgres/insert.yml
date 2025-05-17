@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 407061eb67ded70aad8c665407f6635436cd5927dff38582e89d539f6c4cfb7e
+_hash: 5e250b74b81dba3b751a4bb213fb7cc6bbb9df9d64504cb18ea3038087281d23
 file:
 - statement:
     insert_statement:
@@ -853,4 +853,93 @@ file:
     - conflict_action:
       - keyword: DO
       - keyword: NOTHING
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: prompt_variants
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: test
+      - comma: ','
+      - column_reference:
+          naked_identifier: test2
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: test
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: test2
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: test
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: test2
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: baz
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: state
+      - comma: ','
+      - column_reference:
+          naked_identifier: state_changed_at
+      - comma: ','
+      - column_reference:
+          naked_identifier: instance_id
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            numeric_literal: '1'
+        - comma: ','
+        - select_clause_element:
+            numeric_literal: '2'
+        - comma: ','
+        - select_clause_element:
+            numeric_literal: '3'
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_target:
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: instance_id
+          end_bracket: )
+    - conflict_action:
+      - keyword: DO
+      - keyword: UPDATE
+      - keyword: SET
+      - column_reference:
+          naked_identifier: state
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: foo
+      - comma: ','
+      - column_reference:
+          naked_identifier: state_changed_at
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: bar
 - statement_terminator: ;

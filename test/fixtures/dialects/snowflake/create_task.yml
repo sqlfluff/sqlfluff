@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b51f809acffccdd7e1ec6605cef635ea166270c76ba1277811d16239ae47581b
+_hash: bbbd3fb9b2aeff3242883c81316cbc76c73adfea9991094b10cd8a21795a1e6c
 file:
 - statement:
     create_task_statement:
@@ -582,4 +582,58 @@ file:
               expression:
                 bare_function: CURRENT_TIMESTAMP
               end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: custom_warehouse
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        quoted_literal: "'mywh'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: custom_schedule
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        quoted_literal: "'USING CRON 15 7 2 * * UTC'"
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: mytask
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        variable: $custom_warehouse
+    - keyword: SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - variable: $custom_schedule
+    - log_level_equals:
+      - keyword: LOG_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: TRACE
+    - keyword: AS
+    - statement:
+        call_segment:
+          keyword: CALL
+          function:
+            function_name:
+              naked_identifier: SCH
+              dot: .
+              function_name_identifier: MY_SPROC
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
 - statement_terminator: ;

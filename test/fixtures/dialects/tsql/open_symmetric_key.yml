@@ -1,0 +1,153 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 54f1c4f8d7b6c4dc1b306ef6e84b8c64f72b5df036861dea9dfe049f86ad370a
+file:
+- batch:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: procedure_name
+    - keyword: AS
+    - procedure_statement:
+        statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              set_segment:
+              - keyword: SET
+              - keyword: NOCOUNT
+              - keyword: 'ON'
+              - statement_terminator: ;
+          - statement:
+              open_symmetric_key_statement:
+              - keyword: OPEN
+              - keyword: SYMMETRIC
+              - keyword: KEY
+              - object_reference:
+                  quoted_identifier: '[Key01]'
+              - keyword: DECRYPTION
+              - keyword: BY
+              - keyword: CERTIFICATE
+              - object_reference:
+                  quoted_identifier: '[Cert]'
+          - statement_terminator: ;
+          - statement:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                      naked_identifier: column1
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - naked_identifier: sys
+                        - dot: .
+                        - naked_identifier: tables
+                  statement_terminator: ;
+          - keyword: END
+        statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+  - statement:
+      open_symmetric_key_statement:
+      - keyword: OPEN
+      - keyword: SYMMETRIC
+      - keyword: KEY
+      - object_reference:
+          quoted_identifier: '[Key01]'
+      - keyword: DECRYPTION
+      - keyword: BY
+      - keyword: CERTIFICATE
+      - object_reference:
+          quoted_identifier: '[Cert]'
+  - statement_terminator: ;
+  - statement:
+      open_symmetric_key_statement:
+      - keyword: OPEN
+      - keyword: SYMMETRIC
+      - keyword: KEY
+      - object_reference:
+          quoted_identifier: '[Key01]'
+      - keyword: DECRYPTION
+      - keyword: BY
+      - keyword: CERTIFICATE
+      - object_reference:
+          quoted_identifier: '[Cert]'
+      - keyword: WITH
+      - keyword: PASSWORD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'testPass123'"
+  - statement_terminator: ;
+  - statement:
+      open_symmetric_key_statement:
+      - keyword: OPEN
+      - keyword: SYMMETRIC
+      - keyword: KEY
+      - object_reference:
+          quoted_identifier: '[Key01]'
+      - keyword: DECRYPTION
+      - keyword: BY
+      - keyword: ASYMMETRIC
+      - keyword: KEY
+      - object_reference:
+          quoted_identifier: '[asym_key]'
+  - statement_terminator: ;
+  - statement:
+      open_symmetric_key_statement:
+      - keyword: OPEN
+      - keyword: SYMMETRIC
+      - keyword: KEY
+      - object_reference:
+          quoted_identifier: '[Key01]'
+      - keyword: DECRYPTION
+      - keyword: BY
+      - keyword: ASYMMETRIC
+      - keyword: KEY
+      - object_reference:
+          quoted_identifier: '[asym_key]'
+      - keyword: WITH
+      - keyword: PASSWORD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'testPass123'"
+  - statement_terminator: ;
+  - statement:
+      open_symmetric_key_statement:
+      - keyword: OPEN
+      - keyword: SYMMETRIC
+      - keyword: KEY
+      - object_reference:
+          quoted_identifier: '[Key01]'
+      - keyword: DECRYPTION
+      - keyword: BY
+      - keyword: SYMMETRIC
+      - keyword: KEY
+      - object_reference:
+          quoted_identifier: '[sym_key]'
+  - statement_terminator: ;
+  - statement:
+      open_symmetric_key_statement:
+      - keyword: OPEN
+      - keyword: SYMMETRIC
+      - keyword: KEY
+      - object_reference:
+          quoted_identifier: '[Key01]'
+      - keyword: DECRYPTION
+      - keyword: BY
+      - keyword: PASSWORD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'decryptPass123'"
+  - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 333615bfdb031f9d78f403d6a2e6afa402ea41e9e1fa18ce2384dc1b013b7ee9
+_hash: c3fb518a74dbe620ed23f6ff196ecbf9c266d141e730807e670cb758da9fa778
 file:
 - statement:
     select_statement:
@@ -51,15 +51,19 @@ file:
               table_expression:
                 values_clause:
                 - keyword: VALUES
-                - bracketed:
-                    start_bracket: (
-                    quoted_literal: "'a'"
-                    end_bracket: )
+                - expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "'a'"
+                      end_bracket: )
                 - comma: ','
-                - bracketed:
-                    start_bracket: (
-                    quoted_literal: "'b'"
-                    end_bracket: )
+                - expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "'b'"
+                      end_bracket: )
               end_bracket: )
             alias_expression:
               keyword: AS
@@ -86,15 +90,19 @@ file:
               table_expression:
                 values_clause:
                 - keyword: VALUES
-                - bracketed:
-                    start_bracket: (
-                    quoted_literal: "'a'"
-                    end_bracket: )
+                - expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "'a'"
+                      end_bracket: )
                 - comma: ','
-                - bracketed:
-                    start_bracket: (
-                    quoted_literal: "'b'"
-                    end_bracket: )
+                - expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "'b'"
+                      end_bracket: )
               end_bracket: )
             alias_expression:
               keyword: AS

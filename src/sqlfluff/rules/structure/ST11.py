@@ -1,6 +1,7 @@
 """Implementation of Rule ST11."""
 
-from typing import Iterator, List, Tuple, cast
+from collections.abc import Iterator
+from typing import cast
 
 from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
@@ -81,7 +82,7 @@ class Rule_ST11(BaseRule):
 
     name = "structure.unused_join"
     aliases = ()
-    groups: Tuple[str, ...] = ("all", "structure")
+    groups: tuple[str, ...] = ("all", "structure")
     crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
     is_fix_compatible = False
 
@@ -93,13 +94,13 @@ class Rule_ST11(BaseRule):
             alias_identifier = alias_expression.get_child("identifier")
             if alias_identifier:
                 # Append the raw representation and the from expression.
-                return alias_identifier.raw_upper
+                return alias_identifier.raw_normalized(casefold=False).upper()
         # Otherwise if no alias, we need the name of the object we're
         # referencing.
         for table_reference in segment.recursive_crawl(
             "table_reference", no_recursive_seg_type="select_statement"
         ):
-            return table_reference.segments[-1].raw_upper
+            return table_reference.segments[-1].raw_normalized(casefold=False).upper()
         # If we can't find a reference, just return an empty string
         # to signal that there isn't one. This could be a case of a
         # VALUES clause, or anything else selectable which hasn't
@@ -123,7 +124,7 @@ class Rule_ST11(BaseRule):
 
     def _extract_references_from_select(
         self, segment: BaseSegment
-    ) -> List[Tuple[str, BaseSegment]]:
+    ) -> list[tuple[str, BaseSegment]]:
         assert segment.is_type("select_statement")
         # Tables which exist in the query
         joined_tables = []
@@ -153,9 +154,9 @@ class Rule_ST11(BaseRule):
                 # Extract the join keywords used so we can exclude any which are
                 # configured. For example, INNER joins are often used as filters
                 # without being referenced.
-                join_keywords = set(
+                join_keywords = {
                     keyword.raw_upper for keyword in join_clause.get_children("keyword")
-                )
+                }
                 _this_clause_refs = []
                 for from_expression_elem in join_clause.get_children(
                     "from_expression_element"
@@ -202,7 +203,7 @@ class Rule_ST11(BaseRule):
             (ref, seg) for (ref, seg) in joined_tables if ref not in referenced_tables
         ]
 
-    def _eval(self, context: RuleContext) -> List[LintResult]:
+    def _eval(self, context: RuleContext) -> list[LintResult]:
         """Implement the logic to detect unused tables in joins.
 
         First we fetch all the tables brought *into* the query via
@@ -250,7 +251,7 @@ class Rule_ST11(BaseRule):
             for wcinfo in selectable.get_wildcard_info():
                 table_references |= {t.upper() for t in wcinfo.tables}
 
-        results: List[LintResult] = []
+        results: list[LintResult] = []
         self.logger.debug(
             f"Select statement {context.segment} references "
             f"tables: {table_references}.\n"

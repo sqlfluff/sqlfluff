@@ -7,3 +7,4 @@ alter pipe mypipe set tag tag1 = 'value1', tag2 = 'value2';
 alter pipe mypipe unset pipe_execution_paused;
 alter pipe mypipe unset comment;
 alter pipe mypipe unset tag foo, bar;
+ALTER PIPE mypipe SET ERROR_INTEGRATION = my_notification_int;

@@ -23,10 +23,7 @@ from typing import (
     Deque,
     Dict,
     Iterator,
-    List,
     Optional,
-    Tuple,
-    Type,
     TypeVar,
     Union,
 )
@@ -92,7 +89,7 @@ T = TypeVar("T")
 
 
 def handle_dbt_errors(
-    error_class: Type[Exception], preamble: str
+    error_class: type[Exception], preamble: str
 ) -> Callable[[Callable[..., T]], Callable[..., T]]:
     """A decorator to safely catch dbt exceptions and raise native ones.
 
@@ -177,12 +174,13 @@ class DbtTemplater(JinjaTemplater):
     sequential_fail_limit = 3
     adapters = {}
 
-    def __init__(self, override_context: Optional[Dict[str, Any]] = None):
+    def __init__(self, override_context: Optional[dict[str, Any]] = None):
         self.sqlfluff_config = None
         self.formatter = None
         self.project_dir = None
         self.profiles_dir = None
         self.working_dir = os.getcwd()
+        self.dbt_skip_compilation_error = True
         super().__init__(override_context=override_context)
 
     def config_pairs(self):
@@ -235,9 +233,7 @@ class DbtTemplater(JinjaTemplater):
         # is present then assume that it's not a problem
         if not self.formatter:
             if self.dbt_version_tuple >= (1, 8):
-                from dbt_common.events.event_manager_client import (
-                    cleanup_event_logger,
-                )
+                from dbt_common.events.event_manager_client import cleanup_event_logger
 
             else:
                 from dbt.events.functions import cleanup_event_logger
@@ -345,12 +341,8 @@ class DbtTemplater(JinjaTemplater):
                 "dbt templater", "Compiling dbt project..."
             )
 
-        from dbt.graph.selector_methods import (
-            MethodManager as DbtSelectorMethodManager,
-        )
-        from dbt.graph.selector_methods import (
-            MethodName as DbtMethodName,
-        )
+        from dbt.graph.selector_methods import MethodManager as DbtSelectorMethodManager
+        from dbt.graph.selector_methods import MethodName as DbtMethodName
 
         selector_methods_manager = DbtSelectorMethodManager(
             self.dbt_manifest, previous_state=None
@@ -415,6 +407,7 @@ class DbtTemplater(JinjaTemplater):
                 self.sqlfluff_config.get_section(
                     (self.templater_selector, self.name, "project_dir")
                 )
+                or os.getenv("DBT_PROJECT_DIR")
                 or os.getcwd()
             )
         )
@@ -451,8 +444,15 @@ class DbtTemplater(JinjaTemplater):
 
         return cli_vars if cli_vars else {}
 
+    def _get_dbt_skip_compilation_error(self) -> bool:
+        return self.sqlfluff_config.get(
+            val="dbt_skip_compilation_error",
+            section=(self.templater_selector, self.name),
+            default=True,
+        )
+
     def sequence_files(
-        self, fnames: List[str], config=None, formatter=None
+        self, fnames: list[str], config=None, formatter=None
     ) -> Iterator[str]:
         """Reorder fnames to process dependent files first.
 
@@ -469,14 +469,14 @@ class DbtTemplater(JinjaTemplater):
             self.profiles_dir = self._get_profiles_dir()
 
         # Populate full paths for selected files
-        full_paths: Dict[str, str] = {}
+        full_paths: dict[str, str] = {}
         selected_files = set()
         for fname in fnames:
             fpath = os.path.join(self.working_dir, fname)
             full_paths[fpath] = fname
             selected_files.add(fpath)
 
-        ephemeral_nodes: Dict[str, Tuple[str, Any]] = {}
+        ephemeral_nodes: dict[str, tuple[str, Any]] = {}
 
         # Extract the ephemeral models
         for key, node in self.dbt_manifest.nodes.items():
@@ -537,7 +537,7 @@ class DbtTemplater(JinjaTemplater):
         in_str: Optional[str] = None,
         config: Optional["FluffConfig"] = None,
         formatter: Optional["OutputStreamFormatter"] = None,
-    ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
+    ) -> tuple[TemplatedFile, list[SQLTemplaterError]]:
         """Compile a dbt model and return the compiled SQL.
 
         Args:
@@ -552,6 +552,7 @@ class DbtTemplater(JinjaTemplater):
         self.sqlfluff_config = config
         self.project_dir = self._get_project_dir()
         self.profiles_dir = self._get_profiles_dir()
+        self.dbt_skip_compilation_error = self._get_dbt_skip_compilation_error()
         fname_absolute_path = os.path.abspath(fname) if fname != "stdin" else fname
 
         # NOTE: dbt exceptions are caught and handled safely for pickling by the outer
@@ -711,6 +712,8 @@ class DbtTemplater(JinjaTemplater):
                 # to happen if we tried to compile ephemeral models in the
                 # wrong order), but more often because a macro tries to query
                 # a table at compile time which doesn't exist.
+                if self.dbt_skip_compilation_error is False:
+                    raise SQLTemplaterError(str(err))
                 raise SQLFluffSkipFile(
                     f"Skipped file {fname} because dbt raised a fatal "
                     f"exception during compilation: {err!s}"

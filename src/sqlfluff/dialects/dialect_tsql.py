@@ -395,6 +395,21 @@ tsql_dialect.add(
         LiteralSegment,
         type="numeric_literal",
     ),
+    PlusComparisonSegment=StringParser(
+        "+", SymbolSegment, type="raw_comparison_operator"
+    ),
+    MinusComparisonSegment=StringParser(
+        "-", SymbolSegment, type="raw_comparison_operator"
+    ),
+    MultiplyComparisonSegment=StringParser(
+        "*", SymbolSegment, type="raw_comparison_operator"
+    ),
+    DivideComparisonSegment=StringParser(
+        "/", SymbolSegment, type="raw_comparison_operator"
+    ),
+    ModuloComparisonSegment=StringParser(
+        "%", SymbolSegment, type="raw_comparison_operator"
+    ),
 )
 
 tsql_dialect.replace(
@@ -519,6 +534,7 @@ tsql_dialect.replace(
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("DelimiterGrammar"),
+        "WINDOW",
     ),
     # Replace ANSI LikeGrammar to remove TSQL non-keywords RLIKE and ILIKE
     LikeGrammar=Sequence(
@@ -640,6 +656,17 @@ tsql_dialect.replace(
         min_times=1,
     ),
     CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
+    ArithmeticBinaryOperatorGrammar=ansi_dialect.get_grammar(
+        "ArithmeticBinaryOperatorGrammar"
+    ).copy(
+        insert=[
+            Ref("AdditionAssignmentSegment"),
+            Ref("SubtractionAssignmentSegment"),
+            Ref("MultiplicationAssignmentSegment"),
+            Ref("DivisionAssignmentSegment"),
+            Ref("ModulusAssignmentSegment"),
+        ]
+    ),
 )
 
 
@@ -702,6 +729,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateMasterKeySegment"),
             Ref("AlterMasterKeySegment"),
             Ref("DropMasterKeySegment"),
+            Ref("OpenSymmetricKeySegment"),
             Ref("CreateLoginStatementSegment"),
             Ref("SetContextInfoSegment"),
         ],
@@ -855,6 +883,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Ref("WhereClauseSegment", optional=True),
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
+        Ref("NamedWindowSegment", optional=True),
     )
 
 
@@ -3038,6 +3067,19 @@ class ReplicateFunctionNameSegment(BaseSegment):
     match_grammar = Sequence("REPLICATE")
 
 
+class JsonFunctionNameSegment(BaseSegment):
+    """JSON functions name segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/json-object-transact-sql
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = OneOf("JSON_ARRAY", "JSON_OBJECT")
+
+
 class RankFunctionNameSegment(BaseSegment):
     """Rank function name segment.
 
@@ -3236,6 +3278,58 @@ class ReplicateFunctionContentsSegment(BaseSegment):
     )
 
 
+class JsonFunctionContentsSegment(BaseSegment):
+    """JSON function contents."""
+
+    type = "function_contents"
+
+    _json_null_clause = OneOf(
+        Sequence("NULL", "ON", "NULL"),
+        Sequence("ABSENT", "ON", "NULL"),
+        optional=True,
+    )
+
+    _json_key_value = Sequence(
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("ParameterNameSegment"),
+        ),
+        Ref("ColonSegment"),
+        Sequence(
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("LiteralGrammar"),
+                Ref("NumericLiteralSegment"),
+                Ref("ColumnReferenceSegment"),
+                Ref("ParameterNameSegment"),
+                Ref("FunctionSegment"),
+                Bracketed(Ref("SelectStatementSegment")),
+                "NULL",
+            ),
+            _json_null_clause,
+        ),
+        allow_gaps=True,
+    )
+
+    match_grammar = OneOf(
+        Bracketed(
+            Delimited(
+                AnyNumberOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("ColumnReferenceSegment"),
+                    Ref("ParameterNameSegment"),
+                    "NULL",
+                    _json_null_clause,
+                )
+            )
+        ),
+        Bracketed(
+            Delimited(_json_key_value, _json_null_clause),
+        ),
+    )
+
+
 class RankFunctionContentsSegment(BaseSegment):
     """Rank Function contents."""
 
@@ -3270,11 +3364,7 @@ class FunctionSegment(BaseSegment):
         Sequence(
             Ref("RankFunctionNameSegment"),
             Ref("RankFunctionContentsSegment"),
-            "OVER",
-            Bracketed(
-                Ref("PartitionClauseSegment", optional=True),
-                Ref("OrderByClauseSegment"),
-            ),
+            Ref("OverClauseSegment"),
         ),
         Sequence(
             # https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql
@@ -3313,6 +3403,10 @@ class FunctionSegment(BaseSegment):
             ),
             Ref("FunctionContentsSegment"),
             Ref("PostFunctionGrammar", optional=True),
+        ),
+        Sequence(
+            Ref("JsonFunctionNameSegment"),
+            Ref("JsonFunctionContentsSegment"),
         ),
     )
 
@@ -4132,6 +4226,35 @@ class OpenRowSetSegment(BaseSegment):
                 ),
             ),
         ),
+        Ref("OpenRowSetWithClauseSegment", optional=True),
+    )
+
+
+class OpenRowSetWithClauseSegment(BaseSegment):
+    """A `WITH` clause of an `OPENROWSET()` segment.
+
+    https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/develop-openrowset#syntax
+    """
+
+    type = "openrowset_with_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),  # Column name
+                    Ref("DatatypeSegment"),  # Column type
+                    Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                    Ref("CollateGrammar", optional=True),
+                    OneOf(
+                        Ref("NumericLiteralSegment"),  # Column ordinal
+                        Ref("QuotedLiteralSegment"),  # JSON path
+                        optional=True,
+                    ),
+                )
+            )
+        ),
     )
 
 
@@ -4864,8 +4987,14 @@ class ExecuteScriptSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf("EXEC", "EXECUTE"),
         Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
-        OptionallyBracketed(
-            OneOf(Ref("ObjectReferenceSegment"), Ref("QuotedLiteralSegment"))
+        OneOf(
+            OptionallyBracketed(
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("QuotedLiteralSegment"),
+                )
+            ),
+            Bracketed(Ref("BaseExpressionElementGrammar")),
         ),
         Indent,
         Sequence(
@@ -5183,21 +5312,6 @@ class RaiserrorStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-    )
-
-
-class WindowSpecificationSegment(BaseSegment):
-    """Window specification within OVER(...).
-
-    Overriding ANSI to remove window name option not supported by TSQL
-    """
-
-    type = "window_specification"
-    match_grammar = Sequence(
-        Ref("PartitionClauseSegment", optional=True),
-        Ref("OrderByClauseSegment", optional=True),
-        Ref("FrameClauseSegment", optional=True),
-        optional=True,
     )
 
 
@@ -6683,6 +6797,39 @@ class DropMasterKeySegment(BaseSegment):
     )
 
 
+class OpenSymmetricKeySegment(BaseSegment):
+    """A `OPEN SYMMETRIC KEY` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/open-symmetric-key-transact-sql
+
+    type = "open_symmetric_key_statement"
+
+    # WITH PASSWORD = 'password'
+    _with_password = Sequence(
+        "WITH",
+        "PASSWORD",
+        Ref("EqualsSegment"),
+        Ref("QuotedLiteralSegment"),
+        optional=True,
+    )
+    _decryption_mechanism = OneOf(
+        Sequence("CERTIFICATE", Ref("ObjectReferenceSegment"), _with_password),
+        Sequence("ASYMMETRIC", "KEY", Ref("ObjectReferenceSegment"), _with_password),
+        Sequence("SYMMETRIC", "KEY", Ref("ObjectReferenceSegment")),
+        Sequence("PASSWORD", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+    )
+
+    match_grammar: Matchable = Sequence(
+        "OPEN",
+        "SYMMETRIC",
+        "KEY",
+        Ref("ObjectReferenceSegment"),
+        "DECRYPTION",
+        "BY",
+        _decryption_mechanism,
+    )
+
+
 class ExpressionSegment(BaseSegment):
     """An expression, either arithmetic or boolean.
 
@@ -6694,3 +6841,48 @@ class ExpressionSegment(BaseSegment):
     match_grammar: Matchable = OneOf(
         Ref("Expression_A_Grammar"), Ref("NextValueSequenceSegment")
     )
+
+
+class AdditionAssignmentSegment(CompositeBinaryOperatorSegment):
+    """An addition assignment (`+=`) segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/add-equals-transact-sql?view=sql-server-ver16
+    """
+
+    match_grammar = Sequence(Ref("PlusComparisonSegment"), Ref("RawEqualsSegment"))
+
+
+class SubtractionAssignmentSegment(CompositeBinaryOperatorSegment):
+    """A subtraction assignment (`-=`) segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/subtract-equals-transact-sql?view=sql-server-ver16
+    """
+
+    match_grammar = Sequence(Ref("MinusComparisonSegment"), Ref("RawEqualsSegment"))
+
+
+class MultiplicationAssignmentSegment(CompositeBinaryOperatorSegment):
+    """A multiplication assignment (`*=`) segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/multiply-equals-transact-sql?view=sql-server-ver16
+    """
+
+    match_grammar = Sequence(Ref("MultiplyComparisonSegment"), Ref("RawEqualsSegment"))
+
+
+class DivisionAssignmentSegment(CompositeBinaryOperatorSegment):
+    """A division assignment (`/=`) segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/divide-equals-transact-sql?view=sql-server-ver16
+    """
+
+    match_grammar = Sequence(Ref("DivideComparisonSegment"), Ref("RawEqualsSegment"))
+
+
+class ModulusAssignmentSegment(CompositeBinaryOperatorSegment):
+    """A modulus assignment (`%=`) segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/multiply-equals-transact-sql?view=sql-server-ver16
+    """
+
+    match_grammar = Sequence(Ref("ModuloComparisonSegment"), Ref("RawEqualsSegment"))

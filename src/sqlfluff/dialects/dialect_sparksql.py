@@ -1149,10 +1149,23 @@ class StructTypeSegment(hive.StructTypeSegment):
     pass
 
 
-class StructTypeSchemaSegment(hive.StructTypeSchemaSegment):
-    """STRUCT type schema as per hive."""
+class StructTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a STRUCT datatype."""
 
-    pass
+    type = "struct_type_schema"
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("ColonSegment", optional=True),
+                Ref("DatatypeSegment"),
+                Ref("CommentGrammar", optional=True),
+            ),
+            bracket_pairs_set="angle_bracket_pairs",
+        ),
+        bracket_pairs_set="angle_bracket_pairs",
+        bracket_type="angle",
+    )
 
 
 class SemiStructuredAccessorSegment(BaseSegment):
@@ -1163,7 +1176,13 @@ class SemiStructuredAccessorSegment(BaseSegment):
 
     type = "semi_structured_expression"
     match_grammar = Sequence(
-        Ref("ColonSegment"),
+        OneOf(
+            # If a field is already a VARIANT, this could
+            # be initiated by a colon or a dot. This is particularly
+            # useful when a field is an ARRAY of objects.
+            Ref("DotSegment"),
+            Ref("ColonSegment"),
+        ),
         OneOf(
             Ref("NakedSemiStructuredElementSegment"),
             Bracketed(Ref("QuotedSemiStructuredElementSegment"), bracket_type="square"),

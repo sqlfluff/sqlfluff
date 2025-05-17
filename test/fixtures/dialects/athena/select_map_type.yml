@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 208f4fb930d7f9fff0c15042d8c0528a0cef5ca588f5036b58acda707535e218
+_hash: f24f74acb60e0cc4ff5c2da45236b963557a1f060c32183bf2364b522abed955
 file:
 - statement:
     select_statement:
@@ -88,36 +88,37 @@ file:
         naked_identifier: map_table
     - values_clause:
         keyword: values
-        bracketed:
-          start_bracket: (
-          expression:
-            function:
-              function_name:
-                function_name_identifier: MAP
-              function_contents:
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    typed_array_literal:
-                      array_type:
-                        keyword: ARRAY
-                      array_literal:
-                      - start_square_bracket: '['
-                      - quoted_literal: "'foo'"
-                      - comma: ','
-                      - quoted_literal: "'bar'"
-                      - end_square_bracket: ']'
-                - comma: ','
-                - expression:
-                    typed_array_literal:
-                      array_type:
-                        keyword: ARRAY
-                      array_literal:
-                      - start_square_bracket: '['
-                      - numeric_literal: '1'
-                      - comma: ','
-                      - numeric_literal: '2'
-                      - end_square_bracket: ']'
-                - end_bracket: )
-          end_bracket: )
+        expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: MAP
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      typed_array_literal:
+                        array_type:
+                          keyword: ARRAY
+                        array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: "'foo'"
+                        - comma: ','
+                        - quoted_literal: "'bar'"
+                        - end_square_bracket: ']'
+                  - comma: ','
+                  - expression:
+                      typed_array_literal:
+                        array_type:
+                          keyword: ARRAY
+                        array_literal:
+                        - start_square_bracket: '['
+                        - numeric_literal: '1'
+                        - comma: ','
+                        - numeric_literal: '2'
+                        - end_square_bracket: ']'
+                  - end_bracket: )
+            end_bracket: )
 - statement_terminator: ;

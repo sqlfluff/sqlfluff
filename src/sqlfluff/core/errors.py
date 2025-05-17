@@ -11,17 +11,17 @@ tracking.
 https://stackoverflow.com/questions/49715881/how-to-pickle-inherited-exceptions
 """
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union, cast
+from typing import TYPE_CHECKING, Any, Optional, Union, cast
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser import BaseSegment, PositionMarker
     from sqlfluff.core.rules import BaseRule, LintFix
 
-CheckTuple = Tuple[str, int, int]
-SerializedObject = Dict[str, Union[str, int, bool, List["SerializedObject"]]]
+CheckTuple = tuple[str, int, int]
+SerializedObject = dict[str, Union[str, int, bool, list["SerializedObject"]]]
 
 
-def _extract_position(segment: Optional["BaseSegment"]) -> Dict[str, int]:
+def _extract_position(segment: Optional["BaseSegment"]) -> dict[str, int]:
     """If a segment is present and is a literal, return it's source length."""
     if segment:
         position = segment.pos_marker
@@ -70,7 +70,7 @@ class SQLBaseError(ValueError):
 
     def __reduce__(
         self,
-    ) -> Tuple[Type["SQLBaseError"], Tuple[Any, ...]]:
+    ) -> tuple[type["SQLBaseError"], tuple[Any, ...]]:
         """Prepare the SQLBaseError for pickling."""
         return type(self), (
             self.description,
@@ -124,23 +124,23 @@ class SQLBaseError(ValueError):
             self.line_pos,
         )
 
-    def source_signature(self) -> Tuple[Any, ...]:
+    def source_signature(self) -> tuple[Any, ...]:
         """Return hashable source signature for deduplication."""
         return (self.check_tuple(), self.desc())
 
-    def ignore_if_in(self, ignore_iterable: List[str]) -> None:
+    def ignore_if_in(self, ignore_iterable: list[str]) -> None:
         """Ignore this violation if it matches the iterable."""
         if self._identifier in ignore_iterable:
             self.ignore = True
 
-    def warning_if_in(self, warning_iterable: List[str]) -> None:
+    def warning_if_in(self, warning_iterable: list[str]) -> None:
         """Warning only for this violation if it matches the iterable.
 
         Designed for rule codes so works with L001, LL0X but also TMP or PRS
         for templating and parsing errors.
 
         Args:
-            warning_iterable (List[str]): A list of strings representing the warning
+            warning_iterable (list[str]): A list of strings representing the warning
                 codes to check.
 
         Returns:
@@ -220,7 +220,7 @@ class SQLParseError(SQLBaseError):
 
     def __reduce__(
         self,
-    ) -> Tuple[Type["SQLParseError"], Tuple[Any, ...]]:
+    ) -> tuple[type["SQLParseError"], tuple[Any, ...]]:
         """Prepare the SQLParseError for pickling."""
         return type(self), (
             self.description,
@@ -267,7 +267,7 @@ class SQLLintError(SQLBaseError):
         description: str,
         segment: "BaseSegment",
         rule: "BaseRule",
-        fixes: Optional[List["LintFix"]] = None,
+        fixes: Optional[list["LintFix"]] = None,
         ignore: bool = False,
         fatal: bool = False,
         warning: Optional[bool] = None,
@@ -285,7 +285,7 @@ class SQLLintError(SQLBaseError):
 
     def __reduce__(
         self,
-    ) -> Tuple[Type["SQLLintError"], Tuple[Any, ...]]:
+    ) -> tuple[type["SQLLintError"], tuple[Any, ...]]:
         """Prepare the SQLLintError for pickling."""
         return type(self), (
             self.description,
@@ -312,7 +312,7 @@ class SQLLintError(SQLBaseError):
         # Edge case: If the base error doesn't have an end position
         # but we only have one fix and it _does_. Then use use that in the
         # overall fix.
-        _fixes = cast(List[SerializedObject], _base_dict.get("fixes", []))
+        _fixes = cast(list[SerializedObject], _base_dict.get("fixes", []))
         if "end_line_pos" not in _base_dict and len(_fixes) == 1:
             _fix = _fixes[0]
             # If the mandatory keys match...
@@ -346,7 +346,7 @@ class SQLLintError(SQLBaseError):
         """Fetch the name of the rule which cause this error."""
         return self.rule.name
 
-    def source_signature(self) -> Tuple[Any, ...]:
+    def source_signature(self) -> tuple[Any, ...]:
         """Return hashable source signature for deduplication.
 
         For linting errors we need to dedupe on more than just location and
@@ -356,7 +356,7 @@ class SQLLintError(SQLBaseError):
         fix_raws = tuple(
             tuple(e.raw for e in f.edit) if f.edit else None for f in self.fixes
         )
-        _source_fixes: List[Tuple[str, int, int]] = []
+        _source_fixes: list[tuple[str, int, int]] = []
         for fix in self.fixes:
             if not fix.edit:
                 continue

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 72a427cac4910bd00b0e70ccbc8fea04c0d16f25ddc293b83871cfb5d25b05d3
+_hash: 087a0e455d9e14d4bae84ed573b38e4fcc411914f68a9ed336429258131050a7
 file:
 - statement:
     alter_role_statement:
@@ -38,10 +38,11 @@ file:
     - role_reference:
         quoted_identifier: '"test_role"'
     - keyword: SET
-    - keyword: COMMENT
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - quoted_literal: "'test_comment'"
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'test_comment'"
 - statement_terminator: ;
 - statement:
     alter_role_statement:
@@ -62,10 +63,11 @@ file:
     - role_reference:
         quoted_identifier: '"test_role"'
     - keyword: SET
-    - keyword: COMMENT
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - quoted_literal: "'test_comment'"
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'test_comment'"
 - statement_terminator: ;
 - statement:
     alter_role_statement:

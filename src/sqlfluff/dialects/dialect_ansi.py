@@ -12,8 +12,9 @@ grammar. Check out their docs, they're awesome.
 https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
 
+from collections.abc import Generator
 from enum import Enum
-from typing import Generator, List, NamedTuple, Optional, Set, Tuple, Union, cast
+from typing import NamedTuple, Optional, Union, cast
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
@@ -522,6 +523,7 @@ ansi_dialect.add(
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("WithDataClauseSegment"),
         "FETCH",
+        "OFFSET",
     ),
     WhereClauseTerminatorGrammar=OneOf(
         "LIMIT",
@@ -762,7 +764,7 @@ ansi_dialect.add(
     ListComprehensionGrammar=Nothing(),
     TimeWithTZGrammar=Sequence(
         OneOf("TIME", "TIMESTAMP"),
-        Bracketed(Ref("NumericLiteralSegment"), optional=True),
+        Ref("BracketedArguments", optional=True),
         Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
     ),
     SequenceMinValueGrammar=OneOf(
@@ -791,7 +793,7 @@ class FileSegment(BaseFileSegment):
         allow_trailing=True,
     )
 
-    def get_table_references(self) -> Set[str]:
+    def get_table_references(self) -> set[str]:
         """Use parsed tree to extract table references."""
         references = set()
         for stmt in self.get_children("statement"):
@@ -1028,7 +1030,7 @@ class DatatypeSegment(BaseSegment):
             ),
             # There may be no brackets for some data types
             Ref("BracketedArguments", optional=True),
-            OneOf(
+            AnyNumberOf(
                 "UNSIGNED",  # UNSIGNED MySQL
                 Ref("CharCharacterSetGrammar"),
                 optional=True,
@@ -1061,7 +1063,7 @@ class ObjectReferenceSegment(BaseSegment):
         # Segment(s) comprising the part. Usuaully just one segment, but could
         # be multiple in dialects (e.g. BigQuery) that support unusual
         # characters in names (e.g. "-")
-        segments: List[BaseSegment]
+        segments: list[BaseSegment]
 
     @classmethod
     def _iter_reference_parts(cls, elem) -> Generator[ObjectReferencePart, None, None]:
@@ -1107,7 +1109,7 @@ class ObjectReferenceSegment(BaseSegment):
 
     def extract_possible_references(
         self, level: Union[ObjectReferenceLevel, int]
-    ) -> List[ObjectReferencePart]:
+    ) -> list[ObjectReferencePart]:
         """Extract possible references of a given level.
 
         "level" may be (but is not required to be) a value from the
@@ -1124,8 +1126,8 @@ class ObjectReferenceSegment(BaseSegment):
         return []
 
     def extract_possible_multipart_references(
-        self, levels: List[Union[ObjectReferenceLevel, int]]
-    ) -> List[Tuple[ObjectReferencePart, ...]]:
+        self, levels: list[Union[ObjectReferenceLevel, int]]
+    ) -> list[tuple[ObjectReferencePart, ...]]:
         """Extract possible multipart references, e.g. schema.table."""
         levels_tmp = [self._level_to_int(level) for level in levels]
         min_level = min(levels_tmp)
@@ -1249,15 +1251,6 @@ class ArrayAccessorSegment(BaseSegment):
         ),
         bracket_type="square",
         parse_mode=ParseMode.GREEDY,
-    )
-
-
-class AliasedObjectReferenceSegment(BaseSegment):
-    """A reference to an object with an `AS` clause."""
-
-    type = "object_reference"
-    match_grammar: Matchable = Sequence(
-        Ref("ObjectReferenceSegment"), Ref("AliasExpressionSegment")
     )
 
 
@@ -1672,12 +1665,17 @@ class FromExpressionElementSegment(BaseSegment):
             if segment:
                 segment = cast(IdentifierSegment, segment)
                 return AliasInfo(
-                    segment.raw, segment, True, self, alias_expression, ref
+                    segment.raw_normalized(casefold=False),
+                    segment,
+                    True,
+                    self,
+                    alias_expression,
+                    ref,
                 )
 
         # If not return the object name (or None if there isn't one)
         if ref:
-            references: List = list(ref.iter_raw_references())
+            references: list = list(ref.iter_raw_references())
             # Return the last element of the reference.
             if references:
                 penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = (
@@ -1818,7 +1816,14 @@ class SelectClauseElementSegment(BaseSegment):
 
     def get_alias(self) -> Optional[ColumnAliasInfo]:
         """Get info on alias within SELECT clause element."""
-        alias_expression_segment = next(self.recursive_crawl("alias_expression"), None)
+        alias_expression_segment = next(
+            self.recursive_crawl(
+                "alias_expression",
+                # don't recurse into any subqueries
+                no_recursive_seg_type="select_statement",
+            ),
+            None,
+        )
         if alias_expression_segment is None:
             # Return None if no alias expression is found.
             return None
@@ -1941,7 +1946,7 @@ class JoinClauseSegment(BaseSegment):
         ),
     )
 
-    def get_eventual_aliases(self) -> List[Tuple[BaseSegment, AliasInfo]]:
+    def get_eventual_aliases(self) -> list[tuple[BaseSegment, AliasInfo]]:
         """Return the eventual table name referred to by this join clause."""
         buff = []
 
@@ -1965,7 +1970,7 @@ class JoinClauseSegment(BaseSegment):
                 # If the starting segment itself matches the list of types we're
                 # searching for, recursive_crawl() will return it. Skip that.
                 continue
-            aliases: List[Tuple[BaseSegment, AliasInfo]] = cast(
+            aliases: list[tuple[BaseSegment, AliasInfo]] = cast(
                 JoinClauseSegment, join_clause
             ).get_eventual_aliases()
             # Only append if non-null. A None reference, may
@@ -2015,12 +2020,12 @@ class FromClauseSegment(BaseSegment):
         ),
     )
 
-    def get_eventual_aliases(self) -> List[Tuple[BaseSegment, AliasInfo]]:
+    def get_eventual_aliases(self) -> list[tuple[BaseSegment, AliasInfo]]:
         """List the eventual aliases of this from clause.
 
         Comes as a list of tuples (table expr, tuple (string, segment, bool)).
         """
-        buff: List[Tuple[BaseSegment, AliasInfo]] = []
+        buff: list[tuple[BaseSegment, AliasInfo]] = []
         direct_table_children = []
         join_clauses = []
 
@@ -2046,7 +2051,7 @@ class FromClauseSegment(BaseSegment):
                 assert table_expr
                 buff.append((table_expr, alias))
         for clause in join_clauses:
-            aliases: List[Tuple[BaseSegment, AliasInfo]] = cast(
+            aliases: list[tuple[BaseSegment, AliasInfo]] = cast(
                 JoinClauseSegment, clause
             ).get_eventual_aliases()
             # Only append if non-null. A None reference, may
@@ -2712,7 +2717,21 @@ class FetchClauseSegment(BaseSegment):
             optional=True,
         ),
         OneOf("ROW", "ROWS"),
-        "ONLY",
+        OneOf("ONLY", Sequence("WITH", "TIES")),
+    )
+
+
+class OffsetClauseSegment(BaseSegment):
+    """An `OFFSET` clause like in `SELECT`."""
+
+    type = "offset_clause"
+    match_grammar: Matchable = Sequence(
+        "OFFSET",
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("ExpressionSegment", exclude=Ref.keyword("ROW")),
+        ),
+        OneOf("ROW", "ROWS"),
     )
 
 
@@ -2800,6 +2819,7 @@ class SelectStatementSegment(BaseSegment):
     match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
+            Ref("OffsetClauseSegment", optional=True),
             Ref("FetchClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),
@@ -4120,7 +4140,7 @@ class StatementSegment(BaseSegment):
         terminators=[Ref("DelimiterGrammar")],
     )
 
-    def get_table_references(self) -> Set[str]:
+    def get_table_references(self) -> set[str]:
         """Use parsed tree to extract table references."""
         table_refs = {
             tbl_ref.raw for tbl_ref in self.recursive_crawl("table_reference")

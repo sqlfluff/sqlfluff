@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 84fadab934cf174f454d0fa9b518ddb7164fa80fe55111cd14f33d8c97b93fb7
+_hash: edf3c24cf4a000d212d62b7a821ffe43e185aa125c1e593db1ac52ceda099cfc
 file:
   batch:
   - statement:
@@ -230,5 +230,80 @@ file:
         bracketed:
           start_bracket: (
           quoted_literal: "'DROP TABLE BoardInventory.BoardInventoryFact_Stage;'"
+          end_bracket: )
+        statement_terminator: ;
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@s1'
+      - keyword: AS
+      - data_type:
+          data_type_identifier: varchar
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '10'
+              end_bracket: )
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          null_literal: 'NULL'
+      - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@s2'
+        data_type:
+          data_type_identifier: varchar
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '10'
+              end_bracket: )
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          null_literal: 'NULL'
+        statement_terminator: ;
+  - statement:
+      set_segment:
+        keyword: SET
+        parameter: '@s1'
+        assignment_operator:
+          raw_comparison_operator: '='
+        expression:
+          quoted_literal: "'select '"
+        statement_terminator: ;
+  - statement:
+      set_segment:
+        keyword: SET
+        parameter: '@s2'
+        assignment_operator:
+          raw_comparison_operator: '='
+        expression:
+          quoted_literal: "'123'"
+        statement_terminator: ;
+  - statement:
+      execute_script_statement:
+        keyword: EXECUTE
+        bracketed:
+          start_bracket: (
+          expression:
+          - parameter: '@s1'
+          - binary_operator: +
+          - parameter: '@s2'
+          end_bracket: )
+        statement_terminator: ;
+  - statement:
+      execute_script_statement:
+        keyword: EXEC
+        bracketed:
+          start_bracket: (
+          expression:
+          - quoted_literal: "'select '"
+          - binary_operator: +
+          - quoted_literal: "'123'"
           end_bracket: )
         statement_terminator: ;

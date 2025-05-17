@@ -305,6 +305,7 @@ mysql_dialect.replace(
         )
     ),
     LikeGrammar=OneOf("LIKE", "RLIKE", "REGEXP"),
+    CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
 )
 
 mysql_dialect.add(
@@ -378,7 +379,7 @@ class ColumnDefinitionSegment(BaseSegment):
             ),
             Sequence(
                 OneOf("DATETIME", "TIMESTAMP"),
-                Bracketed(Ref("NumericLiteralSegment"), optional=True),  # Precision
+                Ref("BracketedArguments", optional=True),  # Precision
                 AnyNumberOf(
                     # Allow NULL/NOT NULL, DEFAULT, and ON UPDATE in any order
                     Sequence(Sequence("NOT", optional=True), "NULL", optional=True),
@@ -975,14 +976,23 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
 
     match_grammar: Matchable = OneOf(
         ansi.ColumnConstraintSegment.match_grammar,
-        Sequence("CHARACTER", "SET", Ref("NakedIdentifierSegment")),
-        Sequence("COLLATE", Ref("CollationReferenceSegment")),
+        Sequence(
+            "CHARACTER",
+            "SET",
+            OneOf(
+                Ref("SingleIdentifierGrammar"),
+                Ref("SingleQuotedIdentifierSegment"),
+                Ref("DoubleQuotedIdentifierSegment"),
+            ),
+        ),
+        Ref("CollateGrammar"),
         Sequence(
             Sequence("GENERATED", "ALWAYS", optional=True),
             "AS",
             Bracketed(Ref("ExpressionSegment")),
             OneOf("STORED", "VIRTUAL", optional=True),
         ),
+        Sequence("SRID", Ref("NumericLiteralSegment")),
     )
 
 
@@ -1664,6 +1674,47 @@ class AlterTableStatementSegment(BaseSegment):
                 # CONVERT TO CHARACTER SET charset_name [COLLATE collation_name]
                 Sequence("CONVERT", "TO", AnyNumberOf(Ref("AlterOptionSegment"))),
             ),
+            optional=True,
+        ),
+        Sequence(
+            OneOf(
+                "ADD",
+                "DROP",
+                "DISCARD",
+                "IMPORT",
+                "TRUNCATE",
+                "COALESCE",
+                "REORGANIZE",
+                "EXCHANGE",
+                "ANALYZE",
+                "CHECK",
+                "OPTIMIZE",
+                "REBUILD",
+                "REPAIR",
+                "REMOVE",
+            ),
+            OneOf("PARTITION", "PARTITIONING"),
+            OneOf(
+                Ref("SingleIdentifierGrammar"),
+                Ref("NumericLiteralSegment"),
+                "ALL",
+                Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+            ),
+            Ref.keyword("TABLESPACE", optional=True),
+            Sequence(
+                "WITH",
+                "TABLE",
+                Ref("TableReference"),
+                OneOf("WITH", "WITHOUT"),
+                "VALIDATION",
+                optional=True,
+            ),
+            Sequence(
+                "INTO",
+                Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+                optional=True,
+            ),
+            optional=True,
         ),
     )
 
@@ -2941,7 +2992,11 @@ class AlterOptionSegment(BaseSegment):
                 "CHARACTER",
                 "SET",
                 Ref("EqualsSegment", optional=True),
-                Ref("NakedIdentifierSegment"),
+                OneOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("SingleQuotedIdentifierSegment"),
+                    Ref("DoubleQuotedIdentifierSegment"),
+                ),
             ),
             Sequence(
                 Ref.keyword("DEFAULT", optional=True),
@@ -3127,4 +3182,52 @@ class DropEventStatementSegment(BaseSegment):
         "EVENT",
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
+    )
+
+
+class DatatypeSegment(BaseSegment):
+    """A data type segment.
+
+    Supports timestamp with(out) time zone. Doesn't currently support intervals.
+    """
+
+    type = "data_type"
+    match_grammar: Matchable = OneOf(
+        Ref("TimeWithTZGrammar"),
+        Sequence(
+            "DOUBLE",
+            "PRECISION",
+        ),
+        Sequence(
+            OneOf(
+                Sequence(
+                    OneOf("CHARACTER", "BINARY"),
+                    OneOf("VARYING", Sequence("LARGE", "OBJECT")),
+                ),
+                Sequence(
+                    # Some dialects allow optional qualification of data types with
+                    # schemas
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DotSegment"),
+                        allow_gaps=False,
+                        optional=True,
+                    ),
+                    Ref("DatatypeIdentifierSegment"),
+                    allow_gaps=False,
+                ),
+            ),
+            # There may be no brackets for some data types
+            Ref("BracketedArguments", optional=True),
+            OneOf(
+                Ref("CharCharacterSetGrammar"),
+                "SIGNED",
+                "UNSIGNED",
+                "ZEROFILL",
+                Sequence("ZEROFILL", "UNSIGNED"),
+                Sequence("UNSIGNED", "ZEROFILL"),
+                optional=True,
+            ),
+        ),
+        Ref("ArrayTypeSegment"),
     )

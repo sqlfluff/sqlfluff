@@ -3,10 +3,11 @@
 import hashlib
 import io
 import os
-from typing import List, NamedTuple, Tuple
+from typing import NamedTuple
 
 import pytest
 import yaml
+from yaml import CDumper, CLoader
 
 from sqlfluff.cli.commands import quoted_presenter
 from sqlfluff.core import FluffConfig
@@ -39,7 +40,7 @@ class ParseExample(NamedTuple):
 
 def get_parse_fixtures(
     fail_on_missing_yml=False,
-) -> Tuple[List[ParseExample], List[Tuple[str, str, bool, str]]]:
+) -> tuple[list[ParseExample], list[tuple[str, str, bool, str]]]:
     """Search for all parsing fixtures."""
     parse_success_examples = []
     parse_structure_examples = []
@@ -129,7 +130,7 @@ def compute_parse_tree_hash(tree):
         r = tree.as_record(code_only=True, show_raw=True)
         if r:
             r_io = io.StringIO()
-            yaml.dump(r, r_io, sort_keys=False, allow_unicode=True)
+            yaml.dump(r, r_io, sort_keys=False, allow_unicode=True, Dumper=CDumper)
             result = hashlib.blake2s(r_io.getvalue().encode("utf-8")).hexdigest()
             return result
     return None
@@ -141,7 +142,7 @@ def load_yaml(fpath):
     with open(fpath, encoding="utf8") as f:
         raw = f.read()
     # Parse the yaml
-    obj = yaml.safe_load(raw)
+    obj = yaml.load(raw, Loader=CLoader)
     # Return the parsed and structured object
     _hash = None
     if obj:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 97bc6607222c092b0a1a308d98e4b0c9b52c73ed743c3f86794b3875146672f5
+_hash: f194fd275c52915911a0c68a8322bfc7deba51306993ae0074b44dba97ec7159
 file:
 - statement:
     access_statement:
@@ -1107,6 +1107,19 @@ file:
 - statement:
     access_statement:
     - keyword: GRANT
+    - keyword: EXECUTE
+    - keyword: MANAGED
+    - keyword: TASK
+    - keyword: 'ON'
+    - keyword: ACCOUNT
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
     - keyword: IMPORT
     - keyword: SHARE
     - keyword: 'ON'
@@ -1483,4 +1496,198 @@ file:
     - keyword: ROLE
     - role_reference:
         naked_identifier: PUBLIC
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: CREATE
+    - keyword: NOTEBOOK
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: OWNERSHIP
+    - keyword: 'ON'
+    - keyword: NOTEBOOK
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYNOTEBOOK
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: USAGE
+    - keyword: 'ON'
+    - keyword: NOTEBOOK
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYNOTEBOOK
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: REVOKE
+    - keyword: CREATE
+    - keyword: NOTEBOOK
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+    - keyword: FROM
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: REVOKE
+    - keyword: USAGE
+    - keyword: 'ON'
+    - keyword: NOTEBOOK
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYNOTEBOOK
+    - keyword: FROM
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: CREATE
+    - keyword: MODEL
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: OWNERSHIP
+    - keyword: 'ON'
+    - keyword: MODEL
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYMODEL
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: USAGE
+    - keyword: 'ON'
+    - keyword: MODEL
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYMODEL
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: REVOKE
+    - keyword: CREATE
+    - keyword: MODEL
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+    - keyword: FROM
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: REVOKE
+    - keyword: USAGE
+    - keyword: 'ON'
+    - keyword: MODEL
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYMODEL
+    - keyword: FROM
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: USAGE
+    - keyword: 'ON'
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - object_reference:
+        naked_identifier: ext_vol
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: REVOKE
+    - keyword: USAGE
+    - keyword: 'ON'
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - object_reference:
+        naked_identifier: ext_vol
+    - keyword: FROM
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: MY_ROLE
 - statement_terminator: ;

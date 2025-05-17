@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a37eed13c4e996a62daade20220a7dbd0965899a21e34ba0dbc91afaf31accd7
+_hash: a5602be28c3567447a96bc25c3b1e835c8dd131ce1241b05df272b90b58ec927
 file:
 - statement:
     create_authentication_policy_segment:
@@ -37,10 +37,11 @@ file:
         start_bracket: (
         quoted_literal: "'MY CLIENT'"
         end_bracket: )
-    - keyword: COMMENT
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - quoted_literal: "'My Comment'"
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'My Comment'"
 - statement_terminator: ;
 - statement:
     create_authentication_policy_segment:
@@ -74,10 +75,11 @@ file:
       - comma: ','
       - quoted_literal: "'CLIENT3'"
       - end_bracket: )
-    - keyword: COMMENT
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - quoted_literal: "'My Comment'"
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'My Comment'"
 - statement_terminator: ;
 - statement:
     create_authentication_policy_segment:

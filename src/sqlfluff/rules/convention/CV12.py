@@ -1,11 +1,10 @@
 """Implementation of Rule CV12."""
 
 import collections
-from typing import Deque, Iterator, List
+from collections.abc import Iterator
+from typing import Deque
 
-from sqlfluff.core.parser import (
-    BaseSegment,
-)
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.parser.segments.common import (
     BinaryOperatorSegment,
     WhitespaceSegment,
@@ -114,12 +113,13 @@ class Rule_CV12(BaseRule):
             ]
 
             if any(
-                kw.raw_upper in ("CROSS", "POSITIONAL", "USING")
+                kw.raw_upper in ("CROSS", "POSITIONAL", "USING", "APPLY")
                 for kw in join_clause_keywords
             ):
                 # If explicit CROSS JOIN is used, disregard lack of condition
                 # If explicit POSITIONAL JOIN is used, disregard lack of condition
                 # If explicit JOIN USING is used, disregard lack of condition
+                # If explicit CROSS/OUTER APPLY is used, disregard lack of condition
                 continue
 
             this_join_condition = join_clause.get_child("join_on_condition")
@@ -259,7 +259,7 @@ class Rule_CV12(BaseRule):
         return all(op.raw_upper == "AND" for op in ops)
 
     @staticmethod
-    def _get_subexpression_chunks(expr: BaseSegment) -> List[List[BaseSegment]]:
+    def _get_subexpression_chunks(expr: BaseSegment) -> list[list[BaseSegment]]:
         expr_segments = expr.segments
         bin_op_indices = [
             i for i, e in enumerate(expr_segments) if e.is_type("binary_operator")

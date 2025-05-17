@@ -1,6 +1,7 @@
 """Implementation of Rule RF03."""
 
-from typing import Iterator, List, Optional, Set
+from collections.abc import Iterator
+from typing import Optional
 
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser import IdentifierSegment
@@ -95,7 +96,7 @@ class Rule_RF03(BaseRule):
             self._is_struct_dialect = True
 
         query: Query = Query.from_segment(context.segment, dialect=context.dialect)
-        visited: Set = set()
+        visited: set = set()
         # Recursively visit and check each query in the tree.
         return list(self._visit_queries(query, visited))
 
@@ -169,10 +170,10 @@ class Rule_RF03(BaseRule):
 
 
 def _check_references(
-    table_aliases: List[AliasInfo],
-    standalone_aliases: List[BaseSegment],
-    references: List[ObjectReferenceSegment],
-    col_aliases: List[ColumnAliasInfo],
+    table_aliases: list[AliasInfo],
+    standalone_aliases: list[BaseSegment],
+    references: list[ObjectReferenceSegment],
+    col_aliases: list[ColumnAliasInfo],
     single_table_references: str,
     is_struct_dialect: bool,
     fix_inconsistent_to: Optional[str],
@@ -180,11 +181,11 @@ def _check_references(
 ) -> Iterator[LintResult]:
     """Iterate through references and check consistency."""
     # A buffer to keep any violations.
-    col_alias_names: List[str] = [c.alias_identifier_name for c in col_aliases]
+    col_alias_names: list[str] = [c.alias_identifier_name for c in col_aliases]
     table_ref_str: str = table_aliases[0].ref_str
     table_ref_str_source = table_aliases[0].segment
     # Check all the references that we have.
-    seen_ref_types: Set[str] = set()
+    seen_ref_types: set[str] = set()
     for ref in references:
         this_ref_type: str = ref.qualification()
         if this_ref_type == "qualified" and is_struct_dialect:
@@ -230,11 +231,11 @@ def _validate_one_reference(
     single_table_references: str,
     ref: ObjectReferenceSegment,
     this_ref_type: str,
-    standalone_aliases: List[BaseSegment],
+    standalone_aliases: list[BaseSegment],
     table_ref_str: str,
     table_ref_str_source: Optional[BaseSegment],
-    col_alias_names: List[str],
-    seen_ref_types: Set[str],
+    col_alias_names: list[str],
+    seen_ref_types: set[str],
     fixable: bool,
 ) -> Optional[LintResult]:
     # We skip any unqualified wildcard references (i.e. *). They shouldn't

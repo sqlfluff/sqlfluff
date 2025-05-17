@@ -1,0 +1,156 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c05ca4aabd8636951e0838fb6c297da15deed382798d797c5426447c5158fe9e
+file:
+- statement:
+    values_clause:
+    - keyword: VALUES
+    - expression:
+        numeric_literal: '1'
+    - comma: ','
+    - expression:
+        numeric_literal: '2'
+    - comma: ','
+    - expression:
+        numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: VALUES
+    - expression:
+        bracketed:
+          start_bracket: (
+          numeric_literal: '1'
+          comma: ','
+          quoted_literal: "'a'"
+          end_bracket: )
+    - comma: ','
+    - expression:
+        bracketed:
+          start_bracket: (
+          numeric_literal: '2'
+          comma: ','
+          quoted_literal: "'b'"
+          end_bracket: )
+    - comma: ','
+    - expression:
+        bracketed:
+          start_bracket: (
+          numeric_literal: '3'
+          comma: ','
+          quoted_literal: "'c'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - expression:
+                    bracketed:
+                      start_bracket: (
+                      numeric_literal: '1'
+                      comma: ','
+                      quoted_literal: "'a'"
+                      end_bracket: )
+                - comma: ','
+                - expression:
+                    bracketed:
+                      start_bracket: (
+                      numeric_literal: '2'
+                      comma: ','
+                      quoted_literal: "'b'"
+                      end_bracket: )
+                - comma: ','
+                - expression:
+                    bracketed:
+                      start_bracket: (
+                      numeric_literal: '3'
+                      comma: ','
+                      quoted_literal: "'c'"
+                      end_bracket: )
+              end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: id
+                - comma: ','
+                - naked_identifier: name
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: customers
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  values_clause:
+                  - keyword: VALUES
+                  - expression:
+                      bracketed:
+                        start_bracket: (
+                        numeric_literal: '1'
+                        comma: ','
+                        quoted_literal: "'a'"
+                        end_bracket: )
+                  - comma: ','
+                  - expression:
+                      bracketed:
+                        start_bracket: (
+                        numeric_literal: '2'
+                        comma: ','
+                        quoted_literal: "'b'"
+                        end_bracket: )
+                  - comma: ','
+                  - expression:
+                      bracketed:
+                        start_bracket: (
+                        numeric_literal: '3'
+                        comma: ','
+                        quoted_literal: "'c'"
+                        end_bracket: )
+                end_bracket: )
+              alias_expression:
+                keyword: AS
+                naked_identifier: t
+                bracketed:
+                  start_bracket: (
+                  identifier_list:
+                  - naked_identifier: id
+                  - comma: ','
+                  - naked_identifier: name
+                  end_bracket: )
+- statement_terminator: ;

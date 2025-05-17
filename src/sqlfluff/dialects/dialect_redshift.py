@@ -15,6 +15,8 @@ from sqlfluff.core.parser import (
     Delimited,
     IdentifierSegment,
     ImplicitIndent,
+    Indent,
+    LiteralKeywordSegment,
     Matchable,
     Nothing,
     OneOf,
@@ -24,6 +26,7 @@ from sqlfluff.core.parser import (
     RegexParser,
     SegmentGenerator,
     Sequence,
+    StringParser,
     WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -207,6 +210,12 @@ redshift_dialect.replace(
             casefold=str.lower,
         )
     ),
+    LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
+        insert=[
+            Ref("MaxLiteralSegment"),
+            Ref("DollarNumericLiteralSegment"),
+        ]
+    ),
 )
 
 redshift_dialect.patch_lexer_matchers(
@@ -262,6 +271,7 @@ redshift_dialect.add(
             "UNLIMITED",
         ),
     ),
+    MaxLiteralSegment=StringParser("max", LiteralKeywordSegment, type="max_literal"),
 )
 
 
@@ -431,6 +441,12 @@ class DatatypeSegment(BaseSegment):
             Ref("BracketedArguments", optional=True),
         ),
         "ANYELEMENT",
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DotSegment"),
+            Ref("DatatypeIdentifierSegment"),
+            allow_gaps=False,
+        ),
     )
 
 
@@ -797,7 +813,7 @@ class CreateTableStatementSegment(BaseSegment):
         Bracketed(
             Delimited(
                 # Columns and comment syntax:
-                AnyNumberOf(
+                OneOf(
                     Sequence(
                         Ref("ColumnReferenceSegment"),
                         Ref("DatatypeSegment"),
@@ -2697,4 +2713,108 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
+    )
+
+
+class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
+    """An extension of the star expression for Redshift."""
+
+    match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
+        insert=[
+            # Optional Exclude
+            Ref("ExcludeClauseSegment", optional=True),
+        ]
+    )
+
+
+class ExcludeClauseSegment(BaseSegment):
+    """A Redshift SELECT EXCLUDE clause.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_EXCLUDE_list.html
+    """
+
+    type = "select_exclude_clause"
+    match_grammar = Sequence(
+        "EXCLUDE",
+        OneOf(
+            Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+            Ref("SingleIdentifierGrammar"),
+        ),
+    )
+
+
+class GroupByClauseSegment(postgres.GroupByClauseSegment):
+    """A `GROUP BY` clause like in `SELECT`."""
+
+    type = "groupby_clause"
+    match_grammar = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        Delimited(
+            OneOf(
+                "ALL",
+                Ref("ColumnReferenceSegment"),
+                # Can `GROUP BY 1`
+                Ref("NumericLiteralSegment"),
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingSetsClauseSegment"),
+                # Can `GROUP BY coalesce(col, 1)`
+                Ref("ExpressionSegment"),
+                Bracketed(),  # Allows empty parentheses
+            ),
+            terminators=[
+                Sequence("ORDER", "BY"),
+                "LIMIT",
+                "HAVING",
+                "QUALIFY",
+                "WINDOW",
+                Ref("SetOperatorSegment"),
+            ],
+        ),
+        Dedent,
+    )
+
+
+class MergeStatementSegment(ansi.MergeStatementSegment):
+    """A `MERGE` statement.
+
+    https://docs.aws.amazon.com/pt_br/redshift/latest/dg/r_MERGE.html
+    """
+
+    match_grammar = ansi.MergeStatementSegment.match_grammar.copy(
+        insert=[OneOf(Ref("MergeMatchSegment"), Sequence("REMOVE", "DUPLICATES"))],
+        remove=[
+            Ref("MergeMatchSegment"),
+        ],
+    )
+
+
+class PrepareStatementSegment(postgres.PrepareStatementSegment):
+    """A `PREPARE` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_PREPARE.html
+    """
+
+    type = "prepare_statement"
+    match_grammar = Sequence(
+        "PREPARE",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
+        "AS",
+        Ref("SelectableGrammar"),
+    )
+
+
+class DeallocateStatementSegment(postgres.DeallocateStatementSegment):
+    """A `DEALLOCATE` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_DEALLOCATE.html
+    """
+
+    type = "deallocate_statement"
+    match_grammar = Sequence(
+        "DEALLOCATE",
+        Ref.keyword("PREPARE", optional=True),
+        Ref("ObjectReferenceSegment"),
     )

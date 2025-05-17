@@ -4,7 +4,8 @@ Matchable objects which return individual segments.
 """
 
 from abc import abstractmethod
-from typing import Any, Callable, Collection, Dict, Optional, Sequence, Tuple, Type
+from collections.abc import Collection, Sequence
+from typing import Any, Callable, Optional
 from uuid import uuid4
 
 import regex
@@ -26,18 +27,18 @@ class BaseParser(Matchable):
     @abstractmethod
     def __init__(
         self,
-        raw_class: Type[RawSegment],
+        raw_class: type[RawSegment],
         type: Optional[str] = None,
         optional: bool = False,
         # The following kwargs are passed on to the segment:
-        trim_chars: Optional[Tuple[str, ...]] = None,
+        trim_chars: Optional[tuple[str, ...]] = None,
         casefold: Optional[Callable[[str], str]] = None,
     ) -> None:
         self.raw_class = raw_class
         # Store instance_types rather than just type to allow
         # for multiple possible types to be supported in derivative
         # classes.
-        self._instance_types: Tuple[str, ...] = (type or raw_class.type,)
+        self._instance_types: tuple[str, ...] = (type or raw_class.type,)
         self.optional = optional
         self._trim_chars = trim_chars
         self.casefold = casefold
@@ -55,9 +56,9 @@ class BaseParser(Matchable):
         """Return whether this element is optional."""
         return self.optional
 
-    def segment_kwargs(self) -> Dict[str, Any]:
+    def segment_kwargs(self) -> dict[str, Any]:
         """Generates the segment_kwargs package for generating a matched segment."""
-        segment_kwargs: Dict[str, Any] = {}
+        segment_kwargs: dict[str, Any] = {}
         if self._instance_types:
             segment_kwargs["instance_types"] = self._instance_types
         if self._trim_chars:
@@ -84,20 +85,20 @@ class TypedParser(BaseParser):
     def __init__(
         self,
         template: str,
-        raw_class: Type[RawSegment],
+        raw_class: type[RawSegment],
         type: Optional[str] = None,
         optional: bool = False,
-        trim_chars: Optional[Tuple[str, ...]] = None,
+        trim_chars: Optional[tuple[str, ...]] = None,
         casefold: Optional[Callable[[str], str]] = None,
     ) -> None:
         """Initialize a new instance of the class.
 
         Args:
             template (str): The template type.
-            raw_class (Type[RawSegment]): The raw segment class.
+            raw_class (type[RawSegment]): The raw segment class.
             type (Optional[str]): The type of the instance.
             optional (bool): Whether the instance is optional.
-            trim_chars (Optional[Tuple[str, ...]]): The characters to trim.
+            trim_chars (Optional[tuple[str, ...]]): The characters to trim.
             casefold: (Optional[Callable[[str],str]]): The default casing used.
 
         Returns:
@@ -122,7 +123,7 @@ class TypedParser(BaseParser):
         # be part of the resulting `class_types`.
         # We do this here rather than in the base class to keep the dialect-facing
         # API the same.
-        self._instance_types: Tuple[str, ...] = ()
+        self._instance_types: tuple[str, ...] = ()
         # Primary type if set.
         if type is not None:
             self._instance_types += (type,)
@@ -138,7 +139,7 @@ class TypedParser(BaseParser):
         return f"<TypedParser: {self.template!r}>"
 
     def simple(
-        self, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
+        self, parse_context: ParseContext, crumbs: Optional[tuple[str, ...]] = None
     ) -> SimpleHintType:
         """Check if the matcher supports uppercase hash matching route.
 
@@ -148,7 +149,7 @@ class TypedParser(BaseParser):
 
         Args:
             parse_context (ParseContext): The parse context.
-            crumbs (Optional[Tuple[str, ...]], optional): The crumbs.
+            crumbs (Optional[tuple[str, ...]], optional): The crumbs.
             Defaults to None.
 
         Returns:
@@ -174,10 +175,10 @@ class StringParser(BaseParser):
     def __init__(
         self,
         template: str,
-        raw_class: Type[RawSegment],
+        raw_class: type[RawSegment],
         type: Optional[str] = None,
         optional: bool = False,
-        trim_chars: Optional[Tuple[str, ...]] = None,
+        trim_chars: Optional[tuple[str, ...]] = None,
         casefold: Optional[Callable[[str], str]] = None,
     ):
         self.template = template.upper()
@@ -195,7 +196,7 @@ class StringParser(BaseParser):
         return f"<StringParser: {self.template!r}>"
 
     def simple(
-        self, parse_context: "ParseContext", crumbs: Optional[Tuple[str, ...]] = None
+        self, parse_context: "ParseContext", crumbs: Optional[tuple[str, ...]] = None
     ) -> SimpleHintType:
         """Return simple options for this matcher.
 
@@ -226,10 +227,10 @@ class MultiStringParser(BaseParser):
     def __init__(
         self,
         templates: Collection[str],
-        raw_class: Type[RawSegment],
+        raw_class: type[RawSegment],
         type: Optional[str] = None,
         optional: bool = False,
-        trim_chars: Optional[Tuple[str, ...]] = None,
+        trim_chars: Optional[tuple[str, ...]] = None,
         casefold: Optional[Callable[[str], str]] = None,
     ):
         self.templates = {template.upper() for template in templates}
@@ -247,7 +248,7 @@ class MultiStringParser(BaseParser):
         return f"<MultiStringParser: {self.templates!r}>"
 
     def simple(
-        self, parse_context: "ParseContext", crumbs: Optional[Tuple[str, ...]] = None
+        self, parse_context: "ParseContext", crumbs: Optional[tuple[str, ...]] = None
     ) -> SimpleHintType:
         """Return simple options for this matcher.
 
@@ -278,11 +279,11 @@ class RegexParser(BaseParser):
     def __init__(
         self,
         template: str,
-        raw_class: Type[RawSegment],
+        raw_class: type[RawSegment],
         type: Optional[str] = None,
         optional: bool = False,
         anti_template: Optional[str] = None,
-        trim_chars: Optional[Tuple[str, ...]] = None,
+        trim_chars: Optional[tuple[str, ...]] = None,
         casefold: Optional[Callable[[str], str]] = None,
     ):
         # Store the optional anti-template
@@ -303,7 +304,7 @@ class RegexParser(BaseParser):
         return f"<RegexParser: {self.template!r}>"
 
     def simple(
-        self, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
+        self, parse_context: ParseContext, crumbs: Optional[tuple[str, ...]] = None
     ) -> None:
         """Does this matcher support a uppercase hash matching route?
 

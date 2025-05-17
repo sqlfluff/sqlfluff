@@ -4,7 +4,7 @@ Any files in the test/fixtures/dialects/ directory will be picked up
 and automatically tested against the appropriate dialect.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import pytest
 
@@ -26,7 +26,7 @@ parse_success_examples, parse_structure_examples = get_parse_fixtures(
 )
 
 
-def lex_and_parse(config_overrides: Dict[str, Any], raw: str) -> Optional[ParsedString]:
+def lex_and_parse(config_overrides: dict[str, Any], raw: str) -> Optional[ParsedString]:
     """Performs a Lex and Parse, with cacheable inputs within fixture."""
     # Load the right dialect
     config = FluffConfig(overrides=config_overrides)
@@ -67,8 +67,7 @@ def test__dialect__base_file_parse(dialect, file):
     parsed: Optional[ParsedString] = lex_and_parse(config_overrides, raw)
     if not parsed:  # Empty file case
         return
-    print(f"Post-parse structure: {parsed.tree.to_tuple(show_raw=True)}")
-    print(f"Post-parse structure: {parsed.tree.stringify()}")
+
     # Check we're all there.
     assert parsed.tree.raw == raw
     # Check that there's nothing unparsable

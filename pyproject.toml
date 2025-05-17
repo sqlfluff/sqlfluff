@@ -5,10 +5,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sqlfluff"
-version = "3.3.1"
+version = "3.4.0"
 description = "The SQL Linter for Humans"
 readme = {file = "README.md", content-type = "text/markdown"}
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 authors = [
   {name = "Alan Cruickshank", email = "alan@designingoverload.com"},
 ]
@@ -24,7 +24,6 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -75,7 +74,6 @@ dependencies = [
     "colorama>=0.3",
     # Used for diffcover plugin
     "diff-cover>=2.5.0",
-    "importlib_resources; python_version < '3.9'",
     "Jinja2",
     # Used for .sqlfluffignore
     "pathspec",
@@ -131,7 +129,7 @@ sqlfluff_rules_tsql = "sqlfluff.rules.tsql"
 
 [tool.sqlfluff_docs]
 # NOTE: Stable version is used by docs/conf.py
-stable_version = "3.3.1"
+stable_version = "3.4.0"
 
 
 [tool.setuptools.package-data]
@@ -205,7 +203,11 @@ ignore_imports = [
     # The plugin host need the BaseRule type for type checking, because one
     # of the hooks returns rules. It's otherwise not something we can import
     # at this layer.
-    "sqlfluff.core.plugin.hookspecs -> sqlfluff.core.rules.base"
+    "sqlfluff.core.plugin.hookspecs -> sqlfluff.core.rules.base",
+    # The formatter needs the LintedFile type for type checking (and the
+    # formatter is imported by lots of other things), and we aren't otherwise
+    # allowed to depend on the linter at this layer.
+    "sqlfluff.core.formatter -> sqlfluff.core.linter",
 ]
 
 

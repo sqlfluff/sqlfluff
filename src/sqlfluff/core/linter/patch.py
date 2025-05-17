@@ -1,17 +1,11 @@
 """Helpers for generating patches to fix files."""
 
 import logging
+from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import (
-    Iterator,
-    List,
-    Optional,
-    Tuple,
-)
+from typing import Optional
 
-from sqlfluff.core.parser import (
-    BaseSegment,
-)
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.templaters import TemplatedFile
 
@@ -32,7 +26,7 @@ class FixPatch:
     templated_str: str
     source_str: str
 
-    def dedupe_tuple(self) -> Tuple[slice, str]:
+    def dedupe_tuple(self) -> tuple[slice, str]:
         """Generate a tuple of this fix for deduping."""
         return (self.source_slice, self.fixed_raw)
 
@@ -164,13 +158,15 @@ def _iter_templated_patches(
                     # a consumed element of the source. We can use the tracking
                     # markers from the last segment to recreate where this element
                     # should be inserted in both source and template.
+                    # The slices must never go backwards so the end of the slice must
+                    # be greater than or equal to the start.
                     source_slice=slice(
                         source_idx,
-                        first_segment_pos.source_slice.start,
+                        max(first_segment_pos.source_slice.start, source_idx),
                     ),
                     templated_slice=slice(
                         templated_idx,
-                        first_segment_pos.templated_slice.start,
+                        max(first_segment_pos.templated_slice.start, templated_idx),
                     ),
                     patch_category="mid_point",
                     fixed_raw=insert_buff,
@@ -237,7 +233,7 @@ def _log_hints(patch: FixPatch, templated_file: TemplatedFile) -> None:
 
 def generate_source_patches(
     tree: BaseSegment, templated_file: TemplatedFile
-) -> List[FixPatch]:
+) -> list[FixPatch]:
     """Use the fixed tree to generate source patches.
 
     Importantly here we deduplicate and sort the patches from their position

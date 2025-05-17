@@ -1,6 +1,6 @@
 """Implementation of Rule RF04."""
 
-from typing import List, Optional
+from typing import Optional
 
 import regex
 
@@ -83,36 +83,33 @@ class Rule_RF04(BaseRule):
             return LintResult(memory=context.memory)
 
         if (
-            (
-                context.segment.is_type("naked_identifier")
-                and identifiers_policy_applicable(
-                    self.unquoted_identifiers_policy,  # type: ignore
-                    context.parent_stack,
-                )
-                and (
-                    context.segment.raw.upper()
-                    in context.dialect.sets("unreserved_keywords")
-                )
+            context.segment.is_type("naked_identifier")
+            and identifiers_policy_applicable(
+                self.unquoted_identifiers_policy,  # type: ignore
+                context.parent_stack,
+            )
+            and (
+                context.segment.raw.upper()
+                in context.dialect.sets("unreserved_keywords")
             )
         ) or (
-            (
-                context.segment.is_type("quoted_identifier")
-                and identifiers_policy_applicable(
-                    self.quoted_identifiers_policy, context.parent_stack  # type: ignore
-                )
-                and (
-                    context.segment.raw.upper()[1:-1]
-                    in context.dialect.sets("unreserved_keywords")
-                    or context.segment.raw.upper()[1:-1]
-                    in context.dialect.sets("reserved_keywords")
-                )
+            context.segment.is_type("quoted_identifier")
+            and identifiers_policy_applicable(
+                self.quoted_identifiers_policy,  # type: ignore
+                context.parent_stack,
+            )
+            and (
+                context.segment.raw.upper()[1:-1]
+                in context.dialect.sets("unreserved_keywords")
+                or context.segment.raw.upper()[1:-1]
+                in context.dialect.sets("reserved_keywords")
             )
         ):
             return LintResult(anchor=context.segment)
         else:
             return None
 
-    def _init_ignore_string(self) -> List[str]:
+    def _init_ignore_string(self) -> list[str]:
         """Called first time rule is evaluated to fetch & cache the ignore_words."""
         # Use str() in case bools are passed which might otherwise be read as bool
         ignore_words_config = str(getattr(self, "ignore_words"))

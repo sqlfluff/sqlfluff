@@ -1,6 +1,6 @@
 """Implementation of Rule LT05."""
 
-from typing import List, cast
+from typing import cast
 
 from sqlfluff.core.parser.segments import RawSegment, TemplateSegment
 from sqlfluff.core.rules import LintResult, RuleContext
@@ -27,7 +27,7 @@ class Rule_LT05(BaseRule):
         "ignore_comment_clauses",
     ]
 
-    def _eval(self, context: RuleContext) -> List[LintResult]:
+    def _eval(self, context: RuleContext) -> list[LintResult]:
         """Line is too long."""
         self.ignore_comment_lines: bool
         self.ignore_comment_clauses: bool

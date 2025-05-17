@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c4e80150f24711897ab28de979a8fbef9f20561f721e2158a8d6a30a6af1a49e
+_hash: 0c01460047154ca97dd28dff481052670d3734d2a565074b52391ca1b3d86196
 file:
 - batch:
     statement:
@@ -277,5 +277,165 @@ file:
               alias_expression:
                 keyword: as
                 naked_identifier: rows
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_modifier:
+            keyword: TOP
+            expression:
+              numeric_literal: '10'
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openrowset_segment:
+                  keyword: OPENROWSET
+                  bracketed:
+                  - start_bracket: (
+                  - keyword: BULK
+                  - quoted_literal: "'https://pandemicdatalake.blob.core.windows.net/public/curated/covid-19/ecdc_cases/latest/ecdc_cases.parquet'"
+                  - comma: ','
+                  - keyword: FORMAT
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'PARQUET'"
+                  - end_bracket: )
+                  openrowset_with_clause:
+                    keyword: WITH
+                    bracketed:
+                    - start_bracket: (
+                    - quoted_identifier: '[country_code]'
+                    - data_type:
+                        data_type_identifier: VARCHAR
+                        bracketed_arguments:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              numeric_literal: '5'
+                            end_bracket: )
+                    - keyword: COLLATE
+                    - collation_reference:
+                        naked_identifier: Latin1_General_BIN2
+                    - comma: ','
+                    - quoted_identifier: '[country_name]'
+                    - data_type:
+                        data_type_identifier: VARCHAR
+                        bracketed_arguments:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              numeric_literal: '100'
+                            end_bracket: )
+                    - keyword: COLLATE
+                    - collation_reference:
+                        naked_identifier: Latin1_General_BIN2
+                    - numeric_literal: '2'
+                    - comma: ','
+                    - quoted_identifier: '[year]'
+                    - data_type:
+                        data_type_identifier: smallint
+                    - comma: ','
+                    - quoted_identifier: '[population]'
+                    - data_type:
+                        data_type_identifier: bigint
+                    - end_bracket: )
+              alias_expression:
+                keyword: as
+                naked_identifier: rows
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_modifier:
+            keyword: TOP
+            expression:
+              numeric_literal: '1'
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openrowset_segment:
+                  keyword: OPENROWSET
+                  bracketed:
+                  - start_bracket: (
+                  - keyword: BULK
+                  - quoted_literal: "'https://azureopendatastorage.blob.core.windows.net/censusdatacontainer/release/us_population_county/year=20*/*.parquet'"
+                  - comma: ','
+                  - keyword: FORMAT
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'PARQUET'"
+                  - end_bracket: )
+                  openrowset_with_clause:
+                    keyword: WITH
+                    bracketed:
+                    - start_bracket: (
+                    - quoted_identifier: '[stateName]'
+                    - data_type:
+                        data_type_identifier: VARCHAR
+                        bracketed_arguments:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              numeric_literal: '50'
+                            end_bracket: )
+                    - comma: ','
+                    - quoted_identifier: '[stateName_explicit_path]'
+                    - data_type:
+                        data_type_identifier: VARCHAR
+                        bracketed_arguments:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              numeric_literal: '50'
+                            end_bracket: )
+                    - quoted_literal: "'$.stateName'"
+                    - comma: ','
+                    - quoted_identifier: '[COUNTYNAME]'
+                    - data_type:
+                        data_type_identifier: VARCHAR
+                        bracketed_arguments:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              numeric_literal: '50'
+                            end_bracket: )
+                    - comma: ','
+                    - quoted_identifier: '[countyName_explicit_path]'
+                    - data_type:
+                        data_type_identifier: VARCHAR
+                        bracketed_arguments:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              numeric_literal: '50'
+                            end_bracket: )
+                    - quoted_literal: "'$.COUNTYNAME'"
+                    - comma: ','
+                    - quoted_identifier: '[population]'
+                    - data_type:
+                        data_type_identifier: bigint
+                    - quoted_literal: "'strict $.population'"
+                    - end_bracket: )
+              alias_expression:
+                keyword: AS
+                quoted_identifier: '[r]'
 - go_statement:
     keyword: GO

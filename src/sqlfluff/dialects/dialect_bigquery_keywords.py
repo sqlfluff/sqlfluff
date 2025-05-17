@@ -1,7 +1,8 @@
 """A list of all BigQuery SQL key words."""
 
 # https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#reserved_keywords
-bigquery_reserved_keywords = """ALL
+bigquery_reserved_keywords = """AGGREGATE
+ALL
 AND
 ANY
 ARRAY
@@ -16,6 +17,7 @@ CAST
 CLONE
 COLLATE
 CONTAINS
+CORRESPONDING
 CREATE
 CROSS
 CUBE
@@ -31,6 +33,7 @@ ESCAPE
 EXCEPT
 EXCLUDE
 EXISTS
+EXTEND
 FALSE
 FETCH
 FOLLOWING
@@ -276,6 +279,7 @@ SOURCE
 STAGE
 START
 STREAM
+STRICT
 SUNDAY
 SYSTEM
 SYSTEM_TIME

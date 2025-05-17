@@ -8,17 +8,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import (
-    Callable,
-    ClassVar,
-    Dict,
-    List,
-    NamedTuple,
-    Optional,
-    Tuple,
-    Union,
-    cast,
-)
+from typing import Callable, ClassVar, NamedTuple, Optional, Union, cast
 
 import regex
 from jinja2 import Environment
@@ -36,9 +26,9 @@ class JinjaTrace(NamedTuple):
     # Template output
     templated_str: str
     # Raw (i.e. before rendering) Jinja template sliced into tokens
-    raw_sliced: List[RawFileSlice]
+    raw_sliced: list[RawFileSlice]
     # Rendered Jinja template (i.e. output) mapped back to rwa_str source
-    sliced_file: List[TemplatedFileSlice]
+    sliced_file: list[TemplatedFileSlice]
 
 
 @dataclass
@@ -47,7 +37,7 @@ class RawSliceInfo:
 
     unique_alternate_id: Optional[str]
     alternate_code: Optional[str]
-    next_slice_indices: List[int] = field(default_factory=list)
+    next_slice_indices: list[int] = field(default_factory=list)
     inside_block: bool = field(default=False)  # {% block %}
 
 
@@ -57,9 +47,9 @@ class JinjaTracer:
     def __init__(
         self,
         raw_str: str,
-        raw_sliced: List[RawFileSlice],
-        raw_slice_info: Dict[RawFileSlice, RawSliceInfo],
-        sliced_file: List[TemplatedFileSlice],
+        raw_sliced: list[RawFileSlice],
+        raw_slice_info: dict[RawFileSlice, RawSliceInfo],
+        sliced_file: list[TemplatedFileSlice],
         render_func: Callable[[str], str],
     ):
         # Input
@@ -88,7 +78,7 @@ class JinjaTracer:
         )
         trace_template_output = self.render_func(trace_template_str)
         # Split output by section. Each section has two possible formats.
-        trace_entries: List[regex.Match[str]] = list(
+        trace_entries: list[regex.Match[str]] = list(
             regex.finditer(r"\0", trace_template_output)
         )
         # If the file has no templated entries, we should just iterate
@@ -161,7 +151,7 @@ class JinjaTracer:
         self,
         target_slice_idx: int,
         target_slice_length: int,
-    ) -> Dict[int, List[int]]:
+    ) -> dict[int, list[int]]:
         """Given a template location, walk execution to that point.
 
         This updates the internal `program_counter` to the appropriate
@@ -293,16 +283,16 @@ class JinjaAnalyzer:
         self.env = env
 
         # Output
-        self.raw_sliced: List[RawFileSlice] = []
-        self.raw_slice_info: Dict[RawFileSlice, RawSliceInfo] = {}
-        self.sliced_file: List[TemplatedFileSlice] = []
+        self.raw_sliced: list[RawFileSlice] = []
+        self.raw_slice_info: dict[RawFileSlice, RawSliceInfo] = {}
+        self.sliced_file: list[TemplatedFileSlice] = []
 
         # Internal bookkeeping
         self.slice_id: int = 0
         # {% set %} or {% macro %} or {% call %}
         self.inside_set_macro_or_call: bool = False
         self.inside_block = False  # {% block %}
-        self.stack: List[int] = []
+        self.stack: list[int] = []
         self.idx_raw: int = 0
 
     __known_tag_configurations: ClassVar[dict[str, JinjaTagConfiguration]] = {
@@ -419,9 +409,9 @@ class JinjaAnalyzer:
     def _get_jinja_tracer(
         self,
         raw_str: str,
-        raw_sliced: List[RawFileSlice],
-        raw_slice_info: Dict[RawFileSlice, RawSliceInfo],
-        sliced_file: List[TemplatedFileSlice],
+        raw_sliced: list[RawFileSlice],
+        raw_slice_info: dict[RawFileSlice, RawSliceInfo],
+        sliced_file: list[TemplatedFileSlice],
         render_func: Callable[[str], str],
     ) -> JinjaTracer:
         """Creates a new object derived from JinjaTracer.
@@ -460,11 +450,11 @@ class JinjaAnalyzer:
     def update_inside_set_call_macro_or_block(
         self,
         block_type: str,
-        trimmed_parts: List[str],
+        trimmed_parts: list[str],
         m_open: Optional[regex.Match[str]],
         m_close: Optional[regex.Match[str]],
-        tag_contents: List[str],
-    ) -> Tuple[Optional[RawSliceInfo], str]:
+        tag_contents: list[str],
+    ) -> tuple[Optional[RawSliceInfo], str]:
         """Based on block tag, update whether in a set/call/macro/block section."""
         if block_type == "block_start" and trimmed_parts[0] in (
             "block",
@@ -693,14 +683,14 @@ class JinjaAnalyzer:
         self,
         m_open: regex.Match[str],
         m_close: regex.Match[str],
-        tag_contents: List[str],
+        tag_contents: list[str],
     ) -> RawSliceInfo:
         """Compute tracking info for Jinja templated region, e.g. {{ foo }}.
 
         Args:
             m_open (regex.Match): A regex match object representing the opening tag.
             m_close (regex.Match): A regex match object representing the closing tag.
-            tag_contents (List[str]): A list of strings representing the contents of the
+            tag_contents (list[str]): A list of strings representing the contents of the
                 tag.
 
         Returns:
@@ -714,7 +704,7 @@ class JinjaAnalyzer:
         # case it has intentional side effects, but also return a slice ID
         # for tracking.
         alternate_code = (
-            f"\0{unique_alternate_id} {open_} " f"{''.join(tag_contents)} {close_}"
+            f"\0{unique_alternate_id} {open_} {''.join(tag_contents)} {close_}"
         )
         return self.make_raw_slice_info(unique_alternate_id, alternate_code)
 
@@ -722,14 +712,14 @@ class JinjaAnalyzer:
         self,
         m_open: regex.Match[str],
         m_close: regex.Match[str],
-        tag_contents: List[str],
+        tag_contents: list[str],
     ) -> RawSliceInfo:
         """Set up tracking for "{% call ... %}".
 
         Args:
             m_open (regex.Match): A regex match object representing the opening tag.
             m_close (regex.Match): A regex match object representing the closing tag.
-            tag_contents (List[str]): A list of strings representing the contents of the
+            tag_contents (list[str]): A list of strings representing the contents of the
                 tag.
 
         Returns:
@@ -743,7 +733,7 @@ class JinjaAnalyzer:
         # case it has intentional side effects, but also return a slice ID
         # for tracking.
         alternate_code = (
-            f"\0{unique_alternate_id} {open_} " f"{''.join(tag_contents)} {close_}"
+            f"\0{unique_alternate_id} {open_} {''.join(tag_contents)} {close_}"
         )
         return self.make_raw_slice_info(unique_alternate_id, alternate_code)
 
@@ -765,23 +755,23 @@ class JinjaAnalyzer:
 
     @staticmethod
     def extract_tag_contents(
-        str_parts: List[str],
+        str_parts: list[str],
         m_close: regex.Match[str],
         m_open: regex.Match[str],
         str_buff: str,
-    ) -> List[str]:
+    ) -> list[str]:
         """Given Jinja tag info, return the stuff inside the braces.
 
         I.e. Trim off the brackets and the whitespace.
 
         Args:
-            str_parts (List[str]): A list of string parts.
+            str_parts (list[str]): A list of string parts.
             m_close (regex.Match[str]): The regex match for the closing tag.
             m_open (regex.Match[str]): The regex match for the opening tag.
             str_buff (str): The string buffer.
 
         Returns:
-            List[str]: The trimmed parts inside the Jinja tag.
+            list[str]: The trimmed parts inside the Jinja tag.
         """
         if len(str_parts) >= 3:
             # Handle a tag received as individual parts.

@@ -1,15 +1,18 @@
 """The references plugin bundle."""
 
-from typing import Any, Dict, List, Type
-
 from sqlfluff.core.plugin import hookimpl
-from sqlfluff.core.rules import BaseRule
+from sqlfluff.core.rules import BaseRule, ConfigInfo
 
 
 @hookimpl
-def get_configs_info() -> Dict[str, Any]:
+def get_configs_info() -> dict[str, ConfigInfo]:
     """Get additional rule config validations and descriptions."""
     return {
+        "subqueries_ignore_external_references": {
+            "validation": [True, False],
+            "definition": "If ``True``, parent query references are not included as "
+            "potentially ambiguous in subqueries. Defaults to ``False``.",
+        },
         "single_table_references": {
             "validation": ["consistent", "qualified", "unqualified"],
             "definition": "The expectation for references in single-table select.",
@@ -50,7 +53,7 @@ def get_configs_info() -> Dict[str, Any]:
 
 
 @hookimpl
-def get_rules() -> List[Type[BaseRule]]:
+def get_rules() -> list[type[BaseRule]]:
     """Get plugin rules.
 
     NOTE: Rules are imported only on fetch to manage import times

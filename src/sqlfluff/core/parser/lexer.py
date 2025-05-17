@@ -1,7 +1,8 @@
 """The code for the Lexer."""
 
 import logging
-from typing import Any, Dict, Iterator, List, NamedTuple, Optional, Tuple, Type, Union
+from collections.abc import Iterator
+from typing import Any, NamedTuple, Optional, Union
 from uuid import UUID, uuid4
 
 import regex
@@ -41,8 +42,8 @@ class BlockTracker:
     the same uuid on the second pass.
     """
 
-    _stack: List[UUID] = []
-    _map: Dict[Tuple[int, int], UUID] = {}
+    _stack: list[UUID] = []
+    _map: dict[tuple[int, int], UUID] = {}
 
     def enter(self, src_slice: slice) -> None:
         """Add a block to the stack."""
@@ -115,7 +116,7 @@ class LexMatch(NamedTuple):
     """A class to hold matches from the Lexer."""
 
     forward_string: str
-    elements: List[LexedElement]
+    elements: list[LexedElement]
 
     def __bool__(self) -> bool:
         """A LexMatch is truthy if it contains a non-zero number of matched elements."""
@@ -138,10 +139,10 @@ class StringLexer:
         self,
         name: str,
         template: str,
-        segment_class: Type[RawSegment],
+        segment_class: type[RawSegment],
         subdivider: Optional[LexerType] = None,
         trim_post_subdivide: Optional[LexerType] = None,
-        segment_kwargs: Optional[Dict[str, Any]] = None,
+        segment_kwargs: Optional[dict[str, Any]] = None,
     ) -> None:
         self.name = name
         self.template = template
@@ -168,7 +169,7 @@ class StringLexer:
         else:
             return None
 
-    def search(self, forward_string: str) -> Optional[Tuple[int, int]]:
+    def search(self, forward_string: str) -> Optional[tuple[int, int]]:
         """Use string methods to find a substring."""
         loc = forward_string.find(self.template)
         if loc >= 0:
@@ -176,14 +177,14 @@ class StringLexer:
         else:
             return None
 
-    def _trim_match(self, matched_str: str) -> List[LexedElement]:
+    def _trim_match(self, matched_str: str) -> list[LexedElement]:
         """Given a string, trim if we are allowed to.
 
         Returns:
             :obj:`tuple` of LexedElement
 
         """
-        elem_buff: List[LexedElement] = []
+        elem_buff: list[LexedElement] = []
         content_buff = ""
         str_buff = matched_str
 
@@ -228,7 +229,7 @@ class StringLexer:
             )
         return elem_buff
 
-    def _subdivide(self, matched: LexedElement) -> List[LexedElement]:
+    def _subdivide(self, matched: LexedElement) -> list[LexedElement]:
         """Given a string, subdivide if we area allowed to.
 
         Returns:
@@ -238,7 +239,7 @@ class StringLexer:
         # Can we have to subdivide?
         if self.subdivider:
             # Yes subdivision
-            elem_buff: List[LexedElement] = []
+            elem_buff: list[LexedElement] = []
             str_buff = matched.raw
             while str_buff:
                 # Iterate through subdividing as appropriate
@@ -330,7 +331,7 @@ class RegexLexer(StringLexer):
                 )
         return None
 
-    def search(self, forward_string: str) -> Optional[Tuple[int, int]]:
+    def search(self, forward_string: str) -> Optional[tuple[int, int]]:
         """Use regex to find a substring."""
         match = self._compiled_regex.search(forward_string)
         if match:
@@ -449,7 +450,7 @@ def _handle_zero_length_slice(
             # Trim it if it's too long to show.
             if len(placeholder_str) >= 20:
                 placeholder_str = (
-                    f"... [{len(placeholder_str)} unused template " "characters] ..."
+                    f"... [{len(placeholder_str)} unused template characters] ..."
                 )
             lexer_logger.debug("      Forward jump detected. Inserting placeholder")
             yield TemplateSegment(
@@ -478,7 +479,7 @@ def _handle_zero_length_slice(
 
 
 def _iter_segments(
-    lexed_elements: List[TemplateElement],
+    lexed_elements: list[TemplateElement],
     templated_file: TemplatedFile,
     add_indents: bool = True,
 ) -> Iterator[RawSegment]:
@@ -748,7 +749,7 @@ class Lexer:
 
     def lex(
         self, raw: Union[str, TemplatedFile]
-    ) -> Tuple[Tuple[BaseSegment, ...], List[SQLLexError]]:
+    ) -> tuple[tuple[BaseSegment, ...], list[SQLLexError]]:
         """Take a string or TemplatedFile and return segments.
 
         If we fail to match the *whole* string, then we must have
@@ -765,7 +766,7 @@ class Lexer:
             str_buff = str(template)
 
         # Lex the string to get a tuple of LexedElement
-        element_buffer: List[LexedElement] = []
+        element_buffer: list[LexedElement] = []
         while True:
             res = self.lex_match(str_buff, self.lexer_matchers)
             element_buffer += res.elements
@@ -790,23 +791,23 @@ class Lexer:
         templated_buffer = self.map_template_slices(element_buffer, template)
 
         # Turn lexed elements into segments.
-        segments: Tuple[RawSegment, ...] = self.elements_to_segments(
+        segments: tuple[RawSegment, ...] = self.elements_to_segments(
             templated_buffer, template
         )
 
         # Generate any violations
-        violations: List[SQLLexError] = self.violations_from_segments(segments)
+        violations: list[SQLLexError] = self.violations_from_segments(segments)
 
         return segments, violations
 
     def elements_to_segments(
-        self, elements: List[TemplateElement], templated_file: TemplatedFile
-    ) -> Tuple[RawSegment, ...]:
+        self, elements: list[TemplateElement], templated_file: TemplatedFile
+    ) -> tuple[RawSegment, ...]:
         """Convert a tuple of lexed elements into a tuple of segments."""
         lexer_logger.info("Elements to Segments.")
         add_indents = self.config.get("template_blocks_indent", "indentation")
         # Delegate to _iter_segments
-        segment_buffer: List[RawSegment] = list(
+        segment_buffer: list[RawSegment] = list(
             _iter_segments(elements, templated_file, add_indents)
         )
 
@@ -824,7 +825,7 @@ class Lexer:
         return tuple(segment_buffer)
 
     @staticmethod
-    def violations_from_segments(segments: Tuple[RawSegment, ...]) -> List[SQLLexError]:
+    def violations_from_segments(segments: tuple[RawSegment, ...]) -> list[SQLLexError]:
         """Generate any lexing errors for any unlexables."""
         violations = []
         for segment in segments:
@@ -842,9 +843,9 @@ class Lexer:
         return violations
 
     @staticmethod
-    def lex_match(forward_string: str, lexer_matchers: List[StringLexer]) -> LexMatch:
+    def lex_match(forward_string: str, lexer_matchers: list[StringLexer]) -> LexMatch:
         """Iteratively match strings using the selection of submatchers."""
-        elem_buff: List[LexedElement] = []
+        elem_buff: list[LexedElement] = []
         while True:
             if len(forward_string) == 0:
                 return LexMatch(forward_string, elem_buff)
@@ -863,8 +864,8 @@ class Lexer:
 
     @staticmethod
     def map_template_slices(
-        elements: List[LexedElement], template: TemplatedFile
-    ) -> List[TemplateElement]:
+        elements: list[LexedElement], template: TemplatedFile
+    ) -> list[TemplateElement]:
         """Create a tuple of TemplateElement from a tuple of LexedElement.
 
         This adds slices in the templated file to the original lexed
@@ -872,7 +873,7 @@ class Lexer:
         file.
         """
         idx = 0
-        templated_buff: List[TemplateElement] = []
+        templated_buff: list[TemplateElement] = []
         for element in elements:
             template_slice = offset_slice(idx, len(element.raw))
             idx += len(element.raw)

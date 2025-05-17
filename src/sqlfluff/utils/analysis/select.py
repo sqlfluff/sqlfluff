@@ -1,6 +1,6 @@
 """Basic code analysis tools for SELECT statements."""
 
-from typing import List, NamedTuple, Optional, Tuple, cast
+from typing import NamedTuple, Optional, cast
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
@@ -17,16 +17,16 @@ class SelectStatementColumnsAndTables(NamedTuple):
     """Structure returned by get_select_statement_info()."""
 
     select_statement: BaseSegment
-    table_aliases: List[AliasInfo]
-    standalone_aliases: List[BaseSegment]  # value table function aliases
-    reference_buffer: List[ObjectReferenceSegment]
-    select_targets: List[SelectClauseElementSegment]
-    col_aliases: List[ColumnAliasInfo]
-    using_cols: List[BaseSegment]
-    table_reference_buffer: List[ObjectReferenceSegment]
+    table_aliases: list[AliasInfo]
+    standalone_aliases: list[BaseSegment]  # value table function aliases
+    reference_buffer: list[ObjectReferenceSegment]
+    select_targets: list[SelectClauseElementSegment]
+    col_aliases: list[ColumnAliasInfo]
+    using_cols: list[BaseSegment]
+    table_reference_buffer: list[ObjectReferenceSegment]
 
 
-def _get_object_references(segment: BaseSegment) -> List[ObjectReferenceSegment]:
+def _get_object_references(segment: BaseSegment) -> list[ObjectReferenceSegment]:
     return list(
         cast(ObjectReferenceSegment, _seg)
         for _seg in segment.recursive_crawl(
@@ -72,7 +72,7 @@ def get_select_statement_info(
     _select_clause = segment.get_child("select_clause")
     assert _select_clause, "Select statement found without select clause."
     select_targets = cast(
-        List[SelectClauseElementSegment],
+        list[SelectClauseElementSegment],
         _select_clause.get_children("select_clause_element"),
     )
 
@@ -130,7 +130,7 @@ def get_select_statement_info(
 
 def get_aliases_from_select(
     segment: BaseSegment, dialect: Optional[Dialect] = None
-) -> Tuple[Optional[List[AliasInfo]], Optional[List[BaseSegment]]]:
+) -> tuple[Optional[list[AliasInfo]], Optional[list[BaseSegment]]]:
     """Gets the aliases referred to in the FROM clause.
 
     Returns a tuple of two lists:
@@ -146,7 +146,7 @@ def get_aliases_from_select(
 
     # We only want table aliases, so filter out aliases for value table
     # functions, lambda parameters and pivot columns.
-    standalone_aliases: List[BaseSegment] = []
+    standalone_aliases: list[BaseSegment] = []
     standalone_aliases += _get_pivot_table_columns(segment, dialect)
     standalone_aliases += _get_lambda_argument_columns(segment, dialect)
 
@@ -181,7 +181,7 @@ def _has_value_table_function(
 
 def _get_pivot_table_columns(
     segment: BaseSegment, dialect: Optional[Dialect]
-) -> List[BaseSegment]:
+) -> list[BaseSegment]:
     if not dialect:
         # We need the dialect to get the pivot table column names. If
         # we don't have it, assume the clause does not have a pivot table
@@ -211,13 +211,14 @@ def _get_pivot_table_columns(
 # treatment in some rules.
 def _get_lambda_argument_columns(
     segment: BaseSegment, dialect: Optional[Dialect]
-) -> List[BaseSegment]:
+) -> list[BaseSegment]:
     if not dialect or dialect.name not in [
         "athena",
         "sparksql",
         "duckdb",
         "trino",
         "databricks",
+        "snowflake",
     ]:
         # Only athena and sparksql are known to have lambda expressions,
         # so all other dialects will have zero lambda columns

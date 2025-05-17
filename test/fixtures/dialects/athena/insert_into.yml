@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 438a76e77b3742e90d4210c0c4a3d87fb85e62dbdc161c859542d5e31b93341c
+_hash: fcc2e94a157cee2033e8e1c4c434cbc9791c4e28d4b41afb2df6c097263a5b36
 file:
-  statement:
+- statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -36,4 +36,56 @@ file:
           - keyword: AND
           - keyword: date
           - date_constructor_literal: "'2019-07-31'"
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: cities
+    - values_clause:
+        keyword: VALUES
+        expression:
+          bracketed:
+          - start_bracket: (
+          - numeric_literal: '1'
+          - comma: ','
+          - quoted_literal: "'Lansing'"
+          - comma: ','
+          - quoted_literal: "'MI'"
+          - comma: ','
+          - quoted_literal: "'Si quaeris peninsulam amoenam circumspice'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: cities
+    - values_clause:
+      - keyword: VALUES
+      - expression:
+          bracketed:
+          - start_bracket: (
+          - numeric_literal: '1'
+          - comma: ','
+          - quoted_literal: "'Lansing'"
+          - comma: ','
+          - quoted_literal: "'MI'"
+          - comma: ','
+          - quoted_literal: "'Si quaeris peninsulam amoenam circumspice'"
+          - end_bracket: )
+      - comma: ','
+      - expression:
+          bracketed:
+          - start_bracket: (
+          - numeric_literal: '3'
+          - comma: ','
+          - quoted_literal: "'Boise'"
+          - comma: ','
+          - quoted_literal: "'ID'"
+          - comma: ','
+          - quoted_literal: "'Esto perpetua'"
+          - end_bracket: )
+- statement_terminator: ;

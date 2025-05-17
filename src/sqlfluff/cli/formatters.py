@@ -2,7 +2,7 @@
 
 import sys
 from io import StringIO
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import click
 from colorama import Style
@@ -21,7 +21,7 @@ from sqlfluff.core.linter import FormatterInterface, LintedFile, ParsedString
 from sqlfluff.core.types import Color
 
 
-def split_string_on_spaces(s: str, line_length: int = 100) -> List[str]:
+def split_string_on_spaces(s: str, line_length: int = 100) -> list[str]:
     """Split a string into lines based on whitespace.
 
     For short strings the functionality is trivial.
@@ -165,7 +165,7 @@ class OutputStreamFormatter(FormatterInterface):
             self._dispatch(self._format_path(path))
 
     def dispatch_template_header(
-        self, fname: str, linter_config: FluffConfig, file_config: FluffConfig
+        self, fname: str, linter_config: FluffConfig, file_config: Optional[FluffConfig]
     ) -> None:
         """Dispatch the header displayed before templating."""
         if self.verbosity > 1:
@@ -187,7 +187,7 @@ class OutputStreamFormatter(FormatterInterface):
         if self.verbosity > 1:
             self._dispatch(self.format_filename(filename=fname, success="PARSING"))
 
-    def dispatch_lint_header(self, fname: str, rules: List[str]) -> None:
+    def dispatch_lint_header(self, fname: str, rules: list[str]) -> None:
         """Dispatch the header displayed before linting."""
         if self.verbosity > 1:
             self._dispatch(
@@ -210,12 +210,12 @@ class OutputStreamFormatter(FormatterInterface):
                 f"{processes}"
             )
 
-    def dispatch_dialect_warning(self, dialect) -> None:
+    def dispatch_dialect_warning(self, dialect: str) -> None:
         """Dispatch a warning for dialects."""
         self._dispatch(self.format_dialect_warning(dialect))  # pragma: no cover
 
     def _format_file_violations(
-        self, fname: str, violations: List[SQLBaseError]
+        self, fname: str, violations: list[SQLBaseError]
     ) -> str:
         """Format a set of violations in a `LintingResult`."""
         text_buffer = StringIO()
@@ -291,7 +291,7 @@ class OutputStreamFormatter(FormatterInterface):
 
     def cli_table_row(
         self,
-        fields: List[Tuple[str, str]],
+        fields: list[tuple[str, str]],
         col_width,
         max_label_width=10,
         sep_char=": ",
@@ -378,7 +378,7 @@ class OutputStreamFormatter(FormatterInterface):
         # Set up a buffer to hold the whole table
         buff = StringIO()
         while len(formatted_fields) > 0:
-            row_buff: List[Tuple[str, str]] = []
+            row_buff: list[tuple[str, str]] = []
             while len(row_buff) < cols and len(formatted_fields) > 0:
                 row_buff.append(formatted_fields.pop(0))
             buff.write(
@@ -590,7 +590,7 @@ class OutputStreamFormatter(FormatterInterface):
         )
         return text_buffer.getvalue()
 
-    def format_dialect_warning(self, dialect) -> str:
+    def format_dialect_warning(self, dialect: str) -> str:
         """Output a warning for parsing errors."""
         return self.colorize(
             (
@@ -639,7 +639,7 @@ class OutputStreamFormatter(FormatterInterface):
         code_only: bool,
         total_time: float,
         verbose: int,
-        parsed_strings: List[ParsedString],
+        parsed_strings: list[ParsedString],
     ) -> int:
         """Used by human formatting during the `sqlfluff parse` command."""
         violations_count = 0
@@ -708,4 +708,4 @@ class OutputStreamFormatter(FormatterInterface):
 
     def completion_message(self) -> None:
         """Prints message when SQLFluff is finished."""
-        click.echo("All Finished" f"{'' if self.plain_output else ' 📜 🎉'}!")
+        click.echo(f"All Finished{'' if self.plain_output else ' 📜 🎉'}!")

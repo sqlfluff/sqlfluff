@@ -1,0 +1,261 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 55149acf09f79971ad136af4650e63a8702c044e016f5fcabc016918eaba013f
+file:
+- statement:
+    prepare_statement:
+    - keyword: PREPARE
+    - object_reference:
+        naked_identifier: select_statement
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table1
+- statement_terminator: ;
+- statement:
+    prepare_statement:
+    - keyword: PREPARE
+    - object_reference:
+        naked_identifier: insert_statement
+    - keyword: AS
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: table1
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              numeric_literal: '1'
+          - comma: ','
+          - expression:
+              quoted_literal: "'foo'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    prepare_statement:
+    - keyword: PREPARE
+    - object_reference:
+        naked_identifier: update_statement
+    - keyword: AS
+    - update_statement:
+        keyword: UPDATE
+        table_reference:
+          naked_identifier: table1
+        set_clause_list:
+          keyword: SET
+          set_clause:
+            column_reference:
+              naked_identifier: col2
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'bar'"
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: col1
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    prepare_statement:
+    - keyword: PREPARE
+    - object_reference:
+        naked_identifier: delete_statement
+    - keyword: AS
+    - delete_statement:
+      - keyword: DELETE
+      - keyword: FROM
+      - table_reference:
+          naked_identifier: table1
+      - where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: col1
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    prepare_statement:
+    - keyword: PREPARE
+    - object_reference:
+        naked_identifier: values_statement
+    - keyword: AS
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            quoted_literal: "'foo'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    prepare_statement:
+    - keyword: PREPARE
+    - object_reference:
+        naked_identifier: merge_statement
+    - keyword: AS
+    - merge_statement:
+      - keyword: MERGE
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: table1
+      - keyword: USING
+      - table_reference:
+          naked_identifier: table2
+      - join_on_condition:
+          keyword: 'ON'
+          bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+              - naked_identifier: table1
+              - dot: .
+              - naked_identifier: col1
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+              - naked_identifier: table2
+              - dot: .
+              - naked_identifier: col1
+            end_bracket: )
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_update_clause:
+              keyword: UPDATE
+              set_clause_list:
+              - keyword: SET
+              - set_clause:
+                - column_reference:
+                    naked_identifier: col1
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: table2
+                  - dot: .
+                  - naked_identifier: col1
+              - comma: ','
+              - set_clause:
+                - column_reference:
+                    naked_identifier: col2
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: table2
+                  - dot: .
+                  - naked_identifier: col2
+          merge_when_not_matched_clause:
+          - keyword: WHEN
+          - keyword: NOT
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_insert_clause:
+              keyword: INSERT
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: col1
+              - comma: ','
+              - column_reference:
+                  naked_identifier: col2
+              - end_bracket: )
+              values_clause:
+                keyword: VALUES
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                    - naked_identifier: table2
+                    - dot: .
+                    - naked_identifier: col1
+                - comma: ','
+                - expression:
+                    column_reference:
+                    - naked_identifier: table2
+                    - dot: .
+                    - naked_identifier: col2
+                - end_bracket: )
+- statement_terminator: ;
+- statement:
+    prepare_statement:
+    - keyword: PREPARE
+    - object_reference:
+        naked_identifier: parametrized_statement_1
+    - bracketed:
+        start_bracket: (
+        data_type:
+          keyword: int
+        end_bracket: )
+    - keyword: AS
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          expression:
+            dollar_numeric_literal: $1
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    prepare_statement:
+    - keyword: PREPARE
+    - object_reference:
+        naked_identifier: parametrized_statement_2
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          keyword: int
+      - comma: ','
+      - data_type:
+          keyword: character
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            dollar_numeric_literal: $1
+        - comma: ','
+        - expression:
+            dollar_numeric_literal: $2
+        - end_bracket: )
+- statement_terminator: ;

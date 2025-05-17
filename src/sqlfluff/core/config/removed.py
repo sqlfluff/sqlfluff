@@ -2,7 +2,7 @@
 
 import logging
 from dataclasses import dataclass
-from typing import Callable, Dict, Optional, Tuple, Union
+from typing import Callable, Optional, Union
 
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import (
@@ -11,10 +11,7 @@ from sqlfluff.core.helpers.dict import (
     nested_dict_set,
     records_to_nested_dict,
 )
-from sqlfluff.core.types import (
-    ConfigMappingType,
-    ConfigValueOrListType,
-)
+from sqlfluff.core.types import ConfigMappingType, ConfigValueOrListType
 
 # Instantiate the config logger
 config_logger = logging.getLogger("sqlfluff.config")
@@ -22,9 +19,9 @@ config_logger = logging.getLogger("sqlfluff.config")
 
 @dataclass
 class _RemovedConfig:
-    old_path: Tuple[str, ...]
+    old_path: tuple[str, ...]
     warning: str
-    new_path: Optional[Tuple[str, ...]] = None
+    new_path: Optional[tuple[str, ...]] = None
     translation_func: Optional[
         Callable[[ConfigValueOrListType], ConfigValueOrListType]
     ] = None
@@ -43,7 +40,7 @@ class _RemovedConfig:
         return ":".join(self.new_path)
 
 
-RemovedConfigMapType = Dict[str, Union[_RemovedConfig, "RemovedConfigMapType"]]
+RemovedConfigMapType = dict[str, Union[_RemovedConfig, "RemovedConfigMapType"]]
 
 
 REMOVED_CONFIGS = [
