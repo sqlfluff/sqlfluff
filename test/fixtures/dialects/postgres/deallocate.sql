@@ -1,0 +1,7 @@
+DEALLOCATE statement_name;
+
+DEALLOCATE PREPARE statement_name;
+
+DEALLOCATE ALL;
+
+DEALLOCATE PREPARE ALL;

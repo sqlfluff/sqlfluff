@@ -2095,6 +2095,135 @@ class ExplainOptionSegment(BaseSegment):
     )
 
 
+class SecurityLabelStatementSegment(BaseSegment):
+    """A `SECURITY LABEL` statement.
+
+    https://www.postgresql.org/docs/current/sql-security-label.html
+    """
+
+    type = "security_label_statement"
+
+    match_grammar = Sequence(
+        "SECURITY",
+        "LABEL",
+        # Optional FOR provider clause
+        Sequence(
+            "FOR",
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        "ON",
+        OneOf(
+            Sequence(
+                "TABLE",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "COLUMN",
+                Ref("ColumnReferenceSegment"),
+            ),
+            Sequence(
+                "AGGREGATE",
+                Ref("FunctionNameSegment"),
+                Bracketed(
+                    Ref("FunctionParameterListGrammar", optional=True),
+                ),
+            ),
+            Sequence(
+                "DATABASE",
+                Ref("DatabaseReferenceSegment"),
+            ),
+            Sequence(
+                "DOMAIN",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "EVENT",
+                "TRIGGER",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "FOREIGN",
+                "TABLE",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "FUNCTION",
+                Ref("FunctionNameSegment"),
+                OptionallyBracketed(
+                    Ref("FunctionParameterGrammar", optional=True),
+                ),
+            ),
+            Sequence(
+                "LARGE",
+                "OBJECT",
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "MATERIALIZED",
+                "VIEW",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                Ref.keyword("PROCEDURAL", optional=True),
+                "LANGUAGE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "PROCEDURE",
+                Ref("FunctionNameSegment"),
+                OptionallyBracketed(
+                    Ref("FunctionParameterGrammar", optional=True),
+                ),
+            ),
+            Sequence(
+                "PUBLICATION",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "ROLE",
+                Ref("RoleReferenceSegment"),
+            ),
+            Sequence(
+                "ROUTINE",
+                Ref("FunctionNameSegment"),
+                OptionallyBracketed(
+                    Ref("FunctionParameterGrammar", optional=True),
+                ),
+            ),
+            Sequence(
+                "SCHEMA",
+                Ref("SchemaReferenceSegment"),
+            ),
+            Sequence(
+                "SEQUENCE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SUBSCRIPTION",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "TABLESPACE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "TYPE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "VIEW",
+                Ref("TableReferenceSegment"),
+            ),
+        ),
+        "IS",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            "NULL",
+        ),
+    )
+
+
 class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
     """A `CREATE SCHEMA` statement.
 
@@ -4836,6 +4965,10 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropForeignTableStatement"),
             Ref("CreateOperatorStatementSegment"),
             Ref("AlterForeignTableStatementSegment"),
+            Ref("SecurityLabelStatementSegment"),
+            Ref("PrepareStatementSegment"),
+            Ref("ExecuteStatementSegment"),
+            Ref("DeallocateStatementSegment"),
         ],
     )
 
@@ -6640,4 +6773,74 @@ class AlterForeignTableActionSegment(AlterTableActionSegment):
                 ),
             )
         ]
+    )
+
+
+class PrepareStatementSegment(BaseSegment):
+    """A `PREPARE` statement.
+
+    https://www.postgresql.org/docs/current/sql-prepare.html
+    """
+
+    type = "prepare_statement"
+    match_grammar = Sequence(
+        "PREPARE",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
+        "AS",
+        OneOf(
+            Ref("SelectableGrammar"),
+            Ref("MergeStatementSegment"),
+        ),
+    )
+
+
+class ExecuteStatementSegment(BaseSegment):
+    """A `EXECUTE` statement.
+
+    https://www.postgresql.org/docs/current/sql-execute.html
+    """
+
+    type = "execute_statement"
+    match_grammar = Sequence(
+        "EXECUTE",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(Delimited(Ref("ExpressionSegment")), optional=True),
+    )
+
+
+class DeallocateStatementSegment(BaseSegment):
+    """A `DEALLOCATE` statement.
+
+    https://www.postgresql.org/docs/current/sql-deallocate.html
+    """
+
+    type = "deallocate_statement"
+    match_grammar = Sequence(
+        "DEALLOCATE",
+        Ref.keyword("PREPARE", optional=True),
+        OneOf(
+            Ref("ObjectReferenceSegment"),
+            "ALL",
+        ),
+    )
+
+
+class TypedArrayLiteralSegment(ansi.TypedArrayLiteralSegment):
+    """An array literal segment."""
+
+    type = "typed_array_literal"
+    match_grammar = ansi.TypedArrayLiteralSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref.keyword("VARIADIC"),
+                Sequence(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("WalrusOperatorSegment"),
+                    optional=True,
+                ),
+                optional=True,
+            )
+        ],
+        before=Ref("ArrayTypeSegment"),
     )
