@@ -343,6 +343,7 @@ class FluffConfig:
         ignore_local_config: bool = False,
         overrides: Optional[ConfigMappingType] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
+        require_dialect: bool = True,
     ) -> FluffConfig:
         """Loads a config object given a particular path.
 
@@ -368,6 +369,8 @@ class FluffConfig:
                 this, as the class will fetch it's own if not provided.
                 This argument is used when creating new class instances to
                 avoid reloading the manager.
+            require_dialect (bool, optional, default is True): When True
+                an error will be raise if the dialect config value is unset.
 
         Returns:
             :obj:`FluffConfig`: The loaded config object.
@@ -383,6 +386,7 @@ class FluffConfig:
             ignore_local_config=ignore_local_config,
             overrides=overrides,
             plugin_manager=plugin_manager,
+            require_dialect=require_dialect,
         )
 
     @classmethod
@@ -467,12 +471,16 @@ class FluffConfig:
         """Instantiate the configured templater."""
         return self.get_templater_class()(**kwargs)
 
-    def make_child_from_path(self, path: str) -> FluffConfig:
+    def make_child_from_path(
+        self, path: str, require_dialect: bool = True
+    ) -> FluffConfig:
         """Make a child config at a path but pass on overrides and extra_config_path.
 
         Args:
             path (str): The path to load the new config object from, inheriting
                 the content of the calling `FluffConfig` as base values.
+            require_dialect (bool, optional, default is True): When True
+                an error will be raise if the dialect config value is unset.
 
         Returns:
             :obj:`FluffConfig`: A new config object which copies the current
@@ -485,6 +493,7 @@ class FluffConfig:
             ignore_local_config=self._ignore_local_config,
             overrides=self._overrides,
             plugin_manager=self._plugin_manager,
+            require_dialect=require_dialect,
         )
 
     def diff_to(self, other: FluffConfig) -> ConfigMappingType:
