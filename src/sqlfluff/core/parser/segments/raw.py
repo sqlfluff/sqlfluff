@@ -11,7 +11,7 @@ import regex as re
 
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
-from rsqlfluff import Token
+from rsqlfluff import RsTemplatedFile, RsToken
 
 
 class RawSegment(BaseSegment):
@@ -304,13 +304,15 @@ class RawSegment(BaseSegment):
     @classmethod
     def from_rstoken(
         cls,
-        token: Token,
+        token: RsToken,
+        tf: RsTemplatedFile,
     ):
         """Create a RawSegment from an RSQL token."""
         segment = cls(
             raw=token.raw,
-            pos_marker=token.pos_marker,
-            instance_types=token.instance_types,
+            pos_marker=PositionMarker.from_rs_position_marker(token.pos_marker, tf),
+            instance_types=tuple(token.instance_types),
+            # type = token.type,
             trim_start=token.trim_start,
             trim_chars=token.trim_chars,
             source_fixes=token.source_fixes,
@@ -319,7 +321,7 @@ class RawSegment(BaseSegment):
             # escape_replacements=token.escape_replacements,
             # casefold=token.casefold,
         )
-        segment.type = token.type
+        # segment.type = token.type
         segment._is_code = token.is_code
         segment._is_comment = token.is_comment
         segment._is_whitespace = token.is_whitespace

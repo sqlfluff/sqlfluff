@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Optional
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.markers import PositionMarker
 
-# from rsqlfluff import PositionMarker
+# from rsqlfluff import RsPositionMarker
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.segments.base import BaseSegment
 
