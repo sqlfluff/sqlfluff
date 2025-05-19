@@ -97,14 +97,12 @@ class Rule_CV12(BaseRule):
             "join_clause", no_recursive_seg_type=["select_statement"]
         ):
             # mark table reference as seen
-            join_table_references = [
-                *join_clause.recursive_crawl(
+            join_table_reference = next(
+                join_clause.recursive_crawl(
                     "from_expression_element",
                     no_recursive_seg_type=["select_statement"],
                 )
-            ]
-            assert len(join_table_references) == 1
-            join_table_reference = join_table_references[0]
+            )
             encountered_references.add(
                 self._get_from_expression_element_alias(join_table_reference)
             )

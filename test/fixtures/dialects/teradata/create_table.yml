@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f989b8ec16e4c8123f7c8e2a3b1cc438ffaf3e6b809a9d5694bf3db064ce61a6
+_hash: 75a610840d7bc8a1820793d9d97af0727a137c1662071040a10c064e1f58b4d2
 file:
 - statement:
     create_table_statement:
@@ -947,4 +947,152 @@ file:
       - keyword: COMMIT
       - keyword: PRESERVE
       - keyword: ROWS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: SET
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: TABLE_2
+    - create_table_options_statement:
+      - comma: ','
+      - keyword: FALLBACK
+      - comma: ','
+      - keyword: 'NO'
+      - keyword: BEFORE
+      - keyword: JOURNAL
+      - comma: ','
+      - keyword: 'NO'
+      - keyword: AFTER
+      - keyword: JOURNAL
+      - comma: ','
+      - keyword: CHECKSUM
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DEFAULT
+      - comma: ','
+      - keyword: DEFAULT
+      - keyword: MERGEBLOCKRATIO
+      - comma: ','
+      - keyword: MAP
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: TD_MAP1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - column_reference:
+            naked_identifier: CHAR_FIELD
+        - data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '19'
+                end_bracket: )
+        - td_column_attribute_constraint:
+          - keyword: CHARACTER
+          - keyword: SET
+          - naked_identifier: LATIN
+        - td_column_attribute_constraint:
+          - keyword: NOT
+          - keyword: CASESPECIFIC
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: DATE_FIELD
+          data_type:
+            data_type_identifier: DATE
+            keyword: FORMAT
+            quoted_literal: "'YYYY-MM-DD'"
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: BYTE_FIELD
+          data_type:
+            data_type_identifier: BYTEINT
+          td_column_attribute_constraint:
+            keyword: COMPRESS
+            numeric_literal: '0'
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: DECIMAL_FIELD
+          data_type:
+            data_type_identifier: DECIMAL
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '15'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
+          td_column_attribute_constraint:
+            keyword: COMPRESS
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '50.00'
+            - comma: ','
+            - numeric_literal: '45.50'
+            - comma: ','
+            - numeric_literal: '40.00'
+            - comma: ','
+            - numeric_literal: '30.00'
+            - comma: ','
+            - numeric_literal: '27.80'
+            - comma: ','
+            - numeric_literal: '27.05'
+            - comma: ','
+            - numeric_literal: '20.00'
+            - comma: ','
+            - numeric_literal: '17.87'
+            - comma: ','
+            - numeric_literal: '17.56'
+            - comma: ','
+            - numeric_literal: '17.41'
+            - comma: ','
+            - numeric_literal: '17.26'
+            - comma: ','
+            - numeric_literal: '17.11'
+            - comma: ','
+            - numeric_literal: '16.96'
+            - comma: ','
+            - numeric_literal: '16.82'
+            - comma: ','
+            - numeric_literal: '16.68'
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: TIMESTAMP_FIELD
+          data_type:
+            data_type_identifier: TIMESTAMP
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - end_bracket: )
+    - td_table_constraint:
+      - keyword: PRIMARY
+      - keyword: INDEX
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier: CHAR_FIELD
+        - comma: ','
+        - naked_identifier: DATE_FIELD
+        - comma: ','
+        - naked_identifier: BYTE_FIELD
+        - end_bracket: )
 - statement_terminator: ;
