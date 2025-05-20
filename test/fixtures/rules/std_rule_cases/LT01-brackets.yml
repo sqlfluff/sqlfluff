@@ -60,3 +60,14 @@ test_fail_snowflake_match_condition:
   configs:
     core:
       dialect: snowflake
+
+test_pass_ansi_bracketed_data_types:
+  pass_str: |
+    CREATE TABLE fractest (c1 TIME(2), c2 DATETIME(2), c3 TIMESTAMP(2));
+
+test_pass_mysql_bracketed_data_types:
+  pass_str: |
+    CREATE TABLE fractest (c1 TIME(2), c2 DATETIME(2), c3 TIMESTAMP(2));
+  configs:
+    core:
+      dialect: mysql

@@ -1,0 +1,62 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6072c4292a682a04c8bf5df58bfd0ede2d9faeb294c2e5f5eb8c877659c6c158
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '"wellplated_format"'
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - quoted_identifier: '"id"'
+        - data_type:
+            data_type_identifier: integer
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+          - keyword: AUTOINCREMENT
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '"bottom_row"'
+          data_type:
+            data_type_identifier: varchar
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '1'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+        - quoted_identifier: '"right_column"'
+        - data_type:
+            data_type_identifier: smallint
+            keyword: unsigned
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_constraint_segment:
+            keyword: CHECK
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  quoted_identifier: '"right_column"'
+                comparison_operator:
+                - raw_comparison_operator: '>'
+                - raw_comparison_operator: '='
+                numeric_literal: '0'
+              end_bracket: )
+      - end_bracket: )
+  statement_terminator: ;

@@ -88,3 +88,12 @@ SELECT
 RETURNING
   test,
   test2;
+
+INSERT INTO
+  baz (state, state_changed_at, instance_id)
+SELECT
+  1, 2, 3
+ON CONFLICT (instance_id) DO UPDATE
+SET
+  state = foo,
+  state_changed_at = bar;

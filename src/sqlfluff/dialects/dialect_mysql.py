@@ -305,6 +305,7 @@ mysql_dialect.replace(
         )
     ),
     LikeGrammar=OneOf("LIKE", "RLIKE", "REGEXP"),
+    CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
 )
 
 mysql_dialect.add(
@@ -378,7 +379,7 @@ class ColumnDefinitionSegment(BaseSegment):
             ),
             Sequence(
                 OneOf("DATETIME", "TIMESTAMP"),
-                Bracketed(Ref("NumericLiteralSegment"), optional=True),  # Precision
+                Ref("BracketedArguments", optional=True),  # Precision
                 AnyNumberOf(
                     # Allow NULL/NOT NULL, DEFAULT, and ON UPDATE in any order
                     Sequence(Sequence("NOT", optional=True), "NULL", optional=True),
@@ -984,7 +985,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
                 Ref("DoubleQuotedIdentifierSegment"),
             ),
         ),
-        Sequence("COLLATE", Ref("CollationReferenceSegment")),
+        Ref("CollateGrammar"),
         Sequence(
             Sequence("GENERATED", "ALWAYS", optional=True),
             "AS",

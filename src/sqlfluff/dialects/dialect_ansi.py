@@ -523,6 +523,7 @@ ansi_dialect.add(
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("WithDataClauseSegment"),
         "FETCH",
+        "OFFSET",
     ),
     WhereClauseTerminatorGrammar=OneOf(
         "LIMIT",
@@ -763,7 +764,7 @@ ansi_dialect.add(
     ListComprehensionGrammar=Nothing(),
     TimeWithTZGrammar=Sequence(
         OneOf("TIME", "TIMESTAMP"),
-        Bracketed(Ref("NumericLiteralSegment"), optional=True),
+        Ref("BracketedArguments", optional=True),
         Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
     ),
     SequenceMinValueGrammar=OneOf(
@@ -2716,7 +2717,21 @@ class FetchClauseSegment(BaseSegment):
             optional=True,
         ),
         OneOf("ROW", "ROWS"),
-        "ONLY",
+        OneOf("ONLY", Sequence("WITH", "TIES")),
+    )
+
+
+class OffsetClauseSegment(BaseSegment):
+    """An `OFFSET` clause like in `SELECT`."""
+
+    type = "offset_clause"
+    match_grammar: Matchable = Sequence(
+        "OFFSET",
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("ExpressionSegment", exclude=Ref.keyword("ROW")),
+        ),
+        OneOf("ROW", "ROWS"),
     )
 
 
@@ -2804,6 +2819,7 @@ class SelectStatementSegment(BaseSegment):
     match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
+            Ref("OffsetClauseSegment", optional=True),
             Ref("FetchClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),

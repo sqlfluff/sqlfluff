@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 03286c72e8154da3f1893661080540aa6cef0967cc871ae0ef42947372bbd5be
+_hash: 351e0f55b3561e752332d82fa7478e3c75b97e39a1f457890aceb9c14db716e0
 file:
 - statement:
     select_statement:
@@ -49,10 +49,11 @@ file:
                 keyword: AS
                 data_type:
                   keyword: TIMESTAMP
-                  bracketed:
-                    start_bracket: (
-                    numeric_literal: '0'
-                    end_bracket: )
+                  bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      numeric_literal: '0'
+                      end_bracket: )
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -76,10 +77,11 @@ file:
                 keyword: AS
                 data_type:
                   keyword: TIMESTAMP
-                  bracketed:
-                    start_bracket: (
-                    numeric_literal: '12'
-                    end_bracket: )
+                  bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      numeric_literal: '12'
+                      end_bracket: )
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -155,10 +157,11 @@ file:
                 keyword: AS
                 data_type:
                 - keyword: TIMESTAMP
-                - bracketed:
-                    start_bracket: (
-                    numeric_literal: '6'
-                    end_bracket: )
+                - bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      numeric_literal: '6'
+                      end_bracket: )
                 - keyword: WITH
                 - keyword: TIME
                 - keyword: ZONE
@@ -185,10 +188,11 @@ file:
                 keyword: AS
                 data_type:
                 - keyword: TIMESTAMP
-                - bracketed:
-                    start_bracket: (
-                    numeric_literal: '6'
-                    end_bracket: )
+                - bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      numeric_literal: '6'
+                      end_bracket: )
                 - keyword: WITHOUT
                 - keyword: TIME
                 - keyword: ZONE
