@@ -51,7 +51,7 @@ the `Redshift Names & Identifiers Docs`_).
 The dialect for `Redshift`_ on Amazon Web Services (AWS).
 
 .. _`Redshift`: https://aws.amazon.com/redshift/
-.. _`Redshift Names & Identifiers Docs`: https://spark.apache.org/docs/latest/sql-ref.html
+.. _`Redshift Names & Identifiers Docs`: https://docs.aws.amazon.com/redshift/latest/dg/r_names.html
 """,  # noqa: E501
 )
 
