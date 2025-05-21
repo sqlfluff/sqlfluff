@@ -1288,7 +1288,7 @@ class AsAliasOperatorSegment(BaseSegment):
     """The as alias expression operator."""
 
     type = "alias_operator"
-    match_grammar: Matchable = Sequence(Ref.keyword("AS"))
+    match_grammar: Matchable = Sequence("AS")
 
 
 class ShorthandCastSegment(BaseSegment):
