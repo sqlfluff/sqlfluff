@@ -53,14 +53,12 @@ class BlockConfig:
             or config.get("keyword_line_position", None)
             or self.keyword_line_position
         )
-        klpe = (
+        self.keyword_line_position_exclusions = split_comma_separated_string(
             keyword_line_position_exclusions
             or config.get("keyword_line_position_exclusions", None)
             or self.keyword_line_position_exclusions
+            or []
         )
-        if klpe is not None:
-            klpe = split_comma_separated_string(klpe)
-        self.keyword_line_position_exclusions = klpe
 
 
 @dataclass(frozen=True)
