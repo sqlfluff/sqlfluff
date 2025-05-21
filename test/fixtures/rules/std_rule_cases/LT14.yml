@@ -516,3 +516,88 @@ test_pass_single_line_set:
   configs:
     core:
       dialect: snowflake
+
+test_pass_leading_orderby_except_window_function:
+  pass_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) AS e
+    FROM f
+    JOIN g
+    ON g.h = f.h
+  configs:
+    layout:
+      type:
+        orderby_clause:
+          keyword_line_position: leading
+          keyword_line_position_exclusions: window_specification
+
+test_pass_leading_orderby_except_list_function:
+  pass_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) AS e,
+    STRING_AGG(a ORDER BY b, c)
+    FROM f
+    JOIN g
+    ON g.h = f.h
+  configs:
+    layout:
+      type:
+        orderby_clause:
+          keyword_line_position: leading
+          keyword_line_position_exclusions: window_specification, aggregate_order_by
+
+test_fail_leading_orderby_except_window_function_outer_orderby:
+  fail_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) AS e
+    FROM f
+    JOIN g
+    ON g.h = f.h ORDER BY a
+  fix_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) AS e
+    FROM f
+    JOIN g
+    ON g.h = f.h
+    ORDER BY a
+  configs:
+    layout:
+      type:
+        orderby_clause:
+          keyword_line_position: leading
+          keyword_line_position_exclusions: window_specification
+
+test_fail_leading_orderby_except_list_outer_orderby:
+  fail_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) AS e,
+    STRING_AGG(a ORDER BY b, c)
+    FROM f
+    JOIN g
+    ON g.h = f.h ORDER BY a
+  fix_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) AS e,
+    STRING_AGG(a ORDER BY b, c)
+    FROM f
+    JOIN g
+    ON g.h = f.h
+    ORDER BY a
+  configs:
+    layout:
+      type:
+        orderby_clause:
+          keyword_line_position: leading
+          keyword_line_position_exclusions: window_specification, aggregate_order_by

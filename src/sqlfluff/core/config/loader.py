@@ -43,17 +43,6 @@ can still cache appropriately
 """
 
 
-ALLOWABLE_LAYOUT_CONFIG_KEYS = (
-    "spacing_before",
-    "spacing_after",
-    "spacing_within",
-    "line_position",
-    "align_within",
-    "align_scope",
-    "keyword_line_position",
-)
-
-
 def _get_user_config_dir_path(sys_platform: str) -> str:
     """Get the user config dir for this system.
 
