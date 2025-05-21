@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: de29d35461919108a20c650713d1f19cb650679af1dbe18ebe718e8d6c86c36a
+_hash: 73d429e66efdc7a786350ad6aa95eff0e3353d5e58871331543e499ca081ada1
 file:
   statement:
     select_statement:
@@ -27,7 +27,8 @@ file:
                   - naked_identifier: first_move
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: first_move
       from_clause:
         keyword: FROM
@@ -37,5 +38,6 @@ file:
               table_reference:
                 quoted_identifier: '`gcp-project.data.year_2021`'
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: log_tbl

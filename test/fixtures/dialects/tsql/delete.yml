@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8644f64d875c1808df0e0795774001f4817490e86eb0f00974ca775f88ded213
+_hash: 2432afab98214e095edba7cfb916f170a6681733d13b00b8c75639bf3228c300
 file:
 - batch:
     statement:
@@ -112,7 +112,8 @@ file:
                   - dot: .
                   - naked_identifier: EmployeePayHistory
                 alias_expression:
-                  keyword: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: a
           where_clause:
             keyword: WHERE
@@ -149,7 +150,8 @@ file:
                             - dot: .
                             - naked_identifier: EmployeePayHistory
                           alias_expression:
-                            keyword: AS
+                            alias_operator:
+                              keyword: AS
                             naked_identifier: b
                     where_clause:
                       keyword: WHERE
@@ -265,7 +267,8 @@ file:
                 - dot: .
                 - naked_identifier: SalesPersonQuotaHistory
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: spqh
             join_clause:
             - keyword: INNER
@@ -277,7 +280,8 @@ file:
                   - dot: .
                   - naked_identifier: SalesPerson
                 alias_expression:
-                  keyword: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: sp
             - join_on_condition:
                 keyword: 'ON'
@@ -321,7 +325,8 @@ file:
                 - dot: .
                 - naked_identifier: SalesPersonQuotaHistory
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: spqh
             join_clause:
             - keyword: INNER
@@ -333,7 +338,8 @@ file:
                   - dot: .
                   - naked_identifier: SalesPerson
                 alias_expression:
-                  keyword: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: sp
             - join_on_condition:
                 keyword: 'ON'
@@ -623,7 +629,8 @@ file:
                 - dot: .
                 - naked_identifier: ProductProductPhoto
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: ph
             join_clause:
               keyword: JOIN
@@ -634,7 +641,8 @@ file:
                   - dot: .
                   - naked_identifier: Product
                 alias_expression:
-                  keyword: as
+                  alias_operator:
+                    keyword: as
                   naked_identifier: p
               join_on_condition:
                 keyword: 'ON'

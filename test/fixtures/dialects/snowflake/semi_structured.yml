@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f329288299c22b97c22b618b857d2f1449e14a3ed3af0307bca4d59a91b670bf
+_hash: 0fe13d614c4812dcff87c863d704cb3a6222971088f10e4ddde48f8c217d72f8
 file:
 - statement:
     select_statement:
@@ -21,7 +21,8 @@ file:
               colon: ':'
               semi_structured_element: value
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: uncasted
       - comma: ','
       - select_clause_element:
@@ -36,7 +37,8 @@ file:
               data_type:
                 data_type_identifier: bigint
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: field_id
       - comma: ','
       - select_clause_element:
@@ -51,7 +53,8 @@ file:
               data_type:
                 data_type_identifier: STRING
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: field_val
       - comma: ','
       - select_clause_element:
@@ -68,7 +71,8 @@ file:
             - dot: .
             - semi_structured_element: foo
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: another_val
       - comma: ','
       - select_clause_element:
@@ -97,7 +101,8 @@ file:
               data_type:
                 data_type_identifier: bigint
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: another_val
       - comma: ','
       - select_clause_element:
@@ -112,7 +117,8 @@ file:
               dot: .
               semi_structured_element: array_element_property
           alias_expression:
-            keyword: as
+            alias_operator:
+              keyword: as
             naked_identifier: test_array_access
       from_clause:
       - keyword: FROM
@@ -166,7 +172,8 @@ file:
                   - numeric_literal: '6'
                   - end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: lat
       - comma: ','
       - select_clause_element:
@@ -192,7 +199,8 @@ file:
                   - numeric_literal: '6'
                   - end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: lng
       from_clause:
         keyword: FROM

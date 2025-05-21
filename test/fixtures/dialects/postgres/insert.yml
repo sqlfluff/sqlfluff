@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5e250b74b81dba3b751a4bb213fb7cc6bbb9df9d64504cb18ea3038087281d23
+_hash: 114ebc036df2cf8cec886322564883072a43209ebd6e31cd69d7edafb4037acd
 file:
 - statement:
     insert_statement:
@@ -119,7 +119,8 @@ file:
     - table_reference:
         naked_identifier: distributors
     - alias_expression:
-        keyword: AS
+        alias_operator:
+          keyword: AS
         naked_identifier: d
     - bracketed:
       - start_bracket: (
@@ -306,7 +307,8 @@ file:
         column_reference:
           naked_identifier: bar
     - alias_expression:
-        keyword: AS
+        alias_operator:
+          keyword: AS
         naked_identifier: some_alias
 - statement_terminator: ;
 - statement:
@@ -371,14 +373,16 @@ file:
         column_reference:
           naked_identifier: bar
     - alias_expression:
-        keyword: AS
+        alias_operator:
+          keyword: AS
         naked_identifier: alias1
     - comma: ','
     - expression:
         column_reference:
           naked_identifier: baz
     - alias_expression:
-        keyword: AS
+        alias_operator:
+          keyword: AS
         naked_identifier: alias2
 - statement_terminator: ;
 - statement:
@@ -470,7 +474,8 @@ file:
     - table_reference:
         naked_identifier: foo
     - alias_expression:
-        keyword: AS
+        alias_operator:
+          keyword: AS
         naked_identifier: f
     - bracketed:
       - start_bracket: (
@@ -714,7 +719,8 @@ file:
                       end_bracket: )
                 end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: tmp
                 bracketed:
                   start_bracket: (
@@ -739,7 +745,8 @@ file:
                         table_reference:
                           naked_identifier: megatable
                       alias_expression:
-                        keyword: AS
+                        alias_operator:
+                          keyword: AS
                         naked_identifier: mt
                 where_clause:
                   keyword: WHERE

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6be78fc00c7d4c2dcd9d3b8cbdeec34de2b5f003115edc8f5c4d9cef775ae403
+_hash: 34db944830e216a9c733d3e985c275d08bc4f4e966543cf57dc34be9b3fc4215
 file:
 - statement:
     select_statement:
@@ -40,13 +40,15 @@ file:
                               numeric_literal: '10'
                             end_bracket: )
                       alias_expression:
-                        keyword: AS
+                        alias_operator:
+                          keyword: AS
                         naked_identifier: n
                   - comma: ','
                   - select_clause_element:
                       quoted_literal: "'original'"
                       alias_expression:
-                        keyword: AS
+                        alias_operator:
+                          keyword: AS
                         naked_identifier: source
                   from_clause:
                     keyword: FROM
@@ -114,7 +116,8 @@ file:
                   numeric_literal: '86400'
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: d1
       - comma: ','
       - select_clause_element:
@@ -131,13 +134,15 @@ file:
                   numeric_literal: '86400'
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: d2
       - comma: ','
       - select_clause_element:
           quoted_literal: "'original'"
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: source
       from_clause:
         keyword: FROM
@@ -208,7 +213,8 @@ file:
                   numeric_literal: '86400'
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: d1
       - comma: ','
       - select_clause_element:
@@ -225,13 +231,15 @@ file:
                   numeric_literal: '86400'
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: d2
       - comma: ','
       - select_clause_element:
           quoted_literal: "'original'"
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: source
       from_clause:
         keyword: FROM
@@ -302,7 +310,8 @@ file:
                   numeric_literal: '86400'
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: d1
       - comma: ','
       - select_clause_element:
@@ -319,13 +328,15 @@ file:
                   numeric_literal: '86400'
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: d2
       - comma: ','
       - select_clause_element:
           quoted_literal: "'original'"
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: source
       from_clause:
         keyword: FROM
