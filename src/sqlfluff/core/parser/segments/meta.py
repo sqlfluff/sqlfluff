@@ -13,6 +13,8 @@ from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix
 from sqlfluff.core.templaters.base import TemplatedFile
 
+from rsqlfluff import RsTemplatedFile, RsToken
+
 
 class MetaSegment(RawSegment):
     """A segment which is empty but indicates where something should be."""
@@ -81,6 +83,19 @@ class MetaSegment(RawSegment):
         if they wish to be considered simple.
         """
         return None
+    
+    @classmethod
+    def from_rstoken(
+        cls,
+        token: RsToken,
+        tf: RsTemplatedFile,
+    ):
+        """Create a RawSegment from an RSQL token."""
+        segment = cls(
+            pos_marker=PositionMarker.from_rs_position_marker(token.pos_marker, tf),
+            block_uuid=token.block_uuid,
+        )
+        return segment
 
 
 class EndOfFile(MetaSegment):
@@ -275,7 +290,7 @@ class TemplateSegment(MetaSegment):
     @classmethod
     def from_rstoken(cls, token, tf):
         """Create a TemplateSegment from a token."""
-        print("templatesegment from_rstoken")
+        # print("templatesegment from_rstoken")
         segment = cls(
             pos_marker=PositionMarker.from_rs_position_marker(token.pos_marker, tf),
             source_str=token.source_str,

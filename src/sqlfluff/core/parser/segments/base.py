@@ -599,6 +599,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         This is used in the .as_record() method.
         """
+        # print(elem)
         assert len(elem) == 2
         key, value = elem
         assert isinstance(key, str)
@@ -611,6 +612,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # Otherwise value is a tuple with length.
         # Simplify all the child elements
         contents = [cls.structural_simplify(e) for e in value]
+        # print(contents)
 
         # Any duplicate elements?
         subkeys: list[str] = []

@@ -97,6 +97,11 @@ dependencies = [
     "tqdm",
 ]
 
+[project.optional-dependencies]
+rs = [
+    "rsqlfluff @ file:./rsqlfluff"
+]
+
 [project.urls]
 Homepage = "https://www.sqlfluff.com"
 Documentation = "https://docs.sqlfluff.com"

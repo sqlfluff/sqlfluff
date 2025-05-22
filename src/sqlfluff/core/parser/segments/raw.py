@@ -11,6 +11,7 @@ import regex as re
 
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
+
 from rsqlfluff import RsTemplatedFile, RsToken
 
 
@@ -80,6 +81,7 @@ class RawSegment(BaseSegment):
         self.escape_replacements = escape_replacements
         self.casefold = casefold
         self._raw_value: str = self._raw_normalized()
+        # print(self)
         # print(f"class name raw end: {self.__class__.__name__}")
 
     def __repr__(self) -> str:
@@ -322,13 +324,16 @@ class RawSegment(BaseSegment):
             # casefold=token.casefold,
         )
         # segment.type = token.type
-        segment._is_code = token.is_code
-        segment._is_comment = token.is_comment
-        segment._is_whitespace = token.is_whitespace
-        segment.indent_val = token.indent_val
-        segment.is_meta = token.is_meta
+        # segment.instance_types = tuple(token.instance_types)
+        # segment._class_types = frozenset(token.class_types)
+        # segment.can_start_end_non_code = token.can_start_end_non_code
+        # segment._is_code = token.is_code
+        # segment._is_comment = token.is_comment
+        # segment._is_whitespace = token.is_whitespace
+        # segment.indent_val = token.indent_val
+        # segment.is_meta = token.is_meta
         # segment.is_implicit = token.is_implicit
-        segment._preface_modifier = token.preface_modifier
+        # segment._preface_modifier = token.preface_modifier
         return segment
 
 

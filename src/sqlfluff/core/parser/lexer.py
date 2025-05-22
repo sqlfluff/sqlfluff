@@ -24,6 +24,7 @@ from sqlfluff.core.parser.segments import (
     TemplateSegment,
     UnlexableSegment,
 )
+from sqlfluff.core.parser.segments.common import LiteralSegment
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.templaters.base import TemplatedFileSlice
 
@@ -295,9 +296,9 @@ class StringLexer:
         # NOTE: Using a private attribute here feels a bit wrong.
         _segment_class_types = self.segment_class._class_types
         _kwargs = self.segment_kwargs
-        assert not (
-            "type" in _kwargs and "instance_types" in _kwargs
-        ), f"Cannot set both `type` and `instance_types` in segment kwargs: {_kwargs}"
+        assert not ("type" in _kwargs and "instance_types" in _kwargs), (
+            f"Cannot set both `type` and `instance_types` in segment kwargs: {_kwargs}"
+        )
         if "type" in _kwargs:
             # TODO: At some point we should probably deprecate this API and only
             # allow setting `instance_types`.
@@ -896,6 +897,19 @@ try:
 
     RsLexer.lex_ = RsLexer.lex
 
+    def get_segment_type_map(base_class: type) -> dict[str, type[RawSegment]]:
+        """Dynamically create a map of segment types to their subclasses."""
+        segment_map = {}
+        for subclass in base_class.__subclasses__():
+            if hasattr(subclass, "type") and subclass.type:  # Ensure the subclass has a type
+                segment_map[subclass.type] = subclass
+            # Recursively add subclasses of subclasses
+            segment_map.update(get_segment_type_map(subclass))
+        return segment_map
+
+    # Dynamically generate the segment_types map
+    segment_types = get_segment_type_map(RawSegment)
+
     def lex(
         self, raw: Union[str, TemplatedFile]
     ) -> tuple[tuple[BaseSegment, ...], list[SQLLexError]]:
@@ -904,10 +918,9 @@ try:
         first_token = tokens[0]
         assert first_token
         tf = first_token.pos_marker.templated_file
-        segment_type = {"placeholder": TemplateSegment}
         return (
             tuple(
-                segment_type.get(token.type, RawSegment).from_rstoken(token, tf)
+                segment_types.get(token.type, RawSegment).from_rstoken(token, tf)
                 for token in tokens
             ),
             errors,
