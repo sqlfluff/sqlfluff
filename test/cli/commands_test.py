@@ -151,6 +151,32 @@ def test__cli__command_no_dialect(command):
     assert "Traceback (most recent call last)" not in result.stderr
 
 
+@pytest.mark.parametrize(
+    "command",
+    [
+        parse,
+        lint,
+        cli_format,
+        fix,
+    ],
+)
+def test__cli__command_no_dialect_stdin_filename_inline_dialect(command):
+    """Check the script runs with no dialect but has an inline configuration."""
+    # The dialect is unknown should be a non-zero exit code
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[
+            command,
+            ["--stdin-filename", "test.sql", "-"],
+        ],
+        cli_input="-- sqlfluff:dialect:ansi\nSELECT 1\n",
+    )
+    assert "User Error" not in result.stderr
+    assert "No dialect was specified" not in result.stderr
+    # No traceback should be in the output
+    assert "Traceback (most recent call last)" not in result.stderr
+
+
 def test__cli__command_parse_error_dialect_explicit_warning():
     """Check parsing error raises the right warning."""
     # For any parsing error there should be a non-zero exit code
