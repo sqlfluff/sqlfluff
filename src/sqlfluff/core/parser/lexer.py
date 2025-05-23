@@ -11,8 +11,6 @@ from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLLexError
 from sqlfluff.core.helpers.slice import is_zero_slice, offset_slice, to_tuple
 from sqlfluff.core.parser.markers import PositionMarker
-
-# from rsqlfluff import RsPositionMarker
 from sqlfluff.core.parser.segments import (
     BaseSegment,
     Dedent,
@@ -24,7 +22,6 @@ from sqlfluff.core.parser.segments import (
     TemplateSegment,
     UnlexableSegment,
 )
-from sqlfluff.core.parser.segments.common import LiteralSegment
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.templaters.base import TemplatedFileSlice
 
@@ -296,9 +293,9 @@ class StringLexer:
         # NOTE: Using a private attribute here feels a bit wrong.
         _segment_class_types = self.segment_class._class_types
         _kwargs = self.segment_kwargs
-        assert not ("type" in _kwargs and "instance_types" in _kwargs), (
-            f"Cannot set both `type` and `instance_types` in segment kwargs: {_kwargs}"
-        )
+        assert not (
+            "type" in _kwargs and "instance_types" in _kwargs
+        ), f"Cannot set both `type` and `instance_types` in segment kwargs: {_kwargs}"
         if "type" in _kwargs:
             # TODO: At some point we should probably deprecate this API and only
             # allow setting `instance_types`.
@@ -726,7 +723,7 @@ def _iter_segments(
         )
 
 
-class Lexer:
+class PyLexer:
     """The Lexer class actually does the lexing step."""
 
     def __init__(
@@ -895,13 +892,13 @@ class Lexer:
 try:
     from rsqlfluff import RsLexer
 
-    RsLexer.lex_ = RsLexer.lex
-
     def get_segment_type_map(base_class: type) -> dict[str, type[RawSegment]]:
         """Dynamically create a map of segment types to their subclasses."""
         segment_map = {}
         for subclass in base_class.__subclasses__():
-            if hasattr(subclass, "type") and subclass.type:  # Ensure the subclass has a type
+            if (
+                hasattr(subclass, "type") and subclass.type
+            ):  # Ensure the subclass has a type
                 segment_map[subclass.type] = subclass
             # Recursively add subclasses of subclasses
             segment_map.update(get_segment_type_map(subclass))
@@ -910,24 +907,25 @@ try:
     # Dynamically generate the segment_types map
     segment_types = get_segment_type_map(RawSegment)
 
-    def lex(
-        self, raw: Union[str, TemplatedFile]
-    ) -> tuple[tuple[BaseSegment, ...], list[SQLLexError]]:
-        """Take a string or TemplatedFile and return segments."""
-        tokens, errors = RsLexer.lex_(self, raw)
-        first_token = tokens[0]
-        assert first_token
-        tf = first_token.pos_marker.templated_file
-        return (
-            tuple(
-                segment_types.get(token.type, RawSegment).from_rstoken(token, tf)
-                for token in tokens
-            ),
-            errors,
-        )
+    class PyRsLexer(RsLexer):
+        """A wrapper around the rsqlfluff lexer."""
 
-    RsLexer.lex = lex
-    Lexer = RsLexer
+        def lex(
+            self, raw: Union[str, TemplatedFile]
+        ) -> tuple[tuple[BaseSegment, ...], list[SQLLexError]]:
+            """Take a string or TemplatedFile and return segments."""
+            tokens, errors = self._lex(raw)
+            first_token = tokens[0]
+            assert first_token
+            tf = first_token.pos_marker.templated_file
+            return (
+                tuple(
+                    segment_types.get(token.type, RawSegment).from_rstoken(token, tf)
+                    for token in tokens
+                ),
+                errors,
+            )
+
     lexer_logger.info("Using rsqlfluff lexer.")
 except ImportError:
-    pass
+    ...

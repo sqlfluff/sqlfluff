@@ -718,7 +718,7 @@ pub mod python {
         }
     }
 
-    #[pyclass(name = "RsLexer")]
+    #[pyclass(name = "RsLexer", subclass)]
     #[repr(transparent)]
     #[derive(Clone)]
     pub struct PyLexer(pub Lexer);
@@ -746,7 +746,7 @@ pub mod python {
         }
 
         #[pyo3(signature = (input, template_blocks_indent = true))]
-        pub fn lex<'py>(
+        pub fn _lex<'py>(
             &self,
             py: Python<'py>,
             input: PyLexInput,

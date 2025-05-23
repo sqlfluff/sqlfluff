@@ -1,6 +1,6 @@
 """The KeywordSegment class."""
 
-from typing import Callable, Optional, Union
+from typing import TYPE_CHECKING, Callable, Optional, Union
 
 from sqlfluff.core.parser.markers import PositionMarker
 
@@ -8,7 +8,9 @@ from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.parser.segments.common import WordSegment
 
-from rsqlfluff import RsToken, RsTemplatedFile
+if TYPE_CHECKING:
+    from rsqlfluff import RsToken
+    from sqlfluff.core.templaters import TemplatedFile
 
 
 class KeywordSegment(WordSegment):
@@ -65,7 +67,7 @@ class KeywordSegment(WordSegment):
         )
 
     @classmethod
-    def from_rstoken(cls, token: RsToken, tf: RsTemplatedFile):
+    def from_rstoken(cls, token: "RsToken", tf: "TemplatedFile"):
         """Create a KeywordSegment from a token."""
         return cls(
             raw=token.raw,
@@ -77,6 +79,7 @@ class KeywordSegment(WordSegment):
             # escape_replacements=token.escape_replacements,
             # casefold=token.casefold,
         )
+
 
 class LiteralKeywordSegment(KeywordSegment):
     """A keyword style literal segment.

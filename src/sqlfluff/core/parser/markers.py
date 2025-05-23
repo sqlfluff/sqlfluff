@@ -9,13 +9,9 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from sqlfluff.core.helpers.slice import zero_slice
 
-try:
-    from rsqlfluff import RsPositionMarker
-except ImportError:
-    pass
-
 if TYPE_CHECKING:
-    from sqlfluff.core.templaters import TemplatedFile  # pragma: no cover
+    from rsqlfluff import RsPositionMarker
+    from sqlfluff.core.templaters import TemplatedFile
 
 
 @dataclass(frozen=True)
@@ -259,10 +255,10 @@ class PositionMarker:
     @classmethod
     def from_rs_position_marker(
         cls,
-        rs_position_marker: "RSPositionMarker",
+        rs_position_marker: "RsPositionMarker",
         templated_file: "TemplatedFile",
     ) -> "PositionMarker":
-        """Create a PositionMarker from an RSPositionMarker."""
+        """Create a PositionMarker from an RsPositionMarker."""
         return cls(
             source_slice=rs_position_marker.source_slice,
             templated_slice=rs_position_marker.templated_slice,

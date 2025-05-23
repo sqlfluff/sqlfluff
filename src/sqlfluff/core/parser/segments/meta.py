@@ -1,7 +1,7 @@
 """Indent and Dedent classes."""
 
 from collections.abc import Sequence
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
 from sqlfluff.core.parser.context import ParseContext
@@ -13,7 +13,8 @@ from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix
 from sqlfluff.core.templaters.base import TemplatedFile
 
-from rsqlfluff import RsTemplatedFile, RsToken
+if TYPE_CHECKING:
+    from rsqlfluff import RsToken
 
 
 class MetaSegment(RawSegment):
@@ -83,12 +84,12 @@ class MetaSegment(RawSegment):
         if they wish to be considered simple.
         """
         return None
-    
+
     @classmethod
     def from_rstoken(
         cls,
-        token: RsToken,
-        tf: RsTemplatedFile,
+        token: "RsToken",
+        tf: "TemplatedFile",
     ):
         """Create a RawSegment from an RSQL token."""
         segment = cls(
@@ -288,7 +289,7 @@ class TemplateSegment(MetaSegment):
         )
 
     @classmethod
-    def from_rstoken(cls, token, tf):
+    def from_rstoken(cls, token: "RsToken", tf: TemplatedFile):
         """Create a TemplateSegment from a token."""
         # print("templatesegment from_rstoken")
         segment = cls(
