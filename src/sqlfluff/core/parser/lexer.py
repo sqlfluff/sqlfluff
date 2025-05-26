@@ -22,7 +22,7 @@ from sqlfluff.core.parser.segments import (
     TemplateSegment,
     UnlexableSegment,
 )
-from sqlfluff.core.templaters import TemplatedFile
+from sqlfluff.core.templaters import RawTemplater, TemplatedFile
 from sqlfluff.core.templaters.base import TemplatedFileSlice
 
 # Instantiate the lexer logger
@@ -888,6 +888,19 @@ class PyLexer:
                 )
         return templated_buff
 
+    @classmethod
+    def build(
+        cls,
+        config: Optional[FluffConfig] = None,
+        last_resort_lexer: Optional[StringLexer] = None,
+        dialect: Optional[str] = None,
+    ):
+        """Builder for the Lexer.
+
+        This should be used to correctly select the appropriate lexer.
+        """
+        return cls(config, last_resort_lexer, dialect)
+
 
 try:
     from rsqlfluff import RsLexer
@@ -917,7 +930,14 @@ try:
             tokens, errors = self._lex(raw)
             first_token = tokens[0]
             assert first_token
-            tf = first_token.pos_marker.templated_file
+            rs_tf = first_token.pos_marker.templated_file
+            tf = TemplatedFile(
+                rs_tf.source_str,
+                rs_tf.fname,
+                rs_tf.templated_str,
+                rs_tf.sliced_file,
+                rs_tf.raw_sliced,
+            )
             return (
                 tuple(
                     segment_types.get(token.type, RawSegment).from_rstoken(token, tf)
@@ -925,6 +945,27 @@ try:
                 ),
                 errors,
             )
+
+        @classmethod
+        def build(
+            cls,
+            config: Optional[FluffConfig] = None,
+            last_resort_lexer: Optional[StringLexer] = None,
+            dialect: Optional[str] = None,
+        ):
+            """Builder for the Lexer.
+
+            This should be used to correctly select the appropriate lexer.
+            """
+            return cls(
+                config=config,
+                last_resort_lexer=last_resort_lexer,
+                dialect=dialect,
+            )
+            if config and config.get_templater_class() is not RawTemplater:
+                return PyLexer(config, last_resort_lexer, dialect)
+            else:
+                return cls(config, last_resort_lexer, dialect)
 
     lexer_logger.info("Using rsqlfluff lexer.")
 except ImportError:

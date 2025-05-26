@@ -501,9 +501,9 @@ fn handle_zero_length_slice(
     let mut segments = Vec::new();
     assert!(is_zero_slice(&tfs.templated_slice));
 
-    if next_tfs.is_some() && tfs.slice_type.starts_with("block") {
-        let peek = next_tfs.unwrap();
-        if peek.source_slice.start < tfs.source_slice.start {
+    // Backward jump detection
+    if let Some(peek) = next_tfs {
+        if tfs.slice_type.starts_with("block") && peek.source_slice.start < tfs.source_slice.start {
             log::debug!("      Backward jump detected. Inserting Loop Marker");
             let pos_marker = PositionMarker::from_point(
                 tfs.source_slice.start,
@@ -519,7 +519,7 @@ fn handle_zero_length_slice(
                     true,
                     None,
                     HashSet::new(),
-                ))
+                ));
             }
 
             segments.push(Token::template_loop_token(
@@ -535,17 +535,15 @@ fn handle_zero_length_slice(
                     None,
                     HashSet::new(),
                     None,
-                ))
+                ));
             }
+
             return segments.into_iter();
         }
     }
 
-    // Then handle blocks (which aren't jumps backwards)
+    // Block handling
     if tfs.slice_type.starts_with("block") {
-        // It's a block. Yield a placeholder with potential indents.
-
-        // Update block stack or add indents
         if tfs.slice_type == "block_start" {
             block_stack.enter(tfs.source_slice.clone());
         } else if add_indents && (tfs.slice_type == "block_end" || tfs.slice_type == "block_mid") {
@@ -561,10 +559,9 @@ fn handle_zero_length_slice(
                 true,
                 Some(block_stack.top()),
                 HashSet::new(),
-            ))
+            ));
         }
 
-        // TemplateSegment from_slice
         segments.push(Token::template_placeholder_token_from_slice(
             tfs.source_slice.clone(),
             tfs.templated_slice.clone(),
@@ -576,8 +573,7 @@ fn handle_zero_length_slice(
 
         if tfs.slice_type == "block_end" {
             block_stack.exit();
-        } else if add_indents && (tfs.slice_type == "block_start" || tfs.slice_type == "block_mid")
-        {
+        } else if add_indents && (tfs.slice_type == "block_start" || tfs.slice_type == "block_mid") {
             let pos_marker = PositionMarker::from_point(
                 tfs.source_slice.stop,
                 tfs.templated_slice.stop,
@@ -594,36 +590,34 @@ fn handle_zero_length_slice(
             ));
         }
 
-        // Before we move on, we might have a _forward_ jump to the next
-        // element. That element can handle itself, but we'll add a
-        // placeholder for it here before we move on.
-        if next_tfs.is_some() && next_tfs.unwrap().source_slice.start > tfs.source_slice.stop {
-            let placeholder_str = templated_file.source_str
-                [tfs.source_slice.stop..next_tfs.unwrap().source_slice.start]
-                .to_string();
-            log::debug!("Forward jump detected. Inserting placeholder");
-            let pos_marker = PositionMarker::new(
-                Slice::from(tfs.source_slice.stop..next_tfs.unwrap().source_slice.start),
-                tfs.templated_slice.clone(),
-                templated_file,
-                None,
-                None,
-            );
-            segments.push(Token::template_placeholder_token(
-                pos_marker,
-                placeholder_str,
-                "skipped_source".to_string(),
-                None,
-                HashSet::new(),
-            ));
+        // Forward jump detection
+        if let Some(peek) = next_tfs {
+            if peek.source_slice.start > tfs.source_slice.stop {
+                let placeholder_str = templated_file.source_str
+                    [tfs.source_slice.stop..peek.source_slice.start]
+                    .to_string();
+                log::debug!("      Forward jump detected. Inserting placeholder");
+                let pos_marker = PositionMarker::new(
+                    Slice::from(tfs.source_slice.stop..peek.source_slice.start),
+                    tfs.templated_slice.clone(),
+                    templated_file,
+                    None,
+                    None,
+                );
+                segments.push(Token::template_placeholder_token(
+                    pos_marker,
+                    placeholder_str,
+                    "skipped_source".to_string(),
+                    None,
+                    HashSet::new(),
+                ));
+            }
         }
 
         return segments.into_iter();
     }
 
-    // Always return the slice, even if the source slice was also zero length.  Some
-    // templaters might want to pass through totally zero length slices as a way of
-    // marking locations in the middle of templated output.
+    // Default zero-length slice handling
     segments.push(Token::template_placeholder_token_from_slice(
         tfs.source_slice.clone(),
         tfs.templated_slice.clone(),
@@ -847,7 +841,7 @@ mod tests {
     #[test]
     fn test_unlexable_lex() {
         let raw = LexInput::String(
-            r#"SELECT 1 
+            r#"SELECT 1
         FROM table_2 WHERE a / b = 3   "  ;"#
                 .to_string(),
         );
@@ -865,7 +859,7 @@ mod tests {
         env_logger::init();
         let lexer = Lexer::new(None, Dialect::Ansi);
         let test_case = lexer.lex_string(
-            r#"SELECT 1 
+            r#"SELECT 1
         FROM table_2 WHERE a / b = 3   "  ;"#,
         );
         for element in test_case {
@@ -892,7 +886,7 @@ SELECT employees.personal.name, neighbors.area FROM neighbors, employees
 WHERE employees.personal.address.zipcode=neighbors.area.zipcode AND neighbors.num_neighbors > 1;
 
 SELECT mitarbeiter.persönlicher.name, nachbarn.bereich FROM nachbarn, mitarbeiter
-WHERE mitarbeiter.persönlicher.adresse.zipcode=nachbarn.gebiet.zipcode AND nachbarn.nummer_nachbarn > 1;
+WHERE mitarbeiter.persönlicher.address.zipcode=nachbarn.gebiet.zipcode AND nachbarn.nummer_nachbarn > 1;
 
 
 SELECT itemkey AS key, IMPLODE(itemprice) WITHIN GROUP (ORDER BY itemprice) AS prices

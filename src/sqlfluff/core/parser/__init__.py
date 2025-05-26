@@ -14,7 +14,7 @@ from sqlfluff.core.parser.grammar import (
     Ref,
     Sequence,
 )
-from sqlfluff.core.parser.lexer import LexerType, RegexLexer, StringLexer
+from sqlfluff.core.parser.lexer import LexerType, PyLexer, RegexLexer, StringLexer
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.parser import Parser
@@ -100,6 +100,7 @@ __all__ = (
     "RegexParser",
     "PositionMarker",
     "Lexer",
+    "PyLexer",
     "LexerType",
     "StringLexer",
     "RegexLexer",

@@ -2,10 +2,10 @@ from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
 from uuid import UUID
 
 if TYPE_CHECKING:
-    from sqlfluff.core.parser.segments import SourceFix
-    from sqlfluff.core.templaters import TemplatedFile
     from sqlfluff.core.config import FluffConfig
     from sqlfluff.core.parser.lexer import StringLexer
+    from sqlfluff.core.parser.segments import SourceFix
+    from sqlfluff.core.templaters import TemplatedFile
 
 class Slice: ...
 
@@ -24,7 +24,7 @@ class RsTemplatedFileSlice:
 class RsTemplatedFile:
     source_str: str
     fname: str
-    template_str: str
+    templated_str: str
     sliced_file: List[RsTemplatedFileSlice]
     raw_sliced: List[RsRawFileSlice]
 
@@ -38,7 +38,7 @@ class RsPositionMarker:
 class RsToken:
     raw: str
     pos_marker: RsPositionMarker
-    type: Optional[str]
+    type: str
     uuid: Optional[int]
     source_fixes: Optional[list["SourceFix"]]
 
