@@ -817,7 +817,7 @@ def _crawl_indent_points(
     TODO: Once this function *works*, there's definitely headroom
     for simplification and optimisation. We should do that.
     """
-    last_line_break_idx: int | None = None
+    last_line_break_idx: Optional[int] = None
     indent_balance = 0
     untaken_indents: tuple[int, ...] = ()
     cached_indent_stats: Optional[IndentStats] = None
@@ -1655,7 +1655,7 @@ def lint_indent_points(
     skip_indentation_in: frozenset[str] = frozenset(),
     allow_implicit_indents: bool = False,
     ignore_comment_lines: bool = False,
-    indentation_align_following: dict[str, int] | None = None,
+    indentation_align_following: Optional[dict[str, int]] = None,
 ) -> tuple[ReflowSequenceType, list[LintResult]]:
     """Lint the indent points to check we have line breaks where we should.
 
@@ -2269,7 +2269,7 @@ def lint_line_length(
     line_buffer: ReflowSequenceType = []
     results: list[LintResult] = []
 
-    last_indent_idx: int | None = None
+    last_indent_idx: Optional[int] = None
     for i, elem in enumerate(elem_buffer):
         # Are there newlines in the element?
         # If not, add it to the buffer and wait to evaluate the line.

@@ -591,20 +591,21 @@ class ReflowSequence:
         indentation_align_following: dict[str, int] = {}
         for t in {"comma", "binary_operator"}:
             block_config = self.reflow_config.get_block_config({t})
+
             if block_config.line_position == "leading:align-following":
                 # For future proofing, in case `spacing_after` can be set to `touch`
-                match block_config.spacing_after:
-                    case "single":
-                        spaces_after = 1
-                    case "touch":
-                        spaces_after = 0
-                    case _:
-                        reflow_logger.warning(
-                            "Unexpected `spacing_after` value for calculating "
-                            "indentation compensation: %s",
-                            block_config.spacing_after,
-                        )
-                        spaces_after = 1
+                if block_config.spacing_after == "single":
+                    spaces_after = 1
+                elif block_config.spacing_after == "touch":
+                    spaces_after = 0
+                else:
+                    reflow_logger.warning(
+                        "Unexpected `spacing_after` value for calculating "
+                        "indentation compensation: %s",
+                        block_config.spacing_after,
+                    )
+                    spaces_after = 1
+
                 indentation_align_following[t] = spaces_after
 
         reflow_logger.info("# Evaluating indents.")
