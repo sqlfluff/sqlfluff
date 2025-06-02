@@ -1,0 +1,446 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d086a57bef34b24f02f5c90cf06f8065d75882389ba0369063203ceb78ee69be
+file:
+- statement:
+    set_statement:
+      keyword: SET
+      variable: '@name'
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '43'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: '@total_tax'
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: SUM
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: tax
+                        end_bracket: )
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: taxable_transactions
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: counter
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+      - column_reference:
+          naked_identifier: counter
+      - binary_operator: +
+      - column_reference:
+          naked_identifier: increment
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: GLOBAL
+    - variable: max_connections
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1000'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      system_variable: '@@GLOBAL.max_connections'
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '1000'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - variable: sql_mode
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'TRADITIONAL'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: LOCAL
+    - variable: sql_mode
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'TRADITIONAL'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      system_variable: '@@SESSION.sql_mode'
+      comparison_operator:
+        raw_comparison_operator: '='
+      quoted_literal: "'TRADITIONAL'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      system_variable: '@@LOCAL.sql_mode'
+      comparison_operator:
+        raw_comparison_operator: '='
+      quoted_literal: "'TRADITIONAL'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      system_variable: '@@sql_mode'
+      comparison_operator:
+        raw_comparison_operator: '='
+      quoted_literal: "'TRADITIONAL'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: sql_mode
+      comparison_operator:
+        raw_comparison_operator: '='
+      quoted_literal: "'TRADITIONAL'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: PERSIST
+    - variable: max_connections
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1000'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      system_variable: '@@PERSIST.max_connections'
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '1000'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: PERSIST_ONLY
+    - variable: back_log
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      system_variable: '@@PERSIST_ONLY.back_log'
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      system_variable: '@@SESSION.max_join_size'
+      comparison_operator:
+        raw_comparison_operator: '='
+      variable: DEFAULT
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - system_variable: '@@SESSION.max_join_size'
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - system_variable: '@@GLOBAL.max_join_size'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: '@x'
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1'
+    - comma: ','
+    - keyword: SESSION
+    - variable: sql_mode
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "''"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: GLOBAL
+    - variable: sort_buffer_size
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1000000'
+    - comma: ','
+    - keyword: SESSION
+    - variable: sort_buffer_size
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1000000'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - system_variable: '@@GLOBAL.sort_buffer_size'
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1000000'
+    - comma: ','
+    - system_variable: '@@LOCAL.sort_buffer_size'
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1000000'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: GLOBAL
+    - variable: max_connections
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1000'
+    - comma: ','
+    - variable: sort_buffer_size
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1000000'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - system_variable: '@@GLOBAL.sort_buffer_size'
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '50000'
+    - comma: ','
+    - variable: sort_buffer_size
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1000000'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: set
+      variable: '@abc'
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+      - numeric_literal: '1'
+      - binary_operator: +
+      - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: set
+      variable: '@abc'
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: select
+                select_clause_element:
+                  numeric_literal: '1'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: '@id'
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: id
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: table1
+              where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                    naked_identifier: field
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  boolean_literal: 'TRUE'
+              limit_clause:
+                keyword: LIMIT
+                numeric_literal: '1'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: set
+      variable: '@abc'
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: set
+      variable: '@my_var'
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: set
+      variable: '@my$currency'
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: set
+      variable: '@sha256enabled'
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: some_bool_param
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: 'ON'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: some_bool_param
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: 'OFF'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: some_bool_param
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: 'TRUE'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: some_bool_param
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: 'FALSE'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: some_bool_param
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: some_bool_param
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: sql_log_bin
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: 'ON'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: sql_log_bin
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: 'OFF'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: '@OLD_UNIQUE_CHECKS'
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - system_variable: '@@UNIQUE_CHECKS'
+    - comma: ','
+    - variable: UNIQUE_CHECKS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: '@OLD_FOREIGN_KEY_CHECKS'
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - system_variable: '@@FOREIGN_KEY_CHECKS'
+    - comma: ','
+    - variable: FOREIGN_KEY_CHECKS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: '@OLD_SQL_MODE'
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - system_variable: '@@SQL_MODE'
+    - comma: ','
+    - variable: SQL_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'"
+- statement_terminator: ;
