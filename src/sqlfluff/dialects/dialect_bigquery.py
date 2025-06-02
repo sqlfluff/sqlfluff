@@ -84,6 +84,7 @@ bigquery_dialect.insert_lexer_matchers(
             LiteralSegment,
             segment_kwargs={"trim_chars": ("@@",)},
         ),
+        StringLexer("pipe_operator", "|>", CodeSegment),
     ],
     before="equals",
 )
@@ -163,6 +164,7 @@ bigquery_dialect.add(
     EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
     DashSegment=StringParser("-", SymbolSegment, type="dash"),
+    PipeOperatorSegment=StringParser("|>", SymbolSegment, type="pipe_operator"),
     SelectClauseElementListGrammar=Delimited(
         Ref("SelectClauseElementSegment"),
         allow_trailing=True,
@@ -326,6 +328,64 @@ bigquery_dialect.replace(
     BracketedSetExpressionGrammar=Bracketed(Ref("SetExpressionSegment")),
     NotEnforcedGrammar=Sequence("NOT", "ENFORCED"),
     ReferenceMatchGrammar=Nothing(),
+    SelectClauseTerminatorGrammar=OneOf(
+        "FROM",
+        "WHERE",
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "OVERLAPS",
+        Ref("SetOperatorSegment"),
+        "FETCH",
+        Ref("PipeOperatorSegment"),
+    ),
+    FromClauseTerminatorGrammar=OneOf(
+        "WHERE",
+        "LIMIT",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        Ref("SetOperatorSegment"),
+        Ref("WithNoSchemaBindingClauseSegment"),
+        Ref("WithDataClauseSegment"),
+        "FETCH",
+        "OFFSET",
+        Ref("PipeOperatorSegment"),
+    ),
+    WhereClauseTerminatorGrammar=OneOf(
+        "LIMIT",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        "OVERLAPS",
+        "FETCH",
+        Ref("PipeOperatorSegment"),
+    ),
+    GroupByClauseTerminatorGrammar=OneOf(
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        "FETCH",
+        Ref("PipeOperatorSegment"),
+        "ASC",
+        "DESC",
+    ),
+    OrderByClauseTerminators=OneOf(
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        # For window functions
+        "WINDOW",
+        Ref("FrameClauseUnitGrammar"),
+        "SEPARATOR",
+        "FETCH",
+        Ref("PipeOperatorSegment"),
+    ),
 )
 
 
@@ -498,6 +558,9 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
+        terminators=[
+            Ref("PipeOperatorSegment"),
+        ],
     )
 
 
@@ -507,6 +570,9 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
+        terminators=[
+            Ref("PipeOperatorSegment"),
+        ],
     )
 
 
@@ -599,6 +665,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropAssignmentStatementSegment"),
             Ref("DropTableFunctionStatementSegment"),
             Ref("CreateTableFunctionStatementSegment"),
+            Ref("PipeStatementSegment"),
         ],
     )
 
@@ -3252,4 +3319,220 @@ class DropAssignmentStatementSegment(BaseSegment):
         "ASSIGNMENT",
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
+    )
+
+
+class PipeStatementSegment(BaseSegment):
+    """A `PIPE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/pipe-syntax
+    """
+
+    type = "pipe_statement"
+
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            Ref("FromClauseSegment"),
+            AnyNumberOf(Ref("PipeOperatorClauseSegment")),
+        ),
+        Sequence(
+            Ref("SelectableGrammar"),
+            Ref("AliasExpressionSegment", optional=True),
+            AnyNumberOf(Ref("PipeOperatorClauseSegment"), min_times=1),
+        ),
+    )
+
+
+class PipeOperatorClauseSegment(BaseSegment):
+    """A `PIPE` operator clause.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/pipe-syntax
+    """
+
+    type = "pipe_operator_clause"
+
+    match_grammar: Matchable = Sequence(
+        Ref("PipeOperatorSegment"),
+        OneOf(
+            Ref("SelectClauseSegment"),
+            Ref("ExtendClauseSegment"),
+            Ref("SetClauseListSegment"),
+            Ref("DropColumnClauseSegment"),
+            Ref("RenameColumnClauseSegment"),
+            Ref("AliasExpressionSegment"),
+            Ref("WhereClauseSegment"),
+            Ref("LimitClauseSegment"),
+            Ref("OrderByClauseSegment"),
+            Ref("AggregateClauseSegment"),
+            Ref("SetOperatorClauseSegment"),
+            Ref("JoinClauseSegment"),
+            Ref("CallOperatorSegment"),
+            Ref("SamplingExpressionSegment"),
+            Ref("PivotOperatorSegment"),
+            Ref("UnpivotOperatorSegment"),
+        ),
+    )
+
+
+class ExtendClauseSegment(BaseSegment):
+    """An `EXTEND` clause.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/pipe-syntax
+    """
+
+    type = "extend_clause"
+
+    match_grammar: Matchable = Sequence(
+        "EXTEND",
+        Delimited(
+            Sequence(
+                Ref("BaseExpressionElementGrammar"),
+                Ref("AliasExpressionSegment", optional=True),
+            ),
+        ),
+    )
+
+
+class DropColumnClauseSegment(BaseSegment):
+    """A `DROP COLUMN` clause.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/pipe-syntax
+    """
+
+    type = "drop_column_clause"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        Delimited(Ref("ColumnReferenceSegment")),
+    )
+
+
+class RenameColumnClauseSegment(BaseSegment):
+    """A `RENAME COLUMN` clause.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/pipe-syntax
+    """
+
+    type = "rename_column_clause"
+
+    match_grammar: Matchable = Sequence(
+        "RENAME",
+        Delimited(
+            Sequence(
+                Ref("ColumnReferenceSegment"),
+                Ref("AliasExpressionSegment"),
+            ),
+        ),
+    )
+
+
+class GroupAndOrderByClauseSegment(BaseSegment):
+    """A `GROUP [AND ORDER] BY` clause."""
+
+    type = "group_and_orderby_clause"
+
+    match_grammar: Matchable = Sequence(
+        "GROUP",
+        Sequence("AND", "ORDER", optional=True),
+        "BY",
+        Indent,
+        OneOf(
+            "ALL",
+            Ref("GroupingSetsClauseSegment"),
+            Ref("CubeRollupClauseSegment"),
+            # We could replace this next bit with a GroupingExpressionList
+            # reference (renaming that to a more generic name), to avoid
+            # repeating this bit of code, but I would rather keep it flat
+            # to avoid changing regular `GROUP BY` clauses.
+            Sequence(
+                Delimited(
+                    Sequence(
+                        OneOf(
+                            Ref("ColumnReferenceSegment"),
+                            # Can `GROUP BY 1`
+                            Ref("NumericLiteralSegment"),
+                            # Can `GROUP BY coalesce(col, 1)`
+                            Ref("ExpressionSegment"),
+                            terminators=[Ref("GroupByClauseTerminatorGrammar")],
+                        ),
+                        Ref("AliasExpressionSegment", optional=True),
+                        Sequence(
+                            OneOf("ASC", "DESC"),
+                            Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+                            optional=True,
+                        ),
+                    ),
+                ),
+            ),
+        ),
+        Dedent,
+    )
+
+
+class AggregateClauseSegment(BaseSegment):
+    """An `AGGREGATE` clause.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/pipe-syntax
+    """
+
+    type = "aggregate_clause"
+
+    match_grammar: Matchable = Sequence(
+        "AGGREGATE",
+        Delimited(
+            Sequence(
+                Ref("BaseExpressionElementGrammar"),
+                Ref("AliasExpressionSegment", optional=True),
+                Sequence(
+                    OneOf("ASC", "DESC"),
+                    Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+                    optional=True,
+                ),
+            ),
+        ),
+        Ref("GroupAndOrderByClauseSegment", optional=True),
+    )
+
+
+class SetOperatorClauseSegment(BaseSegment):
+    """A UNION, INTERSECT, or EXCEPT clause."""
+
+    type = "set_operator_clause"
+
+    match_grammar: Matchable = Sequence(
+        Ref("SetOperatorSegment"),
+        Delimited(Ref("NonSetSelectableGrammar")),
+    )
+
+
+class CallOperatorSegment(BaseSegment):
+    """A Call operator."""
+
+    type = "call_operator"
+
+    match_grammar: Matchable = Sequence(
+        Ref("CallStatementSegment"),
+        Ref("AliasExpressionSegment", optional=True),
+    )
+
+
+class PivotOperatorSegment(BaseSegment):
+    """A Pivot operator."""
+
+    type = "pivot_operator"
+
+    match_grammar: Matchable = Sequence(
+        Ref("FromPivotExpressionSegment"),
+        Ref("AliasExpressionSegment", optional=True),
+    )
+
+
+class UnpivotOperatorSegment(BaseSegment):
+    """An Unpivot operator."""
+
+    type = "unpivot_operator"
+
+    match_grammar: Matchable = Sequence(
+        Ref("FromUnpivotExpressionSegment"),
+        Ref("AliasExpressionSegment", optional=True),
     )

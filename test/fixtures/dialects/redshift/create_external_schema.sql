@@ -44,3 +44,28 @@ from data catalog
 database 'sampledb'
 region 'us-west-2'
 iam_role 'arn:aws:iam::123456789012:role/MySpectrumRole';
+
+create external schema my_schema
+from kafka
+iam_role 'arn:aws:iam::012345678901:role/my_role'
+authentication iam
+uri 'b-1.myTestCluster.123z8u.c2.kafka.us-west-1.amazonaws.com:9098,b-2.myTestCluster.123z8u.c2.kafka.us-west-1.amazonaws.com:9098';
+
+create external schema my_schema
+from kafka
+authentication none
+uri 'b-1.myTestCluster.123z8u.c2.kafka.us-west-1.amazonaws.com:9092,b-2.myTestCluster.123z8u.c2.kafka.us-west-1.amazonaws.com:9092';
+
+create external schema my_schema
+from kafka
+iam_role 'arn:aws:iam::012345678901:role/my_role'
+authentication mtls
+uri 'lkc-2v531.domz6wj0p.us-west-1.aws.confluent.cloud:9092'
+authentication_arn 'arn:aws:acm:region:444455556666:certificate/certificate_ID';
+
+create external schema my_schema
+from kafka
+iam_role 'arn:aws:iam::012345678901:role/my_role'
+authentication mtls
+uri 'b-1.myTestCluster.123z8u.c2.kafka.us-west-1.amazonaws.com:9094,b-2.myTestCluster.123z8u.c2.kafka.us-west-1.amazonaws.com:9094'
+secret_arn 'arn:aws:secretsmanager:us-east-1:012345678910:secret:myMTLSSecret';
