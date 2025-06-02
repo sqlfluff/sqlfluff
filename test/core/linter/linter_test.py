@@ -102,7 +102,7 @@ def test__linter__lint_string_vs_file(path):
                                               ("Not a Valid value", True), 
                                               ("None", True)])
 def test__linter__large_file_skip_byte_limit__setting(byte_lim, raises):
-    """Test custom values for large_file_skip_byte_limit
+    """Test custom values for large_file_skip_byte_limit.
 
     Linter should raise an error only in cases 
     where the value really is invalid
