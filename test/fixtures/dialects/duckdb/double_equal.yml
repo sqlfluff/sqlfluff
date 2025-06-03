@@ -1,0 +1,102 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8f84857317f2db485136f25707f1a315933c79426a5b55ed8d253d5370903bfd
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: COALESCE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: MAX
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          case_expression:
+                          - keyword: CASE
+                          - when_clause:
+                            - keyword: WHEN
+                            - expression:
+                                column_reference:
+                                  naked_identifier: col1
+                                comparison_operator: ==
+                                quoted_literal: "'A'"
+                            - keyword: THEN
+                            - expression:
+                                column_reference:
+                                  naked_identifier: cola
+                          - keyword: END
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: MAX
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          case_expression:
+                          - keyword: CASE
+                          - when_clause:
+                            - keyword: WHEN
+                            - expression:
+                                column_reference:
+                                  naked_identifier: col1
+                                comparison_operator: ==
+                                quoted_literal: "'B'"
+                            - keyword: THEN
+                            - expression:
+                                column_reference:
+                                  naked_identifier: colb
+                          - keyword: END
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: MAX
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          case_expression:
+                          - keyword: CASE
+                          - when_clause:
+                            - keyword: WHEN
+                            - expression:
+                                column_reference:
+                                  naked_identifier: col1
+                                comparison_operator:
+                                  raw_comparison_operator: '='
+                                quoted_literal: "'C'"
+                            - keyword: THEN
+                            - expression:
+                                column_reference:
+                                  naked_identifier: colb
+                          - keyword: END
+                        end_bracket: )
+              - end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_table
+  statement_terminator: ;
