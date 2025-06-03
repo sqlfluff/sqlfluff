@@ -643,7 +643,9 @@ def lint(
         # add stdin if specified via lone '-'
         if ("-",) == paths:
             if stdin_filename:
-                lnt.config = lnt.config.make_child_from_path(stdin_filename)
+                lnt.config = lnt.config.make_child_from_path(
+                    stdin_filename, require_dialect=False
+                )
             result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
         else:
             result = lnt.lint_paths(
@@ -1128,7 +1130,9 @@ def fix(
         # handle stdin case. should output formatted sql to stdout and nothing else.
         if fixing_stdin:
             if stdin_filename:
-                lnt.config = lnt.config.make_child_from_path(stdin_filename)
+                lnt.config = lnt.config.make_child_from_path(
+                    stdin_filename, require_dialect=False
+                )
             _stdin_fix(lnt, formatter, fix_even_unparsable)
         else:
             _paths_fix(
@@ -1232,7 +1236,9 @@ def cli_format(
         # handle stdin case. should output formatted sql to stdout and nothing else.
         if fixing_stdin:
             if stdin_filename:
-                lnt.config = lnt.config.make_child_from_path(stdin_filename)
+                lnt.config = lnt.config.make_child_from_path(
+                    stdin_filename, require_dialect=False
+                )
             _stdin_fix(lnt, formatter, fix_even_unparsable=False)
         else:
             _paths_fix(
@@ -1366,7 +1372,9 @@ def parse(
         if "-" == path:
             file_config = lnt.config
             if stdin_filename:
-                file_config = file_config.make_child_from_path(stdin_filename)
+                file_config = file_config.make_child_from_path(
+                    stdin_filename, require_dialect=False
+                )
             parsed_strings = [
                 lnt.parse_string(
                     sys.stdin.read(),
