@@ -273,9 +273,7 @@ class Rule_AL05(BaseRule):
                         level=r.ObjectReferenceLevel.TABLE
                     ):
                         # This function walks up the query's parent stack if necessary.
-                        self._resolve_and_mark_reference(
-                            query, cast(RawSegment, tr.segments[0])
-                        )
+                        self._resolve_and_mark_reference(query, tr.segments[0])
 
         # Visit children.
         for child in query.children:
