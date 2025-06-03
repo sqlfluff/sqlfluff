@@ -51,7 +51,7 @@ the `Redshift Names & Identifiers Docs`_).
 The dialect for `Redshift`_ on Amazon Web Services (AWS).
 
 .. _`Redshift`: https://aws.amazon.com/redshift/
-.. _`Redshift Names & Identifiers Docs`: https://spark.apache.org/docs/latest/sql-ref.html
+.. _`Redshift Names & Identifiers Docs`: https://docs.aws.amazon.com/redshift/latest/dg/r_names.html
 """,  # noqa: E501
 )
 
@@ -1178,7 +1178,9 @@ class CreateExternalSchemaStatementSegment(BaseSegment):
             "POSTGRES",
             "MYSQL",
             "KINESIS",
+            "MSK",
             "REDSHIFT",
+            "KAFKA",
         ),
         AnySetOf(
             Sequence("DATABASE", Ref("QuotedLiteralSegment")),
@@ -1196,7 +1198,11 @@ class CreateExternalSchemaStatementSegment(BaseSegment):
                     Ref("QuotedLiteralSegment"),
                 ),
             ),
-            Sequence("SECRET_ARN", Ref("QuotedLiteralSegment")),
+            Sequence("AUTHENTICATION", OneOf("NONE", "IAM", "MTLS")),
+            OneOf(
+                Sequence("AUTHENTICATION_ARN", Ref("QuotedLiteralSegment")),
+                Sequence("SECRET_ARN", Ref("QuotedLiteralSegment")),
+            ),
             Sequence("CATALOG_ROLE", Ref("QuotedLiteralSegment")),
             Sequence("CREATE", "EXTERNAL", "DATABASE", "IF", "NOT", "EXISTS"),
             optional=True,

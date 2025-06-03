@@ -228,7 +228,7 @@ class TemplatedFile:
                         f"(found slice {tfs.templated_slice})"
                     )
             previous_slice = tfs
-        if self.sliced_file and templated_str is not None:
+        if self.sliced_file and templated_str is not None and tfs:
             if tfs.templated_slice.stop != len(templated_str):
                 raise SQLFluffSkipFile(  # pragma: no cover
                     "Length of templated file mismatch with final slice: "

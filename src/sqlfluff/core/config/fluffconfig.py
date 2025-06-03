@@ -572,9 +572,10 @@ class FluffConfig:
             # Try iterating
             buff = self._configs
             for sec in section:
-                buff = buff.get(sec, None)
-                if buff is None:
+                temp = buff.get(sec, None)
+                if temp is None:
                     return None
+                buff = temp
             return buff
 
     def set_value(self, config_path: Iterable[str], val: Any) -> None:
