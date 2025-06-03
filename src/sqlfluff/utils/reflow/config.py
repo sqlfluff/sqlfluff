@@ -3,9 +3,10 @@
 # Until we have a proper structure this will work.
 # TODO: Migrate this to the config file.
 from dataclasses import dataclass
-from typing import AbstractSet, Any, Optional
+from typing import AbstractSet, Any, Optional, Union
 
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.helpers.string import split_comma_separated_string
 from sqlfluff.utils.reflow.depthmap import DepthInfo
 
 ConfigElementType = dict[str, str]
@@ -21,6 +22,7 @@ class BlockConfig:
     spacing_within: Optional[str] = None
     line_position: Optional[str] = None
     keyword_line_position: Optional[str] = None
+    keyword_line_position_exclusions: Union[str, list[str], None] = None
 
     def incorporate(
         self,
@@ -30,6 +32,7 @@ class BlockConfig:
         line_position: Optional[str] = None,
         config: Optional[ConfigElementType] = None,
         keyword_line_position: Optional[str] = None,
+        keyword_line_position_exclusions: Union[str, list[str], None] = None,
     ) -> None:
         """Mutate the config based on additional information."""
         config = config or {}
@@ -49,6 +52,12 @@ class BlockConfig:
             keyword_line_position
             or config.get("keyword_line_position", None)
             or self.keyword_line_position
+        )
+        self.keyword_line_position_exclusions = split_comma_separated_string(
+            keyword_line_position_exclusions
+            or config.get("keyword_line_position_exclusions", None)
+            or self.keyword_line_position_exclusions
+            or []
         )
 
 
