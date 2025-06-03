@@ -274,9 +274,9 @@ class Rule_ST05(BaseRule):
             # if the subquery is table_expression, get the bracketed child instead.
             if anchor.is_type("table_expression"):
                 bracket_anchor = anchor.get_child("bracketed")
-                assert (
-                    bracket_anchor
-                ), "table_expression should have a bracketed segment"
+                # if the table_expression isn't bracketed, assume it isn't a subquery.
+                if not bracket_anchor:
+                    continue
             else:
                 bracket_anchor = anchor
 

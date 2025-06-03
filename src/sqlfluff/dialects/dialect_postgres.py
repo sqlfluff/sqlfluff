@@ -4969,6 +4969,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("PrepareStatementSegment"),
             Ref("ExecuteStatementSegment"),
             Ref("DeallocateStatementSegment"),
+            Ref("SetSessionAuthorizationStatementSegment"),
+            Ref("ResetSessionAuthorizationStatementSegment"),
         ],
     )
 
@@ -6824,3 +6826,53 @@ class DeallocateStatementSegment(BaseSegment):
             "ALL",
         ),
     )
+
+
+class TypedArrayLiteralSegment(ansi.TypedArrayLiteralSegment):
+    """An array literal segment."""
+
+    type = "typed_array_literal"
+    match_grammar = ansi.TypedArrayLiteralSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref.keyword("VARIADIC"),
+                Sequence(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("WalrusOperatorSegment"),
+                    optional=True,
+                ),
+                optional=True,
+            )
+        ],
+        before=Ref("ArrayTypeSegment"),
+    )
+
+
+class SetSessionAuthorizationStatementSegment(BaseSegment):
+    """A `SET SESSION AUTHORIZATION` statement.
+
+    https://www.postgresql.org/docs/current/sql-set-session-authorization.html
+    """
+
+    type = "set_session_authorization_statement"
+
+    match_grammar = Sequence(
+        "SET",
+        OneOf(
+            Sequence(Ref.keyword("LOCAL", optional=True), "SESSION"),
+            Sequence(Ref.keyword("SESSION", optional=True), "SESSION"),
+        ),
+        "AUTHORIZATION",
+        OneOf(Ref("RoleReferenceSegment"), "DEFAULT"),
+    )
+
+
+class ResetSessionAuthorizationStatementSegment(BaseSegment):
+    """A `RESET SESSION AUTHORIZATION` statement.
+
+    https://www.postgresql.org/docs/current/sql-set-session-authorization.html
+    """
+
+    type = "reset_session_authorization_statement"
+
+    match_grammar = Sequence("RESET", "SESSION", "AUTHORIZATION")

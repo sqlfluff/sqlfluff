@@ -1,0 +1,48 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f1d836fc549955a47cb8b2824bb7638d433cdf99163b3cc3ee584e68f0405e13
+file:
+- statement:
+    set_session_authorization_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: AUTHORIZATION
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    set_session_authorization_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: AUTHORIZATION
+    - role_reference:
+        naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    set_session_authorization_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: AUTHORIZATION
+    - role_reference:
+        quoted_identifier: '"my_user"'
+- statement_terminator: ;
+- statement:
+    set_session_authorization_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: SESSION
+    - keyword: AUTHORIZATION
+    - role_reference:
+        naked_identifier: my_user
+- statement_terminator: ;
+- statement:
+    set_session_authorization_statement:
+    - keyword: SET
+    - keyword: LOCAL
+    - keyword: SESSION
+    - keyword: AUTHORIZATION
+    - role_reference:
+        naked_identifier: my_user
+- statement_terminator: ;
