@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d086a57bef34b24f02f5c90cf06f8065d75882389ba0369063203ceb78ee69be
+_hash: 24b9e8109ddc85b6382e1611ab4cbf65746f05148167b2548d20f4cab82dec35
 file:
 - statement:
     set_statement:
@@ -247,7 +247,7 @@ file:
 - statement_terminator: ;
 - statement:
     set_statement:
-      keyword: set
+      keyword: SET
       variable: '@abc'
       comparison_operator:
         raw_comparison_operator: '='
@@ -258,7 +258,7 @@ file:
 - statement_terminator: ;
 - statement:
     set_statement:
-      keyword: set
+      keyword: SET
       variable: '@abc'
       comparison_operator:
         raw_comparison_operator: '='
@@ -268,7 +268,7 @@ file:
           expression:
             select_statement:
               select_clause:
-                keyword: select
+                keyword: SELECT
                 select_clause_element:
                   numeric_literal: '1'
           end_bracket: )
@@ -311,7 +311,7 @@ file:
 - statement_terminator: ;
 - statement:
     set_statement:
-      keyword: set
+      keyword: SET
       variable: '@abc'
       comparison_operator:
         raw_comparison_operator: '='
@@ -319,7 +319,7 @@ file:
 - statement_terminator: ;
 - statement:
     set_statement:
-      keyword: set
+      keyword: SET
       variable: '@my_var'
       comparison_operator:
         raw_comparison_operator: '='
@@ -327,7 +327,7 @@ file:
 - statement_terminator: ;
 - statement:
     set_statement:
-      keyword: set
+      keyword: SET
       variable: '@my$currency'
       comparison_operator:
         raw_comparison_operator: '='
@@ -335,7 +335,7 @@ file:
 - statement_terminator: ;
 - statement:
     set_statement:
-      keyword: set
+      keyword: SET
       variable: '@sha256enabled'
       comparison_operator:
         raw_comparison_operator: '='
