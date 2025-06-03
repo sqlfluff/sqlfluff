@@ -469,7 +469,7 @@ class Bracketed(Sequence):
         """Match a bracketed sequence of elements.
 
         This implementation matches a bracketed expression without recursion
-         or seeking ahead.
+        or seeking ahead.
         It simply matches: start bracket, content, end bracket in sequence.
 
         How the grammar behaves on different content depends on the `parse_mode`:
