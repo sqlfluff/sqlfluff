@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5e538d865e2518f99c09256ff8198187db3ac1e21ce743e8652d5d264b9a3778
+_hash: b3d5fda65dae918fce7c5488005253c63e3b356c8a2dbd727f5be5817f17cbd9
 file:
 - statement:
     create_external_schema_statement:
@@ -161,4 +161,70 @@ file:
     - quoted_literal: "'us-west-2'"
     - keyword: iam_role
     - quoted_literal: "'arn:aws:iam::123456789012:role/MySpectrumRole'"
+- statement_terminator: ;
+- statement:
+    create_external_schema_statement:
+    - keyword: create
+    - keyword: external
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: my_schema
+    - keyword: from
+    - keyword: kafka
+    - keyword: iam_role
+    - quoted_literal: "'arn:aws:iam::012345678901:role/my_role'"
+    - keyword: authentication
+    - keyword: iam
+    - keyword: uri
+    - quoted_literal: "'b-1.myTestCluster.123z8u.c2.kafka.us-west-1.amazonaws.com:9098,b-2.myTestCluster.123z8u.c2.kafka.us-west-1.amazonaws.com:9098'"
+- statement_terminator: ;
+- statement:
+    create_external_schema_statement:
+    - keyword: create
+    - keyword: external
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: my_schema
+    - keyword: from
+    - keyword: kafka
+    - keyword: authentication
+    - keyword: none
+    - keyword: uri
+    - quoted_literal: "'b-1.myTestCluster.123z8u.c2.kafka.us-west-1.amazonaws.com:9092,b-2.myTestCluster.123z8u.c2.kafka.us-west-1.amazonaws.com:9092'"
+- statement_terminator: ;
+- statement:
+    create_external_schema_statement:
+    - keyword: create
+    - keyword: external
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: my_schema
+    - keyword: from
+    - keyword: kafka
+    - keyword: iam_role
+    - quoted_literal: "'arn:aws:iam::012345678901:role/my_role'"
+    - keyword: authentication
+    - keyword: mtls
+    - keyword: uri
+    - quoted_literal: "'lkc-2v531.domz6wj0p.us-west-1.aws.confluent.cloud:9092'"
+    - keyword: authentication_arn
+    - quoted_literal: "'arn:aws:acm:region:444455556666:certificate/certificate_ID'"
+- statement_terminator: ;
+- statement:
+    create_external_schema_statement:
+    - keyword: create
+    - keyword: external
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: my_schema
+    - keyword: from
+    - keyword: kafka
+    - keyword: iam_role
+    - quoted_literal: "'arn:aws:iam::012345678901:role/my_role'"
+    - keyword: authentication
+    - keyword: mtls
+    - keyword: uri
+    - quoted_literal: "'b-1.myTestCluster.123z8u.c2.kafka.us-west-1.amazonaws.com:9094,b-2.myTestCluster.123z8u.c2.kafka.us-west-1.amazonaws.com:9094'"
+    - keyword: secret_arn
+    - quoted_literal: "'arn:aws:secretsmanager:us-east-1:012345678910:secret:myMTLSSecret'"
 - statement_terminator: ;

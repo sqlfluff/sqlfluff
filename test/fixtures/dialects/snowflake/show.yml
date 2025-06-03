@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2189a6488b9ba414fbf79fbfff00f2a3fdeab021ffdd019c69e9de05f2cc4b49
+_hash: e9a6c51fbfd28e298bbce017d102b6c51de4d7e4167dfd7c39eeea9bb234cd04
 file:
 - statement:
     show_statement:
@@ -17,4 +17,10 @@ file:
     - keyword: CORTEX
     - keyword: SEARCH
     - keyword: SERVICES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: RESOURCE
+    - keyword: MONITORS
 - statement_terminator: ;

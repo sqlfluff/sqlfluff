@@ -603,6 +603,9 @@ oracle_dialect.add(
         Ref("NumericLiteralSegment"),
         RegexParser(r"[KMGTPE]?", LiteralSegment, type="size_prefix"),
     ),
+    SlashStatementTerminatorSegment=StringParser(
+        "/", SymbolSegment, type="statement_terminator"
+    ),
 )
 
 oracle_dialect.replace(
@@ -775,7 +778,7 @@ oracle_dialect.replace(
         ),
     ),
     DelimiterGrammar=Sequence(
-        Ref("SemicolonSegment"), Ref("DivideSegment", optional=True)
+        Ref("SemicolonSegment"), Ref("SlashStatementTerminatorSegment", optional=True)
     ),
     SelectClauseTerminatorGrammar=OneOf(
         "INTO",
@@ -787,7 +790,6 @@ oracle_dialect.replace(
         Ref("SetOperatorSegment"),
         "FETCH",
     ),
-    DivideSegment=StringParser("/", SymbolSegment, type="statement_terminator"),
 )
 
 
@@ -956,7 +958,7 @@ class ExecuteFileSegment(BaseSegment):
         AnyNumberOf(
             Ref("SingleIdentifierGrammar"),
             Ref("DotSegment"),
-            Ref("DivideSegment"),
+            Ref("SlashStatementTerminatorSegment"),
         ),
     )
 

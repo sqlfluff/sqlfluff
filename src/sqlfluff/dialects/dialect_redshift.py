@@ -51,7 +51,7 @@ the `Redshift Names & Identifiers Docs`_).
 The dialect for `Redshift`_ on Amazon Web Services (AWS).
 
 .. _`Redshift`: https://aws.amazon.com/redshift/
-.. _`Redshift Names & Identifiers Docs`: https://spark.apache.org/docs/latest/sql-ref.html
+.. _`Redshift Names & Identifiers Docs`: https://docs.aws.amazon.com/redshift/latest/dg/r_names.html
 """,  # noqa: E501
 )
 
@@ -213,6 +213,7 @@ redshift_dialect.replace(
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("MaxLiteralSegment"),
+            Ref("DollarNumericLiteralSegment"),
         ]
     ),
 )
@@ -1177,7 +1178,9 @@ class CreateExternalSchemaStatementSegment(BaseSegment):
             "POSTGRES",
             "MYSQL",
             "KINESIS",
+            "MSK",
             "REDSHIFT",
+            "KAFKA",
         ),
         AnySetOf(
             Sequence("DATABASE", Ref("QuotedLiteralSegment")),
@@ -1195,7 +1198,11 @@ class CreateExternalSchemaStatementSegment(BaseSegment):
                     Ref("QuotedLiteralSegment"),
                 ),
             ),
-            Sequence("SECRET_ARN", Ref("QuotedLiteralSegment")),
+            Sequence("AUTHENTICATION", OneOf("NONE", "IAM", "MTLS")),
+            OneOf(
+                Sequence("AUTHENTICATION_ARN", Ref("QuotedLiteralSegment")),
+                Sequence("SECRET_ARN", Ref("QuotedLiteralSegment")),
+            ),
             Sequence("CATALOG_ROLE", Ref("QuotedLiteralSegment")),
             Sequence("CREATE", "EXTERNAL", "DATABASE", "IF", "NOT", "EXISTS"),
             optional=True,
@@ -2715,6 +2722,33 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     )
 
 
+class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
+    """An extension of the star expression for Redshift."""
+
+    match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
+        insert=[
+            # Optional Exclude
+            Ref("ExcludeClauseSegment", optional=True),
+        ]
+    )
+
+
+class ExcludeClauseSegment(BaseSegment):
+    """A Redshift SELECT EXCLUDE clause.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_EXCLUDE_list.html
+    """
+
+    type = "select_exclude_clause"
+    match_grammar = Sequence(
+        "EXCLUDE",
+        OneOf(
+            Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+            Ref("SingleIdentifierGrammar"),
+        ),
+    )
+
+
 class GroupByClauseSegment(postgres.GroupByClauseSegment):
     """A `GROUP BY` clause like in `SELECT`."""
 
@@ -2745,4 +2779,48 @@ class GroupByClauseSegment(postgres.GroupByClauseSegment):
             ],
         ),
         Dedent,
+    )
+
+
+class MergeStatementSegment(ansi.MergeStatementSegment):
+    """A `MERGE` statement.
+
+    https://docs.aws.amazon.com/pt_br/redshift/latest/dg/r_MERGE.html
+    """
+
+    match_grammar = ansi.MergeStatementSegment.match_grammar.copy(
+        insert=[OneOf(Ref("MergeMatchSegment"), Sequence("REMOVE", "DUPLICATES"))],
+        remove=[
+            Ref("MergeMatchSegment"),
+        ],
+    )
+
+
+class PrepareStatementSegment(postgres.PrepareStatementSegment):
+    """A `PREPARE` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_PREPARE.html
+    """
+
+    type = "prepare_statement"
+    match_grammar = Sequence(
+        "PREPARE",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
+        "AS",
+        Ref("SelectableGrammar"),
+    )
+
+
+class DeallocateStatementSegment(postgres.DeallocateStatementSegment):
+    """A `DEALLOCATE` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_DEALLOCATE.html
+    """
+
+    type = "deallocate_statement"
+    match_grammar = Sequence(
+        "DEALLOCATE",
+        Ref.keyword("PREPARE", optional=True),
+        Ref("ObjectReferenceSegment"),
     )

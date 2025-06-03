@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4706483d9b1c49a198cc6aa1246b64eb04778af99c14437e7137fcea9d62a9bf
+_hash: f194fd275c52915911a0c68a8322bfc7deba51306993ae0074b44dba97ec7159
 file:
 - statement:
     access_statement:
@@ -1107,6 +1107,19 @@ file:
 - statement:
     access_statement:
     - keyword: GRANT
+    - keyword: EXECUTE
+    - keyword: MANAGED
+    - keyword: TASK
+    - keyword: 'ON'
+    - keyword: ACCOUNT
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
     - keyword: IMPORT
     - keyword: SHARE
     - keyword: 'ON'
@@ -1649,4 +1662,32 @@ file:
     - keyword: ROLE
     - object_reference:
         naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: USAGE
+    - keyword: 'ON'
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - object_reference:
+        naked_identifier: ext_vol
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: REVOKE
+    - keyword: USAGE
+    - keyword: 'ON'
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - object_reference:
+        naked_identifier: ext_vol
+    - keyword: FROM
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: MY_ROLE
 - statement_terminator: ;

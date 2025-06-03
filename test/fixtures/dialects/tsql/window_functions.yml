@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f61769c768ad14a5133005d26eb5b7b3d3d26cb87b21b382b615eae11ab3ff6d
+_hash: bbb3c4c89f2e59ba5265dee316396e1ec222dd96735873bb59313661160a9936
 file:
   batch:
   - statement:
@@ -18,24 +18,26 @@ file:
                 bracketed:
                   start_bracket: (
                   end_bracket: )
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                partitionby_clause:
-                - keyword: PARTITION
-                - keyword: BY
-                - column_reference:
-                  - naked_identifier: t
-                  - dot: .
-                  - naked_identifier: col1
-                orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
-                - column_reference:
-                  - naked_identifier: t
-                  - dot: .
-                  - naked_identifier: col2
-                end_bracket: )
+              over_clause:
+                keyword: OVER
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: t
+                      - dot: .
+                      - naked_identifier: col1
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: t
+                      - dot: .
+                      - naked_identifier: col2
+                  end_bracket: )
             alias_expression:
               naked_identifier: rn
         from_clause:
@@ -60,22 +62,24 @@ file:
                 bracketed:
                   start_bracket: (
                   end_bracket: )
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                partitionby_clause:
-                - keyword: PARTITION
-                - keyword: BY
-                - expression:
-                    numeric_literal: '1'
-                orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
-                - column_reference:
-                  - naked_identifier: t
-                  - dot: .
-                  - naked_identifier: col2
-                end_bracket: )
+              over_clause:
+                keyword: OVER
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - expression:
+                        numeric_literal: '1'
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: t
+                      - dot: .
+                      - naked_identifier: col2
+                  end_bracket: )
             alias_expression:
               naked_identifier: rn
         from_clause:
@@ -100,37 +104,39 @@ file:
                 bracketed:
                   start_bracket: (
                   end_bracket: )
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                partitionby_clause:
-                - keyword: PARTITION
-                - keyword: BY
-                - expression:
-                    case_expression:
-                    - keyword: CASE
-                    - when_clause:
-                      - keyword: WHEN
-                      - expression:
-                          column_reference:
-                          - naked_identifier: t
-                          - dot: .
-                          - naked_identifier: col1
-                          comparison_operator:
-                            raw_comparison_operator: '='
-                          quoted_literal: "'value'"
-                      - keyword: THEN
-                      - expression:
-                          numeric_literal: '1'
-                    - keyword: END
-                orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
-                - column_reference:
-                  - naked_identifier: t
-                  - dot: .
-                  - naked_identifier: col2
-                end_bracket: )
+              over_clause:
+                keyword: OVER
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - expression:
+                        case_expression:
+                        - keyword: CASE
+                        - when_clause:
+                          - keyword: WHEN
+                          - expression:
+                              column_reference:
+                              - naked_identifier: t
+                              - dot: .
+                              - naked_identifier: col1
+                              comparison_operator:
+                                raw_comparison_operator: '='
+                              quoted_literal: "'value'"
+                          - keyword: THEN
+                          - expression:
+                              numeric_literal: '1'
+                        - keyword: END
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: t
+                      - dot: .
+                      - naked_identifier: col2
+                  end_bracket: )
             alias_expression:
               naked_identifier: rn
         from_clause:
@@ -155,47 +161,49 @@ file:
                 bracketed:
                   start_bracket: (
                   end_bracket: )
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                partitionby_clause:
-                - keyword: PARTITION
-                - keyword: BY
-                - column_reference:
-                  - naked_identifier: t
-                  - dot: .
-                  - naked_identifier: col3
-                - comma: ','
-                - expression:
-                    case_expression:
-                    - keyword: CASE
-                    - when_clause:
-                      - keyword: WHEN
-                      - expression:
-                          column_reference:
-                          - naked_identifier: t
-                          - dot: .
-                          - naked_identifier: col1
-                          comparison_operator:
-                            raw_comparison_operator: '='
-                          quoted_literal: "'value'"
-                      - keyword: THEN
-                      - expression:
-                          numeric_literal: '1'
-                    - keyword: END
-                - comma: ','
-                - column_reference:
-                  - naked_identifier: t
-                  - dot: .
-                  - naked_identifier: col4
-                orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
-                - column_reference:
-                  - naked_identifier: t
-                  - dot: .
-                  - naked_identifier: col2
-                end_bracket: )
+              over_clause:
+                keyword: OVER
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: t
+                      - dot: .
+                      - naked_identifier: col3
+                    - comma: ','
+                    - expression:
+                        case_expression:
+                        - keyword: CASE
+                        - when_clause:
+                          - keyword: WHEN
+                          - expression:
+                              column_reference:
+                              - naked_identifier: t
+                              - dot: .
+                              - naked_identifier: col1
+                              comparison_operator:
+                                raw_comparison_operator: '='
+                              quoted_literal: "'value'"
+                          - keyword: THEN
+                          - expression:
+                              numeric_literal: '1'
+                        - keyword: END
+                    - comma: ','
+                    - column_reference:
+                      - naked_identifier: t
+                      - dot: .
+                      - naked_identifier: col4
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: t
+                      - dot: .
+                      - naked_identifier: col2
+                  end_bracket: )
             alias_expression:
               naked_identifier: rn
         from_clause:
@@ -220,37 +228,39 @@ file:
                 bracketed:
                   start_bracket: (
                   end_bracket: )
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                partitionby_clause:
-                - keyword: PARTITION
-                - keyword: BY
-                - bracketed:
-                    start_bracket: (
-                    expression:
-                      select_statement:
-                        select_clause:
-                          keyword: SELECT
-                          select_clause_element:
-                            column_reference:
-                              naked_identifier: col1
-                        from_clause:
-                          keyword: FROM
-                          from_expression:
-                            from_expression_element:
-                              table_expression:
-                                table_reference:
-                                  naked_identifier: othertable
-                    end_bracket: )
-                orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
-                - column_reference:
-                  - naked_identifier: t
-                  - dot: .
-                  - naked_identifier: col2
-                end_bracket: )
+              over_clause:
+                keyword: OVER
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - bracketed:
+                        start_bracket: (
+                        expression:
+                          select_statement:
+                            select_clause:
+                              keyword: SELECT
+                              select_clause_element:
+                                column_reference:
+                                  naked_identifier: col1
+                            from_clause:
+                              keyword: FROM
+                              from_expression:
+                                from_expression_element:
+                                  table_expression:
+                                    table_reference:
+                                      naked_identifier: othertable
+                        end_bracket: )
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: t
+                      - dot: .
+                      - naked_identifier: col2
+                  end_bracket: )
             alias_expression:
               naked_identifier: rn
         from_clause:
@@ -275,33 +285,35 @@ file:
                 bracketed:
                   start_bracket: (
                   end_bracket: )
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                partitionby_clause:
-                - keyword: PARTITION
-                - keyword: BY
-                - expression:
-                    function:
-                      function_name:
-                        function_name_identifier: SUM
-                      function_contents:
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            column_reference:
-                            - naked_identifier: t
-                            - dot: .
-                            - naked_identifier: col1
-                          end_bracket: )
-                orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
-                - column_reference:
-                  - naked_identifier: t
-                  - dot: .
-                  - naked_identifier: col2
-                end_bracket: )
+              over_clause:
+                keyword: OVER
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - expression:
+                        function:
+                          function_name:
+                            function_name_identifier: SUM
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                column_reference:
+                                - naked_identifier: t
+                                - dot: .
+                                - naked_identifier: col1
+                              end_bracket: )
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: t
+                      - dot: .
+                      - naked_identifier: col2
+                  end_bracket: )
             alias_expression:
               naked_identifier: rn
         from_clause:

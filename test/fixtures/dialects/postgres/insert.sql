@@ -77,3 +77,23 @@ ON CONFLICT (
   , COALESCE(val2, '')
 )
 DO NOTHING;
+
+INSERT INTO prompt_variants (
+    test,
+    test2
+)
+SELECT
+    test,
+    test2
+RETURNING
+  test,
+  test2;
+
+INSERT INTO
+  baz (state, state_changed_at, instance_id)
+SELECT
+  1, 2, 3
+ON CONFLICT (instance_id) DO UPDATE
+SET
+  state = foo,
+  state_changed_at = bar;

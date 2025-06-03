@@ -234,6 +234,7 @@ RESERVED_KEYWORDS = [
     "WHEN",
     "WHERE",
     "WHILE",
+    "WINDOW",
     "WITH",
     "WRITETEXT",
 ]
@@ -413,6 +414,8 @@ UNRESERVED_KEYWORDS = [
     "IO",
     "ISOLATION",
     "JSON",
+    "JSON_ARRAY",
+    "JSON_OBJECT",
     "KEEP",
     "KEEPDEFAULTS",
     "KEEPFIXED",

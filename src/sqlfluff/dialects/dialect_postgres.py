@@ -116,6 +116,15 @@ postgres_dialect.insert_lexer_matchers(
             r"->>?|#>>?|@[>@?]|<@|\?[|&]?|#-",
             SymbolSegment,
         ),
+        # L2 nearest neighbor (<->),
+        # inner product (<#>),
+        # cosine distance (<=>),
+        # and L1 distance (<+>)
+        RegexLexer(
+            "pgvector_operator",
+            r"<->|<#>|<=>|<\+>",
+            SymbolSegment,
+        ),
         # r"|".join(
         #     re.escape(operator)
         #     for operator in [
@@ -342,6 +351,9 @@ postgres_dialect.add(
     PostgisOperatorSegment=TypedParser(
         "postgis_operator", SymbolSegment, type="binary_operator"
     ),
+    PgvectorOperatorSegment=TypedParser(
+        "pgvector_operator", SymbolSegment, type="binary_operator"
+    ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
     # N.B. this MultilineConcatenateDelimiterGrammar is only created
     # to parse multiline-concatenated string literals
@@ -438,6 +450,7 @@ postgres_dialect.replace(
         Ref("NotExtendLeftSegment"),
         Ref("AdjacentSegment"),
         Ref("PostgisOperatorSegment"),
+        Ref("PgvectorOperatorSegment"),
     ),
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
@@ -668,6 +681,7 @@ postgres_dialect.replace(
         "WHERE",
         Sequence("ORDER", "BY"),
         "LIMIT",
+        "RETURNING",
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
         Ref("MetaCommandQueryBufferSegment"),
@@ -1472,6 +1486,23 @@ class AlterProcedureStatementSegment(BaseSegment):
     )
 
 
+class OffsetClauseSegment(ansi.OffsetClauseSegment):
+    """A `OFFSET` clause like in `SELECT`."""
+
+    type = "offset_clause"
+    match_grammar: Matchable = Sequence(
+        "OFFSET",
+        Indent,
+        OneOf(
+            # Allow a number by itself OR
+            Ref("NumericLiteralSegment"),
+            # An arbitrary expression
+            Ref("ExpressionSegment"),
+        ),
+        Dedent,
+    )
+
+
 class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE PROCEDURE` statement.
 
@@ -1725,26 +1756,6 @@ class ForClauseSegment(BaseSegment):
     )
 
 
-class FetchClauseSegment(ansi.FetchClauseSegment):
-    """A `FETCH` clause like in `SELECT."""
-
-    type = "fetch_clause"
-    match_grammar: Matchable = Sequence(
-        "FETCH",
-        OneOf(
-            "FIRST",
-            "NEXT",
-        ),
-        OneOf(
-            Ref("NumericLiteralSegment"),
-            Ref("ExpressionSegment", exclude=Ref.keyword("ROW")),
-            optional=True,
-        ),
-        OneOf("ROW", "ROWS"),
-        OneOf("ONLY", Sequence("WITH", "TIES")),
-    )
-
-
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Overrides ANSI Statement, to allow for SELECT INTO statements."""
 
@@ -1775,6 +1786,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("NamedWindowSegment", optional=True),
             Ref("OrderByClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
+            Ref("OffsetClauseSegment", optional=True),
             Ref("FetchClauseSegment", optional=True),
             Ref("ForClauseSegment", optional=True),
         ],
@@ -1810,7 +1822,9 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
             "FROM",
             "WHERE",
             Sequence("ORDER", "BY"),
+            Sequence("ON", "CONFLICT"),
             "LIMIT",
+            "RETURNING",
             "OVERLAPS",
             Ref("SetOperatorSegment"),
             Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
@@ -2077,6 +2091,135 @@ class ExplainOptionSegment(BaseSegment):
         Sequence(
             "FORMAT",
             OneOf("TEXT", "XML", "JSON", "YAML"),
+        ),
+    )
+
+
+class SecurityLabelStatementSegment(BaseSegment):
+    """A `SECURITY LABEL` statement.
+
+    https://www.postgresql.org/docs/current/sql-security-label.html
+    """
+
+    type = "security_label_statement"
+
+    match_grammar = Sequence(
+        "SECURITY",
+        "LABEL",
+        # Optional FOR provider clause
+        Sequence(
+            "FOR",
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        "ON",
+        OneOf(
+            Sequence(
+                "TABLE",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "COLUMN",
+                Ref("ColumnReferenceSegment"),
+            ),
+            Sequence(
+                "AGGREGATE",
+                Ref("FunctionNameSegment"),
+                Bracketed(
+                    Ref("FunctionParameterListGrammar", optional=True),
+                ),
+            ),
+            Sequence(
+                "DATABASE",
+                Ref("DatabaseReferenceSegment"),
+            ),
+            Sequence(
+                "DOMAIN",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "EVENT",
+                "TRIGGER",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "FOREIGN",
+                "TABLE",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "FUNCTION",
+                Ref("FunctionNameSegment"),
+                OptionallyBracketed(
+                    Ref("FunctionParameterGrammar", optional=True),
+                ),
+            ),
+            Sequence(
+                "LARGE",
+                "OBJECT",
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "MATERIALIZED",
+                "VIEW",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                Ref.keyword("PROCEDURAL", optional=True),
+                "LANGUAGE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "PROCEDURE",
+                Ref("FunctionNameSegment"),
+                OptionallyBracketed(
+                    Ref("FunctionParameterGrammar", optional=True),
+                ),
+            ),
+            Sequence(
+                "PUBLICATION",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "ROLE",
+                Ref("RoleReferenceSegment"),
+            ),
+            Sequence(
+                "ROUTINE",
+                Ref("FunctionNameSegment"),
+                OptionallyBracketed(
+                    Ref("FunctionParameterGrammar", optional=True),
+                ),
+            ),
+            Sequence(
+                "SCHEMA",
+                Ref("SchemaReferenceSegment"),
+            ),
+            Sequence(
+                "SEQUENCE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SUBSCRIPTION",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "TABLESPACE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "TYPE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "VIEW",
+                Ref("TableReferenceSegment"),
+            ),
+        ),
+        "IS",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            "NULL",
         ),
     )
 
@@ -4822,6 +4965,12 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropForeignTableStatement"),
             Ref("CreateOperatorStatementSegment"),
             Ref("AlterForeignTableStatementSegment"),
+            Ref("SecurityLabelStatementSegment"),
+            Ref("PrepareStatementSegment"),
+            Ref("ExecuteStatementSegment"),
+            Ref("DeallocateStatementSegment"),
+            Ref("SetSessionAuthorizationStatementSegment"),
+            Ref("ResetSessionAuthorizationStatementSegment"),
         ],
     )
 
@@ -6627,3 +6776,103 @@ class AlterForeignTableActionSegment(AlterTableActionSegment):
             )
         ]
     )
+
+
+class PrepareStatementSegment(BaseSegment):
+    """A `PREPARE` statement.
+
+    https://www.postgresql.org/docs/current/sql-prepare.html
+    """
+
+    type = "prepare_statement"
+    match_grammar = Sequence(
+        "PREPARE",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(Delimited(Ref("DatatypeSegment")), optional=True),
+        "AS",
+        OneOf(
+            Ref("SelectableGrammar"),
+            Ref("MergeStatementSegment"),
+        ),
+    )
+
+
+class ExecuteStatementSegment(BaseSegment):
+    """A `EXECUTE` statement.
+
+    https://www.postgresql.org/docs/current/sql-execute.html
+    """
+
+    type = "execute_statement"
+    match_grammar = Sequence(
+        "EXECUTE",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(Delimited(Ref("ExpressionSegment")), optional=True),
+    )
+
+
+class DeallocateStatementSegment(BaseSegment):
+    """A `DEALLOCATE` statement.
+
+    https://www.postgresql.org/docs/current/sql-deallocate.html
+    """
+
+    type = "deallocate_statement"
+    match_grammar = Sequence(
+        "DEALLOCATE",
+        Ref.keyword("PREPARE", optional=True),
+        OneOf(
+            Ref("ObjectReferenceSegment"),
+            "ALL",
+        ),
+    )
+
+
+class TypedArrayLiteralSegment(ansi.TypedArrayLiteralSegment):
+    """An array literal segment."""
+
+    type = "typed_array_literal"
+    match_grammar = ansi.TypedArrayLiteralSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref.keyword("VARIADIC"),
+                Sequence(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("WalrusOperatorSegment"),
+                    optional=True,
+                ),
+                optional=True,
+            )
+        ],
+        before=Ref("ArrayTypeSegment"),
+    )
+
+
+class SetSessionAuthorizationStatementSegment(BaseSegment):
+    """A `SET SESSION AUTHORIZATION` statement.
+
+    https://www.postgresql.org/docs/current/sql-set-session-authorization.html
+    """
+
+    type = "set_session_authorization_statement"
+
+    match_grammar = Sequence(
+        "SET",
+        OneOf(
+            Sequence(Ref.keyword("LOCAL", optional=True), "SESSION"),
+            Sequence(Ref.keyword("SESSION", optional=True), "SESSION"),
+        ),
+        "AUTHORIZATION",
+        OneOf(Ref("RoleReferenceSegment"), "DEFAULT"),
+    )
+
+
+class ResetSessionAuthorizationStatementSegment(BaseSegment):
+    """A `RESET SESSION AUTHORIZATION` statement.
+
+    https://www.postgresql.org/docs/current/sql-set-session-authorization.html
+    """
+
+    type = "reset_session_authorization_statement"
+
+    match_grammar = Sequence("RESET", "SESSION", "AUTHORIZATION")

@@ -10,6 +10,7 @@ from sqlfluff.core.parser import (
     BinaryOperatorSegment,
     Bracketed,
     CodeSegment,
+    ComparisonOperatorSegment,
     Dedent,
     Delimited,
     IdentifierSegment,
@@ -74,6 +75,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
 duckdb_dialect.add(
     LambdaArrowSegment=StringParser("->", SymbolSegment, type="lambda_arrow"),
     OrIgnoreGrammar=Sequence("OR", "IGNORE"),
+    EqualsSegment_a=StringParser("==", ComparisonOperatorSegment),
 )
 
 duckdb_dialect.replace(
@@ -142,6 +144,13 @@ duckdb_dialect.replace(
         "single_quote", IdentifierSegment, type="quoted_identifier", casefold=str.lower
     ),
     ListComprehensionGrammar=Ref("ListComprehensionExpressionSegment"),
+    ComparisonOperatorGrammar=ansi_dialect.get_grammar(
+        "ComparisonOperatorGrammar"
+    ).copy(
+        insert=[
+            Ref("EqualsSegment_a"),
+        ]
+    ),
 )
 
 duckdb_dialect.insert_lexer_matchers(
@@ -173,6 +182,7 @@ duckdb_dialect.patch_lexer_matchers(
                 "escape_replacements": [(r'""', '"')],
             },
         ),
+        RegexLexer("equals", r"==?", CodeSegment),
     ]
 )
 

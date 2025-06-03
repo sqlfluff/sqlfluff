@@ -537,6 +537,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                 Ref("DatatypeIdentifierSegment"),
             ),
             Ref("BracketedArguments", optional=True),
+            OneOf("UNSIGNED", optional=True),
         ),
     )
 

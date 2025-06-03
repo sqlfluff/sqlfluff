@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 35e5da93d81b34c2fdcafb0dac843742e9c1d2cdef535e372b98f5792ac7f6a9
+_hash: b97c860b46d977ac6f8bd9c7b9c467436770b9cf6f4c22a0e02cb83ae05426d2
 file:
 - statement:
     alter_storage_integration_statement:
@@ -463,4 +463,8 @@ file:
       - comma: ','
       - bucket_path: "'azure://myaccount.blob.core.windows.net/mycontainer/path4/'"
       - end_bracket: )
+    - keyword: use_privatelink_endpoint
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
 - statement_terminator: ;
