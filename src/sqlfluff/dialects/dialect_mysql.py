@@ -325,7 +325,7 @@ mysql_dialect.add(
         type="at_sign_literal",
     ),
     SystemVariableSegment=RegexParser(
-        r"@@((session|global)\.)?[A-Za-z0-9_]+",
+        r"@@((session|global|local|persist|persist_only)\.)?[A-Za-z0-9_]+",
         CodeSegment,
         type="system_variable",
     ),
@@ -1805,7 +1805,7 @@ class ProcedureParameterListGrammar(BaseSegment):
 class SetAssignmentStatementSegment(BaseSegment):
     """A `SET` statement.
 
-    https://dev.mysql.com/doc/refman/8.0/en/set-variable.html
+    https://dev.mysql.com/doc/refman/9.3/en/set-variable.html
     """
 
     type = "set_statement"
@@ -1816,13 +1816,24 @@ class SetAssignmentStatementSegment(BaseSegment):
             Sequence(
                 Sequence(OneOf("NEW", "OLD"), Ref("DotSegment"), optional=True),
                 OneOf(
-                    Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")
+                    "GLOBAL",
+                    "PERSIST",
+                    "PERSIST_ONLY",
+                    "SESSION",
+                    "LOCAL",
+                    optional=True,
+                ),
+                OneOf(
+                    Ref("SessionVariableNameSegment"),
+                    Ref("LocalVariableNameSegment"),
+                    Ref("SystemVariableSegment"),
                 ),
                 OneOf(
                     Ref("EqualsSegment"),
                     Ref("WalrusOperatorSegment"),
                 ),
                 AnyNumberOf(
+                    Ref("NumericLiteralSegment"),
                     Ref("QuotedLiteralSegment"),
                     Ref("DoubleQuotedLiteralSegment"),
                     Ref("SessionVariableNameSegment"),
