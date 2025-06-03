@@ -326,7 +326,7 @@ class TdCollectStatisticsStatementSegment(BaseSegment):
                 Delimited(
                     OneOf(
                         Ref("ColumnReferenceSegment"),
-                        Ref.keyword("PARTITION"),
+                        "PARTITION",
                         # TODO: expression
                     ),
                 ),
