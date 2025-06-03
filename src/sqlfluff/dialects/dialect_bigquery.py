@@ -1460,7 +1460,7 @@ class SemiStructuredAccessorSegment(BaseSegment):
     )
 
 
-class SplitableObjectReferenceGrammar(ansi.ObjectReferenceSegment):
+class SplittableObjectReferenceGrammar(ansi.ObjectReferenceSegment):
     """An extended object reference grammar for BigQuery.
 
     This class customizes the splitting of object references (such as table or column
@@ -1480,7 +1480,7 @@ class SplitableObjectReferenceGrammar(ansi.ObjectReferenceSegment):
             yield cls.ObjectReferencePart(part, [elem])
 
 
-class ColumnReferenceSegment(SplitableObjectReferenceGrammar):
+class ColumnReferenceSegment(SplittableObjectReferenceGrammar):
     """A reference to column, field or alias.
 
     We override this for BigQuery to allow keywords in structures
@@ -1567,7 +1567,7 @@ class ColumnReferenceSegment(SplitableObjectReferenceGrammar):
         return super().extract_possible_multipart_references(levels)
 
 
-class TableReferenceSegment(SplitableObjectReferenceGrammar):
+class TableReferenceSegment(SplittableObjectReferenceGrammar):
     """A reference to an object that may contain embedded hyphens."""
 
     type = "table_reference"
