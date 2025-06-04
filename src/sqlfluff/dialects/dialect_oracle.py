@@ -606,6 +606,11 @@ oracle_dialect.add(
     SlashStatementTerminatorSegment=StringParser(
         "/", SymbolSegment, type="statement_terminator"
     ),
+    TriggerPredicatesGrammar=OneOf(
+        "INSERTING",
+        Sequence("UPDATING", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
+        "DELETING",
+    ),
 )
 
 oracle_dialect.replace(
@@ -2239,6 +2244,7 @@ class AssignmentStatementSegment(BaseSegment):
             Ref("ObjectReferenceSegment"),
             Bracketed(Ref("ObjectReferenceSegment"), optional=True),
             Ref("DotSegment", optional=True),
+            Ref("SqlplusVariableGrammar"),
             optional=True,
         ),
         OneOf(Sequence(Ref("ColonSegment"), Ref("EqualsSegment")), "DEFAULT"),
@@ -2260,7 +2266,10 @@ class IfExpressionStatement(BaseSegment):
         AnyNumberOf(
             Sequence(
                 "ELSIF",
-                Ref("ExpressionSegment"),
+                OneOf(
+                    Ref("ExpressionSegment"),
+                    Ref("TriggerPredicatesGrammar"),
+                ),
                 "THEN",
                 Ref("OneOrMoreStatementsGrammar"),
             ),
@@ -2283,7 +2292,14 @@ class IfClauseSegment(BaseSegment):
 
     type = "if_clause"
 
-    match_grammar = Sequence("IF", Ref("ExpressionSegment"), "THEN")
+    match_grammar = Sequence(
+        "IF",
+        OneOf(
+            Ref("ExpressionSegment"),
+            Ref("TriggerPredicatesGrammar"),
+        ),
+        "THEN",
+    )
 
 
 class CaseExpressionSegment(BaseSegment):
@@ -2317,11 +2333,7 @@ class CaseExpressionSegment(BaseSegment):
             "CASE",
             OneOf(
                 Ref("ExpressionSegment"),
-                "INSERTING",
-                Sequence(
-                    "UPDATING", Bracketed(Ref("QuotedLiteralSegment"), optional=True)
-                ),
-                "DELETING",
+                Ref("TriggerPredicatesGrammar"),
             ),
             ImplicitIndent,
             AnyNumberOf(
@@ -2365,11 +2377,7 @@ class WhenClauseSegment(BaseSegment):
             ImplicitIndent,
             OneOf(
                 Ref("ExpressionSegment"),
-                "INSERTING",
-                Sequence(
-                    "UPDATING", Bracketed(Ref("QuotedLiteralSegment"), optional=True)
-                ),
-                "DELETING",
+                Ref("TriggerPredicatesGrammar"),
             ),
             Dedent,
         ),
