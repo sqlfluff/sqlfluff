@@ -1051,3 +1051,35 @@ test_fail_no_fix_nested_subquery_join:
             ON w2.a = y.a
     )
         ON x.a = w2.a;
+
+test_pass_nested_table_function:
+  pass_str: |
+    SELECT *
+    FROM `func`((
+      SELECT 1
+    ));
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+test_pass_nested_table_function_with_subquery:
+  pass_str: |
+    SELECT
+      t.col1,
+      res.result
+    FROM t,
+      TABLE(
+        utils.udfs.udtf(
+          t.col1,
+          (SELECT dist.stats FROM dist)
+        ) OVER (
+          PARTITION BY t.col1
+          ORDER BY t.col2 DESC
+        )
+      ) AS res;
+  configs:
+    core:
+      dialect: snowflake

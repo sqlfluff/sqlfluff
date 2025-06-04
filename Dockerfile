@@ -1,12 +1,12 @@
-FROM python:3.9-slim-bullseye
+FROM python:3.12-slim-bullseye
 
 # Set separate working directory for easier debugging.
 WORKDIR /app
 
 # Create virtual environment.
-ENV VIRTUAL_ENV /app/.venv
+ENV VIRTUAL_ENV=/app/.venv
 RUN python -m venv $VIRTUAL_ENV
-ENV PATH $VIRTUAL_ENV/bin:$PATH
+ENV PATH=$VIRTUAL_ENV/bin:$PATH
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel pip-tools
 
 # Install requirements separately

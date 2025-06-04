@@ -327,6 +327,20 @@ def identify_keyword_rebreak_spans(
                     # Found the end. Add it to the stack.
                     # We reference the appropriate element from the parent stack.
                     target = element_buffer[idx].segments[0]
+                    parent_exclusion = (
+                        elem.keyword_line_position_exclusions_configs.get(key, [])
+                    )
+                    if any(
+                        t.intersection(parent_exclusion)
+                        for t in elem.depth_info.stack_class_types
+                    ):
+                        # If the keyword is excluded, skip it.
+                        reflow_logger.debug(
+                            "# Skipping rebreak span on %s because "
+                            "excluded by keyword_line_position_exclusions.",
+                            elem.segments[0],
+                        )
+                        break
                     spans.append(
                         _RebreakSpan(
                             target,

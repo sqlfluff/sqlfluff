@@ -502,6 +502,7 @@ class TdCreateTableOptions(BaseSegment):
 
     , NO FALLBACK, NO BEFORE JOURNAL, NO AFTER JOURNAL, CHECKSUM = DEFAULT
     , DEFAULT MERGEBLOCKRATIO
+    , MAP = TD_MAP1
     """
 
     type = "create_table_options_statement"
@@ -548,6 +549,8 @@ class TdCreateTableOptions(BaseSegment):
                     Ref("NumericLiteralSegment"),
                     Ref.keyword("PERCENT", optional=True),
                 ),
+                # MAP = mapname
+                Sequence("MAP", Ref("EqualsSegment"), Ref("ObjectReferenceSegment")),
             ),
         ),
     )

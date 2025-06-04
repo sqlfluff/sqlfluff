@@ -1,0 +1,263 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 174100b63d83fe671aa54d8162a534325ffad2cbbbcc12cbf31e20122e995016
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: read_files
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'abfss://container@storageAccount.dfs.core.windows.net/base/path'"
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: read_files
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'s3://bucket/path'"
+                  - comma: ','
+                  - named_argument:
+                      naked_identifier: format
+                      right_arrow: =>
+                      expression:
+                        quoted_literal: "'csv'"
+                  - comma: ','
+                  - named_argument:
+                      naked_identifier: schema
+                      right_arrow: =>
+                      expression:
+                        quoted_literal: "'id int, ts timestamp, event string'"
+                  - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: read_files
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'s3://bucket/path'"
+                    comma: ','
+                    named_argument:
+                      naked_identifier: format
+                      right_arrow: =>
+                      expression:
+                        quoted_literal: "'csv'"
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: read_files
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'s3://bucket/path/*.csv'"
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: read_files
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'abfss://container@storageAccount.dfs.core.windows.net/path/single.json'"
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: read_files
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'s3://bucket/path'"
+                  - comma: ','
+                  - named_argument:
+                      naked_identifier: format
+                      right_arrow: =>
+                      expression:
+                        quoted_literal: "'json'"
+                  - comma: ','
+                  - named_argument:
+                      naked_identifier: schemaHints
+                      right_arrow: =>
+                      expression:
+                        quoted_literal: "'id int'"
+                  - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: read_files
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'gs://my-bucket/avroData'"
+                  - comma: ','
+                  - named_argument:
+                      naked_identifier: modifiedAfter
+                      right_arrow: =>
+                      expression:
+                        function:
+                          function_name:
+                            function_name_identifier: date_sub
+                          function_contents:
+                            bracketed:
+                            - start_bracket: (
+                            - expression:
+                                function:
+                                  function_name:
+                                    function_name_identifier: current_date
+                                  function_contents:
+                                    bracketed:
+                                      start_bracket: (
+                                      end_bracket: )
+                            - comma: ','
+                            - expression:
+                                numeric_literal: '1'
+                            - end_bracket: )
+                  - comma: ','
+                  - named_argument:
+                      naked_identifier: modifiedBefore
+                      right_arrow: =>
+                      expression:
+                        function:
+                          function_name:
+                            function_name_identifier: current_date
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              end_bracket: )
+                  - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            keyword: STREAM
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: read_files
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'gs://my-bucket/avroData'"
+                    comma: ','
+                    named_argument:
+                      naked_identifier: includeExistingFiles
+                      right_arrow: =>
+                      expression:
+                        boolean_literal: 'false'
+                    end_bracket: )
+- statement_terminator: ;

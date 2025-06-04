@@ -534,6 +534,7 @@ tsql_dialect.replace(
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("DelimiterGrammar"),
+        "WINDOW",
     ),
     # Replace ANSI LikeGrammar to remove TSQL non-keywords RLIKE and ILIKE
     LikeGrammar=Sequence(
@@ -882,6 +883,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Ref("WhereClauseSegment", optional=True),
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
+        Ref("NamedWindowSegment", optional=True),
     )
 
 
@@ -3362,11 +3364,7 @@ class FunctionSegment(BaseSegment):
         Sequence(
             Ref("RankFunctionNameSegment"),
             Ref("RankFunctionContentsSegment"),
-            "OVER",
-            Bracketed(
-                Ref("PartitionClauseSegment", optional=True),
-                Ref("OrderByClauseSegment"),
-            ),
+            Ref("OverClauseSegment"),
         ),
         Sequence(
             # https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql
@@ -5314,21 +5312,6 @@ class RaiserrorStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-    )
-
-
-class WindowSpecificationSegment(BaseSegment):
-    """Window specification within OVER(...).
-
-    Overriding ANSI to remove window name option not supported by TSQL
-    """
-
-    type = "window_specification"
-    match_grammar = Sequence(
-        Ref("PartitionClauseSegment", optional=True),
-        Ref("OrderByClauseSegment", optional=True),
-        Ref("FrameClauseSegment", optional=True),
-        optional=True,
     )
 
 
