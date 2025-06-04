@@ -14,6 +14,7 @@ from sqlfluff.core.parser import (
     Bracketed,
     CodeSegment,
     CommentSegment,
+    CompositeComparisonOperatorSegment,
     Dedent,
     Delimited,
     IdentifierSegment,
@@ -306,6 +307,9 @@ mysql_dialect.replace(
     ),
     LikeGrammar=OneOf("LIKE", "RLIKE", "REGEXP"),
     CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
+    ComparisonOperatorGrammar=ansi_dialect.get_grammar(
+        "ComparisonOperatorGrammar"
+    ).copy(insert=[Ref("NullSafeEqualsSegment")]),
 )
 
 mysql_dialect.add(
@@ -3241,4 +3245,18 @@ class DatatypeSegment(BaseSegment):
             ),
         ),
         Ref("ArrayTypeSegment"),
+    )
+
+
+class NullSafeEqualsSegment(CompositeComparisonOperatorSegment):
+    """NULL-safe equals operator.
+
+    https://dev.mysql.com/doc/refman/9.3/en/comparison-operators.html#operator_equal-to
+    """
+
+    match_grammar: Matchable = Sequence(
+        Ref("RawLessThanSegment"),
+        Ref("RawEqualsSegment"),
+        Ref("RawGreaterThanSegment"),
+        allow_gaps=False,
     )
