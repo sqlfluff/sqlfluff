@@ -1,0 +1,3 @@
+COMMIT;
+
+COMMIT WORK;
