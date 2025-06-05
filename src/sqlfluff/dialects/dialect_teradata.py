@@ -262,7 +262,7 @@ class TdCollectStatisticsStatementSegment(BaseSegment):
 
     # TODO: add expression
     COLLECT [SUMMARY] (STATISTICS|STAT) [[COLUMN| [UNIQUE] INDEX]
-    (expression (, expression ...)] ON TABLENAME [[COLUMN] (expression, ,,,)]
+    (expression (, expression ...)] ON TABLENAME [[COLUMN] (expression, ...)]
     """
 
     type = "collect_statistics_statement"
