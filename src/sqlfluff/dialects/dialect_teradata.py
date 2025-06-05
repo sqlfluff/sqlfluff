@@ -262,7 +262,7 @@ class TdCollectStatisticsStatementSegment(BaseSegment):
 
     # TODO: add expression
     COLLECT [SUMMARY] (STATISTICS|STAT) [[COLUMN| [UNIQUE] INDEX]
-    (expression (, expression ...)] ON TABLENAME
+    (expression (, expression ...)] ON TABLENAME [[COLUMN] (expression, ...)]
     """
 
     type = "collect_statistics_statement"
@@ -320,6 +320,24 @@ class TdCollectStatisticsStatementSegment(BaseSegment):
         "ON",
         Ref.keyword("TEMPORARY", optional=True),
         Ref("TableReferenceSegment"),
+        Sequence(
+            "COLUMN",
+            OptionallyBracketed(
+                Delimited(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        "PARTITION",
+                        # TODO: expression
+                    ),
+                ),
+            ),
+            Sequence(
+                Ref.keyword("AS", optional=True),
+                Ref("ObjectReferenceSegment"),  # statistics_name
+                optional=True,
+            ),
+            optional=True,
+        ),
     )
 
 
