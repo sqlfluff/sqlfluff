@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5186d4b92e9bb5e62c31fcfb1bb2c27f122745fe59089152ce0fafa02e623eb9
+_hash: ae546a1a74bf0964dd8d94303015f5337dcffdbf2ceba9cd83cef14fdefbb1f1
 file:
 - statement:
     select_statement:
@@ -80,7 +80,8 @@ file:
                               naked_identifier: tbl2
                   end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: foo
             join_on_condition:
               keyword: 'ON'
@@ -137,7 +138,8 @@ file:
                               naked_identifier: tbl2
                   end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: tbl2
           - join_on_condition:
               keyword: 'on'
@@ -183,7 +185,8 @@ file:
                               naked_identifier: tbl4
                   end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: tbl4
           - join_on_condition:
               keyword: 'on'
@@ -222,7 +225,8 @@ file:
               table_reference:
                 naked_identifier: tbl1
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: D
       - comma: ','
       - from_expression:
@@ -246,7 +250,8 @@ file:
                     end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: X
               bracketed:
                 start_bracket: (
@@ -264,7 +269,8 @@ file:
           - dot: .
           - naked_identifier: name
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: mname
       - comma: ','
       - select_clause_element:
@@ -309,7 +315,8 @@ file:
           - dot: .
           - naked_identifier: name
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: mname
       - comma: ','
       - select_clause_element:
@@ -381,7 +388,8 @@ file:
                     end_bracket: )
               end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: X
               bracketed:
                 start_bracket: (
