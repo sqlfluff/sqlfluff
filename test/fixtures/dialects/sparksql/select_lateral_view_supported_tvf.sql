@@ -93,8 +93,8 @@ FROM test
     ) AS c1;
 
 -- explode in a LATERAL CLAUSE
-SELECT 
-    a.id, 
-    b.col 
-FROM range(10) as test, 
+SELECT
+    a.id,
+    b.col
+FROM range(10) as test,
     LATERAL explode(array('a', 'b', 'c')) as b;
