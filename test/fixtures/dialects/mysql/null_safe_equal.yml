@@ -1,0 +1,54 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0a7443feb698ba6dd2813824d70b0cdd3a879683434b1177f4047193b1b6084a
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+          - numeric_literal: '1'
+          - comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
+            - raw_comparison_operator: '>'
+          - numeric_literal: '1'
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - null_literal: 'NULL'
+          - comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
+            - raw_comparison_operator: '>'
+          - null_literal: 'NULL'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            numeric_literal: '1'
+            comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
+            - raw_comparison_operator: '>'
+            null_literal: 'NULL'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1'
+      where_clause:
+        keyword: WHERE
+        expression:
+          null_literal: 'NULL'
+          comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: '='
+          - raw_comparison_operator: '>'
+          numeric_literal: '1'
+- statement_terminator: ;

@@ -114,3 +114,14 @@ CREATE OR REPLACE TRIGGER maintain_employee_salaries
   END AFTER STATEMENT;
 END maintain_employee_salaries;
 /
+
+CREATE OR REPLACE TRIGGER insert_or_update_trigger
+BEFORE INSERT OR UPDATE ON your_table_name
+FOR EACH ROW
+BEGIN
+    IF INSERTING THEN
+        :new.created_at := CURRENT_TIMESTAMP;
+    ELSIF UPDATING THEN
+        :new.updated_at := CURRENT_TIMESTAMP;
+    END IF;
+END;
