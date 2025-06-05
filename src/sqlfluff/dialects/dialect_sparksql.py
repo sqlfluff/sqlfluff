@@ -2254,9 +2254,10 @@ class LateralViewClauseSegment(BaseSegment):
     type = "lateral_view_clause"
 
     match_grammar = Sequence(
+        Ref("CommaSegment", optional=True),
         Indent,
         "LATERAL",
-        "VIEW",
+        Ref.keyword("VIEW", optional=True),
         Ref.keyword("OUTER", optional=True),
         Ref("FunctionSegment"),
         OneOf(
