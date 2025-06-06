@@ -108,6 +108,8 @@ SELECT
     CURRENT_USER,
     SESSION_USER,
     SYSTEM_USER,
+	USER,
+
 	test(default, 2)
 
 
