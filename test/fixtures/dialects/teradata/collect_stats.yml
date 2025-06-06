@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6aeee3d254f193cdee0b2d122ec457ad5e1b63192a4e51a92ad0b4b30d9930e4
+_hash: 08c47cf906873922a007a611f8d281d26a16f4c732d317c923e868c1b9014c79
 file:
 - statement:
     collect_statistics_statement:
@@ -231,4 +231,50 @@ file:
       - naked_identifier: sandbox_db
       - dot: .
       - naked_identifier: Org_Descendant
+- statement_terminator: ;
+- statement:
+    collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATISTICS
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: table_1
+    - keyword: COLUMN
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: column_1
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATISTICS
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: orders
+    - keyword: COLUMN
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: quant_ord
+      - comma: ','
+      - keyword: PARTITION
+      - comma: ','
+      - column_reference:
+          naked_identifier: quant_shpd
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATISTICS
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: table_1
+    - keyword: COLUMN
+    - keyword: PARTITION
 - statement_terminator: ;
