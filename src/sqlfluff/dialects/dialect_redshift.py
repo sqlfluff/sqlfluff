@@ -722,6 +722,11 @@ class AlterTableActionSegment(BaseSegment):
             Ref.keyword("IGNOREEXTRA", optional=True),
             Ref.keyword("FILLTARGET", optional=True),
         ),
+        Sequence(
+            "SET",
+            "LOCATION",
+            Ref("QuotedLiteralSegment"),
+        ),
     )
 
 

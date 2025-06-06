@@ -59,3 +59,5 @@ drop column feedback_score cascade;
 ALTER TABLE the_schema.the_table APPEND FROM the_schema.the_temp_table IGNOREEXTRA FILLTARGET;
 
 ALTER TABLE the_schema.the_table APPEND FROM the_schema.the_temp_table;
+
+ALTER TABLE the_schema.the_table SET LOCATION 's3://bucket/folder/';
