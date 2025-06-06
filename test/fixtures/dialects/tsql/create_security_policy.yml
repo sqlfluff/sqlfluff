@@ -1,0 +1,307 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f6142e4b1801482cfb771453ba6d3ea6863cfa3231fa85db24b1b05c4544d360
+file:
+  batch:
+  - statement:
+      create_security_policy_statement:
+      - keyword: CREATE
+      - keyword: SECURITY
+      - keyword: POLICY
+      - object_reference:
+          quoted_identifier: '[FederatedSecurityPolicy]'
+      - keyword: ADD
+      - keyword: FILTER
+      - keyword: PREDICATE
+      - object_reference:
+        - quoted_identifier: '[rls]'
+        - dot: .
+        - quoted_identifier: '[fn_securitypredicate]'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '[CustomerId]'
+          end_bracket: )
+      - keyword: 'ON'
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Customer]'
+  - statement_terminator: ;
+  - statement:
+      create_security_policy_statement:
+      - keyword: CREATE
+      - keyword: SECURITY
+      - keyword: POLICY
+      - object_reference:
+          quoted_identifier: '[FederatedSecurityPolicy]'
+      - keyword: ADD
+      - keyword: FILTER
+      - keyword: PREDICATE
+      - object_reference:
+        - quoted_identifier: '[rls]'
+        - dot: .
+        - quoted_identifier: '[fn_securitypredicate1]'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '[CustomerId]'
+          end_bracket: )
+      - keyword: 'ON'
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Customer]'
+      - comma: ','
+      - keyword: ADD
+      - keyword: FILTER
+      - keyword: PREDICATE
+      - object_reference:
+        - quoted_identifier: '[rls]'
+        - dot: .
+        - quoted_identifier: '[fn_securitypredicate1]'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '[VendorId]'
+          end_bracket: )
+      - keyword: 'ON'
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[ Vendor]'
+      - comma: ','
+      - keyword: ADD
+      - keyword: FILTER
+      - keyword: PREDICATE
+      - object_reference:
+        - quoted_identifier: '[rls]'
+        - dot: .
+        - quoted_identifier: '[fn_securitypredicate2]'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '[WingId]'
+          end_bracket: )
+      - keyword: 'ON'
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Patient]'
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: STATE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_security_policy_statement:
+      - keyword: CREATE
+      - keyword: SECURITY
+      - keyword: POLICY
+      - object_reference:
+        - naked_identifier: rls
+        - dot: .
+        - naked_identifier: SecPol
+      - keyword: ADD
+      - keyword: FILTER
+      - keyword: PREDICATE
+      - object_reference:
+        - naked_identifier: rls
+        - dot: .
+        - naked_identifier: tenantAccessPredicate
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: TenantId
+          end_bracket: )
+      - keyword: 'ON'
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Sales
+      - comma: ','
+      - keyword: ADD
+      - keyword: BLOCK
+      - keyword: PREDICATE
+      - object_reference:
+        - naked_identifier: rls
+        - dot: .
+        - naked_identifier: tenantAccessPredicate
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: TenantId
+          end_bracket: )
+      - keyword: 'ON'
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Sales
+      - keyword: AFTER
+      - keyword: INSERT
+  - statement_terminator: ;
+  - statement:
+      alter_security_policy_statement:
+      - keyword: ALTER
+      - keyword: SECURITY
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: pol1
+      - keyword: ADD
+      - keyword: FILTER
+      - keyword: PREDICATE
+      - object_reference:
+        - naked_identifier: schema_preds
+        - dot: .
+        - naked_identifier: SecPredicate
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: column1
+          end_bracket: )
+      - keyword: 'ON'
+      - object_reference:
+        - naked_identifier: myschema
+        - dot: .
+        - naked_identifier: mytable
+  - statement_terminator: ;
+  - statement:
+      alter_security_policy_statement:
+      - keyword: ALTER
+      - keyword: SECURITY
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: pol1
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: STATE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_security_policy_statement:
+      - keyword: ALTER
+      - keyword: SECURITY
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: pol1
+      - keyword: ADD
+      - keyword: FILTER
+      - keyword: PREDICATE
+      - object_reference:
+        - naked_identifier: schema_preds
+        - dot: .
+        - naked_identifier: SecPredicate1
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: column1
+          end_bracket: )
+      - keyword: 'ON'
+      - object_reference:
+        - naked_identifier: myschema
+        - dot: .
+        - naked_identifier: mytable1
+      - comma: ','
+      - keyword: DROP
+      - keyword: FILTER
+      - keyword: PREDICATE
+      - keyword: 'ON'
+      - object_reference:
+        - naked_identifier: myschema
+        - dot: .
+        - naked_identifier: mytable2
+      - comma: ','
+      - keyword: ADD
+      - keyword: FILTER
+      - keyword: PREDICATE
+      - object_reference:
+        - naked_identifier: schema_preds
+        - dot: .
+        - naked_identifier: SecPredicate2
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: column2
+          comma: ','
+          expression:
+            numeric_literal: '1'
+          end_bracket: )
+      - keyword: 'ON'
+      - object_reference:
+        - naked_identifier: myschema
+        - dot: .
+        - naked_identifier: mytable3
+  - statement_terminator: ;
+  - statement:
+      alter_security_policy_statement:
+      - keyword: ALTER
+      - keyword: SECURITY
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: pol1
+      - keyword: ALTER
+      - keyword: FILTER
+      - keyword: PREDICATE
+      - object_reference:
+        - naked_identifier: schema_preds
+        - dot: .
+        - naked_identifier: SecPredicate2
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: column1
+          end_bracket: )
+      - keyword: 'ON'
+      - object_reference:
+        - naked_identifier: myschema
+        - dot: .
+        - naked_identifier: mytable
+  - statement_terminator: ;
+  - statement:
+      alter_security_policy_statement:
+      - keyword: ALTER
+      - keyword: SECURITY
+      - keyword: POLICY
+      - object_reference:
+        - naked_identifier: rls
+        - dot: .
+        - naked_identifier: SecPol
+      - keyword: ALTER
+      - keyword: BLOCK
+      - keyword: PREDICATE
+      - object_reference:
+        - naked_identifier: rls
+        - dot: .
+        - naked_identifier: tenantAccessPredicate_v2
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: TenantId
+          end_bracket: )
+      - keyword: 'ON'
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Sales
+      - keyword: AFTER
+      - keyword: INSERT
+  - statement_terminator: ;
+  - statement:
+      drop_security_policy:
+      - keyword: DROP
+      - keyword: SECURITY
+      - keyword: POLICY
+      - object_reference:
+          naked_identifier: secPolicy
+  - statement_terminator: ;
