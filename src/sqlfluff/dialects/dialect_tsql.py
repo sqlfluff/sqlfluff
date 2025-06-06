@@ -131,7 +131,7 @@ tsql_dialect.sets("date_format").update(
 )
 
 tsql_dialect.sets("bare_functions").update(
-    ["system_user", "session_user", "current_user"]
+    ["CURRENT_USER", "SESSION_USER", "SYSTEM_USER", "USER"]
 )
 
 tsql_dialect.sets("sqlcmd_operators").clear()
