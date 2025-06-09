@@ -108,7 +108,9 @@ SELECT
     CURRENT_USER,
     SESSION_USER,
     SYSTEM_USER,
-	test(default, 2)
+    USER,
+
+    test(default, 2)
 
 
 FROM dbo . all_pop;
