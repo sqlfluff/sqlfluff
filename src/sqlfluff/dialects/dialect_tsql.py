@@ -6879,10 +6879,8 @@ class AlterSecurityPolicySegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
                 Bracketed(
                     Delimited(
-                        OneOf(
-                            Ref("ColumnReferenceSegment"),
-                            Ref("ExpressionSegment"),
-                        ),
+                        Ref("ColumnReferenceSegment"),
+                        Ref("ExpressionSegment"),
                     ),
                 ),
                 "ON",
