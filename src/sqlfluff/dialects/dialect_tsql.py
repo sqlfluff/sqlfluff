@@ -6820,10 +6820,8 @@ class CreateSecurityPolicySegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
                 Bracketed(
                     Delimited(
-                        OneOf(
-                            Ref("ColumnReferenceSegment"),
-                            Ref("ExpressionSegment"),
-                        ),
+                        Ref("ColumnReferenceSegment"),
+                        Ref("ExpressionSegment"),
                     ),
                 ),
                 "ON",
@@ -6874,41 +6872,39 @@ class AlterSecurityPolicySegment(BaseSegment):
         "POLICY",
         Ref("ObjectReferenceSegment"),
         Delimited(
-            OneOf(
-                Sequence(
-                    OneOf("ADD", "ALTER"),
-                    OneOf("FILTER", "BLOCK", optional=True),
-                    "PREDICATE",
-                    Ref("ObjectReferenceSegment"),
-                    Bracketed(
-                        Delimited(
-                            OneOf(
-                                Ref("ColumnReferenceSegment"),
-                                Ref("ExpressionSegment"),
-                            ),
+            Sequence(
+                OneOf("ADD", "ALTER"),
+                OneOf("FILTER", "BLOCK", optional=True),
+                "PREDICATE",
+                Ref("ObjectReferenceSegment"),
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("ColumnReferenceSegment"),
+                            Ref("ExpressionSegment"),
                         ),
                     ),
-                    "ON",
-                    Ref("ObjectReferenceSegment"),
-                    OneOf(
-                        Sequence(
-                            "AFTER",
-                            OneOf("INSERT", "UPDATE"),
-                        ),
-                        Sequence(
-                            "BEFORE",
-                            OneOf("UPDATE", "DELETE"),
-                        ),
-                        optional=True,
+                ),
+                "ON",
+                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    Sequence(
+                        "AFTER",
+                        OneOf("INSERT", "UPDATE"),
                     ),
+                    Sequence(
+                        "BEFORE",
+                        OneOf("UPDATE", "DELETE"),
+                    ),
+                    optional=True,
                 ),
-                Sequence(
-                    "DROP",
-                    OneOf("FILTER", "BLOCK", optional=True),
-                    "PREDICATE",
-                    "ON",
-                    Ref("ObjectReferenceSegment"),
-                ),
+            ),
+            Sequence(
+                "DROP",
+                OneOf("FILTER", "BLOCK", optional=True),
+                "PREDICATE",
+                "ON",
+                Ref("ObjectReferenceSegment"),
             ),
             optional=True,
         ),
