@@ -442,3 +442,28 @@ test_mysql_identifier_with_backticks_should_not_except:
   configs:
     core:
       dialect: mysql
+
+test_snowflake_pass_dot_inside_quotes:
+  pass_str: |
+    WITH CTE_DUMMY AS (
+        SELECT
+            1 AS "DUMMY.ALIAS"
+            , 2 AS "DUMMY_ALIAS"
+        FROM DUAL
+    )
+
+    SELECT
+        C1."DUMMY.ALIAS"
+        , C1."DUMMY_ALIAS"
+    FROM CTE_DUMMY AS C1
+  configs:
+    core:
+      dialect: snowflake
+
+test_postgres_pass_dot_inside_quotes:
+  pass_str: |
+    SELECT "a.b"
+    FROM table
+  configs:
+    core:
+      dialect: postgres
