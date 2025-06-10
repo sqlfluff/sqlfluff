@@ -491,6 +491,7 @@ class StatementSegment(ansi.StatementSegment):
         Ref("TransactionStatementSegment"),
         Ref("UpdateStatementSegment"),
         Ref("UseStatementSegment"),
+        Ref("SetSessionStatementSegment"),
         terminators=[Ref("DelimiterGrammar")],
     )
 
@@ -764,28 +765,83 @@ class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
 class TransactionStatementSegment(ansi.TransactionStatementSegment):
     """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement.
 
-    As per https://trino.io/docs/current/sql/start-transaction.html
+    https://trino.io/docs/current/sql/commit.html
+    https://trino.io/docs/current/sql/rollback.html
+    https://trino.io/docs/current/sql/start-transaction.html
     """
 
     type = "transaction_statement"
-    match_grammar: Matchable = Sequence(
-        "START",
-        "TRANSACTION",
-        Delimited(
-            Sequence(
-                "ISOLATION",
-                "LEVEL",
-                OneOf(
-                    Sequence("READ", "UNCOMMITTED"),
-                    Sequence("READ", "COMMITTED"),
-                    Sequence("REPEATABLE", "READ"),
-                    "SERIALIZABLE",
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            "COMMIT",
+            Ref.keyword("WORK", optional=True),
+        ),
+        Sequence(
+            "ROLLBACK",
+            Ref.keyword("WORK", optional=True),
+        ),
+        Sequence(
+            "START",
+            "TRANSACTION",
+            Delimited(
+                Sequence(
+                    "ISOLATION",
+                    "LEVEL",
+                    OneOf(
+                        Sequence("READ", "UNCOMMITTED"),
+                        Sequence("READ", "COMMITTED"),
+                        Sequence("REPEATABLE", "READ"),
+                        "SERIALIZABLE",
+                    ),
                 ),
+                Sequence(
+                    "READ",
+                    OneOf("ONLY", "WRITE"),
+                ),
+                optional=True,
             ),
+        ),
+    )
+
+
+class InsertStatementSegment(ansi.InsertStatementSegment):
+    """An `INSERT` statement.
+
+    https://trino.io/docs/current/sql/insert.html
+    """
+
+    type = "insert_statement"
+    match_grammar: Matchable = Sequence(
+        "INSERT",
+        "INTO",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Ref("SelectableGrammar"),
             Sequence(
-                "READ",
-                OneOf("ONLY", "WRITE"),
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref("SelectableGrammar"),
             ),
+            Ref("DefaultValuesGrammar"),
+        ),
+    )
+
+
+class SetSessionStatementSegment(BaseSegment):
+    """A `SET SESSION` statement.
+
+    https://trino.io/docs/current/sql/set-session.html
+    """
+
+    type = "set_session_statement"
+    match_grammar: Matchable = Sequence(
+        "SET",
+        "SESSION",
+        Sequence(
+            Ref("ParameterNameSegment"),
+            Ref("DotSegment"),
             optional=True,
         ),
+        Ref("ParameterNameSegment"),
+        Ref("EqualsSegment"),
+        Ref("ExpressionSegment"),
     )

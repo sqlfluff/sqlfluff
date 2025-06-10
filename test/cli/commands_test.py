@@ -151,6 +151,32 @@ def test__cli__command_no_dialect(command):
     assert "Traceback (most recent call last)" not in result.stderr
 
 
+@pytest.mark.parametrize(
+    "command",
+    [
+        parse,
+        lint,
+        cli_format,
+        fix,
+    ],
+)
+def test__cli__command_no_dialect_stdin_filename_inline_dialect(command):
+    """Check the script runs with no dialect but has an inline configuration."""
+    # The dialect is unknown should be a non-zero exit code
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[
+            command,
+            ["--stdin-filename", "test.sql", "-"],
+        ],
+        cli_input="-- sqlfluff:dialect:ansi\nSELECT 1\n",
+    )
+    assert "User Error" not in result.stderr
+    assert "No dialect was specified" not in result.stderr
+    # No traceback should be in the output
+    assert "Traceback (most recent call last)" not in result.stderr
+
+
 def test__cli__command_parse_error_dialect_explicit_warning():
     """Check parsing error raises the right warning."""
     # For any parsing error there should be a non-zero exit code
@@ -787,6 +813,29 @@ def test__cli__command_lint_skip_ignore_files():
         ],
     )
     assert result.exit_code == 1
+    assert "LT12" in result.stdout.strip()
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        (fix),
+        (cli_format),
+    ],
+)
+def test__cli__command_fix_skip_ignore_files(command):
+    """Check "ignore file" is skipped when --disregard-sqlfluffignores flag is set."""
+    runner = CliRunner()
+    result = runner.invoke(
+        command,
+        [
+            "test/fixtures/linter/sqlfluffignore/path_b/query_c.sql",
+            "--disregard-sqlfluffignores",
+            "-x",
+            "_fix",
+        ],
+    )
+    assert result.exit_code == 0
     assert "LT12" in result.stdout.strip()
 
 
