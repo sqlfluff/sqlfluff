@@ -377,6 +377,7 @@ databricks_dialect.replace(
         TypedParser("word", WordSegment, type="function_name_identifier"),
         Ref("BackQuotedIdentifierSegment"),
     ),
+    PreTableFunctionKeywordsGrammar=OneOf("STREAM"),
 )
 
 

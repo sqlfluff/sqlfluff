@@ -131,7 +131,7 @@ tsql_dialect.sets("date_format").update(
 )
 
 tsql_dialect.sets("bare_functions").update(
-    ["system_user", "session_user", "current_user"]
+    ["CURRENT_USER", "SESSION_USER", "SYSTEM_USER", "USER"]
 )
 
 tsql_dialect.sets("sqlcmd_operators").clear()
@@ -732,6 +732,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("OpenSymmetricKeySegment"),
             Ref("CreateLoginStatementSegment"),
             Ref("SetContextInfoSegment"),
+            Ref("CreateSecurityPolicySegment"),
+            Ref("AlterSecurityPolicySegment"),
+            Ref("DropSecurityPolicySegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -6803,6 +6806,148 @@ class DropMasterKeySegment(BaseSegment):
         "DROP",
         "MASTER",
         "KEY",
+    )
+
+
+class CreateSecurityPolicySegment(BaseSegment):
+    """A `CREATE SECURITY POLICY` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-security-policy-transact-sql
+
+    type = "create_security_policy_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SECURITY",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        Delimited(
+            Sequence(
+                "ADD",
+                OneOf("FILTER", "BLOCK", optional=True),
+                "PREDICATE",
+                Ref("ObjectReferenceSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+                "ON",
+                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    Sequence(
+                        "AFTER",
+                        OneOf("INSERT", "UPDATE"),
+                    ),
+                    Sequence(
+                        "BEFORE",
+                        OneOf("UPDATE", "DELETE"),
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Delimited(
+                    Sequence("STATE", Ref("EqualsSegment"), OneOf("ON", "OFF")),
+                    Sequence("SCHEMABINDING", Ref("EqualsSegment"), OneOf("ON", "OFF")),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "NOT",
+            "FOR",
+            "REPLICATION",
+            optional=True,
+        ),
+    )
+
+
+class AlterSecurityPolicySegment(BaseSegment):
+    """A `ALTER SECURITY POLICY` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-security-policy-transact-sql
+
+    type = "alter_security_policy_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "SECURITY",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        Delimited(
+            Sequence(
+                OneOf("ADD", "ALTER"),
+                OneOf("FILTER", "BLOCK", optional=True),
+                "PREDICATE",
+                Ref("ObjectReferenceSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+                "ON",
+                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    Sequence(
+                        "AFTER",
+                        OneOf("INSERT", "UPDATE"),
+                    ),
+                    Sequence(
+                        "BEFORE",
+                        OneOf("UPDATE", "DELETE"),
+                    ),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "DROP",
+                OneOf("FILTER", "BLOCK", optional=True),
+                "PREDICATE",
+                "ON",
+                Ref("ObjectReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Delimited(
+                    Sequence("STATE", Ref("EqualsSegment"), OneOf("ON", "OFF")),
+                    Sequence("SCHEMABINDING", Ref("EqualsSegment"), OneOf("ON", "OFF")),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "NOT",
+            "FOR",
+            "REPLICATION",
+            optional=True,
+        ),
+    )
+
+
+class DropSecurityPolicySegment(BaseSegment):
+    """A `DROP SECURITY POLICY` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-security-policy-transact-sql
+
+    type = "drop_security_policy"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "SECURITY",
+        "POLICY",
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("ObjectReferenceSegment"),
     )
 
 

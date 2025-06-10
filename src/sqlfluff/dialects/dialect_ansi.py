@@ -48,6 +48,7 @@ from sqlfluff.core.parser import (
     OneOf,
     OptionallyBracketed,
     ParseMode,
+    RawSegment,
     Ref,
     RegexLexer,
     RegexParser,
@@ -1060,17 +1061,18 @@ class ObjectReferenceSegment(BaseSegment):
         """Details about a table alias."""
 
         part: str  # Name of the part
-        # Segment(s) comprising the part. Usuaully just one segment, but could
+        # Segment(s) comprising the part. Usually just one segment, but could
         # be multiple in dialects (e.g. BigQuery) that support unusual
         # characters in names (e.g. "-")
-        segments: list[BaseSegment]
+        segments: list[RawSegment]
 
     @classmethod
-    def _iter_reference_parts(cls, elem) -> Generator[ObjectReferencePart, None, None]:
+    def _iter_reference_parts(
+        cls, elem: RawSegment
+    ) -> Generator[ObjectReferencePart, None, None]:
         """Extract the elements of a reference and yield."""
         # trim on quotes and split out any dots.
-        for part in elem.raw_trimmed().split("."):
-            yield cls.ObjectReferencePart(part, [elem])
+        yield cls.ObjectReferencePart(elem.raw_trimmed(), [elem])
 
     def iter_raw_references(self) -> Generator[ObjectReferencePart, None, None]:
         """Generate a list of reference strings and elements.
@@ -1080,7 +1082,7 @@ class ObjectReferenceSegment(BaseSegment):
         """
         # Extract the references from those identifiers (because some may be quoted)
         for elem in self.recursive_crawl("identifier"):
-            yield from self._iter_reference_parts(elem)
+            yield from self._iter_reference_parts(cast(IdentifierSegment, elem))
 
     def is_qualified(self) -> bool:
         """Return if there is more than one element to the reference."""
@@ -1788,7 +1790,7 @@ class WildcardIdentifierSegment(ObjectReferenceSegment):
         """
         # Extract the references from those identifiers (because some may be quoted)
         for elem in self.recursive_crawl("identifier", "star"):
-            yield from self._iter_reference_parts(elem)
+            yield from self._iter_reference_parts(cast(RawSegment, elem))
 
 
 class WildcardExpressionSegment(BaseSegment):
