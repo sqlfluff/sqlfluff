@@ -133,16 +133,20 @@ class Linter:
             try:
                 limit = int(limit)
             except ValueError:
-                raise ValueError(f"""
+                raise ValueError(
+                    f"""
                 large_file_skip_byte_limit parameter from config
                 cannot be converted to integer,
                 current value {limit}, type {type(limit)}
-                """)
+                """
+                )
             except TypeError:
-                raise TypeError(f"""
+                raise TypeError(
+                    f"""
                 failed to get large_file_skip_byte_limit parameter from config,
                 or it is of invalid type {type(limit)}
-                """)
+                """
+                )
             # Get the file size
             file_size = os.path.getsize(fname)
             if file_size > limit:
