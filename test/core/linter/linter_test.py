@@ -95,21 +95,26 @@ def test__linter__lint_string_vs_file(path):
     )
 
 
-@pytest.mark.parametrize("byte_lim, raises", [(0, False), 
-                                              (None, False), 
-                                              (200, False), 
-                                              ("200", False), 
-                                              ("Not a Valid value", True), 
-                                              ("None", True)])
+@pytest.mark.parametrize(
+    "byte_lim, raises", 
+    [
+        (0, False), 
+        (None, False), 
+        (200, False), 
+        ("200", False), 
+        ("Not a Valid value", True), 
+         ("None", True)
+    ]
+)
 def test__linter__large_file_skip_byte_limit__setting(byte_lim, raises):
     """Test custom values for large_file_skip_byte_limit.
 
-    Linter should raise an error only in cases 
+    Linter should raise an error only in cases
     where the value really is invalid
     """
-    config = FluffConfig(overrides=
-                         {"large_file_skip_byte_limit": byte_lim, "dialect": "ansi"}
-                        )
+    config = FluffConfig(
+        overrides={"large_file_skip_byte_limit": byte_lim, "dialect": "ansi"}
+    )
 
     try:
         Linter.load_raw_file_and_config(
