@@ -96,13 +96,13 @@ def test__linter__lint_string_vs_file(path):
 
 
 @pytest.mark.parametrize(
-    "byte_lim, raises", 
+    "byte_lim, raises",
     [
-        (0, False), 
-        (None, False), 
-        (200, False), 
-        ("200", False), 
-        ("Not a Valid value", True), 
+        (0, False),
+        (None, False),
+        (200, False),
+        ("200", False),
+        ("Not a Valid value", True),
          ("None", True)
     ]
 )
