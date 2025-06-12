@@ -114,18 +114,20 @@ END;
 
 DECLARE
   TYPE t_desc_tab IS TABLE OF t1.description%TYPE;
-  TYPE t_tab IS TABLE OF t1%ROWTYPE;
+  TYPE t_id_tab   IS TABLE OF t1.id%TYPE;
+  TYPE t_desc_out_tab IS TABLE OF t1.description%TYPE;
+
   l_desc_tab t_desc_tab := t_desc_tab('FIVE', 'SIX', 'SEVEN');
-  l_tab   t_tab;
+  l_id_tab   t_id_tab;
+  l_desc_out_tab t_desc_out_tab;
 BEGIN
+  FORALL i IN l_desc_tab.FIRST .. l_desc_tab.LAST
+    INSERT INTO t1 VALUES (t1_seq.NEXTVAL, l_desc_tab(i))
+    RETURNING id, description BULK COLLECT INTO l_id_tab, l_desc_out_tab;
 
-  FORALL i IN l_desc_tab.first .. l_desc_tab.last
-    INSERT INTO t1 VALUES (t1_seq.nextval, l_desc_tab(i))
-    RETURNING id, description BULK COLLECT INTO l_tab;
-
-  FOR i IN l_tab.first .. l_tab.last LOOP
-    DBMS_OUTPUT.put_line('INSERT ID=' || l_tab(i) ||
-                         ' DESC=' || l_tab(i));
+  FOR i IN l_id_tab.FIRST .. l_id_tab.LAST LOOP
+    DBMS_OUTPUT.put_line('INSERT ID=' || l_id_tab(i) ||
+                         ' DESC=' || l_desc_out_tab(i));
   END LOOP;
 
   COMMIT;

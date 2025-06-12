@@ -2818,7 +2818,6 @@ class ReturningClauseSegment(BaseSegment):
                 OneOf("OLD", "NEW", optional=True),
                 Ref("SingleIdentifierGrammar"),
             ),
-            optional=True,
         ),
         OneOf(Ref("IntoClauseSegment"), Ref("BulkCollectIntoClauseSegment")),
     )

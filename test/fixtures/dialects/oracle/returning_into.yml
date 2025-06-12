@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d456124e88d00efb755e49694401cc30fb94a05e754e4b18d371ee6d371fd55e
+_hash: 7d0edcc692653b622543df1114b4d3ccdb6e9d087105fb91acaf6b933ddf32c8
 file:
 - statement:
     begin_end_block:
@@ -896,15 +896,31 @@ file:
       - statement_terminator: ;
       - collection_type:
         - keyword: TYPE
-        - naked_identifier: t_tab
+        - naked_identifier: t_id_tab
         - keyword: IS
         - keyword: TABLE
         - keyword: OF
-        - row_type_reference:
-            table_reference:
-              naked_identifier: t1
+        - column_type_reference:
+            column_reference:
+            - naked_identifier: t1
+            - dot: .
+            - naked_identifier: id
             binary_operator: '%'
-            keyword: ROWTYPE
+            keyword: TYPE
+      - statement_terminator: ;
+      - collection_type:
+        - keyword: TYPE
+        - naked_identifier: t_desc_out_tab
+        - keyword: IS
+        - keyword: TABLE
+        - keyword: OF
+        - column_type_reference:
+            column_reference:
+            - naked_identifier: t1
+            - dot: .
+            - naked_identifier: description
+            binary_operator: '%'
+            keyword: TYPE
       - statement_terminator: ;
       - naked_identifier: l_desc_tab
       - data_type:
@@ -929,9 +945,13 @@ file:
                   quoted_literal: "'SEVEN'"
               - end_bracket: )
       - statement_terminator: ;
-      - naked_identifier: l_tab
+      - naked_identifier: l_id_tab
       - data_type:
-          data_type_identifier: t_tab
+          data_type_identifier: t_id_tab
+      - statement_terminator: ;
+      - naked_identifier: l_desc_out_tab
+      - data_type:
+          data_type_identifier: t_desc_out_tab
       - statement_terminator: ;
     - keyword: BEGIN
     - statement:
@@ -941,12 +961,12 @@ file:
         - keyword: IN
         - naked_identifier: l_desc_tab
         - dot: .
-        - naked_identifier: first
+        - naked_identifier: FIRST
         - dot: .
         - dot: .
         - naked_identifier: l_desc_tab
         - dot: .
-        - naked_identifier: last
+        - naked_identifier: LAST
         - insert_statement:
           - keyword: INSERT
           - keyword: INTO
@@ -960,7 +980,7 @@ file:
                   column_reference:
                   - naked_identifier: t1_seq
                   - dot: .
-                  - naked_identifier: nextval
+                  - naked_identifier: NEXTVAL
               - comma: ','
               - expression:
                   function:
@@ -983,21 +1003,23 @@ file:
               - keyword: BULK
               - keyword: COLLECT
               - keyword: INTO
-              - naked_identifier: l_tab
+              - naked_identifier: l_id_tab
+              - comma: ','
+              - naked_identifier: l_desc_out_tab
     - statement_terminator: ;
     - statement:
         for_loop_statement:
         - keyword: FOR
         - naked_identifier: i
         - keyword: IN
-        - naked_identifier: l_tab
+        - naked_identifier: l_id_tab
         - dot: .
-        - naked_identifier: first
+        - naked_identifier: FIRST
         - dot: .
         - dot: .
-        - naked_identifier: l_tab
+        - naked_identifier: l_id_tab
         - dot: .
-        - naked_identifier: last
+        - naked_identifier: LAST
         - loop_statement:
           - keyword: LOOP
           - statement:
@@ -1016,7 +1038,7 @@ file:
                       - pipe: '|'
                     - function:
                         function_name:
-                          function_name_identifier: l_tab
+                          function_name_identifier: l_id_tab
                         function_contents:
                           bracketed:
                             start_bracket: (
@@ -1033,7 +1055,7 @@ file:
                       - pipe: '|'
                     - function:
                         function_name:
-                          function_name_identifier: l_tab
+                          function_name_identifier: l_desc_out_tab
                         function_contents:
                           bracketed:
                             start_bracket: (
