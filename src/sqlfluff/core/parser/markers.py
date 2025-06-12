@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, Optional
 from sqlfluff.core.helpers.slice import zero_slice
 
 if TYPE_CHECKING:
-    from rsqlfluff import RsPositionMarker
+    from rsqlfluff import RsPositionMarker  # type: ignore
     from sqlfluff.core.templaters import TemplatedFile
 
 
@@ -263,6 +263,7 @@ class PositionMarker:
             source_slice=rs_position_marker.source_slice,
             templated_slice=rs_position_marker.templated_slice,
             templated_file=templated_file,
-            working_line_no=rs_position_marker.working_line_no,
-            working_line_pos=rs_position_marker.working_line_pos,
+            # TODO: fix the working position.
+            # working_line_no=rs_position_marker.working_line_no,
+            # working_line_pos=rs_position_marker.working_line_pos,
         )

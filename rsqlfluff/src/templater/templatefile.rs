@@ -440,7 +440,7 @@ impl TemplatedFile {
 
         if nl_idx > 0 {
             (
-                (nl_idx + 1).try_into().unwrap(),
+                nl_idx + 1,
                 char_pos - ref_str[nl_idx - 1],
             )
         } else {

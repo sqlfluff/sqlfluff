@@ -9,7 +9,7 @@ from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.parser.segments.common import WordSegment
 
 if TYPE_CHECKING:
-    from rsqlfluff import RsToken
+    from rsqlfluff import RsToken  # type: ignore
     from sqlfluff.core.templaters import TemplatedFile
 
 

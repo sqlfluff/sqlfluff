@@ -15,14 +15,16 @@ from sqlfluff.core.parser.segments import (
     BaseSegment,
     Dedent,
     EndOfFile,
+    ImplicitIndent,
     Indent,
+    LiteralKeywordSegment,
     MetaSegment,
     RawSegment,
     TemplateLoop,
     TemplateSegment,
     UnlexableSegment,
 )
-from sqlfluff.core.templaters import RawTemplater, TemplatedFile
+from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.templaters.base import TemplatedFileSlice
 
 # Instantiate the lexer logger
@@ -903,12 +905,14 @@ class PyLexer:
 
 
 try:
-    from rsqlfluff import RsLexer
+    from rsqlfluff import RsLexer  # type: ignore
 
     def get_segment_type_map(base_class: type) -> dict[str, type[RawSegment]]:
         """Dynamically create a map of segment types to their subclasses."""
         segment_map = {}
         for subclass in base_class.__subclasses__():
+            if subclass is LiteralKeywordSegment or subclass is ImplicitIndent:
+                continue
             if (
                 hasattr(subclass, "type") and subclass.type
             ):  # Ensure the subclass has a type
@@ -930,17 +934,20 @@ try:
             tokens, errors = self._lex(raw)
             first_token = tokens[0]
             assert first_token
-            rs_tf = first_token.pos_marker.templated_file
-            tf = TemplatedFile(
-                rs_tf.source_str,
-                rs_tf.fname,
-                rs_tf.templated_str,
-                rs_tf.sliced_file,
-                rs_tf.raw_sliced,
+            template = first_token.pos_marker.templated_file
+            py_template = TemplatedFile(
+                template.source_str,
+                template.fname,
+                template.templated_str,
+                template.sliced_file,
+                template.raw_sliced,
             )
+
             return (
                 tuple(
-                    segment_types.get(token.type, RawSegment).from_rstoken(token, tf)
+                    segment_types.get(token.type, RawSegment).from_rstoken(
+                        token, py_template
+                    )
                     for token in tokens
                 ),
                 errors,
@@ -962,10 +969,6 @@ try:
                 last_resort_lexer=last_resort_lexer,
                 dialect=dialect,
             )
-            if config and config.get_templater_class() is not RawTemplater:
-                return PyLexer(config, last_resort_lexer, dialect)
-            else:
-                return cls(config, last_resort_lexer, dialect)
 
     lexer_logger.info("Using rsqlfluff lexer.")
 except ImportError:

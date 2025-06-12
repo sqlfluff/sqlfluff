@@ -14,7 +14,7 @@ from sqlfluff.core.parser.grammar import (
     Ref,
     Sequence,
 )
-from sqlfluff.core.parser.lexer import LexerType, PyLexer, RegexLexer, StringLexer
+from sqlfluff.core.parser.lexer import LexerType, RegexLexer, StringLexer
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.parser import Parser
@@ -55,7 +55,7 @@ from sqlfluff.core.parser.types import ParseMode
 try:
     from sqlfluff.core.parser.lexer import PyRsLexer as Lexer
 except ImportError:
-    from sqlfluff.core.parser.lexer import PyLexer as Lexer
+    from sqlfluff.core.parser.lexer import PyLexer as Lexer  # type: ignore[assignment]
 
 __all__ = (
     "BaseSegment",
@@ -100,7 +100,6 @@ __all__ = (
     "RegexParser",
     "PositionMarker",
     "Lexer",
-    "PyLexer",
     "LexerType",
     "StringLexer",
     "RegexLexer",

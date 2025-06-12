@@ -14,7 +14,7 @@ from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix
 from sqlfluff.core.templaters.base import TemplatedFile
 
 if TYPE_CHECKING:
-    from rsqlfluff import RsToken
+    from rsqlfluff import RsToken  # type: ignore
 
 
 class MetaSegment(RawSegment):
