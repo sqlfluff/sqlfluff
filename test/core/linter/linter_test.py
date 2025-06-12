@@ -104,6 +104,7 @@ def test__linter__lint_string_vs_file(path):
         ("200", False),
         ("Not a Valid value", True),
         ("None", True),
+        ([1], True),
     ],
 )
 def test__linter__large_file_skip_byte_limit__setting(byte_lim, raises):
