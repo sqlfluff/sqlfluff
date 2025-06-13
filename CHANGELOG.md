@@ -10,18 +10,21 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [3.4.1] - 2025-06-10
+## [3.4.1] - 2025-06-13
 
 ## Highlights
 
-## Highlights
+* This is primarily a bugfix, rule enhancement, and dialect enhancement release.
+* We also have done some light refactoring of the internal codebase.
 
-> Maintainers: Copy and paste the commentary from the changelog here.
-> Check that the name and tag are correct before releasing.
-> Publishing a GitHub release will trigger the deploy to pypi and dockerhub.
+This release has *80* contributions in it!
+
+Also, welcome to the **fourteen** new contributors! Thanks for your contributions!
 
 ## What’s Changed
 
+* Adds support for `RETURNING INTO` clause in `INSERT`, `UPDATE`, `DELETE` and `MERGE` statements in Oracle. [#6941](https://github.com/sqlfluff/sqlfluff/pull/6941) [@joaostorrer](https://github.com/joaostorrer)
+* converted large_file_skip_byte_limit value to integer before comparison, fixes Issue #6847 [#6848](https://github.com/sqlfluff/sqlfluff/pull/6848) [@M-van-alten-BW](https://github.com/M-van-alten-BW)
 * Feat: Support explode in sparksql lateral clauses [#6875](https://github.com/sqlfluff/sqlfluff/pull/6875) [@ShaneMazur](https://github.com/ShaneMazur)
 * Trino: Support for INSERT, COMMIT, ROLLBACK and SET SESSION statements [#6928](https://github.com/sqlfluff/sqlfluff/pull/6928) [@ykicisk](https://github.com/ykicisk)
 * feat(redshift): add support for ALTER TABLE SET LOCATION syntax [#6936](https://github.com/sqlfluff/sqlfluff/pull/6936) [@studansp](https://github.com/studansp)
@@ -84,8 +87,8 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * Feat: Snowflake, Add catalog integration & create iceberg table [#6793](https://github.com/sqlfluff/sqlfluff/pull/6793) [@moreaupascal56](https://github.com/moreaupascal56)
 * Snowflake: Add create API INTEGRATION support [#6815](https://github.com/sqlfluff/sqlfluff/pull/6815) [@moreaupascal56](https://github.com/moreaupascal56)
 
-## New Contributors
 
+## New Contributors
 * [@pierrand](https://github.com/pierrand) made their first contribution in [#6838](https://github.com/sqlfluff/sqlfluff/pull/6838)
 * [@covracer](https://github.com/covracer) made their first contribution in [#6856](https://github.com/sqlfluff/sqlfluff/pull/6856)
 * [@VishalSinha1103](https://github.com/VishalSinha1103) made their first contribution in [#6860](https://github.com/sqlfluff/sqlfluff/pull/6860)
@@ -99,6 +102,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * [@studansp](https://github.com/studansp) made their first contribution in [#6936](https://github.com/sqlfluff/sqlfluff/pull/6936)
 * [@ykicisk](https://github.com/ykicisk) made their first contribution in [#6928](https://github.com/sqlfluff/sqlfluff/pull/6928)
 * [@ShaneMazur](https://github.com/ShaneMazur) made their first contribution in [#6875](https://github.com/sqlfluff/sqlfluff/pull/6875)
+* [@M-van-alten-BW](https://github.com/M-van-alten-BW) made their first contribution in [#6848](https://github.com/sqlfluff/sqlfluff/pull/6848)
 
 ## [3.4.0] - 2025-04-17
 
