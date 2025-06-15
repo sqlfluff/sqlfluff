@@ -293,7 +293,12 @@ impl Token {
 
     pub fn class_is_type(&self, seg_types: &[&str]) -> bool {
         let seg_hash: HashSet<&str> = seg_types.iter().cloned().collect();
-        !self.class_types.iter().filter(|s| seg_hash.contains(s.as_str())).collect::<Vec<_>>().is_empty()
+        !self
+            .class_types
+            .iter()
+            .filter(|s| seg_hash.contains(s.as_str()))
+            .collect::<Vec<_>>()
+            .is_empty()
     }
 
     pub fn count_segments(&self, raw_only: bool) -> usize {
@@ -674,7 +679,6 @@ impl Token {
 
 #[cfg(test)]
 mod tests {
-    use crate::dialect::matcher::ANSI_LEXERS;
     use crate::matcher::TokenGenerator;
     use crate::slice::Slice;
     use crate::templater::templatefile::TemplatedFile;
@@ -712,58 +716,50 @@ mod tests {
                 ));
                 continue;
             }
-            let (token_fn, instance_types, cache_key): (TokenGenerator, HashSet<String>, String) =
+            let (token_fn, instance_types, cache_key): (TokenGenerator, Vec<String>, String) =
                 match elem {
                     " " | "\t" => (
                         Token::whitespace_token,
-                        HashSet::new(),
+                        Vec::new(),
                         Uuid::new_v4().to_string(),
                     ),
-                    "\n" => (
-                        Token::newline_token,
-                        HashSet::new(),
-                        Uuid::new_v4().to_string(),
-                    ),
+                    "\n" => (Token::newline_token, Vec::new(), Uuid::new_v4().to_string()),
                     "(" => (
                         Token::symbol_token,
-                        HashSet::from_iter(["start_bracket".to_string()]),
+                        Vec::from_iter(["start_bracket".to_string()]),
                         Uuid::new_v4().to_string(),
                     ),
                     ")" => (
                         Token::symbol_token,
-                        HashSet::from_iter(["end_bracket".to_string()]),
+                        Vec::from_iter(["end_bracket".to_string()]),
                         Uuid::new_v4().to_string(),
                     ),
                     "[" => (
                         Token::symbol_token,
-                        HashSet::from_iter(["start_square_bracket".to_string()]),
+                        Vec::from_iter(["start_square_bracket".to_string()]),
                         Uuid::new_v4().to_string(),
                     ),
                     "]" => (
                         Token::symbol_token,
-                        HashSet::from_iter(["end_square_bracket".to_string()]),
+                        Vec::from_iter(["end_square_bracket".to_string()]),
                         Uuid::new_v4().to_string(),
                     ),
                     s if s.starts_with("--") => (
                         Token::comment_token,
-                        HashSet::from_iter(["inline_comment".to_string()]),
+                        Vec::from_iter(["inline_comment".to_string()]),
                         Uuid::new_v4().to_string(),
                     ),
                     s if s.starts_with("\"") => (
                         Token::code_token,
-                        HashSet::from_iter(["double_quote".to_string()]),
+                        Vec::from_iter(["double_quote".to_string()]),
                         Uuid::new_v4().to_string(),
                     ),
                     s if s.starts_with("'") => (
                         Token::code_token,
-                        HashSet::from_iter(["single_quote".to_string()]),
+                        Vec::from_iter(["single_quote".to_string()]),
                         Uuid::new_v4().to_string(),
                     ),
-                    _ => (
-                        Token::code_token,
-                        HashSet::new(),
-                        Uuid::new_v4().to_string(),
-                    ),
+                    _ => (Token::code_token, Vec::new(), Uuid::new_v4().to_string()),
                 };
 
             buff.push(token_fn(
@@ -781,6 +777,7 @@ mod tests {
                     None,
                     None,
                 ),
+                HashSet::new(),
                 instance_types,
                 None,
                 None,

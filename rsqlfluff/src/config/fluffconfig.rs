@@ -13,6 +13,7 @@ impl FluffConfig {
     }
 }
 
+#[cfg(feature = "python")]
 pub mod python {
     use pyo3::{
         prelude::*,

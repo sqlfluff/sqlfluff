@@ -870,7 +870,7 @@ mod tests {
 
     #[test]
     fn test_scan_broken_quotes() {
-        env_logger::init();
+        env_logger::try_init().ok();
         let lexer = Lexer::new(None, Dialect::Ansi);
         let test_case = lexer.lex_string(
             r#"SELECT 1

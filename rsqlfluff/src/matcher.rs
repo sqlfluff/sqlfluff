@@ -385,6 +385,7 @@ pub fn extract_nested_block_comment(input: &str, dialect: Dialect) -> Option<&st
 }
 
 // TODO: implement python passthroughs
+#[cfg(feature = "python")]
 pub mod python {}
 
 #[cfg(test)]

@@ -31,6 +31,7 @@ impl Display for Slice {
     }
 }
 
+#[cfg(feature = "python")]
 pub mod python {
     use super::Slice;
     use pyo3::{prelude::*, types::PySlice};
