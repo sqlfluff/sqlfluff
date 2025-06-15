@@ -34,7 +34,7 @@ impl RawFileSlice {
 
     pub fn end_source_idx(&self) -> usize {
         // Return the closing index of this slice.
-        let len: usize = self.raw.len().try_into().unwrap();
+        let len: usize = self.raw.chars().count().try_into().unwrap();
         self.source_idx + len
     }
 
@@ -58,16 +58,20 @@ impl RawFileSlice {
 #[derive(Debug, PartialEq, Clone, Hash)]
 pub struct TemplatedFileSlice {
     pub slice_type: String,
-    pub source_slice: Slice,
-    pub templated_slice: Slice,
+    pub source_codepoint_slice: Slice,
+    pub templated_codepoint_slice: Slice,
 }
 
 impl TemplatedFileSlice {
-    pub fn new(slice_type: String, source_slice: Slice, templated_slice: Slice) -> Self {
+    pub fn new(
+        slice_type: String,
+        source_codepoint_slice: Slice,
+        templated_codepoint_slice: Slice,
+    ) -> Self {
         TemplatedFileSlice {
             slice_type,
-            source_slice,
-            templated_slice,
+            source_codepoint_slice,
+            templated_codepoint_slice,
         }
     }
 }
@@ -142,11 +146,15 @@ pub mod python {
     #[pymethods]
     impl PyTemplatedFileSlice {
         #[new]
-        fn new(slice_type: String, source_slice: Slice, templated_slice: Slice) -> Self {
+        fn new(
+            slice_type: String,
+            source_codepoint_slice: Slice,
+            templated_codepoint_slice: Slice,
+        ) -> Self {
             Self(TemplatedFileSlice::new(
                 slice_type,
-                source_slice,
-                templated_slice,
+                source_codepoint_slice,
+                templated_codepoint_slice,
             ))
         }
 
@@ -157,12 +165,12 @@ pub mod python {
 
         #[getter]
         fn source_slice(&self) -> PyResult<Slice> {
-            Ok(self.0.source_slice.clone())
+            Ok(self.0.source_codepoint_slice.clone())
         }
 
         #[getter]
         fn templated_slice(&self) -> PyResult<Slice> {
-            Ok(self.0.templated_slice.clone())
+            Ok(self.0.templated_codepoint_slice.clone())
         }
     }
 

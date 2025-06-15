@@ -20,10 +20,6 @@ impl Slice {
         test_slice.start == test_slice.end
     }
 
-    pub fn as_range(&self) -> Range<usize> {
-        self.start..self.stop
-    }
-
     pub fn len(&self) -> usize {
         self.stop - self.start
     }
@@ -50,7 +46,7 @@ pub mod python {
     impl<'py> IntoPyObject<'py> for Slice {
         type Target = PySlice; // the Python type
         type Output = Bound<'py, Self::Target>; // in most cases this will be `Bound`
-        type Error = PyErr; // the conversion error type, has to be convertable to `PyErr`
+        type Error = PyErr; // the conversion error type, has to be convertible to `PyErr`
 
         fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
             Ok(PySlice::new(

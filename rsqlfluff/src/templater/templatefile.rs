@@ -14,14 +14,6 @@ pub struct TemplatedFile {
     pub raw_sliced: Vec<RawFileSlice>,
     source_newlines: Vec<usize>,
     templated_newlines: Vec<usize>,
-    #[cfg(feature = "unicode")]
-    unicode_sliced_file: Vec<TemplatedFileSlice>,
-    #[cfg(feature = "unicode")]
-    unicode_raw_file: Vec<RawFileSlice>,
-    #[cfg(feature = "unicode")]
-    unicode_source_newlines: Vec<usize>,
-    #[cfg(feature = "unicode")]
-    unicode_templated_newlines: Vec<usize>,
 }
 
 impl TemplatedFile {
@@ -50,8 +42,8 @@ impl TemplatedFile {
                 (
                     vec![TemplatedFileSlice::new(
                         "literal".to_string(),
-                        Slice::from(0..source_str.len()),
-                        Slice::from(0..source_str.len()),
+                        Slice::from(0..source_str.chars().count()),
+                        Slice::from(0..source_str.chars().count()),
                     )],
                     vec![RawFileSlice {
                         raw: source_str.clone(),
@@ -63,46 +55,56 @@ impl TemplatedFile {
                 )
             };
 
-        let source_newlines = iter_indices_of_newlines(&source_str).collect();
-        let templated_newlines = iter_indices_of_newlines(&templated_str_in).collect();
+        let source_newlines = iter_codepoint_indices_of_newlines(&source_str).collect();
+        let templated_newlines = iter_codepoint_indices_of_newlines(&templated_str_in).collect();
 
-        // Consistency check raw string and slices.
-        let mut pos = 0;
+        // Consistency check raw string and slices (codepoints, not bytes).
+        let mut codepoint_pos = 0;
         for rfs in &raw_sliced {
+            let raw_len = rfs.raw.chars().count();
             assert_eq!(
-                rfs.source_idx, pos,
+                rfs.source_idx, codepoint_pos,
                 "TemplatedFile. Consistency fail on running source length: {} != {}",
-                pos, rfs.source_idx
+                codepoint_pos, rfs.source_idx
             );
-            pos += rfs.raw.len();
+            codepoint_pos += raw_len;
         }
         assert_eq!(
-            pos,
-            source_str.len(),
+            codepoint_pos,
+            source_str.chars().count(),
             "TemplatedFile. Consistency fail on total source length: {} != {}",
-            pos,
-            source_str.len()
+            codepoint_pos,
+            source_str.chars().count()
         );
 
-        // Consistency check templated string and slices.
+        // Consistency check templated string and slices (codepoints, not bytes).
         let mut previous_slice: Option<&TemplatedFileSlice> = None;
         for tfs in sliced_file.iter() {
             if let Some(prev_slice) = previous_slice {
-                if tfs.templated_slice.start != prev_slice.templated_slice.stop {
+                if tfs.templated_codepoint_slice.start != prev_slice.templated_codepoint_slice.stop
+                {
+                    let start = tfs.templated_codepoint_slice.start;
+                    let stop = tfs.templated_codepoint_slice.stop;
+                    let prev_start = prev_slice.templated_codepoint_slice.start;
+                    let prev_stop = prev_slice.templated_codepoint_slice.stop;
+                    let templated_str_cp: Vec<char> = templated_str_in.chars().collect();
                     panic!(
                         "Templated slices found to be non-contiguous. \
-                        {:?} (starting {}) does not follow {:?} (starting {})",
-                        tfs.templated_slice,
-                        &templated_str_in[tfs.templated_slice.start..tfs.templated_slice.stop],
-                        prev_slice.templated_slice,
-                        &templated_str_in
-                            [prev_slice.templated_slice.start..prev_slice.templated_slice.stop],
+                {:?} (starting {:?}) does not follow {:?} (starting {:?})",
+                        tfs.templated_codepoint_slice,
+                        templated_str_cp
+                            .get(start..stop)
+                            .map(|v| v.iter().collect::<String>()),
+                        prev_slice.templated_codepoint_slice,
+                        templated_str_cp
+                            .get(prev_start..prev_stop)
+                            .map(|v| v.iter().collect::<String>()),
                     );
                 }
-            } else if tfs.templated_slice.start != 0 {
+            } else if tfs.templated_codepoint_slice.start != 0 {
                 panic!(
                     "First Templated slice not started at index 0 (found slice {:?})",
-                    tfs.templated_slice
+                    tfs.templated_codepoint_slice
                 );
             }
             previous_slice = Some(tfs);
@@ -110,51 +112,24 @@ impl TemplatedFile {
 
         if let Some(tfs) = sliced_file.last() {
             if let Some(templated) = templated_str.as_ref() {
-                if tfs.templated_slice.stop != templated.len() {
+                let templated_len = templated.chars().count();
+                if tfs.templated_codepoint_slice.stop != templated_len {
                     panic!(
                         "Length of templated file mismatch with final slice: {} != {}.",
-                        templated.len(),
-                        tfs.templated_slice.stop
+                        templated_len, tfs.templated_codepoint_slice.stop
                     );
                 }
             }
         }
 
-        #[cfg(feature = "unicode")]
-        {
-            let (
-                unicode_sliced_file,
-                unicode_raw_file,
-                unicode_source_newlines,
-                unicode_templated_newlines,
-            ) = get_unicode_data(&source_str, &templated_str_in, &sliced_file, &raw_sliced);
-
-            return TemplatedFile {
-                source_str,
-                fname,
-                templated_str: templated_str_in.to_string(),
-                sliced_file,
-                raw_sliced,
-                source_newlines,
-                templated_newlines,
-                unicode_sliced_file,
-                unicode_raw_file,
-                unicode_source_newlines,
-                unicode_templated_newlines,
-            };
-        }
-
-        #[cfg(not(feature = "unicode"))]
-        {
-            TemplatedFile {
-                source_str,
-                fname,
-                templated_str: templated_str_in.to_string(),
-                sliced_file,
-                raw_sliced,
-                source_newlines,
-                templated_newlines,
-            }
+        TemplatedFile {
+            source_str,
+            fname,
+            templated_str: templated_str_in.to_string(),
+            sliced_file,
+            raw_sliced,
+            source_newlines,
+            templated_newlines,
         }
     }
 
@@ -167,13 +142,6 @@ impl TemplatedFile {
         source_newlines: Vec<usize>,
         templated_newlines: Vec<usize>,
     ) -> Self {
-        #[cfg(feature = "unicode")]
-        let (
-            unicode_sliced_file,
-            unicode_raw_file,
-            unicode_source_newlines,
-            unicode_templated_newlines,
-        ) = get_unicode_data(&source_str, &templated_str, &sliced_file, &raw_sliced);
         TemplatedFile {
             source_str,
             fname,
@@ -182,14 +150,6 @@ impl TemplatedFile {
             raw_sliced,
             source_newlines,
             templated_newlines,
-            #[cfg(feature = "unicode")]
-            unicode_sliced_file,
-            #[cfg(feature = "unicode")]
-            unicode_raw_file,
-            #[cfg(feature = "unicode")]
-            unicode_source_newlines,
-            #[cfg(feature = "unicode")]
-            unicode_templated_newlines,
         }
     }
 
@@ -246,11 +206,11 @@ impl TemplatedFile {
             else if !ts_start_subsliced_file.is_empty()
                 && ts_start_subsliced_file[0].slice_type == "literal"
             {
-                let offset =
-                    template_slice.start - ts_start_subsliced_file[0].templated_slice.start;
+                let offset = template_slice.start
+                    - ts_start_subsliced_file[0].templated_codepoint_slice.start;
                 return Slice::from(
-                    ts_start_subsliced_file[0].source_slice.start + offset
-                        ..(ts_start_subsliced_file[0].source_slice.start + offset),
+                    ts_start_subsliced_file[0].source_codepoint_slice.start + offset
+                        ..(ts_start_subsliced_file[0].source_codepoint_slice.start + offset),
                 );
             } else {
                 panic!("Attempting a single length slice within a templated section!");
@@ -267,7 +227,7 @@ impl TemplatedFile {
         let mut ts_start_sf_start = ts_start_sf_start;
         if insertion_point.is_some() {
             for elem in self.sliced_file.iter().skip(ts_start_sf_start) {
-                if elem.source_slice.start != insertion_point.unwrap() {
+                if elem.source_codepoint_slice.start != insertion_point.unwrap() {
                     ts_start_sf_start += 1;
                 } else {
                     break;
@@ -284,9 +244,14 @@ impl TemplatedFile {
                 panic!("Starting position higher than sliced file position");
             }
             if ts_start_sf_start < self.sliced_file.len() {
-                return self.sliced_file[1].source_slice.clone();
+                return self.sliced_file[1].source_codepoint_slice.clone();
             } else {
-                return self.sliced_file.last().unwrap().source_slice.clone();
+                return self
+                    .sliced_file
+                    .last()
+                    .unwrap()
+                    .source_codepoint_slice
+                    .clone();
             }
         }
 
@@ -305,18 +270,19 @@ impl TemplatedFile {
         let source_start = if insertion_point.is_some() {
             insertion_point.unwrap()
         } else if start_slices[0].slice_type == "literal" {
-            let offset = template_slice.start - start_slices[0].templated_slice.start;
-            start_slices[0].source_slice.start + offset
+            let offset = template_slice.start - start_slices[0].templated_codepoint_slice.start;
+            start_slices[0].source_codepoint_slice.start + offset
         } else {
-            start_slices[0].source_slice.start
+            start_slices[0].source_codepoint_slice.start
         };
 
         // Stop.
         let source_stop = if stop_slices.last().unwrap().slice_type == "literal" {
-            let offset = stop_slices.last().unwrap().templated_slice.stop - template_slice.stop;
-            stop_slices.last().unwrap().source_slice.stop - offset
+            let offset =
+                stop_slices.last().unwrap().templated_codepoint_slice.stop - template_slice.stop;
+            stop_slices.last().unwrap().source_codepoint_slice.stop - offset
         } else {
-            stop_slices.last().unwrap().source_slice.stop
+            stop_slices.last().unwrap().source_codepoint_slice.stop
         };
 
         // Does this slice go backward?
@@ -329,12 +295,12 @@ impl TemplatedFile {
             (
                 subslices
                     .iter()
-                    .map(|elem| elem.source_slice.start)
+                    .map(|elem| elem.source_codepoint_slice.start)
                     .min()
                     .unwrap(),
                 subslices
                     .iter()
-                    .map(|elem| elem.source_slice.stop)
+                    .map(|elem| elem.source_codepoint_slice.stop)
                     .max()
                     .unwrap(),
             )
@@ -346,7 +312,7 @@ impl TemplatedFile {
     }
 }
 
-#[cfg(feature = "unicode")]
+// #[cfg(feature = "unicode")]
 fn get_unicode_data(
     source_str: &String,
     templated_str_in: &String,
@@ -373,21 +339,21 @@ fn get_unicode_data(
             .map(|slice| {
                 let mut new_slice = slice.clone();
 
-                new_slice.source_slice.start = char_source_vec
+                new_slice.source_codepoint_slice.start = char_source_vec
                     .iter()
-                    .position(|&c| c == new_slice.source_slice.start)
+                    .position(|&c| c == new_slice.source_codepoint_slice.start)
                     .unwrap_or(char_source_vec.len());
-                new_slice.source_slice.stop = char_source_vec
+                new_slice.source_codepoint_slice.stop = char_source_vec
                     .iter()
-                    .position(|&c| c == new_slice.source_slice.stop)
+                    .position(|&c| c == new_slice.source_codepoint_slice.stop)
                     .unwrap_or(char_source_vec.len());
-                new_slice.templated_slice.start = char_templated_vec
+                new_slice.templated_codepoint_slice.start = char_templated_vec
                     .iter()
-                    .position(|&c| c == new_slice.templated_slice.start)
+                    .position(|&c| c == new_slice.templated_codepoint_slice.start)
                     .unwrap_or(char_templated_vec.len());
-                new_slice.templated_slice.stop = char_templated_vec
+                new_slice.templated_codepoint_slice.stop = char_templated_vec
                     .iter()
-                    .position(|&c| c == new_slice.templated_slice.stop)
+                    .position(|&c| c == new_slice.templated_codepoint_slice.stop)
                     .unwrap_or(char_templated_vec.len());
 
                 new_slice
@@ -439,10 +405,7 @@ impl TemplatedFile {
         let nl_idx = ref_str.binary_search(&char_pos).unwrap_or_else(|x| x);
 
         if nl_idx > 0 {
-            (
-                nl_idx + 1,
-                char_pos - ref_str[nl_idx - 1],
-            )
+            (nl_idx + 1, char_pos - ref_str[nl_idx - 1])
         } else {
             (1, char_pos + 1)
         }
@@ -468,12 +431,12 @@ impl TemplatedFile {
         // source.
         for (idx, elem) in self.sliced_file.iter().enumerate().skip(start_idx) {
             last_idx = idx + start_idx;
-            if elem.templated_slice.stop >= templated_pos {
+            if elem.templated_codepoint_slice.stop >= templated_pos {
                 if first_idx.is_none() {
                     first_idx = Some(idx + start_idx);
                 }
-                if elem.templated_slice.start > templated_pos
-                    || (!inclusive && elem.templated_slice.start >= templated_pos)
+                if elem.templated_codepoint_slice.start > templated_pos
+                    || (!inclusive && elem.templated_codepoint_slice.start >= templated_pos)
                 {
                     found = true;
                     break;
@@ -499,14 +462,14 @@ impl TemplatedFile {
         let mut insertion_point = None;
 
         for elem in subsliced_file {
-            if elem.templated_slice.start == template_slice_start {
-                let source_start = elem.source_slice.start;
+            if elem.templated_codepoint_slice.start == template_slice_start {
+                let source_start = elem.source_codepoint_slice.start;
                 if insertion_point.is_none() || source_start < insertion_point.unwrap() {
                     insertion_point = Some(source_start);
                 }
             }
-            if elem.templated_slice.stop == template_slice_start {
-                let source_stop = elem.source_slice.stop;
+            if elem.templated_codepoint_slice.stop == template_slice_start {
+                let source_stop = elem.source_codepoint_slice.stop;
                 if insertion_point.is_none() || source_stop < insertion_point.unwrap() {
                     insertion_point = Some(source_stop);
                 }
@@ -579,7 +542,7 @@ fn iter_indices_of_newlines(raw_str: &str) -> impl Iterator<Item = usize> + '_ {
     raw_str.match_indices('\n').map(|(idx, _)| idx)
 }
 
-#[cfg(feature = "unicode")]
+// #[cfg(feature = "unicode")]
 fn iter_codepoint_indices_of_newlines(raw_str: &str) -> impl Iterator<Item = usize> + '_ {
     raw_str
         .char_indices()
@@ -607,67 +570,6 @@ pub mod python {
     use super::TemplatedFile;
     use once_cell::sync::Lazy;
 
-    // fn utf8_to_unicode_slices(tf: &TemplatedFile) -> Vec<PyTemplatedFileSlice> {
-    //     log::debug!("running tf utf to unicode conversion step.");
-    //     let char_source_vec = tf
-    //         .source_str
-    //         .char_indices()
-    //         .map(|(i, _)| i)
-    //         .collect::<Vec<_>>();
-    //     let char_templated_vec = tf
-    //         .templated_str
-    //         .char_indices()
-    //         .map(|(i, _)| i)
-    //         .collect::<Vec<_>>();
-
-    //     tf.sliced_file
-    //         .iter()
-    //         .map(|slice| {
-    //             let mut new_slice = PyTemplatedFileSlice(slice.clone()); // Wrap TemplatedFileSlice in PyTemplatedFileSlice
-
-    //             new_slice.0.source_slice.start = char_source_vec
-    //                 .iter()
-    //                 .position(|&c| c == new_slice.0.source_slice.start)
-    //                 .unwrap_or(char_source_vec.len());
-    //             new_slice.0.source_slice.stop = char_source_vec
-    //                 .iter()
-    //                 .position(|&c| c == new_slice.0.source_slice.stop)
-    //                 .unwrap_or(char_source_vec.len());
-    //             new_slice.0.templated_slice.start = char_templated_vec
-    //                 .iter()
-    //                 .position(|&c| c == new_slice.0.templated_slice.start)
-    //                 .unwrap_or(char_templated_vec.len());
-    //             new_slice.0.templated_slice.stop = char_templated_vec
-    //                 .iter()
-    //                 .position(|&c| c == new_slice.0.templated_slice.stop)
-    //                 .unwrap_or(char_templated_vec.len());
-
-    //             // log::debug!(
-    //             //     "{:?}::{:?}",
-    //             //     new_slice.0.source_slice, new_slice.0.templated_slice
-    //             // );
-
-    //             new_slice
-    //         })
-    //         .collect()
-    // }
-
-    // fn raw_slices_to_py(tf: &TemplatedFile) -> Vec<PyRawFileSlice> {
-    //     log::debug!("running raw utf to unicode conversion step.");
-    //     if tf.raw_sliced.len() == 1 {
-    //         return tf.raw_sliced.clone().into_iter().map(Into::into).collect();
-    //     }
-    //     let mut idx = 0;
-    //     tf.raw_sliced
-    //         .iter()
-    //         .map(|rs| {
-    //             let mut slice = rs.clone();
-    //             slice.source_idx = idx;
-    //             idx += slice.raw.chars().count();
-    //             PyRawFileSlice(slice)
-    //         })
-    //         .collect()
-    // }
 
     #[pyclass(name = "RsTemplatedFile", frozen)]
     #[repr(transparent)]
@@ -693,8 +595,6 @@ pub mod python {
                 sliced_file.map(|x| x.into_iter().map(Into::into).collect()),
                 raw_sliced.map(|x| x.into_iter().map(Into::into).collect()),
             ));
-            // let unicode_sliced_file = utf8_to_unicode_slices(&tf);
-            // let unicode_raw_sliced = raw_slices_to_py(&tf);
             Self(tf)
         }
 
@@ -702,8 +602,6 @@ pub mod python {
         pub fn from_string(_cls: &Bound<'_, PyType>, raw: String) -> Self {
             log::debug!("PyTemplatedFile::from_string");
             let tf = Arc::new(TemplatedFile::from(raw));
-            // let unicode_sliced_file = utf8_to_unicode_slices(&tf);
-            // let unicode_raw_sliced = raw_slices_to_py(&tf);
             Self(tf)
         }
 
@@ -725,7 +623,7 @@ pub mod python {
         #[getter]
         fn sliced_file(&self) -> Vec<PyTemplatedFileSlice> {
             self.0
-                .unicode_sliced_file
+                .sliced_file
                 .clone()
                 .into_iter()
                 .map(Into::into)
@@ -735,7 +633,7 @@ pub mod python {
         #[getter]
         fn raw_sliced(&self) -> Vec<PyRawFileSlice> {
             self.0
-                .unicode_raw_file
+                .raw_sliced
                 .clone()
                 .into_iter()
                 .map(Into::into)
@@ -744,14 +642,12 @@ pub mod python {
 
         #[getter("_source_newlines")]
         fn source_newlines(&self) -> PyResult<Vec<usize>> {
-            let newlines = iter_indices_of_unicode_newlines(&self.0.source_str).collect();
-            Ok(newlines)
+            Ok(self.0.source_newlines.clone())
         }
 
         #[getter("_templated_newlines")]
         fn templated_newlines(&self) -> PyResult<Vec<usize>> {
-            let newlines = iter_indices_of_unicode_newlines(&self.0.templated_str).collect();
-            Ok(newlines)
+            Ok(self.0.templated_newlines.clone())
         }
 
         fn __str__(&self) -> PyResult<String> {
@@ -849,12 +745,12 @@ pub mod python {
             if source_str.len()
                 == sliced_file
                     .last()
-                    .map(|s| s.0.source_slice.stop)
+                    .map(|s| s.0.source_codepoint_slice.stop)
                     .unwrap_or(0)
                 && source_str.len()
                     == sliced_file
                         .last()
-                        .map(|s| s.0.templated_slice.stop)
+                        .map(|s| s.0.templated_codepoint_slice.stop)
                         .unwrap_or(0)
             {
                 return sliced_file.iter().map(|ts| ts.0.clone()).collect();
@@ -867,20 +763,20 @@ pub mod python {
                 .map(|py_slice| {
                     let mut new_slice = py_slice.0.clone(); // Extract TemplatedFileSlice and clone it
 
-                    new_slice.source_slice.start = char_source_vec
-                        .get(new_slice.source_slice.start)
+                    new_slice.source_codepoint_slice.start = char_source_vec
+                        .get(new_slice.source_codepoint_slice.start)
                         .map(|c| c.0)
                         .unwrap_or_else(|| char_source_vec.len());
-                    new_slice.source_slice.stop = char_source_vec
-                        .get(new_slice.source_slice.stop)
+                    new_slice.source_codepoint_slice.stop = char_source_vec
+                        .get(new_slice.source_codepoint_slice.stop)
                         .map(|c| c.0)
                         .unwrap_or_else(|| char_source_vec.len());
-                    new_slice.templated_slice.start = char_templated_vec
-                        .get(new_slice.templated_slice.start)
+                    new_slice.templated_codepoint_slice.start = char_templated_vec
+                        .get(new_slice.templated_codepoint_slice.start)
                         .map(|c| c.0)
                         .unwrap_or_else(|| char_templated_vec.len());
-                    new_slice.templated_slice.stop = char_templated_vec
-                        .get(new_slice.templated_slice.stop)
+                    new_slice.templated_codepoint_slice.stop = char_templated_vec
+                        .get(new_slice.templated_codepoint_slice.stop)
                         .map(|c| c.0)
                         .unwrap_or_else(|| char_templated_vec.len());
 
@@ -1428,8 +1324,8 @@ mod tests {
                     .map(|slc| {
                         TemplatedFileSlice::new(
                             "templated".to_string(),
-                            slc.source_slice.clone(),
-                            slc.templated_slice.clone(),
+                            slc.source_codepoint_slice.clone(),
+                            slc.templated_codepoint_slice.clone(),
                         )
                     })
                     .collect(),

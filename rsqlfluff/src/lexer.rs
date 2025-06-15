@@ -177,6 +177,7 @@ impl Lexer {
                 "0".to_string(),
                 None,
                 |_| true,
+                None,
             )
         });
         let matcher = get_lexers(dialect).to_owned();
@@ -222,7 +223,7 @@ impl Lexer {
         let mut templated_buff = Vec::new();
 
         for element in elements {
-            let element_len = element.raw.len();
+            let element_len = element.raw.chars().count();
             let template_slice = Slice::from(idx..idx + element_len);
             idx += element_len;
 
@@ -230,13 +231,20 @@ impl Lexer {
             let templated_element = TemplateElement::from_element(element, template_slice.clone());
             templated_buff.push(templated_element);
 
-            // Validate that the slice matches the element's raw content
-            if template.templated_str[template_slice.as_range()] != *element.raw {
+            // // Validate that the slice matches the element's raw content
+            let templated_substr: String = template
+                .templated_str
+                .chars()
+                .skip(template_slice.start)
+                .take(template_slice.len())
+                .collect();
+
+            if *templated_substr != *element.raw {
                 panic!(
-                "Template and lexed elements do not match. This should never happen  {:?} != {:?}",
-                &element.raw,
-                &template.templated_str[template_slice.as_range()]
-            )
+                    "Template and lexed elements do not match. This should never happen  {:?} != {:?}",
+                    &element.raw,
+                    &templated_substr
+                )
             }
         }
 
@@ -342,7 +350,7 @@ fn iter_tokens(
             while let Some(tfs) = templated_file_slices.peek().cloned() {
                 log::debug!("      {}: {:?}", tfs_idx, tfs);
 
-                if is_zero_slice(&tfs.templated_slice) {
+                if is_zero_slice(&tfs.templated_codepoint_slice) {
                     let next_tfs = templated_file_slices.clone().peek().cloned();
                     segments.extend(handle_zero_length_slice(
                         &tfs,
@@ -358,9 +366,9 @@ fn iter_tokens(
 
                 match tfs.slice_type.as_str() {
                     "literal" => {
-                        let tfs_offset = tfs.source_slice.start - tfs.templated_slice.start;
+                        let tfs_offset = tfs.source_codepoint_slice.start - tfs.templated_codepoint_slice.start;
 
-                        if element.template_slice.stop <= tfs.templated_slice.stop {
+                        if element.template_slice.stop <= tfs.templated_codepoint_slice.stop {
                             debug!(
                                 "     Consuming whole from literal. Existing Consumed: {}",
                                 consumed_length
@@ -382,13 +390,13 @@ fn iter_tokens(
                                 Some(consumed_length..),
                             ));
 
-                            if element.template_slice.stop == tfs.templated_slice.stop {
+                            if element.template_slice.stop == tfs.templated_codepoint_slice.stop {
                                 tfs_idx += 1;
                                 templated_file_slices.next();
                             }
                             templated_file_slices.reset_peek();
                             break;
-                        } else if element.template_slice.start == tfs.templated_slice.stop {
+                        } else if element.template_slice.start == tfs.templated_codepoint_slice.stop {
                             debug!("     NOTE: Missed Skip");
                             tfs_idx += 1;
                             templated_file_slices.next();
@@ -401,14 +409,14 @@ fn iter_tokens(
                                     consumed_length,
                                 );
                                 let incremental_length =
-                                    tfs.templated_slice.stop - element.template_slice.start;
+                                    tfs.templated_codepoint_slice.stop - element.template_slice.start;
                                 segments.push(element.to_token(
                                     PositionMarker::new(
                                         Slice::from(
                                             (element.template_slice.start
                                                 + consumed_length
                                                 + tfs_offset)
-                                                ..tfs.templated_slice.stop + tfs_offset,
+                                                ..tfs.templated_codepoint_slice.stop + tfs_offset,
                                         ),
                                         element.template_slice.clone(),
                                         templated_file,
@@ -434,17 +442,17 @@ fn iter_tokens(
                         }
                     }
                     "templated" | "block_start" | "escaped" => {
-                        if !is_zero_slice(&tfs.templated_slice) {
+                        if !is_zero_slice(&tfs.templated_codepoint_slice) {
                             if tfs.slice_type == "block_start" {
-                                block_stack.enter(tfs.source_slice.clone());
+                                block_stack.enter(tfs.source_codepoint_slice.clone());
                             }
 
-                            if element.template_slice.stop <= tfs.templated_slice.stop {
+                            if element.template_slice.stop <= tfs.templated_codepoint_slice.stop {
                                 let slice_start = stashed_source_idx
-                                    .unwrap_or(tfs.source_slice.start + consumed_length);
+                                    .unwrap_or(tfs.source_codepoint_slice.start + consumed_length);
                                 segments.push(element.to_token(
                                     PositionMarker::new(
-                                        Slice::from(slice_start..tfs.source_slice.stop),
+                                        Slice::from(slice_start..tfs.source_codepoint_slice.stop),
                                         element.template_slice.clone(),
                                         templated_file,
                                         None,
@@ -453,7 +461,7 @@ fn iter_tokens(
                                     Some(consumed_length..),
                                 ));
 
-                                if element.template_slice.stop == tfs.templated_slice.stop {
+                                if element.template_slice.stop == tfs.templated_codepoint_slice.stop {
                                     tfs_idx += 1;
                                     templated_file_slices.next();
                                 }
@@ -461,7 +469,7 @@ fn iter_tokens(
                                 break;
                             } else {
                                 if stashed_source_idx.is_none() {
-                                    stashed_source_idx = Some(tfs.source_slice.start);
+                                    stashed_source_idx = Some(tfs.source_codepoint_slice.start);
                                 }
                                 tfs_idx += 1;
                                 templated_file_slices.next();
@@ -499,15 +507,17 @@ fn handle_zero_length_slice(
     add_indents: bool,
 ) -> impl Iterator<Item = Token> {
     let mut segments = Vec::new();
-    assert!(is_zero_slice(&tfs.templated_slice));
+    assert!(is_zero_slice(&tfs.templated_codepoint_slice));
 
     // Backward jump detection
     if let Some(peek) = next_tfs {
-        if tfs.slice_type.starts_with("block") && peek.source_slice.start < tfs.source_slice.start {
+        if tfs.slice_type.starts_with("block")
+            && peek.source_codepoint_slice.start < tfs.source_codepoint_slice.start
+        {
             log::debug!("      Backward jump detected. Inserting Loop Marker");
             let pos_marker = PositionMarker::from_point(
-                tfs.source_slice.start,
-                tfs.templated_slice.start,
+                tfs.source_codepoint_slice.start,
+                tfs.templated_codepoint_slice.start,
                 templated_file,
                 None,
                 None,
@@ -545,11 +555,11 @@ fn handle_zero_length_slice(
     // Block handling
     if tfs.slice_type.starts_with("block") {
         if tfs.slice_type == "block_start" {
-            block_stack.enter(tfs.source_slice.clone());
+            block_stack.enter(tfs.source_codepoint_slice.clone());
         } else if add_indents && (tfs.slice_type == "block_end" || tfs.slice_type == "block_mid") {
             let pos_marker = PositionMarker::from_point(
-                tfs.source_slice.start,
-                tfs.templated_slice.start,
+                tfs.source_codepoint_slice.start,
+                tfs.templated_codepoint_slice.start,
                 templated_file,
                 None,
                 None,
@@ -563,8 +573,8 @@ fn handle_zero_length_slice(
         }
 
         segments.push(Token::template_placeholder_token_from_slice(
-            tfs.source_slice.clone(),
-            tfs.templated_slice.clone(),
+            tfs.source_codepoint_slice.clone(),
+            tfs.templated_codepoint_slice.clone(),
             tfs.slice_type.clone(),
             templated_file,
             Some(block_stack.top()),
@@ -573,10 +583,11 @@ fn handle_zero_length_slice(
 
         if tfs.slice_type == "block_end" {
             block_stack.exit();
-        } else if add_indents && (tfs.slice_type == "block_start" || tfs.slice_type == "block_mid") {
+        } else if add_indents && (tfs.slice_type == "block_start" || tfs.slice_type == "block_mid")
+        {
             let pos_marker = PositionMarker::from_point(
-                tfs.source_slice.stop,
-                tfs.templated_slice.stop,
+                tfs.source_codepoint_slice.stop,
+                tfs.templated_codepoint_slice.stop,
                 templated_file,
                 None,
                 None,
@@ -592,14 +603,17 @@ fn handle_zero_length_slice(
 
         // Forward jump detection
         if let Some(peek) = next_tfs {
-            if peek.source_slice.start > tfs.source_slice.stop {
-                let placeholder_str = templated_file.source_str
-                    [tfs.source_slice.stop..peek.source_slice.start]
-                    .to_string();
+            if peek.source_codepoint_slice.start > tfs.source_codepoint_slice.stop {
+                let placeholder_str = templated_file
+                    .source_str
+                    .chars()
+                    .skip(tfs.source_codepoint_slice.stop)
+                    .take(peek.source_codepoint_slice.start - tfs.source_codepoint_slice.stop)
+                    .collect::<String>();
                 log::debug!("      Forward jump detected. Inserting placeholder");
                 let pos_marker = PositionMarker::new(
-                    Slice::from(tfs.source_slice.stop..peek.source_slice.start),
-                    tfs.templated_slice.clone(),
+                    Slice::from(tfs.source_codepoint_slice.stop..peek.source_codepoint_slice.start),
+                    tfs.templated_codepoint_slice.clone(),
                     templated_file,
                     None,
                     None,
@@ -619,8 +633,8 @@ fn handle_zero_length_slice(
 
     // Default zero-length slice handling
     segments.push(Token::template_placeholder_token_from_slice(
-        tfs.source_slice.clone(),
-        tfs.templated_slice.clone(),
+        tfs.source_codepoint_slice.clone(),
+        tfs.templated_codepoint_slice.clone(),
         tfs.slice_type.clone(),
         templated_file,
         None,
@@ -1108,7 +1122,7 @@ CREATE SCHEMA s3 DEFAULT INCLUDE SCHEMA PRIVILEGES;
 CREATE SCHEMA εμπορικός DEFAULT INCLUDE SCHEMA PRIVILEGES;
 CREATE SCHEMA продажи DEFAULT INCLUDE SCHEMA PRIVILEGES;
 
--- unqouted identifiers
+-- unquoted identifiers
 SELECT * FROM логистика.εμπορικός;
 
 SELECT * FROM логистика.εμπορικός1;
@@ -1119,13 +1133,13 @@ SELECT * FROM логистика._1234εμπορικός;
 
 SELECT * FROM логистика1.εμπορικός;
 SELECT * FROM логистика_.εμπορικός;
-SELECT * FROM p$ublic$.εμπορικός;
+SELECT * FROM $public$.εμπορικός;
 SELECT * FROM _логистика.εμπορικός;
 SELECT * FROM _1234логистика.εμπορικός;
 
 SELECT * FROM логистика1.εμπορικός1;
 SELECT * FROM логистика1_.εμπορικός1_;
-SELECT * FROM p$ublic1_$.s$ales1_$;
+SELECT * FROM $public1_$.s$ales1_$;
 
 -- quoted identifiers
 SELECT * FROM "12логистика"."12344εμπορικός";

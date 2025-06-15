@@ -19,6 +19,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -33,6 +34,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -53,6 +55,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -67,12 +70,14 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -94,6 +99,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -115,6 +121,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -129,6 +136,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -143,6 +151,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -157,6 +166,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -171,6 +181,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -185,6 +196,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -199,6 +211,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -213,6 +226,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -227,6 +241,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -241,6 +256,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -255,6 +271,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -269,6 +286,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -283,6 +301,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -297,6 +316,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -311,6 +331,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -325,6 +346,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -339,6 +361,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -353,6 +376,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -367,6 +391,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -381,6 +406,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -395,6 +421,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -409,6 +436,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -423,6 +451,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -437,6 +466,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -451,6 +481,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -465,6 +496,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -479,6 +511,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -493,6 +526,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -507,6 +541,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -521,6 +556,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -535,6 +571,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -549,6 +586,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -565,6 +603,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -579,6 +618,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -599,6 +639,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -613,12 +654,14 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -640,6 +683,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -661,6 +705,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -675,6 +720,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -689,6 +735,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -703,6 +750,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -717,6 +765,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -731,6 +780,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -745,6 +795,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -759,6 +810,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -773,6 +825,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -787,6 +840,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -801,6 +855,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -815,6 +870,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -829,6 +885,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -843,6 +900,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -857,6 +915,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -871,6 +930,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -885,6 +945,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -899,6 +960,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -913,6 +975,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -927,6 +990,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -941,6 +1005,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -955,6 +1020,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -969,6 +1035,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -983,6 +1050,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -997,6 +1065,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1011,6 +1080,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1025,6 +1095,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1039,6 +1110,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1053,6 +1125,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1067,6 +1140,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1081,6 +1155,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1095,6 +1170,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1109,6 +1185,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -1125,6 +1202,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1139,6 +1217,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1159,6 +1238,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -1173,12 +1253,14 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1200,6 +1282,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1221,6 +1304,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1235,6 +1319,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1249,6 +1334,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1263,6 +1349,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1277,6 +1364,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1291,6 +1379,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1305,6 +1394,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1319,6 +1409,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1333,6 +1424,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1347,6 +1439,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1361,6 +1454,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1375,6 +1469,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1389,6 +1484,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1403,6 +1499,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1417,6 +1514,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1431,6 +1529,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1445,6 +1544,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1459,6 +1559,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1473,6 +1574,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1487,6 +1589,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1501,6 +1604,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1515,6 +1619,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1529,6 +1634,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1543,6 +1649,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1557,6 +1664,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1571,6 +1679,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1585,6 +1694,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1599,6 +1709,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1613,6 +1724,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1627,6 +1739,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1641,6 +1754,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1655,6 +1769,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1669,6 +1784,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1683,6 +1799,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1697,6 +1814,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1711,6 +1829,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1725,6 +1844,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -1741,6 +1861,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1755,6 +1876,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1775,6 +1897,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -1789,12 +1912,14 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1816,6 +1941,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1837,6 +1963,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1851,6 +1978,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1865,6 +1993,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1879,6 +2008,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1893,6 +2023,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1907,6 +2038,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1921,6 +2053,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -1935,6 +2068,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1949,6 +2083,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1963,6 +2098,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1977,6 +2113,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -1991,6 +2128,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2005,6 +2143,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2019,6 +2158,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2033,6 +2173,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2047,6 +2188,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2061,6 +2203,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2075,6 +2218,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2089,6 +2233,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2103,6 +2248,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2117,6 +2263,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2131,6 +2278,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2145,6 +2293,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2159,6 +2308,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2173,6 +2323,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2187,6 +2338,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2201,6 +2353,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2215,6 +2368,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2229,6 +2383,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2243,6 +2398,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2257,6 +2413,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2271,6 +2428,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2285,6 +2443,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -2301,6 +2460,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2315,6 +2475,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2329,6 +2490,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2343,6 +2505,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2357,6 +2520,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2371,6 +2535,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2391,6 +2556,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -2405,12 +2571,14 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2425,6 +2593,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2439,6 +2608,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2453,6 +2623,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2467,6 +2638,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2481,6 +2653,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2502,6 +2675,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2523,6 +2697,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2537,6 +2712,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2551,6 +2727,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2565,6 +2742,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2579,6 +2757,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2593,6 +2772,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2607,6 +2787,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2621,6 +2802,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2635,6 +2817,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2649,6 +2832,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2663,6 +2847,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2677,6 +2862,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -2691,6 +2877,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2705,6 +2892,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2719,6 +2907,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2733,6 +2922,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2747,6 +2937,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2761,6 +2952,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2775,6 +2967,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2789,6 +2982,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2803,6 +2997,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2817,6 +3012,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2831,6 +3027,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2845,6 +3042,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2859,6 +3057,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2873,6 +3072,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2887,6 +3087,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2901,6 +3102,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2915,6 +3117,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2929,6 +3132,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2943,6 +3147,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2957,6 +3162,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2971,6 +3177,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2985,6 +3192,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -2999,6 +3207,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3013,6 +3222,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3027,6 +3237,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -3043,6 +3254,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3057,6 +3269,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3077,6 +3290,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -3091,12 +3305,14 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3118,6 +3334,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3139,6 +3356,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3153,6 +3371,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3167,6 +3386,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3181,6 +3401,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3195,6 +3416,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3209,6 +3431,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3223,6 +3446,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3237,6 +3461,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3251,6 +3476,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3265,6 +3491,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3279,6 +3506,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3293,6 +3521,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3307,6 +3536,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3321,6 +3551,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3335,6 +3566,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3349,6 +3581,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3363,6 +3596,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3377,6 +3611,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3391,6 +3626,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3405,6 +3641,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3419,6 +3656,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3433,6 +3671,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3447,6 +3686,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3461,6 +3701,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3475,6 +3716,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3489,6 +3731,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3503,6 +3746,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3517,6 +3761,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3531,6 +3776,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3545,6 +3791,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3559,6 +3806,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3573,6 +3821,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3587,6 +3836,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -3603,6 +3853,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3617,6 +3868,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3637,6 +3889,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -3651,12 +3904,14 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3678,6 +3933,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3699,6 +3955,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3713,6 +3970,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3727,6 +3985,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3741,6 +4000,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3755,6 +4015,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3769,6 +4030,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3783,6 +4045,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['E', 'e']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3797,6 +4060,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3811,6 +4075,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3825,6 +4090,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3839,6 +4105,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3853,6 +4120,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3867,6 +4135,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3881,6 +4150,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3895,6 +4165,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3909,6 +4180,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3923,6 +4195,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3937,6 +4210,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3951,6 +4225,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -3965,6 +4240,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3979,6 +4255,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -3993,6 +4270,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4007,6 +4285,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4021,6 +4300,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4035,6 +4315,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4049,6 +4330,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4063,6 +4345,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4077,6 +4360,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4091,6 +4375,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4105,6 +4390,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4119,6 +4405,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4133,6 +4420,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4147,6 +4435,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4161,6 +4450,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4175,6 +4465,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4189,6 +4480,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4203,6 +4495,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4217,6 +4510,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4231,6 +4525,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4245,6 +4540,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4259,6 +4555,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4273,6 +4570,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4287,6 +4585,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4301,6 +4600,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['\\']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4315,6 +4615,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4329,6 +4630,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['\\']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4343,6 +4645,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -4359,6 +4662,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4373,6 +4677,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4393,6 +4698,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -4407,12 +4713,14 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4434,6 +4742,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4455,6 +4764,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4469,6 +4779,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4483,6 +4794,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4497,6 +4809,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4511,6 +4824,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4525,6 +4839,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4539,6 +4854,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4553,6 +4869,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4567,6 +4884,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4581,6 +4899,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4595,6 +4914,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4609,6 +4929,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4629,6 +4950,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
@@ -4636,6 +4958,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4650,6 +4973,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4664,6 +4988,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4678,6 +5003,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -4692,6 +5018,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4706,6 +5033,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4720,6 +5048,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4734,6 +5063,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4748,6 +5078,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4762,6 +5093,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4776,6 +5108,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4790,6 +5123,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4804,6 +5138,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4818,6 +5153,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4832,6 +5168,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4846,6 +5183,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4860,6 +5198,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4874,6 +5213,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4888,6 +5228,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4902,6 +5243,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4916,6 +5258,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4930,6 +5273,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4944,6 +5288,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4958,6 +5303,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4972,6 +5318,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -4986,6 +5333,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5000,6 +5348,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5014,6 +5363,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5028,6 +5378,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5042,6 +5393,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -5058,6 +5410,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5072,6 +5425,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5092,6 +5446,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -5106,12 +5461,14 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5133,6 +5490,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5154,6 +5512,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5168,6 +5527,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5182,6 +5542,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5196,6 +5557,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5210,6 +5572,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5224,6 +5587,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5238,6 +5602,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['E', 'e']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5252,6 +5617,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5266,6 +5632,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5280,6 +5647,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5294,6 +5662,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5308,6 +5677,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5322,6 +5692,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5336,6 +5707,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5350,6 +5722,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5364,6 +5737,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5378,6 +5752,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5392,6 +5767,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5406,6 +5782,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5420,6 +5797,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5434,6 +5812,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5448,6 +5827,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5462,6 +5842,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5476,6 +5857,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5490,6 +5872,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5504,6 +5887,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5518,6 +5902,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5532,6 +5917,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5546,6 +5932,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5560,6 +5947,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5574,6 +5962,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5588,6 +5977,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5602,6 +5992,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5616,6 +6007,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5630,6 +6022,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5644,6 +6037,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5658,6 +6052,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5672,6 +6067,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5686,6 +6082,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5700,6 +6097,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5714,6 +6112,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5728,6 +6127,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5742,6 +6142,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['\\']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5756,6 +6157,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5770,6 +6172,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['\\']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5784,6 +6187,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -5800,6 +6204,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5814,6 +6219,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5834,6 +6240,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -5848,12 +6255,14 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5875,6 +6284,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5896,6 +6306,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5910,6 +6321,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5924,6 +6336,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5938,6 +6351,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5952,6 +6366,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5966,6 +6381,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -5980,6 +6396,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -5994,6 +6411,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6008,6 +6426,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6022,6 +6441,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6036,6 +6456,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6050,6 +6471,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6064,6 +6486,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6078,6 +6501,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6092,6 +6516,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6106,6 +6531,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6120,6 +6546,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6134,6 +6561,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6148,6 +6576,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6162,6 +6591,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6176,6 +6606,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6190,6 +6621,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6204,6 +6636,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6218,6 +6651,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6232,6 +6666,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6246,6 +6681,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6260,6 +6696,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6274,6 +6711,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6288,6 +6726,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6302,6 +6741,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6316,6 +6756,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -6330,6 +6771,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -6346,6 +6788,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -6360,6 +6803,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -6380,6 +6824,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -6394,12 +6839,14 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -6421,6 +6868,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -6442,6 +6890,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -6456,6 +6905,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -6470,6 +6920,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -6484,6 +6935,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -6498,6 +6950,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -6512,6 +6965,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -6526,6 +6980,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6540,6 +6995,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6554,6 +7010,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6568,6 +7025,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6582,6 +7040,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6596,6 +7055,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6610,6 +7070,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6624,6 +7085,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6638,6 +7100,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6652,6 +7115,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6666,6 +7130,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6680,6 +7145,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6694,6 +7160,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6708,6 +7175,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6722,6 +7190,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6736,6 +7205,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6750,6 +7220,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6764,6 +7235,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6778,6 +7250,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6792,6 +7265,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6806,6 +7280,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6820,6 +7295,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6834,6 +7310,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6848,6 +7325,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -6862,6 +7340,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -6876,6 +7355,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -6892,6 +7372,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -6906,6 +7387,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -6926,6 +7408,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -6940,12 +7423,14 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -6967,6 +7452,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -6988,6 +7474,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7002,6 +7489,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7016,6 +7504,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7030,6 +7519,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        Some(String::from("numeric_literal")),
     ),
 
     LexMatcher::regex_lexer(
@@ -7044,6 +7534,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        Some(String::from("numeric_literal")),
     ),
 
     LexMatcher::regex_lexer(
@@ -7058,6 +7549,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7072,6 +7564,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7086,6 +7579,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7100,6 +7594,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7114,6 +7609,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7128,6 +7624,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7142,6 +7639,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7156,6 +7654,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7170,6 +7669,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7184,6 +7684,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7198,6 +7699,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7212,6 +7714,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7226,6 +7729,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7240,6 +7744,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7254,6 +7759,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7268,6 +7774,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7282,6 +7789,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7296,6 +7804,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7310,6 +7819,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7324,6 +7834,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7338,6 +7849,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7352,6 +7864,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7366,6 +7879,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7380,6 +7894,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7394,6 +7909,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7408,6 +7924,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7422,6 +7939,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7436,6 +7954,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7450,6 +7969,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7464,6 +7984,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7478,6 +7999,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7492,6 +8014,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7506,6 +8029,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7520,6 +8044,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        Some(String::from("at_sign_literal")),
     ),
 
     LexMatcher::regex_lexer(
@@ -7534,6 +8059,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -7550,6 +8076,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7564,6 +8091,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7584,6 +8112,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -7598,12 +8127,14 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7625,6 +8156,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7646,6 +8178,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7660,6 +8193,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7674,6 +8208,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7688,6 +8223,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7702,6 +8238,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7716,6 +8253,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7730,6 +8268,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['E', 'e']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7744,6 +8283,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7758,6 +8298,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7772,6 +8313,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7786,6 +8328,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7800,6 +8343,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7814,6 +8358,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7828,6 +8373,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7842,6 +8388,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -7856,6 +8403,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7870,6 +8418,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7884,6 +8433,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7898,6 +8448,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7912,6 +8463,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7926,6 +8478,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7940,6 +8493,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7954,6 +8508,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7968,6 +8523,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7982,6 +8538,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -7996,6 +8553,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8010,6 +8568,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8024,6 +8583,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8038,6 +8598,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8052,6 +8613,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8066,6 +8628,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8080,6 +8643,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8094,6 +8658,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8108,6 +8673,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8122,6 +8688,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8136,6 +8703,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8150,6 +8718,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8164,6 +8733,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8178,6 +8748,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8192,6 +8763,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8206,6 +8778,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8220,6 +8793,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -8234,6 +8808,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['\\']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -8248,6 +8823,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -8262,6 +8838,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['\\']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -8276,6 +8853,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -8292,6 +8870,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -8306,6 +8885,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -8326,6 +8906,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -8340,12 +8921,14 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -8367,6 +8950,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -8388,6 +8972,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -8402,6 +8987,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -8416,6 +9002,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -8430,6 +9017,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        Some(String::from("numeric_literal")),
     ),
 
     LexMatcher::regex_lexer(
@@ -8444,6 +9032,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        Some(String::from("numeric_literal")),
     ),
 
     LexMatcher::regex_lexer(
@@ -8458,6 +9047,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -8472,6 +9062,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -8486,6 +9077,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -8500,6 +9092,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8514,6 +9107,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8528,6 +9122,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8542,6 +9137,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8556,6 +9152,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8570,6 +9167,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8584,6 +9182,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8598,6 +9197,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8612,6 +9212,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8626,6 +9227,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8640,6 +9242,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8654,6 +9257,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8668,6 +9272,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8682,6 +9287,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8696,6 +9302,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8710,6 +9317,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8724,6 +9332,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8738,6 +9347,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8752,6 +9362,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8766,6 +9377,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8780,6 +9392,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8794,6 +9407,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8808,6 +9422,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8822,6 +9437,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8836,6 +9452,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8850,6 +9467,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8864,6 +9482,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8878,6 +9497,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8892,6 +9512,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -8906,6 +9527,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -8920,6 +9542,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        Some(String::from("at_sign_literal")),
     ),
 
     LexMatcher::regex_lexer(
@@ -8934,6 +9557,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -8950,6 +9574,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -8964,6 +9589,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -8984,6 +9610,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -8998,12 +9625,14 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9025,6 +9654,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9046,6 +9676,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9060,6 +9691,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9074,6 +9706,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9088,6 +9721,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9102,6 +9736,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9116,6 +9751,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9130,6 +9766,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9144,6 +9781,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9158,6 +9796,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9172,6 +9811,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9186,6 +9826,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9200,6 +9841,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9214,6 +9856,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9228,6 +9871,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9242,6 +9886,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9256,6 +9901,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9270,6 +9916,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9284,6 +9931,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9298,6 +9946,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9312,6 +9961,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9326,6 +9976,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9340,6 +9991,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9354,6 +10006,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9368,6 +10021,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9382,6 +10036,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9396,6 +10051,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9410,6 +10066,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9424,6 +10081,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9438,6 +10096,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9452,6 +10111,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9466,6 +10126,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9480,6 +10141,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9494,6 +10156,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("PROMPT"),
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9508,6 +10171,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9522,6 +10186,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -9538,6 +10203,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9552,6 +10218,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9572,6 +10239,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -9586,12 +10254,14 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9613,6 +10283,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9634,6 +10305,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9648,6 +10320,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9662,6 +10335,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9676,6 +10350,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9690,6 +10365,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9704,6 +10380,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9718,6 +10395,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['E', 'e']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9732,6 +10410,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9746,6 +10425,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9760,6 +10440,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9774,6 +10455,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9788,6 +10470,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9802,6 +10485,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9816,6 +10500,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9830,6 +10515,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -9844,6 +10530,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9858,6 +10545,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9872,6 +10560,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9886,6 +10575,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9900,6 +10590,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9914,6 +10605,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9928,6 +10620,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9942,6 +10635,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9956,6 +10650,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9970,6 +10665,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9984,6 +10680,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -9998,6 +10695,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10012,6 +10710,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10026,6 +10725,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10040,6 +10740,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10054,6 +10755,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10068,6 +10770,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10082,6 +10785,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10096,6 +10800,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10110,6 +10815,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10124,6 +10830,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10138,6 +10845,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10152,6 +10860,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10166,6 +10875,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10180,6 +10890,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10194,6 +10905,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10208,6 +10920,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10222,6 +10935,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['\\']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10236,6 +10950,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10250,6 +10965,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['\\']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10264,6 +10980,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -10280,6 +10997,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10294,6 +11012,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10314,6 +11033,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -10328,12 +11048,14 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10355,6 +11077,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10376,6 +11099,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10390,6 +11114,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10404,6 +11129,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10418,6 +11144,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10432,6 +11159,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10446,6 +11174,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10460,6 +11189,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['E', 'e']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10474,6 +11204,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10488,6 +11219,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10502,6 +11234,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10516,6 +11249,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10530,6 +11264,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10544,6 +11279,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10558,6 +11294,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10572,6 +11309,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10586,6 +11324,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10600,6 +11339,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10614,6 +11354,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10628,6 +11369,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10642,6 +11384,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10656,6 +11399,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10670,6 +11414,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10684,6 +11429,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10698,6 +11444,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10712,6 +11459,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10726,6 +11474,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10740,6 +11489,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10754,6 +11504,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10768,6 +11519,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10782,6 +11534,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10796,6 +11549,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10810,6 +11564,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10824,6 +11579,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10838,6 +11594,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10852,6 +11609,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10866,6 +11624,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10880,6 +11639,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10894,6 +11654,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10908,6 +11669,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10922,6 +11684,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10936,6 +11699,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -10950,6 +11714,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10964,6 +11729,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['\\']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10978,6 +11744,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -10992,6 +11759,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['\\']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11006,6 +11774,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -11022,6 +11791,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11036,6 +11806,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11056,6 +11827,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -11070,12 +11842,14 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11097,6 +11871,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11118,6 +11893,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11132,6 +11908,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11146,6 +11923,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11160,6 +11938,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11174,6 +11953,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11188,6 +11968,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11202,6 +11983,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11216,6 +11998,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11230,6 +12013,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11244,6 +12028,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11258,6 +12043,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11272,6 +12058,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11286,6 +12073,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11300,6 +12088,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11314,6 +12103,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11328,6 +12118,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11342,6 +12133,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11356,6 +12148,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11370,6 +12163,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11384,6 +12178,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11398,6 +12193,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11412,6 +12208,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11426,6 +12223,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11440,6 +12238,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11454,6 +12253,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11468,6 +12268,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11482,6 +12283,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11496,6 +12298,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11510,6 +12313,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11524,6 +12328,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11538,6 +12343,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11552,6 +12358,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11566,6 +12373,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11580,6 +12388,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11594,6 +12403,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11608,6 +12418,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11622,6 +12433,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11636,6 +12448,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11650,6 +12463,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11664,6 +12478,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11678,6 +12493,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11692,6 +12508,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11706,6 +12523,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11720,6 +12538,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -11736,6 +12555,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11750,6 +12570,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11770,6 +12591,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -11784,12 +12606,14 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11811,6 +12635,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11832,6 +12657,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11846,6 +12672,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11860,6 +12687,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11874,6 +12702,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11888,6 +12717,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11902,6 +12732,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11916,6 +12747,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11930,6 +12762,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -11944,6 +12777,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11958,6 +12792,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11972,6 +12807,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -11986,6 +12822,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12000,6 +12837,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12014,6 +12852,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12028,6 +12867,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12042,6 +12882,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12056,6 +12897,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12070,6 +12912,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12084,6 +12927,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12098,6 +12942,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12112,6 +12957,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12126,6 +12972,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12140,6 +12987,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12154,6 +13002,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12168,6 +13017,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12182,6 +13032,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12196,6 +13047,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12210,6 +13062,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12224,6 +13077,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12238,6 +13092,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12252,6 +13107,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12266,6 +13122,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12280,6 +13137,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12294,6 +13152,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -12310,6 +13169,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12324,6 +13184,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12338,6 +13199,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12358,6 +13220,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -12372,12 +13235,14 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12392,6 +13257,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12406,6 +13272,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12420,6 +13287,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12434,6 +13302,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12448,6 +13317,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12469,6 +13339,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12490,6 +13361,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12504,6 +13376,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12518,6 +13391,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12532,6 +13406,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12546,6 +13421,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12560,6 +13436,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12574,6 +13451,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12588,6 +13466,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12602,6 +13481,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12616,6 +13496,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12630,6 +13511,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12644,6 +13526,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12658,6 +13541,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12672,6 +13556,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12686,6 +13571,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12700,6 +13586,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12714,6 +13601,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12728,6 +13616,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12742,6 +13631,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12756,6 +13646,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12770,6 +13661,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12784,6 +13676,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12798,6 +13691,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12812,6 +13706,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12826,6 +13721,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12840,6 +13736,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12854,6 +13751,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12868,6 +13766,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12882,6 +13781,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12896,6 +13796,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12910,6 +13811,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12924,6 +13826,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -12938,6 +13841,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12952,6 +13856,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12966,6 +13871,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -12982,6 +13888,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -12996,6 +13903,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13016,6 +13924,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -13030,12 +13939,14 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13057,6 +13968,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13078,6 +13990,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13092,6 +14005,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13106,6 +14020,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13120,6 +14035,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13134,6 +14050,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13148,6 +14065,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13162,6 +14080,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13176,6 +14095,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13190,6 +14110,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13204,6 +14125,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13218,6 +14140,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13232,6 +14155,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13246,6 +14170,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13260,6 +14185,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13274,6 +14200,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13288,6 +14215,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13302,6 +14230,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13316,6 +14245,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13330,6 +14260,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13344,6 +14275,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13358,6 +14290,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        Some(String::from("at_sign_literal")),
     ),
 
     LexMatcher::regex_lexer(
@@ -13372,6 +14305,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        Some(String::from("colon_literal")),
     ),
 
     LexMatcher::regex_lexer(
@@ -13386,6 +14320,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        Some(String::from("question_literal")),
     ),
 
     LexMatcher::regex_lexer(
@@ -13400,6 +14335,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        Some(String::from("dollar_literal")),
     ),
 
     LexMatcher::string_lexer(
@@ -13414,6 +14350,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13428,6 +14365,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13442,6 +14380,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13456,6 +14395,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13470,6 +14410,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13484,6 +14425,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13498,6 +14440,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13512,6 +14455,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13526,6 +14470,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13540,6 +14485,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13554,6 +14500,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13568,6 +14515,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13582,6 +14530,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13596,6 +14545,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -13612,6 +14562,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13626,6 +14577,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13646,6 +14598,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -13660,12 +14613,14 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13687,6 +14642,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13708,6 +14664,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13722,6 +14679,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13736,6 +14694,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13750,6 +14709,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        Some(String::from("numeric_literal")),
     ),
 
     LexMatcher::regex_lexer(
@@ -13764,6 +14724,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        Some(String::from("numeric_literal")),
     ),
 
     LexMatcher::regex_lexer(
@@ -13778,6 +14739,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13792,6 +14754,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13806,6 +14769,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -13820,6 +14784,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13834,6 +14799,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13848,6 +14814,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13862,6 +14829,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13876,6 +14844,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13890,6 +14859,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13904,6 +14874,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13918,6 +14889,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13932,6 +14904,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13946,6 +14919,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13960,6 +14934,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13974,6 +14949,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -13988,6 +14964,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14002,6 +14979,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14016,6 +14994,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14030,6 +15009,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14044,6 +15024,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14058,6 +15039,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14072,6 +15054,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14086,6 +15069,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14100,6 +15084,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14114,6 +15099,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14128,6 +15114,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14142,6 +15129,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14156,6 +15144,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14170,6 +15159,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14184,6 +15174,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14198,6 +15189,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14212,6 +15204,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14226,6 +15219,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14240,6 +15234,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        Some(String::from("at_sign_literal")),
     ),
 
     LexMatcher::regex_lexer(
@@ -14254,6 +15249,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -14270,6 +15266,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14284,6 +15281,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14304,6 +15302,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -14318,12 +15317,14 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14345,6 +15346,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14366,6 +15368,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14380,6 +15383,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14394,6 +15398,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14408,6 +15413,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14422,6 +15428,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14436,6 +15443,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14450,6 +15458,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14464,6 +15473,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14478,6 +15488,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14492,6 +15503,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14506,6 +15518,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14520,6 +15533,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14534,6 +15548,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14548,6 +15563,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14562,6 +15578,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14576,6 +15593,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14590,6 +15608,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14604,6 +15623,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14618,6 +15638,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14632,6 +15653,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14646,6 +15668,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14660,6 +15683,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14674,6 +15698,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14688,6 +15713,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14702,6 +15728,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14716,6 +15743,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14730,6 +15758,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14744,6 +15773,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14758,6 +15788,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14772,6 +15803,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14786,6 +15818,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14800,6 +15833,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -14816,6 +15850,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14830,6 +15865,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14850,6 +15886,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -14864,12 +15901,14 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14891,6 +15930,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14912,6 +15952,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14926,6 +15967,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14940,6 +15982,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14954,6 +15997,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14968,6 +16012,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -14982,6 +16027,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -14996,6 +16042,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -15010,6 +16057,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15024,6 +16072,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15038,6 +16087,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15052,6 +16102,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15066,6 +16117,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15080,6 +16132,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15094,6 +16147,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15108,6 +16162,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15122,6 +16177,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15136,6 +16192,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15150,6 +16207,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15164,6 +16222,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15178,6 +16237,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15192,6 +16252,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15206,6 +16267,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15220,6 +16282,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15234,6 +16297,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15248,6 +16312,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15262,6 +16327,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15276,6 +16342,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15290,6 +16357,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15304,6 +16372,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15318,6 +16387,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15332,6 +16402,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15346,6 +16417,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -15360,6 +16432,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -15376,6 +16449,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -15390,6 +16464,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -15410,6 +16485,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -15424,12 +16500,14 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -15451,6 +16529,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -15472,6 +16551,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -15486,6 +16566,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -15500,6 +16581,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -15514,6 +16596,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -15528,6 +16611,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -15542,6 +16626,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -15556,6 +16641,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -15570,6 +16656,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -15584,6 +16671,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -15598,6 +16686,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -15612,6 +16701,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -15626,6 +16716,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -15640,6 +16731,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15654,6 +16746,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15668,6 +16761,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15682,6 +16776,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15696,6 +16791,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15710,6 +16806,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15724,6 +16821,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15738,6 +16836,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15752,6 +16851,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15766,6 +16866,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15780,6 +16881,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15794,6 +16896,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15808,6 +16911,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15822,6 +16926,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15836,6 +16941,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15850,6 +16956,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15864,6 +16971,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15878,6 +16986,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15892,6 +17001,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15906,6 +17016,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15920,6 +17031,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15934,6 +17046,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15948,6 +17061,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15962,6 +17076,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -15976,6 +17091,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -15990,6 +17106,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
@@ -16006,6 +17123,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -16020,6 +17138,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['#','-','/']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -16040,6 +17159,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -16054,12 +17174,14 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ))),
         None,
         None,
         Uuid::new_v4().to_string(),
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -16081,6 +17203,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'\'', ..] => true, // br', Br', etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -16102,6 +17225,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     },
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -16116,6 +17240,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -16130,6 +17255,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with("$"),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -16144,6 +17270,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -16158,6 +17285,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -16172,6 +17300,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |input| input.starts_with(['E', 'e']),
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -16186,6 +17315,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -16200,6 +17330,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16214,6 +17345,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16228,6 +17360,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16242,6 +17375,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16256,6 +17390,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16270,6 +17405,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16284,6 +17420,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16298,6 +17435,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16312,6 +17450,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16326,6 +17465,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16340,6 +17480,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16354,6 +17495,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16368,6 +17510,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16382,6 +17525,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16396,6 +17540,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16410,6 +17555,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16424,6 +17570,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16438,6 +17585,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16452,6 +17600,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16466,6 +17615,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16480,6 +17630,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16494,6 +17645,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16508,6 +17660,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16522,6 +17675,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16536,6 +17690,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16550,6 +17705,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16564,6 +17720,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::string_lexer(
@@ -16578,6 +17735,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
 
 
+        None,
     ),
 
     LexMatcher::regex_lexer(
@@ -16592,6 +17750,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Uuid::new_v4().to_string(),
         None,
         |_| true,
+        None,
     ),
 ]});
 

@@ -57,6 +57,7 @@ pub struct LexMatcher {
     pub trim_start: Option<Vec<String>>,
     pub trim_chars: Option<Vec<String>>,
     pub cache_key: String,
+    pub kwarg_type: Option<String>,
 }
 
 impl Display for LexMatcher {
@@ -76,6 +77,7 @@ impl LexMatcher {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
+        kwarg_type: Option<String>,
     ) -> Self {
         Self {
             dialect,
@@ -87,6 +89,7 @@ impl LexMatcher {
             trim_start,
             trim_chars,
             cache_key,
+            kwarg_type,
         }
     }
 
@@ -102,6 +105,7 @@ impl LexMatcher {
         cache_key: String,
         fallback_lexer: Option<fn(&str, Dialect) -> Option<&str>>,
         precheck: fn(&str) -> bool,
+        kwarg_type: Option<String>,
     ) -> Self {
         let mode = match RegexBuilder::new(&pattern).build() {
             Ok(regex) => LexerMode::Regex(regex, precheck),
@@ -130,6 +134,7 @@ impl LexMatcher {
             trim_start,
             trim_chars,
             cache_key,
+            kwarg_type,
         }
     }
 
@@ -145,6 +150,7 @@ impl LexMatcher {
         cache_key: String,
         fallback_lexer: Option<fn(&str, Dialect) -> Option<&str>>,
         precheck: fn(&str) -> bool,
+        kwarg_type: Option<String>,
     ) -> Self {
         let pattern = format!(r"(?s)\A(?:{})", template);
         Self::base_regex_lexer(
@@ -159,6 +165,7 @@ impl LexMatcher {
             cache_key,
             fallback_lexer,
             precheck,
+            kwarg_type,
         )
     }
 
@@ -174,6 +181,7 @@ impl LexMatcher {
         cache_key: String,
         fallback_lexer: Option<fn(&str, Dialect) -> Option<&str>>,
         precheck: fn(&str) -> bool,
+        kwarg_type: Option<String>,
     ) -> Self {
         let pattern = format!(r"(?:{})", template);
         Self::base_regex_lexer(
@@ -188,6 +196,7 @@ impl LexMatcher {
             cache_key,
             fallback_lexer,
             precheck,
+            kwarg_type,
         )
     }
 
@@ -321,8 +330,10 @@ impl LexMatcher {
     }
 
     pub fn construct_token(&self, raw: &str, pos_marker: PositionMarker) -> Token {
-        let mut instance_types = Vec::new();
-        instance_types.push(self.name.clone());
+        let instance_types = match self.kwarg_type.clone() {
+            Some(t) => vec![t],
+            None => vec![self.name.clone()],
+        };
 
         (self.token_class_func)(
             raw.to_string(),
@@ -403,6 +414,7 @@ mod test {
                 Uuid::new_v4().to_string(),
                 None,
                 |_| true,
+                None,
             ))),
             Some(Box::new(LexMatcher::regex_subdivider(
                 Dialect::Ansi,
@@ -416,12 +428,14 @@ mod test {
                 Uuid::new_v4().to_string(),
                 None,
                 |_| true,
+                None,
             ))),
             None,
             None,
             Uuid::new_v4().to_string(),
             Some(extract_nested_block_comment),
             |input| input.starts_with("/"),
+            None,
         );
 
         let (elems, _) = block_comment_matcher

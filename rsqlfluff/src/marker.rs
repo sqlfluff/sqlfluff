@@ -126,9 +126,12 @@ impl PositionMarker {
     }
 
     pub fn source_str(&self) -> String {
-        self.templated_file.source_str[self.source_slice.start.try_into().unwrap()
-            ..self.source_slice.stop.try_into().unwrap()]
-            .to_owned()
+        self.templated_file
+            .source_str
+            .chars()
+            .skip(self.source_slice.start)
+            .take(self.source_slice.len())
+            .collect::<String>()
     }
 
     pub fn to_source_dict(&self) -> HashMap<String, usize> {

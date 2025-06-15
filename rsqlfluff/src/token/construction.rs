@@ -497,7 +497,12 @@ impl Token {
         Self {
             ..Self::template_placeholder_token(
                 pos_marker,
-                templated_file.source_str[source_slice.as_range()].to_string(),
+                templated_file
+                    .source_str
+                    .chars()
+                    .skip(source_slice.start)
+                    .take(source_slice.len())
+                    .collect::<String>(),
                 block_type,
                 block_uuid,
                 class_types,

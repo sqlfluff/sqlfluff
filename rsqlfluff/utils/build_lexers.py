@@ -8,10 +8,12 @@ from sqlfluff.core.parser.lexer import LexerType
 
 
 def segment_to_token_name(s: str):
+    """Convert a segment class name to a token name."""
     return re.sub("([A-Z])", r"_\1", s).strip("_").lower().replace("segment", "token")
 
 
 def generate_dialect_enum():
+    """Generate the dialect enum and associated functions."""
     dialects = ",\n".join([dialect.label.capitalize() for dialect in dialect_readout()])
     dialect_match = ",\n".join(
         [
@@ -25,7 +27,8 @@ def generate_dialect_enum():
             for d in dialect_readout()
         ]
     )
-    print(f"""
+    print(
+        f"""
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
 pub enum Dialect {{
     {dialects}
@@ -46,10 +49,12 @@ pub fn get_lexers(dialect: Dialect) -> &'static Vec<LexMatcher> {{
         {dialect_match}
     }}
 }}
-""")
+"""
+    )
 
 
 def generate_lexers():
+    """Generate the lexers for all dialects."""
     print("use once_cell::sync::Lazy;")
     print("use uuid::Uuid;")
     print("use crate::matcher::{LexMatcher, extract_nested_block_comment};")
@@ -59,7 +64,8 @@ def generate_lexers():
     for dialect in dialect_readout():
         loaded_dialect = dialect_selector(dialect.label)
         print(
-            f"pub static {dialect.label.upper()}_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{"
+            f"pub static {dialect.label.upper()}_LEXERS:"
+            " Lazy<Vec<LexMatcher>> = Lazy::new(|| {{"
             " vec!["
         )
         for matcher in loaded_dialect.get_lexer_matchers():
@@ -71,12 +77,14 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
     lexer_class = lexer_matcher.__class__.__name__
     segment_name = segment_to_token_name(lexer_matcher.segment_class.__name__)
     subdivider = (
-        f"Some(Box::new({_as_rust_lexer_matcher(lexer_matcher.subdivider, dialect, True)}))"
+        "Some(Box::new("
+        f"{_as_rust_lexer_matcher(lexer_matcher.subdivider, dialect, True)}))"
         if lexer_matcher.subdivider
         else None
     )
     trim_post_subdivide = (
-        f"Some(Box::new({_as_rust_lexer_matcher(lexer_matcher.trim_post_subdivide, dialect, True)}))"
+        "Some(Box::new("
+        f"{_as_rust_lexer_matcher(lexer_matcher.trim_post_subdivide, dialect, True)}))"
         if lexer_matcher.trim_post_subdivide
         else None
     )
@@ -104,7 +112,8 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
         [b'B' | b'b', b'R' | b'r', b'"', ..] => true, // br", Br", etc.
         _ => false,
     }""",
-        "numeric_literal": "|input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9'])",
+        "numeric_literal": "|input| input.starts_with("
+        "['.','0','1','2','3','4','5','6','7','8','9'])",
         "inline_comment": "|input| input.starts_with(['#','-','/'])",
         "escaped_single_quote": "|input| input.starts_with(['E', 'e'])",
         "meta_command": r"|input| input.starts_with(['\\'])",
@@ -114,10 +123,17 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
 
     trim_start: Optional[str] = lexer_matcher.segment_kwargs.get("trim_start")
     if trim_start:
-        trim_start = 'Some(vec![String::from("' + '"), String::from("'.join(trim_start) + '")])'
+        trim_start = (
+            'Some(vec![String::from("' + '"), String::from("'.join(trim_start) + '")])'
+        )
     trim_chars: Optional[str] = lexer_matcher.segment_kwargs.get("trim_chars")
     if trim_chars:
-        trim_chars = 'Some(vec![String::from("' + '"), String::from("'.join(trim_chars) + '")])'
+        trim_chars = (
+            'Some(vec![String::from("' + '"), String::from("'.join(trim_chars) + '")])'
+        )
+    kwarg_type: Optional[str] = lexer_matcher.segment_kwargs.get("type")
+    if kwarg_type:
+        kwarg_type = f'Some(String::from("{kwarg_type}"))'
 
     if lexer_class == "StringLexer":
         rust_fn = "string_lexer"
@@ -147,6 +163,7 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
         Uuid::new_v4().to_string(),
         {fallback}
         {is_match_valid}
+        {kwarg_type},
     )"""
 
 
