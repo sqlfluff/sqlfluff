@@ -312,82 +312,6 @@ impl TemplatedFile {
     }
 }
 
-// #[cfg(feature = "unicode")]
-fn get_unicode_data(
-    source_str: &String,
-    templated_str_in: &String,
-    sliced_file: &Vec<TemplatedFileSlice>,
-    raw_sliced: &Vec<RawFileSlice>,
-) -> (
-    Vec<TemplatedFileSlice>,
-    Vec<RawFileSlice>,
-    Vec<usize>,
-    Vec<usize>,
-) {
-    let unicode_sliced_file = {
-        let char_source_vec = source_str
-            .char_indices()
-            .map(|(i, _)| i)
-            .collect::<Vec<_>>();
-        let char_templated_vec = &templated_str_in
-            .char_indices()
-            .map(|(i, _)| i)
-            .collect::<Vec<_>>();
-
-        sliced_file
-            .iter()
-            .map(|slice| {
-                let mut new_slice = slice.clone();
-
-                new_slice.source_codepoint_slice.start = char_source_vec
-                    .iter()
-                    .position(|&c| c == new_slice.source_codepoint_slice.start)
-                    .unwrap_or(char_source_vec.len());
-                new_slice.source_codepoint_slice.stop = char_source_vec
-                    .iter()
-                    .position(|&c| c == new_slice.source_codepoint_slice.stop)
-                    .unwrap_or(char_source_vec.len());
-                new_slice.templated_codepoint_slice.start = char_templated_vec
-                    .iter()
-                    .position(|&c| c == new_slice.templated_codepoint_slice.start)
-                    .unwrap_or(char_templated_vec.len());
-                new_slice.templated_codepoint_slice.stop = char_templated_vec
-                    .iter()
-                    .position(|&c| c == new_slice.templated_codepoint_slice.stop)
-                    .unwrap_or(char_templated_vec.len());
-
-                new_slice
-            })
-            .collect()
-    };
-    let unicode_raw_file = {
-        if raw_sliced.len() == 1 {
-            raw_sliced.clone()
-        } else {
-            log::debug!("running raw utf to unicode conversion step.");
-            let mut idx = 0;
-            raw_sliced
-                .clone()
-                .iter()
-                .map(|rs| {
-                    let mut slice = rs.clone();
-                    slice.source_idx = idx;
-                    idx += slice.raw.chars().count();
-                    slice
-                })
-                .collect::<Vec<_>>()
-        }
-    };
-    let unicode_source_newlines = iter_codepoint_indices_of_newlines(source_str).collect();
-    let unicode_templated_newlines = iter_codepoint_indices_of_newlines(templated_str_in).collect();
-    (
-        unicode_sliced_file,
-        unicode_raw_file,
-        unicode_source_newlines,
-        unicode_templated_newlines,
-    )
-}
-
 impl From<String> for TemplatedFile {
     fn from(raw: String) -> TemplatedFile {
         TemplatedFile::new(raw, String::from("<string>"), None, None, None)
@@ -538,11 +462,6 @@ impl std::fmt::Display for TemplatedFile {
     }
 }
 
-fn iter_indices_of_newlines(raw_str: &str) -> impl Iterator<Item = usize> + '_ {
-    raw_str.match_indices('\n').map(|(idx, _)| idx)
-}
-
-// #[cfg(feature = "unicode")]
 fn iter_codepoint_indices_of_newlines(raw_str: &str) -> impl Iterator<Item = usize> + '_ {
     raw_str
         .char_indices()
@@ -554,7 +473,6 @@ fn iter_codepoint_indices_of_newlines(raw_str: &str) -> impl Iterator<Item = usi
 pub mod python {
     use std::hash::{DefaultHasher, Hash, Hasher};
     use std::sync::{Arc, Mutex};
-    use std::time::Instant;
 
     use hashbrown::HashMap;
     use pyo3::IntoPyObjectExt;
@@ -698,10 +616,7 @@ pub mod python {
             source_newlines: Vec<usize>,
             templated_newlines: Vec<usize>,
         ) -> Self {
-            // let t1 = Instant::now();
             log::debug!("PyTemplatedFile::from_python: {}", fname);
-            // let source_newlines = iter_indices_of_newlines(&source_str).collect();
-            // let templated_newlines = iter_indices_of_newlines(&templated_str).collect();
             let tf = Arc::new(TemplatedFile::copy(
                 source_str,
                 fname,
@@ -711,10 +626,6 @@ pub mod python {
                 source_newlines,
                 templated_newlines,
             ));
-            // let unicode_sliced_file = utf8_to_unicode_slices(&tf);
-            // let unicode_raw_sliced = raw_slices_to_py(&tf);
-            // let t2 = t1.elapsed();
-            // log::debug!("PyTemplatedFile::from_python: took {:?}", t2.as_nanos());
             Self(tf)
         }
 
@@ -788,23 +699,9 @@ pub mod python {
         }
     }
 
-    // impl From<TemplatedFile> for PyTemplatedFile {
-    //     fn from(value: TemplatedFile) -> Self {
-    //         PyTemplatedFile(value)
-    //     }
-    // }
-
-    // impl Into<TemplatedFile> for PyTemplatedFile {
-    //     fn into(self) -> TemplatedFile {
-    //         self.tf
-    //     }
-    // }
-
     impl From<Arc<TemplatedFile>> for PyTemplatedFile {
         fn from(value: Arc<TemplatedFile>) -> Self {
             log::debug!("PyTemplatedFile::from<ArcTemplated> {}", value.fname);
-            // let unicode_sliced_file = utf8_to_unicode_slices(&value);
-            // let unicode_raw_sliced = raw_slices_to_py(&value);
             Self(value)
         }
     }
@@ -823,22 +720,6 @@ pub mod python {
 
         fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
             log::debug!("PySFTemplatedFile::into_py {}", self.0 .0.fname.clone());
-            // let tf = Arc::new(TemplatedFile {
-            //     source_str: self.0.tf.source_str.clone(),
-            //     fname: self.0.tf.fname.clone(),
-            //     templated_str: self.0.tf.templated_str.clone(),
-            //     sliced_file: self.0.tf.sliced_file.clone(),
-            //     raw_sliced: self.0.tf.raw_sliced.clone(),
-            //     source_newlines: self.0.tf.source_newlines.clone(),
-            //     templated_newlines: self.0.tf.templated_newlines.clone(),
-            // });
-            // let unicode_sliced_file = utf8_to_unicode_slices(&tf);
-            // let unicode_raw_sliced = raw_slices_to_py(&tf);
-            // PyTemplatedFile {
-            //     tf: self.0.tf,
-            //     unicode_sliced_file: self.0.unicode_sliced_file,
-            //     unicode_raw_sliced: self.0.raw_sliced(),
-            // }
             self.0.into_bound_py_any(py)
         }
     }
@@ -851,7 +732,6 @@ pub mod python {
 
     impl<'py> FromPyObject<'py> for PySqlFluffTemplatedFile {
         fn extract_bound(obj: &pyo3::Bound<'py, pyo3::PyAny>) -> PyResult<Self> {
-            // let t1 = Instant::now();
             let source_str = obj.getattr("source_str")?.extract::<String>()?;
             let fname = obj.getattr("fname")?.extract::<String>()?;
             let templated_str = obj.getattr("templated_str")?.extract::<String>()?;
@@ -888,9 +768,6 @@ pub mod python {
                 .getattr("_templated_newlines")?
                 .extract::<Vec<usize>>()?;
 
-            // let t2 = t1.elapsed();
-            // log::debug!("PySqlFluffTemplatedFile::extract_bound: {}", t2.as_nanos());
-
             let tf = Self(
                 PyTemplatedFile::from_python(
                     source_str,
@@ -919,14 +796,6 @@ pub mod python {
         fn into(self) -> Arc<TemplatedFile> {
             self.0 .0
         }
-    }
-
-    fn iter_indices_of_unicode_newlines(raw_str: &str) -> impl Iterator<Item = usize> + '_ {
-        raw_str
-            .char_indices()
-            .enumerate()
-            .filter(|&(_i, (_ci, c))| c == '\n')
-            .map(|(i, (_, _))| i)
     }
 }
 
@@ -1177,7 +1046,7 @@ mod tests {
 
         for (raw_str, positions) in test_cases {
             assert_eq!(
-                iter_indices_of_newlines(raw_str).collect::<Vec<_>>(),
+                iter_codepoint_indices_of_newlines(raw_str).collect::<Vec<_>>(),
                 positions
             );
         }
