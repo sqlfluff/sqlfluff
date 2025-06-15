@@ -694,7 +694,7 @@ pub mod python {
         }
     }
 
-    #[pyclass(name = "RsSQLLexerError")]
+    #[pyclass(name = "RsSQLLexerError", module = "rsqlfluff")]
     #[repr(transparent)]
     pub struct PySQLLexError(SQLLexError);
 
@@ -726,7 +726,7 @@ pub mod python {
         }
     }
 
-    #[pyclass(name = "RsLexer", subclass)]
+    #[pyclass(name = "RsLexer", subclass, module = "rsqlfluff")]
     #[repr(transparent)]
     #[derive(Clone)]
     pub struct PyLexer(pub Lexer);

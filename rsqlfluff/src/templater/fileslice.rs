@@ -84,7 +84,7 @@ pub mod python {
 
     use super::{RawFileSlice, TemplatedFileSlice};
 
-    #[pyclass(name = "RsRawFileSlice")]
+    #[pyclass(name = "RsRawFileSlice", module = "rsqlfluff")]
     #[repr(transparent)]
     #[derive(Clone, Debug, PartialEq, Hash)]
     pub struct PyRawFileSlice(pub(crate) RawFileSlice);
@@ -139,7 +139,7 @@ pub mod python {
         }
     }
 
-    #[pyclass(name = "RsTemplatedFileSlice")]
+    #[pyclass(name = "RsTemplatedFileSlice", module = "rsqlfluff")]
     #[repr(transparent)]
     #[derive(Clone, Debug, PartialEq, Hash)]
     pub struct PyTemplatedFileSlice(pub(crate) TemplatedFileSlice);

@@ -489,7 +489,7 @@ pub mod python {
     use once_cell::sync::Lazy;
 
 
-    #[pyclass(name = "RsTemplatedFile", frozen)]
+    #[pyclass(name = "RsTemplatedFile", frozen, module = "rsqlfluff")]
     #[repr(transparent)]
     #[derive(Clone, PartialEq, Hash)]
     pub struct PyTemplatedFile(pub Arc<TemplatedFile>);

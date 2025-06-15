@@ -93,7 +93,7 @@ impl From<TupleSerialisedSegment> for PyTupleSerialisedSegment {
     }
 }
 
-#[pyclass(name = "RsToken", weakref)]
+#[pyclass(name = "RsToken", weakref, module = "rsqlfluff")]
 #[repr(transparent)]
 #[derive(Debug, Clone)]
 pub struct PyToken(pub Token);
