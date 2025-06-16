@@ -302,6 +302,7 @@ UNRESERVED_KEYWORDS = [
     "COMPRESSION",
     "CONCAT_NULL_YIELDS_NULL",
     "CONCAT",
+    "CONNECTION",
     "CONNECTION_OPTIONS",
     "CONTAINED",
     "CONTEXT_INFO",
@@ -340,6 +341,7 @@ UNRESERVED_KEYWORDS = [
     "DROP_EXISTING",
     "DUMP",  # listed as reserved but functionally unreserved
     "DURABILITY",
+    "EDGE",
     "ELEMENT",  # *future*
     "ELEMENTS",
     "ENCODING",
@@ -463,6 +465,7 @@ UNRESERVED_KEYWORDS = [
     "NO_PERFORMANCE_SPOOL",
     "NO",
     "NOCOUNT",
+    "NODE",
     "NOEXEC",
     "NOEXPAND",
     "NOLOCK",
