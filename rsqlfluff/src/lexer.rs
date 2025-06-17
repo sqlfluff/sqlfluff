@@ -146,13 +146,72 @@ impl TemplateElement {
 
 #[derive(Debug, Clone)]
 pub struct SQLLexError {
-    pub msg: String,
-    pub pos_marker: PositionMarker,
+    pub description: Option<String>,
+    pub line_no: usize,
+    pub line_pos: usize,
+    pub ignore: bool,
+    pub warning: bool,
+    pub fatal: bool,
+    code: Option<String>,
+    name: Option<String>,
+    identifier: String,
 }
 
 impl SQLLexError {
-    fn new(msg: String, pos_marker: PositionMarker) -> Self {
-        Self { msg, pos_marker }
+    fn new(
+        msg: Option<String>,
+        pos: Option<PositionMarker>,
+        line_no: Option<usize>,
+        line_pos: Option<usize>,
+        ignore: Option<bool>,
+        fatal: Option<bool>,
+        warning: Option<bool>,
+    ) -> Self {
+        Self {
+            description: msg,
+            line_no: pos.as_ref().map(|pm| pm.line_no()).or(line_no).unwrap_or(0),
+            line_pos: pos
+                .as_ref()
+                .map(|pm| pm.line_pos())
+                .or(line_pos)
+                .unwrap_or(0),
+            ignore: ignore.unwrap_or(false),
+            warning: warning.unwrap_or(false),
+            fatal: fatal.unwrap_or(false),
+            code: Some("LXR".to_string()),
+            name: None,
+            identifier: "lexing".to_string(),
+        }
+    }
+
+    fn source_signature(&self) -> ((String, usize, usize), String) {
+        (
+            self.check_tuple(),
+            self.description
+                .clone()
+                .unwrap_or_else(|| "No description".to_string()),
+        )
+    }
+
+    fn check_tuple(&self) -> (String, usize, usize) {
+        (self.rule_code(), self.line_no, self.line_pos)
+    }
+
+    fn rule_code(&self) -> String {
+        self.code.clone().unwrap_or("????".to_string())
+    }
+
+    fn rule_name(&self) -> String {
+        self.name.clone().unwrap_or("????".to_string())
+    }
+
+    fn ignore_if_in(&mut self, ignore_iterable: &[String]) -> () {
+        self.ignore = ignore_iterable.contains(&self.identifier);
+    }
+
+    fn warning_if_in(&mut self, warning_iterable: &[String]) -> () {
+        self.warning = warning_iterable.contains(&self.rule_code())
+            || warning_iterable.contains(&self.rule_name());
     }
 }
 
@@ -318,11 +377,16 @@ impl Lexer {
             .filter(|t| t.token_type == "unlexable")
             .map(|token| {
                 SQLLexError::new(
-                    format!(
+                    Some(format!(
                         "Unable to lex characters: {}",
                         token.raw.chars().take(10).collect::<String>()
-                    ),
-                    token.pos_marker.clone().expect("PositionMarker unset"),
+                    )),
+                    token.pos_marker.clone(),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
                 )
             })
             .collect()
@@ -701,16 +765,85 @@ pub mod python {
     #[pymethods]
     impl PySQLLexError {
         #[new]
-        fn new(msg: String, pos_marker: PyPositionMarker) -> Self {
-            Self(SQLLexError::new(msg, pos_marker.0))
+        fn new(
+            description: Option<String>,
+            pos: Option<PyPositionMarker>,
+            line_no: Option<usize>,
+            line_pos: Option<usize>,
+            ignore: Option<bool>,
+            fatal: Option<bool>,
+            warning: Option<bool>,
+        ) -> Self {
+            Self(SQLLexError::new(
+                description,
+                pos.map(Into::into),
+                line_no,
+                line_pos,
+                ignore,
+                fatal,
+                warning,
+            ))
         }
 
-        fn msg(&self) -> String {
-            self.0.msg.clone()
+        #[getter]
+        fn desc(&self) -> Option<String> {
+            self.0.description.clone()
         }
 
-        fn pos_marker(&self) -> PyPositionMarker {
-            PyPositionMarker(self.0.pos_marker.clone())
+        #[getter]
+        fn line_pos(&self) -> usize {
+            self.0.line_pos
+        }
+
+        #[getter]
+        fn line_no(&self) -> usize {
+            self.0.line_no
+        }
+
+        #[getter]
+        fn ignore(&self) -> bool {
+            self.0.ignore
+        }
+
+        #[getter]
+        fn warning(&self) -> bool {
+            self.0.warning
+        }
+
+        #[getter]
+        fn fatal(&self) -> bool {
+            self.0.fatal
+        }
+
+        fn source_signature(&self) -> ((String, usize, usize), String) {
+            self.0.source_signature()
+        }
+
+        fn ignore_if_in(&mut self, ignore_iterable: Vec<String>) -> () {
+            self.0.ignore_if_in(&ignore_iterable)
+        }
+
+        fn warning_if_in(&mut self, ignore_iterable: Vec<String>) -> () {
+            self.0.warning_if_in(&ignore_iterable)
+        }
+
+        fn rule_code(&self) -> String {
+            self.0.rule_code()
+        }
+
+        fn rule_name(&self) -> String {
+            self.0.rule_name()
+        }
+
+        fn to_dict<'py>(&self, py: Python<'py>) -> Bound<'py, PyDict> {
+            let dict = PyDict::new(py);
+            dict.set_item("start_line_no", self.line_no()).unwrap();
+            dict.set_item("start_line_pos", self.line_pos()).unwrap();
+            dict.set_item("code", self.rule_code()).unwrap();
+            dict.set_item("description", self.desc()).unwrap();
+            dict.set_item("name", self.rule_name()).unwrap();
+            dict.set_item("warning", self.warning()).unwrap();
+            dict
         }
     }
 
@@ -863,9 +996,12 @@ mod tests {
         let (_tokens, violations) = lexer.lex(raw, true);
 
         assert_eq!(violations.len(), 1);
-        assert_eq!(violations[0].msg, "Unable to lex characters: \"");
-        assert_eq!(violations[0].pos_marker.line_no(), 2);
-        assert_eq!(violations[0].pos_marker.line_pos(), 40);
+        assert_eq!(
+            violations[0].description,
+            Some("Unable to lex characters: \"".to_string())
+        );
+        assert_eq!(violations[0].line_no, 2);
+        assert_eq!(violations[0].line_pos, 40);
     }
 
     #[test]

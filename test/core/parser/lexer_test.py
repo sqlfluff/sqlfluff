@@ -12,6 +12,13 @@ from sqlfluff.core.parser.segments.meta import TemplateSegment
 from sqlfluff.core.templaters import JinjaTemplater, RawFileSlice, TemplatedFile
 from sqlfluff.core.templaters.base import TemplatedFileSlice
 
+try:
+    from rsqlfluff import RsSQLLexerError
+
+    SQLLexErrorClass = (SQLLexError, RsSQLLexerError)
+except ImportError:
+    SQLLexErrorClass = (SQLLexError,)
+
 
 def assert_matches(instring, matcher, matchstring):
     """Assert that a matcher does or doesn't work on a string.
@@ -131,7 +138,7 @@ def test__parser__lexer_fail():
 
     assert len(vs) == 1
     err = vs[0]
-    assert isinstance(err, SQLLexError)
+    assert isinstance(err, SQLLexErrorClass)
     assert err.line_pos == 8
 
 
@@ -142,7 +149,7 @@ def test__parser__lexer_fail_via_parse():
     assert vs
     assert len(vs) == 1
     err = vs[0]
-    assert isinstance(err, SQLLexError)
+    assert isinstance(err, SQLLexErrorClass)
     assert err.line_pos == 8
 
 

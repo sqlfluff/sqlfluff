@@ -12,7 +12,6 @@ Here we define:
 from __future__ import annotations
 
 import logging
-import time
 import weakref
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
@@ -701,24 +700,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def set_as_parent(self, recurse: bool = True) -> None:
         """Set this segment as parent for child all segments."""
-        # print(f"running set_as_parent: {self.__class__.__name__} {time.monotonic()}")
         for idx, seg in enumerate(self.segments):
-            # print(
-            #     f"loop set_as_parent {idx} {seg}: {self.__class__.__name__} {time.monotonic()}"
-            # )
             seg.set_parent(self, idx)
             # Recurse if not disabled
             if not recurse:
-                # print(
-                #     f"continue set_as_parent {idx}: {self.__class__.__name__} {time.monotonic()}"
-                # )
                 continue
-            # print(
-            #     f"recurse set_as_parent {idx}: {self.__class__.__name__} {time.monotonic()}"
-            # )
             seg.set_as_parent(recurse=recurse)
-            # print("loop1")
-        # print(f"finish set_as_parent: {self.__class__.__name__} {time.monotonic()}")
 
     def set_parent(self, parent: BaseSegment, idx: int) -> None:
         """Set the weak reference to the parent.
@@ -730,11 +717,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
         initialised the parent yet (because we call this method during
         the instantiation of the parent).
         """
-        # print(f"running set_parent: {self.__class__.__name__} {time.monotonic()}")
         self._parent = weakref.ref(parent)
-        # print(f"set_parent idx: {idx} {self.__class__.__name__} {time.monotonic()}")
         self._parent_idx = idx
-        # print(f"finish set_parent: {self.__class__.__name__} {time.monotonic()}")
 
     def get_parent(self) -> Optional[tuple[BaseSegment, int]]:
         """Get the parent segment, with some validation.

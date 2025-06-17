@@ -99,9 +99,30 @@ class RsToken:
     @property
     def instance_types(self) -> List[str]: ...
 
-class SQLLexError:
-    msg: str
-    pos_marker: RsPositionMarker
+class RsSQLLexerError:
+    desc: str
+    line_no: int
+    line_pos: int
+    ignore: bool
+    warning: bool
+    fatal: bool
+
+    def __init__(
+        self,
+        msg: Optional[str] = None,
+        pos: Optional[RsPositionMarker] = None,
+        line_no: int = 0,
+        line_pos: int = 0,
+        ignore: bool = False,
+        warning: bool = False,
+        fatal: bool = False,
+    ) -> None: ...
+    def rule_code(self) -> str: ...
+    def rule_name(self) -> str: ...
+    def source_signature(self) -> Tuple[Tuple[str, int, int], str]: ...
+    def to_dict(self) -> dict: ...
+    def ignore_if_in(self, ignore_iterable: list[str]) -> None: ...
+    def warning_if_in(self, ignore_iterable: list[str]) -> None: ...
 
 class RsLexer:
     def __init__(

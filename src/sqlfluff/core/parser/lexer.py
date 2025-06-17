@@ -827,7 +827,9 @@ class PyLexer:
         return tuple(segment_buffer)
 
     @staticmethod
-    def violations_from_segments(segments: tuple[RawSegment, ...]) -> list[SQLLexError]:
+    def violations_from_segments(
+        segments: tuple[RawSegment, ...],
+    ) -> list[SQLLexError]:
         """Generate any lexing errors for any unlexables."""
         violations = []
         for segment in segments:
@@ -950,7 +952,7 @@ try:
                     )
                     for token in tokens
                 ),
-                errors,
+                [SQLLexError.from_rs_error(error) for error in errors],
             )
 
         @classmethod

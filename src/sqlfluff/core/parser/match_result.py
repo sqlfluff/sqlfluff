@@ -6,7 +6,6 @@ This should be the default response from any `match` method.
 from collections import defaultdict
 from collections.abc import Sequence
 from dataclasses import dataclass, field
-import time
 from typing import TYPE_CHECKING, Any, DefaultDict, Optional, Union
 
 from sqlfluff.core.helpers.slice import slice_length

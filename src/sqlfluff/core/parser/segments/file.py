@@ -1,7 +1,6 @@
 """Definition of the BaseFileSegment."""
 
 from abc import abstractmethod
-import time
 from typing import Optional
 
 from sqlfluff.core.parser.context import ParseContext
