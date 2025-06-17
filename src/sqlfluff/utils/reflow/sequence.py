@@ -290,19 +290,33 @@ class ReflowSequence:
         )
         return cls.from_raw_segments(segments, root_segment, config=config)
 
-    def _find_element_idx_with(self, target: RawSegment) -> int:
+    def _find_element_idx_with(self, target: RawSegment) -> int:  # pragma: no cover
+        """ Helper method to find an element within a segment.
+
+        Note:
+            This method is currently excluded from test coverage because it is not
+            actively used by any rule. It was previously utilized by rule AL01,
+            but that rule now uses an alternative implementation. The method is
+            retained for potential future reuse or reference.
+        """
         for idx, elem in enumerate(self.elements):
             if target in elem.segments:
                 return idx
-        raise ValueError(  # pragma: no cover
+        raise ValueError(
             f"Target [{target}] not found in ReflowSequence."
         )
 
-    def without(self, target: RawSegment) -> "ReflowSequence":
+    def without(self, target: RawSegment) -> "ReflowSequence":  # pragma: no cover
         """Returns a new :obj:`ReflowSequence` without the specified segment.
 
         This generates appropriate deletion :obj:`LintFix` objects
         to direct the linter to remove those elements.
+
+        Note:
+            This method is currently excluded from test coverage because it is not
+            actively used by any rule. It was previously utilized by rule AL01,
+            but that rule now uses an alternative implementation. The method is
+            retained for potential future reuse or reference.
         """
         removal_idx = self._find_element_idx_with(target)
         if removal_idx == 0 or removal_idx == len(self.elements) - 1:
@@ -330,12 +344,18 @@ class ReflowSequence:
 
     def insert(
         self, insertion: RawSegment, target: RawSegment, pos: str = "before"
-    ) -> "ReflowSequence":
+    ) -> "ReflowSequence":  # pragma: no cover
         """Returns a new :obj:`ReflowSequence` with the new element inserted.
 
         Insertion is always relative to an existing element. Either before
         or after it as specified by `pos`. This generates appropriate creation
         :obj:`LintFix` objects to direct the linter to insert those elements.
+
+        Note:
+            This method is currently excluded from test coverage because it is not
+            actively used by any rule. It was previously utilized by rule AL01,
+            but that rule now uses an alternative implementation. The method is
+            retained for potential future reuse or reference.
         """
         assert pos in ("before", "after")
         target_idx = self._find_element_idx_with(target)
