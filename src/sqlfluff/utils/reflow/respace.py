@@ -412,7 +412,7 @@ def handle_respace__inline_with_space(
             if next_block.segments[0].pos_marker:
                 next_pos = next_block.segments[0].pos_marker
             # Excluded from coverage: no longer triggered since AL01 rule was refactored
-            elif last_whitespace.pos_marker: # pragma: no cover
+            elif last_whitespace.pos_marker:  # pragma: no cover
                 next_pos = last_whitespace.pos_marker.end_point_marker()
             # These second clauses are much less likely and so are excluded from
             # coverage. If we find a way of covering them, that would be great

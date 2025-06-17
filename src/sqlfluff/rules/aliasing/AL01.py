@@ -77,7 +77,7 @@ class Rule_AL01(BaseRule):
                     if whitespace:
                         fixes = [LintFix.delete(whitespace), LintFix.delete(as_keyword)]
                     else:
-                        fixes = [LintFix.delete(as_keyword)]
+                        fixes = [LintFix.delete(as_keyword)]  # pragma: no cover
 
                     return LintResult(
                         anchor=as_keyword,

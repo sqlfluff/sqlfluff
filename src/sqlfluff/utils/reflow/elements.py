@@ -757,8 +757,9 @@ class ReflowPoint(ReflowElement):
                         # Not just unequal. Must be actively _before_.
                         # NOTE: Based on working locations
                         and prev_seg.get_end_loc() < last_whitespace.get_start_loc()
-                    ): # pragma: no cover
-                       # Excluded from coverage: no longer triggered since AL01 rule was refactored
+                    ):  # pragma: no cover
+                        # Excluded from coverage: no longer triggered since AL01 rule
+                        # was refactored
                         reflow_logger.debug(
                             "    Removing non-contiguous whitespace post removal."
                         )

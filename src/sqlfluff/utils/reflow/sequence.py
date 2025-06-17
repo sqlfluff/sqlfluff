@@ -291,7 +291,7 @@ class ReflowSequence:
         return cls.from_raw_segments(segments, root_segment, config=config)
 
     def _find_element_idx_with(self, target: RawSegment) -> int:  # pragma: no cover
-        """ Helper method to find an element within a segment.
+        """Helper method to find an element within a segment.
 
         Note:
             This method is currently excluded from test coverage because it is not
@@ -302,9 +302,7 @@ class ReflowSequence:
         for idx, elem in enumerate(self.elements):
             if target in elem.segments:
                 return idx
-        raise ValueError(
-            f"Target [{target}] not found in ReflowSequence."
-        )
+        raise ValueError(f"Target [{target}] not found in ReflowSequence.")
 
     def without(self, target: RawSegment) -> "ReflowSequence":  # pragma: no cover
         """Returns a new :obj:`ReflowSequence` without the specified segment.
