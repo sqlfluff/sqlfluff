@@ -13,7 +13,7 @@ CREATE TABLE friends (
 -- Create a likes edge table, this table does not have any user defined attributes
 CREATE TABLE likes AS EDGE;
 
--- Create friend edge table with CONSTRAINT, restricts for nodes and it direction
+-- Create friend edge table with CONSTRAINT, restricts for nodes and its direction
 CREATE TABLE dbo.FriendOf(
   CONSTRAINT cnt_Person_FriendOf_Person
     CONNECTION (dbo.Person TO dbo.Person)

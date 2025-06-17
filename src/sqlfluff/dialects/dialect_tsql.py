@@ -3454,19 +3454,16 @@ class CreateTableStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         OneOf(
             # Columns and comment syntax:
-            Sequence(
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            Ref("TableConstraintSegment"),
-                            Ref("ComputedColumnDefinitionSegment"),
-                            Ref("ColumnDefinitionSegment"),
-                            Ref("TableIndexSegment"),
-                            Ref("PeriodSegment"),
-                        ),
-                        allow_trailing=True,
-                    )
+            Bracketed(
+                Delimited(
+                    Ref("TableConstraintSegment"),
+                    Ref("ComputedColumnDefinitionSegment"),
+                    Ref("ColumnDefinitionSegment"),
+                    Ref("TableIndexSegment"),
+                    Ref("PeriodSegment"),
+                    allow_trailing=True,
                 ),
+                optional=True,
             ),
             # Create AS syntax:
             Sequence(
@@ -3496,21 +3493,14 @@ class CreateTableGraphStatementSegment(BaseSegment):
         "CREATE",
         "TABLE",
         Ref("TableReferenceSegment"),
-        OneOf(
-            # Columns and comment syntax:
-            Sequence(
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            Ref("GraphTableConstraintSegment"),
-                            Ref("ComputedColumnDefinitionSegment"),
-                            Ref("ColumnDefinitionSegment"),
-                            Ref("TableIndexSegment"),
-                            Ref("PeriodSegment"),
-                        ),
-                        allow_trailing=True,
-                    )
-                ),
+        Bracketed(
+            Delimited(
+                Ref("GraphTableConstraintSegment"),
+                Ref("ComputedColumnDefinitionSegment"),
+                Ref("ColumnDefinitionSegment"),
+                Ref("TableIndexSegment"),
+                Ref("PeriodSegment"),
+                allow_trailing=True,
             ),
             optional=True,
         ),
