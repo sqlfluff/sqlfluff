@@ -681,6 +681,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SetStatementSegment"),
             Ref("AlterTableSwitchStatementSegment"),
             Ref("PrintStatementSegment"),
+            Ref("CreateTableGraphStatementSegment"),
             Ref(
                 "CreateTableAsSelectStatementSegment"
             ),  # Azure Synapse Analytics specific
@@ -1904,6 +1905,33 @@ class CheckConstraintGrammar(BaseSegment):
         Sequence("NOT", "FOR", "REPLICATION", optional=True),
         Bracketed(
             Ref("ExpressionSegment"),
+        ),
+    )
+
+
+class ConnectionConstraintGrammar(BaseSegment):
+    """CONNECTION constraint option in `CREATE TABLE` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-table-sql-graph
+    """
+
+    type = "connection_constraint_grammar"
+    match_grammar = Sequence(
+        "CONNECTION",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("TableReferenceSegment"),
+                    "TO",
+                    Ref("TableReferenceSegment"),
+                    optional=True,
+                ),
+                allow_trailing=True,
+            )
+        ),
+        AnySetOf(
+            Sequence("ON", "DELETE", OneOf(Sequence("NO", "ACTION"), "CASCADE")),
+            Sequence("ON", "UPDATE", OneOf(Sequence("NO", "ACTION"), "CASCADE")),
         ),
     )
 
@@ -3435,19 +3463,16 @@ class CreateTableStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         OneOf(
             # Columns and comment syntax:
-            Sequence(
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            Ref("TableConstraintSegment"),
-                            Ref("ComputedColumnDefinitionSegment"),
-                            Ref("ColumnDefinitionSegment"),
-                            Ref("TableIndexSegment"),
-                            Ref("PeriodSegment"),
-                        ),
-                        allow_trailing=True,
-                    )
+            Bracketed(
+                Delimited(
+                    Ref("TableConstraintSegment"),
+                    Ref("ComputedColumnDefinitionSegment"),
+                    Ref("ColumnDefinitionSegment"),
+                    Ref("TableIndexSegment"),
+                    Ref("PeriodSegment"),
+                    allow_trailing=True,
                 ),
+                optional=True,
             ),
             # Create AS syntax:
             Sequence(
@@ -3464,6 +3489,39 @@ class CreateTableStatementSegment(BaseSegment):
         Ref("FilestreamOnOptionSegment", optional=True),
         Ref("TextimageOnOptionSegment", optional=True),
         Ref("TableOptionSegment", optional=True),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class CreateTableGraphStatementSegment(BaseSegment):
+    """A `CREATE TABLE` GRAPH statement."""
+
+    type = "create_table_graph_statement"
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-table-sql-graph
+    match_grammar = Sequence(
+        "CREATE",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Ref("GraphTableConstraintSegment"),
+                Ref("ComputedColumnDefinitionSegment"),
+                Ref("ColumnDefinitionSegment"),
+                Ref("TableIndexSegment"),
+                Ref("PeriodSegment"),
+                allow_trailing=True,
+            ),
+            optional=True,
+        ),
+        # GRAPH
+        Sequence(
+            "AS",
+            OneOf(
+                "NODE",
+                "EDGE",
+            ),
+        ),
+        Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
     )
 
@@ -3639,6 +3697,35 @@ class TableConstraintSegment(BaseSegment):
                 # REFERENCES reftable [ ( refcolumn) ] + ON DELETE/ON UPDATE
                 Ref("ReferencesConstraintGrammar"),
             ),
+            Ref("CheckConstraintGrammar", optional=True),
+        ),
+    )
+
+
+class GraphTableConstraintSegment(BaseSegment):
+    """A table constraint segment for graph tables, including connection constraints."""
+
+    type = "graph_table_constraint"
+    match_grammar = Sequence(
+        Sequence(  # [ CONSTRAINT <Constraint name> ]
+            "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
+        ),
+        OneOf(
+            Sequence(
+                Ref("PrimaryKeyGrammar"),
+                Ref("BracketedIndexColumnListGrammar"),
+                Ref("RelationalIndexOptionsSegment", optional=True),
+                Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
+            ),
+            Sequence(  # FOREIGN KEY ( column_name [, ... ] )
+                # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+                Ref("ForeignKeyGrammar"),
+                # Local columns making up FOREIGN KEY constraint
+                Ref("BracketedColumnReferenceListGrammar"),
+                # REFERENCES reftable [ ( refcolumn) ] + ON DELETE/ON UPDATE
+                Ref("ReferencesConstraintGrammar"),
+            ),
+            Ref("ConnectionConstraintGrammar", optional=True),
             Ref("CheckConstraintGrammar", optional=True),
         ),
     )
