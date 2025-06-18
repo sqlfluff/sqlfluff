@@ -474,7 +474,8 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
     """
 
     match_grammar = Sequence(
-        Ref.keyword("AS", optional=True),
+        Indent,
+        Ref("AsAliasOperatorSegment", optional=True),
         OneOf(
             Sequence(
                 Ref("SingleIdentifierGrammar", optional=True),
@@ -482,6 +483,7 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
             ),
             Ref("SingleIdentifierGrammar"),
         ),
+        Dedent,
     )
 
 

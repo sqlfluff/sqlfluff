@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1363aed6e5fc8f7eba009cd74019c0d04670e6cd387fbeecd3c55cac0f350538
+_hash: fbddc0a1abe7cce1900118c52907925ba289e0a06ed6ab242c33e3eb54249d82
 file:
 - batch:
     statement:
@@ -147,7 +147,8 @@ file:
                             table_reference:
                               naked_identifier: inserted
                           alias_expression:
-                            keyword: AS
+                            alias_operator:
+                              keyword: AS
                             naked_identifier: i
                         join_clause:
                           keyword: JOIN
@@ -158,7 +159,8 @@ file:
                               - dot: .
                               - naked_identifier: Vendor
                             alias_expression:
-                              keyword: AS
+                              alias_operator:
+                                keyword: AS
                               naked_identifier: v
                           join_on_condition:
                             keyword: 'ON'

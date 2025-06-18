@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 25cc987d4de9411b4c0f25d65abdf16f8856319bddd501c8318c4210c8716514
+_hash: 9fb7d741a9cf2b232a9c501c05f182158f546944b70e2336564982211dffcc61
 file:
 - statement:
     select_statement:
@@ -37,7 +37,8 @@ file:
                       naked_identifier: y
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: row_number
       from_clause:
         keyword: FROM
@@ -100,7 +101,8 @@ file:
                   - keyword: FOLLOWING
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: group_concat
       from_clause:
         keyword: FROM
@@ -166,7 +168,8 @@ file:
                   - keyword: FOLLOWING
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: group_concat
       from_clause:
         keyword: FROM
@@ -240,7 +243,8 @@ file:
                   - keyword: FOLLOWING
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: group_concat
       from_clause:
         keyword: FROM
@@ -297,7 +301,8 @@ file:
                       naked_identifier: c
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: group_concat
       from_clause:
         keyword: FROM
@@ -365,7 +370,8 @@ file:
                   - keyword: FOLLOWING
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: group_concat
       from_clause:
         keyword: FROM
@@ -436,7 +442,8 @@ file:
                   - keyword: OTHERS
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: no_others
       - comma: ','
       - select_clause_element:
@@ -476,7 +483,8 @@ file:
                   - keyword: ROW
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: current_row
       - comma: ','
       - select_clause_element:
@@ -515,7 +523,8 @@ file:
                   - keyword: GROUP
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: grp
       - comma: ','
       - select_clause_element:
@@ -554,7 +563,8 @@ file:
                   - keyword: TIES
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: ties
       from_clause:
         keyword: FROM
@@ -626,7 +636,8 @@ file:
                       naked_identifier: a
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: group_concat
       from_clause:
         keyword: FROM
@@ -649,7 +660,8 @@ file:
           column_reference:
             naked_identifier: a
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: a
       - comma: ','
       - select_clause_element:
@@ -664,7 +676,8 @@ file:
               keyword: OVER
               naked_identifier: win
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: row_number
       - comma: ','
       - select_clause_element:
@@ -679,7 +692,8 @@ file:
               keyword: OVER
               naked_identifier: win
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: rank
       - comma: ','
       - select_clause_element:
@@ -694,7 +708,8 @@ file:
               keyword: OVER
               naked_identifier: win
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: dense_rank
       - comma: ','
       - select_clause_element:
@@ -709,7 +724,8 @@ file:
               keyword: OVER
               naked_identifier: win
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: percent_rank
       - comma: ','
       - select_clause_element:
@@ -724,7 +740,8 @@ file:
               keyword: OVER
               naked_identifier: win
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: cume_dist
       from_clause:
         keyword: FROM
@@ -756,14 +773,16 @@ file:
           column_reference:
             naked_identifier: a
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
             naked_identifier: b
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: b
       - comma: ','
       - select_clause_element:
@@ -780,7 +799,8 @@ file:
               keyword: OVER
               naked_identifier: win
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: ntile_2
       - comma: ','
       - select_clause_element:
@@ -797,7 +817,8 @@ file:
               keyword: OVER
               naked_identifier: win
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: ntile_4
       from_clause:
         keyword: FROM
@@ -829,7 +850,8 @@ file:
           column_reference:
             naked_identifier: b
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: b
       - comma: ','
       - select_clause_element:
@@ -853,7 +875,8 @@ file:
               keyword: OVER
               naked_identifier: win
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: lead
       - comma: ','
       - select_clause_element:
@@ -871,7 +894,8 @@ file:
               keyword: OVER
               naked_identifier: win
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: lag
       - comma: ','
       - select_clause_element:
@@ -889,7 +913,8 @@ file:
               keyword: OVER
               naked_identifier: win
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: first_value
       - comma: ','
       - select_clause_element:
@@ -907,7 +932,8 @@ file:
               keyword: OVER
               naked_identifier: win
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: last_value
       - comma: ','
       - select_clause_element:
@@ -928,7 +954,8 @@ file:
               keyword: OVER
               naked_identifier: win
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: nth_value_3
       from_clause:
         keyword: FROM

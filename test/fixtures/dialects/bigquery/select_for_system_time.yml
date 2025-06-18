@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9d4120838d58e0ac5d98e4a3e7417ef9fed1c0624bc3c0e0f7210b0224f2a63e
+_hash: 613a892af8a6f78a574a2b7cd42e443f7a8d5966af513d5031ced82ca9e1a83c
 file:
 - statement:
     select_statement:
@@ -20,7 +20,8 @@ file:
               table_reference:
                 naked_identifier: lists_emails
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: list_emails
             for_system_time_as_of_segment:
             - keyword: FOR

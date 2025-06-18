@@ -1,11 +1,11 @@
 """Implementation of Rule AL01."""
 
-from typing import Optional, cast
+from typing import Optional
 
-from sqlfluff.core.parser import BaseSegment, KeywordSegment, RawSegment
-from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.parser import BaseSegment, KeywordSegment, WhitespaceSegment
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.reflow import ReflowSequence
+from sqlfluff.dialects.dialect_ansi import AsAliasOperatorSegment
 
 
 class Rule_AL01(BaseRule):
@@ -64,27 +64,24 @@ class Rule_AL01(BaseRule):
         assert context.segment.is_type("alias_expression")
         if context.parent_stack[-1].is_type(*self._target_parent_types):
             # Search for an AS keyword.
-            as_keyword: Optional[BaseSegment]
-            for as_keyword in context.segment.segments:
-                if as_keyword.raw_upper == "AS":
-                    break
-            else:
-                as_keyword = None
+            as_keyword: Optional[BaseSegment] = context.segment.get_child(
+                "alias_operator"
+            )
 
             if as_keyword:
                 if self.aliasing == "implicit":
                     self.logger.debug("Removing AS keyword and respacing.")
+                    whitespace: Optional[BaseSegment] = context.segment.get_child(
+                        "whitespace"
+                    )
+                    if whitespace:
+                        fixes = [LintFix.delete(whitespace), LintFix.delete(as_keyword)]
+                    else:
+                        fixes = [LintFix.delete(as_keyword)]  # pragma: no cover
+
                     return LintResult(
                         anchor=as_keyword,
-                        # Generate the fixes to remove and respace accordingly.
-                        fixes=ReflowSequence.from_around_target(
-                            as_keyword,
-                            context.parent_stack[0],
-                            config=context.config,
-                        )
-                        .without(cast(RawSegment, as_keyword))
-                        .respace()
-                        .get_fixes(),
+                        fixes=fixes,
                     )
 
             elif self.aliasing != "implicit":
@@ -96,22 +93,24 @@ class Rule_AL01(BaseRule):
                     raise NotImplementedError(
                         "Failed to find identifier. Raise this as a bug on GitHub."
                     )
+                as_alias_operator_segment = AsAliasOperatorSegment(
+                    segments=(KeywordSegment("AS"),)
+                )
+                # if the pre sibling has already a leading whitespace at it's tail
+                # we do not need an additional leading whitespace
+                has_leading_whitespace = context.siblings_pre and isinstance(
+                    context.siblings_pre[-1], WhitespaceSegment
+                )
+                if has_leading_whitespace:
+                    edit_segments = [as_alias_operator_segment, WhitespaceSegment()]
+                else:
+                    edit_segments = [
+                        WhitespaceSegment(),
+                        as_alias_operator_segment,
+                        WhitespaceSegment(),
+                    ]
                 return LintResult(
                     anchor=context.segment,
-                    # Work out the insertion and reflow fixes.
-                    fixes=ReflowSequence.from_around_target(
-                        identifier,
-                        context.parent_stack[0],
-                        config=context.config,
-                        # Only reflow before, otherwise we catch too much.
-                        sides="before",
-                    )
-                    .insert(
-                        KeywordSegment("AS"),
-                        target=identifier,
-                        pos="before",
-                    )
-                    .respace()
-                    .get_fixes(),
+                    fixes=[LintFix.create_before(identifier, edit_segments)],
                 )
         return None
