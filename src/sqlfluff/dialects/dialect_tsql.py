@@ -260,7 +260,7 @@ tsql_dialect.patch_lexer_matchers(
             ),
         ),
         RegexLexer(
-            "word", r"[0-9a-zA-Z_#@]+", WordSegment
+            "word", r"[0-9a-zA-Z_#@\p{L}]+", WordSegment
         ),  # overriding to allow hash mark and at-sign in code
     ]
 )
@@ -418,7 +418,7 @@ tsql_dialect.replace(
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
-            r"[A-Z_][A-Z0-9_@$#]*",
+            r"[A-Z_\p{L}][A-Z0-9_@$#\p{L}]*",
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^("
