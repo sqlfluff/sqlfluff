@@ -3573,12 +3573,12 @@ class AlterTableStatementSegment(BaseSegment):
                     Ref("TableConstraintSegment"),
                 ),
                 Sequence(
-                    "CHECK"
+                    "CHECK",
                     "CONSTRAINT",
                     Ref("ObjectReferenceSegment"),
                 ),
                 Sequence(
-                    "DROP"
+                    "DROP",
                     "CONSTRAINT",
                     Ref("IfExistsGrammar", optional=True),
                     Ref("ObjectReferenceSegment"),
