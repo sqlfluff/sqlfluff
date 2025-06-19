@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2a0d700bd5dc5418ed964e623a378ff5053d0abcadd537d2e9fb58905c6321c0
+_hash: c761800e79a0e1847be835623efc473896f564c1a75940ac98c3116ff9de10ac
 file:
 - batch:
     statement:
@@ -116,7 +116,9 @@ file:
         keyword: EXEC
         object_reference:
           naked_identifier: sp_help
-        naked_identifier: doc_exc
+        expression:
+          column_reference:
+            naked_identifier: doc_exc
         statement_terminator: ;
 - go_statement:
     keyword: GO
