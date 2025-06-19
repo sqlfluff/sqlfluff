@@ -3516,10 +3516,17 @@ class AlterTableStatementSegment(BaseSegment):
                 ),
                 Sequence(
                     OneOf(
-                        "CHECK",
+                        "CHECK"
+                    ),
+                    "CONSTRAINT",
+                    Ref("ObjectReferenceSegment"),
+                ),
+                Sequence(
+                    OneOf(
                         "DROP",
                     ),
                     "CONSTRAINT",
+                    Ref("IfExistsGrammar", optional=True),
                     Ref("ObjectReferenceSegment"),
                 ),
                 # Rename
