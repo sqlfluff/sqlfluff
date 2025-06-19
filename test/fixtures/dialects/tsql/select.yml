@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 753fa17f824e34805cf8b5bf8664984d8769fcd2c1f3e316ff534e58b12f71af
+_hash: a6ed2e145300008a101e47d3425f7c7b05d44b49ab2a940d00a630bb8974086e
 file:
   batch:
   - statement:
@@ -981,3 +981,14 @@ file:
                 - dot: .
                 - naked_identifier: sql_modules
           statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+              naked_identifier: field1
+            alias_expression:
+              keyword: AS
+              naked_identifier: 日期差多少天
+        statement_terminator: ;
