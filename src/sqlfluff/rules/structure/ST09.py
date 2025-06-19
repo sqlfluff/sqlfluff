@@ -109,14 +109,12 @@ class Rule_ST09(BaseRule):
             return None
 
         # the first alias comes from the from clause
-        from_expression_alias: str = (
+        from_expression_alias: str = next(
             cast(
                 FromExpressionElementSegment,
                 children.recursive_crawl("from_expression_element")[0],
-            )
-            .get_eventual_alias()
-            .ref_str
-        )
+            ).get_eventual_alias()
+        ).ref_str
 
         table_aliases.append(from_expression_alias)
 
