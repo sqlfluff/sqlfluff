@@ -207,9 +207,10 @@ class Rule_ST09(BaseRule):
                 table_aliases.index(first_table) < table_aliases.index(second_table)
                 and self.preferred_first_table_in_join_clause == "later"
             ):
-                # Use the first column reference as anchor if it has a literal position marker.
-                # This ensures the violation is anchored to a literal segment which won't be
-                # filtered out in templated code.
+                # Use the first column reference as anchor if it has a literal
+                # position marker. This ensures the violation is anchored to
+                # a literal segment which won't be filtered out in templated
+                # code.
                 if (
                     not fixes
                     and first_column_reference.pos_marker
