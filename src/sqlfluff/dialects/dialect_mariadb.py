@@ -6,7 +6,6 @@ https://mariadb.com/kb/en/sql-statements-structure/
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
-    AnySetOf,
     BaseSegment,
     Bracketed,
     Dedent,
@@ -483,17 +482,18 @@ class InsertStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
-        AnySetOf(
-            OneOf(
-                Ref("ValuesClauseSegment"),
-                Ref("SetClauseListSegment"),
-                Ref("SelectStatementSegment"),
-                optional=False,
+        OneOf(
+            Ref("ValuesClauseSegment"),
+            Ref("SetClauseListSegment"),
+            Ref(
+                "SelectableGrammar",
+                terminators=[Ref("ReturningClauseSegment")],
             ),
-            Ref("InsertRowAliasSegment", optional=True),
-            Ref("UpsertClauseListSegment", optional=True),
-            Ref("ReturningClauseSegment", optional=True),
+            optional=True,
         ),
+        Ref("InsertRowAliasSegment", optional=True),
+        Ref("UpsertClauseListSegment", optional=True),
+        Ref("ReturningClauseSegment", optional=True),
     )
 
 
