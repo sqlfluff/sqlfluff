@@ -77,7 +77,7 @@ class RawSegment(BaseSegment):
         self.quoted_value = quoted_value
         self.escape_replacements = escape_replacements
         self.casefold = casefold
-        self._raw_value: str = self._raw_normalized()
+        self._raw_value: str = self.normalize()
 
     def __repr__(self) -> str:
         # This is calculated at __init__, because all elements are immutable
@@ -180,15 +180,16 @@ class RawSegment(BaseSegment):
             return raw_buff
         return raw_buff
 
-    def _raw_normalized(self) -> str:
-        """Returns the string of the raw content's value.
+    def normalize(self, value: Optional[str] = None) -> str:
+        """Returns the normalized version of a string using the segment's rules.
 
+        By default this uses the raw value of the segment.
         E.g. This removes leading and trailing quote characters, removes escapes
 
         Return:
-        str: The raw content's value
+        str: The normalized value
         """
-        raw_buff = self.raw
+        raw_buff = value or self.raw
         if self.quoted_value:
             _match = re.match(self.quoted_value[0], raw_buff)
             if _match:

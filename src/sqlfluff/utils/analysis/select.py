@@ -147,7 +147,7 @@ def get_aliases_from_select(
     # We only want table aliases, so filter out aliases for value table
     # functions, lambda parameters and pivot columns.
     standalone_aliases: list[BaseSegment] = []
-    standalone_aliases += _get_pivot_table_columns(segment, dialect)
+    standalone_aliases += _get_pivot_table_aliases(segment, dialect)
     standalone_aliases += _get_lambda_argument_columns(segment, dialect)
 
     table_aliases = []
@@ -179,7 +179,7 @@ def _has_value_table_function(
     return False
 
 
-def _get_pivot_table_columns(
+def _get_pivot_table_aliases(
     segment: BaseSegment, dialect: Optional[Dialect]
 ) -> list[BaseSegment]:
     if not dialect:
@@ -187,20 +187,15 @@ def _get_pivot_table_columns(
         # we don't have it, assume the clause does not have a pivot table
         return []  # pragma: no cover
 
-    fc = segment.recursive_crawl("from_pivot_expression")
-    if not fc:
-        # If there's no pivot clause then just abort.
-        return []  # pragma: no cover
+    pivot_table_aliases: list[BaseSegment] = []
+    for fc in segment.recursive_crawl("from_pivot_expression"):
+        for pivot_table_alias in fc.recursive_crawl(
+            "pivot_column_reference", "table_reference"
+        ):
+            if pivot_table_alias.raw not in [a.raw for a in pivot_table_aliases]:
+                pivot_table_aliases.append(pivot_table_alias)
 
-    pivot_table_column_aliases: list[BaseSegment] = []
-
-    for pivot_table_column_alias in segment.recursive_crawl("pivot_column_reference"):
-        if pivot_table_column_alias.raw not in [
-            a.raw for a in pivot_table_column_aliases
-        ]:
-            pivot_table_column_aliases.append(pivot_table_column_alias)
-
-    return pivot_table_column_aliases
+    return pivot_table_aliases
 
 
 # Lambda arguments,
