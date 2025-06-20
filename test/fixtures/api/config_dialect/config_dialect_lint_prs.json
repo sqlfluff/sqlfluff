@@ -1,0 +1,14 @@
+[
+    {
+        "code": "PRS",
+        "description": "Line 1, Position 1: Found unparsable section: 'FROM  tab\\nWHERE a = 1;'",
+        "end_file_pos": 22,
+        "end_line_no": 2,
+        "end_line_pos": 13,
+        "name": "",
+        "start_file_pos": 0,
+        "start_line_no": 1,
+        "start_line_pos": 1,
+        "warning": false
+    }
+]

@@ -38,11 +38,24 @@ def get_simple_config(
 
     # Instantiate a config object.
     try:
-        return FluffConfig.from_root(
+        config = FluffConfig.from_root(
             extra_config_path=config_path,
             ignore_local_config=True,
             overrides=overrides,
+            require_dialect=False,
         )
+
+        # If no dialect was specified, set it to ansi. This allows for the legacy
+        # behavior of the simple API to be maintained, where the dialect is not
+        # required to be specified, but defaults to ansi.
+        if not config.get("dialect"):
+            overrides["dialect"] = "ansi"
+            config = FluffConfig.from_root(
+                extra_config_path=config_path,
+                ignore_local_config=True,
+                overrides=overrides,
+            )
+        return config
     except SQLFluffUserError as err:  # pragma: no cover
         raise SQLFluffUserError(f"Error loading config: {str(err)}")
 
@@ -60,7 +73,7 @@ class APIParsingError(ValueError):
 
 def lint(
     sql: str,
-    dialect: str = "ansi",
+    dialect: Optional[str] = None,
     rules: Optional[list[str]] = None,
     exclude_rules: Optional[list[str]] = None,
     config: Optional[FluffConfig] = None,
@@ -70,7 +83,7 @@ def lint(
 
     Args:
         sql (:obj:`str`): The SQL to be linted.
-        dialect (:obj:`str`, optional): A reference to the dialect of the SQL
+        dialect (:obj:`Optional[str]`, optional): A reference to the dialect of the SQL
             to be linted. Defaults to `ansi`.
         rules (:obj:`Optional[list[str]`, optional): A list of rule
             references to lint for. Defaults to None.
@@ -101,7 +114,7 @@ def lint(
 
 def fix(
     sql: str,
-    dialect: str = "ansi",
+    dialect: Optional[str] = None,
     rules: Optional[list[str]] = None,
     exclude_rules: Optional[list[str]] = None,
     config: Optional[FluffConfig] = None,
@@ -112,7 +125,7 @@ def fix(
 
     Args:
         sql (:obj:`str`): The SQL to be fixed.
-        dialect (:obj:`str`, optional): A reference to the dialect of the SQL
+        dialect (:obj:`Optional[str]`, optional): A reference to the dialect of the SQL
             to be fixed. Defaults to `ansi`.
         rules (:obj:`Optional[list[str]`, optional): A subset of rule
             references to fix for. Defaults to None.
@@ -154,7 +167,7 @@ def fix(
 
 def parse(
     sql: str,
-    dialect: str = "ansi",
+    dialect: Optional[str] = None,
     config: Optional[FluffConfig] = None,
     config_path: Optional[str] = None,
 ) -> dict[str, Any]:
@@ -162,7 +175,7 @@ def parse(
 
     Args:
         sql (:obj:`str`): The SQL to be parsed.
-        dialect (:obj:`str`, optional): A reference to the dialect of the SQL
+        dialect (:obj:`Optional[str]`, optional): A reference to the dialect of the SQL
             to be parsed. Defaults to `ansi`.
         config (:obj:`Optional[FluffConfig]`, optional): A configuration object
             to use for the operation. Defaults to None.
