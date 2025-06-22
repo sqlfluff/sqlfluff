@@ -467,3 +467,52 @@ test_postgres_pass_dot_inside_quotes:
   configs:
     core:
       dialect: postgres
+
+test_tsql_bracketed_identifiers_pass:
+  pass_str: |
+    select
+        [t1].[field1],
+        [t2].[field2],
+        t1.field3,
+        "t1".field4,
+        [t3].field5,
+        "t3".field6,
+        t3.field7
+    from [table1] as [t1]
+    inner join [table2] as [t2]
+        on [t2].[pk] = [t1].[pk]
+    inner join [table3] as t3
+        on t3.pk = t1.pk
+  configs:
+    core:
+      dialect: tsql
+
+test_bigquery_unnest_with_offset_pass:
+  pass_str: |
+    select
+        ix,
+        v
+    from t
+    left join
+        unnest(t.value_list) as v
+        with offset as ix
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_tsql_pivot_table_alias:
+  pass_str: |
+    select
+        pvt.cl1
+        , pvt.cl2
+        , pvt.cl3
+        , [1] as lvl_1
+        , [2] as lvl_2
+        , [3] as lvl_3
+    from
+        levels as lvl
+    pivot
+    (max(value) for rn in([1], [2], [3]) ) as pvt
+  configs:
+    core:
+      dialect: tsql
