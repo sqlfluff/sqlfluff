@@ -42,9 +42,9 @@ SELECT
 FROM test_overlaps
 WHERE (DATE '2023-12-30', DATE '2024-01-14') OVERLAPS (start_date, end_date);
 
-    SELECT
-        start_date_1,
-        start_date_2,
-        end_date
-    FROM test_overlaps
-    WHERE (DATE '2023-12-30', DATE '2024-01-14') OVERLAPS (GREATEST(start_date_1, start_date_2), end_date);
+SELECT
+    start_date_1,
+    start_date_2,
+    end_date
+FROM test_overlaps
+WHERE (DATE '2023-12-30', DATE '2024-01-14') OVERLAPS (GREATEST(start_date_1, start_date_2), end_date);
