@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d20becda824ffdaa3d06a8b47c7938626a83ddc922cfa0cd4bc40de8adc62b91
+_hash: d2b1ef7069b1ce9b4ec653bff0e7ce75be9e473529914583cb114852a6f13d1b
 file:
 - statement:
     select_statement:
@@ -34,7 +34,8 @@ file:
                     numeric_literal: '0'
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator:
+              keyword: as
             naked_identifier: sample_filter
       - comma: ','
       - select_clause_element:
@@ -59,7 +60,8 @@ file:
                       semi_structured_element: value
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator:
+              keyword: as
             naked_identifier: sample_transform
       - comma: ','
       - select_clause_element:
@@ -86,7 +88,8 @@ file:
                       semi_structured_element: val
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator:
+              keyword: as
             naked_identifier: sample_transform_with_type
       from_clause:
         keyword: FROM
@@ -147,7 +150,8 @@ file:
                       end_bracket: )
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator:
+              keyword: as
             naked_identifier: sample_filter
       - comma: ','
       - select_clause_element:
@@ -169,7 +173,8 @@ file:
                       naked_identifier: j
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator:
+              keyword: as
             naked_identifier: sample_transform
       - comma: ','
       - select_clause_element:
@@ -192,7 +197,8 @@ file:
                   boolean_literal: 'true'
               - end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator:
+              keyword: as
             naked_identifier: sample_other
       from_clause:
         keyword: FROM

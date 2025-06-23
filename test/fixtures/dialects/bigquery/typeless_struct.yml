@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8c07ec8951be9f3305da77f9b500389e50c3243981fadef618ae78ea25bc8aa4
+_hash: b81132d68960d783d1d5841888c9fb8cdec62df7ec4ec77dc67a9d1cf718c2cc
 file:
 - statement:
     select_statement:
@@ -28,12 +28,14 @@ file:
                       - start_bracket: (
                       - quoted_literal: "'hello'"
                       - alias_expression:
-                          keyword: AS
+                          alias_operator:
+                            keyword: AS
                           naked_identifier: greeting
                       - comma: ','
                       - quoted_literal: "'world'"
                       - alias_expression:
-                          keyword: AS
+                          alias_operator:
+                            keyword: AS
                           naked_identifier: subject
                       - end_bracket: )
               - comma: ','
@@ -46,17 +48,20 @@ file:
                       - start_bracket: (
                       - quoted_literal: "'hi'"
                       - alias_expression:
-                          keyword: AS
+                          alias_operator:
+                            keyword: AS
                           naked_identifier: greeting
                       - comma: ','
                       - quoted_literal: "'there'"
                       - alias_expression:
-                          keyword: AS
+                          alias_operator:
+                            keyword: AS
                           naked_identifier: subject
                       - end_bracket: )
               - end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: salute
       from_clause:
         keyword: FROM
@@ -107,7 +112,8 @@ file:
                         - dot: .
                         - naked_identifier: xxx
                       - alias_expression:
-                          keyword: AS
+                          alias_operator:
+                            keyword: AS
                           naked_identifier: M
                       - comma: ','
                       - column_reference:
@@ -115,12 +121,14 @@ file:
                         - dot: .
                         - naked_identifier: xxx
                       - alias_expression:
-                          keyword: AS
+                          alias_operator:
+                            keyword: AS
                           naked_identifier: N
                       - end_bracket: )
             - keyword: END
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: xxx
       from_clause:
         keyword: FROM

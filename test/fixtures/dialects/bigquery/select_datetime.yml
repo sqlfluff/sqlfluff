@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f45b3e6a7a2f17b9cd1845830ceebd8a8768a2b2bc318e096d6d8020b8f8abc4
+_hash: e36e8a48b09b527a5e82f21b9e5975e81bee0424bda07deb38b46f35e3a9d789
 file:
   statement:
     select_statement:
@@ -37,7 +37,8 @@ file:
                   - naked_identifier: order_created_at
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: order_day
       from_clause:
         keyword: FROM
@@ -47,7 +48,8 @@ file:
               table_reference:
                 naked_identifier: my_table
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: gmv
       where_clause:
         keyword: WHERE

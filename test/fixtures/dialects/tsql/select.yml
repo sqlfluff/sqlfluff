@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a6ed2e145300008a101e47d3425f7c7b05d44b49ab2a940d00a630bb8974086e
+_hash: 8272450206c2b86996fda2b977fa3b1b22dd363b3c6c39a5986e6e4193c02ad0
 file:
   batch:
   - statement:
@@ -218,7 +218,8 @@ file:
         - select_clause_element:
             quoted_literal: "'TSQL'"
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               quoted_identifier: "'s escaping quotes test'"
         - comma: ','
         - select_clause_element:
@@ -450,7 +451,8 @@ file:
                     - keyword: desc
                   end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               quoted_identifier: '[RN]'
         - comma: ','
         - select_clause_element:
@@ -479,7 +481,8 @@ file:
                     - keyword: desc
                   end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               quoted_identifier: '[R]'
         - comma: ','
         - select_clause_element:
@@ -508,7 +511,8 @@ file:
                     - keyword: desc
                   end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               quoted_identifier: '[DR]'
         - comma: ','
         - select_clause_element:
@@ -538,7 +542,8 @@ file:
                     - keyword: desc
                   end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               quoted_identifier: '[NT]'
         - comma: ','
         - select_clause_element:
@@ -631,7 +636,8 @@ file:
                     - keyword: DESC
                   end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: Subselect_Partition
         - comma: ','
         - select_clause_element:
@@ -686,7 +692,8 @@ file:
                     - keyword: DESC
                   end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: Coalesce_Partition
         - comma: ','
         - select_clause_element:
@@ -748,7 +755,8 @@ file:
         - select_clause_element:
             alias_expression:
               quoted_identifier: '[preceding]'
-              raw_comparison_operator: '='
+              alias_operator:
+                raw_comparison_operator: '='
             function:
               function_name:
                 function_name_identifier: count
@@ -780,7 +788,8 @@ file:
         - select_clause_element:
             alias_expression:
               quoted_identifier: '[central]'
-              raw_comparison_operator: '='
+              alias_operator:
+                raw_comparison_operator: '='
             function:
               function_name:
                 function_name_identifier: count
@@ -812,7 +821,8 @@ file:
         - select_clause_element:
             alias_expression:
               quoted_identifier: '[following]'
-              raw_comparison_operator: '='
+              alias_operator:
+                raw_comparison_operator: '='
             function:
               function_name:
                 function_name_identifier: count
@@ -844,7 +854,8 @@ file:
         - select_clause_element:
             alias_expression:
               naked_identifier: EqualsAlias
-              raw_comparison_operator: '='
+              alias_operator:
+                raw_comparison_operator: '='
             column_reference:
               naked_identifier: ColumnName
         - comma: ','
@@ -852,7 +863,8 @@ file:
             column_reference:
               naked_identifier: OtherColumnName
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: AsAlias
         - comma: ','
         - select_clause_element:
@@ -956,7 +968,8 @@ file:
         - select_clause_element:
             quoted_literal: "'Tabellen'"
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: Objekt
         - comma: ','
         - select_clause_element:
@@ -969,7 +982,8 @@ file:
                   star: '*'
                   end_bracket: )
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: Anzahl
         from_clause:
           keyword: from
@@ -989,6 +1003,7 @@ file:
             column_reference:
               naked_identifier: field1
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: 日期差多少天
         statement_terminator: ;
