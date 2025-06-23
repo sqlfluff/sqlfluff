@@ -188,6 +188,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "BODY",
         "BULK_EXCEPTIONS",
         "BULK_ROWCOUNT",
+        "BYTE",
         "COMPILE",
         "COMPOUND",
         "CONSTANT",
@@ -231,6 +232,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "RAISE",
         "RECORD",
         "RESULT_CACHE",
+        "RETURNING",
         "REUSE",
         "REVERSE",
         "ROWTYPE",
@@ -604,6 +606,11 @@ oracle_dialect.add(
     ),
     SlashStatementTerminatorSegment=StringParser(
         "/", SymbolSegment, type="statement_terminator"
+    ),
+    TriggerPredicatesGrammar=OneOf(
+        "INSERTING",
+        Sequence("UPDATING", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
+        "DELETING",
     ),
 )
 
@@ -2238,6 +2245,7 @@ class AssignmentStatementSegment(BaseSegment):
             Ref("ObjectReferenceSegment"),
             Bracketed(Ref("ObjectReferenceSegment"), optional=True),
             Ref("DotSegment", optional=True),
+            Ref("SqlplusVariableGrammar"),
             optional=True,
         ),
         OneOf(Sequence(Ref("ColonSegment"), Ref("EqualsSegment")), "DEFAULT"),
@@ -2259,7 +2267,10 @@ class IfExpressionStatement(BaseSegment):
         AnyNumberOf(
             Sequence(
                 "ELSIF",
-                Ref("ExpressionSegment"),
+                OneOf(
+                    Ref("ExpressionSegment"),
+                    Ref("TriggerPredicatesGrammar"),
+                ),
                 "THEN",
                 Ref("OneOrMoreStatementsGrammar"),
             ),
@@ -2282,7 +2293,14 @@ class IfClauseSegment(BaseSegment):
 
     type = "if_clause"
 
-    match_grammar = Sequence("IF", Ref("ExpressionSegment"), "THEN")
+    match_grammar = Sequence(
+        "IF",
+        OneOf(
+            Ref("ExpressionSegment"),
+            Ref("TriggerPredicatesGrammar"),
+        ),
+        "THEN",
+    )
 
 
 class CaseExpressionSegment(BaseSegment):
@@ -2316,11 +2334,7 @@ class CaseExpressionSegment(BaseSegment):
             "CASE",
             OneOf(
                 Ref("ExpressionSegment"),
-                "INSERTING",
-                Sequence(
-                    "UPDATING", Bracketed(Ref("QuotedLiteralSegment"), optional=True)
-                ),
-                "DELETING",
+                Ref("TriggerPredicatesGrammar"),
             ),
             ImplicitIndent,
             AnyNumberOf(
@@ -2364,11 +2378,7 @@ class WhenClauseSegment(BaseSegment):
             ImplicitIndent,
             OneOf(
                 Ref("ExpressionSegment"),
-                "INSERTING",
-                Sequence(
-                    "UPDATING", Bracketed(Ref("QuotedLiteralSegment"), optional=True)
-                ),
-                "DELETING",
+                Ref("TriggerPredicatesGrammar"),
             ),
             Dedent,
         ),
@@ -2418,6 +2428,7 @@ class MergeUpdateClauseSegment(BaseSegment):
         Ref("SetClauseListSegment"),
         Dedent,
         Ref("WhereClauseSegment", optional=True),
+        Ref("ReturningClauseSegment", optional=True),
     )
 
 
@@ -2448,6 +2459,7 @@ class InsertStatementSegment(BaseSegment):
                 optional=True,
             ),
         ),
+        Ref("ReturningClauseSegment", optional=True),
     )
 
 
@@ -2788,4 +2800,46 @@ class CreateUserStatementSegment(BaseSegment):
             Sequence("CONTAINER", Ref("EqualsSegment"), OneOf("CURRENT", "ALL")),
             Sequence("READ", OneOf("ONLY", "WRITE")),
         ),
+    )
+
+
+class ReturningClauseSegment(BaseSegment):
+    """A `RETURNING` clause.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/RETURNING-INTO-clause.html
+    """
+
+    type = "returning_clause"
+
+    match_grammar: Matchable = Sequence(
+        OneOf("RETURNING", "RETURN"),
+        Delimited(
+            Sequence(
+                OneOf("OLD", "NEW", optional=True),
+                Ref("SingleIdentifierGrammar"),
+            ),
+        ),
+        OneOf(Ref("IntoClauseSegment"), Ref("BulkCollectIntoClauseSegment")),
+    )
+
+
+class UpdateStatementSegment(ansi.UpdateStatementSegment):
+    """An `Update` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/UPDATE.html
+    """
+
+    match_grammar: Matchable = ansi.UpdateStatementSegment.match_grammar.copy(
+        insert=[Ref("ReturningClauseSegment", optional=True)]
+    )
+
+
+class DeleteStatementSegment(ansi.DeleteStatementSegment):
+    """A `DELETE` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/DELETE.html
+    """
+
+    match_grammar: Matchable = ansi.DeleteStatementSegment.match_grammar.copy(
+        insert=[Ref("ReturningClauseSegment", optional=True)]
     )

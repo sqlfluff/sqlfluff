@@ -280,6 +280,7 @@ UNRESERVED_KEYWORDS = [
     "BEFORE",  # *future*
     "BERNOULLI",
     "BINARY",
+    "BLOCK",
     "BLOCKERS",
     "BREAK",
     "CACHE",
@@ -301,6 +302,7 @@ UNRESERVED_KEYWORDS = [
     "COMPRESSION",
     "CONCAT_NULL_YIELDS_NULL",
     "CONCAT",
+    "CONNECTION",
     "CONNECTION_OPTIONS",
     "CONTAINED",
     "CONTEXT_INFO",
@@ -339,6 +341,7 @@ UNRESERVED_KEYWORDS = [
     "DROP_EXISTING",
     "DUMP",  # listed as reserved but functionally unreserved
     "DURABILITY",
+    "EDGE",
     "ELEMENT",  # *future*
     "ELEMENTS",
     "ENCODING",
@@ -462,6 +465,7 @@ UNRESERVED_KEYWORDS = [
     "NO_PERFORMANCE_SPOOL",
     "NO",
     "NOCOUNT",
+    "NODE",
     "NOEXEC",
     "NOEXPAND",
     "NOLOCK",
@@ -508,9 +512,11 @@ UNRESERVED_KEYWORDS = [
     "PERCENTILE_DISC",
     "PERIOD",
     "PERSISTED",
+    "POLICY",
     "POPULATION",
     "PRECEDING",
     "PRECISION",  # listed as reserved but functionally unreserved
+    "PREDICATE",
     "PRIOR",
     "PROFILE",
     "PROPERTY",
@@ -583,6 +589,7 @@ UNRESERVED_KEYWORDS = [
     "SCOPED",
     "SEARCH",
     "SECRET",
+    "SECURITY",
     "SECURITYAUDIT",  # listed as reserved but functionally unreserved
     "SELF",
     "SEQUENCE_NUMBER_COLUMN_NAME",
@@ -608,6 +615,7 @@ UNRESERVED_KEYWORDS = [
     "SPATIAL_WINDOW_MAX_CELLS",
     "SPLIT",
     "START",
+    "STATE",
     "STATISTICAL_SEMANTICS",
     "STATISTICS_INCREMENTAL",
     "STATISTICS_NORECOMPUTE",

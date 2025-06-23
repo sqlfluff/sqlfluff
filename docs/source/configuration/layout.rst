@@ -833,6 +833,78 @@ available:
          [sqlfluff:layout:type:having_clause]
          keyword_line_position = none
 
+* **Exclusions**: The :code:`keyword_line_position_exclusions` option allows you to
+     exclude specific types of segments from the :code:`keyword_line_position` rule.
+     This is useful when certain segments, such as window specifications or aggregate
+     functions, should not follow the same keyword line position rules as other segments
+     in the same clause.
+
+     For example, to exclude window specifications from the :code:`ORDER BY` clause's
+     keyword line position rule, you can configure it as follows:
+
+     .. code-block:: cfg
+
+        [sqlfluff:layout:type:orderby_clause]
+        keyword_line_position = leading
+        keyword_line_position_exclusions = window_specification
+
+     This configuration ensures that the `ORDER BY` clause follows the `leading` rule,
+     except for window specifications, which are allowed to remain inline.
+
+     You can also specify multiple exclusions by separating them with commas:
+
+     .. code-block:: cfg
+
+        [sqlfluff:layout:type:orderby_clause]
+        keyword_line_position = leading
+        keyword_line_position_exclusions = window_specification, aggregate_order_by
+
+     In this case, both window specifications and aggregate functions with `ORDER BY`
+     clauses are excluded from the `leading` rule.
+
+     **Example Usage**:
+
+     With the above configuration, the following SQL would pass:
+
+     .. code-block:: sql
+
+        SELECT
+        a,
+        b,
+        ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) AS e,
+        STRING_AGG(a ORDER BY b, c)
+        FROM f
+        JOIN g
+        ON g.h = f.h
+
+     However, the following SQL would fail because the outer `ORDER BY` clause does not
+     follow the `leading` rule:
+
+     .. code-block:: sql
+
+        SELECT
+        a,
+        b,
+        ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) AS e,
+        STRING_AGG(a ORDER BY b, c)
+        FROM f
+        JOIN g
+        ON g.h = f.h ORDER BY a
+
+     The corrected version would be:
+
+     .. code-block:: sql
+
+        SELECT
+        a,
+        b,
+        ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) AS e,
+        STRING_AGG(a ORDER BY b, c)
+        FROM f
+        JOIN g
+        ON g.h = f.h
+        ORDER BY a
+
 .. _`C Preprocessor Directives`: https://www.cprogramming.com/reference/preprocessor/
 .. _`dbt Labs SQL style guide`: https://github.com/dbt-labs/corp/blob/main/dbt_style_guide.md
 .. _`Mozilla SQL style guide`: https://docs.telemetry.mozilla.org/concepts/sql_style.html#joins

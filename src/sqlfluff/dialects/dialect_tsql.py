@@ -131,7 +131,7 @@ tsql_dialect.sets("date_format").update(
 )
 
 tsql_dialect.sets("bare_functions").update(
-    ["system_user", "session_user", "current_user"]
+    ["CURRENT_USER", "SESSION_USER", "SYSTEM_USER", "USER"]
 )
 
 tsql_dialect.sets("sqlcmd_operators").clear()
@@ -260,7 +260,7 @@ tsql_dialect.patch_lexer_matchers(
             ),
         ),
         RegexLexer(
-            "word", r"[0-9a-zA-Z_#@]+", WordSegment
+            "word", r"[0-9a-zA-Z_#@\p{L}]+", WordSegment
         ),  # overriding to allow hash mark and at-sign in code
     ]
 )
@@ -418,7 +418,7 @@ tsql_dialect.replace(
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
-            r"[A-Z_][A-Z0-9_@$#]*",
+            r"[A-Z_\p{L}][A-Z0-9_@$#\p{L}]*",
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^("
@@ -681,6 +681,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SetStatementSegment"),
             Ref("AlterTableSwitchStatementSegment"),
             Ref("PrintStatementSegment"),
+            Ref("CreateTableGraphStatementSegment"),
             Ref(
                 "CreateTableAsSelectStatementSegment"
             ),  # Azure Synapse Analytics specific
@@ -732,6 +733,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("OpenSymmetricKeySegment"),
             Ref("CreateLoginStatementSegment"),
             Ref("SetContextInfoSegment"),
+            Ref("CreateSecurityPolicySegment"),
+            Ref("AlterSecurityPolicySegment"),
+            Ref("DropSecurityPolicySegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -1892,6 +1896,33 @@ class CheckConstraintGrammar(BaseSegment):
         Sequence("NOT", "FOR", "REPLICATION", optional=True),
         Bracketed(
             Ref("ExpressionSegment"),
+        ),
+    )
+
+
+class ConnectionConstraintGrammar(BaseSegment):
+    """CONNECTION constraint option in `CREATE TABLE` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-table-sql-graph
+    """
+
+    type = "connection_constraint_grammar"
+    match_grammar = Sequence(
+        "CONNECTION",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("TableReferenceSegment"),
+                    "TO",
+                    Ref("TableReferenceSegment"),
+                    optional=True,
+                ),
+                allow_trailing=True,
+            )
+        ),
+        AnySetOf(
+            Sequence("ON", "DELETE", OneOf(Sequence("NO", "ACTION"), "CASCADE")),
+            Sequence("ON", "UPDATE", OneOf(Sequence("NO", "ACTION"), "CASCADE")),
         ),
     )
 
@@ -3423,19 +3454,16 @@ class CreateTableStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         OneOf(
             # Columns and comment syntax:
-            Sequence(
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            Ref("TableConstraintSegment"),
-                            Ref("ComputedColumnDefinitionSegment"),
-                            Ref("ColumnDefinitionSegment"),
-                            Ref("TableIndexSegment"),
-                            Ref("PeriodSegment"),
-                        ),
-                        allow_trailing=True,
-                    )
+            Bracketed(
+                Delimited(
+                    Ref("TableConstraintSegment"),
+                    Ref("ComputedColumnDefinitionSegment"),
+                    Ref("ColumnDefinitionSegment"),
+                    Ref("TableIndexSegment"),
+                    Ref("PeriodSegment"),
+                    allow_trailing=True,
                 ),
+                optional=True,
             ),
             # Create AS syntax:
             Sequence(
@@ -3452,6 +3480,39 @@ class CreateTableStatementSegment(BaseSegment):
         Ref("FilestreamOnOptionSegment", optional=True),
         Ref("TextimageOnOptionSegment", optional=True),
         Ref("TableOptionSegment", optional=True),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class CreateTableGraphStatementSegment(BaseSegment):
+    """A `CREATE TABLE` GRAPH statement."""
+
+    type = "create_table_graph_statement"
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-table-sql-graph
+    match_grammar = Sequence(
+        "CREATE",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Ref("GraphTableConstraintSegment"),
+                Ref("ComputedColumnDefinitionSegment"),
+                Ref("ColumnDefinitionSegment"),
+                Ref("TableIndexSegment"),
+                Ref("PeriodSegment"),
+                allow_trailing=True,
+            ),
+            optional=True,
+        ),
+        # GRAPH
+        Sequence(
+            "AS",
+            OneOf(
+                "NODE",
+                "EDGE",
+            ),
+        ),
+        Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
     )
 
@@ -3512,11 +3573,14 @@ class AlterTableStatementSegment(BaseSegment):
                     Ref("TableConstraintSegment"),
                 ),
                 Sequence(
-                    OneOf(
-                        "CHECK",
-                        "DROP",
-                    ),
+                    "CHECK",
                     "CONSTRAINT",
+                    Ref("ObjectReferenceSegment"),
+                ),
+                Sequence(
+                    "DROP",
+                    "CONSTRAINT",
+                    Ref("IfExistsGrammar", optional=True),
                     Ref("ObjectReferenceSegment"),
                 ),
                 # Rename
@@ -3627,6 +3691,35 @@ class TableConstraintSegment(BaseSegment):
                 # REFERENCES reftable [ ( refcolumn) ] + ON DELETE/ON UPDATE
                 Ref("ReferencesConstraintGrammar"),
             ),
+            Ref("CheckConstraintGrammar", optional=True),
+        ),
+    )
+
+
+class GraphTableConstraintSegment(BaseSegment):
+    """A table constraint segment for graph tables, including connection constraints."""
+
+    type = "graph_table_constraint"
+    match_grammar = Sequence(
+        Sequence(  # [ CONSTRAINT <Constraint name> ]
+            "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
+        ),
+        OneOf(
+            Sequence(
+                Ref("PrimaryKeyGrammar"),
+                Ref("BracketedIndexColumnListGrammar"),
+                Ref("RelationalIndexOptionsSegment", optional=True),
+                Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
+            ),
+            Sequence(  # FOREIGN KEY ( column_name [, ... ] )
+                # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+                Ref("ForeignKeyGrammar"),
+                # Local columns making up FOREIGN KEY constraint
+                Ref("BracketedColumnReferenceListGrammar"),
+                # REFERENCES reftable [ ( refcolumn) ] + ON DELETE/ON UPDATE
+                Ref("ReferencesConstraintGrammar"),
+            ),
+            Ref("ConnectionConstraintGrammar", optional=True),
             Ref("CheckConstraintGrammar", optional=True),
         ),
     )
@@ -6794,6 +6887,148 @@ class DropMasterKeySegment(BaseSegment):
         "DROP",
         "MASTER",
         "KEY",
+    )
+
+
+class CreateSecurityPolicySegment(BaseSegment):
+    """A `CREATE SECURITY POLICY` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-security-policy-transact-sql
+
+    type = "create_security_policy_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SECURITY",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        Delimited(
+            Sequence(
+                "ADD",
+                OneOf("FILTER", "BLOCK", optional=True),
+                "PREDICATE",
+                Ref("ObjectReferenceSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+                "ON",
+                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    Sequence(
+                        "AFTER",
+                        OneOf("INSERT", "UPDATE"),
+                    ),
+                    Sequence(
+                        "BEFORE",
+                        OneOf("UPDATE", "DELETE"),
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Delimited(
+                    Sequence("STATE", Ref("EqualsSegment"), OneOf("ON", "OFF")),
+                    Sequence("SCHEMABINDING", Ref("EqualsSegment"), OneOf("ON", "OFF")),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "NOT",
+            "FOR",
+            "REPLICATION",
+            optional=True,
+        ),
+    )
+
+
+class AlterSecurityPolicySegment(BaseSegment):
+    """A `ALTER SECURITY POLICY` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-security-policy-transact-sql
+
+    type = "alter_security_policy_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "SECURITY",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        Delimited(
+            Sequence(
+                OneOf("ADD", "ALTER"),
+                OneOf("FILTER", "BLOCK", optional=True),
+                "PREDICATE",
+                Ref("ObjectReferenceSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+                "ON",
+                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    Sequence(
+                        "AFTER",
+                        OneOf("INSERT", "UPDATE"),
+                    ),
+                    Sequence(
+                        "BEFORE",
+                        OneOf("UPDATE", "DELETE"),
+                    ),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "DROP",
+                OneOf("FILTER", "BLOCK", optional=True),
+                "PREDICATE",
+                "ON",
+                Ref("ObjectReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Delimited(
+                    Sequence("STATE", Ref("EqualsSegment"), OneOf("ON", "OFF")),
+                    Sequence("SCHEMABINDING", Ref("EqualsSegment"), OneOf("ON", "OFF")),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "NOT",
+            "FOR",
+            "REPLICATION",
+            optional=True,
+        ),
+    )
+
+
+class DropSecurityPolicySegment(BaseSegment):
+    """A `DROP SECURITY POLICY` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-security-policy-transact-sql
+
+    type = "drop_security_policy"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "SECURITY",
+        "POLICY",
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("ObjectReferenceSegment"),
     )
 
 

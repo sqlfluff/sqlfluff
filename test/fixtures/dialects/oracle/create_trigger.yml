@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7d2e2940003ad0bdbac12890ceecc24ac8f66a19234699022b5df6b1da208e09
+_hash: 0d8e851e9e3b7d2d99dbfc90f19362d1e67daa6df553f6f01dd1881c3679d31f
 file:
   statement:
     create_trigger_statement:
@@ -682,3 +682,65 @@ file:
                     naked_identifier: maintain_employee_salaries
             - statement_terminator: ;
             - statement_terminator: /
+            - statement:
+                create_trigger_statement:
+                - keyword: CREATE
+                - keyword: OR
+                - keyword: REPLACE
+                - keyword: TRIGGER
+                - trigger_reference:
+                    naked_identifier: insert_or_update_trigger
+                - keyword: BEFORE
+                - dml_event_clause:
+                  - keyword: INSERT
+                  - keyword: OR
+                  - keyword: UPDATE
+                  - keyword: 'ON'
+                  - table_reference:
+                      naked_identifier: your_table_name
+                - keyword: FOR
+                - keyword: EACH
+                - keyword: ROW
+                - statement:
+                    begin_end_block:
+                    - keyword: BEGIN
+                    - statement:
+                        if_then_statement:
+                        - if_clause:
+                          - keyword: IF
+                          - keyword: INSERTING
+                          - keyword: THEN
+                        - statement:
+                            assignment_segment_statement:
+                              sqlplus_variable:
+                              - colon: ':'
+                              - parameter: new
+                              - dot: .
+                              - parameter: created_at
+                              colon: ':'
+                              comparison_operator:
+                                raw_comparison_operator: '='
+                              expression:
+                                bare_function: CURRENT_TIMESTAMP
+                        - statement_terminator: ;
+                        - keyword: ELSIF
+                        - keyword: UPDATING
+                        - keyword: THEN
+                        - statement:
+                            assignment_segment_statement:
+                              sqlplus_variable:
+                              - colon: ':'
+                              - parameter: new
+                              - dot: .
+                              - parameter: updated_at
+                              colon: ':'
+                              comparison_operator:
+                                raw_comparison_operator: '='
+                              expression:
+                                bare_function: CURRENT_TIMESTAMP
+                        - statement_terminator: ;
+                        - keyword: END
+                        - keyword: IF
+                    - statement_terminator: ;
+                    - keyword: END
+                - statement_terminator: ;

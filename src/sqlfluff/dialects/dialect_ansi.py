@@ -48,6 +48,7 @@ from sqlfluff.core.parser import (
     OneOf,
     OptionallyBracketed,
     ParseMode,
+    RawSegment,
     Ref,
     RegexLexer,
     RegexParser,
@@ -1060,17 +1061,18 @@ class ObjectReferenceSegment(BaseSegment):
         """Details about a table alias."""
 
         part: str  # Name of the part
-        # Segment(s) comprising the part. Usuaully just one segment, but could
+        # Segment(s) comprising the part. Usually just one segment, but could
         # be multiple in dialects (e.g. BigQuery) that support unusual
         # characters in names (e.g. "-")
-        segments: list[BaseSegment]
+        segments: list[RawSegment]
 
     @classmethod
-    def _iter_reference_parts(cls, elem) -> Generator[ObjectReferencePart, None, None]:
+    def _iter_reference_parts(
+        cls, elem: RawSegment
+    ) -> Generator[ObjectReferencePart, None, None]:
         """Extract the elements of a reference and yield."""
         # trim on quotes and split out any dots.
-        for part in elem.raw_trimmed().split("."):
-            yield cls.ObjectReferencePart(part, [elem])
+        yield cls.ObjectReferencePart(elem.raw_trimmed(), [elem])
 
     def iter_raw_references(self) -> Generator[ObjectReferencePart, None, None]:
         """Generate a list of reference strings and elements.
@@ -1080,7 +1082,7 @@ class ObjectReferenceSegment(BaseSegment):
         """
         # Extract the references from those identifiers (because some may be quoted)
         for elem in self.recursive_crawl("identifier"):
-            yield from self._iter_reference_parts(elem)
+            yield from self._iter_reference_parts(cast(IdentifierSegment, elem))
 
     def is_qualified(self) -> bool:
         """Return if there is more than one element to the reference."""
@@ -1625,7 +1627,7 @@ class FromExpressionElementSegment(BaseSegment):
         ),
     )
 
-    def get_eventual_alias(self) -> AliasInfo:
+    def get_eventual_alias(self) -> Generator[AliasInfo, None, None]:
         """Return the eventual table name referred to by this table expression.
 
         Returns:
@@ -1654,17 +1656,20 @@ class FromExpressionElementSegment(BaseSegment):
                 ref = cast(ObjectReferenceSegment, _ref)
 
         # Handle any aliases
-        alias_expression = self.get_child("alias_expression")
-        if not alias_expression:  # pragma: no cover
-            _bracketed = self.get_child("bracketed")
-            if _bracketed:
-                alias_expression = _bracketed.get_child("alias_expression")
-        if alias_expression:
+        has_alias = False
+        alias_expressions = self.get_children("alias_expression", "bracketed")
+        for alias_expression in alias_expressions:
+            if alias_expression.is_type("bracketed"):  # pragma: no cover
+                _alias_expression = alias_expression.get_child("alias_expression")
+                if _alias_expression is None:
+                    continue
+                alias_expression = _alias_expression
             # If it has an alias, return that
+            has_alias = True
             segment = alias_expression.get_child("identifier")
             if segment:
                 segment = cast(IdentifierSegment, segment)
-                return AliasInfo(
+                yield AliasInfo(
                     segment.raw_normalized(casefold=False),
                     segment,
                     True,
@@ -1672,6 +1677,8 @@ class FromExpressionElementSegment(BaseSegment):
                     alias_expression,
                     ref,
                 )
+        if has_alias:
+            return
 
         # If not return the object name (or None if there isn't one)
         if ref:
@@ -1681,7 +1688,7 @@ class FromExpressionElementSegment(BaseSegment):
                 penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = (
                     references[-1]
                 )
-                return AliasInfo(
+                yield AliasInfo(
                     penultimate_ref.part,
                     penultimate_ref.segments[0],
                     False,
@@ -1689,8 +1696,9 @@ class FromExpressionElementSegment(BaseSegment):
                     None,
                     ref,
                 )
+                return
         # No references or alias
-        return AliasInfo(
+        yield AliasInfo(
             "",
             None,
             False,
@@ -1781,7 +1789,7 @@ class WildcardIdentifierSegment(ObjectReferenceSegment):
         """
         # Extract the references from those identifiers (because some may be quoted)
         for elem in self.recursive_crawl("identifier", "star"):
-            yield from self._iter_reference_parts(elem)
+            yield from self._iter_reference_parts(cast(RawSegment, elem))
 
 
 class WildcardExpressionSegment(BaseSegment):
@@ -1953,12 +1961,12 @@ class JoinClauseSegment(BaseSegment):
         from_expression = self.get_child("from_expression_element")
         # As per grammar above, there will always be a FromExpressionElementSegment
         assert from_expression
-        alias: AliasInfo = cast(
+        from_aliases = cast(
             FromExpressionElementSegment, from_expression
         ).get_eventual_alias()
         # Only append if non-null. A None reference, may
         # indicate a generator expression or similar.
-        if alias:
+        for alias in from_aliases:
             buff.append((from_expression, alias))
 
         # In some dialects, like TSQL, join clauses can have nested join clauses
@@ -2037,7 +2045,7 @@ class FromClauseSegment(BaseSegment):
 
         # Iterate through the potential sources of aliases
         for clause in direct_table_children:
-            alias: AliasInfo = cast(
+            direct_table_aliases = cast(
                 FromExpressionElementSegment, clause
             ).get_eventual_alias()
             # Only append if non-null. A None reference, may
@@ -2047,7 +2055,7 @@ class FromClauseSegment(BaseSegment):
                 if clause in direct_table_children
                 else clause.get_child("from_expression_element")
             )
-            if alias:
+            for alias in direct_table_aliases:
                 assert table_expr
                 buff.append((table_expr, alias))
         for clause in join_clauses:

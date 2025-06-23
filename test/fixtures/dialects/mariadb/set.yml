@@ -1,0 +1,214 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ad22964072b2ca81c383e123d6db4d4c5529ed29ec5071aed19963ec3c6ad913
+file:
+- statement:
+    set_statement:
+      keyword: SET
+      variable: max_error_count
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '128'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: skip_parallel_replication
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: 'ON'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: GLOBAL
+    - variable: max_error_count
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '256'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: GLOBAL
+    - variable: innodb_sync_spin_loops
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '120'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: some_bool_param
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: 'ON'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: some_bool_param
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: 'OFF'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: some_bool_param
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: 'TRUE'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: some_bool_param
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: 'FALSE'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: some_bool_param
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: some_bool_param
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: a
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1'
+    - comma: ','
+    - variable: b
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: '@abc'
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+      - numeric_literal: '1'
+      - binary_operator: +
+      - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: '@abc'
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '1'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: '@id'
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: id
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: table1
+              where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                    naked_identifier: field
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  boolean_literal: 'TRUE'
+              limit_clause:
+                keyword: LIMIT
+                numeric_literal: '1'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: '@abc'
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: '@my_var'
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: '@my$currency'
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: '@sha256enabled'
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: sql_log_bin
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: 'ON'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: sql_log_bin
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: 'OFF'
+- statement_terminator: ;

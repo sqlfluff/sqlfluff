@@ -1174,7 +1174,7 @@ def _deduce_line_current_indent(
                 if indent_seg.is_type("whitespace") and not indent_seg.is_templated:
                     break
             # Handle edge case of no whitespace, but with newline.
-            if not indent_seg.is_type("whitespace"):
+            if indent_seg and not indent_seg.is_type("whitespace"):
                 indent_seg = None
 
     if not indent_seg:
