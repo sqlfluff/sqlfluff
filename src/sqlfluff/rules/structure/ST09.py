@@ -109,14 +109,12 @@ class Rule_ST09(BaseRule):
             return None
 
         # the first alias comes from the from clause
-        from_expression_alias: str = (
+        from_expression_alias: str = next(
             cast(
                 FromExpressionElementSegment,
                 children.recursive_crawl("from_expression_element")[0],
-            )
-            .get_eventual_alias()
-            .ref_str
-        )
+            ).get_eventual_alias()
+        ).ref_str
 
         table_aliases.append(from_expression_alias)
 
@@ -171,6 +169,7 @@ class Rule_ST09(BaseRule):
 
         # STEP 4.
         fixes: list[LintFix] = []
+        anchor_segment = context.segment  # Default anchor
 
         for subcondition in column_operator_column_subconditions:
             comparison_operator = subcondition[1]
@@ -206,6 +205,17 @@ class Rule_ST09(BaseRule):
                 table_aliases.index(first_table) < table_aliases.index(second_table)
                 and self.preferred_first_table_in_join_clause == "later"
             ):
+                # Use the first column reference as anchor if it has a literal
+                # position marker. This ensures the violation is anchored to
+                # a literal segment which won't be filtered out in templated
+                # code.
+                if (
+                    not fixes
+                    and first_column_reference.pos_marker
+                    and first_column_reference.pos_marker.is_literal()
+                ):
+                    anchor_segment = first_column_reference
+
                 fixes = (
                     fixes
                     + [
@@ -249,7 +259,7 @@ class Rule_ST09(BaseRule):
         # STEP 5.b.
         else:
             return LintResult(
-                anchor=context.segment,
+                anchor=anchor_segment,
                 fixes=fixes,
                 description=(
                     "Joins should list the table referenced "

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2a0d700bd5dc5418ed964e623a378ff5053d0abcadd537d2e9fb58905c6321c0
+_hash: 48376aa83f4f699ff9589a73506d9489f3d1d10da0ed466406965e333d5688a7
 file:
 - batch:
     statement:
@@ -316,6 +316,20 @@ file:
         - naked_identifier: TransactionHistoryArchive
       - keyword: DROP
       - keyword: CONSTRAINT
+      - object_reference:
+          naked_identifier: PK_TransactionHistoryArchive_TransactionID
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: Production
+        - dot: .
+        - naked_identifier: TransactionHistoryArchive
+      - keyword: DROP
+      - keyword: CONSTRAINT
+      - keyword: IF
+      - keyword: EXISTS
       - object_reference:
           naked_identifier: PK_TransactionHistoryArchive_TransactionID
   - statement:
