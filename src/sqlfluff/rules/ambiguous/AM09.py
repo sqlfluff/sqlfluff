@@ -1,9 +1,7 @@
-"""Implementation of Rule AM08."""
+"""Implementation of Rule AM09."""
 
-from typing import Optional
 
 from sqlfluff.utils.analysis.query import Query
-from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
@@ -34,6 +32,9 @@ class Rule_AM09(BaseRule):
         FROM my_schema.my_table
     """
 
+    name = "ambiguous.explicit_schema"
+    aliases = ()
+    is_fix_compatible = False
     groups: tuple[str, ...] = ("all", "ambiguous")
     crawl_behaviour = SegmentSeekerCrawler({"table_reference"})
 
@@ -79,7 +80,10 @@ class Rule_AM09(BaseRule):
         with_segment = next(
             (x for x in context.parent_stack if x.type == "with_compound_statement"), None)
         if with_segment is None:
-            return None
+            return LintResult(
+                anchor=context.segment,
+                description=f"Table `{context.segment.raw}` is not schema-qualified. Please use Explicit Schema Name.",
+            )
         query: Query = Query.from_segment(with_segment, context.dialect)
         ctes = query.ctes.values()
 
