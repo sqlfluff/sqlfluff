@@ -305,6 +305,11 @@ tsql_dialect.add(
         Ref("QuotedLiteralSegment"),
         Ref("QuotedLiteralSegmentWithN"),
     ),
+    IntegerLiteralSegment=RegexParser(
+        r"(?<!\.)\b\d+\b(?!\.\d)",
+        LiteralSegment,
+        type="integer_literal",
+    ),
     TransactionGrammar=OneOf(
         "TRANSACTION",
         "TRAN",
@@ -465,10 +470,16 @@ tsql_dialect.replace(
         Ref("ParameterNameSegment"),
         Ref("VariableIdentifierSegment"),
     ),
+    NumericLiteralSegment=OneOf(
+        # Try integer first, then fallback to the original numeric
+        TypedParser("integer_literal", LiteralSegment, type="integer_literal"),
+        TypedParser("numeric_literal", LiteralSegment, type="numeric_literal"),
+    ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar")
     .copy(
         insert=[
             Ref("QuotedLiteralSegmentWithN"),
+            Ref("IntegerLiteralSegment"),
         ],
         before=Ref("NumericLiteralSegment"),
         remove=[
@@ -683,48 +694,127 @@ tsql_dialect.replace(
 )
 
 
+# Level 0
+class FileSegment(BaseFileSegment):
+    """A segment representing a whole file or script.
+
+    We override default as T-SQL allows concept of several
+    batches of commands separated by GO as well as usual
+    semicolon-separated statement lines.
+
+    This is also the default "root" segment of the dialect,
+    and so is usually instantiated directly. It therefore
+    has no match_grammar.
+    """
+
+    match_grammar = Sequence(
+        AnyNumberOf(
+            Ref("BatchSegment"),
+        ),
+    )
+
+
+# Level 1
+class BatchSegment(BaseSegment):
+    """A segment representing a GO batch within a file or script."""
+
+    type = "batch"
+    match_grammar = OneOf(
+        Sequence(
+            Ref("OneOrMoreStatementsGrammar"),
+            Ref("BatchDelimiterGrammar", optional=True),
+        ),
+        Ref("BatchDelimiterGrammar"),
+    )
+
+
+# Level 2
+class GoStatementSegment(BaseSegment):
+    """GO signals the end of a batch of Transact-SQL statements.
+
+    GO statements are not part of the TSQL language. They are used to signal batch
+    statements so that clients know in how batches of statements can be executed.
+    """
+
+    type = "go_statement"
+    match_grammar = Sequence(
+        Ref.keyword("GO"),
+        Ref("IntegerLiteralSegment", optional=True),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
-            Ref("IfExpressionStatement"),
-            Ref("DeclareStatementSegment"),
-            Ref("DeclareCursorStatementSegment"),
-            Ref("SetStatementSegment"),
-            Ref("AlterTableSwitchStatementSegment"),
-            Ref("PrintStatementSegment"),
+            # DDL Data Definition Language
+            # https://docs.microsoft.com/en-us/sql/t-sql/statements/statements
+            # Ref("CreateDatabaseStatementSegment"),
+            # Ref("AlterDatabaseStatementSegment"),
+            # Ref("DropDatabaseStatementSegment"),
+            # Ref("CreateTableStatementSegment"),
             Ref("CreateTableGraphStatementSegment"),
-            Ref(
-                "CreateTableAsSelectStatementSegment"
-            ),  # Azure Synapse Analytics specific
-            Ref("RenameStatementSegment"),  # Azure Synapse Analytics specific
-            Ref("ExecuteScriptSegment"),
-            Ref("DropStatisticsStatementSegment"),
+            Ref("AlterTableSwitchStatementSegment"),
+            # Ref("DropTableStatementSegment"),
+            # Ref("CreateViewStatementSegment"),
+            # Ref("AlterViewStatementSegment"),
+            # Ref("DropIndexStatementSegment"),
+            # Ref("CreateIndexStatementSegment"),
+            Ref("AlterIndexStatementSegment"),
+            # Ref("DropViewStatementSegment"),
+            Ref("CreateProcedureStatementSegment"),
+            # Ref("AlterProcedureStatementSegment"),
             Ref("DropProcedureStatementSegment"),
-            Ref("UpdateStatisticsStatementSegment"),
-            Ref("BeginEndSegment"),
-            Ref("TryCatchSegment"),
-            Ref("MergeStatementSegment"),
-            Ref("ThrowStatementSegment"),
-            Ref("RaiserrorStatementSegment"),
-            Ref("ReturnStatementSegment"),
-            Ref("GotoStatement"),
-            Ref("LabelStatementSegment"),
+            Ref("DropStatisticsStatementSegment"),
             Ref("DisableTriggerStatementSegment"),
-            Ref("WhileExpressionStatement"),
-            Ref("BreakStatement"),
-            Ref("ContinueStatement"),
-            Ref("WaitForStatementSegment"),
-            Ref("OpenCursorStatementSegment"),
-            Ref("CloseCursorStatementSegment"),
-            Ref("DeallocateCursorStatementSegment"),
-            Ref("FetchCursorStatementSegment"),
-            Ref("CreateTypeStatementSegment"),
+            Ref("CreatePartitionFunctionSegment"),
+            Ref("AlterPartitionSchemeSegment"),
+            Ref("CreateMasterKeySegment"),
+            Ref("AlterMasterKeySegment"),
+            Ref("DropMasterKeySegment"),
+            Ref("CreateSecurityPolicySegment"),
+            Ref("AlterSecurityPolicySegment"),
+            Ref("DropSecurityPolicySegment"),
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
+            # DML Data Manipulation Language
+            # https://learn.microsoft.com/en-us/sql/t-sql/queries/queries?view=sql-server-ver17
             Ref("BulkInsertStatementSegment"),
-            Ref("AlterIndexStatementSegment"),
+            Ref("MergeStatementSegment"),
+            # CFL Control of Flow Language
+            # https://docs.microsoft.com/en-us/sql/t-sql/language-elements/control-of-flow
+            Ref("BeginEndSegment"),
+            Ref("BreakStatement"),
+            Ref("ContinueStatement"),
+            Ref("GotoStatement"),
+            Ref("IfExpressionStatement"),
+            Ref("ReturnStatementSegment"),
+            Ref("ThrowStatementSegment"),
+            Ref("TryCatchSegment"),
+            Ref("WaitForStatementSegment"),
+            Ref("WhileExpressionStatement"),
+            # Other statements
+            Ref("PrintStatementSegment"),
+            Ref("RaiserrorStatementSegment"),
+            Ref("DeclareStatementSegment"),
+            Ref("OpenCursorStatementSegment"),
+            Ref("ExecuteScriptSegment"),
+            # Ref("PermissionStatementSegment"),
+            Ref("SetStatementSegment"),
+            # Ref("UseStatementSegment"),
+            # Unsorted
+            Ref("DeclareCursorStatementSegment"),
+            Ref("FetchCursorStatementSegment"),
+            Ref("CloseCursorStatementSegment"),
+            Ref("DeallocateCursorStatementSegment"),
+            #  Azure Synapse Analytics specific
+            Ref("CreateTableAsSelectStatementSegment"),
+            # Azure Synapse Analytics specific
+            Ref("RenameStatementSegment"),
+            Ref("UpdateStatisticsStatementSegment"),
+            Ref("LabelStatementSegment"),
+            Ref("CreateTypeStatementSegment"),
             Ref("CreateDatabaseScopedCredentialStatementSegment"),
             Ref("CreateExternalDataSourceStatementSegment"),
             Ref("SqlcmdCommandSegment"),
@@ -736,24 +826,19 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AtomicBeginEndSegment"),
             Ref("ReconfigureStatementSegment"),
             Ref("CreateColumnstoreIndexStatementSegment"),
-            Ref("CreatePartitionFunctionSegment"),
-            Ref("AlterPartitionSchemeSegment"),
             Ref("CreatePartitionSchemeSegment"),
             Ref("AlterPartitionFunctionSegment"),
-            Ref("CreateMasterKeySegment"),
-            Ref("AlterMasterKeySegment"),
-            Ref("DropMasterKeySegment"),
             Ref("OpenSymmetricKeySegment"),
             Ref("CreateLoginStatementSegment"),
             Ref("SetContextInfoSegment"),
-            Ref("CreateSecurityPolicySegment"),
-            Ref("AlterSecurityPolicySegment"),
-            Ref("DropSecurityPolicySegment"),
         ],
         remove=[
+            Ref("CreateCastStatementSegment"),
+            Ref("DropCastStatementSegment"),
             Ref("CreateModelStatementSegment"),
             Ref("DropModelStatementSegment"),
             Ref("DescribeStatementSegment"),
+            Ref("ExplainStatementSegment"),
         ],
     )
 
@@ -2355,17 +2440,6 @@ class DeclareCursorStatementSegment(BaseSegment):
         "FOR",
         Ref("SelectStatementSegment"),
     )
-
-
-class GoStatementSegment(BaseSegment):
-    """GO signals the end of a batch of Transact-SQL statements.
-
-    GO statements are not part of the TSQL language. They are used to signal batch
-    statements so that clients know in how batches of statements can be executed.
-    """
-
-    type = "go_statement"
-    match_grammar = Ref.keyword("GO")
 
 
 class BracketedArguments(ansi.BracketedArguments):
@@ -4190,46 +4264,6 @@ class TryCatchSegment(BaseSegment):
     )
 
 
-class BatchSegment(BaseSegment):
-    """A segment representing a GO batch within a file or script."""
-
-    type = "batch"
-    match_grammar = OneOf(
-        # Things that can be bundled
-        Ref("OneOrMoreStatementsGrammar"),
-        # Things that can't be bundled
-        Ref("CreateProcedureStatementSegment"),
-    )
-
-
-class FileSegment(BaseFileSegment):
-    """A segment representing a whole file or script.
-
-    We override default as T-SQL allows concept of several
-    batches of commands separated by GO as well as usual
-    semicolon-separated statement lines.
-
-    This is also the default "root" segment of the dialect,
-    and so is usually instantiated directly. It therefore
-    has no match_grammar.
-    """
-
-    match_grammar = Sequence(
-        AnyNumberOf(Ref("BatchDelimiterGrammar")),
-        Delimited(
-            Ref("BatchSegment"),
-            delimiter=AnyNumberOf(
-                Sequence(
-                    Ref("DelimiterGrammar", optional=True), Ref("BatchDelimiterGrammar")
-                ),
-                min_times=1,
-            ),
-            allow_gaps=True,
-            allow_trailing=True,
-        ),
-    )
-
-
 class OpenRowSetSegment(BaseSegment):
     """A `OPENROWSET` segment.
 
@@ -5542,26 +5576,21 @@ class RaiserrorStatementSegment(BaseSegment):
         Bracketed(
             Delimited(
                 OneOf(
-                    Ref("NumericLiteralSegment"),
-                    Ref("QuotedLiteralSegment"),
-                    Ref("QuotedLiteralSegmentWithN"),
-                    Ref("ParameterNameSegment"),
+                    Ref("NumericLiteralSegment"),  # msg_id
+                    Ref("QuotedLiteralSegment"),  # msg_str
+                    Ref("QuotedLiteralSegmentWithN"),  # msg_str
+                    Ref("ParameterNameSegment"),  # @local_variable
                 ),
-                OneOf(
-                    Ref("NumericLiteralSegment"),
-                    Ref("QualifiedNumericLiteralSegment"),
-                    Ref("ParameterNameSegment"),
+                Sequence(
+                    Ref("CommaSegment"),
+                    Ref("NumericLiteralSegment"),  # severity
+                    Ref("CommaSegment"),
+                    Ref("NumericLiteralSegment"),  # state
                 ),
-                OneOf(
-                    Ref("NumericLiteralSegment"),
-                    Ref("QualifiedNumericLiteralSegment"),
-                    Ref("ParameterNameSegment"),
-                ),
+                # [ , argument [ , ...n ] ]
                 AnyNumberOf(
-                    Ref("LiteralGrammar"),
-                    Ref("ParameterNameSegment"),
-                    min_times=0,
-                    max_times=20,
+                    Ref("CommaSegment"),
+                    Ref("ExpressionSegment"),
                 ),
             ),
         ),
