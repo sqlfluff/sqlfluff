@@ -1,0 +1,21 @@
+# Test cases for AM09: Ensures all tables are referenced with schemas.
+
+# Unqualified table should fail
+- fail_str: |
+    SELECT
+        a,
+        b
+    FROM my_table
+# Schema-qualified table should pass
+- pass_str: |
+    SELECT
+        a,
+        b
+    FROM my_schema.my_table
+
+# CTE reference should pass
+- pass_str: |
+    WITH my_cte AS (
+        SELECT 1 AS a
+    )
+    SELECT a FROM my_cte
