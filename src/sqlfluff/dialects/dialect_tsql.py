@@ -279,6 +279,11 @@ tsql_dialect.patch_lexer_matchers(
 )
 
 tsql_dialect.add(
+    PercentSegment=TypedParser(
+        "percent",
+        CodeSegment,
+        type="percent",
+    ),
     BracketedIdentifierSegment=TypedParser(
         "square_quote",
         IdentifierSegment,
@@ -427,6 +432,16 @@ tsql_dialect.add(
     ),
     ModuloComparisonSegment=StringParser(
         "%", SymbolSegment, type="raw_comparison_operator"
+    ),
+    SizeLiteralSegment=RegexParser(
+        r"\b\d+\s*?(KB|MB|GB|TB)\b",
+        LiteralSegment,
+        type="size_literal",
+    ),
+    NakedOrQuotedIdentifierGrammar=OneOf(
+        Ref("NakedIdentifierSegment"),
+        Ref("QuotedIdentifierSegment"),
+        Ref("BracketedIdentifierSegment"),
     ),
 )
 
@@ -749,7 +764,7 @@ class StatementSegment(ansi.StatementSegment):
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             # DDL Data Definition Language
-            # https://docs.microsoft.com/en-us/sql/t-sql/statements/statements
+            # https://learn.microsoft.com/en-us/sql/t-sql/statements/statements
             # Ref("CreateDatabaseStatementSegment"),
             # Ref("AlterDatabaseStatementSegment"),
             # Ref("DropDatabaseStatementSegment"),
@@ -779,11 +794,11 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
             # DML Data Manipulation Language
-            # https://learn.microsoft.com/en-us/sql/t-sql/queries/queries?view=sql-server-ver17
+            # https://learn.microsoft.com/en-us/sql/t-sql/queries/queries
             Ref("BulkInsertStatementSegment"),
             Ref("MergeStatementSegment"),
             # CFL Control of Flow Language
-            # https://docs.microsoft.com/en-us/sql/t-sql/language-elements/control-of-flow
+            # https://learn.microsoft.com/en-us/sql/t-sql/language-elements/control-of-flow
             Ref("BeginEndSegment"),
             Ref("BreakStatement"),
             Ref("ContinueStatement"),
@@ -794,20 +809,21 @@ class StatementSegment(ansi.StatementSegment):
             Ref("TryCatchSegment"),
             Ref("WaitForStatementSegment"),
             Ref("WhileExpressionStatement"),
+            # Cursor statements
+            Ref("DeclareCursorStatementSegment"),
+            Ref("OpenCursorStatementSegment"),
+            Ref("FetchCursorStatementSegment"),
+            Ref("CloseCursorStatementSegment"),
+            Ref("DeallocateCursorStatementSegment"),
             # Other statements
             Ref("PrintStatementSegment"),
             Ref("RaiserrorStatementSegment"),
             Ref("DeclareStatementSegment"),
-            Ref("OpenCursorStatementSegment"),
             Ref("ExecuteScriptSegment"),
             # Ref("PermissionStatementSegment"),
             Ref("SetStatementSegment"),
             # Ref("UseStatementSegment"),
             # Unsorted
-            Ref("DeclareCursorStatementSegment"),
-            Ref("FetchCursorStatementSegment"),
-            Ref("CloseCursorStatementSegment"),
-            Ref("DeallocateCursorStatementSegment"),
             #  Azure Synapse Analytics specific
             Ref("CreateTableAsSelectStatementSegment"),
             # Azure Synapse Analytics specific
@@ -843,6 +859,218 @@ class StatementSegment(ansi.StatementSegment):
     )
 
 
+# Level 3
+
+
+class CreateDatabaseStatementSegment(BaseSegment):
+    """A `CREATE DATABASE` statement."""
+
+    _file_group = Sequence(
+        "FILEGROUP",
+        Ref("NakedOrQuotedIdentifierGrammar"),
+        OneOf(
+            Sequence(
+                Sequence("CONTAINS", "FILESTREAM", optional=True),
+                Sequence("DEFAULT", optional=True),
+            ),
+            Sequence("CONTAINS", "MEMORY_OPTIMIZED_DATA"),
+            optional=True,
+        ),
+        Delimited(Ref("FileSpecSegment")),
+    )
+
+    _filestream_option = OneOf(
+        Sequence(
+            "NON_TRANSACTED_ACCESS",
+            Ref("EqualsSegment"),
+            OneOf("OFF", "READ_ONLY", "FULL"),
+        ),
+        Sequence(
+            "DIRECTORY_NAME",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+    )
+
+    _create_database_option = OneOf(
+        Sequence(
+            "FILESTREAM",
+            Bracketed(Delimited(_filestream_option, min_delimiters=1)),
+        ),
+        Sequence(
+            "DEFAULT_FULLTEXT_LANGUAGE",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("QuotedLiteralSegment"),
+                Ref("NakedIdentifierSegment"),
+            ),
+        ),
+        Sequence(
+            "DEFAULT_LANGUAGE",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("QuotedLiteralSegment"),
+                Ref("NakedIdentifierSegment"),
+            ),
+        ),
+        Sequence(
+            "NESTED_TRIGGERS",
+            Ref("EqualsSegment"),
+            OneOf("OFF", "ON"),
+        ),
+        Sequence(
+            "TRANSFORM_NOISE_WORDS",
+            Ref("EqualsSegment"),
+            OneOf("OFF", "ON"),
+        ),
+        Sequence(
+            "TWO_DIGIT_YEAR_CUTOFF",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "DB_CHAINING",
+            OneOf("OFF", "ON"),
+        ),
+        Sequence(
+            "TRUSTWORTHY",
+            OneOf("OFF", "ON"),
+        ),
+        Sequence(
+            "PERSISTENT_LOG_BUFFER",
+            Ref("EqualsSegment"),
+            "ON",
+            Bracketed(
+                Sequence(
+                    "DIRECTORY_NAME",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                )
+            ),
+        ),
+        Sequence(
+            "LEDGER",
+            Ref("EqualsSegment"),
+            OneOf("ON", "OFF"),
+        ),
+        Sequence(
+            "CATALOG_COLLATION",
+            Ref("EqualsSegment"),
+            Ref("CollationReferenceSegment"),
+        ),
+    )
+
+    _create_database_normal = Sequence(
+        Sequence(
+            "CONTAINMENT",
+            Ref("EqualsSegment"),
+            OneOf("NONE", "PARTIAL"),
+            optional=True,
+        ),
+        Sequence(
+            "ON",
+            Sequence("PRIMARY", optional=True),
+            Delimited(Ref("FileSpecSegment")),
+            Sequence(
+                Ref("CommaSegment"),
+                Delimited(_file_group, optional=True),
+                optional=True,
+            ),
+            Sequence(
+                "LOG",
+                "ON",
+                Delimited(Ref("FileSpecSegment")),
+                optional=True,
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "COLLATE",
+            Ref("CollationReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "WITH",
+            Delimited(_create_database_option),
+            optional=True,
+        ),
+    )
+
+    _attach_database_option = OneOf(
+        # Service broker options
+        "ENABLE_BROKER",
+        "NEW_BROKER",
+        "ERROR_BROKER_CONVERSATIONS",
+        "RESTRICTED_USER",
+        Sequence(
+            "FILESTREAM",
+            Bracketed(
+                Sequence(
+                    "DIRECTORY_NAME",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("QuotedLiteralSegment"),
+                        "NULL",
+                    ),
+                )
+            ),
+        ),
+    )
+
+    _create_database_attach = Sequence(
+        "ON",
+        Delimited(Ref("FileSpecSegment")),
+        "FOR",
+        OneOf(
+            Sequence(
+                "ATTACH",
+                Sequence(
+                    "WITH",
+                    _attach_database_option,
+                    optional=True,
+                ),
+            ),
+            "ATTACH_REBUILD_LOG",
+        ),
+    )
+
+    _create_database_snapshot = Sequence(
+        "ON",
+        Delimited(
+            Bracketed(
+                Sequence(
+                    Ref("LogicalFileNameSegment", optional=True),
+                    "FILENAME",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            min_delimiters=1,
+        ),
+        "AS",
+        "SNAPSHOT",
+        "OF",
+        Ref("NakedIdentifierSegment"),
+    )
+
+    type = "create_database_statement"
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-database-transact-sql
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "DATABASE",
+        Ref("DatabaseReferenceSegment"),
+        OneOf(
+            _create_database_normal,
+            _create_database_attach,
+            _create_database_snapshot,
+            optional=True,
+        ),
+    )
+
+
+# Shared grammars
 class GreaterThanOrEqualToSegment(CompositeComparisonOperatorSegment):
     """Greater than or equal to operator.
 
@@ -891,6 +1119,96 @@ class NotEqualToSegment(CompositeComparisonOperatorSegment):
         Sequence(Ref("RawNotSegment"), Ref("RawEqualsSegment")),
         Sequence(Ref("RawLessThanSegment"), Ref("RawGreaterThanSegment")),
     )
+
+
+class LogicalFileNameSegment(BaseSegment):
+    """A logical file name for CREATE DATABASE and CREATE DATABASE statements.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-database-transact-sql
+    """
+
+    type = "logical_file_name"
+    match_grammar = Sequence(
+        "NAME",
+        Ref("EqualsSegment"),
+        OneOf(
+            Ref("NakedIdentifierSegment"),
+            Ref("QuotedLiteralSegmentOptWithN"),
+        ),
+        Ref("CommaSegment"),
+    )
+
+
+class FileSpecSegment(BaseSegment):
+    """A file specification for CREATE DATABASE and CREATE DATABASE statements.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-database-transact-sql
+    """
+
+    type = "file_spec"
+    match_grammar = Bracketed(
+        Sequence(
+            Ref("LogicalFileNameSegment", optional=True),
+            "FILENAME",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegmentOptWithN"),
+            Sequence(
+                Ref("CommaSegment"),
+                "SIZE",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("SizeLiteralSegment"),
+                    Sequence(
+                        Ref("NumericLiteralSegment"),
+                        OneOf("KB", "MB", "GB", "TB", optional=True),
+                    ),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                Ref("CommaSegment"),
+                "MAXSIZE",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("SizeLiteralSegment"),
+                    Sequence(
+                        Ref("NumericLiteralSegment"),
+                        OneOf("KB", "MB", "GB", "TB", optional=True),
+                    ),
+                    "UNLIMITED",
+                ),
+                optional=True,
+            ),
+            Sequence(
+                Ref("CommaSegment"),
+                "FILEGROWTH",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("SizeLiteralSegment"),
+                    Sequence(
+                        Ref("NumericLiteralSegment"),
+                        OneOf(
+                            "KB", "MB", "GB", "TB", Ref("PercentSegment"), optional=True
+                        ),
+                    ),
+                ),
+                optional=True,
+            ),
+        )
+    )
+
+
+class CollationReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to a collation."""
+
+    type = "collation_reference"
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/collations
+    match_grammar: Matchable = OneOf(
+        Ref("QuotedLiteralSegment"), Ref("NakedIdentifierSegment"), "DATABASE_DEFAULT"
+    )
+
+
+# Originals
 
 
 class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
