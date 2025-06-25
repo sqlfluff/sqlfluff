@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 12b2866dcee4e144701a860bb381a3c8d3106abf8b3fa1a961543dd1fc0a4c95
+_hash: d097c8cf3f485d399b1f6e099f4b90408e94e376a61be78ddb017cba82634ad1
 file:
 - statement:
     merge_statement:
@@ -280,4 +280,87 @@ file:
                   column_reference:
                     naked_identifier: d
               - end_bracket: )
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: source
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: u
+          end_bracket: )
+      merge_statement:
+      - keyword: MERGE
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: t
+      - keyword: USING
+      - table_reference:
+          naked_identifier: source
+      - alias_expression:
+          keyword: AS
+          naked_identifier: u
+      - join_on_condition:
+          keyword: 'ON'
+          bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: a
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+                naked_identifier: b
+            end_bracket: )
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_update_clause:
+              keyword: UPDATE
+              set_clause_list:
+                keyword: SET
+                set_clause:
+                - column_reference:
+                    naked_identifier: a
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                    naked_identifier: b
+          merge_when_not_matched_clause:
+          - keyword: WHEN
+          - keyword: NOT
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_insert_clause:
+              keyword: INSERT
+              bracketed:
+                start_bracket: (
+                column_reference:
+                  naked_identifier: b
+                end_bracket: )
+              values_clause:
+                keyword: VALUES
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: c
+                  end_bracket: )
 - statement_terminator: ;
