@@ -1647,18 +1647,34 @@ def test__cli__command_fail_nice_not_found(command):
 
 @patch("click.utils.should_strip_ansi")
 @patch("sys.stdout.isatty")
-def test__cli__command_lint_nocolor(isatty, should_strip_ansi, capsys, tmpdir):
+@pytest.mark.parametrize(
+    "no_color",
+    [
+        ["flag"],
+        ["env_var"],
+    ],
+)
+def test__cli__command_lint_nocolor(
+    isatty, should_strip_ansi, capsys, tmpdir, no_color
+):
     """Test the --nocolor option prevents color output."""
     # Patch these two functions to make it think every output stream is a TTY.
     # In spite of this, the output should not contain ANSI color codes because
     # we specify "--nocolor" below.
+    if no_color == "flag":
+        no_color_flag = ["--nocolor"]
+        os.environ["NO_COLOR"] = "0"
+    else:
+        no_color_flag = []
+        os.environ["NO_COLOR"] = "1"
+
     isatty.return_value = True
     should_strip_ansi.return_value = False
     fpath = "test/fixtures/linter/indentation_errors.sql"
     output_file = str(tmpdir / "result.txt")
     cmd_args = [
         "--verbose",
-        "--nocolor",
+        *no_color_flag,
         "--dialect",
         "ansi",
         "--disable-progress-bar",
