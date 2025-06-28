@@ -77,6 +77,7 @@ duckdb_dialect.add(
     LambdaArrowSegment=StringParser("->", SymbolSegment, type="lambda_arrow"),
     OrIgnoreGrammar=Sequence("OR", "IGNORE"),
     EqualsSegment_a=StringParser("==", ComparisonOperatorSegment),
+    UnpackingOperatorSegment=TypedParser("star", SymbolSegment, "unpacking_operator"),
 )
 
 duckdb_dialect.replace(
@@ -131,7 +132,9 @@ duckdb_dialect.replace(
         Ref("NamedArgumentSegment"),
         Ref("ExpressionSegment"),
     ),
-    ColumnsExpressionNameGrammar=Ref.keyword("COLUMNS"),
+    ColumnsExpressionNameGrammar=Sequence(
+        Ref("UnpackingOperatorSegment", optional=True), "COLUMNS"
+    ),
     # Uses grammar for LT06 support
     ColumnsExpressionGrammar=Sequence(
         Ref("ColumnsExpressionFunctionNameSegment"),
@@ -150,6 +153,7 @@ duckdb_dialect.replace(
     ).copy(
         insert=[
             Ref("EqualsSegment_a"),
+            Ref("GlobOperatorSegment"),
         ]
     ),
     LikeGrammar=postgres_dialect.get_grammar("LikeGrammar").copy(
@@ -447,7 +451,16 @@ class WildcardPatternMatchingSegment(BaseSegment):
     """A pattern matching operator clause within a wildcard expression."""
 
     type = "wildcard_pattern_matching"
-    match_grammar = Ref("LikeExpressionGrammar")
+    match_grammar = OneOf(
+        Ref("LikeExpressionGrammar"),
+        Sequence(
+            OneOf(
+                Ref("LikeOperatorSegment"),
+                Ref("GlobOperatorSegment"),
+            ),
+            Ref("QuotedLiteralSegment"),
+        ),
+    )
 
 
 class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
@@ -500,8 +513,8 @@ class ColumnsExpressionFunctionContentsSegment(
         Bracketed(
             OneOf(
                 Ref("WildcardExpressionSegment"),
-                Ref("QuotedLiteralSegment"),
                 Ref("LambdaExpressionSegment"),
+                Ref("BaseExpressionElementGrammar"),
             ),
         ),
     )

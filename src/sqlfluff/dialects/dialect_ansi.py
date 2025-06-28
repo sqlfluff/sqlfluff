@@ -179,6 +179,7 @@ ansi_dialect.set_lexer_matchers(
             r"////\s*(CHANGE|BODY|METADATA)[^\n]*",
             CommentSegment,
         ),
+        StringLexer("glob_operator", r"~~~", ComparisonOperatorSegment),
         RegexLexer("like_operator", r"!?~~?\*?", ComparisonOperatorSegment),
         RegexLexer("newline", r"\r\n|\n", NewlineSegment),
         StringLexer("casting_operator", "::", CodeSegment),
@@ -302,6 +303,9 @@ ansi_dialect.add(
     AmpersandSegment=StringParser("&", SymbolSegment, type="ampersand"),
     PipeSegment=StringParser("|", SymbolSegment, type="pipe"),
     BitwiseXorSegment=StringParser("^", SymbolSegment, type="binary_operator"),
+    GlobOperatorSegment=TypedParser(
+        "glob_operator", ComparisonOperatorSegment, type="glob_operator"
+    ),
     LikeOperatorSegment=TypedParser(
         "like_operator", ComparisonOperatorSegment, type="like_operator"
     ),
