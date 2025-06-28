@@ -473,6 +473,18 @@ ansi_dialect.add(
     IfExistsGrammar=Sequence("IF", "EXISTS"),
     IfNotExistsGrammar=Sequence("IF", "NOT", "EXISTS"),
     LikeGrammar=OneOf("LIKE", "RLIKE", "ILIKE"),
+    LikeExpressionGrammar=Sequence(
+        Sequence(
+            Ref.keyword("NOT", optional=True),
+            Ref("LikeGrammar"),
+        ),
+        Ref("Expression_A_Grammar"),
+        Sequence(
+            "ESCAPE",
+            Ref("Tail_Recurse_Expression_A_Grammar"),
+            optional=True,
+        ),
+    ),
     PatternMatchingGrammar=Nothing(),
     UnionGrammar=Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
     IsClauseGrammar=OneOf(
@@ -2198,18 +2210,7 @@ ansi_dialect.add(
                 # Expression_A_Grammar normally.
                 #
                 # We need to add a lot more here...
-                Sequence(
-                    Sequence(
-                        Ref.keyword("NOT", optional=True),
-                        Ref("LikeGrammar"),
-                    ),
-                    Ref("Expression_A_Grammar"),
-                    Sequence(
-                        Ref.keyword("ESCAPE"),
-                        Ref("Tail_Recurse_Expression_A_Grammar"),
-                        optional=True,
-                    ),
-                ),
+                Ref("LikeExpressionGrammar"),
                 Sequence(
                     Ref("BinaryOperatorGrammar"),
                     Ref("Tail_Recurse_Expression_A_Grammar"),

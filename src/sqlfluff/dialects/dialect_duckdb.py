@@ -63,6 +63,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
     [
         "ANTI",
         "ASOF",
+        "GLOB",
         "MACRO",
         "MAP",
         "POSITIONAL",
@@ -150,6 +151,9 @@ duckdb_dialect.replace(
         insert=[
             Ref("EqualsSegment_a"),
         ]
+    ),
+    LikeGrammar=postgres_dialect.get_grammar("LikeGrammar").copy(
+        insert=[Ref.keyword("GLOB")],
     ),
 )
 
@@ -416,6 +420,36 @@ class WildcardReplaceExpressionSegment(BaseSegment):
     )
 
 
+class WildcardRenameExpressionSegment(BaseSegment):
+    """A `RENAME` clause within a wildcard expression."""
+
+    type = "wildcard_rename"
+    match_grammar = Sequence(
+        "RENAME",
+        OneOf(
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("BaseExpressionElementGrammar"),
+                        Ref("AliasExpressionSegment", optional=True),
+                    ),
+                )
+            ),
+            Sequence(
+                Ref("BaseExpressionElementGrammar"),
+                Ref("AliasExpressionSegment", optional=True),
+            ),
+        ),
+    )
+
+
+class WildcardPatternMatchingSegment(BaseSegment):
+    """A pattern matching operator clause within a wildcard expression."""
+
+    type = "wildcard_pattern_matching"
+    match_grammar = Ref("LikeExpressionGrammar")
+
+
 class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
     """An extension of the star expression for DuckDB."""
 
@@ -424,7 +458,14 @@ class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
         Ref("WildcardIdentifierSegment"),
         # Optional EXCLUDE or REPLACE clause
         Ref("WildcardExcludeExpressionSegment", optional=True),
-        Ref("WildcardReplaceExpressionSegment", optional=True),
+        OneOf(
+            Sequence(
+                Ref("WildcardReplaceExpressionSegment", optional=True),
+                Ref("WildcardRenameExpressionSegment", optional=True),
+            ),
+            Ref("WildcardPatternMatchingSegment"),
+            optional=True,
+        ),
     )
 
 
