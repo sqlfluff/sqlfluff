@@ -1,0 +1,11 @@
+CREATE TABLE t7
+(
+  c1 INT,
+  c2 DATETIME NOT NULL
+)
+DUPLICATE KEY(c1)
+AUTO PARTITION BY RANGE(date_trunc(c2, 'day')) ()
+DISTRIBUTED BY RANDOM
+PROPERTIES (
+  'replication_num' = '1'
+); 

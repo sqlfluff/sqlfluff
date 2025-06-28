@@ -9,7 +9,7 @@ from sqlfluff.cli.autocomplete import dialect_shell_complete
     "incomplete,expected",
     [
         ["an", ["ansi"]],
-        ["d", ["databricks", "db2", "duckdb"]],
+        ["d", ["databricks", "db2", "doris", "duckdb"]],
         ["g", ["greenplum"]],
         ["s", ["snowflake", "soql", "sparksql", "sqlite", "starrocks"]],
         ["post", ["postgres"]],
