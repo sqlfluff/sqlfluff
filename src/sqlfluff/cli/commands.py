@@ -162,9 +162,8 @@ def common_options(f: Callable) -> Callable:
         ),
     )(f)
     f = click.option(
-        "-n",
-        "--nocolor",
-        is_flag=True,
+        "-n/ ",
+        "--nocolor/--color",
         default=None,
         help="No color - output will be without ANSI color codes.",
     )(f)
