@@ -2863,6 +2863,7 @@ ansi_dialect.add(
         Ref("UpdateStatementSegment"),
         Ref("InsertStatementSegment"),
         Ref("DeleteStatementSegment"),
+        Ref("MergeStatementSegment"),
     ),
     # Things that behave like select statements, which can form part of set expressions.
     NonSetSelectableGrammar=OneOf(
@@ -2945,7 +2946,7 @@ class WithCompoundStatementSegment(BaseSegment):
 
 
 class WithCompoundNonSelectStatementSegment(BaseSegment):
-    """A `UPDATE/INSERT/DELETE` statement preceded by a selection of `WITH` clauses.
+    """A `UPDATE/INSERT/DELETE/MERGE` statement preceded by `WITH` clauses.
 
     `WITH tab (col1,col2) AS (SELECT a,b FROM x)`
     """
