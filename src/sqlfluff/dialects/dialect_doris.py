@@ -63,75 +63,25 @@ doris_dialect.add(
 
 
 class ColumnDefinitionSegment(mysql.ColumnDefinitionSegment):
-    """A column definition, e.g. for CREATE TABLE or ALTER TABLE.
-
-    Doris-specific version that supports aggregation functions like MAX, MIN, REPLACE, SUM.
-    """
-
-    type = "column_definition"
-    match_grammar = Sequence(
-        Ref("SingleIdentifierGrammar"),  # Column name
-        OneOf(  # Column type
-            # DATETIME and TIMESTAMP take special logic
-            Ref(
-                "DatatypeSegment",
-                exclude=OneOf("DATETIME", "TIMESTAMP"),
-            ),
-            Sequence(
-                OneOf("DATETIME", "TIMESTAMP"),
-                Ref("BracketedArguments", optional=True),  # Precision
-                AnyNumberOf(
-                    # Allow NULL/NOT NULL, DEFAULT, and ON UPDATE in any order
-                    Sequence(Sequence("NOT", optional=True), "NULL", optional=True),
-                    Sequence(
-                        "DEFAULT",
-                        OneOf(
-                            Sequence(
-                                OneOf("CURRENT_TIMESTAMP", "NOW"),
-                                Bracketed(
-                                    Ref("NumericLiteralSegment", optional=True),
-                                    optional=True,
-                                ),
-                            ),
-                            Ref("NumericLiteralSegment"),
-                            Ref("QuotedLiteralSegment"),
-                            "NULL",
-                        ),
-                        optional=True,
-                    ),
-                    Sequence(
-                        "ON",
-                        "UPDATE",
-                        OneOf(
-                            "CURRENT_TIMESTAMP",
-                            "NOW",
-                            Bracketed(
-                                Ref("NumericLiteralSegment", optional=True),
-                                optional=True,
-                            ),
-                        ),
-                        optional=True,
-                    ),
+        """A column definition, e.g. for CREATE TABLE or ALTER TABLE.
+    
+        Doris-specific version that supports aggregation functions like MAX, MIN, REPLACE, SUM.
+        """
+    
+        match_grammar = mysql.ColumnDefinitionSegment.match_grammar.copy(
+            insert=[
+                OneOf(
+                    "MAX",
+                    "MIN",
+                    "REPLACE",
+                    "SUM",
+                    "BITMAP_UNION",
+                    "HLL_UNION",
+                    "QUANTILE_UNION",
                     optional=True,
-                )
-            ),
-        ),
-        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
-        AnyNumberOf(
-            Ref("ColumnConstraintSegment", optional=True),
-        ),
-        # Doris aggregation functions
-        OneOf(
-            "MAX",
-            "MIN", 
-            "REPLACE",
-            "SUM",
-            "BITMAP_UNION",
-            "HLL_UNION",
-            "QUANTILE_UNION",
-            optional=True,
-        ),
-    )
+                ),
+            ]
+        )
 
 
 class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
@@ -528,16 +478,4 @@ class InsertStatementSegment(BaseSegment):
             Ref("SelectableGrammar"),
         ),
     )
-
-
-class StatementSegment(mysql.StatementSegment):
-    """Overriding StatementSegment to allow for additional segment parsing."""
-
-    match_grammar = mysql.StatementSegment.match_grammar.copy(
-        insert=[
-            # Add any Doris-specific statement types here
-            Ref("DropTableStatementSegment"),
-            Ref("InsertStatementSegment"),
-        ]
-    ) 
 
