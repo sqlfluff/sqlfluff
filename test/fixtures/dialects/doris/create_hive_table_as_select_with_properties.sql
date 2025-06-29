@@ -5,3 +5,4 @@ PROPERTIES (
   'hive.metastore.uris' = 'thrift://127.0.0.1:9083'
 )
 AS SELECT * FROM source_table; 
+

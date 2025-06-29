@@ -8,3 +8,4 @@ ENGINE=hive
 PROPERTIES (
     'file_format' = 'orc'
 ); 
+

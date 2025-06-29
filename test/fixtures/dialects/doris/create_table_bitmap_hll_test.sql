@@ -13,3 +13,4 @@ DISTRIBUTED BY HASH (user_id)
 PROPERTIES (
     'replication_num' = '1'
 ); 
+

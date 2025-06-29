@@ -10,3 +10,4 @@ DISTRIBUTED BY HASH (id)
 PROPERTIES (
     'replication_num' = '1'
 ); 
+

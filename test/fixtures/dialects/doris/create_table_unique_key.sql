@@ -8,3 +8,4 @@ DISTRIBUTED BY HASH(c1)
 PROPERTIES (
   'replication_num' = '1'
 ); 
+

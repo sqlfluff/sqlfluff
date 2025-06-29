@@ -10,3 +10,4 @@ AS SELECT
 FROM t1 
 WHERE status = 'active'
 GROUP BY id, name; 
+

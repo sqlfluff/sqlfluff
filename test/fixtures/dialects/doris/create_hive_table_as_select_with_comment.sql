@@ -5,3 +5,4 @@ PROPERTIES (
   'file_format' = 'parquet'
 )
 AS SELECT id, name FROM source_table; 
+

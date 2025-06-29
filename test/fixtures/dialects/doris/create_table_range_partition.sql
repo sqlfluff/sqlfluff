@@ -11,3 +11,4 @@ DISTRIBUTED BY RANDOM
 PROPERTIES (
   'replication_num' = '1'
 ); 
+

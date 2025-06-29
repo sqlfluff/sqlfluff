@@ -11,3 +11,4 @@ PROPERTIES (
     'file_format' = 'parquet',
     'hive.metastore.uris' = 'thrift://127.0.0.1:9083'
 ); 
+

@@ -16,3 +16,4 @@ PROPERTIES (
     'hive.metastore.kerberos.principal' = 'hive/_HOST@EXAMPLE.COM',
     'hive.metastore.kerberos.keytab' = '/path/to/hive.keytab'
 ); 
+

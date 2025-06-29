@@ -9,3 +9,4 @@ ENGINE=hive
 PROPERTIES (
     'file_format' = 'parquet'
 ); 
+
