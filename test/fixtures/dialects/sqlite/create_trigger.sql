@@ -53,3 +53,9 @@ WHEN new.z IS NULL   -- putting this expression in parens allows parsing
 BEGIN
 UPDATE y SET z = TRUE WHERE rowid = new.rowid;
 END;
+
+CREATE TRIGGER trigger_name
+AFTER UPDATE ON table_name
+BEGIN
+    INSERT INTO table_name_history (action) VALUES ('UPDATE');
+END;

@@ -7,7 +7,6 @@ Augmented with data types, and a couple of omitted keywords.
 
 RESERVED_KEYWORDS = [
     "ABORT",
-    "ACTION",
     "ADD",
     "AFTER",
     "ALL",
@@ -205,4 +204,5 @@ UNRESERVED_KEYWORDS = [
     "NOCASE",
     "RTRIM",
     "STORED",  # https://sqlite.org/forum/forumpost/91127ba3db
+    "ACTION",
 ]
