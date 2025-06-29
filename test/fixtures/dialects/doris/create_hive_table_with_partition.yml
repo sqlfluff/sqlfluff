@@ -1,0 +1,97 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6e042e7541a89efeb0b39ff921966793e2de819416f1605ed328812f8ba6aef3
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: partition_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          quoted_identifier: '`col1`'
+          data_type:
+            data_type_identifier: BOOLEAN
+          column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: "'col1'"
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`col2`'
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: "'col2'"
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`col3`'
+          data_type:
+            data_type_identifier: BIGINT
+          column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: "'col3'"
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`col4`'
+          data_type:
+            data_type_identifier: DECIMAL
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '2'
+              - comma: ','
+              - numeric_literal: '1'
+              - end_bracket: )
+          column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: "'col4'"
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`pt1`'
+          data_type:
+            data_type_identifier: VARCHAR
+          column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: "'pt1'"
+      - end_bracket: )
+    - keyword: ENGINE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - engine_type: hive
+    - partition_segment:
+      - keyword: PARTITION
+      - keyword: BY
+      - keyword: LIST
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: pt1
+          end_bracket: )
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: PROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'file_format'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'orc'"
+      - comma: ','
+      - quoted_literal: "'compression'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'zlib'"
+      - end_bracket: )
+  statement_terminator: ;

@@ -27,6 +27,7 @@ _dialect_lookup = {
     "clickhouse": ("dialect_clickhouse", "clickhouse_dialect"),
     "databricks": ("dialect_databricks", "databricks_dialect"),
     "db2": ("dialect_db2", "db2_dialect"),
+    "doris": ("dialect_doris", "doris_dialect"),
     "duckdb": ("dialect_duckdb", "duckdb_dialect"),
     "exasol": ("dialect_exasol", "exasol_dialect"),
     "greenplum": ("dialect_greenplum", "greenplum_dialect"),

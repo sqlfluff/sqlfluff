@@ -1,0 +1,93 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 21785ff74c1363729275db712e8a80aa5b4725a63e49c9895f92a45d954bdb54
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: hive_catalog
+      - dot: .
+      - naked_identifier: hive_db
+      - dot: .
+      - naked_identifier: complex_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: user_id
+          data_type:
+            data_type_identifier: BIGINT
+      - comma: ','
+      - column_definition:
+          naked_identifier: username
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: age
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: score
+          data_type:
+            data_type_identifier: DECIMAL
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: create_time
+          keyword: DATETIME
+      - comma: ','
+      - column_definition:
+          naked_identifier: is_active
+          data_type:
+            data_type_identifier: BOOLEAN
+      - end_bracket: )
+    - keyword: ENGINE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - engine_type: hive
+    - keyword: PROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'file_format'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'orc'"
+      - comma: ','
+      - quoted_literal: "'hive.metastore.uris'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'thrift://127.0.0.1:9083'"
+      - comma: ','
+      - quoted_literal: "'fs.defaultFS'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'hdfs://namenode:9000'"
+      - comma: ','
+      - quoted_literal: "'hadoop.username'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'hive'"
+      - comma: ','
+      - quoted_literal: "'hive.metastore.kerberos.principal'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'hive/_HOST@EXAMPLE.COM'"
+      - comma: ','
+      - quoted_literal: "'hive.metastore.kerberos.keytab'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'/path/to/hive.keytab'"
+      - end_bracket: )
+  statement_terminator: ;
