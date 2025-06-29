@@ -60,6 +60,7 @@ create table collation_demo (
   spanish_phrase varchar collate 'sp'
   );
 
+create table t2 as select col1 collate 'fr' as col1 from t1;
 
 create table mytable
   using template (
