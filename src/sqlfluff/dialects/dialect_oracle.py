@@ -183,6 +183,7 @@ oracle_dialect.sets("reserved_keywords").update(
 
 oracle_dialect.sets("unreserved_keywords").update(
     [
+        "ABSENT",
         "ACCESSIBLE",
         "AUTHID",
         "BODY",
@@ -612,6 +613,56 @@ oracle_dialect.add(
         Sequence("UPDATING", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
         "DELETING",
     ),
+    JSONObjectContentSegment=Sequence(
+        OneOf(Ref("StarSegment"), Delimited(Ref("JSONEntrySegment")), optional=True),
+        Ref("JSONOnNullClause", optional=True),
+        Ref("JSONReturningClause", optional=True),
+        Ref.keyword("STRICT", optional=True),
+        Sequence("WITH", "UNIQUE", "KEYS", optional=True),
+    ),
+    JSONEntrySegment=OneOf(
+        Sequence(
+            Ref("JSONRegularEntrySegment"),
+            Sequence("FORMAT", "JSON", optional=True),
+        ),
+        Ref("WildcardIdentifierSegment"),
+    ),
+    JSONRegularEntrySegment=Sequence(
+        OneOf(
+            Sequence(
+                Ref.keyword("KEY", optional=True),
+                Ref("QuotedLiteralSegment"),
+                "VALUE",
+                Ref("ExpressionSegment"),
+            ),
+            Sequence(
+                Ref("ExpressionSegment"),
+                Sequence(Ref("ColonSegment"), Ref("ExpressionSegment"), optional=True),
+            ),
+            Ref("ColumnReferenceSegment"),
+        )
+    ),
+    JSONOnNullClause=Sequence(OneOf("NULL", "ABSENT"), "ON", "NULL"),
+    JSONReturningClause=Sequence(
+        "RETURNING",
+        OneOf(
+            Sequence(
+                "VARCHAR",
+                Bracketed(
+                    Sequence(
+                        Ref("NumericLiteralSegment"),
+                        OneOf("BYTE", "CHAR", optional=True),
+                    ),
+                    optional=True,
+                ),
+                Sequence("WITH", "TYPENAME", optional=True),
+            ),
+            Sequence(
+                OneOf("CLOB", "BLOB"), Ref("SingleIdentifierGrammar", optional=True)
+            ),
+            "JSON",
+        ),
+    ),
 )
 
 oracle_dialect.replace(
@@ -644,9 +695,7 @@ oracle_dialect.replace(
         Ref("NamedArgumentSegment"),
     ),
     FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
-        insert=[
-            Ref("ListaggOverflowClauseSegment"),
-        ]
+        insert=[Ref("ListaggOverflowClauseSegment"), Ref("JSONObjectContentSegment")]
     ),
     TemporaryGrammar=Sequence(
         OneOf("GLOBAL", "PRIVATE"),
