@@ -71,7 +71,9 @@ def load_test_cases(
             for i in y:
                 if "configs" not in y[i].keys():
                     y[i].update({"configs": global_config})
-        ids.extend([rule + "_" + t for t in y])
+        # Replace any commas with underscores so we can reference specific tests.
+        # e.g. `pytest -k AL05_CV12`. Commas break as test keys.
+        ids.extend([rule.replace(",", "_") + "_" + t for t in y])
         test_cases.extend([RuleTestCase(rule=rule, **v) for k, v in y.items()])
 
     return ids, test_cases
