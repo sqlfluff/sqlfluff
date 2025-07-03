@@ -63,3 +63,9 @@ plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/packages.yml
 # Mypyc outputs
 *.pyd
 *.so
+
+
+# Personal settings
+flink_docs/
+flinksql_test/
+sqlfluff.wiki/
