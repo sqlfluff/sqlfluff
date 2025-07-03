@@ -10,28 +10,19 @@ https://nightlies.apache.org/flink/flink-docs-release-1.18/docs/dev/table/sql/
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
-    AnyNumberOf,
-    AnySetOf,
-    BaseSegment,
     Bracketed,
     CodeSegment,
     CommentSegment,
-    Conditional,
     Delimited,
     IdentifierSegment,
-    KeywordSegment,
-    LiteralSegment,
     OneOf,
     OptionallyBracketed,
     Ref,
     RegexLexer,
-    RegexParser,
     Sequence,
-    StringLexer,
     StringParser,
     SymbolSegment,
     TypedParser,
-    WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_flink_keywords import (
@@ -58,7 +49,7 @@ FlinkSQL supports advanced features like:
 - Computed columns and metadata columns
 - Temporal table functions
 
-.. _`Flink SQL`: https://nightlies.apache.org/flink/flink-docs-release-1.18/docs/dev/table/sql/
+.. _`Flink SQL`: https://nightlies.apache.org/flink/flink-docs-release-1.18/docs/dev/table/sql/  # noqa: E501
 """,
 )
 
@@ -320,7 +311,7 @@ flink_dialect.add(
         Ref("NakedIdentifierSegment"),
         Ref("CreateTableConnectorOptionsSegment"),
     ),
-    # CREATE DATABASE statement  
+    # CREATE DATABASE statement
     FlinkCreateDatabaseStatementSegment=Sequence(
         "CREATE",
         "DATABASE",
@@ -494,7 +485,7 @@ class FlinkCreateTableStatementSegment(ansi.CreateTableStatementSegment):
                         OneOf(
                             # Physical column definition
                             Ref("ColumnDefinitionSegment"),
-                            # Metadata column definition  
+                            # Metadata column definition
                             Ref("MetadataColumnDefinitionSegment"),
                             # Computed column definition
                             Ref("ComputedColumnDefinitionSegment"),
@@ -529,7 +520,7 @@ class FlinkCreateTableStatementSegment(ansi.CreateTableStatementSegment):
 
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
-    
+
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             # FlinkSQL-specific statements

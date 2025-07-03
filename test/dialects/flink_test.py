@@ -1,33 +1,29 @@
 """Tests for the FlinkSQL dialect."""
 
-import pytest
-
 from sqlfluff.core import FluffConfig, Linter
-from sqlfluff.core.parser.segments.base import BaseSegment
-from sqlfluff.core.parser import Lexer
 
 
 class TestFlinkSQLDialect:
     """Test FlinkSQL dialect parsing."""
-    
+
     def test_flink_dialect_basic(self):
         """Test basic FlinkSQL dialect functionality."""
         config = FluffConfig(overrides={"dialect": "flink"})
         linter = Linter(config=config)
-        
+
         # Test simple SELECT statement
         sql = "SELECT * FROM my_table;\n"
         result = linter.lint_string(sql)
         assert result is not None
         # Check for parsing errors only, ignore style warnings
-        parsing_errors = [v for v in result.violations if v.rule.code.startswith('PRS')]
+        parsing_errors = [v for v in result.violations if v.rule.code.startswith("PRS")]
         assert len(parsing_errors) == 0
-    
+
     def test_flink_create_table_basic(self):
         """Test basic CREATE TABLE statement."""
         config = FluffConfig(overrides={"dialect": "flink"})
         linter = Linter(config=config)
-        
+
         sql = """
         CREATE TABLE my_table (
             id INT,
@@ -41,12 +37,12 @@ class TestFlinkSQLDialect:
         result = linter.lint_string(sql)
         assert result is not None
         # Allow for some parsing issues initially
-        
+
     def test_flink_row_data_type(self):
         """Test FlinkSQL ROW data type."""
         config = FluffConfig(overrides={"dialect": "flink"})
         linter = Linter(config=config)
-        
+
         sql = """
         CREATE TABLE my_table (
             id INT,
@@ -57,12 +53,12 @@ class TestFlinkSQLDialect:
         """
         result = linter.lint_string(sql)
         assert result is not None
-    
+
     def test_flink_timestamp_with_precision(self):
         """Test FlinkSQL TIMESTAMP with precision."""
         config = FluffConfig(overrides={"dialect": "flink"})
         linter = Linter(config=config)
-        
+
         sql = """
         CREATE TABLE my_table (
             id INT,
@@ -74,12 +70,12 @@ class TestFlinkSQLDialect:
         """
         result = linter.lint_string(sql)
         assert result is not None
-    
+
     def test_flink_watermark_definition(self):
         """Test FlinkSQL WATERMARK definition."""
         config = FluffConfig(overrides={"dialect": "flink"})
         linter = Linter(config=config)
-        
+
         sql = """
         CREATE TABLE my_table (
             id INT,
@@ -91,12 +87,12 @@ class TestFlinkSQLDialect:
         """
         result = linter.lint_string(sql)
         assert result is not None
-    
+
     def test_flink_computed_column(self):
         """Test FlinkSQL computed column."""
         config = FluffConfig(overrides={"dialect": "flink"})
         linter = Linter(config=config)
-        
+
         sql = """
         CREATE TABLE my_table (
             id INT,
@@ -108,12 +104,12 @@ class TestFlinkSQLDialect:
         """
         result = linter.lint_string(sql)
         assert result is not None
-    
+
     def test_flink_metadata_column(self):
         """Test FlinkSQL metadata column."""
         config = FluffConfig(overrides={"dialect": "flink"})
         linter = Linter(config=config)
-        
+
         sql = """
         CREATE TABLE my_table (
             id INT,
@@ -125,12 +121,12 @@ class TestFlinkSQLDialect:
         """
         result = linter.lint_string(sql)
         assert result is not None
-    
+
     def test_flink_show_statements(self):
         """Test FlinkSQL SHOW statements."""
         config = FluffConfig(overrides={"dialect": "flink"})
         linter = Linter(config=config)
-        
+
         statements = [
             "SHOW CATALOGS",
             "SHOW DATABASES",
@@ -141,49 +137,49 @@ class TestFlinkSQLDialect:
             "SHOW JARS",
             "SHOW JOBS",
         ]
-        
+
         for sql in statements:
             result = linter.lint_string(sql)
             assert result is not None
-    
+
     def test_flink_use_statements(self):
         """Test FlinkSQL USE statements."""
         config = FluffConfig(overrides={"dialect": "flink"})
         linter = Linter(config=config)
-        
+
         statements = [
             "USE CATALOG my_catalog",
             "USE my_database",
             "USE my_catalog.my_database",
         ]
-        
+
         for sql in statements:
             result = linter.lint_string(sql)
             assert result is not None
-    
+
     def test_flink_describe_statement(self):
         """Test FlinkSQL DESCRIBE statement."""
         config = FluffConfig(overrides={"dialect": "flink"})
         linter = Linter(config=config)
-        
+
         sql = "DESCRIBE my_table"
         result = linter.lint_string(sql)
         assert result is not None
-    
+
     def test_flink_explain_statement(self):
         """Test FlinkSQL EXPLAIN statement."""
         config = FluffConfig(overrides={"dialect": "flink"})
         linter = Linter(config=config)
-        
+
         sql = "EXPLAIN SELECT * FROM my_table"
         result = linter.lint_string(sql)
         assert result is not None
-    
+
     def test_flink_create_catalog(self):
         """Test FlinkSQL CREATE CATALOG statement."""
         config = FluffConfig(overrides={"dialect": "flink"})
         linter = Linter(config=config)
-        
+
         sql = """
         CREATE CATALOG my_catalog WITH (
             'type' = 'hive',
@@ -192,12 +188,12 @@ class TestFlinkSQLDialect:
         """
         result = linter.lint_string(sql)
         assert result is not None
-    
+
     def test_flink_create_database(self):
         """Test FlinkSQL CREATE DATABASE statement."""
         config = FluffConfig(overrides={"dialect": "flink"})
         linter = Linter(config=config)
-        
+
         sql = """
         CREATE DATABASE IF NOT EXISTS my_db
         COMMENT 'My database'
@@ -207,12 +203,12 @@ class TestFlinkSQLDialect:
         """
         result = linter.lint_string(sql)
         assert result is not None
-    
+
     def test_flink_alternative_with_syntax(self):
         """Test FlinkSQL WITH clause using alternative double equals syntax."""
         config = FluffConfig(overrides={"dialect": "flink"})
         linter = Linter(config=config)
-        
+
         sql = """
         CREATE TABLE test_table (
           data_info ROW<`info` STRING>,
@@ -237,12 +233,12 @@ class TestFlinkSQLDialect:
 
 class TestFlinkSQLComplexExamples:
     """Test FlinkSQL with complex examples covering various features."""
-    
+
     def test_flink_row_datatype_table(self):
         """Test FlinkSQL table with ROW data types and connector options."""
         config = FluffConfig(overrides={"dialect": "flink"})
         linter = Linter(config=config)
-        
+
         sql = """
         CREATE TABLE table1 (
           data_info ROW<`name` STRING>,
@@ -264,12 +260,12 @@ class TestFlinkSQLComplexExamples:
         """
         result = linter.lint_string(sql)
         assert result is not None
-    
+
     def test_flink_complex_table_structure(self):
         """Test FlinkSQL table with complex structure and multiple data types."""
         config = FluffConfig(overrides={"dialect": "flink"})
         linter = Linter(config=config)
-        
+
         sql = """
         CREATE TABLE table2 (
           session_id STRING,
@@ -304,12 +300,12 @@ class TestFlinkSQLComplexExamples:
         """
         result = linter.lint_string(sql)
         assert result is not None
-    
+
     def test_flink_simple_record_table(self):
         """Test FlinkSQL table with simple record structure."""
         config = FluffConfig(overrides={"dialect": "flink"})
         linter = Linter(config=config)
-        
+
         sql = """
         CREATE TABLE table3 (
           service STRING,
