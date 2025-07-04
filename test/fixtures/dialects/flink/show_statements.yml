@@ -3,37 +3,45 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 67f9244890dafa2bb351c0298b2a3906afed0e3eb2a471199621a3ef912662fb
+_hash: 2029734dec4a5e9fcf7d988f6c889f599f99cf0b6ae8c3a30fec1c82d18327d4
 file:
 - statement:
-  - keyword: SHOW
-  - keyword: CATALOGS
+    show_statement:
+    - keyword: SHOW
+    - keyword: CATALOGS
 - statement_terminator: ;
 - statement:
-  - keyword: SHOW
-  - keyword: DATABASES
+    show_statement:
+    - keyword: SHOW
+    - keyword: DATABASES
 - statement_terminator: ;
 - statement:
-  - keyword: SHOW
-  - keyword: TABLES
+    show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
 - statement_terminator: ;
 - statement:
-  - keyword: SHOW
-  - keyword: VIEWS
+    show_statement:
+    - keyword: SHOW
+    - keyword: VIEWS
 - statement_terminator: ;
 - statement:
-  - keyword: SHOW
-  - keyword: FUNCTIONS
+    show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTIONS
 - statement_terminator: ;
 - statement:
-  - keyword: SHOW
-  - keyword: MODULES
+    show_statement:
+    - keyword: SHOW
+    - keyword: MODULES
 - statement_terminator: ;
 - statement:
-  - keyword: SHOW
-  - keyword: JARS
+    show_statement:
+    - keyword: SHOW
+    - keyword: JARS
 - statement_terminator: ;
 - statement:
-  - keyword: SHOW
-  - keyword: JOBS
+    show_statement:
+    - keyword: SHOW
+    - keyword: JOBS
 - statement_terminator: ;

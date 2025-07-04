@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 645b42013fc2d234e70d05daaad1e8f3919f2698e6f5fbb9f51dca750acf1c80
+_hash: 837e848665034f2490a7593ef7ded3ba321908c9486259138fdd07b4d5789e0b
 file:
   statement:
     create_table_statement:
@@ -16,37 +16,41 @@ file:
       - column_definition:
           naked_identifier: id
           data_type:
-            data_type_identifier: INT
+            data_type:
+              data_type_identifier: INT
       - comma: ','
       - column_definition:
           naked_identifier: event_time
           data_type:
-            keyword: TIMESTAMP
-            bracketed_arguments:
-              bracketed:
-                start_bracket: (
-                numeric_literal: '3'
-                end_bracket: )
+            data_type:
+              keyword: TIMESTAMP
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '3'
+                  end_bracket: )
       - comma: ','
       - column_definition:
           naked_identifier: processing_time
           data_type:
-            data_type_identifier: TIMESTAMP_LTZ
-            bracketed_arguments:
-              bracketed:
-                start_bracket: (
-                numeric_literal: '3'
-                end_bracket: )
+            data_type:
+              data_type_identifier: TIMESTAMP_LTZ
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '3'
+                  end_bracket: )
       - comma: ','
       - column_definition:
           naked_identifier: updated_at
           data_type:
-            keyword: TIMESTAMP
-            bracketed_arguments:
-              bracketed:
-                start_bracket: (
-                numeric_literal: '6'
-                end_bracket: )
+            data_type:
+              keyword: TIMESTAMP
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '6'
+                  end_bracket: )
       - end_bracket: )
     - keyword: WITH
     - bracketed:
