@@ -13,5 +13,4 @@ AGGREGATE KEY (user_id, username)
 DISTRIBUTED BY HASH (user_id)
 PROPERTIES (
     'replication_num' = '1'
-); 
-
+);

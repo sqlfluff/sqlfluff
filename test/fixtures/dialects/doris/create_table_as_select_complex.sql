@@ -3,11 +3,10 @@ PROPERTIES (
   'replication_num' = '1',
   'storage_medium' = 'SSD'
 )
-AS SELECT 
+AS SELECT
   id,
   name,
   COUNT(*) as count
-FROM t1 
+FROM t1
 WHERE status = 'active'
-GROUP BY id, name; 
-
+GROUP BY id, name;

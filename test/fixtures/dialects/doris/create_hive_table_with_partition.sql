@@ -10,4 +10,3 @@ PROPERTIES (
   'file_format'='orc',
   'compression'='zlib'
 );
-

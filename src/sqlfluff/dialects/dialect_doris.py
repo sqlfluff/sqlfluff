@@ -5,8 +5,6 @@ This dialect extends MySQL grammar with specific Apache Doris syntax features.
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
-    AnyNumberOf,
-    Anything,
     BaseSegment,
     Bracketed,
     CodeSegment,
@@ -63,25 +61,26 @@ doris_dialect.add(
 
 
 class ColumnDefinitionSegment(mysql.ColumnDefinitionSegment):
-        """A column definition, e.g. for CREATE TABLE or ALTER TABLE.
-    
-        Doris-specific version that supports aggregation functions like MAX, MIN, REPLACE, SUM.
-        """
-    
-        match_grammar = mysql.ColumnDefinitionSegment.match_grammar.copy(
-            insert=[
-                OneOf(
-                    "MAX",
-                    "MIN",
-                    "REPLACE",
-                    "SUM",
-                    "BITMAP_UNION",
-                    "HLL_UNION",
-                    "QUANTILE_UNION",
-                    optional=True,
-                ),
-            ]
-        )
+    """A column definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    Doris-specific version that supports aggregation functions like
+    MAX, MIN, REPLACE, SUM.
+    """
+
+    match_grammar = mysql.ColumnDefinitionSegment.match_grammar.copy(
+        insert=[
+            OneOf(
+                "MAX",
+                "MIN",
+                "REPLACE",
+                "SUM",
+                "BITMAP_UNION",
+                "HLL_UNION",
+                "QUANTILE_UNION",
+                optional=True,
+            ),
+        ]
+    )
 
 
 class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
@@ -252,9 +251,7 @@ class PartitionSegment(BaseSegment):
                 Sequence(
                     "LIST",
                     Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-                    Bracketed(
-                        Delimited(Ref("ListPartitionDefinitionSegment"))
-                    ),
+                    Bracketed(Delimited(Ref("ListPartitionDefinitionSegment"))),
                 ),
             ),
         ),
@@ -478,4 +475,3 @@ class InsertStatementSegment(BaseSegment):
             Ref("SelectableGrammar"),
         ),
     )
-

@@ -8,5 +8,4 @@ AUTO PARTITION BY RANGE(date_trunc(c2, 'day')) ()
 DISTRIBUTED BY RANDOM
 PROPERTIES (
   'replication_num' = '1'
-); 
-
+);

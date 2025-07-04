@@ -19,5 +19,4 @@ DISTRIBUTED BY HASH (order_id)
 PROPERTIES (
     'replication_num' = '1',
     'storage_medium' = 'SSD'
-); 
-
+);

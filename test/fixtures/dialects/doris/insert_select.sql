@@ -1,2 +1,1 @@
-INSERT INTO test SELECT * FROM test2; 
-
+INSERT INTO test SELECT * FROM test2;

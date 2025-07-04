@@ -1,2 +1,1 @@
-CREATE TABLE new_table LIKE existing_table; 
-
+CREATE TABLE new_table LIKE existing_table;

@@ -1,2 +1,1 @@
-DROP TABLE my_table; 
-
+DROP TABLE my_table;

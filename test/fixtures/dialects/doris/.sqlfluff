@@ -1,3 +1,2 @@
 [sqlfluff]
-dialect = doris 
-
+dialect = doris

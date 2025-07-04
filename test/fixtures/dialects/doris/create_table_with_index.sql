@@ -10,5 +10,4 @@ AGGREGATE KEY(k1, k2)
 DISTRIBUTED BY HASH(k1) BUCKETS 32
 PROPERTIES (
     "bloom_filter_columns" = "k2"
-); 
-
+);

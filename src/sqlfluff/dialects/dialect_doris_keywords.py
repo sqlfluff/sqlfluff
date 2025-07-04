@@ -1,4 +1,5 @@
 """A List of Apache Doris SQL keywords.
+
 See:
 
 https://github.com/apache/doris/blob/master/fe/fe-core/src/main/antlr4/org/apache/doris/nereids/DorisParser.g4

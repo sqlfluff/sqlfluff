@@ -7,5 +7,4 @@ CREATE EXTERNAL TABLE hive_catalog.hive_db.external_table
 ENGINE=hive
 PROPERTIES (
     'file_format' = 'orc'
-); 
-
+);

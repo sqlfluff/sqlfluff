@@ -1,2 +1,1 @@
-INSERT INTO test VALUES (1, 2); 
-
+INSERT INTO test VALUES (1, 2);

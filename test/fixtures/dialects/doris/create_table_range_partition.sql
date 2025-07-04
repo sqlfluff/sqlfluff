@@ -10,5 +10,4 @@ PARTITION BY RANGE(c2) (
 DISTRIBUTED BY RANDOM
 PROPERTIES (
   'replication_num' = '1'
-); 
-
+);

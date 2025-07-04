@@ -8,5 +8,4 @@ CREATE TABLE hive_catalog.hive_db.hive_table
 ENGINE=hive
 PROPERTIES (
     'file_format' = 'parquet'
-); 
-
+);

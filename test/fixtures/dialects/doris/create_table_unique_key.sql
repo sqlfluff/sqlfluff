@@ -7,5 +7,4 @@ UNIQUE KEY(c1)
 DISTRIBUTED BY HASH(c1)
 PROPERTIES (
   'replication_num' = '1'
-); 
-
+);

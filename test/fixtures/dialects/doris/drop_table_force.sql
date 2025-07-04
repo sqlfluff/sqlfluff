@@ -1,2 +1,1 @@
-DROP TABLE IF EXISTS example_db.my_table FORCE; 
-
+DROP TABLE IF EXISTS example_db.my_table FORCE;

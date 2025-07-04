@@ -12,5 +12,4 @@ AGGREGATE KEY (user_id, page_id)
 DISTRIBUTED BY HASH (user_id)
 PROPERTIES (
     'replication_num' = '1'
-); 
-
+);
