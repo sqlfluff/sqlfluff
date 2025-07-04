@@ -4,5 +4,7 @@ CREATE TABLE my_table (
     age INT
 ) WITH (
     'connector' = 'kafka',
-    'topic' = 'my-topic'
+    'topic' = 'my-topic',
+    'properties.bootstrap.servers' = 'localhost:9092',
+    'format' = 'json'
 );

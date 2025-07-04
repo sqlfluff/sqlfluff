@@ -320,17 +320,6 @@ flink_dialect.add(
         Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
         Ref("CreateTableConnectorOptionsSegment", optional=True),
     ),
-    # USE CATALOG statement
-    UseCatalogStatementSegment=Sequence(
-        "USE",
-        "CATALOG",
-        Ref("NakedIdentifierSegment"),
-    ),
-    # USE DATABASE statement
-    UseDatabaseStatementSegment=Sequence(
-        "USE",
-        Ref("ObjectReferenceSegment"),
-    ),
     # DESCRIBE statement
     FlinkDescribeStatementSegment=Sequence(
         "DESCRIBE",
@@ -526,11 +515,29 @@ class StatementSegment(ansi.StatementSegment):
             # FlinkSQL-specific statements
             Ref("CreateCatalogStatementSegment"),
             Ref("FlinkCreateDatabaseStatementSegment"),
-            Ref("UseCatalogStatementSegment"),
-            Ref("UseDatabaseStatementSegment"),
             Ref("FlinkDescribeStatementSegment"),
             Ref("ShowStatementsSegment"),
         ],
+    )
+
+
+class UseStatementSegment(ansi.UseStatementSegment):
+    """A FlinkSQL USE statement."""
+
+    type = "use_statement"
+    match_grammar = OneOf(
+        # USE CATALOG catalog_name (needs to be first to prevent CATALOG being
+        # parsed as database name)
+        Sequence(
+            "USE",
+            "CATALOG",
+            Ref("ObjectReferenceSegment"),
+        ),
+        # USE [catalog_name.]database_name
+        Sequence(
+            "USE",
+            Ref("ObjectReferenceSegment"),
+        ),
     )
 
 
