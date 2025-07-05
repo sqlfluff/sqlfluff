@@ -44,6 +44,7 @@ keywords = [
     "clickhouse",
     "databricks",
     "db2",
+    "doris",
     "duckdb",
     "exasol",
     "greenplum",

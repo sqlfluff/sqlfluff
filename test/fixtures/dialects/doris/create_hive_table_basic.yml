@@ -1,0 +1,52 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 79ad88ba9d11208eb5086ad270fc5255f981881a36aec5df8593e5be4829f40b
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: hive_catalog
+      - dot: .
+      - naked_identifier: hive_db
+      - dot: .
+      - naked_identifier: hive_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: age
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: email
+          data_type:
+            data_type_identifier: STRING
+      - end_bracket: )
+    - keyword: ENGINE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - engine_type: hive
+    - keyword: PROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'file_format'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'parquet'"
+      - end_bracket: )
+  statement_terminator: ;

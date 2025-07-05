@@ -16,6 +16,9 @@ databricks:
 db2:
   - "/(db2)/i"
 
+doris:
+  - "/(doris)/i"
+
 duckdb:
   - "/(duckdb)/i"
 

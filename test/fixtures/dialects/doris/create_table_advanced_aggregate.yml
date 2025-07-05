@@ -1,0 +1,148 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: fb654a26ce80d5fa3e8afd0e30be3766909556bddbd5273c65f948c094062c54
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: advanced_aggregate_test
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: order_id
+          data_type:
+            data_type_identifier: BIGINT
+      - comma: ','
+      - column_definition:
+          naked_identifier: customer_id
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: product_id
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: quantity
+          data_type:
+            data_type_identifier: INT
+          keyword: SUM
+      - comma: ','
+      - column_definition:
+          naked_identifier: unit_price
+          data_type:
+            data_type_identifier: DECIMAL
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
+          keyword: MAX
+      - comma: ','
+      - column_definition:
+          naked_identifier: total_amount
+          data_type:
+            data_type_identifier: DECIMAL
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '12'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
+          keyword: SUM
+      - comma: ','
+      - column_definition:
+          naked_identifier: order_status
+          data_type:
+            data_type_identifier: STRING
+          keyword: REPLACE
+      - comma: ','
+      - column_definition:
+          naked_identifier: order_date
+          data_type:
+            data_type_identifier: DATE
+      - comma: ','
+      - column_definition:
+          naked_identifier: delivery_address
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: payment_method
+          data_type:
+            data_type_identifier: STRING
+          keyword: REPLACE
+      - comma: ','
+      - column_definition:
+          naked_identifier: discount_rate
+          data_type:
+            data_type_identifier: DECIMAL
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '3'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
+          keyword: MIN
+      - comma: ','
+      - column_definition:
+        - naked_identifier: created_at
+        - keyword: DATETIME
+        - keyword: DEFAULT
+        - keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+        - naked_identifier: updated_at
+        - keyword: DATETIME
+        - keyword: DEFAULT
+        - keyword: CURRENT_TIMESTAMP
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: CURRENT_TIMESTAMP
+      - end_bracket: )
+    - keyword: AGGREGATE
+    - keyword: KEY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: order_id
+      - comma: ','
+      - column_reference:
+          naked_identifier: customer_id
+      - comma: ','
+      - column_reference:
+          naked_identifier: product_id
+      - end_bracket: )
+    - distribution_segment:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - keyword: HASH
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: order_id
+          end_bracket: )
+    - keyword: PROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'replication_num'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'1'"
+      - comma: ','
+      - quoted_literal: "'storage_medium'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'SSD'"
+      - end_bracket: )
+  statement_terminator: ;

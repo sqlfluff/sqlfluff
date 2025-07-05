@@ -1,0 +1,94 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 853234424d60d72c6a3c6b24afab2fceadaedff96f6cf3c97e28d1962afcce13
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: aggregate_functions_test
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: value1
+          data_type:
+            data_type_identifier: INT
+          keyword: MAX
+      - comma: ','
+      - column_definition:
+          naked_identifier: value2
+          data_type:
+            data_type_identifier: INT
+          keyword: MIN
+      - comma: ','
+      - column_definition:
+          naked_identifier: value3
+          data_type:
+            data_type_identifier: STRING
+          keyword: REPLACE
+      - comma: ','
+      - column_definition:
+          naked_identifier: value4
+          data_type:
+            data_type_identifier: DECIMAL
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
+          keyword: SUM
+      - comma: ','
+      - column_definition:
+          naked_identifier: value5
+          data_type:
+            data_type_identifier: BITMAP
+          keyword: BITMAP_UNION
+      - comma: ','
+      - column_definition:
+          naked_identifier: value6
+          data_type:
+            data_type_identifier: HLL
+          keyword: HLL_UNION
+      - comma: ','
+      - column_definition:
+          naked_identifier: value7
+          data_type:
+            data_type_identifier: QUANTILE
+          keyword: QUANTILE_UNION
+      - end_bracket: )
+    - keyword: AGGREGATE
+    - keyword: KEY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: id
+        end_bracket: )
+    - distribution_segment:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - keyword: HASH
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+    - keyword: PROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'replication_num'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'1'"
+      - end_bracket: )
+  statement_terminator: ;
