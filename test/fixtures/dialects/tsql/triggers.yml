@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1363aed6e5fc8f7eba009cd74019c0d04670e6cd387fbeecd3c55cac0f350538
+_hash: b033144da54d643a16f701b721d139f5e95f89c79f1817d95041c97005d1fba2
 file:
 - batch:
     statement:
@@ -67,22 +67,26 @@ file:
           - parameter: '@profile_name'
           - comparison_operator:
               raw_comparison_operator: '='
-          - quoted_literal: "'AdventureWorks2012 Administrator'"
+          - expression:
+              quoted_literal: "'AdventureWorks2012 Administrator'"
           - comma: ','
           - parameter: '@recipients'
           - comparison_operator:
               raw_comparison_operator: '='
-          - quoted_literal: "'danw@Adventure-Works.com'"
+          - expression:
+              quoted_literal: "'danw@Adventure-Works.com'"
           - comma: ','
           - parameter: '@body'
           - comparison_operator:
               raw_comparison_operator: '='
-          - quoted_literal: "'Don''t forget to print a report for the sales force.'"
+          - expression:
+              quoted_literal: "'Don''t forget to print a report for the sales force.'"
           - comma: ','
           - parameter: '@subject'
           - comparison_operator:
               raw_comparison_operator: '='
-          - quoted_literal: "'Reminder'"
+          - expression:
+              quoted_literal: "'Reminder'"
           - statement_terminator: ;
 - go_statement:
     keyword: GO
