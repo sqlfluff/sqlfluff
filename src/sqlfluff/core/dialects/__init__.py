@@ -30,6 +30,7 @@ _dialect_lookup = {
     "doris": ("dialect_doris", "doris_dialect"),
     "duckdb": ("dialect_duckdb", "duckdb_dialect"),
     "exasol": ("dialect_exasol", "exasol_dialect"),
+    "flink": ("dialect_flink", "flink_dialect"),
     "greenplum": ("dialect_greenplum", "greenplum_dialect"),
     "hive": ("dialect_hive", "hive_dialect"),
     "impala": ("dialect_impala", "impala_dialect"),
