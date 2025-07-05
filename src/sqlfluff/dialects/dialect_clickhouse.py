@@ -1146,6 +1146,562 @@ class RenameStatementSegment(BaseSegment):
     )
 
 
+class DictionarySourceSegment(BaseSegment):
+    """A `SOURCE` clause for a ClickHouse dictionary."""
+
+    type = "dictionary_source"
+    match_grammar = Sequence(
+        "SOURCE",
+        Bracketed(
+            OneOf(
+                # CLICKHOUSE
+                Sequence(
+                    "CLICKHOUSE",
+                    Bracketed(
+                        AnyNumberOf(
+                            OneOf(
+                                # Standard parameters
+                                Sequence(
+                                    Ref("NakedIdentifierSegment"),
+                                    OneOf(
+                                        Ref("QuotedLiteralSegment"),
+                                        Ref("NumericLiteralSegment"),
+                                        Ref("BooleanLiteralGrammar"),
+                                    ),
+                                ),
+                                # UPDATE_FIELD parameter
+                                Sequence(
+                                    OneOf(
+                                        "UPDATE_FIELD",
+                                        "update_field",
+                                    ),
+                                    Ref("NakedIdentifierSegment"),
+                                ),
+                                # QUERY parameter
+                                Sequence(
+                                    "QUERY",
+                                    Ref("QuotedLiteralSegment"),
+                                ),
+                            ),
+                            min_times=1,
+                        ),
+                    ),
+                ),
+                # FILE
+                Sequence(
+                    "FILE",
+                    Bracketed(
+                        AnyNumberOf(
+                            OneOf(
+                                # path parameter
+                                Sequence(
+                                    "PATH",
+                                    Ref("QuotedLiteralSegment"),
+                                ),
+                                # format parameter
+                                Sequence(
+                                    "FORMAT",
+                                    Ref("QuotedLiteralSegment"),
+                                ),
+                                # other parameters
+                                Sequence(
+                                    Ref("NakedIdentifierSegment"),
+                                    OneOf(
+                                        Ref("QuotedLiteralSegment"),
+                                        Ref("NumericLiteralSegment"),
+                                        Ref("BooleanLiteralGrammar"),
+                                    ),
+                                ),
+                            ),
+                            min_times=1,
+                        ),
+                    ),
+                ),
+                # HTTP
+                Sequence(
+                    "HTTP",
+                    Bracketed(
+                        AnyNumberOf(
+                            OneOf(
+                                # url parameter
+                                Sequence(
+                                    "url",
+                                    Ref("QuotedLiteralSegment"),
+                                ),
+                                # format parameter
+                                Sequence(
+                                    "format",
+                                    Ref("QuotedLiteralSegment"),
+                                ),
+                                # credentials block
+                                Sequence(
+                                    "credentials",
+                                    Bracketed(
+                                        Sequence(
+                                            "user",
+                                            Ref("QuotedLiteralSegment"),
+                                            "password",
+                                            Ref("QuotedLiteralSegment"),
+                                        ),
+                                    ),
+                                ),
+                                # headers block
+                                Sequence(
+                                    "headers",
+                                    Bracketed(
+                                        Sequence(
+                                            "header",
+                                            Bracketed(
+                                                Sequence(
+                                                    "name",
+                                                    Ref("QuotedLiteralSegment"),
+                                                    "value",
+                                                    Ref("QuotedLiteralSegment"),
+                                                ),
+                                            ),
+                                        ),
+                                    ),
+                                ),
+                                # other parameters
+                                Sequence(
+                                    Ref("NakedIdentifierSegment"),
+                                    OneOf(
+                                        Ref("QuotedLiteralSegment"),
+                                        Ref("NumericLiteralSegment"),
+                                        Ref("BooleanLiteralGrammar"),
+                                    ),
+                                ),
+                            ),
+                            min_times=1,
+                        ),
+                    ),
+                ),
+                # ODBC
+                Sequence(
+                    "ODBC",
+                    Bracketed(
+                        AnyNumberOf(
+                            Sequence(
+                                Ref("NakedIdentifierSegment"),
+                                OneOf(
+                                    Ref("QuotedLiteralSegment"),
+                                    Ref("NumericLiteralSegment"),
+                                    Ref("BooleanLiteralGrammar"),
+                                ),
+                            ),
+                            min_times=1,
+                        ),
+                    ),
+                ),
+                # MYSQL
+                Sequence(
+                    "MYSQL",
+                    Bracketed(
+                        AnyNumberOf(
+                            OneOf(
+                                Sequence(
+                                    Ref("NakedIdentifierSegment"),
+                                    OneOf(
+                                        Ref("QuotedLiteralSegment"),
+                                        Ref("NumericLiteralSegment"),
+                                        Ref("BooleanLiteralGrammar"),
+                                    ),
+                                ),
+                                Sequence(
+                                    Ref("NakedIdentifierSegment"),
+                                    Bracketed(
+                                        AnyNumberOf(
+                                            Sequence(
+                                                Ref("NakedIdentifierSegment"),
+                                                OneOf(
+                                                    Ref("QuotedLiteralSegment"),
+                                                    Ref("NumericLiteralSegment"),
+                                                    Ref("BooleanLiteralGrammar"),
+                                                ),
+                                            ),
+                                            min_times=1,
+                                        ),
+                                    ),
+                                ),
+                            ),
+                            min_times=1,
+                        ),
+                    ),
+                ),
+                # MONGODB
+                Sequence(
+                    "MONGODB",
+                    Bracketed(
+                        AnyNumberOf(
+                            Sequence(
+                                Ref("NakedIdentifierSegment"),
+                                OneOf(
+                                    Ref("QuotedLiteralSegment"),
+                                    Ref("NumericLiteralSegment"),
+                                    Ref("BooleanLiteralGrammar"),
+                                ),
+                            ),
+                            min_times=1,
+                        ),
+                    ),
+                ),
+                # REDIS
+                Sequence(
+                    "REDIS",
+                    Bracketed(
+                        AnyNumberOf(
+                            Sequence(
+                                Ref("NakedIdentifierSegment"),
+                                OneOf(
+                                    Ref("QuotedLiteralSegment"),
+                                    Ref("NumericLiteralSegment"),
+                                    Ref("BooleanLiteralGrammar"),
+                                ),
+                            ),
+                            min_times=1,
+                        ),
+                    ),
+                ),
+                # POSTGRESQL
+                Sequence(
+                    "POSTGRESQL",
+                    Bracketed(
+                        AnyNumberOf(
+                            OneOf(
+                                Sequence(
+                                    Ref("NakedIdentifierSegment"),
+                                    OneOf(
+                                        Ref("QuotedLiteralSegment"),
+                                        Ref("NumericLiteralSegment"),
+                                        Ref("BooleanLiteralGrammar"),
+                                    ),
+                                ),
+                                Sequence(
+                                    Ref("NakedIdentifierSegment"),
+                                    Bracketed(
+                                        AnyNumberOf(
+                                            Sequence(
+                                                Ref("NakedIdentifierSegment"),
+                                                OneOf(
+                                                    Ref("QuotedLiteralSegment"),
+                                                    Ref("NumericLiteralSegment"),
+                                                    Ref("BooleanLiteralGrammar"),
+                                                ),
+                                            ),
+                                            min_times=1,
+                                        ),
+                                    ),
+                                ),
+                            ),
+                            min_times=1,
+                        ),
+                    ),
+                ),
+                # NULL
+                Sequence(
+                    "NULL",
+                    Bracketed(),
+                ),
+            ),
+        ),
+    )
+
+
+class DictionaryColumnDefinitionSegment(BaseSegment):
+    """A column definition in a ClickHouse dictionary, with optional DEFAULT."""
+
+    type = "dictionary_column_definition"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Ref("DatatypeSegment"),
+        Sequence(
+            "DEFAULT",
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("QuotedLiteralSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class DictionarySettingsSegment(BaseSegment):
+    """A `SETTINGS` clause for a ClickHouse dictionary."""
+
+    type = "dictionary_settings"
+    match_grammar = Sequence(
+        "SETTINGS",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("NumericLiteralSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
+                ),
+                delimiter=Ref("CommaSegment"),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class DictionaryLifetimeSegment(BaseSegment):
+    """A `LIFETIME` clause for a ClickHouse dictionary.
+
+    Supports both LIFETIME (value) and LIFETIME (MIN value MAX value) forms.
+    """
+
+    type = "dictionary_lifetime"
+    match_grammar = Sequence(
+        "LIFETIME",
+        Bracketed(
+            OneOf(
+                Sequence(
+                    "MIN",
+                    Ref("NumericLiteralSegment"),
+                    "MAX",
+                    Ref("NumericLiteralSegment"),
+                ),
+                Ref("NumericLiteralSegment"),
+            ),
+        ),
+    )
+
+
+class DictionaryLayoutSegment(BaseSegment):
+    """A `LAYOUT` clause for a ClickHouse dictionary.
+
+    Supports all known ClickHouse dictionary layouts, e.g. FLAT, HASHED, CACHE, etc.
+    """
+
+    type = "dictionary_layout"
+    match_grammar = Sequence(
+        "LAYOUT",
+        Bracketed(
+            OneOf(
+                # Simple layouts with optional parameters
+                Sequence(
+                    OneOf(
+                        "FLAT",
+                        "IP_TRIE",
+                        "DIRECT",
+                    ),
+                    Bracketed(
+                        AnyNumberOf(
+                            Sequence(
+                                Ref("NakedIdentifierSegment"),
+                                OneOf(
+                                    Ref("NumericLiteralSegment"),
+                                    Ref("QuotedLiteralSegment"),
+                                    Ref("BooleanLiteralGrammar"),
+                                ),
+                            ),
+                            min_times=0,
+                        ),
+                        optional=True,
+                    ),
+                ),
+                # IP_TRIE layout with no parameters
+                Sequence(
+                    "IP_TRIE",
+                    Bracketed(
+                        Nothing(),
+                    ),
+                ),
+                # Range-based layouts with special parameters
+                Sequence(
+                    OneOf(
+                        "RANGE_HASHED",
+                        "COMPLEX_KEY_RANGE_HASHED",
+                    ),
+                    Bracketed(
+                        AnyNumberOf(
+                            OneOf(
+                                # Standard parameters
+                                Sequence(
+                                    Ref("NakedIdentifierSegment"),
+                                    OneOf(
+                                        Ref("NumericLiteralSegment"),
+                                        Ref("BooleanLiteralGrammar"),
+                                    ),
+                                ),
+                                # Range lookup strategy parameter
+                                Sequence(
+                                    "RANGE_LOOKUP_STRATEGY",
+                                    Ref("QuotedLiteralSegment"),
+                                ),
+                            ),
+                            min_times=0,
+                        ),
+                        optional=True,
+                    ),
+                ),
+                # Layouts that require empty parameters
+                Sequence(
+                    OneOf(
+                        "IP_TRIE",
+                    ),
+                    Bracketed(
+                        Nothing(),
+                    ),
+                ),
+                # Other layouts with required parameters
+                Sequence(
+                    OneOf(
+                        "HASHED",
+                        "COMPLEX_KEY_HASHED",
+                        "CACHE",
+                        "COMPLEX_KEY_CACHE",
+                        "COMPLEX_KEY_DIRECT",
+                        "SPARSE_HASHED",
+                        "COMPLEX_KEY_SPARSE_HASHED",
+                        "HASHED_ARRAY",
+                        "COMPLEX_KEY_HASHED_ARRAY",
+                        "POLYGON",
+                    ),
+                    Bracketed(
+                        AnyNumberOf(
+                            Sequence(
+                                Ref("NakedIdentifierSegment"),
+                                OneOf(
+                                    Ref("NumericLiteralSegment"),
+                                    Ref("QuotedLiteralSegment"),
+                                    Ref("BooleanLiteralGrammar"),
+                                ),
+                            ),
+                            min_times=0,
+                        ),
+                        optional=True,
+                    ),
+                ),
+                # SSD_CACHE with specific parameters
+                Sequence(
+                    "SSD_CACHE",
+                    Bracketed(
+                        Delimited(
+                            Sequence(
+                                OneOf(
+                                    "BLOCK_SIZE",
+                                    "FILE_SIZE",
+                                    "READ_BUFFER_SIZE",
+                                    "PATH",
+                                ),
+                                OneOf(
+                                    Ref("NumericLiteralSegment"),
+                                    Ref("QuotedLiteralSegment"),
+                                ),
+                            ),
+                            delimiter=Ref("CommaSegment"),
+                        ),
+                    ),
+                ),
+                # RANGE_HASHED with lookup strategy
+                Sequence(
+                    "RANGE_HASHED",
+                    Bracketed(
+                        Sequence(
+                            "RANGE_LOOKUP_STRATEGY",
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        optional=True,
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class DictionaryRangeSegment(BaseSegment):
+    """A `RANGE` clause for a ClickHouse dictionary."""
+
+    type = "dictionary_range"
+    match_grammar = Sequence(
+        "RANGE",
+        Bracketed(
+            Sequence(
+                "MIN",
+                Ref("SingleIdentifierGrammar"),
+                "MAX",
+                Ref("SingleIdentifierGrammar"),
+            ),
+        ),
+    )
+
+
+class DictionaryPrimaryKeySegment(BaseSegment):
+    """A `PRIMARY KEY` clause for a ClickHouse dictionary."""
+
+    type = "dictionary_primary_key"
+    match_grammar = Sequence(
+        "PRIMARY",
+        "KEY",
+        OneOf(
+            # Single key
+            Ref("SingleIdentifierGrammar"),
+            # Multiple keys with brackets
+            Bracketed(
+                Delimited(
+                    Ref("SingleIdentifierGrammar"),
+                    delimiter=Ref("CommaSegment"),
+                ),
+            ),
+            # Multiple keys without brackets
+            Delimited(
+                Ref("SingleIdentifierGrammar"),
+                delimiter=Ref("CommaSegment"),
+            ),
+            # Complex key type
+            Ref("DatatypeSegment"),
+        ),
+    )
+
+
+class CreateDictionaryStatementSegment(BaseSegment):
+    """A `CREATE DICTIONARY` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/create/dictionary/
+    """
+
+    type = "create_dictionary_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "DICTIONARY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("OnClusterClauseSegment", optional=True),
+        Bracketed(
+            Delimited(
+                Ref("DictionaryColumnDefinitionSegment"),
+            ),
+        ),
+        Ref("DictionaryPrimaryKeySegment"),
+        # SOURCE, LAYOUT and LIFETIME are required for semantic correctness,
+        # but clause order is flexible in ClickHouse, so we allow any order here.
+        AnySetOf(
+            Ref("DictionarySourceSegment"),
+            Ref("DictionaryLayoutSegment"),
+            Ref("DictionaryLifetimeSegment", optional=True),
+            Ref("DictionarySettingsSegment", optional=True),
+            Ref("DictionaryRangeSegment", optional=True),
+            min_times=2,  # Only SOURCE and LAYOUT are required
+        ),
+        Sequence(
+            "COMMENT",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Ref("TableEndClauseSegment", optional=True),
+    )
+
+
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """A `CREATE TABLE` statement.
 
@@ -2128,6 +2684,7 @@ class StatementSegment(ansi.StatementSegment):
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
+            Ref("CreateDictionaryStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
             Ref("DropDictionaryStatementSegment"),
             Ref("DropQuotaStatementSegment"),

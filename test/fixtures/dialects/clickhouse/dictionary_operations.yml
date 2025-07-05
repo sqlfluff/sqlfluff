@@ -1,0 +1,2972 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4fafa4e2359350026f09ce3366b412a8a13b649813e266adc5866bae01926210
+file:
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: simple_dict
+    - bracketed:
+        start_bracket: (
+        dictionary_column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: Int64
+        end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+            start_bracket: (
+            naked_identifier: HOST
+            quoted_literal: "'localhost'"
+            end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+          start_bracket: (
+          numeric_literal: '300'
+          end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: FLAT
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: cluster_dict
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: cluster_name
+    - bracketed:
+        start_bracket: (
+        dictionary_column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: Int64
+        end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+            start_bracket: (
+            naked_identifier: HOST
+            quoted_literal: "'localhost'"
+            end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+          start_bracket: (
+          numeric_literal: '300'
+          end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: FLAT
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: placeholder_dict
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - bracketed:
+        start_bracket: (
+        dictionary_column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: Int64
+        end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+            start_bracket: (
+            naked_identifier: HOST
+            quoted_literal: "'localhost'"
+            end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+          start_bracket: (
+          numeric_literal: '300'
+          end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: FLAT
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: replaceable_dict
+    - bracketed:
+        start_bracket: (
+        dictionary_column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: Int64
+        end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+            start_bracket: (
+            naked_identifier: HOST
+            quoted_literal: "'localhost'"
+            end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+          start_bracket: (
+          numeric_literal: '300'
+          end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: FLAT
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: full_config_dict
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: key_column
+          data_type:
+            data_type_identifier: UInt64
+          keyword: DEFAULT
+          numeric_literal: '0'
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: second_column
+          data_type:
+            data_type_identifier: String
+          keyword: DEFAULT
+          quoted_literal: "'default_value'"
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: key_column
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: HOST
+          - quoted_literal: "'localhost'"
+          - naked_identifier: PORT
+          - numeric_literal: '9000'
+          - naked_identifier: USER
+          - quoted_literal: "'default'"
+          - naked_identifier: PASSWORD
+          - quoted_literal: "''"
+          - naked_identifier: DB
+          - quoted_literal: "'default'"
+          - naked_identifier: TABLE
+          - quoted_literal: "'source_table'"
+          - naked_identifier: WHERE
+          - quoted_literal: "'id=10'"
+          - naked_identifier: SECURE
+          - numeric_literal: '1'
+          - naked_identifier: QUERY
+          - quoted_literal: "'SELECT id, value_1, value_2 FROM source_table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '1'
+        - keyword: MAX
+        - numeric_literal: '10'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: HASHED
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: file_dict
+    - bracketed:
+        start_bracket: (
+        dictionary_column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: Int64
+        end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: FILE
+          bracketed:
+          - start_bracket: (
+          - keyword: path
+          - quoted_literal: "'./data/source.tsv'"
+          - keyword: format
+          - quoted_literal: "'TabSeparated'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_settings:
+        keyword: SETTINGS
+        bracketed:
+          start_bracket: (
+          naked_identifier: format_csv_allow_single_quotes
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '0'
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+          start_bracket: (
+          numeric_literal: '300'
+          end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: FLAT
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: http_dict
+    - bracketed:
+        start_bracket: (
+        dictionary_column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: Int64
+        end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: HTTP
+          bracketed:
+          - start_bracket: (
+          - keyword: url
+          - quoted_literal: "'http://api.example.com/data.tsv'"
+          - keyword: format
+          - quoted_literal: "'TabSeparated'"
+          - keyword: credentials
+          - bracketed:
+            - start_bracket: (
+            - keyword: user
+            - quoted_literal: "'api_user'"
+            - keyword: password
+            - quoted_literal: "'api_password'"
+            - end_bracket: )
+          - keyword: headers
+          - bracketed:
+              start_bracket: (
+              keyword: header
+              bracketed:
+              - start_bracket: (
+              - keyword: name
+              - quoted_literal: "'API-KEY'"
+              - keyword: value
+              - quoted_literal: "'secret_key'"
+              - end_bracket: )
+              end_bracket: )
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+          start_bracket: (
+          numeric_literal: '300'
+          end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: FLAT
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: odbc_dict
+    - bracketed:
+        start_bracket: (
+        dictionary_column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: Int64
+        end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: ODBC
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: db
+          - quoted_literal: "'ExternalDB'"
+          - naked_identifier: table
+          - quoted_literal: "'Schema.Table'"
+          - naked_identifier: connection_string
+          - quoted_literal: "'DSN=external_source'"
+          - naked_identifier: invalidate_query
+          - quoted_literal: "'SELECT MAX(updated_at) FROM Schema.Table'"
+          - naked_identifier: query
+          - quoted_literal: "'SELECT id, value_1, value_2 FROM Schema.Table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+          start_bracket: (
+          numeric_literal: '300'
+          end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: FLAT
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: mysql_dict
+    - bracketed:
+        start_bracket: (
+        dictionary_column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: Int64
+        end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: MYSQL
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: port
+          - numeric_literal: '3306'
+          - naked_identifier: user
+          - quoted_literal: "'replication_user'"
+          - naked_identifier: password
+          - quoted_literal: "'secret'"
+          - naked_identifier: replica
+          - bracketed:
+            - start_bracket: (
+            - naked_identifier: host
+            - quoted_literal: "'replica-1'"
+            - naked_identifier: priority
+            - numeric_literal: '1'
+            - end_bracket: )
+          - naked_identifier: replica
+          - bracketed:
+            - start_bracket: (
+            - naked_identifier: host
+            - quoted_literal: "'replica-2'"
+            - naked_identifier: priority
+            - numeric_literal: '1'
+            - end_bracket: )
+          - naked_identifier: db
+          - quoted_literal: "'source_db'"
+          - naked_identifier: table
+          - quoted_literal: "'source_table'"
+          - naked_identifier: where
+          - quoted_literal: "'active=1'"
+          - naked_identifier: invalidate_query
+          - quoted_literal: "'SELECT MAX(updated_at) FROM source_table'"
+          - naked_identifier: fail_on_connection_loss
+          - quoted_literal: "'true'"
+          - naked_identifier: query
+          - quoted_literal: "'SELECT id, value_1, value_2 FROM source_table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+          start_bracket: (
+          numeric_literal: '300'
+          end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: FLAT
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: dict8
+    - bracketed:
+        start_bracket: (
+        dictionary_column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: Int64
+        end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: MONGODB
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: host
+          - quoted_literal: "'localhost'"
+          - naked_identifier: port
+          - numeric_literal: '27017'
+          - naked_identifier: user
+          - quoted_literal: "''"
+          - naked_identifier: password
+          - quoted_literal: "''"
+          - naked_identifier: db
+          - quoted_literal: "'test'"
+          - naked_identifier: collection
+          - quoted_literal: "'dictionary_source'"
+          - naked_identifier: options
+          - quoted_literal: "'ssl=true'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+          start_bracket: (
+          numeric_literal: '300'
+          end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: FLAT
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: dict9
+    - bracketed:
+        start_bracket: (
+        dictionary_column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: Int64
+        end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: REDIS
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: host
+          - quoted_literal: "'localhost'"
+          - naked_identifier: port
+          - numeric_literal: '6379'
+          - naked_identifier: storage_type
+          - quoted_literal: "'simple'"
+          - naked_identifier: db_index
+          - numeric_literal: '0'
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+          start_bracket: (
+          numeric_literal: '300'
+          end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: FLAT
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: dict10
+    - bracketed:
+        start_bracket: (
+        dictionary_column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: Int64
+        end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: POSTGRESQL
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: port
+          - numeric_literal: '5432'
+          - naked_identifier: host
+          - quoted_literal: "'postgresql-hostname'"
+          - naked_identifier: user
+          - quoted_literal: "'postgres_user'"
+          - naked_identifier: password
+          - quoted_literal: "'postgres_password'"
+          - naked_identifier: db
+          - quoted_literal: "'db_name'"
+          - naked_identifier: table
+          - quoted_literal: "'table_name'"
+          - naked_identifier: replica
+          - bracketed:
+            - start_bracket: (
+            - naked_identifier: host
+            - quoted_literal: "'example01-1'"
+            - naked_identifier: port
+            - numeric_literal: '5432'
+            - naked_identifier: priority
+            - numeric_literal: '1'
+            - end_bracket: )
+          - naked_identifier: replica
+          - bracketed:
+            - start_bracket: (
+            - naked_identifier: host
+            - quoted_literal: "'example01-2'"
+            - naked_identifier: port
+            - numeric_literal: '5432'
+            - naked_identifier: priority
+            - numeric_literal: '2'
+            - end_bracket: )
+          - naked_identifier: where
+          - quoted_literal: "'id=10'"
+          - naked_identifier: invalidate_query
+          - quoted_literal: "'SQL_QUERY'"
+          - naked_identifier: query
+          - quoted_literal: "'SELECT id, value_1, value_2 FROM db_name.table_name'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+          start_bracket: (
+          numeric_literal: '300'
+          end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: FLAT
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: dict11
+    - bracketed:
+        start_bracket: (
+        dictionary_column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: Int64
+        end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: 'NULL'
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+          start_bracket: (
+          numeric_literal: '300'
+          end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: FLAT
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: flat_dict
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: key_field
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: value_field
+          data_type:
+            data_type_identifier: UInt64
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: key_field
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: HOST
+          - quoted_literal: "'localhost'"
+          - naked_identifier: PORT
+          - numeric_literal: '9000'
+          - naked_identifier: USER
+          - quoted_literal: "'default'"
+          - naked_identifier: PASSWORD
+          - quoted_literal: "''"
+          - naked_identifier: DB
+          - quoted_literal: "'db'"
+          - naked_identifier: TABLE
+          - quoted_literal: "'table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '1'
+        - keyword: MAX
+        - numeric_literal: '10'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: FLAT
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: INITIAL_ARRAY_SIZE
+          - numeric_literal: '50000'
+          - naked_identifier: MAX_ARRAY_SIZE
+          - numeric_literal: '5000000'
+          - end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: hashed_dict
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: key_field
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: value_field
+          data_type:
+            data_type_identifier: UInt64
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: key_field
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: HOST
+          - quoted_literal: "'localhost'"
+          - naked_identifier: PORT
+          - numeric_literal: '9000'
+          - naked_identifier: USER
+          - quoted_literal: "'default'"
+          - naked_identifier: PASSWORD
+          - quoted_literal: "''"
+          - naked_identifier: DB
+          - quoted_literal: "'db'"
+          - naked_identifier: TABLE
+          - quoted_literal: "'table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '1'
+        - keyword: MAX
+        - numeric_literal: '10'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: HASHED
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: SHARDS
+          - numeric_literal: '1'
+          - naked_identifier: SHARD_LOAD_QUEUE_BACKLOG
+          - numeric_literal: '10000'
+          - naked_identifier: MAX_LOAD_FACTOR
+          - numeric_literal: '0.5'
+          - end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: sparse_hashed_dict
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: key_field
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: value_field
+          data_type:
+            data_type_identifier: UInt64
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: key_field
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: HOST
+          - quoted_literal: "'localhost'"
+          - naked_identifier: PORT
+          - numeric_literal: '9000'
+          - naked_identifier: USER
+          - quoted_literal: "'default'"
+          - naked_identifier: PASSWORD
+          - quoted_literal: "''"
+          - naked_identifier: DB
+          - quoted_literal: "'db'"
+          - naked_identifier: TABLE
+          - quoted_literal: "'table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '1'
+        - keyword: MAX
+        - numeric_literal: '10'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: SPARSE_HASHED
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: SHARDS
+          - numeric_literal: '1'
+          - naked_identifier: SHARD_LOAD_QUEUE_BACKLOG
+          - numeric_literal: '10000'
+          - naked_identifier: MAX_LOAD_FACTOR
+          - numeric_literal: '0.5'
+          - end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: complex_key_hashed_dict
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: key1
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: key2
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: value_field
+          data_type:
+            data_type_identifier: UInt64
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier: key1
+        - comma: ','
+        - naked_identifier: key2
+        - end_bracket: )
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: HOST
+          - quoted_literal: "'localhost'"
+          - naked_identifier: PORT
+          - numeric_literal: '9000'
+          - naked_identifier: USER
+          - quoted_literal: "'default'"
+          - naked_identifier: PASSWORD
+          - quoted_literal: "''"
+          - naked_identifier: DB
+          - quoted_literal: "'db'"
+          - naked_identifier: TABLE
+          - quoted_literal: "'table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '1'
+        - keyword: MAX
+        - numeric_literal: '10'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: COMPLEX_KEY_HASHED
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: complex_key_sparse_hashed_dict
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: key_field
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: value_field
+          data_type:
+            data_type_identifier: UInt64
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: key_field
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: HOST
+          - quoted_literal: "'localhost'"
+          - naked_identifier: PORT
+          - numeric_literal: '9000'
+          - naked_identifier: USER
+          - quoted_literal: "'default'"
+          - naked_identifier: PASSWORD
+          - quoted_literal: "''"
+          - naked_identifier: DB
+          - quoted_literal: "'db'"
+          - naked_identifier: TABLE
+          - quoted_literal: "'table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '1'
+        - keyword: MAX
+        - numeric_literal: '10'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: COMPLEX_KEY_SPARSE_HASHED
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: SHARDS
+          - numeric_literal: '1'
+          - naked_identifier: SHARD_LOAD_QUEUE_BACKLOG
+          - numeric_literal: '10000'
+          - naked_identifier: MAX_LOAD_FACTOR
+          - numeric_literal: '0.5'
+          - end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: hashed_array_dict
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: key_field
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: value_field
+          data_type:
+            data_type_identifier: UInt64
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: key_field
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: HOST
+          - quoted_literal: "'localhost'"
+          - naked_identifier: PORT
+          - numeric_literal: '9000'
+          - naked_identifier: USER
+          - quoted_literal: "'default'"
+          - naked_identifier: PASSWORD
+          - quoted_literal: "''"
+          - naked_identifier: DB
+          - quoted_literal: "'db'"
+          - naked_identifier: TABLE
+          - quoted_literal: "'table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '1'
+        - keyword: MAX
+        - numeric_literal: '10'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: HASHED_ARRAY
+          bracketed:
+            start_bracket: (
+            naked_identifier: SHARDS
+            numeric_literal: '1'
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: complex_key_hashed_array_dict
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: key_field
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: value_field
+          data_type:
+            data_type_identifier: UInt64
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: key_field
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: HOST
+          - quoted_literal: "'localhost'"
+          - naked_identifier: PORT
+          - numeric_literal: '9000'
+          - naked_identifier: USER
+          - quoted_literal: "'default'"
+          - naked_identifier: PASSWORD
+          - quoted_literal: "''"
+          - naked_identifier: DB
+          - quoted_literal: "'db'"
+          - naked_identifier: TABLE
+          - quoted_literal: "'table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '1'
+        - keyword: MAX
+        - numeric_literal: '10'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: COMPLEX_KEY_HASHED_ARRAY
+          bracketed:
+            start_bracket: (
+            naked_identifier: SHARDS
+            numeric_literal: '1'
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: range_hashed_max_dict
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: key_field
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: range_start
+          data_type:
+            data_type_identifier: Date
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: range_end
+          data_type:
+            data_type_identifier: Date
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: value_field
+          data_type:
+            data_type_identifier: UInt64
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: key_field
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: HOST
+          - quoted_literal: "'localhost'"
+          - naked_identifier: PORT
+          - numeric_literal: '9000'
+          - naked_identifier: USER
+          - quoted_literal: "'default'"
+          - naked_identifier: PASSWORD
+          - quoted_literal: "''"
+          - naked_identifier: DB
+          - quoted_literal: "'db'"
+          - naked_identifier: TABLE
+          - quoted_literal: "'table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '1'
+        - keyword: MAX
+        - numeric_literal: '10'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: RANGE_HASHED
+          bracketed:
+            start_bracket: (
+            keyword: RANGE_LOOKUP_STRATEGY
+            quoted_literal: "'max'"
+            end_bracket: )
+          end_bracket: )
+    - dictionary_range:
+        keyword: RANGE
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - naked_identifier: range_start
+        - keyword: MAX
+        - naked_identifier: range_end
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: complex_key_range_hashed_dict
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: key_field
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: value_field
+          data_type:
+            data_type_identifier: UInt64
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: key_field
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: HOST
+          - quoted_literal: "'localhost'"
+          - naked_identifier: PORT
+          - numeric_literal: '9000'
+          - naked_identifier: USER
+          - quoted_literal: "'default'"
+          - naked_identifier: PASSWORD
+          - quoted_literal: "''"
+          - naked_identifier: DB
+          - quoted_literal: "'db'"
+          - naked_identifier: TABLE
+          - quoted_literal: "'table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '1'
+        - keyword: MAX
+        - numeric_literal: '10'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: COMPLEX_KEY_RANGE_HASHED
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: cache_dict
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: key_field
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: value_field
+          data_type:
+            data_type_identifier: UInt64
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: key_field
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: HOST
+          - quoted_literal: "'localhost'"
+          - naked_identifier: PORT
+          - numeric_literal: '9000'
+          - naked_identifier: USER
+          - quoted_literal: "'default'"
+          - naked_identifier: PASSWORD
+          - quoted_literal: "''"
+          - naked_identifier: DB
+          - quoted_literal: "'db'"
+          - naked_identifier: TABLE
+          - quoted_literal: "'table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '1'
+        - keyword: MAX
+        - numeric_literal: '10'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: CACHE
+          bracketed:
+            start_bracket: (
+            naked_identifier: SIZE_IN_CELLS
+            numeric_literal: '1000000000'
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: ssd_cache_dict
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: key_field
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: value_field
+          data_type:
+            data_type_identifier: UInt64
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: key_field
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: HOST
+          - quoted_literal: "'localhost'"
+          - naked_identifier: PORT
+          - numeric_literal: '9000'
+          - naked_identifier: USER
+          - quoted_literal: "'default'"
+          - naked_identifier: PASSWORD
+          - quoted_literal: "''"
+          - naked_identifier: DB
+          - quoted_literal: "'db'"
+          - naked_identifier: TABLE
+          - quoted_literal: "'table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '1'
+        - keyword: MAX
+        - numeric_literal: '10'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: SSD_CACHE
+          bracketed:
+          - start_bracket: (
+          - keyword: BLOCK_SIZE
+          - numeric_literal: '4096'
+          - comma: ','
+          - keyword: FILE_SIZE
+          - numeric_literal: '16777216'
+          - comma: ','
+          - keyword: READ_BUFFER_SIZE
+          - numeric_literal: '1048576'
+          - comma: ','
+          - keyword: PATH
+          - quoted_literal: "'/var/lib/clickhouse/user_files/test_dict'"
+          - end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: direct_dict
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: key_field
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: value_field
+          data_type:
+            data_type_identifier: UInt64
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: key_field
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: HOST
+          - quoted_literal: "'localhost'"
+          - naked_identifier: PORT
+          - numeric_literal: '9000'
+          - naked_identifier: USER
+          - quoted_literal: "'default'"
+          - naked_identifier: PASSWORD
+          - quoted_literal: "''"
+          - naked_identifier: DB
+          - quoted_literal: "'db'"
+          - naked_identifier: TABLE
+          - quoted_literal: "'table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: DIRECT
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: ip_trie_dict
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: key_field
+          data_type:
+            data_type_identifier: IPv4
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: value_field
+          data_type:
+            data_type_identifier: UInt64
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: key_field
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: HOST
+          - quoted_literal: "'localhost'"
+          - naked_identifier: PORT
+          - numeric_literal: '9000'
+          - naked_identifier: USER
+          - quoted_literal: "'default'"
+          - naked_identifier: PASSWORD
+          - quoted_literal: "''"
+          - naked_identifier: DB
+          - quoted_literal: "'db'"
+          - naked_identifier: TABLE
+          - quoted_literal: "'table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '1'
+        - keyword: MAX
+        - numeric_literal: '10'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: IP_TRIE
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: id_value_dictionary
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: value
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+            start_bracket: (
+            naked_identifier: TABLE
+            quoted_literal: "'source_table'"
+            end_bracket: )
+          end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: FLAT
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '0'
+        - keyword: MAX
+        - numeric_literal: '1000'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+      - naked_identifier: foo_db
+      - dot: .
+      - naked_identifier: id_value_dictionary
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: value
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: TABLE
+          - quoted_literal: "'source_table'"
+          - naked_identifier: USER
+          - quoted_literal: "'clickhouse_admin'"
+          - naked_identifier: PASSWORD
+          - quoted_literal: "'passworD43$x'"
+          - naked_identifier: DB
+          - quoted_literal: "'foo_db'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: FLAT
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '0'
+        - keyword: MAX
+        - numeric_literal: '1000'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: taxi_zone_dictionary
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          quoted_identifier: '`LocationID`'
+          data_type:
+            data_type_identifier: UInt16
+          keyword: DEFAULT
+          numeric_literal: '0'
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`Borough`'
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`Zone`'
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`service_zone`'
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: LocationID
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: HTTP
+          bracketed:
+          - start_bracket: (
+          - keyword: URL
+          - quoted_literal: "'https://datasets-documentation.s3.eu-west-3.amazonaws.com/nyc-taxi/taxi_zone_lookup.csv'"
+          - keyword: FORMAT
+          - quoted_literal: "'CSVWithNames'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '0'
+        - keyword: MAX
+        - numeric_literal: '0'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: HASHED
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: discounts_dict
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: advertiser_id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: discount_start_date
+          data_type:
+            data_type_identifier: Date
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: discount_end_date
+          data_type:
+            data_type_identifier: Date
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: amount
+          data_type:
+            data_type_identifier: Float64
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+            start_bracket: (
+            naked_identifier: TABLE
+            quoted_literal: "'discounts'"
+            end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '1'
+        - keyword: MAX
+        - numeric_literal: '1000'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: RANGE_HASHED
+          bracketed:
+            start_bracket: (
+            keyword: range_lookup_strategy
+            quoted_literal: "'max'"
+            end_bracket: )
+          end_bracket: )
+    - dictionary_range:
+        keyword: RANGE
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - naked_identifier: discount_start_date
+        - keyword: MAX
+        - naked_identifier: discount_end_date
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: range_dictionary
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: CountryID
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: CountryKey
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: StartDate
+          data_type:
+            data_type_identifier: Date
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: EndDate
+          data_type:
+            data_type_identifier: Date
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: Tax
+          data_type:
+            data_type_identifier: Float64
+          keyword: DEFAULT
+          numeric_literal: '0.2'
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: CountryID
+      - comma: ','
+      - naked_identifier: CountryKey
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+            start_bracket: (
+            naked_identifier: TABLE
+            quoted_literal: "'date_table'"
+            end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '1'
+        - keyword: MAX
+        - numeric_literal: '1000'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: COMPLEX_KEY_RANGE_HASHED
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+    - dictionary_range:
+        keyword: RANGE
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - naked_identifier: StartDate
+        - keyword: MAX
+        - naked_identifier: EndDate
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: range_dictionary
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster_name}'"
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: CountryID
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: CountryKey
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: StartDate
+          data_type:
+            data_type_identifier: Date
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: EndDate
+          data_type:
+            data_type_identifier: Date
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: Tax
+          data_type:
+            data_type_identifier: Float64
+          keyword: DEFAULT
+          numeric_literal: '0.2'
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: CountryID
+      - comma: ','
+      - naked_identifier: CountryKey
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+            start_bracket: (
+            naked_identifier: TABLE
+            quoted_literal: "'date_table'"
+            end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '1'
+        - keyword: MAX
+        - numeric_literal: '1000'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: COMPLEX_KEY_RANGE_HASHED
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+    - dictionary_range:
+        keyword: RANGE
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - naked_identifier: StartDate
+        - keyword: MAX
+        - naked_identifier: EndDate
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: my_ip_trie_dictionary
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: prefix
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: asn
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: cca2
+          data_type:
+            data_type_identifier: String
+          keyword: DEFAULT
+          quoted_literal: "'??'"
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: prefix
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+            start_bracket: (
+            naked_identifier: TABLE
+            quoted_literal: "'my_ip_addresses'"
+            end_bracket: )
+          end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: IP_TRIE
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+          start_bracket: (
+          numeric_literal: '3600'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: table_name
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: some_column
+          data_type:
+            data_type_identifier: UInt64
+          keyword: DEFAULT
+          numeric_literal: '0'
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: ODBC
+          bracketed:
+          - start_bracket: (
+          - naked_identifier: connection_string
+          - quoted_literal: "'DSN=myconnection'"
+          - naked_identifier: table
+          - quoted_literal: "'postgresql_table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: HASHED
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '300'
+        - keyword: MAX
+        - numeric_literal: '360'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: polygons_test_dictionary
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: key
+          data_type:
+            data_type_identifier: Array
+            bracketed:
+              start_bracket: (
+              data_type:
+                data_type_identifier: Array
+                bracketed:
+                  start_bracket: (
+                  data_type:
+                    data_type_identifier: Array
+                    bracketed:
+                      start_bracket: (
+                      data_type:
+                        data_type_identifier: Tuple
+                        bracketed:
+                        - start_bracket: (
+                        - data_type:
+                            data_type_identifier: Float64
+                        - comma: ','
+                        - data_type:
+                            data_type_identifier: Float64
+                        - end_bracket: )
+                      end_bracket: )
+                  end_bracket: )
+              end_bracket: )
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: key
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+            start_bracket: (
+            naked_identifier: TABLE
+            quoted_literal: "'polygons_test_table'"
+            end_bracket: )
+          end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: POLYGON
+          bracketed:
+            start_bracket: (
+            naked_identifier: STORE_POLYGON_KEY_COLUMN
+            numeric_literal: '1'
+            end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+          start_bracket: (
+          numeric_literal: '0'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: dictionary_with_comment
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - dictionary_column_definition:
+          naked_identifier: value
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+            start_bracket: (
+            naked_identifier: TABLE
+            quoted_literal: "'source_table'"
+            end_bracket: )
+          end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: FLAT
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '0'
+        - keyword: MAX
+        - numeric_literal: '1000'
+        - end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: "'The temporary dictionary'"
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: votes_dict
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          quoted_identifier: '`PostId`'
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`UpVotes`'
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`DownVotes`'
+          data_type:
+            data_type_identifier: UInt32
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: PostId
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+            start_bracket: (
+            naked_identifier: QUERY
+            quoted_literal: "'SELECT PostId, countIf(VoteTypeId = 2) AS UpVotes, countIf(VoteTypeId\
+              \ = 3) AS DownVotes FROM votes GROUP BY PostId'"
+            end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '600'
+        - keyword: MAX
+        - numeric_literal: '900'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: HASHED
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: users_dict
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          quoted_identifier: '`Id`'
+          data_type:
+            data_type_identifier: Int32
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`Location`'
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: Id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+            start_bracket: (
+            naked_identifier: QUERY
+            quoted_literal: "'SELECT Id, Location FROM stackoverflow.users'"
+            end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '600'
+        - keyword: MAX
+        - numeric_literal: '900'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: HASHED
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: users_dict
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          quoted_identifier: '`Id`'
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`Location`'
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: Id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+            start_bracket: (
+            naked_identifier: QUERY
+            quoted_literal: "'SELECT Id, Location FROM users WHERE Id >= 0'"
+            end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '600'
+        - keyword: MAX
+        - numeric_literal: '900'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: HASHED
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: stations_dict
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          quoted_identifier: '`station_id`'
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`state`'
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`country_code`'
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`name`'
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`lat`'
+          data_type:
+            data_type_identifier: Float64
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`lon`'
+          data_type:
+            data_type_identifier: Float64
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`elevation`'
+          data_type:
+            data_type_identifier: Float32
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: station_id
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+            start_bracket: (
+            naked_identifier: TABLE
+            quoted_literal: "'stations'"
+            end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '0'
+        - keyword: MAX
+        - numeric_literal: '0'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: complex_key_hashed_array
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: dict_complex_key
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          quoted_identifier: '`key`'
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`valid_from`'
+          data_type:
+            data_type_identifier: DateTime64
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`valid_to`'
+          data_type:
+            data_type_identifier: DateTime64
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`amount`'
+          data_type:
+            data_type_identifier: Float64
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`modified_at`'
+          data_type:
+            data_type_identifier: DateTime64
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: key
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+          - start_bracket: (
+          - keyword: update_field
+          - naked_identifier: modified_at
+          - naked_identifier: QUERY
+          - quoted_literal: "'SELECT * FROM data_table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '0'
+        - keyword: MAX
+        - numeric_literal: '1000'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: COMPLEX_KEY_HASHED
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: dict_range_lookup
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          quoted_identifier: '`key`'
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`valid_from`'
+          data_type:
+            data_type_identifier: DateTime64
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`valid_to`'
+          data_type:
+            data_type_identifier: DateTime64
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`amount`'
+          data_type:
+            data_type_identifier: Float64
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`modified_at`'
+          data_type:
+            data_type_identifier: DateTime64
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: key
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+          - start_bracket: (
+          - keyword: UPDATE_FIELD
+          - naked_identifier: modified_at
+          - naked_identifier: QUERY
+          - quoted_literal: "'SELECT * FROM data_table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '0'
+        - keyword: MAX
+        - numeric_literal: '1000'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: RANGE_HASHED
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+    - dictionary_range:
+        keyword: RANGE
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - naked_identifier: valid_from
+        - keyword: MAX
+        - naked_identifier: valid_to
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: dict_short_lifetime
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          quoted_identifier: '`key`'
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`valid_from`'
+          data_type:
+            data_type_identifier: DateTime64
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`valid_to`'
+          data_type:
+            data_type_identifier: DateTime64
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`amount`'
+          data_type:
+            data_type_identifier: Float64
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`modified_at`'
+          data_type:
+            data_type_identifier: DateTime64
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: key
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+            start_bracket: (
+            naked_identifier: QUERY
+            quoted_literal: "'SELECT * FROM data_table'"
+            end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '60'
+        - keyword: MAX
+        - numeric_literal: '300'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: RANGE_HASHED
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+    - dictionary_range:
+        keyword: RANGE
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - naked_identifier: start_time
+        - keyword: MAX
+        - naked_identifier: end_time
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: dict_update_field
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          quoted_identifier: '`key`'
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`key2`'
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`valid_from`'
+          data_type:
+            data_type_identifier: DateTime64
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`valid_to`'
+          data_type:
+            data_type_identifier: DateTime64
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`amount`'
+          data_type:
+            data_type_identifier: Float64
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`modified_at`'
+          data_type:
+            data_type_identifier: DateTime64
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: key
+      - comma: ','
+      - naked_identifier: key2
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+          - start_bracket: (
+          - keyword: update_field
+          - naked_identifier: modified_at
+          - naked_identifier: QUERY
+          - quoted_literal: "'SELECT * FROM data_table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '0'
+        - keyword: MAX
+        - numeric_literal: '1000'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: COMPLEX_KEY_HASHED
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_dictionary_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DICTIONARY
+    - table_reference:
+        naked_identifier: dict_range_lookup
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - bracketed:
+      - start_bracket: (
+      - dictionary_column_definition:
+          quoted_identifier: '`key`'
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`valid_from`'
+          data_type:
+            data_type_identifier: DateTime64
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`valid_to`'
+          data_type:
+            data_type_identifier: DateTime64
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`amount`'
+          data_type:
+            data_type_identifier: Float64
+      - comma: ','
+      - dictionary_column_definition:
+          quoted_identifier: '`modified_at`'
+          data_type:
+            data_type_identifier: DateTime64
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
+      - end_bracket: )
+    - dictionary_primary_key:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - naked_identifier: key
+    - dictionary_source:
+        keyword: SOURCE
+        bracketed:
+          start_bracket: (
+          keyword: CLICKHOUSE
+          bracketed:
+          - start_bracket: (
+          - keyword: UPDATE_FIELD
+          - naked_identifier: modified_at
+          - naked_identifier: QUERY
+          - quoted_literal: "'SELECT * FROM data_table'"
+          - end_bracket: )
+          end_bracket: )
+    - dictionary_lifetime:
+        keyword: LIFETIME
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - numeric_literal: '0'
+        - keyword: MAX
+        - numeric_literal: '1000'
+        - end_bracket: )
+    - dictionary_layout:
+        keyword: LAYOUT
+        bracketed:
+          start_bracket: (
+          keyword: RANGE_HASHED
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+          end_bracket: )
+    - dictionary_range:
+        keyword: RANGE
+        bracketed:
+        - start_bracket: (
+        - keyword: MIN
+        - naked_identifier: valid_from
+        - keyword: MAX
+        - naked_identifier: valid_to
+        - end_bracket: )
+- statement_terminator: ;
