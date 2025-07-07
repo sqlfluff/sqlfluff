@@ -216,7 +216,7 @@ flink_dialect.add(
     # Metadata column definition
     MetadataColumnDefinitionSegment=Sequence(
         Ref("NakedIdentifierSegment"),  # column name
-        Ref("FlinkDatatypeSegment"),  # column type
+        Ref("DatatypeSegment"),  # column type
         "METADATA",
         Sequence("FROM", Ref("QuotedLiteralSegment"), optional=True),
         Sequence("VIRTUAL", optional=True),
@@ -293,8 +293,16 @@ flink_dialect.add(
     ),
 )
 
+flink_dialect.replace(
+    SingleIdentifierGrammar=OneOf(
+        Ref("NakedIdentifierSegment"),
+        Ref("QuotedIdentifierSegment"),
+        Ref("BackQuotedIdentifierSegment"),
+    ),
+)
 
-class FlinkCreateTableStatementSegment(ansi.CreateTableStatementSegment):
+
+class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """A `CREATE TABLE` statement for FlinkSQL."""
 
     match_grammar = Sequence(
@@ -356,7 +364,7 @@ class CreateCatalogStatementSegment(BaseSegment):
     )
 
 
-class FlinkCreateDatabaseStatementSegment(BaseSegment):
+class CreateDatabaseStatementSegment(BaseSegment):
     """A `CREATE DATABASE` statement for FlinkSQL."""
 
     type = "create_database_statement"
@@ -370,7 +378,7 @@ class FlinkCreateDatabaseStatementSegment(BaseSegment):
     )
 
 
-class FlinkDescribeStatementSegment(BaseSegment):
+class DescribeStatementSegment(BaseSegment):
     """A `DESCRIBE` statement for FlinkSQL."""
 
     type = "describe_statement"
@@ -380,7 +388,7 @@ class FlinkDescribeStatementSegment(BaseSegment):
     )
 
 
-class FlinkExplainStatementSegment(BaseSegment):
+class ExplainStatementSegment(ansi.ExplainStatementSegment):
     """An `EXPLAIN` statement for FlinkSQL."""
 
     type = "explain_statement"
@@ -417,8 +425,8 @@ class StatementSegment(ansi.StatementSegment):
         insert=[
             # FlinkSQL-specific statements
             Ref("CreateCatalogStatementSegment"),
-            Ref("FlinkCreateDatabaseStatementSegment"),
-            Ref("FlinkDescribeStatementSegment"),
+            Ref("CreateDatabaseStatementSegment"),
+            Ref("DescribeStatementSegment"),
             Ref("ShowStatementsSegment"),
         ],
     )
@@ -456,7 +464,7 @@ class RowDataTypeSegment(BaseSegment):
                 Delimited(
                     Sequence(
                         Ref("NakedIdentifierSegment"),  # field name
-                        Ref("FlinkDatatypeSegment"),  # field type
+                        Ref("DatatypeSegment"),  # field type
                         Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
                     ),
                 ),
@@ -468,7 +476,7 @@ class RowDataTypeSegment(BaseSegment):
                 Delimited(
                     Sequence(
                         Ref("NakedIdentifierSegment"),  # field name
-                        Ref("FlinkDatatypeSegment"),  # field type
+                        Ref("DatatypeSegment"),  # field type
                         Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
                     ),
                 ),
@@ -478,7 +486,7 @@ class RowDataTypeSegment(BaseSegment):
     )
 
 
-class FlinkDatatypeSegment(BaseSegment):
+class DatatypeSegment(ansi.DatatypeSegment):
     """Enhanced data type segment for FlinkSQL."""
 
     type = "data_type"
@@ -489,7 +497,7 @@ class FlinkDatatypeSegment(BaseSegment):
         Sequence(
             "ARRAY",
             Bracketed(
-                Ref("FlinkDatatypeSegment"),
+                Ref("DatatypeSegment"),
                 bracket_type="angle",
                 bracket_pairs_set="angle_bracket_pairs",
             ),
@@ -499,9 +507,9 @@ class FlinkDatatypeSegment(BaseSegment):
             "MAP",
             Bracketed(
                 Sequence(
-                    Ref("FlinkDatatypeSegment"),  # key type
+                    Ref("DatatypeSegment"),  # key type
                     Ref("CommaSegment"),
-                    Ref("FlinkDatatypeSegment"),  # value type
+                    Ref("DatatypeSegment"),  # value type
                 ),
                 bracket_type="angle",
                 bracket_pairs_set="angle_bracket_pairs",
@@ -511,26 +519,11 @@ class FlinkDatatypeSegment(BaseSegment):
         Sequence(
             "MULTISET",
             Bracketed(
-                Ref("FlinkDatatypeSegment"),
+                Ref("DatatypeSegment"),
                 bracket_type="angle",
                 bracket_pairs_set="angle_bracket_pairs",
             ),
         ),
-        # Include standard ANSI data types
-        ansi.DatatypeSegment,
+        # Include standard ANSI data types by inheriting parent match_grammar
+        ansi.DatatypeSegment.match_grammar,
     )
-
-
-# Replace grammar elements to support FlinkSQL-specific syntax
-flink_dialect.replace(
-    # Enhanced identifier grammar to support backticks
-    SingleIdentifierGrammar=OneOf(
-        Ref("NakedIdentifierSegment"),
-        Ref("QuotedIdentifierSegment"),
-        Ref("BackQuotedIdentifierSegment"),
-    ),
-    # Replace ANSI CREATE TABLE with FlinkSQL CREATE TABLE
-    CreateTableStatementSegment=FlinkCreateTableStatementSegment,
-    # Replace ANSI datatype segment with FlinkSQL datatype segment
-    DatatypeSegment=FlinkDatatypeSegment,
-)
