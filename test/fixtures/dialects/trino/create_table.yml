@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 97244697155688e5a2abfc9fb24fa4f5ae2e19c13955c9120c22f018e94d551b
+_hash: 4ec56e4117804393fb53590dcc080dc8a69b1c0a7adc054f7798a7be95f04750
 file:
 - statement:
     create_table_statement:
@@ -255,7 +255,8 @@ file:
                       naked_identifier: totalprice
                   end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: price
         from_clause:
           keyword: FROM
@@ -299,7 +300,8 @@ file:
                       naked_identifier: totalprice
                   end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: price
         from_clause:
           keyword: FROM

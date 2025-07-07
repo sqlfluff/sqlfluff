@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0c01460047154ca97dd28dff481052670d3734d2a565074b52391ca1b3d86196
+_hash: ce469a0d8d36ac5394266038687470feed3f42c351aa2f2256f63407ab35663b
 file:
 - batch:
     statement:
@@ -37,7 +37,8 @@ file:
                       naked_identifier: Customers
                   - end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: a
           statement_terminator: ;
 - go_statement:
@@ -70,7 +71,8 @@ file:
                       naked_identifier: Department
                   - end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: d
           statement_terminator: ;
 - go_statement:
@@ -107,7 +109,8 @@ file:
                     - naked_identifier: Department
                   - end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: d
           statement_terminator: ;
 - go_statement:
@@ -139,7 +142,8 @@ file:
                   - quoted_literal: "'SELECT TOP 10 GroupName, Name\n     FROM AdventureWorks2012.HumanResources.Department'"
                   - end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: a
           statement_terminator: ;
 - go_statement:
@@ -168,7 +172,8 @@ file:
                   - keyword: SINGLE_CLOB
                   - end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: DATA
           statement_terminator: ;
 - go_statement:
@@ -197,7 +202,8 @@ file:
                   - keyword: SINGLE_NCLOB
                   - end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: Document
           statement_terminator: ;
 - go_statement:
@@ -239,7 +245,8 @@ file:
                   - quoted_literal: "'CSV'"
                   - end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: cars
           statement_terminator: ;
 - go_statement:
@@ -275,7 +282,8 @@ file:
                   - quoted_literal: "'PARQUET'"
                   - end_bracket: )
               alias_expression:
-                keyword: as
+                alias_operator:
+                  keyword: as
                 naked_identifier: rows
 - go_statement:
     keyword: GO
@@ -349,7 +357,8 @@ file:
                         data_type_identifier: bigint
                     - end_bracket: )
               alias_expression:
-                keyword: as
+                alias_operator:
+                  keyword: as
                 naked_identifier: rows
 - go_statement:
     keyword: GO
@@ -435,7 +444,8 @@ file:
                     - quoted_literal: "'strict $.population'"
                     - end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 quoted_identifier: '[r]'
 - go_statement:
     keyword: GO

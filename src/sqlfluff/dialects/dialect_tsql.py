@@ -828,8 +828,17 @@ class AltAliasExpressionSegment(BaseSegment):
             Ref("BracketedIdentifierSegment"),
             Ref("SingleQuotedIdentifierSegment"),
         ),
-        Ref("RawEqualsSegment"),
+        Indent,
+        Ref("EqualAliasOperatorSegment"),
+        Dedent,
     )
+
+
+class EqualAliasOperatorSegment(BaseSegment):
+    """The as alias expression operator."""
+
+    type = "alias_operator"
+    match_grammar: Matchable = Sequence(Ref("RawEqualsSegment"))
 
 
 class SelectClauseModifierSegment(BaseSegment):

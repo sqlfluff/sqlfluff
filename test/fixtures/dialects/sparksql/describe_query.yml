@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d5487a09792905a4932cbcd8378ee830e41615b2a35224733690915ef49de175
+_hash: 660a139643479a998850c9a939599ba535d578c1d2b8a7c594ee512a67c0dd29
 file:
 - statement:
     describe_statement:
@@ -29,7 +29,8 @@ file:
                         naked_identifier: age
                     end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: sum_age
           from_clause:
             keyword: FROM
@@ -103,7 +104,8 @@ file:
               numeric_literal: 10000.20D
           - end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: employee
             bracketed:
               start_bracket: (

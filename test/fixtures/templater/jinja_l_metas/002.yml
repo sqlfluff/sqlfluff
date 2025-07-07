@@ -16,7 +16,8 @@ file:
           whitespace: ' '
           alias_expression:
             indent: ''
-            keyword: AS
+            alias_operator:
+              keyword: AS
             whitespace: ' '
             naked_identifier: other_id
             dedent: ''
