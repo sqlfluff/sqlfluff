@@ -24,3 +24,15 @@ WHEN MATCHED AND a > b THEN
 UPDATE SET a = b
 WHEN MATCHED AND ( a < b AND c < d ) THEN DELETE
 WHEN NOT MATCHED THEN INSERT (a, c) VALUES (b, d);
+
+-- Merge using CTE
+WITH source AS (
+    SELECT
+        *
+    FROM u
+)
+MERGE INTO t USING source AS u ON (a = b)
+WHEN MATCHED THEN
+UPDATE SET a = b
+WHEN NOT MATCHED THEN
+INSERT (b) VALUES (c);

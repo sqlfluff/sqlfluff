@@ -6556,12 +6556,14 @@ class OverlapsClauseSegment(ansi.OverlapsClauseSegment):
                         Ref("ColumnReferenceSegment"),
                         Ref("DateTimeLiteralGrammar"),
                         Ref("ShorthandCastSegment"),
+                        Ref("FunctionContentsExpressionGrammar"),
                     ),
                     Ref("CommaSegment"),
                     OneOf(
                         Ref("ColumnReferenceSegment"),
                         Ref("DateTimeLiteralGrammar"),
                         Ref("ShorthandCastSegment"),
+                        Ref("FunctionContentsExpressionGrammar"),
                     ),
                 )
             ),
@@ -6575,12 +6577,14 @@ class OverlapsClauseSegment(ansi.OverlapsClauseSegment):
                         Ref("ColumnReferenceSegment"),
                         Ref("DateTimeLiteralGrammar"),
                         Ref("ShorthandCastSegment"),
+                        Ref("FunctionContentsExpressionGrammar"),
                     ),
                     Ref("CommaSegment"),
                     OneOf(
                         Ref("ColumnReferenceSegment"),
                         Ref("DateTimeLiteralGrammar"),
                         Ref("ShorthandCastSegment"),
+                        Ref("FunctionContentsExpressionGrammar"),
                     ),
                 )
             ),

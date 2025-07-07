@@ -5078,6 +5078,84 @@ class ForClauseSegment(BaseSegment):
     )
 
 
+class ExecuteOptionSegment(BaseSegment):
+    """An option for EXEC/EXECUTE WITH clause."""
+
+    type = "execute_option"
+
+    _result_sets_definition = OneOf(
+        # ( { column_name data_type [ COLLATE collation_name ]
+        # [ NULL | NOT NULL ] } [,...n ] )
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("DatatypeSegment"),
+                    Sequence(
+                        "COLLATE",
+                        Ref("ObjectReferenceSegment"),
+                        optional=True,
+                    ),
+                    OneOf("NULL", Sequence("NOT", "NULL"), optional=True),
+                ),
+            )
+        ),
+        # AS OBJECT [ db_name . [ schema_name ] . | schema_name . ]
+        # {table_name | view_name | table_valued_function_name }
+        Sequence(
+            "AS",
+            "OBJECT",
+            Sequence(
+                Ref("SingleIdentifierGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+                optional=True,
+            ),
+            Ref("ObjectReferenceSegment"),
+        ),
+        # AS TYPE [ schema_name.]table_type_name
+        Sequence(
+            "AS",
+            "TYPE",
+            Sequence(
+                Ref("ObjectReferenceSegment"),
+                Ref("DotSegment"),
+                optional=True,
+            ),
+            Ref("ObjectReferenceSegment"),
+        ),
+        # AS FOR XML
+        Sequence("AS", "FOR", "XML"),
+    )
+
+    match_grammar = OneOf(
+        "RECOMPILE",
+        Sequence("RESULT", "SETS", "UNDEFINED"),
+        Sequence("RESULT", "SETS", "NONE"),
+        Sequence(
+            "RESULT",
+            "SETS",
+            Bracketed(
+                Delimited(_result_sets_definition),
+            ),
+        ),
+    )
+
+
+class LoginUserSegment(BaseSegment):
+    """A `LOGIN` or `USER` segment.
+
+    This is used in the EXECUTE statement to specify the login or user context.
+    """
+
+    type = "login_user_segment"
+    match_grammar = Sequence(
+        "AS",
+        OneOf("LOGIN", "USER"),
+        Ref("RawEqualsSegment"),
+        Ref("QuotedLiteralSegment"),
+    )
+
+
 class ExecuteScriptSegment(BaseSegment):
     """`EXECUTE` statement.
 
@@ -5085,45 +5163,114 @@ class ExecuteScriptSegment(BaseSegment):
     https://docs.microsoft.com/en-us/sql/t-sql/language-elements/execute-transact-sql
     """
 
-    type = "execute_script_statement"
-    match_grammar = Sequence(
-        OneOf("EXEC", "EXECUTE"),
-        Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
-        OneOf(
-            OptionallyBracketed(
-                OneOf(
-                    Ref("ObjectReferenceSegment"),
-                    Ref("QuotedLiteralSegment"),
-                )
-            ),
-            Bracketed(Ref("BaseExpressionElementGrammar")),
-        ),
-        Indent,
+    # Execute a stored procedure or function
+    _execute_stored_procedure_or_function = Sequence(
+        # [ @return_status = ]
         Sequence(
-            Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
-            OneOf(
-                "DEFAULT",
-                Ref("LiteralGrammar"),
-                Ref("ParameterNameSegment"),
-                Ref("SingleIdentifierGrammar"),
-            ),
-            Sequence("OUTPUT", optional=True),
-            AnyNumberOf(
-                Ref("CommaSegment"),
-                Sequence(
-                    Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True
-                ),
-                OneOf(
-                    "DEFAULT",
-                    Ref("LiteralGrammar"),
-                    Ref("ParameterNameSegment"),
-                    Ref("SingleIdentifierGrammar"),
-                ),
-                Sequence("OUTPUT", optional=True),
-            ),
+            Ref("ParameterNameSegment"),
+            Ref("RawEqualsSegment"),
             optional=True,
         ),
+        OneOf(
+            # module_name [;number] or @module_name_var
+            Sequence(
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    Ref("SemicolonSegment"),
+                    Ref("NumericLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+            Ref("ParameterNameSegment"),
+        ),
+        # Parameter list (optional, comma-separated)
+        Indent,
+        AnyNumberOf(
+            Delimited(
+                Sequence(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        optional=True,
+                    ),
+                    OneOf(
+                        Ref("ExpressionSegment"),
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Sequence("OUTPUT", optional=True),
+                        ),
+                        "DEFAULT",
+                    ),
+                )
+            )
+        ),
         Dedent,
+        Sequence(
+            "WITH",
+            Ref("ExecuteOptionSegment"),
+            optional=True,
+        ),
+    )
+
+    # Execute a character string
+    _execute_a_characters_string = Sequence(
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("ParameterNameSegment"),
+                    Ref("QuotedLiteralSegmentOptWithN"),
+                ),
+                delimiter=Ref("PlusSegment"),
+            )
+        ),
+        Ref("LoginUserSegment", optional=True),
+    )
+
+    #  Execute a pass-through command against a linked server
+    _execute_pass_through_command = Sequence(
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("ParameterNameSegment"),
+                    Ref("QuotedLiteralSegmentOptWithN"),
+                ),
+                delimiter=Ref("PlusSegment"),
+            ),
+            # Optional: , { value | @variable [ OUTPUT ] } [,...n]
+            Sequence(
+                Ref("CommaSegment"),
+                Delimited(
+                    Sequence(
+                        OneOf(
+                            Ref("ExpressionSegment"),
+                            Ref("ParameterNameSegment"),
+                        ),
+                        Sequence("OUTPUT", optional=True),
+                    ),
+                ),
+                optional=True,
+            ),
+        ),
+        # Optional: [ AS { LOGIN | USER } = ' name ' ]
+        Ref("LoginUserSegment", optional=True),
+        # Optional: [ AT linked_server_name ]
+        # Optional: [ AT DATA_SOURCE data_source_name ]
+        Sequence(
+            "AT",
+            Sequence("DATA_SOURCE", optional=True),
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+    )
+
+    type = "execute_script_statement"
+    match_grammar = Sequence(
+        OneOf("EXEC", "EXECUTE", optional=True),
+        OneOf(
+            _execute_stored_procedure_or_function,
+            _execute_a_characters_string,
+            _execute_pass_through_command,
+        ),
         Ref("DelimiterGrammar", optional=True),
     )
 

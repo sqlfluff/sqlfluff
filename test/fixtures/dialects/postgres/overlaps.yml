@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f085ccb7dbda1f70dcfbb005bcbbd98f4e5c9fadbfee9be55378feb9b2b05c4c
+_hash: 49ddb25dcc3abafded6e3061d761bc8651801c67a71657e45634db2b1c886b46
 file:
 - statement:
     select_statement:
@@ -112,8 +112,7 @@ file:
               table_reference:
                 naked_identifier: test_overlaps1
             alias_expression:
-              alias_operator:
-                keyword: AS
+              keyword: AS
               naked_identifier: t1
           join_clause:
           - keyword: LEFT
@@ -123,8 +122,7 @@ file:
                 table_reference:
                   naked_identifier: test_overlaps2
               alias_expression:
-                alias_operator:
-                  keyword: AS
+                keyword: AS
                 naked_identifier: t2
       where_clause:
         keyword: WHERE
@@ -339,4 +337,65 @@ file:
             - column_reference:
                 naked_identifier: end_date
             - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: start_date_1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: start_date_2
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: end_date
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_overlaps
+      where_clause:
+        keyword: WHERE
+        expression:
+          overlaps_clause:
+          - bracketed:
+            - start_bracket: (
+            - datetime_literal:
+                datetime_type_identifier:
+                  keyword: DATE
+                quoted_literal: "'2023-12-30'"
+            - comma: ','
+            - datetime_literal:
+                datetime_type_identifier:
+                  keyword: DATE
+                quoted_literal: "'2024-01-14'"
+            - end_bracket: )
+          - keyword: OVERLAPS
+          - bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: GREATEST
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: start_date_1
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: start_date_2
+                    - end_bracket: )
+              comma: ','
+              column_reference:
+                naked_identifier: end_date
+              end_bracket: )
 - statement_terminator: ;
