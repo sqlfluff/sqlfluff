@@ -22,6 +22,9 @@ duckdb:
 exasol:
   - "/(exasol)/i"
 
+flink:
+  - "/(flink)/i"
+
 greenplum:
   - "/(greenplum)/i"
 

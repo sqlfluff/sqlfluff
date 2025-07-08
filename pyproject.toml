@@ -46,6 +46,7 @@ keywords = [
     "db2",
     "duckdb",
     "exasol",
+    "flink",
     "greenplum",
     "hive",
     "impala",
