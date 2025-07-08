@@ -210,6 +210,7 @@ RESERVED_KEYWORDS = [
     "TABLESAMPLE",
     "TEXTSIZE",
     "THEN",
+    "THROW",
     "TO",
     "TOP",
     "TRAN",
@@ -563,6 +564,7 @@ UNRESERVED_KEYWORDS = [
     "REPLACE",
     "REPLICATE",  # Azure Synapse Analytics
     "RESPECT",
+    "RESULT",
     "RESULT_SET_CACHING",  # Azure Synapse Analytics specific
     "RESUMABLE",
     "RESUME",
@@ -600,6 +602,7 @@ UNRESERVED_KEYWORDS = [
     "SERVER",
     "SERVICE",
     "SETERROR",
+    "SETS",
     "SETVAR",  # sqlcmd command
     "SHOWPLAN_ALL",
     "SHOWPLAN_TEXT",
@@ -632,7 +635,6 @@ UNRESERVED_KEYWORDS = [
     "TAKE",
     "TARGET",
     "TEXTIMAGE_ON",
-    "THROW",
     "TIES",
     "TIME",
     "TIMEOUT",
@@ -644,6 +646,7 @@ UNRESERVED_KEYWORDS = [
     "TYPE",
     "UNBOUNDED",
     "UNCOMMITTED",
+    "UNDEFINED",
     "UNKNOWN",
     "UPDLOCK",
     "USE_TYPE_DEFAULT",

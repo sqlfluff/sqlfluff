@@ -4,7 +4,6 @@ from typing import Optional
 
 from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.rules.aliasing.AL01 import Rule_AL01
-from sqlfluff.utils.functional import FunctionalContext
 
 
 class Rule_AL02(Rule_AL01):
@@ -49,6 +48,7 @@ class Rule_AL02(Rule_AL01):
         # instead of
         # select value as alias
         # Recognise this and exit early
-        if FunctionalContext(context).segment.children()[-1].raw == "=":
+        alias_expression = context.segment
+        if getattr(alias_expression.get_child("alias_operator"), "raw", None) == "=":
             return None
         return super()._eval(context)
