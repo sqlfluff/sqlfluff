@@ -883,7 +883,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                         Ref("ColumnReferenceSegment"),
                     ),
                     optional=True,
-                )
+                ),
             ),
             Sequence(
                 "DROP",
@@ -915,7 +915,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                         "NOT",
                         "NULL",
                     ),
-                )
+                ),
             ),
             Sequence(
                 "SET",
@@ -930,7 +930,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                         "ROLE",
                         Ref("RoleReferenceSegment"),
                     ),
-                )
+                ),
             ),
             Sequence(
                 "SET",
