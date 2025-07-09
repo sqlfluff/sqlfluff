@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS orders (
   orderkey bigint,
   orderstatus varchar,
   totalprice double COMMENT 'Price in cents.',
+  shipmentstatus varchar not null,
   orderdate date
 )
 COMMENT 'A table to keep track of orders.'

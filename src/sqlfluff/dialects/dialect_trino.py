@@ -69,6 +69,7 @@ trino_dialect.insert_lexer_matchers(
     # Regexp Replace w/ Lambda: https://trino.io/docs/422/functions/regexp.html
     [
         StringLexer("right_arrow", "->", CodeSegment),
+        StringLexer("fat_right_arrow", "=>", CodeSegment),
     ],
     before="like_operator",
 )
@@ -76,6 +77,7 @@ trino_dialect.insert_lexer_matchers(
 trino_dialect.add(
     RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
     LambdaArrowSegment=StringParser("->", SymbolSegment, type="lambda_arrow"),
+    ExecuteArrowSegment=StringParser("=>", SymbolSegment, type="execute_arrow"),
     StartAngleBracketSegment=StringParser(
         "<", SymbolSegment, type="start_angle_bracket"
     ),
@@ -747,6 +749,10 @@ class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
         Ref("DatatypeSegment"),  # Column type
         Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
         AnySetOf(
+            Sequence(
+                "NOT",
+                "NULL",
+            ),
             Ref("CommentClauseSegment"),
             Sequence(
                 "WITH",
@@ -844,4 +850,117 @@ class SetSessionStatementSegment(BaseSegment):
         Ref("ParameterNameSegment"),
         Ref("EqualsSegment"),
         Ref("ExpressionSegment"),
+    )
+
+
+class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
+    """A `ALTER TABLE` statement.
+
+    https://trino.io/docs/current/sql/alter-table.html
+    """
+
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "ADD",
+                "COLUMN",
+                Ref("IfNotExistsGrammar", optional=True),
+                Ref("ColumnDefinitionSegment"),
+                OneOf(
+                    "FIRST",
+                    "LAST",
+                    Sequence(
+                        "AFTER",
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                    optional=True,
+                )
+            ),
+            Sequence(
+                "DROP",
+                "COLUMN",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("ColumnReferenceSegment"),
+            ),
+            Sequence(
+                "RENAME",
+                "COLUMN",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("ColumnReferenceSegment"),
+                "TO",
+                Ref("ColumnReferenceSegment"),
+            ),
+            Sequence(
+                "ALTER",
+                "COLUMN",
+                Ref("ColumnReferenceSegment"),
+                OneOf(
+                    Sequence(
+                        "SET",
+                        "DATA",
+                        "TYPE",
+                        Ref("DatatypeSegment"),
+                    ),
+                    Sequence(
+                        "DROP",
+                        "NOT",
+                        "NULL",
+                    ),
+                )
+            ),
+            Sequence(
+                "SET",
+                "AUTHORIZATION",
+                OneOf(
+                    Ref("RoleReferenceSegment"),
+                    Sequence(
+                        "USER",
+                        Ref("RoleReferenceSegment"),
+                    ),
+                    Sequence(
+                        "ROLE",
+                        Ref("RoleReferenceSegment"),
+                    ),
+                )
+            ),
+            Sequence(
+                "SET",
+                "PROPERTIES",
+                Delimited(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "EXECUTE",
+                Ref("FunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("ExecuteArrowSegment"),
+                            Ref("ExpressionSegment"),
+                        ),
+                    ),
+                    optional=True,
+                ),
+                Sequence(
+                    "WHERE",
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+            ),
+        ),
     )
