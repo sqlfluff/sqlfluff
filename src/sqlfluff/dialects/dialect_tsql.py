@@ -765,8 +765,8 @@ class StatementSegment(ansi.StatementSegment):
         insert=[
             # DDL Data Definition Language
             # https://learn.microsoft.com/en-us/sql/t-sql/statements/statements
-            # Ref("CreateDatabaseStatementSegment"),
-            # Ref("AlterDatabaseStatementSegment"),
+            # Ref("CreateDatabaseStatementSegment") -> Override
+            Ref("AlterDatabaseStatementSegment"),
             # Ref("DropDatabaseStatementSegment"),
             # Ref("CreateTableStatementSegment"),
             Ref("CreateTableGraphStatementSegment"),
@@ -1042,9 +1042,7 @@ class CreateDatabaseStatementSegment(BaseSegment):
             Bracketed(
                 Sequence(
                     Ref("LogicalFileNameSegment", optional=True),
-                    "FILENAME",
-                    Ref("EqualsSegment"),
-                    Ref("QuotedLiteralSegment"),
+                    Ref("FileSpecFileNameSegment"),
                 ),
             ),
             min_delimiters=1,
@@ -1065,6 +1063,156 @@ class CreateDatabaseStatementSegment(BaseSegment):
             _create_database_normal,
             _create_database_attach,
             _create_database_snapshot,
+            optional=True,
+        ),
+    )
+
+
+class AlterDatabaseStatementSegment(BaseSegment):
+    """An `ALTER DATABASE` statement."""
+
+    _modify_name = Sequence(
+        "MODIFY",
+        "NAME",
+        Ref("EqualsSegment"),
+        Ref("DatabaseReferenceSegment"),
+    )
+
+    _add_or_modify_files = OneOf(
+        Sequence(
+            "ADD",
+            "FILE",
+            Ref("FileSpecSegmentInAlterDatabase"),
+            Sequence(
+                "TO",
+                "FILEGROUP",
+                Ref("NakedOrQuotedIdentifierGrammar", optional=True),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "ADD",
+            "LOG",
+            "FILE",
+            Delimited(Ref("FileSpecSegmentInAlterDatabase"), min_delimiters=1),
+        ),
+        Sequence(
+            "REMOVE",
+            "FILE",
+            Ref("LiteralSegment"),
+        ),
+        Sequence(
+            "MODIFY",
+            "FILE",
+            Ref("FileSpecSegmentInAlterDatabase"),
+        ),
+    )
+
+    _add_or_modify_filegroups = Sequence(
+        OneOf(
+            "ADD",
+            "REMOVE",
+        ),
+        "FILEGROUP",
+    )
+
+    _accelerated_database_recovery = Sequence(
+        "ACCELERATED_DATABASE_RECOVERY",
+        OneOf("ON", "OFF"),
+        Bracketed(
+            "PERSISTENT_VERSION_STORE_FILEGROUP",
+            Ref("EqualsSegment"),
+            Ref("NakedOrQuotedIdentifierGrammar"),
+        ),
+    )
+
+    _set_option = Sequence(
+        "SET",
+        OptionallyBracketed(
+            Delimited(
+                OneOf(
+                    Ref("CompatibilityLevelSegment"),
+                    Ref("AutoOptionSegment"),
+                    _accelerated_database_recovery,
+                    # catch-all for all ON | OFF
+                    # if needed, more specific grammar can be added
+                    Sequence(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("EqualsSegment"),
+                        OneOf("ON", "OFF"),
+                    ),
+                    # catch all for size settings
+                    Sequence(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                        OneOf("KB", "MB", "GB", "TB", optional=True),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+    _add_secondary_option = OneOf(
+        Ref("AllowConnectionsSegment"), Ref("ServiceObjectiveSegment")
+    )
+
+    _secondary_server_option = Sequence(
+        OneOf("ADD", "REMOVE"),
+        "SECONDARY",
+        "ON",
+        "SERVER",
+        Ref("NakedOrQuotedIdentifierGrammar"),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Delimited(
+                    _add_secondary_option,
+                )
+            ),
+            optional=True,
+        ),
+    )
+
+    _modify_options = Sequence(
+        "MODIFY",
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("FileSpecMaxSizeSegment"),
+                    Ref("EditionSegment"),
+                    Ref("ServiceObjectiveSegment"),
+                ),
+            )
+        ),
+        Sequence("WITH", "MANUAL_CUTOVER", optional=True),
+    )
+
+    _modify_backup_storage = Sequence(
+        "MODIFY",
+        Ref("BackupStorageRedundancySegment"),
+    )
+
+    type = "alter_database_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "DATABASE",
+        OneOf(
+            Ref("DatabaseReferenceSegment"),
+            "CURRENT",
+        ),
+        OneOf(
+            _modify_name,
+            _modify_backup_storage,
+            _add_or_modify_files,
+            _add_or_modify_filegroups,
+            _modify_options,
+            Ref("CollateGrammar"),
+            _set_option,
+            _secondary_server_option,
+            "PERFORM_CUTOVER",
+            "FAILOVER",
+            "FORCE_FAILOVER_ALLOW_DATA_LOSS",
             optional=True,
         ),
     )
@@ -1135,67 +1283,129 @@ class LogicalFileNameSegment(BaseSegment):
             Ref("NakedIdentifierSegment"),
             Ref("QuotedLiteralSegmentOptWithN"),
         ),
+    )
+
+
+class FileSpecFileNameSegment(BaseSegment):
+    """FILENAME specification segment."""
+
+    type = "file_spec_file_name"
+    match_grammar = Sequence(
+        Ref("CommaSegment", optional=True),
+        "FILENAME",
+        Ref("EqualsSegment"),
+        Ref("QuotedLiteralSegmentOptWithN"),
+    )
+
+
+class FileSpecNewNameSegment(BaseSegment):
+    """NEWNAME specification segment."""
+
+    type = "file_spec_new_name"
+    match_grammar = Sequence(
         Ref("CommaSegment"),
+        "NEWNAME",
+        Ref("EqualsSegment"),
+        Ref("QuotedLiteralSegmentOptWithN"),
+    )
+
+
+class FileSpecSizeSegment(BaseSegment):
+    """File SIZE specification segment."""
+
+    type = "file_spec_size"
+    match_grammar = Sequence(
+        Ref("CommaSegment"),
+        "SIZE",
+        Ref("EqualsSegment"),
+        OneOf(
+            Ref("SizeLiteralSegment"),
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                OneOf("KB", "MB", "GB", "TB", optional=True),
+            ),
+        ),
+    )
+
+
+class FileSpecMaxSizeSegment(BaseSegment):
+    """MAXSIZE specification segment."""
+
+    type = "file_spec_max_size"
+    match_grammar = Sequence(
+        Ref("CommaSegment", optional=True),
+        "MAXSIZE",
+        Ref("EqualsSegment"),
+        OneOf(
+            Ref("SizeLiteralSegment"),
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                OneOf("KB", "MB", "GB", "TB", optional=True),
+            ),
+            "UNLIMITED",
+        ),
+    )
+
+
+class FileSpecFileGrowthSegment(BaseSegment):
+    """FILEGROWTH specification segment."""
+
+    type = "file_spec_file_growth"
+    match_grammar = Sequence(
+        Ref("CommaSegment"),
+        "FILEGROWTH",
+        Ref("EqualsSegment"),
+        OneOf(
+            Ref("SizeLiteralSegment"),
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                OneOf("KB", "MB", "GB", "TB", Ref("PercentSegment"), optional=True),
+            ),
+        ),
+    )
+
+
+class UnbracketedFileSpecSegment(BaseSegment):
+    """A file specification without brackets.
+
+    Used at CREATE DATABASE statement
+    """
+
+    type = "file_spec_without_bracket"
+    match_grammar = Sequence(
+        Ref("LogicalFileNameSegment", optional=True),
+        Ref("FileSpecFileNameSegment"),
+        Ref("FileSpecSizeSegment", optional=True),
+        Ref("FileSpecMaxSizeSegment", optional=True),
+        Ref("FileSpecFileGrowthSegment", optional=True),
     )
 
 
 class FileSpecSegment(BaseSegment):
-    """A file specification for CREATE DATABASE and CREATE DATABASE statements.
+    """A file specification for CREATE DATABASE statements.
 
     https://learn.microsoft.com/en-us/sql/t-sql/statements/create-database-transact-sql
     """
 
     type = "file_spec"
-    match_grammar = Bracketed(
-        Sequence(
-            Ref("LogicalFileNameSegment", optional=True),
-            "FILENAME",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegmentOptWithN"),
-            Sequence(
-                Ref("CommaSegment"),
-                "SIZE",
-                Ref("EqualsSegment"),
-                OneOf(
-                    Ref("SizeLiteralSegment"),
-                    Sequence(
-                        Ref("NumericLiteralSegment"),
-                        OneOf("KB", "MB", "GB", "TB", optional=True),
-                    ),
-                ),
-                optional=True,
-            ),
-            Sequence(
-                Ref("CommaSegment"),
-                "MAXSIZE",
-                Ref("EqualsSegment"),
-                OneOf(
-                    Ref("SizeLiteralSegment"),
-                    Sequence(
-                        Ref("NumericLiteralSegment"),
-                        OneOf("KB", "MB", "GB", "TB", optional=True),
-                    ),
-                    "UNLIMITED",
-                ),
-                optional=True,
-            ),
-            Sequence(
-                Ref("CommaSegment"),
-                "FILEGROWTH",
-                Ref("EqualsSegment"),
-                OneOf(
-                    Ref("SizeLiteralSegment"),
-                    Sequence(
-                        Ref("NumericLiteralSegment"),
-                        OneOf(
-                            "KB", "MB", "GB", "TB", Ref("PercentSegment"), optional=True
-                        ),
-                    ),
-                ),
-                optional=True,
-            ),
-        )
+    match_grammar = Bracketed(Ref("UnbracketedFileSpecSegment"))
+
+
+class FileSpecSegmentInAlterDatabase(BaseSegment):
+    """A file specification for ALTER DATABASE statements."""
+
+    # make FILENAME optional and add NEWNAME segment
+    _inner = UnbracketedFileSpecSegment.match_grammar.copy(
+        remove=[Ref("FileSpecFileNameSegment")],
+        insert=[
+            Ref("FileSpecNewNameSegment", optional=True),
+            Ref("FileSpecFileNameSegment", optional=True),
+        ],
+        before=Ref("FileSpecSizeSegment", optional=True),
     )
+
+    type = "file_spec"
+    match_grammar = Bracketed(_inner)
 
 
 class CollationReferenceSegment(ansi.ObjectReferenceSegment):
@@ -1205,6 +1415,106 @@ class CollationReferenceSegment(ansi.ObjectReferenceSegment):
     # https://learn.microsoft.com/en-us/sql/t-sql/statements/collations
     match_grammar: Matchable = OneOf(
         Ref("QuotedLiteralSegment"), Ref("NakedIdentifierSegment"), "DATABASE_DEFAULT"
+    )
+
+
+class CompatibilityLevelSegment(BaseSegment):
+    """COMPATIBILITY_LEVEL specification segment."""
+
+    type = "compatibility_level"
+    match_grammar: Matchable = Sequence(
+        "COMPATIBILITY_LEVEL", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
+    )
+
+
+class AutoOptionSegment(BaseSegment):
+    """AUTO options segment."""
+
+    _auto_options = Sequence(
+        OneOf(
+            "AUTO_CLOSE",
+            "AUTO_SHRINK",
+            "AUTO_UPDATE_STATISTICS",
+            "AUTO_UPDATE_STATISTICS_ASYNC",
+        ),
+        OneOf("ON", "OFF"),
+    )
+
+    _auto_create_statistics = Sequence(
+        "AUTO_CREATE_STATISTICS",
+        OneOf(
+            "ON",
+            "OFF",
+            Bracketed(
+                "INCREMENTAL",
+                Ref("EqualsSegment"),
+                OneOf(
+                    "ON",
+                    "OFF",
+                ),
+                optional=True,
+            ),
+        ),
+    )
+
+    type = "auto_option"
+    match_grammar: Matchable = OneOf(
+        _auto_options,
+        _auto_create_statistics,
+    )
+
+
+class ServiceObjectiveSegment(BaseSegment):
+    """SERVICE_OBJECTIVE specification segment."""
+
+    type = "service_objective"
+    match_grammar: Matchable = Sequence(
+        "SERVICE_OBJECTIVE",
+        Ref("EqualsSegment"),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Sequence(
+                "ELASTIC_POOL",
+                Bracketed(
+                    "NAME",
+                    Ref("EqualsSegment"),
+                    Ref("NakedOrQuotedIdentifierGrammar"),
+                ),
+            ),
+        ),
+    )
+
+
+class EditionSegment(BaseSegment):
+    """EDITION specification segment."""
+
+    type = "edition"
+    match_grammar: Matchable = Sequence(
+        "EDITION",
+        Ref("EqualsSegment"),
+        Ref("QuotedLiteralSegment"),
+    )
+
+
+class AllowConnectionsSegment(BaseSegment):
+    """ALLOW_CONNECTIONS specification segment."""
+
+    type = "allow_connections"
+    match_grammar: Matchable = Sequence(
+        "ALLOW_CONNECTIONS",
+        Ref("EqualsSegment"),
+        OneOf("ALL", "NO", "READ_ONLY", "READ_WRITE"),
+    )
+
+
+class BackupStorageRedundancySegment(BaseSegment):
+    """BACKUP_STORAGE_REDUNDANCY specification segment."""
+
+    type = "backup_storage_redundancy"
+    match_grammar: Matchable = Sequence(
+        "BACKUP_STORAGE_REDUNDANCY",
+        Ref("EqualsSegment"),
+        Ref("QuotedLiteralSegment"),
     )
 
 
