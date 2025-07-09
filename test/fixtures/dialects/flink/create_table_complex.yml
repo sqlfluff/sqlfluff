@@ -1,0 +1,184 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3c8280b26f5aaf76c2368c0350ed6487850b2ac3aafc95b41b1968cdda1a3c84
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: complex_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: session_id
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: session_ts
+          data_type:
+            keyword: TIMESTAMP
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: source_name
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: service
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: category
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: category_id
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: type
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: type_id
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: identifier
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: identifier_id
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: event_type
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: action_type
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: resource_type
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: value
+          data_type:
+            data_type_identifier: DOUBLE
+      - comma: ','
+      - column_definition:
+          naked_identifier: quantity
+          data_type:
+            data_type_identifier: DOUBLE
+      - comma: ','
+      - column_definition:
+          naked_identifier: request_url
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: is_deleted
+          data_type:
+            data_type_identifier: BOOLEAN
+      - comma: ','
+      - column_definition:
+          naked_identifier: item_count
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: created_ts
+          data_type:
+            keyword: TIMESTAMP
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: updated_ts
+          data_type:
+            keyword: TIMESTAMP
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: processed_ts
+          data_type:
+            keyword: TIMESTAMP
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: received_ts
+          data_type:
+            keyword: TIMESTAMP
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: sequence_ts
+          data_type:
+            keyword: TIMESTAMP
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+      - end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'connector'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'test-connector'"
+      - comma: ','
+      - quoted_literal: "'project'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'test-project'"
+      - comma: ','
+      - quoted_literal: "'dataset'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'test-dataset'"
+      - comma: ','
+      - quoted_literal: "'table'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'test-table'"
+      - end_bracket: )
+  statement_terminator: ;

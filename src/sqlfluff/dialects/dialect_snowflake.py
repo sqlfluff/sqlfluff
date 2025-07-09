@@ -8989,7 +8989,15 @@ class SetOperatorSegment(ansi.SetOperatorSegment):
 
     type = "set_operator"
     match_grammar: Matchable = OneOf(
-        Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
+        Sequence(
+            "UNION",
+            OneOf("DISTINCT", "ALL", optional=True),
+            Sequence(
+                "BY",
+                "NAME",
+                optional=True,
+            ),
+        ),
         Sequence(
             OneOf(
                 "INTERSECT",
