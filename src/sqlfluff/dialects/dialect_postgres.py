@@ -430,11 +430,30 @@ postgres_dialect.add(
     FullTextSearchOperatorSegment=TypedParser(
         "full_text_search_operator", LiteralSegment, type="full_text_search_operator"
     ),
+    JsonTypeGrammar=OneOf("VALUE", "SCALAR", "ARRAY", "OBJECT"),
+    JsonUniqueKeysGrammar=Sequence(
+        OneOf("WITH", "WITHOUT"),
+        "UNIQUE",
+        Sequence("KEYS", optional=True),
+    ),
+    JsonTestGrammar=Sequence(
+        "JSON",
+        Ref("JsonTypeGrammar", optional=True),
+        Ref("JsonUniqueKeysGrammar", optional=True),
+    ),
 )
 
 postgres_dialect.replace(
     LikeGrammar=OneOf("LIKE", "ILIKE", Sequence("SIMILAR", "TO")),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment"), "COLLATE"),
+    IsClauseGrammar=OneOf(
+        Ref("NullLiteralSegment"),
+        Ref("NanLiteralSegment"),
+        Ref("UnknownLiteralSegment"),
+        Ref("BooleanLiteralGrammar"),
+        Ref("NormalizedGrammar"),
+        Ref("JsonTestGrammar"),
+    ),
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
         Ref("GreaterThanSegment"),
