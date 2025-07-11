@@ -10,18 +10,23 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [3.4.2] - 2025-07-08
+## [3.4.2] - 2025-07-11
 
 ## Highlights
 
-## Highlights
+* This release adds support for two new dialects: _Apache Doris_ and _FlinkSQL_.
+* It also has several CLI improvements, Dialect Improvements, and bugfixes
 
-> Maintainers: Copy and paste the commentary from the changelog here.
-> Check that the name and tag are correct before releasing.
-> Publishing a GitHub release will trigger the deploy to pypi and dockerhub.
+This release has *25* contributions in it!
+
+Also, welcome to the **five** new contributors! Thanks for your contributions!
 
 ## What’s Changed
 
+* Postgres: Fix VARIADIC function call parsing [#7002](https://github.com/sqlfluff/sqlfluff/pull/7002) [@franloza](https://github.com/franloza)
+* Postgres: Add IS JSON syntax support [#7001](https://github.com/sqlfluff/sqlfluff/pull/7001) [@franloza](https://github.com/franloza)
+* feat(databricks): add support for single-line magics [#6999](https://github.com/sqlfluff/sqlfluff/pull/6999) [@phant0mw0lf](https://github.com/phant0mw0lf)
+* Trino: support ALTER TABLE [#6996](https://github.com/sqlfluff/sqlfluff/pull/6996) [@ykicisk](https://github.com/ykicisk)
 * Snowflake: Support UNION (ALL) BY NAME [#6994](https://github.com/sqlfluff/sqlfluff/pull/6994) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * [#6522] FlinkSQL Dialect Implementation [#6985](https://github.com/sqlfluff/sqlfluff/pull/6985) [@kalanyuz](https://github.com/kalanyuz)
 * Tsql align alias when using equal operator [#6786](https://github.com/sqlfluff/sqlfluff/pull/6786) [@IngerMathilde](https://github.com/IngerMathilde)
@@ -44,12 +49,14 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * TSQL: add support for extended Unicode characters in identifiers [#6952](https://github.com/sqlfluff/sqlfluff/pull/6952) [@peterbud](https://github.com/peterbud)
 * TSQL: Add support for CREATE TABLE GRAPH statements [#6948](https://github.com/sqlfluff/sqlfluff/pull/6948) [@peterbud](https://github.com/peterbud)
 
-## New Contributors
 
+## New Contributors
 * [@peterbud](https://github.com/peterbud) made their first contribution in [#6948](https://github.com/sqlfluff/sqlfluff/pull/6948)
 * [@IngerMathilde](https://github.com/IngerMathilde) made their first contribution in [#6957](https://github.com/sqlfluff/sqlfluff/pull/6957)
 * [@morningman](https://github.com/morningman) made their first contribution in [#6979](https://github.com/sqlfluff/sqlfluff/pull/6979)
 * [@kalanyuz](https://github.com/kalanyuz) made their first contribution in [#6985](https://github.com/sqlfluff/sqlfluff/pull/6985)
+* [@phant0mw0lf](https://github.com/phant0mw0lf) made their first contribution in [#6999](https://github.com/sqlfluff/sqlfluff/pull/6999)
+* [@franloza](https://github.com/franloza) made their first contribution in [#7001](https://github.com/sqlfluff/sqlfluff/pull/7001)
 
 ## [3.4.1] - 2025-06-13
 
