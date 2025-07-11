@@ -10,6 +10,54 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.4.2] - 2025-07-11
+
+## Highlights
+
+* This release adds support for two new dialects: _Apache Doris_ and _FlinkSQL_.
+* It also has several CLI improvements, Dialect Improvements, and bugfixes
+
+This release has *25* contributions in it!
+
+Also, welcome to the **five** new contributors! Thanks for your contributions!
+
+## What’s Changed
+
+* Postgres: Fix VARIADIC function call parsing [#7002](https://github.com/sqlfluff/sqlfluff/pull/7002) [@franloza](https://github.com/franloza)
+* Postgres: Add IS JSON syntax support [#7001](https://github.com/sqlfluff/sqlfluff/pull/7001) [@franloza](https://github.com/franloza)
+* feat(databricks): add support for single-line magics [#6999](https://github.com/sqlfluff/sqlfluff/pull/6999) [@phant0mw0lf](https://github.com/phant0mw0lf)
+* Trino: support ALTER TABLE [#6996](https://github.com/sqlfluff/sqlfluff/pull/6996) [@ykicisk](https://github.com/ykicisk)
+* Snowflake: Support UNION (ALL) BY NAME [#6994](https://github.com/sqlfluff/sqlfluff/pull/6994) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* [#6522] FlinkSQL Dialect Implementation [#6985](https://github.com/sqlfluff/sqlfluff/pull/6985) [@kalanyuz](https://github.com/kalanyuz)
+* Tsql align alias when using equal operator [#6786](https://github.com/sqlfluff/sqlfluff/pull/6786) [@IngerMathilde](https://github.com/IngerMathilde)
+* TSQL: Rework the execute statement block to latest specs [#6953](https://github.com/sqlfluff/sqlfluff/pull/6953) [@peterbud](https://github.com/peterbud)
+* Add Apache Doris SQL dialect support to SQLFluff [#6979](https://github.com/sqlfluff/sqlfluff/pull/6979) [@morningman](https://github.com/morningman)
+* ST05: Support dialects that use WITH, INSERT, SELECT order [#6982](https://github.com/sqlfluff/sqlfluff/pull/6982) [@keraion](https://github.com/keraion)
+* CV12 and AL05: Prevent AL05 from deleting rewritten CV12 references [#6981](https://github.com/sqlfluff/sqlfluff/pull/6981) [@keraion](https://github.com/keraion)
+* DuckDB: add support for additional star expressions [#6977](https://github.com/sqlfluff/sqlfluff/pull/6977) [@keraion](https://github.com/keraion)
+* CLI: Add support for the `NO_COLOR` environment variable [#6976](https://github.com/sqlfluff/sqlfluff/pull/6976) [@keraion](https://github.com/keraion)
+* SQLite: Make `ACTION` a non-reserved keyword [#6970](https://github.com/sqlfluff/sqlfluff/pull/6970) [@keraion](https://github.com/keraion)
+* Snowflake: fix collate grammar with aliases [#6967](https://github.com/sqlfluff/sqlfluff/pull/6967) [@keraion](https://github.com/keraion)
+* Adds support for `json_object` syntax in Oracle. [#6973](https://github.com/sqlfluff/sqlfluff/pull/6973) [@joaostorrer](https://github.com/joaostorrer)
+* Upgrade OverlapsClauseSegment [#6964](https://github.com/sqlfluff/sqlfluff/pull/6964) [@kkozhakin](https://github.com/kkozhakin)
+* ANSI: Support CTEs in Merge [#6972](https://github.com/sqlfluff/sqlfluff/pull/6972) [@NormallyGaussian](https://github.com/NormallyGaussian)
+* Fix ST09 rule not detecting violations in Jinja templated SQL [#6958](https://github.com/sqlfluff/sqlfluff/pull/6958) [@kang8](https://github.com/kang8)
+* MariaDB: Allow CTEs in `INSERT` statements [#6955](https://github.com/sqlfluff/sqlfluff/pull/6955) [@keraion](https://github.com/keraion)
+* AliasInfo: handle quotes and special aliases in rules [#6954](https://github.com/sqlfluff/sqlfluff/pull/6954) [@keraion](https://github.com/keraion)
+* API: prioritize configuration file's dialect [#6951](https://github.com/sqlfluff/sqlfluff/pull/6951) [@keraion](https://github.com/keraion)
+* Tsql add alter constraint if exists [#6957](https://github.com/sqlfluff/sqlfluff/pull/6957) [@IngerMathilde](https://github.com/IngerMathilde)
+* TSQL: add support for extended Unicode characters in identifiers [#6952](https://github.com/sqlfluff/sqlfluff/pull/6952) [@peterbud](https://github.com/peterbud)
+* TSQL: Add support for CREATE TABLE GRAPH statements [#6948](https://github.com/sqlfluff/sqlfluff/pull/6948) [@peterbud](https://github.com/peterbud)
+
+
+## New Contributors
+* [@peterbud](https://github.com/peterbud) made their first contribution in [#6948](https://github.com/sqlfluff/sqlfluff/pull/6948)
+* [@IngerMathilde](https://github.com/IngerMathilde) made their first contribution in [#6957](https://github.com/sqlfluff/sqlfluff/pull/6957)
+* [@morningman](https://github.com/morningman) made their first contribution in [#6979](https://github.com/sqlfluff/sqlfluff/pull/6979)
+* [@kalanyuz](https://github.com/kalanyuz) made their first contribution in [#6985](https://github.com/sqlfluff/sqlfluff/pull/6985)
+* [@phant0mw0lf](https://github.com/phant0mw0lf) made their first contribution in [#6999](https://github.com/sqlfluff/sqlfluff/pull/6999)
+* [@franloza](https://github.com/franloza) made their first contribution in [#7001](https://github.com/sqlfluff/sqlfluff/pull/7001)
+
 ## [3.4.1] - 2025-06-13
 
 ## Highlights
