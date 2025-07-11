@@ -527,6 +527,9 @@ postgres_dialect.replace(
                 optional=True,
             ),
         ),
+        # VARIADIC function call argument
+        # https://www.postgresql.org/docs/current/xfunc-sql.html#XFUNC-SQL-VARIADIC-FUNCTIONS
+        Sequence("VARIADIC", Ref("ExpressionSegment")),
         Sequence(
             # Allow an optional distinct keyword here.
             Ref.keyword("DISTINCT", optional=True),
