@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4ec56e4117804393fb53590dcc080dc8a69b1c0a7adc054f7798a7be95f04750
+_hash: 9fec1b748fee758a5b704b2a453c2f9c13dffe90b88875e0896754da12f18aad
 file:
 - statement:
     create_table_statement:
@@ -150,6 +150,13 @@ file:
           comment_clause:
             keyword: COMMENT
             quoted_literal: "'Price in cents.'"
+      - comma: ','
+      - column_definition:
+        - naked_identifier: shipmentstatus
+        - data_type:
+            keyword: varchar
+        - keyword: not
+        - keyword: 'null'
       - comma: ','
       - column_definition:
           naked_identifier: orderdate

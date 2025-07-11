@@ -83,6 +83,11 @@ databricks_dialect.insert_lexer_matchers(
         RegexLexer(
             "notebook_start", r"-- Databricks notebook source(\r?\n){1}", CommentSegment
         ),
+        RegexLexer(
+            "magic_single_line",
+            r"(-- MAGIC %)([^\n]{2,})( [^%]{1})([^\n]*)",
+            CodeSegment,
+        ),
         RegexLexer("magic_line", r"(-- MAGIC)( [^%]{1})([^\n]*)", CodeSegment),
         RegexLexer("magic_start", r"(-- MAGIC %)([^\n]{2,})(\r?\n)", CodeSegment),
     ],
@@ -236,6 +241,9 @@ databricks_dialect.add(
         ),
     ),
     NotebookStart=TypedParser("notebook_start", CommentSegment, type="notebook_start"),
+    MagicSingleLineGrammar=TypedParser(
+        "magic_single_line", CodeSegment, type="magic_single_line"
+    ),
     MagicLineGrammar=TypedParser("magic_line", CodeSegment, type="magic_line"),
     MagicStartGrammar=TypedParser("magic_start", CodeSegment, type="magic_start"),
     VariableNameIdentifierSegment=OneOf(
@@ -1603,8 +1611,13 @@ class MagicCellStatementSegment(BaseSegment):
     type = "magic_cell_segment"
     match_grammar = Sequence(
         Ref("NotebookStart", optional=True),
-        Ref("MagicStartGrammar"),
-        AnyNumberOf(Ref("MagicLineGrammar"), optional=True),
+        OneOf(
+            Sequence(
+                Ref("MagicStartGrammar", optional=True),
+                AnyNumberOf(Ref("MagicLineGrammar"), optional=True),
+            ),
+            Ref("MagicSingleLineGrammar", optional=True),
+        ),
         terminators=[Ref("CommandCellSegment", optional=True)],
         reset_terminators=True,
     )
