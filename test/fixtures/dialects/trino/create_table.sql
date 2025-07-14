@@ -67,7 +67,7 @@ FROM nation
 WITH NO DATA
 ;
 
-CREATE TABLE structual_types (
+CREATE TABLE structural_types (
   array_type array(integer),
   map_type map(varchar(20), integer),
   row_type row(a integer, b varchar(20), c array(real))
