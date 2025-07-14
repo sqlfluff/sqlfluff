@@ -518,7 +518,7 @@ ansi_dialect.add(
         "FROM",
         "WHERE",
         Sequence("ORDER", "BY"),
-        "LIMIT",
+        Ref("LimitClauseSegment"),
         "OVERLAPS",
         Ref("SetOperatorSegment"),
         "FETCH",
@@ -530,7 +530,7 @@ ansi_dialect.add(
     CollateGrammar=Nothing(),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
-        "LIMIT",
+        Ref("LimitClauseSegment"),
         Sequence("GROUP", "BY"),
         Sequence("ORDER", "BY"),
         "HAVING",
@@ -543,7 +543,7 @@ ansi_dialect.add(
         "OFFSET",
     ),
     WhereClauseTerminatorGrammar=OneOf(
-        "LIMIT",
+        Ref("LimitClauseSegment"),
         Sequence("GROUP", "BY"),
         Sequence("ORDER", "BY"),
         "HAVING",
@@ -554,7 +554,7 @@ ansi_dialect.add(
     ),
     GroupByClauseTerminatorGrammar=OneOf(
         Sequence("ORDER", "BY"),
-        "LIMIT",
+        Ref("LimitClauseSegment"),
         "HAVING",
         "QUALIFY",
         "WINDOW",
@@ -562,13 +562,13 @@ ansi_dialect.add(
     ),
     HavingClauseTerminatorGrammar=OneOf(
         Sequence("ORDER", "BY"),
-        "LIMIT",
+        Ref("LimitClauseSegment"),
         "QUALIFY",
         "WINDOW",
         "FETCH",
     ),
     OrderByClauseTerminators=OneOf(
-        "LIMIT",
+        Ref("LimitClauseSegment"),
         "HAVING",
         "QUALIFY",
         # For window functions
@@ -2521,7 +2521,7 @@ class OrderByClauseSegment(BaseSegment):
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
                 Ref("WithFillSegment", optional=True),
             ),
-            terminators=["LIMIT", Ref("FrameClauseUnitGrammar")],
+            terminators=[Ref("LimitClauseSegment"), Ref("FrameClauseUnitGrammar")],
         ),
         Dedent,
     )
