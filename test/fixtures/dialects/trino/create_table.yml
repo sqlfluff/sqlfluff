@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 08ca8bd4658751a9e9f3e2654583e55345b24df9790e8cb4d33ae489c90c7676
+_hash: 5ea00be33730bd9fba636f1e027580b7ff048aba9030b0f642e1ed293ac90d5b
 file:
 - statement:
     create_table_statement:
@@ -373,7 +373,7 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: array_of_ints
+          naked_identifier: array_type
           data_type:
             array_type:
               keyword: array
@@ -386,7 +386,7 @@ file:
                   end_bracket: )
       - comma: ','
       - column_definition:
-          naked_identifier: map_of_ints
+          naked_identifier: map_type
           data_type:
             map_type:
               keyword: map
@@ -394,7 +394,12 @@ file:
                 bracketed:
                   start_bracket: (
                   primitive_type:
-                    keyword: integer
+                    keyword: varchar
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        numeric_literal: '20'
+                        end_bracket: )
                   comma: ','
                   data_type:
                     primitive_type:
@@ -402,7 +407,7 @@ file:
                   end_bracket: )
       - comma: ','
       - column_definition:
-          naked_identifier: row_of_ints
+          naked_identifier: row_type
           data_type:
             struct_type:
               keyword: row
@@ -417,12 +422,24 @@ file:
                 - parameter: b
                 - data_type:
                     primitive_type:
-                      keyword: integer
+                      keyword: varchar
+                      bracketed_arguments:
+                        bracketed:
+                          start_bracket: (
+                          numeric_literal: '20'
+                          end_bracket: )
                 - comma: ','
                 - parameter: c
                 - data_type:
-                    primitive_type:
-                      keyword: integer
+                    array_type:
+                      keyword: array
+                      array_type_schema:
+                        bracketed:
+                          start_bracket: (
+                          data_type:
+                            primitive_type:
+                              keyword: real
+                          end_bracket: )
                 - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;

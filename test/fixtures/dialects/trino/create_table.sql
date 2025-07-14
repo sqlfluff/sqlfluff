@@ -68,7 +68,7 @@ WITH NO DATA
 ;
 
 CREATE TABLE structual_types (
-  array_of_ints array(integer),
-  map_of_ints map(integer, integer),
-  row_of_ints row(a integer, b integer, c integer)
+  array_type array(integer),
+  map_type map(varchar(20), integer),
+  row_type row(a integer, b varchar(20), c array(real))
 );
