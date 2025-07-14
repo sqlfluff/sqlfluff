@@ -6905,12 +6905,10 @@ class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
         AnyNumberOf(
             # A single COLLATE segment can come before or
             # after constraint segments
-            OneOf(
-                Ref("ColumnConstraintSegment"),
-                Sequence(
-                    "COLLATE",
-                    Ref("CollationReferenceSegment"),
-                ),
+            Ref("ColumnConstraintSegment"),
+            Sequence(
+                "COLLATE",
+                Ref("CollationReferenceSegment"),
             ),
         ),
     )
