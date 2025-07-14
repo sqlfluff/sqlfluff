@@ -2294,21 +2294,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 Bracketed(
                     Delimited(
                         OneOf(
-                            Sequence(
-                                Ref("ColumnReferenceSegment"),
-                                Ref("DatatypeSegment"),
-                                AnyNumberOf(
-                                    # A single COLLATE segment can come before or
-                                    # after constraint segments
-                                    OneOf(
-                                        Ref("ColumnConstraintSegment"),
-                                        Sequence(
-                                            "COLLATE",
-                                            Ref("CollationReferenceSegment"),
-                                        ),
-                                    ),
-                                ),
-                            ),
+                            Ref("ColumnDefinitionSegment"),
                             Ref("TableConstraintSegment"),
                             Sequence(
                                 "LIKE",
@@ -6904,3 +6890,25 @@ class ResetSessionAuthorizationStatementSegment(BaseSegment):
     type = "reset_session_authorization_statement"
 
     match_grammar = Sequence("RESET", "SESSION", "AUTHORIZATION")
+
+
+class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
+    """A column definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    As specified in https://www.postgresql.org/docs/current/sql-createtable.html
+    """
+
+    type = "column_definition"
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Ref("DatatypeSegment"),
+        AnyNumberOf(
+            # A single COLLATE segment can come before or
+            # after constraint segments
+            Ref("ColumnConstraintSegment"),
+            Sequence(
+                "COLLATE",
+                Ref("CollationReferenceSegment"),
+            ),
+        ),
+    )

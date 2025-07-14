@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e20bdbd6051c0913632b730da28fc70cead8de08bb90922f1d1dddfc221dbb32
+_hash: cf880015691415c32b2bab758c8fe20932b9b00e9a4cfec44b8a5d5aa16a8e88
 file:
 - statement:
     create_materialized_view_statement:
@@ -234,17 +234,17 @@ file:
         naked_identifier: t
     - bracketed:
       - start_bracket: (
-      - column_reference:
+      - column_definition:
           naked_identifier: a
-      - data_type:
-          keyword: int
+          data_type:
+            keyword: int
       - comma: ','
-      - column_reference:
+      - column_definition:
           naked_identifier: b
-      - data_type:
-          keyword: text
-      - column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
+          data_type:
+            keyword: text
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
       - end_bracket: )
 - statement_terminator: ;
