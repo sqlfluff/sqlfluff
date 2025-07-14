@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9fec1b748fee758a5b704b2a453c2f9c13dffe90b88875e0896754da12f18aad
+_hash: 08ca8bd4658751a9e9f3e2654583e55345b24df9790e8cb4d33ae489c90c7676
 file:
 - statement:
     create_table_statement:
@@ -16,7 +16,8 @@ file:
         column_definition:
           naked_identifier: str
           data_type:
-            keyword: varchar
+            primitive_type:
+              keyword: varchar
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -37,27 +38,31 @@ file:
       - column_definition:
           naked_identifier: date_nk
           data_type:
-            keyword: date
+            primitive_type:
+              keyword: date
       - comma: ','
       - column_definition:
           naked_identifier: date_ts
           data_type:
-            keyword: timestamp
+            primitive_type:
+              keyword: timestamp
       - comma: ','
       - column_definition:
           naked_identifier: site
           data_type:
-            keyword: varchar
-            bracketed_arguments:
-              bracketed:
-                start_bracket: (
-                numeric_literal: '30'
-                end_bracket: )
+            primitive_type:
+              keyword: varchar
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '30'
+                  end_bracket: )
       - comma: ','
       - column_definition:
           naked_identifier: partition_date
           data_type:
-            keyword: date
+            primitive_type:
+              keyword: date
       - end_bracket: )
     - keyword: with
     - bracketed:
@@ -94,22 +99,26 @@ file:
       - column_definition:
           naked_identifier: orderkey
           data_type:
-            keyword: bigint
+            primitive_type:
+              keyword: bigint
       - comma: ','
       - column_definition:
           naked_identifier: orderstatus
           data_type:
-            keyword: varchar
+            primitive_type:
+              keyword: varchar
       - comma: ','
       - column_definition:
           naked_identifier: totalprice
           data_type:
-            keyword: double
+            primitive_type:
+              keyword: double
       - comma: ','
       - column_definition:
           naked_identifier: orderdate
           data_type:
-            keyword: date
+            primitive_type:
+              keyword: date
       - end_bracket: )
     - keyword: WITH
     - bracketed:
@@ -136,17 +145,20 @@ file:
       - column_definition:
           naked_identifier: orderkey
           data_type:
-            keyword: bigint
+            primitive_type:
+              keyword: bigint
       - comma: ','
       - column_definition:
           naked_identifier: orderstatus
           data_type:
-            keyword: varchar
+            primitive_type:
+              keyword: varchar
       - comma: ','
       - column_definition:
           naked_identifier: totalprice
           data_type:
-            keyword: double
+            primitive_type:
+              keyword: double
           comment_clause:
             keyword: COMMENT
             quoted_literal: "'Price in cents.'"
@@ -154,14 +166,16 @@ file:
       - column_definition:
         - naked_identifier: shipmentstatus
         - data_type:
-            keyword: varchar
+            primitive_type:
+              keyword: varchar
         - keyword: not
         - keyword: 'null'
       - comma: ','
       - column_definition:
           naked_identifier: orderdate
           data_type:
-            keyword: date
+            primitive_type:
+              keyword: date
       - end_bracket: )
     - comment_clause:
         keyword: COMMENT
@@ -178,7 +192,8 @@ file:
       - column_definition:
           naked_identifier: another_orderkey
           data_type:
-            keyword: bigint
+            primitive_type:
+              keyword: bigint
       - comma: ','
       - keyword: LIKE
       - table_reference:
@@ -187,7 +202,8 @@ file:
       - column_definition:
           naked_identifier: another_orderdate
           data_type:
-            keyword: date
+            primitive_type:
+              keyword: date
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -347,4 +363,66 @@ file:
     - keyword: WITH
     - keyword: 'NO'
     - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: structual_types
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: array_of_ints
+          data_type:
+            array_type:
+              keyword: array
+              array_type_schema:
+                bracketed:
+                  start_bracket: (
+                  data_type:
+                    primitive_type:
+                      keyword: integer
+                  end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: map_of_ints
+          data_type:
+            map_type:
+              keyword: map
+              map_type_schema:
+                bracketed:
+                  start_bracket: (
+                  primitive_type:
+                    keyword: integer
+                  comma: ','
+                  data_type:
+                    primitive_type:
+                      keyword: integer
+                  end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: row_of_ints
+          data_type:
+            struct_type:
+              keyword: row
+              struct_type_schema:
+                bracketed:
+                - start_bracket: (
+                - parameter: a
+                - data_type:
+                    primitive_type:
+                      keyword: integer
+                - comma: ','
+                - parameter: b
+                - data_type:
+                    primitive_type:
+                      keyword: integer
+                - comma: ','
+                - parameter: c
+                - data_type:
+                    primitive_type:
+                      keyword: integer
+                - end_bracket: )
+      - end_bracket: )
 - statement_terminator: ;

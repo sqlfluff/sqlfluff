@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bda187ec3f0ea6b3bbdd96b0591804d07b326a24d0d9e4345e10ba56a7905f48
+_hash: 753fea3410ca662ecf3665053ad470c7bb0caae8b81e73be767cedf3f014df11
 file:
 - statement:
     alter_table_statement:
@@ -40,7 +40,8 @@ file:
     - column_definition:
         naked_identifier: col1
         data_type:
-          keyword: VARCHAR
+          primitive_type:
+            keyword: VARCHAR
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -56,7 +57,8 @@ file:
     - column_definition:
         naked_identifier: col1
         data_type:
-          keyword: VARCHAR
+          primitive_type:
+            keyword: VARCHAR
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -69,7 +71,8 @@ file:
     - column_definition:
       - naked_identifier: col1
       - data_type:
-          keyword: VARCHAR
+          primitive_type:
+            keyword: VARCHAR
       - keyword: NOT
       - keyword: 'NULL'
 - statement_terminator: ;
@@ -84,7 +87,8 @@ file:
     - column_definition:
         naked_identifier: col1
         data_type:
-          keyword: VARCHAR
+          primitive_type:
+            keyword: VARCHAR
         comment_clause:
           keyword: COMMENT
           quoted_literal: "'comment'"
@@ -100,7 +104,8 @@ file:
     - column_definition:
         naked_identifier: col1
         data_type:
-          keyword: VARCHAR
+          primitive_type:
+            keyword: VARCHAR
         keyword: WITH
         bracketed:
           start_bracket: (
@@ -123,7 +128,8 @@ file:
     - column_definition:
         naked_identifier: col1
         data_type:
-          keyword: VARCHAR
+          primitive_type:
+            keyword: VARCHAR
     - keyword: FIRST
 - statement_terminator: ;
 - statement:
@@ -137,7 +143,8 @@ file:
     - column_definition:
         naked_identifier: col1
         data_type:
-          keyword: VARCHAR
+          primitive_type:
+            keyword: VARCHAR
     - keyword: LAST
 - statement_terminator: ;
 - statement:
@@ -151,7 +158,8 @@ file:
     - column_definition:
         naked_identifier: col1
         data_type:
-          keyword: VARCHAR
+          primitive_type:
+            keyword: VARCHAR
     - keyword: AFTER
     - column_reference:
         naked_identifier: col2
@@ -224,7 +232,8 @@ file:
     - keyword: DATA
     - keyword: TYPE
     - data_type:
-        keyword: INTEGER
+        primitive_type:
+          keyword: INTEGER
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -240,12 +249,13 @@ file:
     - keyword: DATA
     - keyword: TYPE
     - data_type:
-        keyword: VARCHAR
-        bracketed_arguments:
-          bracketed:
-            start_bracket: (
-            numeric_literal: '100'
-            end_bracket: )
+        primitive_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:

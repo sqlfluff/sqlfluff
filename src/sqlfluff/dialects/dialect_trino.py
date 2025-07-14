@@ -284,13 +284,13 @@ trino_dialect.replace(
 )
 
 
-class DatatypeSegment(BaseSegment):
-    """Data type segment.
+class PrimitiveTypeSegment(BaseSegment):
+    """Primitive type segment.
 
     See https://trino.io/docs/current/language/types.html
     """
 
-    type = "data_type"
+    type = "primitive_type"
     match_grammar = OneOf(
         # Boolean
         "BOOLEAN",
@@ -318,13 +318,25 @@ class DatatypeSegment(BaseSegment):
         # Date and time
         "DATE",
         Ref("TimeWithTZGrammar"),
-        # Structural
-        Ref("ArrayTypeSegment"),
-        "MAP",
-        Ref("RowTypeSegment"),
         # Others
         "IPADDRESS",
         "UUID",
+    )
+
+
+class DatatypeSegment(BaseSegment):
+    """Data type segment.
+
+    See https://trino.io/docs/current/language/types.html
+    """
+
+    type = "data_type"
+    match_grammar = OneOf(
+        Ref("PrimitiveTypeSegment"),
+        # Structural
+        Ref("ArrayTypeSegment"),
+        Ref("MapTypeSegment"),
+        Ref("RowTypeSegment"),
     )
 
 
@@ -961,5 +973,41 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     optional=True,
                 ),
             ),
+        ),
+    )
+
+
+class MapTypeSegment(BaseSegment):
+    """Expression to construct a MAP datatype."""
+
+    type = "map_type"
+    match_grammar = Sequence(
+        "MAP",
+        Ref("MapTypeSchemaSegment", optional=True),
+    )
+
+
+class MapTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a MAP datatype."""
+
+    type = "map_type_schema"
+    match_grammar = OneOf(
+        Bracketed(
+            Sequence(
+                Ref("PrimitiveTypeSegment"),
+                Ref("CommaSegment"),
+                Ref("DatatypeSegment"),
+            ),
+            bracket_pairs_set="angle_bracket_pairs",
+            bracket_type="angle",
+        ),
+        Bracketed(
+            Sequence(
+                Ref("PrimitiveTypeSegment"),
+                Ref("CommaSegment"),
+                Ref("DatatypeSegment"),
+            ),
+            bracket_pairs_set="bracket_pairs",
+            bracket_type="round",
         ),
     )

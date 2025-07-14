@@ -66,3 +66,9 @@ SELECT *
 FROM nation
 WITH NO DATA
 ;
+
+CREATE TABLE structual_types (
+  array_of_ints array(integer),
+  map_of_ints map(integer, integer),
+  row_of_ints row(a integer, b integer, c integer)
+);
