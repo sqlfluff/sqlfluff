@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6b4fba2da58dafdeec56d824a628616cdc58954bfcf1a626c31cccd35bafcb28
+_hash: 7da1743e6b8a4d2d629db820b6f5d6571c4b73a0011e185324a6b18ff30e46d8
 file:
 - statement:
     select_statement:
@@ -66,26 +66,26 @@ file:
         naked_identifier: sal_emp
     - bracketed:
       - start_bracket: (
-      - column_reference:
+      - column_definition:
           naked_identifier: name
-      - data_type:
-          keyword: text
+          data_type:
+            keyword: text
       - comma: ','
-      - column_reference:
+      - column_definition:
           naked_identifier: pay_by_quarter
-      - data_type:
-          keyword: integer
-          start_square_bracket: '['
-          end_square_bracket: ']'
+          data_type:
+            keyword: integer
+            start_square_bracket: '['
+            end_square_bracket: ']'
       - comma: ','
-      - column_reference:
+      - column_definition:
           naked_identifier: schedule
-      - data_type:
-        - keyword: text
-        - start_square_bracket: '['
-        - end_square_bracket: ']'
-        - start_square_bracket: '['
-        - end_square_bracket: ']'
+          data_type:
+          - keyword: text
+          - start_square_bracket: '['
+          - end_square_bracket: ']'
+          - start_square_bracket: '['
+          - end_square_bracket: ']'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -96,18 +96,18 @@ file:
         naked_identifier: tictactoe
     - bracketed:
         start_bracket: (
-        column_reference:
+        column_definition:
           naked_identifier: squares
-        data_type:
-        - keyword: integer
-        - start_square_bracket: '['
-        - expression:
-            numeric_literal: '3'
-        - end_square_bracket: ']'
-        - start_square_bracket: '['
-        - expression:
-            numeric_literal: '3'
-        - end_square_bracket: ']'
+          data_type:
+          - keyword: integer
+          - start_square_bracket: '['
+          - expression:
+              numeric_literal: '3'
+          - end_square_bracket: ']'
+          - start_square_bracket: '['
+          - expression:
+              numeric_literal: '3'
+          - end_square_bracket: ']'
         end_bracket: )
 - statement_terminator: ;
 - statement:
