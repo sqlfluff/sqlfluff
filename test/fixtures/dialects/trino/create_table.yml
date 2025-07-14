@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 97882f36c2869ab5ddc3b2f2152b43a35f4122016e4b8b9aa93c19130d8160fd
+_hash: d9ca4dc383cba48d778cc47b22712e45171aaf27ad6e37fa56d7979c2744c317
 file:
 - statement:
     create_table_statement:
@@ -373,7 +373,7 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: array_type
+          naked_identifier: array_type_1
           data_type:
             array_type:
               keyword: array
@@ -386,7 +386,19 @@ file:
                   end_bracket: )
       - comma: ','
       - column_definition:
-          naked_identifier: map_type
+          naked_identifier: array_type_2
+          data_type:
+            array_type:
+              keyword: array
+              array_type_schema:
+                start_angle_bracket: <
+                data_type:
+                  primitive_type:
+                    keyword: integer
+                end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          naked_identifier: map_type_1
           data_type:
             map_type:
               keyword: map
@@ -405,6 +417,26 @@ file:
                     primitive_type:
                       keyword: integer
                   end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: map_type_2
+          data_type:
+            map_type:
+              keyword: map
+              map_type_schema:
+                start_angle_bracket: <
+                primitive_type:
+                  keyword: varchar
+                  bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      numeric_literal: '20'
+                      end_bracket: )
+                comma: ','
+                data_type:
+                  primitive_type:
+                    keyword: integer
+                end_angle_bracket: '>'
       - comma: ','
       - column_definition:
           naked_identifier: row_type
