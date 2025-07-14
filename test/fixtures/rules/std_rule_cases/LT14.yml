@@ -605,3 +605,12 @@ test_fail_leading_orderby_except_list_outer_orderby:
         orderby_clause:
           keyword_line_position: leading
           keyword_line_position_exclusions: window_specification, aggregate_order_by
+
+test_pass_bigquery_pipe_operator_where:
+  pass_str: |
+    FROM my_database.my_table
+    |> WHERE some_condition
+    |> ORDER BY my_column
+  configs:
+    core:
+      dialect: bigquery
