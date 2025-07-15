@@ -516,3 +516,55 @@ test_pass_tsql_pivot_table_alias:
   configs:
     core:
       dialect: tsql
+
+test_pass_postgres_create_policy_using_target_table:
+  pass_str: |
+    CREATE POLICY policy_1 ON table_1
+    FOR SELECT TO PUBLIC
+    USING (
+      EXISTS (
+        SELECT 1
+        FROM table_2
+        WHERE
+          table_2.col_1 = table_1.id
+          AND table_2.col_2 = current_user
+      )
+    )
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_create_policy_with_check_target_table:
+  pass_str: |
+    CREATE POLICY policy_1 ON table_1
+    FOR UPDATE TO PUBLIC
+    USING (table_1.id = current_user)
+    WITH CHECK (table_1.id = current_user AND table_1.col_1 IS NOT NULL)
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_alter_policy_target_table:
+  pass_str: |
+    ALTER POLICY policy_1 ON table_1
+    WITH CHECK (table_1.col_1 = current_user AND table_1.col_2 > 0)
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_postgres_create_policy_unreferenced_table:
+  fail_str: |
+    CREATE POLICY policy_1 ON table_1
+    FOR SELECT TO PUBLIC
+    USING (
+      EXISTS (
+        SELECT 1
+        FROM table_2
+        WHERE
+          table_2.col_1 = table_3.id
+          AND table_2.col_2 = current_user
+      )
+    )
+  configs:
+    core:
+      dialect: postgres
