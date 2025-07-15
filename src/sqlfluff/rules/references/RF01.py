@@ -300,7 +300,6 @@ class Rule_RF01(BaseRule):
                         return self._table_ref_as_tuple(
                             cast(ObjectReferenceSegment, table_reference)
                         )
-                    break
 
         return []
 
