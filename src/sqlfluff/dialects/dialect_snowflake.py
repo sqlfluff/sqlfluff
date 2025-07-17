@@ -1451,10 +1451,13 @@ class SetAssignmentStatementSegment(BaseSegment):
             "SET",
             Bracketed(Delimited(Ref("LocalVariableNameSegment"))),
             Ref("EqualsSegment"),
-            Bracketed(
-                Delimited(
-                    Ref("ExpressionSegment"),
+            OneOf(
+                Bracketed(
+                    Delimited(
+                        Ref("ExpressionSegment"),
+                    ),
                 ),
+                Ref("ExpressionSegment"),
             ),
         ),
     )
