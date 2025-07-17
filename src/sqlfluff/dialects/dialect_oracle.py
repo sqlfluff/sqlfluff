@@ -1889,6 +1889,24 @@ class BeginEndSegment(BaseSegment):
     https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/block.html
     """
 
+    _when_clause = Sequence(
+        "WHEN",
+        OneOf(
+            "OTHERS",
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                AnyNumberOf(
+                    Sequence(
+                        "OR",
+                        Ref("SingleIdentifierGrammar"),
+                    )
+                ),
+            ),
+        ),
+        "THEN",
+        Ref("OneOrMoreStatementsGrammar"),
+    )
+
     type = "begin_end_block"
     match_grammar = Sequence(
         Ref("DeclareSegment", optional=True),
@@ -1897,21 +1915,10 @@ class BeginEndSegment(BaseSegment):
         Ref("OneOrMoreStatementsGrammar"),
         Sequence(
             "EXCEPTION",
-            "WHEN",
-            OneOf(
-                "OTHERS",
-                Sequence(
-                    Ref("SingleIdentifierGrammar"),
-                    AnyNumberOf(
-                        Sequence(
-                            "OR",
-                            Ref("SingleIdentifierGrammar"),
-                        )
-                    ),
-                ),
-            ),
-            "THEN",
-            Ref("OneOrMoreStatementsGrammar"),
+            # Using AnyNumberOf with min_times=1 is not greedy enough to grab multiple
+            # exceptions here. So define it once, then have AnyNumberOf after.
+            _when_clause,
+            AnyNumberOf(_when_clause),
             optional=True,
         ),
         Dedent,

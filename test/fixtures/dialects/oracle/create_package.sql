@@ -88,3 +88,23 @@ PROCEDURE increase_comm(employee_id NUMBER, comm_incr NUMBER) IS
    END;
 END emp_mgmt;
 /
+
+CREATE OR REPLACE PACKAGE BODY test_package IS
+
+  FUNCTION test_function
+  RETURN VARCHAR2 IS
+    var_1 NUMBER := 0;
+  BEGIN
+    BEGIN
+      SELECT 1 INTO var_1 FROM DUAL;
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+        var_1 := 0;
+      WHEN OTHERS THEN
+        logger.log_error('Unhandled Exception');
+        RAISE;
+    END;
+  END test_function;
+
+END test_package;
+/
