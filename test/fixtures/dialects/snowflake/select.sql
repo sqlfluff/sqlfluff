@@ -28,3 +28,7 @@ SELECT
 FROM mytable t
 ORDER BY TRUE
 ;
+
+select
+    limit as renamed
+from sometable;

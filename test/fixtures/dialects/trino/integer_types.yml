@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b6908cc207c828aa100f14d2e5527109c021eb95b5aa5cbbaa1ab27075c4943a
+_hash: cf985cf674bcb9341fc3eb33e8fe7058545690cc1aceaa15dcbbe3fa33fb34c5
 file:
 - statement:
     select_statement:
@@ -20,7 +20,8 @@ file:
                   numeric_literal: '1'
                 keyword: AS
                 data_type:
-                  keyword: TINYINT
+                  primitive_type:
+                    keyword: TINYINT
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -38,7 +39,8 @@ file:
                   numeric_literal: '2'
                 keyword: AS
                 data_type:
-                  keyword: SMALLINT
+                  primitive_type:
+                    keyword: SMALLINT
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -56,7 +58,8 @@ file:
                   numeric_literal: '3'
                 keyword: AS
                 data_type:
-                  keyword: INTEGER
+                  primitive_type:
+                    keyword: INTEGER
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -74,7 +77,8 @@ file:
                   numeric_literal: '4'
                 keyword: AS
                 data_type:
-                  keyword: INT
+                  primitive_type:
+                    keyword: INT
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -92,6 +96,7 @@ file:
                   numeric_literal: '5'
                 keyword: AS
                 data_type:
-                  keyword: BIGINT
+                  primitive_type:
+                    keyword: BIGINT
                 end_bracket: )
 - statement_terminator: ;

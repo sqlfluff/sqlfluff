@@ -290,6 +290,17 @@ class Rule_RF01(BaseRule):
                 else:
                     pass  # pragma: no cover
 
+        if query.dialect.name == "postgres":
+            for seg in reversed(query.parent_stack):
+                if seg.is_type("create_policy_statement") or seg.is_type(
+                    "alter_policy_statement"
+                ):
+                    table_reference = next(seg.recursive_crawl("table_reference"), None)
+                    if table_reference:
+                        return self._table_ref_as_tuple(
+                            cast(ObjectReferenceSegment, table_reference)
+                        )
+
         return []
 
     def _dialect_supports_dot_access(self, dialect: Dialect) -> bool:

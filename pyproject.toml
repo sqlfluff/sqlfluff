@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sqlfluff"
-version = "3.4.1"
+version = "3.4.2"
 description = "The SQL Linter for Humans"
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.9"
@@ -44,8 +44,10 @@ keywords = [
     "clickhouse",
     "databricks",
     "db2",
+    "doris",
     "duckdb",
     "exasol",
+    "flink",
     "greenplum",
     "hive",
     "impala",
@@ -131,7 +133,7 @@ sqlfluff_rules_tsql = "sqlfluff.rules.tsql"
 
 [tool.sqlfluff_docs]
 # NOTE: Stable version is used by docs/conf.py
-stable_version = "3.4.1"
+stable_version = "3.4.2"
 
 
 [tool.setuptools.package-data]

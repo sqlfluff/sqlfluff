@@ -92,7 +92,8 @@ class DepthInfo:
 
     def trim(self, amount: int) -> "DepthInfo":
         """Return a DepthInfo object with some amount trimmed."""
-        if amount == 0:
+        # Excluded from coverage: no longer triggered since AL01 rule was refactored
+        if amount == 0:  # pragma: no cover
             # The trivial case.
             return self
         new_hash_set = self.stack_hash_set.difference(self.stack_hashes[-amount:])

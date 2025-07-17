@@ -16,11 +16,17 @@ databricks:
 db2:
   - "/(db2)/i"
 
+doris:
+  - "/(doris)/i"
+
 duckdb:
   - "/(duckdb)/i"
 
 exasol:
   - "/(exasol)/i"
+
+flink:
+  - "/(flink)/i"
 
 greenplum:
   - "/(greenplum)/i"

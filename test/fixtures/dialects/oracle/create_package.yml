@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 596f54eac3c301ab52026b0c7dd846e357db957406fead6d02ecf5551dfbc2a1
+_hash: 4b1ea18f4c64dfc7f680e21a5a87cc797e297a92882bd01a32346d5b3d4dd057
 file:
 - statement:
     create_package_statement:
@@ -718,6 +718,159 @@ file:
     - keyword: END
     - package_reference:
         naked_identifier: emp_mgmt
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    create_package_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PACKAGE
+    - package_reference:
+        naked_identifier: test_package
+    - keyword: IS
+    - declare_segment:
+        create_function_statement:
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: any_function_with_result_cache
+        - keyword: RETURN
+        - data_type:
+            data_type_identifier: VARCHAR2
+        - keyword: RESULT_CACHE
+        - statement_terminator: ;
+    - keyword: END
+    - package_reference:
+        naked_identifier: test_package
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    create_package_statement:
+    - keyword: CREATE
+    - keyword: PACKAGE
+    - package_reference:
+        naked_identifier: skip_col_pkg
+    - keyword: AS
+    - declare_segment:
+      - create_function_statement:
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: skip_col
+        - function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: tab
+            - data_type:
+                data_type_identifier: TABLE
+            - comma: ','
+            - parameter: col
+            - data_type:
+                data_type_identifier: COLUMNS
+            - end_bracket: )
+        - keyword: RETURN
+        - data_type:
+            data_type_identifier: TABLE
+        - keyword: PIPELINED
+        - keyword: ROW
+        - keyword: POLYMORPHIC
+        - keyword: USING
+        - object_reference:
+            naked_identifier: skip_col_pkg
+        - statement_terminator: ;
+      - create_function_statement:
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: describe
+        - function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: tab
+            - keyword: IN
+            - keyword: OUT
+            - data_type:
+                naked_identifier: DBMS_TF
+                dot: .
+                data_type_identifier: TABLE_T
+            - comma: ','
+            - parameter: col
+            - data_type:
+                naked_identifier: DBMS_TF
+                dot: .
+                data_type_identifier: COLUMNS_T
+            - end_bracket: )
+        - keyword: RETURN
+        - data_type:
+            naked_identifier: DBMS_TF
+            dot: .
+            data_type_identifier: DESCRIBE_T
+        - statement_terminator: ;
+      - create_function_statement:
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: skip_col
+        - function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: tab
+            - data_type:
+                data_type_identifier: TABLE
+            - comma: ','
+            - parameter: type_name
+            - data_type:
+                data_type_identifier: VARCHAR2
+            - comma: ','
+            - parameter: flip
+            - data_type:
+                data_type_identifier: VARCHAR2
+            - keyword: DEFAULT
+            - expression:
+                quoted_literal: "'False'"
+            - end_bracket: )
+        - keyword: RETURN
+        - data_type:
+            data_type_identifier: TABLE
+        - keyword: PIPELINED
+        - keyword: ROW
+        - keyword: POLYMORPHIC
+        - keyword: USING
+        - object_reference:
+            naked_identifier: skip_col_pkg
+        - statement_terminator: ;
+      - create_function_statement:
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: describe
+        - function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: tab
+            - keyword: IN
+            - keyword: OUT
+            - data_type:
+                naked_identifier: DBMS_TF
+                dot: .
+                data_type_identifier: TABLE_T
+            - comma: ','
+            - parameter: type_name
+            - data_type:
+                data_type_identifier: VARCHAR2
+            - comma: ','
+            - parameter: flip
+            - data_type:
+                data_type_identifier: VARCHAR2
+            - keyword: DEFAULT
+            - expression:
+                quoted_literal: "'False'"
+            - end_bracket: )
+        - keyword: RETURN
+        - data_type:
+            naked_identifier: DBMS_TF
+            dot: .
+            data_type_identifier: DESCRIBE_T
+        - statement_terminator: ;
+    - keyword: END
+    - package_reference:
+        naked_identifier: skip_col_pkg
 - statement_terminator: ;
 - statement_terminator: /
 - statement:

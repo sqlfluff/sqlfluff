@@ -430,11 +430,30 @@ postgres_dialect.add(
     FullTextSearchOperatorSegment=TypedParser(
         "full_text_search_operator", LiteralSegment, type="full_text_search_operator"
     ),
+    JsonTypeGrammar=OneOf("VALUE", "SCALAR", "ARRAY", "OBJECT"),
+    JsonUniqueKeysGrammar=Sequence(
+        OneOf("WITH", "WITHOUT"),
+        "UNIQUE",
+        Sequence("KEYS", optional=True),
+    ),
+    JsonTestGrammar=Sequence(
+        "JSON",
+        Ref("JsonTypeGrammar", optional=True),
+        Ref("JsonUniqueKeysGrammar", optional=True),
+    ),
 )
 
 postgres_dialect.replace(
     LikeGrammar=OneOf("LIKE", "ILIKE", Sequence("SIMILAR", "TO")),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment"), "COLLATE"),
+    IsClauseGrammar=OneOf(
+        Ref("NullLiteralSegment"),
+        Ref("NanLiteralSegment"),
+        Ref("UnknownLiteralSegment"),
+        Ref("BooleanLiteralGrammar"),
+        Ref("NormalizedGrammar"),
+        Ref("JsonTestGrammar"),
+    ),
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
         Ref("GreaterThanSegment"),
@@ -508,6 +527,9 @@ postgres_dialect.replace(
                 optional=True,
             ),
         ),
+        # VARIADIC function call argument
+        # https://www.postgresql.org/docs/current/xfunc-sql.html#XFUNC-SQL-VARIADIC-FUNCTIONS
+        Sequence("VARIADIC", Ref("ExpressionSegment")),
         Sequence(
             # Allow an optional distinct keyword here.
             Ref.keyword("DISTINCT", optional=True),
@@ -2272,21 +2294,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 Bracketed(
                     Delimited(
                         OneOf(
-                            Sequence(
-                                Ref("ColumnReferenceSegment"),
-                                Ref("DatatypeSegment"),
-                                AnyNumberOf(
-                                    # A single COLLATE segment can come before or
-                                    # after constraint segments
-                                    OneOf(
-                                        Ref("ColumnConstraintSegment"),
-                                        Sequence(
-                                            "COLLATE",
-                                            Ref("CollationReferenceSegment"),
-                                        ),
-                                    ),
-                                ),
-                            ),
+                            Ref("ColumnDefinitionSegment"),
                             Ref("TableConstraintSegment"),
                             Sequence(
                                 "LIKE",
@@ -5097,7 +5105,8 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
     """
 
     match_grammar = Sequence(
-        Ref.keyword("AS", optional=True),
+        Indent,
+        Ref("AsAliasOperatorSegment", optional=True),
         OneOf(
             Sequence(
                 Ref("SingleIdentifierGrammar"),
@@ -5112,6 +5121,7 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
                 ),
             ),
         ),
+        Dedent,
     )
 
 
@@ -5128,7 +5138,7 @@ class AsAliasExpressionSegment(BaseSegment):
     type = "alias_expression"
     match_grammar = Sequence(
         Indent,
-        "AS",
+        Ref("AsAliasOperatorSegment", optional=False),
         Ref("SingleIdentifierGrammar"),
         Dedent,
     )
@@ -6880,3 +6890,25 @@ class ResetSessionAuthorizationStatementSegment(BaseSegment):
     type = "reset_session_authorization_statement"
 
     match_grammar = Sequence("RESET", "SESSION", "AUTHORIZATION")
+
+
+class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
+    """A column definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    As specified in https://www.postgresql.org/docs/current/sql-createtable.html
+    """
+
+    type = "column_definition"
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Ref("DatatypeSegment"),
+        AnyNumberOf(
+            # A single COLLATE segment can come before or
+            # after constraint segments
+            Ref("ColumnConstraintSegment"),
+            Sequence(
+                "COLLATE",
+                Ref("CollationReferenceSegment"),
+            ),
+        ),
+    )

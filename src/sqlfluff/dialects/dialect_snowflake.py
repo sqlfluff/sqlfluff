@@ -464,13 +464,7 @@ snowflake_dialect.add(
             Ref("ExpressionSegment"),
         ),
         terminators=[
-            "ORDER",
-            "LIMIT",
-            "FETCH",
-            "OFFSET",
-            "HAVING",
-            "QUALIFY",
-            "WINDOW",
+            Ref("GroupByClauseTerminatorGrammar"),
         ],
     ),
     LimitLiteralGrammar=OneOf(
@@ -745,16 +739,12 @@ snowflake_dialect.replace(
         "FROM",
         "WHERE",
         Sequence("ORDER", "BY"),
-        "LIMIT",
-        "FETCH",
-        "OFFSET",
+        Ref("LimitClauseSegment"),
         Ref("SetOperatorSegment"),
     ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
-        "LIMIT",
-        "FETCH",
-        "OFFSET",
+        Ref("LimitClauseSegment"),
         Sequence("GROUP", "BY"),
         Sequence("ORDER", "BY"),
         "HAVING",
@@ -765,9 +755,7 @@ snowflake_dialect.replace(
         Ref("WithDataClauseSegment"),
     ),
     WhereClauseTerminatorGrammar=OneOf(
-        "LIMIT",
-        "FETCH",
-        "OFFSET",
+        Ref("LimitClauseSegment"),
         Sequence("GROUP", "BY"),
         Sequence("ORDER", "BY"),
         "HAVING",
@@ -776,28 +764,24 @@ snowflake_dialect.replace(
         "OVERLAPS",
     ),
     OrderByClauseTerminators=OneOf(
-        "LIMIT",
+        Ref("LimitClauseSegment"),
         "HAVING",
         "QUALIFY",
         # For window functions
         "WINDOW",
         Ref("FrameClauseUnitGrammar"),
         "SEPARATOR",
-        "FETCH",
-        "OFFSET",
         "MEASURES",
     ),
     TrimParametersGrammar=Nothing(),
     GroupByClauseTerminatorGrammar=OneOf(
-        "ORDER", "LIMIT", "FETCH", "OFFSET", "HAVING", "QUALIFY", "WINDOW"
+        "ORDER", Ref("LimitClauseSegment"), "HAVING", "QUALIFY", "WINDOW"
     ),
     HavingClauseTerminatorGrammar=OneOf(
         Sequence("ORDER", "BY"),
-        "LIMIT",
+        Ref("LimitClauseSegment"),
         "QUALIFY",
         "WINDOW",
-        "FETCH",
-        "OFFSET",
     ),
     NonStandardJoinTypeKeywordsGrammar=OneOf("ASOF"),
     UnconditionalJoinKeywordsGrammar=OneOf(
@@ -817,6 +801,7 @@ snowflake_dialect.replace(
             optional=True,
         ),
     ),
+    CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
 )
 
 # Add all Snowflake keywords
@@ -4177,7 +4162,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     """
 
     match_grammar: Matchable = AnySetOf(
-        Sequence("COLLATE", Ref("CollationReferenceSegment")),
+        Ref("CollateGrammar"),
         Sequence(
             "DEFAULT",
             Ref("ExpressionSegment"),
@@ -8680,14 +8665,6 @@ class LimitClauseSegment(ansi.LimitClauseSegment):
     )
 
 
-class SelectClauseSegment(ansi.SelectClauseSegment):
-    """A group of elements in a select target statement."""
-
-    match_grammar = ansi.SelectClauseSegment.match_grammar.copy(
-        terminators=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
-    )
-
-
 class OrderByClauseSegment(ansi.OrderByClauseSegment):
     """An `ORDER BY` clause.
 
@@ -8711,7 +8688,7 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
                 OneOf("ASC", "DESC", optional=True),
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
             ),
-            terminators=["LIMIT", "FETCH", "OFFSET", Ref("FrameClauseUnitGrammar")],
+            terminators=[Ref("LimitClauseSegment"), Ref("FrameClauseUnitGrammar")],
         ),
         Dedent,
     )
@@ -8988,7 +8965,15 @@ class SetOperatorSegment(ansi.SetOperatorSegment):
 
     type = "set_operator"
     match_grammar: Matchable = OneOf(
-        Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
+        Sequence(
+            "UNION",
+            OneOf("DISTINCT", "ALL", optional=True),
+            Sequence(
+                "BY",
+                "NAME",
+                optional=True,
+            ),
+        ),
         Sequence(
             OneOf(
                 "INTERSECT",

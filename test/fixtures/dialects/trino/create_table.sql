@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS orders (
   orderkey bigint,
   orderstatus varchar,
   totalprice double COMMENT 'Price in cents.',
+  shipmentstatus varchar not null,
   orderdate date
 )
 COMMENT 'A table to keep track of orders.'
@@ -65,3 +66,11 @@ SELECT *
 FROM nation
 WITH NO DATA
 ;
+
+CREATE TABLE structural_types (
+  array_type_1 array(integer),
+  array_type_2 array<integer>,
+  map_type_1 map(varchar(20), integer),
+  map_type_2 map<varchar(20), integer>,
+  row_type row(a integer, b varchar(20), c array(real))
+);

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8b36c7b7619e330b7598038b7814e2608f28b736c28a9066a614e12231b43f89
+_hash: 61d9b77e97d00d4c8d80182e1b184a084793a528f7519595a86a0dd67f08deca
 file:
 - statement:
     select_statement:
@@ -15,7 +15,8 @@ file:
           - dot: .
           - naked_identifier: order_id
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: order_id
       - comma: ','
       - select_clause_element:
@@ -24,7 +25,8 @@ file:
           - dot: .
           - naked_identifier: email
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: email
       from_clause:
         keyword: from
@@ -102,7 +104,8 @@ file:
           - dot: .
           - naked_identifier: order_id
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: order_id
       - comma: ','
       - select_clause_element:
@@ -111,7 +114,8 @@ file:
           - dot: .
           - naked_identifier: email
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: email
       from_clause:
         keyword: from
@@ -192,7 +196,8 @@ file:
           - dot: .
           - naked_identifier: order_id
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: order_id
       - comma: ','
       - select_clause_element:
@@ -201,7 +206,8 @@ file:
           - dot: .
           - naked_identifier: email
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: email
       from_clause:
         keyword: from
@@ -311,7 +317,8 @@ file:
           - dot: .
           - naked_identifier: order_id
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: order_id
       - comma: ','
       - select_clause_element:
@@ -320,7 +327,8 @@ file:
           - dot: .
           - naked_identifier: email
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: email
       from_clause:
         keyword: from
