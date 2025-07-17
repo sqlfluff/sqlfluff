@@ -61,3 +61,5 @@ ALTER TABLE the_schema.the_table APPEND FROM the_schema.the_temp_table IGNOREEXT
 ALTER TABLE the_schema.the_table APPEND FROM the_schema.the_temp_table;
 
 ALTER TABLE the_schema.the_table SET LOCATION 's3://bucket/folder/';
+
+ALTER TABLE my_schema.my_table ADD COLUMN my_column BIGINT ENCODE ZSTD;

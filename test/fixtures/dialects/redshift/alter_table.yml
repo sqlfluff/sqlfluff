@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: de2269d68c7f114d0429b086bb24aaa20fa9bacbf4497d5291eb34615dc88365
+_hash: ff46dbbfa00e6b1b6358493fcd387bade51d7cf0cb7fe826125f44d984f3cb32
 file:
 - statement:
     alter_table_statement:
@@ -443,4 +443,22 @@ file:
       - keyword: SET
       - keyword: LOCATION
       - quoted_literal: "'s3://bucket/folder/'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
+    - alter_table_action_segment:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          keyword: BIGINT
+      - keyword: ENCODE
+      - keyword: ZSTD
 - statement_terminator: ;
