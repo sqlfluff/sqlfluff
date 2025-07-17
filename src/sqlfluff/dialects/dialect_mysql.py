@@ -997,6 +997,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
             OneOf("STORED", "VIRTUAL", optional=True),
         ),
         Sequence("SRID", Ref("NumericLiteralSegment")),
+        OneOf("INVISIBLE", "VISIBLE"),
     )
 
 
