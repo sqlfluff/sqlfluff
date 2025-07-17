@@ -78,3 +78,15 @@ CREATE TABLE clock (
 
 -- Creates a table using identifier
 CREATE TABLE IDENTIFIER('student') (id INT, name STRING, age INT);
+
+CREATE TABLE cluster_by_table_auto (
+    col1 STRING
+)
+USING DELTA
+CLUSTER BY AUTO;
+
+CREATE TABLE cluster_by_table_none (
+    col1 STRING
+)
+USING DELTA
+CLUSTER BY NONE;

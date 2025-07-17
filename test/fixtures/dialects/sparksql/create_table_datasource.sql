@@ -57,3 +57,15 @@ create table if not exists my_table_space.my_test_table (
 using DELTA
 location 's3://some-bucket/test-data/'
 partitioned by (activity_date_partition);
+
+CREATE TABLE cluster_by_table_none (
+    col1 STRING
+)
+USING DELTA
+CLUSTER BY NONE;
+
+CREATE TABLE cluster_by_table_cols (
+    col1 STRING
+)
+USING DELTA
+CLUSTER BY (col1);
