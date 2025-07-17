@@ -1,0 +1,31 @@
+rule: AM09
+
+test_fail_unqualified_table:
+  fail_str: |
+    SELECT
+        a,
+        b
+    FROM my_table
+
+test_fail_unqualified_table_with_unrelated_cte:
+  fail_str: |
+    WITH my_cte AS (
+        SELECT 1 AS a
+    )
+    SELECT
+        a,
+        b
+    FROM my_table    
+test_pass_schema_qualified_table:
+  pass_str: |
+    SELECT
+        a,
+        b
+    FROM my_schema.my_table
+
+test_pass_cte_reference:
+  pass_str: |
+    WITH my_cte AS (
+        SELECT 1 AS a
+    )
+    SELECT a FROM my_cte
