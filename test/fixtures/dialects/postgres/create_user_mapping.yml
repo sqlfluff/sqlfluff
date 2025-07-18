@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e4b7bf32c9556794f7bc41d9292ef43e4b0804378e9bcb069042835912b4795e
+_hash: aa3d9916537fd4519c38d315f452a01e6a1acc23085673ce5330aede8d0e6bb4
 file:
 - statement:
     create_user_mapping_statement:
@@ -34,7 +34,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - keyword: FOR
-    - naked_identifier: PUBLIC
+    - keyword: PUBLIC
     - keyword: SERVER
     - server_reference:
         naked_identifier: foo
