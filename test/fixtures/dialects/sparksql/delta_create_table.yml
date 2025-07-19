@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f194d07abe5e5ffd4006283fb04007e1ab1c1d9a854f5e5fb58b43d66f5d4e30
+_hash: bb98582753d91236ef3f17de005d1cc2c86edb834141e22db5aae3122f024f37
 file:
 - statement:
     create_table_statement:
@@ -370,31 +370,33 @@ file:
             primitive_type:
               keyword: TIMESTAMP
       - comma: ','
-      - generated_column_definition:
-        - naked_identifier: date_of_birth
-        - data_type:
+      - column_definition:
+          column_reference:
+            naked_identifier: date_of_birth
+          data_type:
             primitive_type:
               keyword: DATE
-        - keyword: GENERATED
-        - keyword: ALWAYS
-        - keyword: AS
-        - bracketed:
-            start_bracket: (
-            function:
-              function_name:
-                function_name_identifier: CAST
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: birth_date
-                  keyword: AS
-                  data_type:
-                    primitive_type:
-                      keyword: DATE
-                  end_bracket: )
-            end_bracket: )
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - bracketed:
+              start_bracket: (
+              function:
+                function_name:
+                  function_name_identifier: CAST
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: birth_date
+                    keyword: AS
+                    data_type:
+                      primitive_type:
+                        keyword: DATE
+                    end_bracket: )
+              end_bracket: )
       - comma: ','
       - column_definition:
           column_reference:

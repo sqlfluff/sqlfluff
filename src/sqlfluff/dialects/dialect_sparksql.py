@@ -471,6 +471,17 @@ sparksql_dialect.replace(
     NonWithNonSelectableGrammar=ansi_dialect.get_grammar(
         "NonWithNonSelectableGrammar"
     ).copy(insert=[Ref("InsertOverwriteDirectorySegment")]),
+    ColumnGeneratedGrammar=Sequence(
+        "GENERATED",
+        "ALWAYS",
+        "AS",
+        Bracketed(
+            OneOf(
+                Ref("FunctionSegment"),
+                Ref("BareFunctionSegment"),
+            ),
+        ),
+    ),
 )
 
 sparksql_dialect.add(
@@ -865,7 +876,6 @@ sparksql_dialect.add(
                     Sequence(
                         OneOf(
                             Ref("ColumnFieldDefinitionSegment"),
-                            Ref("GeneratedColumnDefinitionSegment"),
                             Ref("TableConstraintSegment", optional=True),
                         ),
                         Ref("CommentGrammar", optional=True),
@@ -3068,35 +3078,6 @@ class PropertyNameSegment(BaseSegment):
                 allow_gaps=False,
             ),
             Ref("SingleIdentifierGrammar"),
-        ),
-    )
-
-
-class GeneratedColumnDefinitionSegment(BaseSegment):
-    """A generated column definition, e.g. for CREATE TABLE or ALTER TABLE.
-
-    https://docs.delta.io/latest/delta-batch.html#use-generated-columns
-    """
-
-    type = "generated_column_definition"
-
-    match_grammar: Matchable = Sequence(
-        Ref("SingleIdentifierGrammar"),  # Column name
-        Ref("DatatypeSegment"),  # Column type
-        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
-        Sequence(
-            "GENERATED",
-            "ALWAYS",
-            "AS",
-            Bracketed(
-                OneOf(
-                    Ref("FunctionSegment"),
-                    Ref("BareFunctionSegment"),
-                ),
-            ),
-        ),
-        AnyNumberOf(
-            Ref("ColumnConstraintSegment", optional=True),
         ),
     )
 
