@@ -337,13 +337,12 @@ need a [GitHub Personal Access Token](https://docs.github.com/en/authentication/
 scope, and read permissions on the "Metadata" scope. The reason we need
 both read & write access on the "Content" scope is that only tokens with
 write access can see _draft_ releases, which is what we need access to).
-All maintainers should have sufficient access to generate such a token:
+All maintainers should have sufficient access to generate such a token. Once
+generated, store it in your env (zshrc, etc) as `SQLFLUFF_GITHUB_TOKEN`. Then:
 
 ```shell
-source .venv/bin/activate
-export GITHUB_REPOSITORY_OWNER=sqlfluff
-export GITHUB_TOKEN=gho_xxxxxxxx # Change to your token with "repo" permissions.
-python util.py release 2.0.3 # Change to your release number
+make shell
+make release 3.4.2 # Change to your release number
 ```
 
 When all of the changes planned for the release have been merged, and
