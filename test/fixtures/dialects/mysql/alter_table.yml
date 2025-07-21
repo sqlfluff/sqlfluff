@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b39a62412d0e11181360096004daad25ba6ab5a6c4bf56c4c7c22e5b3cd307f5
+_hash: 8082eef7bfbfcd1c980183caceacdb86e81fa23401f733cb71de54d83dcb534b
 file:
 - statement:
     alter_table_statement:
@@ -872,4 +872,75 @@ file:
         column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: T
+    - keyword: ALTER
+    - naked_identifier: C
+    - keyword: DROP
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: T
+    - keyword: ALTER
+    - naked_identifier: C
+    - keyword: SET
+    - keyword: DEFAULT
+    - quoted_literal: "'some default'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: T
+    - keyword: ALTER
+    - naked_identifier: C
+    - keyword: SET
+    - keyword: DEFAULT
+    - expression:
+        bare_function: CURRENT_TIMESTAMP
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: T
+    - keyword: ALTER
+    - naked_identifier: C
+    - keyword: SET
+    - keyword: INVISIBLE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: T
+    - keyword: ALTER
+    - naked_identifier: C
+    - keyword: SET
+    - keyword: VISIBLE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: T
+    - keyword: ALTER
+    - naked_identifier: C
+    - keyword: SET
+    - keyword: VISIBLE
+    - keyword: DROP
+    - keyword: DEFAULT
 - statement_terminator: ;

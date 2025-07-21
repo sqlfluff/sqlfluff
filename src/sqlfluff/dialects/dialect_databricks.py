@@ -386,6 +386,46 @@ databricks_dialect.replace(
         Ref("BackQuotedIdentifierSegment"),
     ),
     PreTableFunctionKeywordsGrammar=OneOf("STREAM"),
+    ColumnGeneratedGrammar=OneOf(
+        Sequence(
+            "GENERATED",
+            "ALWAYS",
+            "AS",
+            Bracketed(
+                OneOf(
+                    Ref("FunctionSegment"),
+                    Ref("BareFunctionSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+        ),
+        Sequence(
+            "GENERATED",
+            OneOf(
+                "ALWAYS",
+                Sequence("BY", "DEFAULT"),
+            ),
+            "AS",
+            "IDENTITY",
+            Bracketed(
+                Sequence(
+                    Sequence(
+                        "START",
+                        "WITH",
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "INCREMENT",
+                        "BY",
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                ),
+                optional=True,
+            ),
+        ),
+    ),
 )
 
 
@@ -717,8 +757,9 @@ class ColumnFieldDefinitionSegment(ansi.ColumnDefinitionSegment):
         Ref("DatatypeSegment"),  # Column type
         Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
         AnyNumberOf(
-            Ref("ColumnConstraintSegment", optional=True),
-            Ref("ColumnDefaultGrammar", optional=True),  # For default values
+            Ref("ColumnPropertiesSegment"),
+            Ref("ColumnConstraintSegment"),
+            Ref("ColumnDefaultGrammar"),  # For default values
         ),
     )
 
@@ -1343,31 +1384,27 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     """
 
     match_grammar = Sequence(
-        Ref("NotNullGrammar", optional=True),
         Sequence(
-            Sequence(
-                "CONSTRAINT",
-                Ref("ObjectReferenceSegment"),
-                optional=True,
-            ),
-            OneOf(
-                Sequence(
-                    Ref("PrimaryKeyGrammar"),
-                    Ref("ConstraintOptionGrammar", optional=True),
-                ),
-                Sequence(
-                    Ref("ForeignKeyGrammar", optional=True),
-                    "REFERENCES",
-                    Ref("TableReferenceSegment"),
-                    Ref("BracketedColumnReferenceListGrammar", optional=True),
-                    OneOf(
-                        Ref("ForeignKeyOptionGrammar"),
-                        Ref("ConstraintOptionGrammar"),
-                        optional=True,
-                    ),
-                ),
-            ),
+            "CONSTRAINT",
+            Ref("ObjectReferenceSegment"),
             optional=True,
+        ),
+        OneOf(
+            Sequence(
+                Ref("PrimaryKeyGrammar"),
+                Ref("ConstraintOptionGrammar", optional=True),
+            ),
+            Sequence(
+                Ref("ForeignKeyGrammar", optional=True),
+                "REFERENCES",
+                Ref("TableReferenceSegment"),
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                OneOf(
+                    Ref("ForeignKeyOptionGrammar"),
+                    Ref("ConstraintOptionGrammar"),
+                    optional=True,
+                ),
+            ),
         ),
     )
 
@@ -1448,7 +1485,7 @@ class ColumnPropertiesSegment(BaseSegment):
 
     match_grammar = OneOf(
         Ref("NotNullGrammar"),
-        Ref("GeneratedColumnDefinitionSegment"),
+        Ref("ColumnGeneratedGrammar"),
         Sequence(
             "DEFAULT",
             Ref("ColumnConstraintDefaultGrammar"),
@@ -1477,59 +1514,6 @@ class TableClausesSegment(BaseSegment):
         Sequence(
             "WITH",
             Ref("RowFilterClauseGrammar"),
-        ),
-    )
-
-
-class GeneratedColumnDefinitionSegment(sparksql.GeneratedColumnDefinitionSegment):
-    """A generated column definition, e.g. for CREATE TABLE or ALTER TABLE.
-
-    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using.html
-    """
-
-    match_grammar: Matchable = Sequence(
-        Ref("SingleIdentifierGrammar"),  # Column name
-        Ref("DatatypeSegment"),  # Column type
-        Bracketed(Anything(), optional=True),  # For types like DECIMAL(3, 2)
-        OneOf(
-            Sequence(
-                "GENERATED",
-                "ALWAYS",
-                "AS",
-                Bracketed(
-                    OneOf(
-                        Ref("FunctionSegment"),
-                        Ref("BareFunctionSegment"),
-                        Ref("ExpressionSegment"),
-                    ),
-                ),
-            ),
-            Sequence(
-                "GENERATED",
-                OneOf(
-                    "ALWAYS",
-                    Sequence("BY", "DEFAULT"),
-                ),
-                "AS",
-                "IDENTITY",
-                Bracketed(
-                    Sequence(
-                        Sequence(
-                            "START",
-                            "WITH",
-                            Ref("NumericLiteralSegment"),
-                            optional=True,
-                        ),
-                        Sequence(
-                            "INCREMENT",
-                            "BY",
-                            Ref("NumericLiteralSegment"),
-                            optional=True,
-                        ),
-                    ),
-                    optional=True,
-                ),
-            ),
         ),
     )
 
