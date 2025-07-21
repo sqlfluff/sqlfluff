@@ -6755,6 +6755,7 @@ class AlterForeignTableStatementSegment(BaseSegment):
                     "TO",
                     Ref("ColumnReferenceSegment"),
                 ),
+                Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
             ),
         ),
     )
