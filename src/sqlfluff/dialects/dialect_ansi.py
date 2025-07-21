@@ -792,6 +792,7 @@ ansi_dialect.add(
         Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
         Sequence("NO", "MAXVALUE"),
     ),
+    ColumnGeneratedGrammar=Nothing(),
 )
 
 
@@ -3218,6 +3219,7 @@ class ColumnConstraintSegment(BaseSegment):
             Sequence(
                 "COLLATE", Ref("CollationReferenceSegment")
             ),  # https://www.sqlite.org/datatype3.html#collation
+            Ref("ColumnGeneratedGrammar"),
         ),
     )
 

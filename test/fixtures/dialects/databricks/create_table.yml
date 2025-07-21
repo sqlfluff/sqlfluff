@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 023b7e56d6c584e480a1b7b4e985e1a35a3860fb637339dec44406571580518f
+_hash: 87c1c29a2337591585afc062871eb79478bc224418862c9f709a9c05903c906d
 file:
 - statement:
     create_table_statement:
@@ -27,103 +27,115 @@ file:
             primitive_type:
               keyword: STRING
       - comma: ','
-      - generated_column_definition:
-        - naked_identifier: generated_always_as_expression
-        - data_type:
+      - column_definition:
+          column_reference:
+            naked_identifier: generated_always_as_expression
+          data_type:
             primitive_type:
               keyword: DATE
-        - keyword: GENERATED
-        - keyword: ALWAYS
-        - keyword: AS
-        - bracketed:
-            start_bracket: (
-            function:
-              function_name:
-                function_name_identifier: CAST
-              function_contents:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: birth_date
-                  keyword: AS
-                  data_type:
-                    primitive_type:
-                      keyword: DATE
-                  end_bracket: )
-            end_bracket: )
+          column_properties_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - bracketed:
+              start_bracket: (
+              function:
+                function_name:
+                  function_name_identifier: CAST
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: birth_date
+                    keyword: AS
+                    data_type:
+                      primitive_type:
+                        keyword: DATE
+                    end_bracket: )
+              end_bracket: )
       - comma: ','
-      - generated_column_definition:
-        - naked_identifier: generated_by_default
-        - data_type:
+      - column_definition:
+          column_reference:
+            naked_identifier: generated_by_default
+          data_type:
             primitive_type:
               keyword: BIGINT
-        - keyword: GENERATED
-        - keyword: BY
-        - keyword: DEFAULT
-        - keyword: AS
-        - keyword: IDENTITY
-      - comma: ','
-      - generated_column_definition:
-        - naked_identifier: generated_always
-        - data_type:
-            primitive_type:
-              keyword: BIGINT
-        - keyword: GENERATED
-        - keyword: ALWAYS
-        - keyword: AS
-        - keyword: IDENTITY
-      - comma: ','
-      - generated_column_definition:
-        - naked_identifier: generated_column_start_with
-        - data_type:
-            primitive_type:
-              keyword: BIGINT
-        - keyword: GENERATED
-        - keyword: ALWAYS
-        - keyword: AS
-        - keyword: IDENTITY
-        - bracketed:
-          - start_bracket: (
-          - keyword: START
-          - keyword: WITH
-          - numeric_literal: '10'
-          - end_bracket: )
-      - comma: ','
-      - generated_column_definition:
-        - naked_identifier: generated_column_increment_by
-        - data_type:
-            primitive_type:
-              keyword: BIGINT
-        - keyword: GENERATED
-        - keyword: ALWAYS
-        - keyword: AS
-        - keyword: IDENTITY
-        - bracketed:
-          - start_bracket: (
-          - keyword: INCREMENT
+          column_properties_segment:
+          - keyword: GENERATED
           - keyword: BY
-          - numeric_literal: '5'
-          - end_bracket: )
+          - keyword: DEFAULT
+          - keyword: AS
+          - keyword: IDENTITY
       - comma: ','
-      - generated_column_definition:
-        - naked_identifier: generated_column_start_with_increment_by
-        - data_type:
+      - column_definition:
+          column_reference:
+            naked_identifier: generated_always
+          data_type:
             primitive_type:
               keyword: BIGINT
-        - keyword: GENERATED
-        - keyword: ALWAYS
-        - keyword: AS
-        - keyword: IDENTITY
-        - bracketed:
-          - start_bracket: (
-          - keyword: START
-          - keyword: WITH
-          - numeric_literal: '10'
-          - keyword: INCREMENT
-          - keyword: BY
-          - numeric_literal: '5'
-          - end_bracket: )
+          column_properties_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - keyword: IDENTITY
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: generated_column_start_with
+          data_type:
+            primitive_type:
+              keyword: BIGINT
+          column_properties_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - keyword: IDENTITY
+          - bracketed:
+            - start_bracket: (
+            - keyword: START
+            - keyword: WITH
+            - numeric_literal: '10'
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: generated_column_increment_by
+          data_type:
+            primitive_type:
+              keyword: BIGINT
+          column_properties_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - keyword: IDENTITY
+          - bracketed:
+            - start_bracket: (
+            - keyword: INCREMENT
+            - keyword: BY
+            - numeric_literal: '5'
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: generated_column_start_with_increment_by
+          data_type:
+            primitive_type:
+              keyword: BIGINT
+          column_properties_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - keyword: IDENTITY
+          - bracketed:
+            - start_bracket: (
+            - keyword: START
+            - keyword: WITH
+            - numeric_literal: '10'
+            - keyword: INCREMENT
+            - keyword: BY
+            - numeric_literal: '5'
+            - end_bracket: )
       - end_bracket: )
     - using_clause:
         keyword: USING
@@ -387,80 +399,85 @@ file:
             primitive_type:
               keyword: INT
       - comma: ','
-      - generated_column_definition:
-        - naked_identifier: area
+      - column_definition:
+          column_reference:
+            naked_identifier: area
+          data_type:
+            primitive_type:
+              keyword: INT
+          column_properties_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: a
+              - binary_operator: '*'
+              - column_reference:
+                  naked_identifier: b
+              end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: rectangles
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: a
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: b
+          data_type:
+            primitive_type:
+              keyword: INT
+          column_properties_segment:
+            column_constraint_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: rectangles
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: a
+          data_type:
+            primitive_type:
+              keyword: INT
+          column_properties_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+        - column_reference:
+            naked_identifier: b
         - data_type:
             primitive_type:
               keyword: INT
-        - keyword: GENERATED
-        - keyword: ALWAYS
-        - keyword: AS
-        - bracketed:
-            start_bracket: (
-            expression:
-            - column_reference:
-                naked_identifier: a
-            - binary_operator: '*'
-            - column_reference:
-                naked_identifier: b
-            end_bracket: )
-      - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: rectangles
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          column_reference:
-            naked_identifier: a
-          data_type:
-            primitive_type:
-              keyword: INT
-      - comma: ','
-      - column_definition:
-          column_reference:
-            naked_identifier: b
-          data_type:
-            primitive_type:
-              keyword: INT
-          column_constraint_segment:
-          - keyword: PRIMARY
-          - keyword: KEY
-      - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: rectangles
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          column_reference:
-            naked_identifier: a
-          data_type:
-            primitive_type:
-              keyword: INT
-          column_constraint_segment:
+        - column_properties_segment:
           - keyword: NOT
           - keyword: 'NULL'
-      - comma: ','
-      - column_definition:
-          column_reference:
-            naked_identifier: b
-          data_type:
-            primitive_type:
-              keyword: INT
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-          - keyword: PRIMARY
-          - keyword: KEY
+        - column_properties_segment:
+            column_constraint_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -474,22 +491,24 @@ file:
     - bracketed:
         start_bracket: (
         column_definition:
-          column_reference:
+        - column_reference:
             naked_identifier: DATE_VALUE
-          data_type:
+        - data_type:
             primitive_type:
               keyword: DATE
-          column_constraint_segment:
+        - column_properties_segment:
           - keyword: NOT
           - keyword: 'NULL'
-          - keyword: CONSTRAINT
-          - object_reference:
-              naked_identifier: DATE_CONSTRAINT
-          - keyword: FOREIGN
-          - keyword: KEY
-          - keyword: REFERENCES
-          - table_reference:
-              naked_identifier: TABLE2
+        - column_properties_segment:
+            column_constraint_segment:
+            - keyword: CONSTRAINT
+            - object_reference:
+                naked_identifier: DATE_CONSTRAINT
+            - keyword: FOREIGN
+            - keyword: KEY
+            - keyword: REFERENCES
+            - table_reference:
+                naked_identifier: TABLE2
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -513,8 +532,9 @@ file:
           data_type:
             primitive_type:
               keyword: STRING
-          keyword: DEFAULT
-          quoted_literal: "'bobby tables'"
+          column_properties_segment:
+            keyword: DEFAULT
+            quoted_literal: "'bobby tables'"
       - comma: ','
       - column_definition:
           column_reference:
@@ -540,16 +560,17 @@ file:
               keyword: INT
       - comma: ','
       - column_definition:
-          column_reference:
+        - column_reference:
             naked_identifier: name
-          data_type:
+        - data_type:
             primitive_type:
               keyword: STRING
-          column_constraint_segment:
+        - column_properties_segment:
           - keyword: NOT
           - keyword: 'NULL'
-          keyword: DEFAULT
-          quoted_literal: "'bobby tables'"
+        - column_properties_segment:
+            keyword: DEFAULT
+            quoted_literal: "'bobby tables'"
       - comma: ','
       - column_definition:
           column_reference:
@@ -573,14 +594,15 @@ file:
           data_type:
             primitive_type:
               keyword: TIMESTAMP
-          keyword: DEFAULT
-          function:
-            function_name:
-              function_name_identifier: current_timestamp
-            function_contents:
-              bracketed:
-                start_bracket: (
-                end_bracket: )
+          column_properties_segment:
+            keyword: DEFAULT
+            function:
+              function_name:
+                function_name_identifier: current_timestamp
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -597,21 +619,23 @@ file:
         - data_type:
             primitive_type:
               keyword: TIMESTAMP
-        - column_constraint_segment:
-          - keyword: CONSTRAINT
-          - object_reference:
-              naked_identifier: clock_pk
-          - keyword: PRIMARY
-          - keyword: KEY
-        - keyword: DEFAULT
-        - function:
-            function_name:
-              function_name_identifier: current_timestamp
-            function_contents:
-              bracketed:
-                start_bracket: (
-                end_bracket: )
-        - column_constraint_segment:
+        - column_properties_segment:
+            column_constraint_segment:
+            - keyword: CONSTRAINT
+            - object_reference:
+                naked_identifier: clock_pk
+            - keyword: PRIMARY
+            - keyword: KEY
+        - column_properties_segment:
+            keyword: DEFAULT
+            function:
+              function_name:
+                function_name_identifier: current_timestamp
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+        - column_properties_segment:
           - keyword: NOT
           - keyword: 'NULL'
         end_bracket: )
@@ -651,4 +675,106 @@ file:
             primitive_type:
               keyword: INT
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: data_engineering
+      - dot: .
+      - naked_identifier: test_sqlfluff_generated
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: test_generated_always_as_id
+          data_type:
+            primitive_type:
+              keyword: BIGINT
+          column_properties_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - keyword: IDENTITY
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: test_generated_default_as_id
+          data_type:
+            primitive_type:
+              keyword: BIGINT
+          column_properties_segment:
+          - keyword: GENERATED
+          - keyword: BY
+          - keyword: DEFAULT
+          - keyword: AS
+          - keyword: IDENTITY
+      - comma: ','
+      - column_definition:
+        - column_reference:
+            naked_identifier: test_generated_always_as_id_not_null
+        - data_type:
+            primitive_type:
+              keyword: BIGINT
+        - column_properties_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - keyword: IDENTITY
+        - column_properties_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+        - column_reference:
+            naked_identifier: test_generated_default_as_id_not_null
+        - data_type:
+            primitive_type:
+              keyword: BIGINT
+        - column_properties_segment:
+          - keyword: GENERATED
+          - keyword: BY
+          - keyword: DEFAULT
+          - keyword: AS
+          - keyword: IDENTITY
+        - column_properties_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+        - column_reference:
+            naked_identifier: test_not_null_generated_always_as_id
+        - data_type:
+            primitive_type:
+              keyword: BIGINT
+        - column_properties_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_properties_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - keyword: IDENTITY
+      - comma: ','
+      - column_definition:
+        - column_reference:
+            naked_identifier: test_not_null_generated_default_as_id
+        - data_type:
+            primitive_type:
+              keyword: BIGINT
+        - column_properties_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_properties_segment:
+          - keyword: GENERATED
+          - keyword: BY
+          - keyword: DEFAULT
+          - keyword: AS
+          - keyword: IDENTITY
+      - end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
 - statement_terminator: ;
