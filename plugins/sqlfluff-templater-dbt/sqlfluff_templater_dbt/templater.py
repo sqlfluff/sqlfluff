@@ -16,6 +16,7 @@ from collections import deque
 from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import cached_property
+from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -347,9 +348,33 @@ class DbtTemplater(JinjaTemplater):
         selector_methods_manager = DbtSelectorMethodManager(
             self.dbt_manifest, previous_state=None
         )
-        _dbt_selector_method = selector_methods_manager.get_method(
-            DbtMethodName.Path, method_arguments=[]
-        )
+        if self.dbt_version_tuple >= (1, 5):
+            _dbt_selector_method = selector_methods_manager.get_method(
+                DbtMethodName.Path, method_arguments=[]
+            )
+        else:
+            from dbt.graph.selector_methods import SelectorMethod
+
+            class ProjectPathSelectorMethod(SelectorMethod):
+                def search(selector_self, included_nodes: set, selector: str):
+                    """Yields nodes from included that match the given path."""
+                    root = Path(self.project_dir) if self.project_dir else Path.cwd()
+                    paths = set(p.relative_to(root) for p in root.glob(selector))
+                    for unique_id, node in selector_self.all_nodes(included_nodes):
+                        ofp = Path(node.original_file_path)
+                        if ofp in paths:
+                            yield unique_id
+                        if hasattr(node, "patch_path") and node.patch_path:
+                            pfp = node.patch_path.split("://")[1]
+                            ymlfp = Path(pfp)
+                            if ymlfp in paths:
+                                yield unique_id
+                        if any(parent in paths for parent in ofp.parents):
+                            yield unique_id
+
+            _dbt_selector_method = ProjectPathSelectorMethod(
+                selector_methods_manager.manifest, None, []
+            )
 
         if self.formatter:  # pragma: no cover TODO?
             self.formatter.dispatch_compilation_header(
@@ -577,7 +602,7 @@ class DbtTemplater(JinjaTemplater):
                 "The dbt templater does not support stdin input, provide a path instead"
             )
         rel_path = os.path.relpath(fname, start=dbt_dir)
-        abs_path = os.path.abspath(rel_path)
+        abs_path = (Path(dbt_dir) / rel_path).resolve()
         selected = self.dbt_selector_method.search(
             included_nodes=self.dbt_manifest.nodes,
             # Selector needs to be a relative path
@@ -599,15 +624,16 @@ class DbtTemplater(JinjaTemplater):
     def _find_skip_reason(self, fname) -> Optional[str]:
         """Return string reason if model okay to skip, otherwise None."""
         # Scan macros.
-        abspath = os.path.abspath(fname)
         for macro in self.dbt_manifest.macros.values():
-            if os.path.abspath(macro.original_file_path) == abspath:
+            if (Path(self.project_dir) / macro.original_file_path).resolve() == fname:
                 return "a macro"
 
         # Scan disabled nodes.
         for nodes in self.dbt_manifest.disabled.values():
             for node in nodes:
-                if os.path.abspath(node.original_file_path) == abspath:
+                if (
+                    Path(self.project_dir) / node.original_file_path
+                ).resolve() == fname:
                     return "disabled"
         return None  # pragma: no cover
 
@@ -690,7 +716,7 @@ class DbtTemplater(JinjaTemplater):
 
         # NOTE: _find_node will raise a compilation exception if the project
         # fails to compile, and we catch that in the outer `.process()` method.
-        node = self._find_node(fname, config, dbt_dir=dbt_dir)
+        node = self._find_node(fname, config, dbt_dir)
 
         templater_logger.debug(
             "_find_node for path %r returned object of type %s.", fname, type(node)
@@ -715,6 +741,7 @@ class DbtTemplater(JinjaTemplater):
                 node = self.dbt_compiler.compile_node(
                     node=node,
                     manifest=self.dbt_manifest,
+                    write=False,
                 )
             except UndefinedMacroError as err:
                 # The explanation on the undefined macro error is already fairly
