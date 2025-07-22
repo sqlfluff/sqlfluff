@@ -353,9 +353,13 @@ class DbtTemplater(JinjaTemplater):
                 DbtMethodName.Path, method_arguments=[]
             )
         else:
+            # This replicates the newer PathSelectorMethod of dbt 1.5+
+            # TODO: Remove once dbt 1.4 support is dropped
             from dbt.graph.selector_methods import SelectorMethod
 
             class ProjectPathSelectorMethod(SelectorMethod):
+                """A path selector with `project_root` to work in dbt 1.4."""
+
                 def search(selector_self, included_nodes: set, selector: str):
                     """Yields nodes from included that match the given path."""
                     root = Path(self.project_dir) if self.project_dir else Path.cwd()
@@ -364,12 +368,16 @@ class DbtTemplater(JinjaTemplater):
                         ofp = Path(node.original_file_path)
                         if ofp in paths:
                             yield unique_id
-                        if hasattr(node, "patch_path") and node.patch_path:
+                        if (
+                            hasattr(node, "patch_path") and node.patch_path
+                        ):  # pragma: no cover
                             pfp = node.patch_path.split("://")[1]
                             ymlfp = Path(pfp)
                             if ymlfp in paths:
                                 yield unique_id
-                        if any(parent in paths for parent in ofp.parents):
+                        if any(
+                            parent in paths for parent in ofp.parents
+                        ):  # pragma: no cover
                             yield unique_id
 
             _dbt_selector_method = ProjectPathSelectorMethod(
