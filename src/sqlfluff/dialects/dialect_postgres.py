@@ -6437,9 +6437,9 @@ class CreateUserMappingStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         "FOR",
         OneOf(
+            "PUBLIC",
             Ref("SingleIdentifierGrammar"),
             Ref("SessionInformationUserFunctionsGrammar"),
-            "PUBLIC",
         ),
         "SERVER",
         Ref("ServerReferenceSegment"),
@@ -6755,6 +6755,7 @@ class AlterForeignTableStatementSegment(BaseSegment):
                     "TO",
                     Ref("ColumnReferenceSegment"),
                 ),
+                Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
             ),
         ),
     )
