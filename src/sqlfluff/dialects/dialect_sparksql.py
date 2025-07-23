@@ -904,7 +904,7 @@ sparksql_dialect.add(
             Ref("LocationGrammar"),
             Ref("CommentGrammar"),
             Ref("TablePropertiesGrammar"),
-            Sequence("CLUSTER", "BY", Ref("BracketedColumnReferenceListGrammar")),
+            Ref("TableClusterByClauseSegment"),
             optional=True,
         ),
         # Create AS syntax:
@@ -1526,6 +1526,25 @@ class ColumnFieldDefinitionSegment(ansi.ColumnDefinitionSegment):
         AnyNumberOf(
             Ref("ColumnConstraintSegment", optional=True),
         ),
+    )
+
+
+class TableClusterByClauseSegment(BaseSegment):
+    """A `CLUSTER BY` clause in table definitions.
+
+    https://spark.apache.org/docs/4.0.0/sql-ref-syntax-ddl-alter-table.html#cluster-by
+    """
+
+    type = "table_cluster_by_clause"
+    match_grammar = Sequence(
+        "CLUSTER",
+        "BY",
+        Indent,
+        OneOf(
+            Ref("BracketedColumnReferenceListGrammar"),
+            "NONE",
+        ),
+        Dedent,
     )
 
 
