@@ -1,0 +1,1036 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d8584251efc41769083ef088772f0b6fbecdee8c20df19a9f337a33555f7e7c6
+file:
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - naked_identifier: constraint_name
+      - data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '255'
+              end_bracket: )
+      - statement_terminator: ;
+      - naked_identifier: result_var
+      - data_type:
+          data_type_identifier: NUMBER
+      - statement_terminator: ;
+      - naked_identifier: table_name
+      - data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
+      - assignment_operator: :=
+      - expression:
+          quoted_literal: "'MY_TABLE'"
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: constraint_name
+          into_clause:
+            keyword: INTO
+            naked_identifier: constraint_name
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: user_constraints
+          where_clause:
+            keyword: WHERE
+            expression:
+            - column_reference:
+                naked_identifier: table_name
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - quoted_literal: "'MY_TABLE'"
+            - binary_operator: AND
+            - column_reference:
+                naked_identifier: constraint_type
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - quoted_literal: "'C'"
+            - binary_operator: AND
+            - column_reference:
+                naked_identifier: search_condition_vc
+            - keyword: LIKE
+            - quoted_literal: "'MY_CONDITION%'"
+    - statement_terminator: ;
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+          - quoted_literal: "'ALTER TABLE '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - column_reference:
+              naked_identifier: table_name
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "' DROP CONSTRAINT '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - column_reference:
+              naked_identifier: constraint_name
+    - statement_terminator: ;
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+            quoted_literal: "'ALTER TABLE MY_TABLE2 DROP CONSTRAINT '"
+            binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+            column_reference:
+              naked_identifier: constraint_name
+    - statement_terminator: ;
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+            quoted_literal: "'SELECT COUNT(*) FROM '"
+            binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+            column_reference:
+              naked_identifier: table_name
+        - into_clause:
+            keyword: INTO
+            naked_identifier: result_var
+    - statement_terminator: ;
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+            quoted_literal: "'INSERT INTO MY_TABLE3 VALUES (:1, :2)'"
+        - keyword: USING
+        - expression:
+            column_reference:
+              naked_identifier: constraint_name
+        - comma: ','
+        - expression:
+            column_reference:
+              naked_identifier: result_var
+    - statement_terminator: ;
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+            quoted_literal: "'DROP TABLE MY_TABLE'"
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - naked_identifier: a
+      - data_type:
+          data_type_identifier: NUMBER
+      - assignment_operator: :=
+      - expression:
+          numeric_literal: '4'
+      - statement_terminator: ;
+      - naked_identifier: b
+      - data_type:
+          data_type_identifier: NUMBER
+      - assignment_operator: :=
+      - expression:
+          numeric_literal: '7'
+      - statement_terminator: ;
+      - naked_identifier: plsql_block
+      - data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+            naked_identifier: plsql_block
+          assignment_operator: :=
+          expression:
+            quoted_literal: "'BEGIN calc_stats(:x, :x, :y, :x); END;'"
+    - statement_terminator: ;
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+            column_reference:
+              naked_identifier: plsql_block
+        - keyword: USING
+        - expression:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - expression:
+            column_reference:
+              naked_identifier: b
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+        keyword: DECLARE
+        naked_identifier: a_null
+        data_type:
+          data_type_identifier: CHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '1'
+              end_bracket: )
+        statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+            quoted_literal: "'UPDATE employees_temp SET commission_pct = :x'"
+        - keyword: USING
+        - expression:
+            column_reference:
+              naked_identifier: a_null
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - naked_identifier: plsql_block
+      - data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '500'
+              end_bracket: )
+      - statement_terminator: ;
+      - naked_identifier: new_deptid
+      - data_type:
+          data_type_identifier: NUMBER
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '4'
+              end_bracket: )
+      - statement_terminator: ;
+      - naked_identifier: new_dname
+      - data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '30'
+              end_bracket: )
+      - assignment_operator: :=
+      - expression:
+          quoted_literal: "'Advertising'"
+      - statement_terminator: ;
+      - naked_identifier: new_mgrid
+      - data_type:
+          data_type_identifier: NUMBER
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '6'
+              end_bracket: )
+      - assignment_operator: :=
+      - expression:
+          numeric_literal: '200'
+      - statement_terminator: ;
+      - naked_identifier: new_locid
+      - data_type:
+          data_type_identifier: NUMBER
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '4'
+              end_bracket: )
+      - assignment_operator: :=
+      - expression:
+          numeric_literal: '1700'
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+            naked_identifier: plsql_block
+          assignment_operator: :=
+          expression:
+            quoted_literal: "'BEGIN create_dept(:a, :b, :c, :d); END;'"
+    - statement_terminator: ;
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+            column_reference:
+              naked_identifier: plsql_block
+        - keyword: USING
+        - keyword: IN
+        - keyword: OUT
+        - expression:
+            column_reference:
+              naked_identifier: new_deptid
+        - comma: ','
+        - expression:
+            column_reference:
+              naked_identifier: new_dname
+        - comma: ','
+        - expression:
+            column_reference:
+              naked_identifier: new_mgrid
+        - comma: ','
+        - expression:
+            column_reference:
+              naked_identifier: new_locid
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - naked_identifier: dyn_stmt
+      - data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '200'
+              end_bracket: )
+      - statement_terminator: ;
+      - naked_identifier: b
+      - data_type:
+          data_type_identifier: BOOLEAN
+      - assignment_operator: :=
+      - expression:
+          boolean_literal: 'TRUE'
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+            naked_identifier: dyn_stmt
+          assignment_operator: :=
+          expression:
+            quoted_literal: "'BEGIN p(:x); END;'"
+    - statement_terminator: ;
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+            column_reference:
+              naked_identifier: dyn_stmt
+        - keyword: USING
+        - expression:
+            column_reference:
+              naked_identifier: b
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - naked_identifier: r
+      - data_type:
+          naked_identifier: pkg
+          dot: .
+          data_type_identifier: rec
+      - statement_terminator: ;
+      - naked_identifier: dyn_str
+      - data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3000'
+              end_bracket: )
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+            naked_identifier: dyn_str
+          assignment_operator: :=
+          expression:
+            quoted_literal: "'BEGIN pkg.p(:x, 6, 8); END;'"
+    - statement_terminator: ;
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+            column_reference:
+              naked_identifier: dyn_str
+        - keyword: USING
+        - keyword: OUT
+        - expression:
+            column_reference:
+              naked_identifier: r
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'r.n1 = '"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                column_reference:
+                - naked_identifier: r
+                - dot: .
+                - naked_identifier: n1
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'r.n2 = '"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                column_reference:
+                - naked_identifier: r
+                - dot: .
+                - naked_identifier: n2
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - naked_identifier: emp_count
+      - data_type:
+          data_type_identifier: NUMBER
+      - statement_terminator: ;
+      - naked_identifier: dept_id
+      - data_type:
+          data_type_identifier: NUMBER
+      - assignment_operator: :=
+      - expression:
+          numeric_literal: '10'
+      - statement_terminator: ;
+      - naked_identifier: min_salary
+      - data_type:
+          data_type_identifier: NUMBER
+      - assignment_operator: :=
+      - expression:
+          numeric_literal: '5000'
+      - statement_terminator: ;
+      - naked_identifier: dynamic_query
+      - data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '500'
+              end_bracket: )
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+            naked_identifier: dynamic_query
+          assignment_operator: :=
+          expression:
+          - quoted_literal: "'SELECT COUNT(*) '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "'FROM employees '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "'WHERE department_id = :dept_id '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "'AND salary >= :min_salary'"
+    - statement_terminator: ;
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+            column_reference:
+              naked_identifier: dynamic_query
+        - into_clause:
+            keyword: INTO
+            naked_identifier: emp_count
+        - keyword: USING
+        - expression:
+            column_reference:
+              naked_identifier: dept_id
+        - comma: ','
+        - expression:
+            column_reference:
+              naked_identifier: min_salary
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'Total employees found: '"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                column_reference:
+                  naked_identifier: emp_count
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - naked_identifier: emp_ids
+      - data_type:
+          naked_identifier: DBMS_SQL
+          dot: .
+          data_type_identifier: NUMBER_TABLE
+      - statement_terminator: ;
+      - naked_identifier: emp_names
+      - data_type:
+          naked_identifier: DBMS_SQL
+          dot: .
+          data_type_identifier: VARCHAR2_TABLE
+      - statement_terminator: ;
+      - naked_identifier: dept_id
+      - data_type:
+          data_type_identifier: NUMBER
+      - assignment_operator: :=
+      - expression:
+          numeric_literal: '20'
+      - statement_terminator: ;
+      - naked_identifier: dynamic_query
+      - data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '500'
+              end_bracket: )
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+            naked_identifier: dynamic_query
+          assignment_operator: :=
+          expression:
+          - quoted_literal: "'SELECT employee_id, first_name '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "'FROM employees '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "'WHERE department_id = :dept_id '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "'AND rownum <= 10'"
+    - statement_terminator: ;
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+            column_reference:
+              naked_identifier: dynamic_query
+        - bulk_collect_into_clause:
+          - keyword: BULK
+          - keyword: COLLECT
+          - keyword: INTO
+          - naked_identifier: emp_ids
+          - comma: ','
+          - naked_identifier: emp_names
+        - keyword: USING
+        - expression:
+            column_reference:
+              naked_identifier: dept_id
+    - statement_terminator: ;
+    - statement:
+        for_loop_statement:
+        - keyword: FOR
+        - naked_identifier: i
+        - keyword: IN
+        - numeric_literal: '1'
+        - dot: .
+        - dot: .
+        - naked_identifier: emp_ids
+        - dot: .
+        - naked_identifier: COUNT
+        - loop_statement:
+          - keyword: LOOP
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                    - quoted_literal: "'Employee: '"
+                    - binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                    - function:
+                        function_name:
+                          function_name_identifier: emp_names
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: i
+                            end_bracket: )
+                    - binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                    - quoted_literal: "' (ID: '"
+                    - binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                    - function:
+                        function_name:
+                          function_name_identifier: emp_ids
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: i
+                            end_bracket: )
+                    - binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                    - quoted_literal: "')'"
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'Total employees found: '"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                column_reference:
+                - naked_identifier: emp_ids
+                - dot: .
+                - naked_identifier: COUNT
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - naked_identifier: updated_ids
+      - data_type:
+          naked_identifier: DBMS_SQL
+          dot: .
+          data_type_identifier: NUMBER_TABLE
+      - statement_terminator: ;
+      - naked_identifier: updated_salaries
+      - data_type:
+          naked_identifier: DBMS_SQL
+          dot: .
+          data_type_identifier: NUMBER_TABLE
+      - statement_terminator: ;
+      - naked_identifier: dept_id
+      - data_type:
+          data_type_identifier: NUMBER
+      - assignment_operator: :=
+      - expression:
+          numeric_literal: '30'
+      - statement_terminator: ;
+      - naked_identifier: salary_increase
+      - data_type:
+          data_type_identifier: NUMBER
+      - assignment_operator: :=
+      - expression:
+          numeric_literal: '500'
+      - statement_terminator: ;
+      - naked_identifier: dynamic_update
+      - data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '500'
+              end_bracket: )
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+            naked_identifier: dynamic_update
+          assignment_operator: :=
+          expression:
+          - quoted_literal: "'UPDATE employees '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "'SET salary = salary + :increase '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "'WHERE department_id = :dept_id '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "'AND salary < 8000 '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "'RETURNING employee_id, salary INTO :ids, :salaries'"
+    - statement_terminator: ;
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+            column_reference:
+              naked_identifier: dynamic_update
+        - keyword: USING
+        - expression:
+            column_reference:
+              naked_identifier: salary_increase
+        - comma: ','
+        - expression:
+            column_reference:
+              naked_identifier: dept_id
+        - keyword: RETURNING
+        - bulk_collect_into_clause:
+          - keyword: BULK
+          - keyword: COLLECT
+          - keyword: INTO
+          - naked_identifier: updated_ids
+          - comma: ','
+          - naked_identifier: updated_salaries
+    - statement_terminator: ;
+    - statement:
+        for_loop_statement:
+        - keyword: FOR
+        - naked_identifier: i
+        - keyword: IN
+        - numeric_literal: '1'
+        - dot: .
+        - dot: .
+        - naked_identifier: updated_ids
+        - dot: .
+        - naked_identifier: COUNT
+        - loop_statement:
+          - keyword: LOOP
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                    - quoted_literal: "'Updated employee ID: '"
+                    - binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                    - function:
+                        function_name:
+                          function_name_identifier: updated_ids
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: i
+                            end_bracket: )
+                    - binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                    - quoted_literal: "', New salary: '"
+                    - binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                    - function:
+                        function_name:
+                          function_name_identifier: updated_salaries
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: i
+                            end_bracket: )
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - naked_identifier: emp_id
+      - data_type:
+          data_type_identifier: NUMBER
+      - statement_terminator: ;
+      - naked_identifier: emp_salary
+      - data_type:
+          data_type_identifier: NUMBER
+      - statement_terminator: ;
+      - naked_identifier: dynamic_delete
+      - data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '500'
+              end_bracket: )
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+            naked_identifier: dynamic_delete
+          assignment_operator: :=
+          expression:
+          - quoted_literal: "'DELETE FROM temp_employees '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "'WHERE employee_id = :emp_id '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "'RETURNING employee_id, salary INTO :id, :sal'"
+    - statement_terminator: ;
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+            column_reference:
+              naked_identifier: dynamic_delete
+        - keyword: USING
+        - expression:
+            numeric_literal: '100'
+        - keyword: RETURN
+        - into_clause:
+          - keyword: INTO
+          - naked_identifier: emp_id
+          - comma: ','
+          - naked_identifier: emp_salary
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+              - quoted_literal: "'Deleted employee ID: '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                  naked_identifier: emp_id
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - quoted_literal: "', Salary was: '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                  naked_identifier: emp_salary
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - naked_identifier: old_name
+      - data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
+      - statement_terminator: ;
+      - naked_identifier: new_salary
+      - data_type:
+          data_type_identifier: NUMBER
+      - statement_terminator: ;
+      - naked_identifier: dynamic_update
+      - data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '500'
+              end_bracket: )
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+            naked_identifier: dynamic_update
+          assignment_operator: :=
+          expression:
+          - quoted_literal: "'UPDATE employees '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "'SET first_name = :new_name, salary = salary * 1.1 '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "'WHERE employee_id = :emp_id '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "'RETURNING first_name, salary INTO :name, :sal'"
+    - statement_terminator: ;
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+            column_reference:
+              naked_identifier: dynamic_update
+        - keyword: USING
+        - expression:
+            quoted_literal: "'John'"
+        - comma: ','
+        - expression:
+            numeric_literal: '101'
+        - keyword: RETURNING
+        - into_clause:
+          - keyword: INTO
+          - naked_identifier: old_name
+          - comma: ','
+          - naked_identifier: new_salary
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+              - quoted_literal: "'Updated employee: '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                  naked_identifier: old_name
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - quoted_literal: "', New salary: '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                  naked_identifier: new_salary
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /

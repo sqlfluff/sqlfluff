@@ -186,7 +186,7 @@ test_missing_keyword_with_align_alias_tsql:
   configs: *tsql_align_alias
 
 test_excess_space_with_align_alias_wider_tsql:
-    # NOTE: The config here SHOULD move the table alias
+  # NOTE: The config here SHOULD move the table alias
   # NOTE: The combined LT01 also fixes the missing space
   # between `USING` and `(a)`.
   fail_str: |
