@@ -1597,8 +1597,9 @@ class FrameClauseSegment(BaseSegment):
         Sequence(
             OneOf(
                 Ref("NumericLiteralSegment"),
-                Sequence("INTERVAL", Ref("QuotedLiteralSegment")),
+                Ref("IntervalExpressionSegment"),
                 "UNBOUNDED",
+                Ref("ColumnReferenceSegment"),
             ),
             OneOf("PRECEDING", "FOLLOWING"),
         ),
