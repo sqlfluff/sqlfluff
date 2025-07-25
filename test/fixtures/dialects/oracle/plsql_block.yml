@@ -1,0 +1,135 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 074c56dea4b68fc4d823600999d7afa3d6fdcef7104788540a3cfbff95deea44
+file:
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - naked_identifier: constraint_name
+      - data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '255'
+              end_bracket: )
+      - statement_terminator: ;
+      - naked_identifier: result_var
+      - data_type:
+          data_type_identifier: NUMBER
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: constraint_name
+          into_clause:
+            keyword: INTO
+            naked_identifier: constraint_name
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: user_constraints
+          where_clause:
+            keyword: WHERE
+            expression:
+            - column_reference:
+                naked_identifier: table_name
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - quoted_literal: "'MY_TABLE'"
+            - binary_operator: AND
+            - column_reference:
+                naked_identifier: constraint_type
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - quoted_literal: "'C'"
+            - binary_operator: AND
+            - column_reference:
+                naked_identifier: search_condition_vc
+            - keyword: LIKE
+            - quoted_literal: "'MY_CONDITION%'"
+    - statement_terminator: ;
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+          - quoted_literal: "'ALTER TABLE '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - column_reference:
+              naked_identifier: table_name
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "' DROP CONSTRAINT '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - column_reference:
+              naked_identifier: constraint_name
+    - statement_terminator: ;
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+            quoted_literal: "'ALTER TABLE MY_TABLE2 DROP CONSTRAINT '"
+            binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+            column_reference:
+              naked_identifier: constraint_name
+    - statement_terminator: ;
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+            quoted_literal: "'SELECT COUNT(*) FROM '"
+            binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+            column_reference:
+              naked_identifier: table_name
+        - keyword: INTO
+        - column_reference:
+            naked_identifier: result_var
+    - statement_terminator: ;
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+            quoted_literal: "'INSERT INTO MY_TABLE3 VALUES (:1, :2)'"
+        - keyword: USING
+        - expression:
+            column_reference:
+              naked_identifier: constraint_name
+        - comma: ','
+        - expression:
+            column_reference:
+              naked_identifier: result_var
+    - statement_terminator: ;
+    - statement:
+        execute_immediate_statement:
+        - keyword: EXECUTE
+        - keyword: IMMEDIATE
+        - expression:
+            quoted_literal: "'DROP TABLE MY_TABLE'"
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
