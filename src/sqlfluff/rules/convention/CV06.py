@@ -59,6 +59,11 @@ class Rule_CV06(BaseRule):
     is_fix_compatible = True
 
     @staticmethod
+    def _is_segment_semicolon(segment: BaseSegment) -> bool:
+        """Check if a segment is a semicolon statement terminator."""
+        return segment.is_type("statement_terminator") and segment.raw == ";"
+
+    @staticmethod
     def _handle_preceding_inline_comments(
         before_segment: Sequence[BaseSegment], anchor_segment: BaseSegment
     ):
@@ -391,7 +396,8 @@ class Rule_CV06(BaseRule):
         for idx, seg in enumerate(context.segment.segments):
             res = None
             # First we can simply handle the case of existing semi-colon alignment.
-            if seg.is_type("statement_terminator"):
+            # Only process actual semicolons, not other terminators like Oracle's /
+            if self._is_segment_semicolon(seg):
                 # If it's a terminator then we know it's a raw.
                 seg = cast(RawSegment, seg)
                 self.logger.debug("Handling semi-colon: %s", seg)
