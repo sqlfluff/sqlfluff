@@ -21,6 +21,9 @@ ALTER TABLE table_name
 ADD CONSTRAINT constraint_name
 FOREIGN KEY (column_name) REFERENCES other_table_name (other_column_name);
 
+-- rename_constraint_clause
+ALTER TABLE table_name RENAME CONSTRAINT source_constraint_name TO target_constraint_name;
+
 -- drop_constraint_clause
 ALTER TABLE table_name DROP CONSTRAINT constraint_name;
 
