@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 66d1f2a9a9ab34850220e4911cce2c553d39bf1d970baac751a52d9fe72b8e50
+_hash: 0ee0a9964873cc72307df6d30a231fb2dad066a860105bff4bd3bdab4b777739
 file:
 - statement:
     alter_role_statement:
@@ -248,9 +248,10 @@ file:
     - keyword: user
     - role_reference:
         naked_identifier: admin
-    - keyword: connection
-    - keyword: limit
-    - keyword: unlimited
+    - connection_limit_segment:
+      - keyword: connection
+      - keyword: limit
+      - keyword: unlimited
 - statement_terminator: ;
 - statement:
     alter_user_statement:
@@ -259,9 +260,10 @@ file:
     - role_reference:
         naked_identifier: admin
     - keyword: with
-    - keyword: connection
-    - keyword: limit
-    - keyword: unlimited
+    - connection_limit_segment:
+      - keyword: connection
+      - keyword: limit
+      - keyword: unlimited
 - statement_terminator: ;
 - statement:
     alter_user_statement:

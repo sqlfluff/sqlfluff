@@ -275,6 +275,213 @@ redshift_dialect.add(
 )
 
 
+class FromIntegrationClauseSegment(BaseSegment):
+    """A `FROM INTEGRATION` clause for `CREATE DATABASE`.
+
+    As specified in
+        https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_DATABASE.html
+    """
+
+    type = "from_integration_clause"
+    match_grammar = Sequence(
+        "FROM",
+        "INTEGRATION",
+        Ref("QuotedLiteralSegment"),
+        Sequence("DATABASE", Ref("QuotedLiteralSegment"), optional=True),
+        AnySetOf(
+            Sequence("SET"),
+            Sequence(
+                "ACCEPTINVCHARS",
+                Ref("EqualsSegment", optional=True),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "QUERY_ALL_STATES",
+                Ref("EqualsSegment", optional=True),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence("REFRESH_INTERVAL", Ref("NumericLiteralSegment")),
+            Sequence(
+                "TRUNCATECOLUMNS",
+                Ref("EqualsSegment", optional=True),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "HISTORY_MODE",
+                Ref("EqualsSegment", optional=True),
+                Ref("BooleanLiteralGrammar"),
+            ),
+        ),
+    )
+
+
+class IamRoleClauseSegment(BaseSegment):
+    """IAM Role Clause Segment.
+
+    As specified in
+        https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_DATABASE.html
+    """
+
+    type = "iam_role_clause"
+    match_grammar = Sequence(
+        "IAM_ROLE",
+        OneOf(
+            "DEFAULT",
+            Ref(
+                "QuotedLiteralSegment"
+            ),  # 'SESSION' or 'arn:aws:iam::<account-id>:role/<role-name>'
+        ),
+    )
+
+
+class IsolationLevelClauseSegment(BaseSegment):
+    """Isolation Level Clause Segment.
+
+    As specified in
+        https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_DATABASE.html
+    """
+
+    type = "isolation_level_clause"
+    match_grammar = Sequence(
+        "ISOLATION",
+        "LEVEL",
+        OneOf("SERIALIZABLE", "SNAPSHOT"),
+    )
+
+
+class CollationClauseSegment(BaseSegment):
+    """Collation Clause Segment.
+
+    As specified in
+        https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_DATABASE.html
+    """
+
+    type = "collation_clause"
+    match_grammar = Sequence(
+        "COLLATE", OneOf("CASE_SENSITIVE", "CS", "CASE_INSENSITIVE", "CI")
+    )
+
+
+class ConnectionLimitSegment(BaseSegment):
+    """Connection Limit Segment.
+
+    As specified in
+        https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_DATABASE.html
+    """
+
+    type = "connection_limit_segment"
+
+    match_grammar = Sequence(
+        "CONNECTION",
+        "LIMIT",
+        OneOf(Ref("NumericLiteralSegment"), "UNLIMITED"),
+    )
+
+
+class CreateDatabaseWithOptionsSegment(BaseSegment):
+    """Create Database With Options Segment.
+
+    As specified in
+        https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_DATABASE.html
+    """
+
+    type = "create_database_with_options"
+    match_grammar = AnySetOf(
+        Sequence(
+            "OWNER", Ref("EqualsSegment", optional=True), Ref("RoleReferenceSegment")
+        ),
+        Ref("ConnectionLimitSegment"),
+        Ref("CollationClauseSegment"),
+        Ref("IsolationLevelClauseSegment"),
+    )
+
+
+class FromDatashareClauseSegment(BaseSegment):
+    """[WITH PERMISSIONS] FROM DATASHARE ... clause for CREATE DATABASE."""
+
+    type = "from_datashare_clause"
+    match_grammar = Sequence(
+        Sequence("WITH", "PERMISSIONS", optional=True),
+        "FROM",
+        "DATASHARE",
+        Ref("ObjectReferenceSegment"),
+        "OF",
+        Sequence(
+            "ACCOUNT",
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("NumericLiteralSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        "NAMESPACE",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("ObjectReferenceSegment"),
+        ),
+        optional=True,
+    )
+
+
+class ArnCatalogSchemaSegment(BaseSegment):
+    """ARN Catalog Schema Segment.
+
+    As specified in
+        https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_DATABASE.html
+    """
+
+    type = "arn_catalog_schema_segment"
+    match_grammar = Sequence(
+        "FROM",
+        "ARN",
+        Ref("QuotedLiteralSegment"),
+        OneOf(
+            Sequence(
+                "WITH",
+                "DATA",
+                "CATALOG",
+                "SCHEMA",
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "WITH",
+                "NO",
+                "DATA",
+                "CATALOG",
+                "SCHEMA",
+            ),
+        ),
+    )
+
+
+class CreateDatabaseStatementSegment(BaseSegment):
+    """A `CREATE DATABASE` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_DATABASE.html
+    """
+
+    type = "create_database_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "DATABASE",
+        Ref("DatabaseReferenceSegment"),
+        AnyNumberOf(
+            Ref("FromIntegrationClauseSegment", optional=True),
+            Sequence("WITH", Ref("CreateDatabaseWithOptionsSegment"), optional=True),
+            Ref("ArnCatalogSchemaSegment", optional=True),
+            Ref("IamRoleClauseSegment", optional=True),
+            Ref("FromDatashareClauseSegment", optional=True),
+        ),
+    )
+
+
+redshift_dialect.replace(
+    CreateDatabaseStatementSegment=CreateDatabaseStatementSegment,
+)
+
+
 class FromUnpivotExpressionSegment(BaseSegment):
     """An UNPIVOT expression.
 
@@ -2196,14 +2403,7 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
             ),
             Sequence("IN", "GROUP", Delimited(Ref("ObjectReferenceSegment"))),
             Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment")),
-            Sequence(
-                "CONNECTION",
-                "LIMIT",
-                OneOf(
-                    Ref("NumericLiteralSegment"),
-                    "UNLIMITED",
-                ),
-            ),
+            Ref("ConnectionLimitSegment"),
             Sequence(
                 "SESSION",
                 "TIMEOUT",
@@ -2279,14 +2479,7 @@ class AlterUserStatementSegment(BaseSegment):
                 "TO",
                 Ref("ObjectReferenceSegment"),
             ),
-            Sequence(
-                "CONNECTION",
-                "LIMIT",
-                OneOf(
-                    Ref("NumericLiteralSegment"),
-                    "UNLIMITED",
-                ),
-            ),
+            Ref("ConnectionLimitSegment"),
             OneOf(
                 Sequence(
                     "SESSION",
