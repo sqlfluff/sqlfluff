@@ -2343,7 +2343,9 @@ class IfExpressionStatement(BaseSegment):
 
     match_grammar = Sequence(
         Ref("IfClauseSegment"),
+        Indent,
         Ref("OneOrMoreStatementsGrammar"),
+        Dedent,
         AnyNumberOf(
             Sequence(
                 "ELSIF",
@@ -2352,12 +2354,16 @@ class IfExpressionStatement(BaseSegment):
                     Ref("TriggerPredicatesGrammar"),
                 ),
                 "THEN",
+                Indent,
                 Ref("OneOrMoreStatementsGrammar"),
+                Dedent,
             ),
         ),
         Sequence(
             "ELSE",
+            Indent,
             Ref("OneOrMoreStatementsGrammar"),
+            Dedent,
             optional=True,
         ),
         "END",
@@ -2609,7 +2615,9 @@ class LoopStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar", optional=True),
         "LOOP",
+        Indent,
         Ref("OneOrMoreStatementsGrammar"),
+        Dedent,
         "END",
         "LOOP",
         Ref("SingleIdentifierGrammar", optional=True),
