@@ -467,12 +467,12 @@ class CreateDatabaseStatementSegment(BaseSegment):
         "CREATE",
         "DATABASE",
         Ref("DatabaseReferenceSegment"),
-        AnyNumberOf(
-            Ref("FromIntegrationClauseSegment", optional=True),
-            Sequence("WITH", Ref("CreateDatabaseWithOptionsSegment"), optional=True),
-            Ref("ArnCatalogSchemaSegment", optional=True),
-            Ref("IamRoleClauseSegment", optional=True),
-            Ref("FromDatashareClauseSegment", optional=True),
+        AnySetOf(
+            Ref("FromIntegrationClauseSegment"),
+            Sequence("WITH", Ref("CreateDatabaseWithOptionsSegment")),
+            Ref("ArnCatalogSchemaSegment"),
+            Ref("IamRoleClauseSegment"),
+            Ref("FromDatashareClauseSegment"),
         ),
     )
 

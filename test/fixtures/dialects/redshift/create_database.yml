@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 36207ddf8577dcb4438d3a619e3c231b3fe9248556c73672618e0fd44c688ee7
+_hash: 1fd08c0b9f404aa995064900c4791ab963f74efffd0b108c4970714cdedc0776
 file:
 - statement:
     create_database_statement:
@@ -152,7 +152,7 @@ file:
       - keyword: FROM
       - keyword: DATASHARE
       - object_reference:
-          naked_identifier: my_datashar
+          naked_identifier: my_datashare
       - keyword: OF
       - keyword: NAMESPACE
       - quoted_literal: "'my_namespace_guid'"
