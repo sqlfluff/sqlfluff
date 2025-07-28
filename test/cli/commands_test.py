@@ -39,7 +39,7 @@ from sqlfluff.utils.testing.cli import invoke_assert_code
 if sys.version_info >= (3, 11):
     import tomllib
 else:  # pragma: no cover
-    import toml as tomllib
+    import tomli as tomllib
 
 
 re_ansi_escape = re.compile(r"\x1b[^m]*m")
