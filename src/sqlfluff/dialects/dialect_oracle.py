@@ -308,6 +308,7 @@ oracle_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
     [
         StringLexer("right_arrow", "=>", CodeSegment),
+        StringLexer("assignment_operator", ":=", CodeSegment),
     ],
     before="equals",
 )
@@ -321,6 +322,9 @@ oracle_dialect.add(
     ),
     AtSignSegment=StringParser("@", SymbolSegment, type="at_sign"),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    AssignmentOperatorSegment=StringParser(
+        ":=", SymbolSegment, type="assignment_operator"
+    ),
     OnCommitGrammar=Sequence(
         "ON",
         "COMMIT",
@@ -830,9 +834,7 @@ oracle_dialect.replace(
                 Ref.keyword("IN", optional=True),
                 OneOf(Ref("DatatypeSegment"), Ref("ColumnTypeReferenceSegment")),
                 Sequence(
-                    OneOf(
-                        Sequence(Ref("ColonSegment"), Ref("EqualsSegment")), "DEFAULT"
-                    ),
+                    OneOf(Ref("AssignmentOperatorSegment"), "DEFAULT"),
                     Ref("ExpressionSegment"),
                     optional=True,
                 ),
@@ -1746,7 +1748,7 @@ class DeclareSegment(BaseSegment):
                         Sequence("NOT", "NULL", optional=True),
                         Sequence(
                             OneOf(
-                                Sequence(Ref("ColonSegment"), Ref("EqualsSegment")),
+                                Ref("AssignmentOperatorSegment"),
                                 "DEFAULT",
                             ),
                             Ref("ExpressionSegment"),
@@ -1836,7 +1838,7 @@ class RecordTypeDefinitionSegment(BaseSegment):
                     Sequence(
                         Sequence("NOT", "NULL", optional=True),
                         OneOf(
-                            Sequence(Ref("ColonSegment"), Ref("EqualsSegment")),
+                            Ref("AssignmentOperatorSegment"),
                             "DEFAULT",
                         ),
                         Ref("ExpressionSegment"),
@@ -2323,7 +2325,7 @@ class AssignmentStatementSegment(BaseSegment):
             Ref("SqlplusVariableGrammar"),
             optional=True,
         ),
-        OneOf(Sequence(Ref("ColonSegment"), Ref("EqualsSegment")), "DEFAULT"),
+        OneOf(Ref("AssignmentOperatorSegment"), "DEFAULT"),
         Ref("ExpressionSegment"),
     )
 

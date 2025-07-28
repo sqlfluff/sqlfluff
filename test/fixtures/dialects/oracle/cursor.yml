@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8de9165e146e0bc42edececd377ee8a4875b98776a40b90e91132dfe8f68a15b
+_hash: b2ecfa015011fb4c82498dda4193ea6dc5edc0b404befe3998f8a34ac47fe8af
 file:
 - statement:
     begin_end_block:
@@ -149,9 +149,7 @@ file:
       - naked_identifier: factor
       - data_type:
           data_type_identifier: INTEGER
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           numeric_literal: '2'
       - statement_terminator: ;
@@ -274,9 +272,7 @@ file:
             assignment_segment_statement:
               object_reference:
                 naked_identifier: factor
-              colon: ':'
-              comparison_operator:
-                raw_comparison_operator: '='
+              assignment_operator: :=
               expression:
                 column_reference:
                   naked_identifier: factor
@@ -319,9 +315,7 @@ file:
       - naked_identifier: factor
       - data_type:
           data_type_identifier: INTEGER
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           numeric_literal: '2'
       - statement_terminator: ;
@@ -447,9 +441,7 @@ file:
         assignment_segment_statement:
           object_reference:
             naked_identifier: factor
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             column_reference:
               naked_identifier: factor
@@ -613,9 +605,7 @@ file:
           dot: .
           object_reference:
             naked_identifier: f1
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             numeric_literal: '1'
     - statement_terminator: ;
@@ -634,9 +624,7 @@ file:
           dot: .
           object_reference:
             naked_identifier: f2
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             quoted_literal: "'one'"
     - statement_terminator: ;
@@ -866,9 +854,7 @@ file:
       - naked_identifier: factor
       - data_type:
           data_type_identifier: INTEGER
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           numeric_literal: '2'
       - statement_terminator: ;
@@ -991,9 +977,7 @@ file:
             assignment_segment_statement:
               object_reference:
                 naked_identifier: factor
-              colon: ':'
-              comparison_operator:
-                raw_comparison_operator: '='
+              assignment_operator: :=
               expression:
                 column_reference:
                   naked_identifier: factor
@@ -1036,9 +1020,7 @@ file:
       - naked_identifier: factor
       - data_type:
           data_type_identifier: INTEGER
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           numeric_literal: '2'
       - statement_terminator: ;
@@ -1169,9 +1151,7 @@ file:
         assignment_segment_statement:
           object_reference:
             naked_identifier: factor
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             column_reference:
               naked_identifier: factor
