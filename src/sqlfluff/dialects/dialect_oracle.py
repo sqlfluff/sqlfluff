@@ -1721,6 +1721,7 @@ class DeclareSegment(BaseSegment):
 
     match_grammar = Sequence(
         Ref.keyword("DECLARE", optional=True),
+        Indent,
         AnyNumberOf(
             Delimited(
                 OneOf(
@@ -1760,8 +1761,10 @@ class DeclareSegment(BaseSegment):
                 ),
                 delimiter=Ref("DelimiterGrammar"),
                 terminators=["BEGIN", "END"],
-            )
+            ),
+            min_times=1,
         ),
+        Dedent,
     )
 
 
