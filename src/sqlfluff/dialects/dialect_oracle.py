@@ -214,6 +214,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "LOOP",
         "MUTABLE",
         "NESTED",
+        "NEXTVAL",
         "NOCOPY",
         "NOMAXVALUE",
         "NOMINVALUE",
@@ -312,6 +313,12 @@ oracle_dialect.insert_lexer_matchers(
 )
 
 oracle_dialect.add(
+    SequenceNextValGrammar=Sequence(
+        Ref("NakedIdentifierSegment"),
+        Ref("DotSegment"),
+        "NEXTVAL",
+        allow_gaps=False,
+    ),
     AtSignSegment=StringParser("@", SymbolSegment, type="at_sign"),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
     OnCommitGrammar=Sequence(
@@ -668,6 +675,10 @@ oracle_dialect.add(
 )
 
 oracle_dialect.replace(
+    ColumnConstraintDefaultGrammar=OneOf(
+        ansi_dialect.get_grammar("ColumnConstraintDefaultGrammar"),
+        Ref("SequenceNextValGrammar"),
+    ),
     # https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/DROP-TABLE.html
     DropBehaviorGrammar=Sequence(
         Sequence(
@@ -968,7 +979,6 @@ class AlterTableConstraintClauses(BaseSegment):
             Ref("TableConstraintSegment"),
         ),
         # @TODO MODIFY
-        # @TODO RENAME
         # @TODO DROP
         # drop_constraint_clause
         Sequence(
@@ -994,6 +1004,13 @@ class AlterTableConstraintClauses(BaseSegment):
                 optional=True,
             ),
             Ref.keyword("ONLINE", optional=True),
+        ),
+        Sequence(
+            "RENAME",
+            "CONSTRAINT",
+            Ref("ObjectReferenceSegment"),
+            "TO",
+            Ref("ObjectReferenceSegment"),
         ),
     )
 
