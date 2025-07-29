@@ -1,0 +1,463 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1fd08c0b9f404aa995064900c4791ab963f74efffd0b108c4970714cdedc0776
+file:
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db1
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db2
+    - keyword: WITH
+    - create_database_with_options:
+        keyword: OWNER
+        comparison_operator:
+          raw_comparison_operator: '='
+        role_reference:
+          naked_identifier: my_owner
+        connection_limit_segment:
+        - keyword: CONNECTION
+        - keyword: LIMIT
+        - numeric_literal: '10'
+        collation_clause:
+        - keyword: COLLATE
+        - keyword: CASE_SENSITIVE
+        isolation_level_clause:
+        - keyword: ISOLATION
+        - keyword: LEVEL
+        - keyword: SERIALIZABLE
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db3
+    - from_integration_clause:
+      - keyword: FROM
+      - keyword: INTEGRATION
+      - quoted_literal: "'integration_id'"
+      - keyword: DATABASE
+      - quoted_literal: "'source_db'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db4
+    - from_integration_clause:
+      - keyword: FROM
+      - keyword: INTEGRATION
+      - quoted_literal: "'integration_id'"
+      - keyword: SET
+      - keyword: ACCEPTINVCHARS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: QUERY_ALL_STATES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: REFRESH_INTERVAL
+      - numeric_literal: '60'
+      - keyword: TRUNCATECOLUMNS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: HISTORY_MODE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db5
+    - arn_catalog_schema_segment:
+      - keyword: FROM
+      - keyword: ARN
+      - quoted_literal: "'arn:aws:redshift:us-east-1:123456789012:datashare:mydatashare'"
+      - keyword: WITH
+      - keyword: DATA
+      - keyword: CATALOG
+      - keyword: SCHEMA
+      - quoted_literal: "'my_schema'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db6
+    - arn_catalog_schema_segment:
+      - keyword: FROM
+      - keyword: ARN
+      - quoted_literal: "'arn:aws:redshift:us-east-1:123456789012:datashare:mydatashare'"
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+      - keyword: CATALOG
+      - keyword: SCHEMA
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db7
+    - iam_role_clause:
+      - keyword: IAM_ROLE
+      - keyword: default
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db8
+    - iam_role_clause:
+        keyword: IAM_ROLE
+        quoted_literal: "'SESSION'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db9
+    - iam_role_clause:
+        keyword: IAM_ROLE
+        quoted_literal: "'arn:aws:iam::123456789012:role/MyRedshiftRole'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db10
+    - from_datashare_clause:
+      - keyword: FROM
+      - keyword: DATASHARE
+      - object_reference:
+          naked_identifier: my_datashare
+      - keyword: OF
+      - keyword: NAMESPACE
+      - quoted_literal: "'my_namespace_guid'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db11
+    - from_datashare_clause:
+      - keyword: FROM
+      - keyword: DATASHARE
+      - object_reference:
+          naked_identifier: my_datashare
+      - keyword: OF
+      - keyword: ACCOUNT
+      - quoted_literal: "'123456789012'"
+      - keyword: NAMESPACE
+      - quoted_literal: "'my_namespace_guid'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db12
+    - from_datashare_clause:
+      - keyword: WITH
+      - keyword: PERMISSIONS
+      - keyword: FROM
+      - keyword: DATASHARE
+      - object_reference:
+          naked_identifier: my_datashare
+      - keyword: OF
+      - keyword: ACCOUNT
+      - numeric_literal: '123456789012'
+      - keyword: NAMESPACE
+      - object_reference:
+          naked_identifier: my_namespace_guid
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db13
+    - keyword: WITH
+    - create_database_with_options:
+        keyword: OWNER
+        comparison_operator:
+          raw_comparison_operator: '='
+        role_reference:
+          naked_identifier: my_owner
+        connection_limit_segment:
+        - keyword: CONNECTION
+        - keyword: LIMIT
+        - numeric_literal: '5'
+    - from_datashare_clause:
+      - keyword: FROM
+      - keyword: DATASHARE
+      - object_reference:
+          naked_identifier: my_datashare
+      - keyword: OF
+      - keyword: NAMESPACE
+      - quoted_literal: "'my_namespace_guid'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db14
+    - from_integration_clause:
+      - keyword: FROM
+      - keyword: INTEGRATION
+      - quoted_literal: "'integration_id'"
+    - keyword: WITH
+    - create_database_with_options:
+        keyword: OWNER
+        comparison_operator:
+          raw_comparison_operator: '='
+        role_reference:
+          naked_identifier: my_owner
+        collation_clause:
+        - keyword: COLLATE
+        - keyword: CASE_INSENSITIVE
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db15
+    - keyword: WITH
+    - create_database_with_options:
+        keyword: OWNER
+        comparison_operator:
+          raw_comparison_operator: '='
+        role_reference:
+          naked_identifier: my_owner
+        connection_limit_segment:
+        - keyword: CONNECTION
+        - keyword: LIMIT
+        - keyword: UNLIMITED
+        collation_clause:
+        - keyword: COLLATE
+        - keyword: CS
+        isolation_level_clause:
+        - keyword: ISOLATION
+        - keyword: LEVEL
+        - keyword: SNAPSHOT
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db16
+    - keyword: WITH
+    - create_database_with_options:
+        keyword: OWNER
+        role_reference:
+          naked_identifier: my_owner
+        connection_limit_segment:
+        - keyword: CONNECTION
+        - keyword: LIMIT
+        - numeric_literal: '20'
+        collation_clause:
+        - keyword: COLLATE
+        - keyword: CI
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db17
+    - from_integration_clause:
+      - keyword: FROM
+      - keyword: INTEGRATION
+      - quoted_literal: "'integration_id'"
+      - keyword: SET
+      - keyword: ACCEPTINVCHARS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db18
+    - from_integration_clause:
+      - keyword: FROM
+      - keyword: INTEGRATION
+      - quoted_literal: "'integration_id'"
+      - keyword: SET
+      - keyword: HISTORY_MODE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: TRUNCATECOLUMNS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db19
+    - arn_catalog_schema_segment:
+      - keyword: FROM
+      - keyword: ARN
+      - quoted_literal: "'arn:aws:redshift:us-east-1:123456789012:datashare:mydatashare'"
+      - keyword: WITH
+      - keyword: DATA
+      - keyword: CATALOG
+      - keyword: SCHEMA
+      - quoted_literal: "'my_schema'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db20
+    - arn_catalog_schema_segment:
+      - keyword: FROM
+      - keyword: ARN
+      - quoted_literal: "'arn:aws:redshift:us-east-1:123456789012:datashare:mydatashare'"
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+      - keyword: CATALOG
+      - keyword: SCHEMA
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db22
+    - from_datashare_clause:
+      - keyword: FROM
+      - keyword: DATASHARE
+      - object_reference:
+          naked_identifier: my_datashare
+      - keyword: OF
+      - keyword: ACCOUNT
+      - numeric_literal: '123456789012'
+      - keyword: NAMESPACE
+      - object_reference:
+          naked_identifier: my_namespace_guid
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db26
+    - from_integration_clause:
+      - keyword: FROM
+      - keyword: INTEGRATION
+      - quoted_literal: "'integration_id'"
+    - keyword: WITH
+    - create_database_with_options:
+        keyword: OWNER
+        comparison_operator:
+          raw_comparison_operator: '='
+        role_reference:
+          naked_identifier: my_owner
+    - iam_role_clause:
+        keyword: IAM_ROLE
+        quoted_literal: "'arn:aws:iam::123456789012:role/MyRedshiftRole'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db27
+    - arn_catalog_schema_segment:
+      - keyword: FROM
+      - keyword: ARN
+      - quoted_literal: "'arn:aws:redshift:us-east-1:123456789012:datashare:mydatashare'"
+      - keyword: WITH
+      - keyword: DATA
+      - keyword: CATALOG
+      - keyword: SCHEMA
+      - quoted_literal: "'my_schema'"
+    - iam_role_clause:
+      - keyword: IAM_ROLE
+      - keyword: default
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db28
+    - keyword: WITH
+    - create_database_with_options:
+        keyword: OWNER
+        comparison_operator:
+          raw_comparison_operator: '='
+        role_reference:
+          naked_identifier: my_owner
+    - from_datashare_clause:
+      - keyword: FROM
+      - keyword: DATASHARE
+      - object_reference:
+          naked_identifier: my_datashare
+      - keyword: OF
+      - keyword: NAMESPACE
+      - quoted_literal: "'hello'"
+    - iam_role_clause:
+        keyword: IAM_ROLE
+        quoted_literal: "'SESSION'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db29
+    - keyword: WITH
+    - create_database_with_options:
+        collation_clause:
+        - keyword: COLLATE
+        - keyword: CS
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db30
+    - keyword: WITH
+    - create_database_with_options:
+        isolation_level_clause:
+        - keyword: ISOLATION
+        - keyword: LEVEL
+        - keyword: SNAPSHOT
+- statement_terminator: ;
