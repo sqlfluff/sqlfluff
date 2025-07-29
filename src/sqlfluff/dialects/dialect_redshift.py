@@ -289,7 +289,7 @@ class FromIntegrationClauseSegment(BaseSegment):
         Ref("QuotedLiteralSegment"),
         Sequence("DATABASE", Ref("QuotedLiteralSegment"), optional=True),
         AnySetOf(
-            Sequence("SET"),
+            "SET",
             Sequence(
                 "ACCEPTINVCHARS",
                 Ref("EqualsSegment", optional=True),
@@ -455,7 +455,7 @@ class ArnCatalogSchemaSegment(BaseSegment):
     )
 
 
-class CreateDatabaseStatementSegment(BaseSegment):
+class CreateDatabaseStatementSegment(postgres.CreateDatabaseStatementSegment):
     """A `CREATE DATABASE` statement.
 
     https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_DATABASE.html
@@ -475,11 +475,6 @@ class CreateDatabaseStatementSegment(BaseSegment):
             Ref("FromDatashareClauseSegment"),
         ),
     )
-
-
-redshift_dialect.replace(
-    CreateDatabaseStatementSegment=CreateDatabaseStatementSegment,
-)
 
 
 class FromUnpivotExpressionSegment(BaseSegment):
