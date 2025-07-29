@@ -968,7 +968,6 @@ class AlterTableConstraintClauses(BaseSegment):
             Ref("TableConstraintSegment"),
         ),
         # @TODO MODIFY
-        # @TODO RENAME
         # @TODO DROP
         # drop_constraint_clause
         Sequence(
@@ -994,6 +993,13 @@ class AlterTableConstraintClauses(BaseSegment):
                 optional=True,
             ),
             Ref.keyword("ONLINE", optional=True),
+        ),
+        Sequence(
+            "RENAME",
+            "CONSTRAINT",
+            Ref("ObjectReferenceSegment"),
+            "TO",
+            Ref("ObjectReferenceSegment"),
         ),
     )
 
