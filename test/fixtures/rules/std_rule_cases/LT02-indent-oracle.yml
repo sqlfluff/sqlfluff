@@ -1,0 +1,58 @@
+rule: LT02
+
+# Test cases for conditionals and loops indentation scenarios
+
+# Test cases for declare blocks indentation scenarios
+test_fail_declare_block_basic_declarations:
+  fail_str: |
+    DECLARE
+    v_name VARCHAR2(50);
+    v_count NUMBER;
+    c_max_count CONSTANT NUMBER;
+    c_pi CONSTANT NUMBER;
+    BEGIN
+      NULL;
+    END;
+  fix_str: |
+    DECLARE
+        v_name VARCHAR2(50);
+        v_count NUMBER;
+        c_max_count CONSTANT NUMBER;
+        c_pi CONSTANT NUMBER;
+    BEGIN
+        NULL;
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_declare_block_mixed_declarations:
+  fail_str: |
+    DECLARE
+    v_name VARCHAR2(50);
+    TYPE emp_record IS RECORD (
+    emp_id NUMBER,
+    name VARCHAR2(100)
+    );
+    v_emp emp_record;
+    c_max CONSTANT NUMBER;
+    BEGIN
+      NULL;
+    END;
+  fix_str: |
+    DECLARE
+        v_name VARCHAR2(50);
+        TYPE emp_record IS RECORD (
+            emp_id NUMBER,
+            name VARCHAR2(100)
+        );
+        v_emp emp_record;
+        c_max CONSTANT NUMBER;
+    BEGIN
+        NULL;
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+# Test cases for Oracle IS/AS block indentation scenarios
