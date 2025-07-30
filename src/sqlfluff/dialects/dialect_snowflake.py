@@ -736,6 +736,7 @@ snowflake_dialect.replace(
         "REGEXP",
     ),
     SelectClauseTerminatorGrammar=OneOf(
+        "INTO",
         "FROM",
         "WHERE",
         Sequence("ORDER", "BY"),
@@ -1891,6 +1892,9 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
+    ).copy(
+        insert=[Ref("IntoClauseSegment", optional=True)],
+        before=Ref("FromClauseSegment", optional=True),
     )
 
 
@@ -2904,6 +2908,22 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
+    ).copy(
+        insert=[
+            Ref("IntoClauseSegment", optional=True),
+        ],
+        before=Ref("FromClauseSegment", optional=True),
+    )
+
+
+class IntoClauseSegment(BaseSegment):
+    """This is an `INTO` clause for assigning variables in a select statement."""
+
+    type = "into_clause"
+
+    match_grammar = Sequence(
+        "INTO",
+        Delimited(Ref("BindVariableSegment")),
     )
 
 
@@ -8142,7 +8162,7 @@ class ExecuteImmediateClauseSegment(BaseSegment):
             Ref("ReferencedVariableNameSegment"),
             Ref("StorageLocation"),
             Sequence(
-                Ref("ColonSegment"),
+                Ref("ColonPrefixSegment"),
                 Ref("LocalVariableNameSegment"),
             ),
         ),
@@ -9188,7 +9208,7 @@ class BindVariableSegment(BaseSegment):
     type = "bind_variable"
 
     match_grammar = Sequence(
-        Ref("ColonSegment"),
+        Ref("ColonPrefixSegment"),
         Ref("LocalVariableNameSegment"),
     )
 
