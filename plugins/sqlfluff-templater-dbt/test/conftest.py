@@ -72,27 +72,28 @@ def dbt_project_folder():
     """Fixture for a temporary dbt project directory."""
     src = Path("plugins/sqlfluff-templater-dbt/test/fixtures/dbt")
     tmp = Path("plugins/sqlfluff-templater-dbt/test/temp_dbt_project")
-    tmp.mkdir(exist_ok=True)
-    shutil.copytree(src, tmp, dirs_exist_ok=True)
-    if DbtTemplater().dbt_version_tuple >= (1, 8):
-        # Configuration overrides for dbt 1.8+
-        dbt180_fixtures = src.with_name("dbt180")
-        shutil.copytree(dbt180_fixtures, tmp, dirs_exist_ok=True)
+    try:
+        tmp.mkdir(exist_ok=True)
+        shutil.copytree(src, tmp, dirs_exist_ok=True)
+        if DbtTemplater().dbt_version_tuple >= (1, 8):
+            # Configuration overrides for dbt 1.8+
+            dbt180_fixtures = src.with_name("dbt180")
+            shutil.copytree(dbt180_fixtures, tmp, dirs_exist_ok=True)
 
-    subprocess.Popen(
-        [
-            "dbt",
-            "deps",
-            "--project-dir",
-            f"{tmp}/dbt_project",
-            "--profiles-dir",
-            f"{tmp}/profiles_yml",
-        ]
-    ).wait(120)
+        subprocess.Popen(
+            [
+                "dbt",
+                "deps",
+                "--project-dir",
+                f"{tmp}/dbt_project",
+                "--profiles-dir",
+                f"{tmp}/profiles_yml",
+            ]
+        ).wait(120)
 
-    # Placeholder value for testing
-    os.environ["passed_through_env"] = "_"
+        # Placeholder value for testing
+        os.environ["passed_through_env"] = "_"
 
-    yield tmp
-
-    shutil.rmtree(tmp)
+        yield tmp
+    finally:
+        shutil.rmtree(tmp)
