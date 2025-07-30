@@ -4965,6 +4965,7 @@ class CreateStatementSegment(BaseSegment):
                 Ref("OrReplaceGrammar", optional=True),
                 OneOf(
                     Sequence("NETWORK", "POLICY"),
+                    Sequence("NETWORK", "RULE"),
                     Sequence("RESOURCE", "MONITOR"),
                     "SHARE",
                     "TAG",
@@ -5390,6 +5391,35 @@ class CreateStatementSegment(BaseSegment):
             ),
             Ref("TagBracketedEqualsSegment", optional=True),
             optional=True,
+        ),
+        # CREATE NETWORK RULE
+        # https://docs.snowflake.com/en/sql-reference/sql/create-network-rule
+        AnySetOf(
+            Sequence(
+                "TYPE",
+                Ref("EqualsSegment"),
+                OneOf(
+                    "IPV4",
+                    "AWSVPCEID",
+                    "AZURELINKID",
+                    "HOST_PORT",
+                    "PRIVATE_HOST_PORT",
+                ),
+            ),
+            Sequence(
+                "VALUE_LIST",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            ),
+            Sequence(
+                "MODE",
+                Ref("EqualsSegment"),
+                OneOf(
+                    "INGRESS",
+                    "INTERNAL_STAGE",
+                    "EGRESS",
+                ),
+            ),
         ),
         Ref("CommentEqualsClauseSegment", optional=True),
         Ref.keyword("AS", optional=True),
