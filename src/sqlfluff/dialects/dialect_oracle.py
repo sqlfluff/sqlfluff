@@ -313,6 +313,13 @@ oracle_dialect.insert_lexer_matchers(
     before="equals",
 )
 
+oracle_dialect.insert_lexer_matchers(
+    [
+        StringLexer("power_operator", "**", CodeSegment),
+    ],
+    before="star",
+)
+
 oracle_dialect.add(
     SequenceNextValGrammar=Sequence(
         Ref("NakedIdentifierSegment"),
@@ -325,6 +332,8 @@ oracle_dialect.add(
     AssignmentOperatorSegment=StringParser(
         ":=", SymbolSegment, type="assignment_operator"
     ),
+    PowerOperatorSegment=StringParser("**", SymbolSegment, type="binary_operator"),
+    ModOperatorSegment=StringParser("MOD", WordSegment, type="binary_operator"),
     OnCommitGrammar=Sequence(
         "ON",
         "COMMIT",
@@ -849,6 +858,14 @@ oracle_dialect.replace(
     ),
     DelimiterGrammar=Sequence(
         Ref("SemicolonSegment"), Ref("SlashStatementTerminatorSegment", optional=True)
+    ),
+    ArithmeticBinaryOperatorGrammar=ansi_dialect.get_grammar(
+        "ArithmeticBinaryOperatorGrammar"
+    ).copy(
+        insert=[
+            Ref("ModOperatorSegment"),
+            Ref("PowerOperatorSegment"),
+        ]
     ),
     SelectClauseTerminatorGrammar=OneOf(
         "INTO",
