@@ -87,6 +87,7 @@ oracle_dialect.sets("reserved_keywords").update(
         "ELSE",
         "EXCLUSIVE",
         "EXISTS",
+        "EXECUTE",
         "FILE",
         "FLOAT",
         "FOR",
@@ -1089,6 +1090,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AssignmentStatementSegment"),
             Ref("RecordTypeDefinitionSegment"),
             Ref("DeclareCursorVariableSegment"),
+            Ref("ExecuteImmediateSegment"),
             Ref("FunctionSegment"),
             Ref("IfExpressionStatement"),
             Ref("CaseExpressionSegment"),
@@ -1919,6 +1921,46 @@ class DeclareCursorVariableSegment(BaseSegment):
         ),
         Sequence("IS", Indent, Ref("SelectStatementSegment"), Dedent, optional=True),
         Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class ExecuteImmediateSegment(BaseSegment):
+    """An `EXECUTE IMMEDIATE` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/23/lnpls/EXECUTE-IMMEDIATE-statement.html
+    """
+
+    type = "execute_immediate_statement"
+
+    match_grammar = Sequence(
+        "EXECUTE",
+        "IMMEDIATE",
+        Indent,
+        Ref("ExpressionSegment"),
+        OneOf(
+            Ref("IntoClauseSegment"),
+            Ref("BulkCollectIntoClauseSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "USING",
+            Delimited(
+                Sequence(
+                    OneOf("IN", "OUT", Sequence("IN", "OUT"), optional=True),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            OneOf("RETURNING", "RETURN"),
+            OneOf(
+                Ref("IntoClauseSegment"),
+                Ref("BulkCollectIntoClauseSegment"),
+            ),
+            optional=True,
+        ),
+        Dedent,
     )
 
 
