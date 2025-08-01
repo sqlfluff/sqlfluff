@@ -38,5 +38,5 @@ CREATE TABLE test_index_bracketed
     category String,
     INDEX idx_bracketed (name, category) TYPE MINMAX GRANULARITY 1
 )
-ENGINE = MergeTree()  
+ENGINE = MergeTree()
 ORDER BY id;
