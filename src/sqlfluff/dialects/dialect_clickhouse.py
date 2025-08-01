@@ -262,6 +262,7 @@ clickhouse_dialect.replace(
             Ref.keyword("PREWHERE"),
             Ref.keyword("INTO"),
             Ref.keyword("FORMAT"),
+            Sequence("GROUP", "BY"),  # Add GROUP BY for projections
         ],
         before=Ref.keyword("WHERE"),
     ),
@@ -552,6 +553,20 @@ class DatatypeSegment(BaseSegment):
         Sequence(
             StringParser("ARRAY", CodeSegment, type="data_type_identifier"),
             Bracketed(Ref("DatatypeSegment")),
+        ),
+        # AggregateFunction(function_name, arg_type1, arg_type2, ...)
+        Sequence(
+            StringParser("AGGREGATEFUNCTION", CodeSegment, type="data_type_identifier"),
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Ref("FunctionSegment"),  # function name with parameters like quantile(0.95)
+                        Ref("SingleIdentifierGrammar"),  # simple function name like count
+                        Ref("DatatypeSegment"),  # argument types
+                    ),
+                    delimiter=Ref("CommaSegment"),
+                )
+            ),
         ),
         # Map(KeyType, ValueType)
         Sequence(
@@ -1059,6 +1074,85 @@ class ColumnConstraintSegment(BaseSegment):
     )
 
 
+class IndexDefinitionSegment(BaseSegment):
+    """A ClickHouse INDEX definition for CREATE TABLE.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/create/table#indices
+    """
+
+    type = "index_definition"
+
+    match_grammar = Sequence(
+        "INDEX",
+        Ref("SingleIdentifierGrammar"),  # index name
+        OneOf(
+            # With parentheses: INDEX name (column1, column2)
+            Bracketed(
+                Delimited(
+                    Ref("ExpressionSegment"),  # index expression
+                    delimiter=Ref("CommaSegment"),
+                )
+            ),
+            # Without parentheses: INDEX name column1
+            Ref("ExpressionSegment"),
+        ),
+        "TYPE",
+        OneOf(
+            StringParser("MINMAX", CodeSegment, type="index_type_identifier"),
+            StringParser("SET", CodeSegment, type="index_type_identifier"),
+            StringParser("NGRAMBF_V1", CodeSegment, type="index_type_identifier"),
+            StringParser("TOKENBF_V1", CodeSegment, type="index_type_identifier"),
+            # bloom_filter can have parameters like (0.01)
+            Sequence(
+                StringParser("BLOOM_FILTER", CodeSegment, type="index_type_identifier"),
+                Bracketed(
+                    Delimited(
+                        Ref("NumericLiteralSegment"),
+                        delimiter=Ref("CommaSegment"),
+                    ),
+                    optional=True,
+                ),
+            ),
+            StringParser("HYPOTHESIS", CodeSegment, type="index_type_identifier"),
+            Ref("SingleIdentifierGrammar"),  # for custom index types
+        ),
+        Sequence(
+            "GRANULARITY",
+            Ref("NumericLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+
+
+class ProjectionDefinitionSegment(BaseSegment):
+    """A ClickHouse PROJECTION definition for CREATE TABLE.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/create/table#projections
+    """
+
+    type = "projection_definition"
+
+    match_grammar = Sequence(
+        "PROJECTION",
+        Ref("SingleIdentifierGrammar"),  # projection name
+        Bracketed(
+            # Use UnorderedSelectStatementSegment pattern (FROM is optional)
+            Sequence(
+                Ref("SelectClauseSegment"),
+                # No FROM clause for projections, but grammar supports it as optional
+                OneOf(
+                    Ref("GroupByClauseSegment"),
+                    Ref("OrderByClauseSegment"),
+                    optional=True,
+                ),
+            ),
+        ),
+    )
+
+
 class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
     """A `CREATE DATABASE` statement.
 
@@ -1172,6 +1266,8 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 Ref("TableConstraintSegment"),
                                 Ref("ColumnDefinitionSegment"),
                                 Ref("ColumnConstraintSegment"),
+                                Ref("IndexDefinitionSegment"),
+                                Ref("ProjectionDefinitionSegment"),
                             ),
                         ),
                         # Column definition may be missing if using AS SELECT
@@ -1226,6 +1322,8 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 Ref("TableConstraintSegment"),
                                 Ref("ColumnDefinitionSegment"),
                                 Ref("ColumnConstraintSegment"),
+                                Ref("IndexDefinitionSegment"),
+                                Ref("ProjectionDefinitionSegment"),
                             ),
                         ),
                         # Column definition may be missing if using AS SELECT
@@ -1815,6 +1913,41 @@ class SystemStatementSegment(BaseSegment):
     )
 
 
+class OptimizeTableStatementSegment(BaseSegment):
+    """An `OPTIMIZE TABLE` statement for ClickHouse.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/optimize/
+    """
+
+    type = "optimize_table_statement"
+
+    match_grammar = Sequence(
+        "OPTIMIZE",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Ref("OnClusterClauseSegment", optional=True),
+        OneOf(
+            "FINAL",
+            Sequence(
+                "PARTITION",
+                OneOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("QuotedLiteralSegment"),
+                    Bracketed(
+                        Delimited(
+                            Ref("ExpressionSegment"),
+                            delimiter=Ref("CommaSegment"),
+                        )
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        Ref("SettingsClauseSegment", optional=True),
+    )
+
+
 class AlterTableStatementSegment(BaseSegment):
     """An `ALTER TABLE` statement for ClickHouse.
 
@@ -2135,6 +2268,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SystemStatementSegment"),
             Ref("RenameStatementSegment"),
             Ref("AlterTableStatementSegment"),
+            Ref("OptimizeTableStatementSegment"),
         ]
     )
 

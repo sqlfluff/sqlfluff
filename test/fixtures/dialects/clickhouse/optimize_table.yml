@@ -1,0 +1,99 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d8b6686b5ec3bf86d0def3922e0fddd61b52ad531d5c55e8f4355885a647672e
+file:
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_table
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: my_cluster
+- statement_terminator: ;
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_table
+    - keyword: FINAL
+- statement_terminator: ;
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_table
+    - keyword: PARTITION
+    - quoted_identifier: "'partition_key'"
+- statement_terminator: ;
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_table
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '2023'
+      - comma: ','
+      - expression:
+          numeric_literal: '1'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_table
+    - keyword: FINAL
+    - settings_clause:
+        keyword: SETTINGS
+        naked_identifier: optimize_skip_merged_partitions
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_table
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: my_cluster
+    - keyword: FINAL
+- statement_terminator: ;
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_table
+    - keyword: PARTITION
+    - quoted_identifier: "'partition_key'"
+    - settings_clause:
+        keyword: SETTINGS
+        naked_identifier: optimize_skip_merged_partitions
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
+- statement_terminator: ;
