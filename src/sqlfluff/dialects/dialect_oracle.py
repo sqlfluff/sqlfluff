@@ -82,9 +82,11 @@ oracle_dialect.sets("reserved_keywords").update(
         "DELETE",
         "DELETING",
         "DESC",
+        "DISABLE",
         "DISTINCT",
         "DROP",
         "ELSE",
+        "ENABLE",
         "EXCLUSIVE",
         "EXISTS",
         "EXECUTE",
@@ -108,10 +110,12 @@ oracle_dialect.sets("reserved_keywords").update(
         "INTEGER",
         "INTERSECT",
         "INTO",
+        "INVISIBLE",
         "IS",
         "LEVEL",
         "LIKE",
         "LOCK",
+        "LOGGING",
         "LONG",
         "LOOP",
         "MAXEXTENTS",
@@ -119,9 +123,13 @@ oracle_dialect.sets("reserved_keywords").update(
         "MLSLABEL",
         "MODE",
         "MODIFY",
+        "MONITORING",
         "NESTED_TABLE_ID",
         "NOAUDIT",
         "NOCOMPRESS",
+        "NOLOGGING",
+        "NOMONITORING",
+        "NOREVERSE",
         "NOT",
         "NOWAIT",
         "NULL",
@@ -134,6 +142,7 @@ oracle_dialect.sets("reserved_keywords").update(
         "OR",
         "ORDER",
         "OVERFLOW",
+        "PARAMETERS",
         "PCTFREE",
         "PIVOT",
         "PRIOR",
@@ -141,9 +150,11 @@ oracle_dialect.sets("reserved_keywords").update(
         "PROMPT",
         "PUBLIC",
         "RAW",
+        "REBUILD",
         "RENAME",
         "RESOURCE",
         "REVOKE",
+        "REVERSE",
         "ROW",
         "ROWID",
         "ROWNUM",
@@ -167,6 +178,7 @@ oracle_dialect.sets("reserved_keywords").update(
         "UNION",
         "UNIQUE",
         "UNPIVOT",
+        "UNUSABLE",
         "UPDATE",
         "UPDATING",
         "USER",
@@ -175,6 +187,7 @@ oracle_dialect.sets("reserved_keywords").update(
         "VARCHAR",
         "VARCHAR2",
         "VIEW",
+        "VISIBLE",
         "WHEN",
         "WHENEVER",
         "WHERE",
@@ -881,6 +894,43 @@ oracle_dialect.replace(
 )
 
 
+class AlterIndexStatementSegment(BaseSegment):
+    """An `ALTER INDEX` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/ALTER-INDEX.html
+    If possible, please keep the order below the same as Oracle's doc:
+    """
+
+    type = "alter_index_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "INDEX",
+        Ref("IndexReferenceSegment"),
+        OneOf(
+            Sequence(
+                "REBUILD",
+                OneOf(
+                    "REVERSE",
+                    "NOREVERSE",
+                    optional=True,
+                ),
+            ),
+            Sequence("MONITORING", "USAGE"),
+            Sequence("NOMONITORING", "USAGE"),
+            Sequence("PARAMETERS", Bracketed(Ref("QuotedLiteralSegment"))),
+            Sequence("RENAME", "TO", Ref("IndexReferenceSegment")),
+            "COMPILE",
+            "LOGGING",
+            "NOLOGGING",
+            "ENABLE",
+            "DISABLE",
+            "UNUSABLE",
+            "INVISIBLE",
+            "VISIBLE",
+        ),
+    )
+
+
 class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
     """An `ALTER TABLE` statement.
 
@@ -1107,6 +1157,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ContinueStatementSegment"),
             Ref("RaiseStatementSegment"),
             Ref("ReturnStatementSegment"),
+            Ref("AlterIndexStatementSegment"),
         ],
     )
 
