@@ -1900,7 +1900,7 @@ class DeclareCursorVariableSegment(BaseSegment):
             ),
             optional=True,
         ),
-        Sequence("IS", Ref("SelectStatementSegment"), optional=True),
+        Sequence("IS", Indent, Ref("SelectStatementSegment"), Dedent, optional=True),
         Ref("DelimiterGrammar", optional=True),
     )
 
@@ -2081,7 +2081,9 @@ class CreateTypeBodyStatementSegment(BaseSegment):
         Ref("TypeReferenceSegment"),
         Ref("SharingClauseGrammar", optional=True),
         OneOf("IS", "AS"),
+        Indent,
         Ref("ElementSpecificationGrammar"),
+        Dedent,
         "END",
     )
 
