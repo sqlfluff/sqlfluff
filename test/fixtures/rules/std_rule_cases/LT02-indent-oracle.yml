@@ -1,6 +1,130 @@
 rule: LT02
 
 # Test cases for conditionals and loops indentation scenarios
+test_fail_oracle_if_clause_indentation:
+  fail_str: |
+    BEGIN
+    IF 1 > 0 THEN
+    DBMS_OUTPUT.PUT_LINE('condition met');
+    ELSIF 2 > 1 THEN
+    DBMS_OUTPUT.PUT_LINE('alternative met');
+    ELSE
+    DBMS_OUTPUT.PUT_LINE('default case');
+    END IF;
+    END;
+  fix_str: |
+    BEGIN
+        IF 1 > 0 THEN
+            DBMS_OUTPUT.PUT_LINE('condition met');
+        ELSIF 2 > 1 THEN
+            DBMS_OUTPUT.PUT_LINE('alternative met');
+        ELSE
+            DBMS_OUTPUT.PUT_LINE('default case');
+        END IF;
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_for_loop_indentation:
+  fail_str: |
+    BEGIN
+    FOR i IN 1..10 LOOP
+    DBMS_OUTPUT.PUT_LINE('Counter: ' || i);
+    IF i < 5 THEN
+    DBMS_OUTPUT.PUT_LINE('Small number');
+    ELSE
+    DBMS_OUTPUT.PUT_LINE('Large number');
+    END IF;
+    END LOOP;
+    END;
+  fix_str: |
+    BEGIN
+        FOR i IN 1..10 LOOP
+            DBMS_OUTPUT.PUT_LINE('Counter: ' || i);
+            IF i < 5 THEN
+                DBMS_OUTPUT.PUT_LINE('Small number');
+            ELSE
+                DBMS_OUTPUT.PUT_LINE('Large number');
+            END IF;
+        END LOOP;
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_nested_control_structures:
+  fail_str: |
+    BEGIN
+    IF 1 > 0 THEN
+    FOR i IN 1..3 LOOP
+    IF i = 2 THEN
+    DBMS_OUTPUT.PUT_LINE('Found two: ' || i);
+    ELSIF i = 1 THEN
+    DBMS_OUTPUT.PUT_LINE('Found one: ' || i);
+    ELSE
+    DBMS_OUTPUT.PUT_LINE('Found other: ' || i);
+    END IF;
+    END LOOP;
+    END IF;
+    END;
+  fix_str: |
+    BEGIN
+        IF 1 > 0 THEN
+            FOR i IN 1..3 LOOP
+                IF i = 2 THEN
+                    DBMS_OUTPUT.PUT_LINE('Found two: ' || i);
+                ELSIF i = 1 THEN
+                    DBMS_OUTPUT.PUT_LINE('Found one: ' || i);
+                ELSE
+                    DBMS_OUTPUT.PUT_LINE('Found other: ' || i);
+                END IF;
+            END LOOP;
+        END IF;
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_simple_block_indentation:
+  fail_str: |
+    BEGIN
+    FOR i IN 1..5 LOOP
+    IF i < 3 THEN
+    DBMS_OUTPUT.PUT_LINE('Small: ' || i);
+    ELSE
+    DBMS_OUTPUT.PUT_LINE('Large: ' || i);
+    END IF;
+    END LOOP;
+    END;
+  fix_str: |
+    BEGIN
+        FOR i IN 1..5 LOOP
+            IF i < 3 THEN
+                DBMS_OUTPUT.PUT_LINE('Small: ' || i);
+            ELSE
+                DBMS_OUTPUT.PUT_LINE('Large: ' || i);
+            END IF;
+        END LOOP;
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_proper_indentation:
+  pass_str: |
+    BEGIN
+        FOR i IN 1..3 LOOP
+            IF i < 2 THEN
+                DBMS_OUTPUT.PUT_LINE('Small: ' || i);
+            ELSE
+                DBMS_OUTPUT.PUT_LINE('Large: ' || i);
+            END IF;
+        END LOOP;
+    END;
+  configs:
+    core:
+      dialect: oracle
 
 # Test cases for declare blocks indentation scenarios
 test_fail_declare_block_basic_declarations:
