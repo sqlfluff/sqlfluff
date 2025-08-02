@@ -62,10 +62,12 @@ oracle_dialect.sets("reserved_keywords").update(
         "ASC",
         "AUDIT",
         "BETWEEN",
+        "BULK",
         "BY",
         "CHAR",
         "CHECK",
         "CLUSTER",
+        "COLLECT",
         "COLUMN",
         "COLUMN_VALUE",
         "COMMENT",
@@ -882,6 +884,7 @@ oracle_dialect.replace(
         ]
     ),
     SelectClauseTerminatorGrammar=OneOf(
+        "BULK",
         "INTO",
         "FROM",
         "WHERE",
@@ -1508,7 +1511,11 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
         ],
     ).copy(
         insert=[
-            Ref("IntoClauseSegment", optional=True),
+            OneOf(
+                Ref("IntoClauseSegment"),
+                Ref("BulkCollectIntoClauseSegment"),
+                optional=True,
+            ),
         ],
         before=Ref("FromClauseSegment", optional=True),
     )
@@ -2876,7 +2883,9 @@ class BulkCollectIntoClauseSegment(BaseSegment):
         "BULK",
         "COLLECT",
         "INTO",
+        ImplicitIndent,
         Delimited(OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar"))),
+        Dedent,
     )
 
 
