@@ -780,6 +780,18 @@ sparksql_dialect.add(
     TablePropertiesGrammar=Sequence(
         "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
     ),
+    CreateViewClausesGrammar=Sequence(
+        "WITH",
+        "SCHEMA",
+        OneOf(
+            "BINDING",
+            "COMPENSATION",
+            Sequence(
+                Ref.keyword("TYPE", optional=True),
+                "EVOLUTION",
+            ),
+        ),
+    ),
     RawQuotedLiteralSegment=OneOf(
         TypedParser(
             "raw_single_quote",
@@ -904,7 +916,7 @@ sparksql_dialect.add(
             Ref("LocationGrammar"),
             Ref("CommentGrammar"),
             Ref("TablePropertiesGrammar"),
-            Sequence("CLUSTER", "BY", Ref("BracketedColumnReferenceListGrammar")),
+            Ref("TableClusterByClauseSegment"),
             optional=True,
         ),
         # Create AS syntax:
@@ -1529,6 +1541,25 @@ class ColumnFieldDefinitionSegment(ansi.ColumnDefinitionSegment):
     )
 
 
+class TableClusterByClauseSegment(BaseSegment):
+    """A `CLUSTER BY` clause in table definitions.
+
+    https://spark.apache.org/docs/4.0.0/sql-ref-syntax-ddl-alter-table.html#cluster-by
+    """
+
+    type = "table_cluster_by_clause"
+    match_grammar = Sequence(
+        "CLUSTER",
+        "BY",
+        Indent,
+        OneOf(
+            Ref("BracketedColumnReferenceListGrammar"),
+            "NONE",
+        ),
+        Dedent,
+    )
+
+
 class AlterViewStatementSegment(BaseSegment):
     """A `ALTER VIEW` statement to change the view schema or properties.
 
@@ -1662,6 +1693,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("OptionsGrammar", optional=True),
         Ref("CommentGrammar", optional=True),
         Ref("TablePropertiesGrammar", optional=True),
+        Ref("CreateViewClausesGrammar", optional=True),
         Sequence("AS", OptionallyBracketed(Ref("SelectableGrammar")), optional=True),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )

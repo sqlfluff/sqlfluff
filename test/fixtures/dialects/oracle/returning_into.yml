@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7d0edcc692653b622543df1114b4d3ccdb6e9d087105fb91acaf6b933ddf32c8
+_hash: 50c679c4cedb00a3789e9f036bcdcb765362656f0b9012693ee3ae332aa01d63
 file:
 - statement:
     begin_end_block:
@@ -164,9 +164,7 @@ file:
           - naked_identifier: employee_id
           binary_operator: '%'
           keyword: TYPE
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           numeric_literal: '299'
       - statement_terminator: ;
@@ -178,9 +176,7 @@ file:
           - naked_identifier: first_name
           binary_operator: '%'
           keyword: TYPE
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           quoted_literal: "'Bob'"
       - statement_terminator: ;
@@ -192,9 +188,7 @@ file:
           - naked_identifier: last_name
           binary_operator: '%'
           keyword: TYPE
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           quoted_literal: "'Henry'"
       - statement_terminator: ;
@@ -680,9 +674,7 @@ file:
       - naked_identifier: depts
       - data_type:
           data_type_identifier: NumList
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           function:
             function_name:
@@ -925,9 +917,7 @@ file:
       - naked_identifier: l_desc_tab
       - data_type:
           data_type_identifier: t_desc_tab
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           function:
             function_name:

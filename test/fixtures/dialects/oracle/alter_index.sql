@@ -1,0 +1,23 @@
+ALTER INDEX some.idx_name REBUILD;
+ALTER INDEX some.idx_name REBUILD REVERSE;
+ALTER INDEX some.idx_name REBUILD NOREVERSE;
+
+ALTER INDEX some.idx_name PARAMETERS ('ODCI_OPTIMIZE=ALL');
+
+ALTER INDEX some.idx_name COMPILE;
+
+ALTER INDEX some.idx_name LOGGING;
+ALTER INDEX some.idx_name NOLOGGING;
+
+ALTER INDEX some.idx_name ENABLE;
+ALTER INDEX some.idx_name DISABLE;
+
+ALTER INDEX some.idx_name UNUSABLE;
+
+ALTER INDEX some.idx_name INVISIBLE;
+ALTER INDEX some.idx_name VISIBLE;
+
+ALTER INDEX some.idx_name RENAME TO some.new_idx_name;
+
+ALTER INDEX some.idx_name MONITORING USAGE;
+ALTER INDEX some.idx_name NOMONITORING USAGE;

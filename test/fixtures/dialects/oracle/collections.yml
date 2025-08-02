@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 83f3a149fbf3a452468d9d7a0835e12ba4cabb0b3fab78fbf4ca5cc5b9b9acca
+_hash: 4699ead08fa070b0eada379fb27af50b081adca4963fa918da87b206d7516b08
 file:
 - statement:
     begin_end_block:
@@ -53,9 +53,7 @@ file:
               end_bracket: )
     - statement:
         assignment_segment_statement:
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             numeric_literal: '2000'
     - statement_terminator: ;
@@ -71,9 +69,7 @@ file:
               end_bracket: )
     - statement:
         assignment_segment_statement:
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             numeric_literal: '750000'
     - statement_terminator: ;
@@ -89,9 +85,7 @@ file:
               end_bracket: )
     - statement:
         assignment_segment_statement:
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             numeric_literal: '1000000'
     - statement_terminator: ;
@@ -107,9 +101,7 @@ file:
               end_bracket: )
     - statement:
         assignment_segment_statement:
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             numeric_literal: '2001'
     - statement_terminator: ;
@@ -117,9 +109,7 @@ file:
         assignment_segment_statement:
           object_reference:
             naked_identifier: i
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             column_reference:
             - naked_identifier: city_population
@@ -176,9 +166,7 @@ file:
               assignment_segment_statement:
                 object_reference:
                   naked_identifier: i
-                colon: ':'
-                comparison_operator:
-                  raw_comparison_operator: '='
+                assignment_operator: :=
                 expression:
                   function:
                     function_name:
@@ -219,27 +207,21 @@ file:
       - naked_identifier: n
       - data_type:
           data_type_identifier: PLS_INTEGER
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           numeric_literal: '5'
       - statement_terminator: ;
       - naked_identifier: sn
       - data_type:
           data_type_identifier: PLS_INTEGER
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           numeric_literal: '10'
       - statement_terminator: ;
       - naked_identifier: m
       - data_type:
           data_type_identifier: PLS_INTEGER
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           numeric_literal: '3'
       - statement_terminator: ;
@@ -291,9 +273,7 @@ file:
                         object_reference:
                           naked_identifier: i
                         end_bracket: )
-                      colon: ':'
-                      comparison_operator:
-                        raw_comparison_operator: '='
+                      assignment_operator: :=
                       expression:
                         column_reference:
                           naked_identifier: multiple
@@ -444,9 +424,7 @@ file:
       - naked_identifier: team
       - data_type:
           data_type_identifier: Foursome
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           function:
             function_name:
@@ -579,9 +557,7 @@ file:
               end_bracket: )
     - statement:
         assignment_segment_statement:
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             quoted_literal: "'Pierre'"
     - statement_terminator: ;
@@ -597,9 +573,7 @@ file:
               end_bracket: )
     - statement:
         assignment_segment_statement:
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             quoted_literal: "'Yvonne'"
     - statement_terminator: ;
@@ -618,9 +592,7 @@ file:
         assignment_segment_statement:
           object_reference:
             naked_identifier: team
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             function:
               function_name:
@@ -676,9 +648,7 @@ file:
       - naked_identifier: names
       - data_type:
           data_type_identifier: Roster
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           function:
             function_name:
@@ -806,9 +776,7 @@ file:
               end_bracket: )
     - statement:
         assignment_segment_statement:
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             quoted_literal: "'P Perez'"
     - statement_terminator: ;
@@ -827,9 +795,7 @@ file:
         assignment_segment_statement:
           object_reference:
             naked_identifier: names
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             function:
               function_name:

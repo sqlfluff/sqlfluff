@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 87c1c29a2337591585afc062871eb79478bc224418862c9f709a9c05903c906d
+_hash: 2710c0f3e3d4284addf4e7760f481a5d52141010ee8142171d5a70b540b51ff3
 file:
 - statement:
     create_table_statement:
@@ -143,13 +143,14 @@ file:
           keyword: DELTA
     - keyword: LOCATION
     - quoted_literal: '"s3://someplace"'
-    - keyword: CLUSTER
-    - keyword: BY
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          naked_identifier: id_column
-        end_bracket: )
+    - table_cluster_by_clause:
+      - keyword: CLUSTER
+      - keyword: BY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id_column
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     optimize_table_statement:
@@ -777,4 +778,52 @@ file:
         keyword: USING
         data_source_format:
           keyword: DELTA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: cluster_by_table_auto
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: col1
+          data_type:
+            primitive_type:
+              keyword: STRING
+        end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
+    - table_cluster_by_clause:
+      - keyword: CLUSTER
+      - keyword: BY
+      - keyword: AUTO
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: cluster_by_table_none
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: col1
+          data_type:
+            primitive_type:
+              keyword: STRING
+        end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
+    - table_cluster_by_clause:
+      - keyword: CLUSTER
+      - keyword: BY
+      - keyword: NONE
 - statement_terminator: ;

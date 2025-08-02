@@ -1010,7 +1010,7 @@ class AlterTableStatementSegment(sparksql.AlterTableStatementSegment):
                 ),
                 Ref("UnsetTagsGrammar"),
             ),
-            Ref("ClusterByClauseSegment"),
+            Ref("TableClusterByClauseSegment"),
             Ref("PredictiveOptimizationGrammar"),
         ),
         Dedent,
@@ -1098,6 +1098,25 @@ class SetTimeZoneStatementSegment(BaseSegment):
         "TIME",
         "ZONE",
         OneOf("LOCAL", Ref("QuotedLiteralSegment"), Ref("IntervalExpressionSegment")),
+    )
+
+
+class TableClusterByClauseSegment(sparksql.TableClusterByClauseSegment):
+    """A `CLUSTER BY` clause in table definitions.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-cluster-by
+    """
+
+    match_grammar = Sequence(
+        "CLUSTER",
+        "BY",
+        Indent,
+        OneOf(
+            Ref("BracketedColumnReferenceListGrammar"),
+            "AUTO",
+            "NONE",
+        ),
+        Dedent,
     )
 
 
@@ -1487,7 +1506,7 @@ class TableClausesSegment(BaseSegment):
 
     match_grammar = OneOf(
         Ref("PartitionClauseSegment"),
-        Ref("ClusterByClauseSegment"),
+        Ref("TableClusterByClauseSegment"),
         Ref("LocationWithCredentialGrammar"),
         Ref("OptionsGrammar"),
         Ref("CommentGrammar"),

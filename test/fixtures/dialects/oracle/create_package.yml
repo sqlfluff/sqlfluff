@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4b1ea18f4c64dfc7f680e21a5a87cc797e297a92882bd01a32346d5b3d4dd057
+_hash: 6ee752d3a5f76c7b13890c7ecd7d879e9d66af58a9191f4c57c5ea6304a29fd6
 file:
 - statement:
     create_package_statement:
@@ -271,9 +271,7 @@ file:
               assignment_segment_statement:
                 object_reference:
                   naked_identifier: tot_emps
-                colon: ':'
-                comparison_operator:
-                  raw_comparison_operator: '='
+                assignment_operator: :=
                 expression:
                   column_reference:
                     naked_identifier: tot_emps
@@ -365,9 +363,7 @@ file:
               assignment_segment_statement:
                 object_reference:
                   naked_identifier: tot_depts
-                colon: ':'
-                comparison_operator:
-                  raw_comparison_operator: '='
+                assignment_operator: :=
                 expression:
                   column_reference:
                     naked_identifier: tot_depts
@@ -430,9 +426,7 @@ file:
               assignment_segment_statement:
                 object_reference:
                   naked_identifier: tot_emps
-                colon: ':'
-                comparison_operator:
-                  raw_comparison_operator: '='
+                assignment_operator: :=
                 expression:
                   column_reference:
                     naked_identifier: tot_emps
@@ -483,9 +477,7 @@ file:
               assignment_segment_statement:
                 object_reference:
                   naked_identifier: tot_depts
-                colon: ':'
-                comparison_operator:
-                  raw_comparison_operator: '='
+                assignment_operator: :=
                 expression:
                   column_reference:
                     naked_identifier: tot_depts
@@ -896,9 +888,7 @@ file:
             naked_identifier: var_1
             data_type:
               data_type_identifier: NUMBER
-            colon: ':'
-            comparison_operator:
-              raw_comparison_operator: '='
+            assignment_operator: :=
             expression:
               numeric_literal: '0'
             statement_terminator: ;
@@ -932,9 +922,7 @@ file:
                   assignment_segment_statement:
                     object_reference:
                       naked_identifier: var_1
-                    colon: ':'
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    assignment_operator: :=
                     expression:
                       numeric_literal: '0'
               - statement_terminator: ;
