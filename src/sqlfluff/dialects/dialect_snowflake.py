@@ -1425,6 +1425,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropIcebergTableStatementSegment"),
             Ref("CreateAuthenticationPolicySegment"),
             Ref("DropResourceMonitorStatementSegment"),
+            Ref("ScriptingRaiseStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -9325,6 +9326,15 @@ class ScriptingDeclareStatementSegment(BaseSegment):
         Ref("ScriptingBlockStatementSegment", optional=True),
     )
 
+
+class ScriptingRaiseStatementSegment(BaseSegment):
+    """A snowflake `RAISE` statement for SQL scripting.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/raise
+    """
+
+    type = "scripting_raise_statement"
+    match_grammar = Ref.keyword("RAISE")
 
 class LambdaExpressionSegment(BaseSegment):
     """A lambda expression.

@@ -1,0 +1,6 @@
+BEGIN
+    SELECT 1;
+EXCEPTION
+    WHEN OTHER THEN
+        RAISE;
+END;
