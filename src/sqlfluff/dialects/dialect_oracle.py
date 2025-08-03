@@ -2532,6 +2532,23 @@ class CaseExpressionSegment(BaseSegment):
             ),
             Dedent,
             "END",
+        ),
+        Sequence(
+            "CASE",
+            ImplicitIndent,
+            AnyNumberOf(
+                Ref("WhenClauseSegment"),
+                reset_terminators=True,
+                terminators=[Ref.keyword("ELSE"), Ref.keyword("END")],
+            ),
+            Ref(
+                "ElseClauseSegment",
+                optional=True,
+                reset_terminators=True,
+                terminators=[Ref.keyword("END")],
+            ),
+            Dedent,
+            "END",
             Ref.keyword("CASE", optional=True),
             Ref("SingleIdentifierGrammar", optional=True),
         ),
