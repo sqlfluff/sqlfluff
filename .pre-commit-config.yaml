@@ -56,7 +56,7 @@ repos:
             # properly.
             jinja2,
             pathspec,
-            pytest, # and by extension... pluggy
+            pytest,  # and by extension... pluggy
             click,
             platformdirs
           ]

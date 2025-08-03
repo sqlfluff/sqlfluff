@@ -276,6 +276,7 @@ ansi_dialect.add(
     # NOTE: The purpose of the colon_delimiter is that it has different layout rules.
     # It assumes no whitespace on either side.
     ColonDelimiterSegment=StringParser(":", SymbolSegment, type="colon_delimiter"),
+    ColonPrefixSegment=StringParser(":", SymbolSegment, type="colon_prefix"),
     StartBracketSegment=StringParser("(", SymbolSegment, type="start_bracket"),
     EndBracketSegment=StringParser(")", SymbolSegment, type="end_bracket"),
     StartSquareBracketSegment=StringParser(
@@ -1597,8 +1598,9 @@ class FrameClauseSegment(BaseSegment):
         Sequence(
             OneOf(
                 Ref("NumericLiteralSegment"),
-                Sequence("INTERVAL", Ref("QuotedLiteralSegment")),
+                Ref("IntervalExpressionSegment"),
                 "UNBOUNDED",
+                Ref("ColumnReferenceSegment"),
             ),
             OneOf("PRECEDING", "FOLLOWING"),
         ),

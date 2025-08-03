@@ -736,6 +736,7 @@ snowflake_dialect.replace(
         "REGEXP",
     ),
     SelectClauseTerminatorGrammar=OneOf(
+        "INTO",
         "FROM",
         "WHERE",
         Sequence("ORDER", "BY"),
@@ -1892,6 +1893,9 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
+    ).copy(
+        insert=[Ref("IntoClauseSegment", optional=True)],
+        before=Ref("FromClauseSegment", optional=True),
     )
 
 
@@ -2905,6 +2909,22 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
+    ).copy(
+        insert=[
+            Ref("IntoClauseSegment", optional=True),
+        ],
+        before=Ref("FromClauseSegment", optional=True),
+    )
+
+
+class IntoClauseSegment(BaseSegment):
+    """This is an `INTO` clause for assigning variables in a select statement."""
+
+    type = "into_clause"
+
+    match_grammar = Sequence(
+        "INTO",
+        Delimited(Ref("BindVariableSegment")),
     )
 
 
@@ -4966,6 +4986,7 @@ class CreateStatementSegment(BaseSegment):
                 Ref("OrReplaceGrammar", optional=True),
                 OneOf(
                     Sequence("NETWORK", "POLICY"),
+                    Sequence("NETWORK", "RULE"),
                     Sequence("RESOURCE", "MONITOR"),
                     "SHARE",
                     "TAG",
@@ -5391,6 +5412,35 @@ class CreateStatementSegment(BaseSegment):
             ),
             Ref("TagBracketedEqualsSegment", optional=True),
             optional=True,
+        ),
+        # CREATE NETWORK RULE
+        # https://docs.snowflake.com/en/sql-reference/sql/create-network-rule
+        AnySetOf(
+            Sequence(
+                "TYPE",
+                Ref("EqualsSegment"),
+                OneOf(
+                    "IPV4",
+                    "AWSVPCEID",
+                    "AZURELINKID",
+                    "HOST_PORT",
+                    "PRIVATE_HOST_PORT",
+                ),
+            ),
+            Sequence(
+                "VALUE_LIST",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            ),
+            Sequence(
+                "MODE",
+                Ref("EqualsSegment"),
+                OneOf(
+                    "INGRESS",
+                    "INTERNAL_STAGE",
+                    "EGRESS",
+                ),
+            ),
         ),
         Ref("CommentEqualsClauseSegment", optional=True),
         Ref.keyword("AS", optional=True),
@@ -8113,7 +8163,7 @@ class ExecuteImmediateClauseSegment(BaseSegment):
             Ref("ReferencedVariableNameSegment"),
             Ref("StorageLocation"),
             Sequence(
-                Ref("ColonSegment"),
+                Ref("ColonPrefixSegment"),
                 Ref("LocalVariableNameSegment"),
             ),
         ),
@@ -9159,7 +9209,7 @@ class BindVariableSegment(BaseSegment):
     type = "bind_variable"
 
     match_grammar = Sequence(
-        Ref("ColonSegment"),
+        Ref("ColonPrefixSegment"),
         Ref("LocalVariableNameSegment"),
     )
 

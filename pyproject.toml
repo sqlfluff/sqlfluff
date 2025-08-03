@@ -94,7 +94,7 @@ dependencies = [
     # For returning exceptions from multiprocessing.Pool.map()
     "tblib",
     # For parsing pyproject.toml
-    "toml; python_version < '3.11'",
+    "tomli; python_version < '3.11'",
     # For handling progress bars
     "tqdm",
 ]

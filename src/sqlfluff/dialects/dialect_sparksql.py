@@ -780,6 +780,18 @@ sparksql_dialect.add(
     TablePropertiesGrammar=Sequence(
         "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
     ),
+    CreateViewClausesGrammar=Sequence(
+        "WITH",
+        "SCHEMA",
+        OneOf(
+            "BINDING",
+            "COMPENSATION",
+            Sequence(
+                Ref.keyword("TYPE", optional=True),
+                "EVOLUTION",
+            ),
+        ),
+    ),
     RawQuotedLiteralSegment=OneOf(
         TypedParser(
             "raw_single_quote",
@@ -1681,6 +1693,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("OptionsGrammar", optional=True),
         Ref("CommentGrammar", optional=True),
         Ref("TablePropertiesGrammar", optional=True),
+        Ref("CreateViewClausesGrammar", optional=True),
         Sequence("AS", OptionallyBracketed(Ref("SelectableGrammar")), optional=True),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )

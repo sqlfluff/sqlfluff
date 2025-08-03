@@ -11,6 +11,7 @@ DECLARE  -- You can assign initial values here
   emp_rec2       employees%ROWTYPE;
   TYPE commissions IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
   comm_tab       commissions;
+  current_date   DATE := SYSDATE;
 
 BEGIN  -- You can assign values here too
   wages := (hours_worked * hourly_salary) + bonus;
@@ -22,6 +23,17 @@ BEGIN  -- You can assign values here too
   emp_rec1.last_name := 'Ortiz';
   emp_rec1 := emp_rec2;
   comm_tab(5) := 20000 * 0.15;
+
+  -- Conditional assignment
+  IF counter > 5 THEN
+    wages := wages * 1.10;
+  END IF;
+
+  -- CASE expression assignment
+  bonus := CASE
+    WHEN wages > 60000 THEN wages * 0.15
+    ELSE wages * 0.10
+  END;
 END;
 /
 
@@ -48,5 +60,17 @@ DECLARE
 BEGIN
   group2 := group1;  -- succeeds
   group3 := group1;  -- fails
+END;
+/
+
+-- Function parameter default assignment test
+CREATE OR REPLACE FUNCTION CALCULATE_BONUS(
+  base_salary NUMBER := 50000,
+  bonus_rate NUMBER := 0.10
+) RETURN NUMBER AS
+  result_bonus NUMBER;
+BEGIN
+  result_bonus := base_salary * bonus_rate;
+  RETURN result_bonus;
 END;
 /
