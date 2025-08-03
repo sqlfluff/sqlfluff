@@ -9336,6 +9336,7 @@ class ScriptingRaiseStatementSegment(BaseSegment):
     type = "scripting_raise_statement"
     match_grammar = Ref.keyword("RAISE")
 
+
 class LambdaExpressionSegment(BaseSegment):
     """A lambda expression.
 
