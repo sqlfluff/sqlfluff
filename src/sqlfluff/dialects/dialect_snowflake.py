@@ -9328,6 +9328,7 @@ class ScriptingDeclareStatementSegment(BaseSegment):
         Ref("ScriptingBlockStatementSegment", optional=True),
     )
 
+
 class ScriptingIfStatementSegment(BaseSegment):
     """A snowflake `If` statement for SQL scripting.
 
@@ -9347,8 +9348,7 @@ class ScriptingIfStatementSegment(BaseSegment):
                     Ref("DelimiterGrammar"),
                     Ref("StatementSegment"),
                 ),
-
-                terminators = [
+                terminators=[
                     "ELSEIF",
                     "ELSE",
                     Sequence("END", "IF"),
@@ -9369,7 +9369,7 @@ class ScriptingIfStatementSegment(BaseSegment):
                         Ref("DelimiterGrammar"),
                         Ref("StatementSegment"),
                     ),
-                    terminators = [
+                    terminators=[
                         "ELSEIF",
                         "ELSE",
                         Sequence("END", "IF"),
@@ -9378,7 +9378,7 @@ class ScriptingIfStatementSegment(BaseSegment):
                 Ref("DelimiterGrammar"),
                 Dedent,
             ),
-            terminators = [
+            terminators=[
                 "ELSE",
                 Sequence("END", "IF"),
             ],
@@ -9393,17 +9393,17 @@ class ScriptingIfStatementSegment(BaseSegment):
                         Ref("DelimiterGrammar"),
                         Ref("StatementSegment"),
                     ),
-                    terminators = [
+                    terminators=[
                         Sequence("END", "IF"),
                     ],
                 ),
                 Ref("DelimiterGrammar"),
                 Dedent,
             ),
-            optional = True
+            optional=True,
         ),
         "END",
-        "IF"
+        "IF",
     )
 
 class ScriptingIfStatementSegment(BaseSegment):
