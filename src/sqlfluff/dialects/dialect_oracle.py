@@ -201,9 +201,11 @@ oracle_dialect.sets("unreserved_keywords").update(
         "ACCESSIBLE",
         "AUTHID",
         "BODY",
+        "BULK",
         "BULK_EXCEPTIONS",
         "BULK_ROWCOUNT",
         "BYTE",
+        "COLLECT",
         "COMPILE",
         "COMPOUND",
         "CONSTANT",
@@ -882,6 +884,7 @@ oracle_dialect.replace(
         ]
     ),
     SelectClauseTerminatorGrammar=OneOf(
+        "BULK",
         "INTO",
         "FROM",
         "WHERE",
@@ -1508,7 +1511,11 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
         ],
     ).copy(
         insert=[
-            Ref("IntoClauseSegment", optional=True),
+            OneOf(
+                Ref("IntoClauseSegment"),
+                Ref("BulkCollectIntoClauseSegment"),
+                optional=True,
+            ),
         ],
         before=Ref("FromClauseSegment", optional=True),
     )
@@ -2525,6 +2532,23 @@ class CaseExpressionSegment(BaseSegment):
             ),
             Dedent,
             "END",
+        ),
+        Sequence(
+            "CASE",
+            ImplicitIndent,
+            AnyNumberOf(
+                Ref("WhenClauseSegment"),
+                reset_terminators=True,
+                terminators=[Ref.keyword("ELSE"), Ref.keyword("END")],
+            ),
+            Ref(
+                "ElseClauseSegment",
+                optional=True,
+                reset_terminators=True,
+                terminators=[Ref.keyword("END")],
+            ),
+            Dedent,
+            "END",
             Ref.keyword("CASE", optional=True),
             Ref("SingleIdentifierGrammar", optional=True),
         ),
@@ -2876,7 +2900,9 @@ class BulkCollectIntoClauseSegment(BaseSegment):
         "BULK",
         "COLLECT",
         "INTO",
+        ImplicitIndent,
         Delimited(OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar"))),
+        Dedent,
     )
 
 
