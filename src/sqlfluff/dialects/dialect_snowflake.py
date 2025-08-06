@@ -1425,6 +1425,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropIcebergTableStatementSegment"),
             Ref("CreateAuthenticationPolicySegment"),
             Ref("DropResourceMonitorStatementSegment"),
+            Ref("ScriptingIfStatementSegment"),
             Ref("ScriptingRaiseStatementSegment"),
         ],
         remove=[
@@ -9324,6 +9325,84 @@ class ScriptingDeclareStatementSegment(BaseSegment):
         ),
         Dedent,
         Ref("ScriptingBlockStatementSegment", optional=True),
+    )
+
+
+class ScriptingIfStatementSegment(BaseSegment):
+    """A snowflake `If` statement for SQL scripting.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/if
+    """
+
+    type = "scripting_if_statement"
+    match_grammar = Sequence(
+        Sequence(
+            "IF",
+            Bracketed(Ref("ExpressionSegment")),
+            "THEN",
+            Indent,
+            Ref("StatementSegment"),
+            AnyNumberOf(
+                Sequence(
+                    Ref("DelimiterGrammar"),
+                    Ref("StatementSegment"),
+                ),
+                terminators=[
+                    "ELSEIF",
+                    "ELSE",
+                    Sequence("END", "IF"),
+                ],
+            ),
+            Ref("DelimiterGrammar"),
+            Dedent,
+        ),
+        AnyNumberOf(
+            Sequence(
+                "ELSEIF",
+                Bracketed(Ref("ExpressionSegment")),
+                "THEN",
+                Indent,
+                Ref("StatementSegment"),
+                AnyNumberOf(
+                    Sequence(
+                        Ref("DelimiterGrammar"),
+                        Ref("StatementSegment"),
+                    ),
+                    terminators=[
+                        "ELSEIF",
+                        "ELSE",
+                        Sequence("END", "IF"),
+                    ],
+                ),
+                Ref("DelimiterGrammar"),
+                Dedent,
+            ),
+            terminators=[
+                "ELSE",
+                Sequence("END", "IF"),
+            ],
+        ),
+        Sequence(
+            Sequence(
+                "ELSE",
+                Indent,
+                Ref("StatementSegment"),
+                AnyNumberOf(
+                    Sequence(
+                        Ref("DelimiterGrammar"),
+                        Ref("StatementSegment"),
+                    ),
+                    terminators=[
+                        Sequence("END", "IF"),
+                    ],
+                ),
+                Ref("DelimiterGrammar"),
+                Dedent,
+            ),
+            optional=True,
+        ),
+        "END",
+        "IF",
     )
 
 
