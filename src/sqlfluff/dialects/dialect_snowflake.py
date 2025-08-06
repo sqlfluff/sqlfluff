@@ -9405,16 +9405,6 @@ class ScriptingIfStatementSegment(BaseSegment):
         "IF",
     )
 
-class ScriptingRaiseStatementSegment(BaseSegment):
-    """A snowflake `RAISE` statement for SQL scripting.
-
-    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/raise
-    """
-
-    type = "scripting_raise_statement"
-    match_grammar = Ref.keyword("RAISE")
-
-
 
 class ScriptingRaiseStatementSegment(BaseSegment):
     """A snowflake `RAISE` statement for SQL scripting.
