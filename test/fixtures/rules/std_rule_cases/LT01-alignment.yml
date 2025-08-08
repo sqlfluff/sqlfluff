@@ -387,3 +387,25 @@ test_align_multiple_operators:
         binary_operator:
           spacing_before: align
           align_within: select_statement
+
+test_align_alias_with_jinja_source_positions:
+  # Alignment should respect source (visible) positions when templated content exists
+  # before the alias. The second line should align 'as' to the first, without
+  # padding to the length of the rendered template.
+  fail_str: |
+    select
+        {{ "longtemplated" }} as test_key,
+        b as b_col
+  fix_str: |
+    select
+        {{ "longtemplated" }} as test_key,
+        b                     as b_col
+  configs:
+    core:
+      templater: jinja
+    layout:
+      type:
+        alias_expression:
+          spacing_before: align
+          align_within: select_clause
+          align_scope: bracketed
