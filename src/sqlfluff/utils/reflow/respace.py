@@ -24,6 +24,55 @@ if TYPE_CHECKING:  # pragma: no cover
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 
 
+# ---------------------------
+# Small helper functions
+# ---------------------------
+
+def _pos_line(pm: PositionMarker, use_source: bool) -> int:
+    """Return the line number in the chosen coordinate space."""
+    return pm.line_no if use_source else pm.working_line_no
+
+
+def _pos_col(pm: PositionMarker, use_source: bool) -> int:
+    """Return the column (position) in the chosen coordinate space."""
+    return pm.line_pos if use_source else pm.working_line_pos
+
+
+def _should_align_by_source(
+    parent_segment: BaseSegment, siblings: list[BaseSegment], next_seg: RawSegment
+) -> bool:
+    """Decide whether to align by source rather than templated coordinates.
+
+    Returns True if any of the participating segments are non-literal (templated)
+    or if any code tokens in the alignment parent are non-literal.
+    """
+    try:
+        if next_seg.pos_marker and not next_seg.pos_marker.is_literal():
+            return True
+        if any(s.pos_marker and not s.pos_marker.is_literal() for s in siblings):
+            return True
+        for rs in parent_segment.raw_segments:
+            if rs.is_code and rs.pos_marker and not rs.pos_marker.is_literal():
+                return True
+    except Exception:  # pragma: no cover
+        return False
+    return False
+
+
+def _group_siblings_by_line(
+    siblings: list[BaseSegment], use_source: bool
+) -> dict[int, list[BaseSegment]]:
+    """Group sibling segments by line and sort by column within each line."""
+    grouped: dict[int, list[BaseSegment]] = defaultdict(list)
+    for sibling in siblings:
+        _pos = sibling.pos_marker
+        assert _pos
+        grouped[_pos_line(_pos, use_source)].append(sibling)
+    for line_siblings in grouped.values():
+        line_siblings.sort(key=lambda s: cast(PositionMarker, s.pos_marker))
+    return grouped
+
+
 def _unpack_constraint(constraint: str, strip_newlines: bool) -> tuple[str, bool]:
     """Unpack a spacing constraint.
 
@@ -240,38 +289,12 @@ def _determine_aligned_inline_spacing(
         next_pos = next_seg.pos_marker
 
     # Decide whether to align using templated positions (default) or source
-    # positions. If any of the participating segments are non-literal (i.e.
-    # generated/affected by templating), or any code in the alignment scope
-    # is non-literal, align using SOURCE positions so that alignment reflects
-    # what's visible in the editor rather than rendered template output.
-    # See https://github.com/sqlfluff/sqlfluff/issues/5429 for context.
-    use_source_positions = False
-    try:
-        if (
-            (next_seg.pos_marker and not next_seg.pos_marker.is_literal())
-            or any(
-                s.pos_marker and not s.pos_marker.is_literal()  # type: ignore[truthy-bool]
-                for s in siblings
-            )
-        ):
-            use_source_positions = True
-        # Additionally, if any code tokens in the alignment parent are non-literal,
-        # we should also switch to source-based alignment.
-        if not use_source_positions:
-            for rs in parent_segment.raw_segments:
-                if rs.is_code and rs.pos_marker and not rs.pos_marker.is_literal():
-                    use_source_positions = True
-                    break
-    except Exception:  # pragma: no cover - defensive: fall back to default behaviour
-        use_source_positions = False
+    # positions. See https://github.com/sqlfluff/sqlfluff/issues/5429.
+    use_source_positions = _should_align_by_source(parent_segment, siblings, next_seg)
+    reflow_logger.debug("    Alignment coordinate space: %s", "source" if use_source_positions else "templated")
 
     # Group siblings by line using the chosen coordinate space
-    siblings_by_line: dict[int, list[BaseSegment]] = defaultdict(list)
-    for sibling in siblings:
-        _pos = sibling.pos_marker
-        assert _pos
-        key_line = _pos.line_no if use_source_positions else _pos.working_line_no
-        siblings_by_line[key_line].append(sibling)
+    siblings_by_line = _group_siblings_by_line(siblings, use_source_positions)
 
     # Sort all segments by position to easily access index information
     for line_siblings in siblings_by_line.values():
@@ -280,20 +303,14 @@ def _determine_aligned_inline_spacing(
         )
 
     # Identify the alignment column index for the current line
-    current_line_key = next_pos.line_no if use_source_positions else next_pos.working_line_no
+    current_line_key = _pos_line(next_pos, use_source_positions)
     current_line_segments = siblings_by_line[current_line_key]
     target_index = next(
         idx
         for idx, segment in enumerate(current_line_segments)
         if (
-            (
-                cast(PositionMarker, segment.pos_marker).line_pos
-                if use_source_positions
-                else cast(PositionMarker, segment.pos_marker).working_line_pos
-            )
-            == (
-                next_pos.line_pos if use_source_positions else next_pos.working_line_pos
-            )
+            _pos_col(cast(PositionMarker, segment.pos_marker), use_source_positions)
+            == _pos_col(next_pos, use_source_positions)
         )
     )
 
@@ -331,7 +348,6 @@ def _determine_aligned_inline_spacing(
                 and last_code
             ):
                 if use_source_positions:
-                    # Source-space end column for last_code
                     end_pm = last_code.pos_marker.end_point_marker()
                     loc = (end_pm.line_no, end_pm.line_pos)
                 else:
@@ -348,11 +364,7 @@ def _determine_aligned_inline_spacing(
             last_code = seg
 
     # Compute desired whitespace size in the chosen coordinate space
-    current_ws_pos = (
-        whitespace_seg.pos_marker.line_pos
-        if use_source_positions
-        else whitespace_seg.pos_marker.working_line_pos
-    )
+    current_ws_pos = _pos_col(whitespace_seg.pos_marker, use_source_positions)
     desired_space = " " * (1 + max_desired_line_pos - current_ws_pos)
     reflow_logger.debug(
         "    desired_space: %r (based on max line pos of %s)",
