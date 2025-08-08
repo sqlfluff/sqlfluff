@@ -99,6 +99,11 @@ class ReflowConfig:
                         new_key += ":" + config_dict[seg_type]["align_within"]
                         if config_dict[seg_type].get("align_scope", None):
                             new_key += ":" + config_dict[seg_type]["align_scope"]
+                    # Optional coordinate space override
+                    if config_dict[seg_type].get("alignment_coordinate_space", None):
+                        new_key += ":" + config_dict[seg_type][
+                            "alignment_coordinate_space"
+                        ]
                     config_dict[seg_type][key] = new_key
         return cls(_config_dict=config_dict, config_types=config_types, **kwargs)
 
