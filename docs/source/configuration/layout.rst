@@ -167,6 +167,43 @@ the least obvious. The following example illustrates the impact it has.
    --    align_scope = file
    --    align_within = statement
 
+Templating and alignment coordinate space
+-----------------------------------------
+
+When using templating (e.g. Jinja), alignment is for human readability and
+stable diffs. SQLFluff aligns based on the source (visible) positions whenever
+templated (non-literal) segments are involved in the alignment scope. This
+prevents excessive padding caused by the rendered output being longer than the
+source template. If all segments are literal (non-templated), alignment uses
+the regular templated working positions.
+
+Example (Jinja templating, align alias expressions within a select clause):
+
+.. code-block:: sql
+
+    select
+        {{ "longtemplated" }} as test_key,
+        b                     as b_col
+
+The alignment above is computed against the source text so that both lines line
+up visually in the editor, regardless of the rendered length of
+``{{ "longtemplated" }}``.
+
+Advanced: coordinate space override
+-----------------------------------
+
+You can optionally force the coordinate space via the alignment constraint by
+adding a final modifier to the align value (available for spacing_before and
+spacing_after):
+
+.. code-block:: ini
+
+   [sqlfluff:layout:type:alias_expression]
+   spacing_before = align:alias_expression:select_clause:bracketed:source
+
+Supported values are ``source`` and ``templated``. In most cases, ``source`` is
+the recommended choice for readability.
+
    WITH foo as (
       SELECT
          a,

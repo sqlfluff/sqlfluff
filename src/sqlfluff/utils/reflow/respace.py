@@ -247,6 +247,7 @@ def _determine_aligned_inline_spacing(
     segment_type: str,
     align_within: Optional[str],
     align_scope: Optional[str],
+    align_space: Optional[str],
 ) -> str:
     """Work out spacing for instance of an `align` constraint."""
     # Find the level of segment that we're aligning.
@@ -290,7 +291,12 @@ def _determine_aligned_inline_spacing(
 
     # Decide whether to align using templated positions (default) or source
     # positions. See https://github.com/sqlfluff/sqlfluff/issues/5429.
-    use_source_positions = _should_align_by_source(parent_segment, siblings, next_seg)
+    if align_space == "source":
+        use_source_positions = True
+    elif align_space == "templated":
+        use_source_positions = False
+    else:
+        use_source_positions = _should_align_by_source(parent_segment, siblings, next_seg)
     reflow_logger.debug("    Alignment coordinate space: %s", "source" if use_source_positions else "templated")
 
     # Group siblings by line using the chosen coordinate space
@@ -376,15 +382,17 @@ def _determine_aligned_inline_spacing(
 
 def _extract_alignment_config(
     constraint: str,
-) -> tuple[str, Optional[str], Optional[str]]:
+) -> tuple[str, Optional[str], Optional[str], Optional[str]]:
     """Helper function to break apart an alignment config.
 
     >>> _extract_alignment_config("align:alias_expression")
-    ('alias_expression', None, None)
+    ('alias_expression', None, None, None)
     >>> _extract_alignment_config("align:alias_expression:statement")
-    ('alias_expression', 'statement', None)
+    ('alias_expression', 'statement', None, None)
     >>> _extract_alignment_config("align:alias_expression:statement:bracketed")
-    ('alias_expression', 'statement', 'bracketed')
+    ('alias_expression', 'statement', 'bracketed', None)
+    >>> _extract_alignment_config("align:alias_expression:select_clause:bracketed:source")
+    ('alias_expression', 'select_clause', 'bracketed', 'source')
     """
     assert ":" in constraint
     alignment_config = constraint.split(":")
@@ -392,13 +400,14 @@ def _extract_alignment_config(
     seg_type = alignment_config[1]
     align_within = alignment_config[2] if len(alignment_config) > 2 else None
     align_scope = alignment_config[3] if len(alignment_config) > 3 else None
+    align_space = alignment_config[4] if len(alignment_config) > 4 else None
     reflow_logger.debug(
         "    Alignment Config: %s, %s, %s",
         seg_type,
         align_within,
         align_scope,
     )
-    return seg_type, align_within, align_scope
+    return seg_type, align_within, align_scope, align_space
 
 
 def handle_respace__inline_with_space(
@@ -460,7 +469,7 @@ def handle_respace__inline_with_space(
     ) or pre_constraint == post_constraint == "single":
         # Determine the desired spacing, either as alignment or as a single.
         if post_constraint.startswith("align") and next_block:
-            seg_type, align_within, align_scope = _extract_alignment_config(
+            seg_type, align_within, align_scope, align_space = _extract_alignment_config(
                 post_constraint
             )
 
@@ -490,6 +499,7 @@ def handle_respace__inline_with_space(
                     seg_type,
                     align_within,
                     align_scope,
+                    align_space,
                 )
 
                 desc = (
