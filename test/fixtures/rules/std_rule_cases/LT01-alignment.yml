@@ -465,7 +465,7 @@ test_align_alias_with_jinja_force_templated_space:
   fix_str: |
     select
         {{ "templ" }} as a,
-        b            as bb
+        b     as bb
   configs:
     core:
       templater: jinja

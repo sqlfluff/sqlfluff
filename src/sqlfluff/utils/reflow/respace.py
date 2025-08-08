@@ -28,6 +28,7 @@ reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 # Small helper functions
 # ---------------------------
 
+
 def _pos_line(pm: PositionMarker, use_source: bool) -> int:
     """Return the line number in the chosen coordinate space."""
     return pm.line_no if use_source else pm.working_line_no
@@ -38,10 +39,10 @@ def _pos_col(pm: PositionMarker, use_source: bool) -> int:
     return pm.line_pos if use_source else pm.working_line_pos
 
 
-def _should_align_by_source(
+def _has_templated_content(
     parent_segment: BaseSegment, siblings: list[BaseSegment], next_seg: RawSegment
 ) -> bool:
-    """Decide whether to align by source rather than templated coordinates.
+    """Check if any participating segments contain templated content.
 
     Returns True if any of the participating segments are non-literal (templated)
     or if any code tokens in the alignment parent are non-literal.
@@ -54,7 +55,8 @@ def _should_align_by_source(
         for rs in parent_segment.raw_segments:
             if rs.is_code and rs.pos_marker and not rs.pos_marker.is_literal():
                 return True
-    except Exception:  # pragma: no cover
+    except AttributeError:  # pragma: no cover
+        # Handle missing pos_marker attributes gracefully
         return False
     return False
 
@@ -68,8 +70,11 @@ def _group_siblings_by_line(
         _pos = sibling.pos_marker
         assert _pos
         grouped[_pos_line(_pos, use_source)].append(sibling)
+    # Sort each line's segments by column position in the chosen coordinate space
     for line_siblings in grouped.values():
-        line_siblings.sort(key=lambda s: cast(PositionMarker, s.pos_marker))
+        line_siblings.sort(
+            key=lambda s: _pos_col(cast(PositionMarker, s.pos_marker), use_source)
+        )
     return grouped
 
 
@@ -249,13 +254,28 @@ def _determine_aligned_inline_spacing(
     align_scope: Optional[str],
     align_space: Optional[str],
 ) -> str:
-    """Work out spacing for instance of an `align` constraint."""
-    # Find the level of segment that we're aligning.
-    # NOTE: Reverse slice
-    parent_segment = None
+    """Work out spacing for instance of an `align` constraint.
 
-    # Edge case: if next_seg has no position, we should use the position
-    # of the whitespace for searching.
+    Args:
+        root_segment: The root segment to search within.
+        whitespace_seg: The whitespace segment being modified.
+        next_seg: The segment immediately following the whitespace.
+        next_pos: Position marker for the next segment.
+        segment_type: Type of segments to align (e.g., 'alias_expression').
+        align_within: Parent segment type to limit alignment scope.
+        align_scope: Further scope limitation (e.g., 'bracketed').
+        align_space: Coordinate space override ('source', 'templated', or None).
+
+    Returns:
+        A string of spaces to achieve proper alignment.
+
+    Note:
+        When align_space is None, automatically chooses 'source' coordinates if
+        templated content is detected, otherwise uses 'templated' coordinates.
+        See https://github.com/sqlfluff/sqlfluff/issues/5429 for rationale.
+    """
+    # Find the parent segment within which we're aligning
+    parent_segment = None
     if align_within:
         for ps in root_segment.path_to(
             next_seg if next_seg.pos_marker else whitespace_seg
@@ -284,41 +304,56 @@ def _determine_aligned_inline_spacing(
                 sibling,
             )
 
-    # If the segment we're aligning, has position. Use that position.
-    # If it doesn't, then use the provided one. We can't do sibling analysis without it.
+    # Use the segment's position marker if available, fallback to provided position
     if next_seg.pos_marker:
         next_pos = next_seg.pos_marker
 
-    # Decide whether to align using templated positions (default) or source
-    # positions. See https://github.com/sqlfluff/sqlfluff/issues/5429.
+    # Choose coordinate space: source (visible) vs templated (rendered)
     if align_space == "source":
         use_source_positions = True
     elif align_space == "templated":
         use_source_positions = False
     else:
-        use_source_positions = _should_align_by_source(parent_segment, siblings, next_seg)
-    reflow_logger.debug("    Alignment coordinate space: %s", "source" if use_source_positions else "templated")
+        use_source_positions = _has_templated_content(
+            parent_segment, siblings, next_seg
+        )
+    reflow_logger.debug(
+        "    Alignment coordinate space: %s",
+        "source" if use_source_positions else "templated",
+    )
 
     # Group siblings by line using the chosen coordinate space
     siblings_by_line = _group_siblings_by_line(siblings, use_source_positions)
 
-    # Sort all segments by position to easily access index information
-    for line_siblings in siblings_by_line.values():
-        line_siblings.sort(
-            key=lambda s: cast(PositionMarker, s.pos_marker).working_line_pos
-        )
-
     # Identify the alignment column index for the current line
     current_line_key = _pos_line(next_pos, use_source_positions)
-    current_line_segments = siblings_by_line[current_line_key]
-    target_index = next(
-        idx
-        for idx, segment in enumerate(current_line_segments)
-        if (
-            _pos_col(cast(PositionMarker, segment.pos_marker), use_source_positions)
-            == _pos_col(next_pos, use_source_positions)
+    current_line_segments = siblings_by_line.get(current_line_key, [])
+
+    # Handle edge case where no segments are found on the current line
+    if not current_line_segments:
+        reflow_logger.debug(
+            "    No segments found on current line for alignment. Treat as single."
         )
+        return " "
+
+    target_index = next(
+        (
+            idx
+            for idx, segment in enumerate(current_line_segments)
+            if (
+                _pos_col(cast(PositionMarker, segment.pos_marker), use_source_positions)
+                == _pos_col(next_pos, use_source_positions)
+            )
+        ),
+        None,  # Default value if no match found
     )
+
+    # Handle case where target segment is not found
+    if target_index is None:
+        reflow_logger.debug(
+            "    Target segment not found in current line. Treat as single."
+        )
+        return " "
 
     # Now that we know the target index, we can extract the relevant segment from
     # all lines
@@ -355,7 +390,7 @@ def _determine_aligned_inline_spacing(
             ):
                 if use_source_positions:
                     end_pm = last_code.pos_marker.end_point_marker()
-                    loc = (end_pm.line_no, end_pm.line_pos)
+                    loc = (_pos_line(end_pm, True), _pos_col(end_pm, True))
                 else:
                     loc = last_code.pos_marker.working_loc_after(last_code.raw)
                 reflow_logger.debug(
@@ -369,9 +404,12 @@ def _determine_aligned_inline_spacing(
         if seg.is_code:
             last_code = seg
 
-    # Compute desired whitespace size in the chosen coordinate space
+    # Compute desired whitespace size in the chosen coordinate space.
+    # Ensure we always return at least a single space to avoid deleting
+    # whitespace when the current position already exceeds the target.
     current_ws_pos = _pos_col(whitespace_seg.pos_marker, use_source_positions)
-    desired_space = " " * (1 + max_desired_line_pos - current_ws_pos)
+    pad_width = max(1, 1 + max_desired_line_pos - current_ws_pos)
+    desired_space = " " * pad_width
     reflow_logger.debug(
         "    desired_space: %r (based on max line pos of %s)",
         desired_space,
@@ -385,14 +423,24 @@ def _extract_alignment_config(
 ) -> tuple[str, Optional[str], Optional[str], Optional[str]]:
     """Helper function to break apart an alignment config.
 
+    Returns:
+        Tuple of (segment_type, align_within, align_scope, align_space)
+
+        - segment_type: The type of segments to align
+        - align_within: Parent segment type to limit alignment scope
+        - align_scope: Further scope limitation (e.g., 'bracketed')
+        - align_space: Coordinate space ('source', 'templated', or None)
+
     >>> _extract_alignment_config("align:alias_expression")
     ('alias_expression', None, None, None)
     >>> _extract_alignment_config("align:alias_expression:statement")
     ('alias_expression', 'statement', None, None)
     >>> _extract_alignment_config("align:alias_expression:statement:bracketed")
     ('alias_expression', 'statement', 'bracketed', None)
-    >>> _extract_alignment_config("align:alias_expression:select_clause:bracketed:source")
+    >>> _extract_alignment_config("align:alias_expression:select_clause:bracketed:source")  # noqa: E501
     ('alias_expression', 'select_clause', 'bracketed', 'source')
+    >>> _extract_alignment_config("align:alias_expression:select_clause:bracketed:templated")  # noqa: E501
+    ('alias_expression', 'select_clause', 'bracketed', 'templated')
     """
     assert ":" in constraint
     alignment_config = constraint.split(":")
@@ -469,8 +517,8 @@ def handle_respace__inline_with_space(
     ) or pre_constraint == post_constraint == "single":
         # Determine the desired spacing, either as alignment or as a single.
         if post_constraint.startswith("align") and next_block:
-            seg_type, align_within, align_scope, align_space = _extract_alignment_config(
-                post_constraint
+            seg_type, align_within, align_scope, align_space = (
+                _extract_alignment_config(post_constraint)
             )
 
             next_pos: Optional[PositionMarker]
