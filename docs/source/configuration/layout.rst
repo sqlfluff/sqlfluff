@@ -192,14 +192,26 @@ up visually in the editor, regardless of the rendered length of
 Advanced: coordinate space override
 -----------------------------------
 
-You can optionally force the coordinate space via the alignment constraint by
-adding a final modifier to the align value (available for spacing_before and
-spacing_after):
+You can optionally force the coordinate space either:
+
+1) via the alignment constraint suffix (available for `spacing_before` and
+   `spacing_after`), or
+2) via the `alignment_coordinate_space` key in layout config for the target type.
 
 .. code-block:: ini
 
    [sqlfluff:layout:type:alias_expression]
    spacing_before = align:alias_expression:select_clause:bracketed:source
+
+Alternatively, the equivalent can be configured more declaratively:
+
+.. code-block:: ini
+
+   [sqlfluff:layout:type:alias_expression]
+   spacing_before = align
+   align_within = select_clause
+   align_scope = bracketed
+   alignment_coordinate_space = source
 
 Supported values are ``source`` and ``templated``. In most cases, ``source`` is
 the recommended choice for readability.

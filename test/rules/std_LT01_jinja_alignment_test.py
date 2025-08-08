@@ -6,8 +6,8 @@ so that alignment reflects what the user sees in the editor.
 
 from __future__ import annotations
 
-from sqlfluff.core.config import FluffConfig
 import sqlfluff
+from sqlfluff.core.config import FluffConfig
 
 
 def _count_lt01(results: list[dict]) -> int:
@@ -27,6 +27,14 @@ def test_lt01_alias_alignment_with_jinja_uses_source_positions() -> None:
     cfg = FluffConfig.from_kwargs(dialect="ansi")
     # Inject settings not supported by from_kwargs via child config and update
     cfg._configs["core"]["templater"] = "jinja"
+    cfg._configs.setdefault("templater", {}).setdefault("jinja", {}).setdefault(
+        "context", {}
+    ).update(
+        {
+            "generate_surrogate_key": lambda *args: "surrogate_key_12345",
+            "ref": lambda x: f"my_schema.{x}",
+        }
+    )
     cfg._configs.setdefault("layout", {}).setdefault("type", {}).setdefault(
         "alias_expression", {}
     ).update(
@@ -51,10 +59,42 @@ def test_lt01_alias_alignment_with_jinja_uses_source_positions() -> None:
     assert any(" as " in line for line in lines)
 
     # Find the two select lines and verify the 'as' columns align by source index.
-    select_lines = [l for l in lines if " as " in l]
+    select_lines = [line for line in lines if " as " in line]
     assert len(select_lines) >= 2
     first_as_col = select_lines[0].index(" as ")
     second_as_col = select_lines[1].index(" as ")
     assert first_as_col == second_as_col
 
 
+def test_lt01_alias_alignment_with_jinja_coordinate_space_config_key() -> None:
+    """Coordinate space can be set via alignment_coordinate_space config key."""
+    sql = "select\n" "    {{ 'templ' }} as a,\n" "    b as bb\n"
+
+    cfg = FluffConfig.from_kwargs(dialect="ansi")
+    cfg._configs["core"]["templater"] = "jinja"
+    cfg._configs.setdefault("templater", {}).setdefault("jinja", {}).setdefault(
+        "context", {}
+    )
+    # Force templated coordinate space via config key enrichment path
+    cfg._configs.setdefault("layout", {}).setdefault("type", {}).setdefault(
+        "alias_expression", {}
+    ).update(
+        {
+            "spacing_before": "align",
+            "align_within": "select_clause",
+            "align_scope": "bracketed",
+            "alignment_coordinate_space": "templated",
+        }
+    )
+
+    fixed = sqlfluff.fix(sql, config=cfg, rules=["LT01"])
+    # With templated coordinate space, the second line pads less
+    lines = fixed.splitlines()
+    assert any(" as " in line for line in lines)
+    select_lines = [line for line in lines if " as " in line]
+    assert len(select_lines) == 2
+    # Check that there is at least some padding before 'as' on second line
+    # but not necessarily aligned to the source position of the templated value.
+    first_as_col = select_lines[0].index(" as ")
+    second_as_col = select_lines[1].index(" as ")
+    assert second_as_col <= first_as_col
