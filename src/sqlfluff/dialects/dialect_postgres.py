@@ -5795,9 +5795,7 @@ class CopyStatementSegment(BaseSegment):
                 _postgres9_compatible_stdin_options,
             ),
             Sequence(
-                OneOf(
-                    _table_definition, Bracketed(Ref("UnorderedSelectStatementSegment"))
-                ),
+                OneOf(_table_definition, Bracketed(Ref("SelectableGrammar"))),
                 "TO",
                 OneOf(
                     _target_subset,
@@ -5806,9 +5804,7 @@ class CopyStatementSegment(BaseSegment):
                 _option,
             ),
             Sequence(
-                OneOf(
-                    _table_definition, Bracketed(Ref("UnorderedSelectStatementSegment"))
-                ),
+                OneOf(_table_definition, Bracketed(Ref("SelectableGrammar"))),
                 "TO",
                 OneOf(
                     Ref("QuotedLiteralSegment"),
