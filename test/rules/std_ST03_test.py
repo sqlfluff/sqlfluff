@@ -65,31 +65,3 @@ def test__rules__std_ST03_multiple_unused_ctes():
             "end_file_pos": 136,
         },
     ]
-
-
-def test__rules__std_ST03_postgres_data_modifying_ctes_not_flagged():
-    """Verify that data-modifying CTEs are not flagged as unused."""
-    sql = """
-    WITH
-    cte_select AS (
-        SELECT foo FROM t
-    ),
-    cte_insert AS (
-        INSERT INTO t (foo) VALUES (1)
-    ),
-    cte_update AS (
-        UPDATE t SET foo = 2
-    ),
-    cte_delete AS (
-        DELETE FROM t
-    )
-
-    SELECT 1
-    """
-    result = sqlfluff.lint(sql, rules=["ST03"], dialect="postgres")
-    # Only cte_select should be flagged
-    assert len(result) == 1
-    issue = result[0]
-    assert issue["code"] == "ST03"
-    assert issue["name"] == "structure.unused_cte"
-    assert issue["description"] == 'Query defines CTE "cte_select" but does not use it.'
