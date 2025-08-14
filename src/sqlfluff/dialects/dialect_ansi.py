@@ -805,11 +805,16 @@ class FileSegment(BaseFileSegment):
     has no match_grammar.
     """
 
-    match_grammar = Delimited(
-        Ref("StatementSegment"),
-        delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
-        allow_gaps=True,
-        allow_trailing=True,
+    # Allow leading & trailing delimiters plus runs of delimited statements.
+    match_grammar = Sequence(
+        AnyNumberOf(Ref("DelimiterGrammar")),
+        Delimited(
+            Ref("StatementSegment"),
+            delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+            allow_gaps=True,
+            allow_trailing=True,
+        ),
+        AnyNumberOf(Ref("DelimiterGrammar")),
     )
 
     def get_table_references(self) -> set[str]:
