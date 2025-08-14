@@ -1,0 +1,8 @@
+SELECT 0x0;
+SELECT 0x;
+SELECT 0xAE;
+SELECT 0x12Ef;
+SELECT 0x69048AEFDD010E;
+
+DECLARE @bin varbinary(1) = 0x0;
+SELECT CAST(0x0 as uniqueidentifier);
