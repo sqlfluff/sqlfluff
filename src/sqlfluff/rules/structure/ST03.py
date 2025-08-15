@@ -23,7 +23,8 @@ def _is_data_modifying_cte(cte_query: Query) -> bool:
         except StopIteration:
             return False
 
-    return False
+    # raise NotImplementedError("CTE definition is required")
+
 
 class Rule_ST03(BaseRule):
     """Query defines a CTE (common-table expression) but does not use it.
@@ -76,7 +77,9 @@ class Rule_ST03(BaseRule):
         # are referenced by the primary query. Do not flag those as unused.
         # https://github.com/sqlfluff/sqlfluff/issues/7084
         non_data_modifying_ctes = {
-            k.upper(): k for k, cte in query.ctes.items() if not _is_data_modifying_cte(cte)
+            k.upper(): k
+            for k, cte in query.ctes.items()
+            if not _is_data_modifying_cte(cte)
         }
 
         # Work through all the references in the file, checking off CTES as the
