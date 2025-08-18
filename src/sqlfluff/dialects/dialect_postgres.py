@@ -5859,7 +5859,8 @@ class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
 
     https://www.postgresql.org/docs/14/queries-with.html
 
-    Data-Modifying Statements (INSERT, UPDATE, DELETE) in WITH are matched by ansi.SelectableGrammar > NonWithSelectableGrammar
+    Data-Modifying Statements (INSERT, UPDATE, DELETE) in WITH are
+    matched by ansi.SelectableGrammar > NonWithSelectableGrammar.
     """
 
     match_grammar = Sequence(
