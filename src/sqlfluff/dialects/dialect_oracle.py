@@ -2607,7 +2607,16 @@ class WhenClauseSegment(BaseSegment):
         Conditional(Indent, indented_then=True),
         "THEN",
         Conditional(ImplicitIndent, indented_then_contents=True),
-        OneOf(Ref("ExpressionSegment"), Ref("OneOrMoreStatementsGrammar")),
+        OneOf(
+            Ref("ExpressionSegment"),
+            AnyNumberOf(
+                Sequence(
+                    Ref("StatementSegment"),
+                    Ref("SemicolonSegment"),
+                ),
+                min_times=1,
+            ),
+        ),
         Conditional(Dedent, indented_then_contents=True),
         Conditional(Dedent, indented_then=True),
     )
