@@ -290,4 +290,4 @@ SELECT
             AND hijk = 3
         ) THEN NULL
     END AS result
-FROM abc
+FROM abc;
