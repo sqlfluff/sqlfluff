@@ -1,0 +1,100 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6d2f93bc16f9afad5bf4684431460f2177822a6f827e3f85e30482459bf8a9d6
+file:
+  batch:
+  - statement:
+      execute_script_statement:
+        object_reference:
+          quoted_identifier: '"""T-SQL binary constants variable assignment test cases."""'
+  - statement:
+      declare_segment:
+        keyword: declare
+        parameter: '@var1'
+        data_type:
+          data_type_identifier: binary
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '1'
+              end_bracket: )
+        statement_terminator: ;
+  - statement:
+      set_segment:
+        keyword: set
+        parameter: '@var1'
+        assignment_operator:
+          raw_comparison_operator: '='
+        expression:
+          numeric_literal: '0x0'
+        statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: declare
+        parameter: '@var2'
+        data_type:
+          data_type_identifier: binary
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '2'
+              end_bracket: )
+        statement_terminator: ;
+  - statement:
+      set_segment:
+        keyword: set
+        parameter: '@var2'
+        assignment_operator:
+          raw_comparison_operator: '='
+        expression:
+          numeric_literal: '0xAE'
+        statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: declare
+        parameter: '@var3'
+        data_type:
+          data_type_identifier: binary
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '8'
+              end_bracket: )
+        statement_terminator: ;
+  - statement:
+      set_segment:
+        keyword: set
+        parameter: '@var3'
+        assignment_operator:
+          raw_comparison_operator: '='
+        expression:
+          numeric_literal: '0x69048AEFDD010E'
+        statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: declare
+        parameter: '@var4'
+        data_type:
+          data_type_identifier: binary
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '16'
+              end_bracket: )
+        statement_terminator: ;
+  - statement:
+      set_segment:
+        keyword: set
+        parameter: '@var4'
+        assignment_operator:
+          raw_comparison_operator: '='
+        expression:
+          numeric_literal: 0x
+        statement_terminator: ;
