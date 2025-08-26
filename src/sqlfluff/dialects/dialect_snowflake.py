@@ -6370,7 +6370,13 @@ class FormatTypeOptions(BaseSegment):
             ),
         ),
         # COPY INTO <table>, open for extension
-        AnySetOf(),
+        AnySetOf(
+            Sequence(
+                "MULTI_LINE",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            )
+        ),
     )
 
 
