@@ -1,4 +1,4 @@
-"""T-SQL binary constants variable assignment test cases."""
+-- T-SQL binary constants variable assignment test cases
 -- Variable assignment with binary constants
 declare @var1 binary(1);
 set @var1 = 0x0;

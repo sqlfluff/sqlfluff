@@ -1,4 +1,4 @@
-"""T-SQL binary constants test cases."""
+-- T-SQL binary constants test cases
 -- Test basic binary constants parsing
 select 0x0;
 select 0xAE;

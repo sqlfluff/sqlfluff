@@ -1,4 +1,4 @@
-"""T-SQL binary constants function calls test cases."""
+-- T-SQL binary constants function calls test cases
 -- Function calls with binary constants
 select CAST(0x0 as uniqueidentifier);
 select CAST(0xAE as binary(2));
