@@ -327,9 +327,12 @@ tsql_dialect.add(
     SystemVariableSegment=RegexParser(
         r"@@[A-Za-z0-9_]+", CodeSegment, type="system_variable"
     ),
-    StatementAndDelimiterGrammar=Sequence(
-        Ref("StatementSegment"),
-        Ref("DelimiterGrammar", optional=True),
+    StatementAndDelimiterGrammar=OneOf(
+        Sequence(
+            Ref("StatementSegment"),
+            Ref("DelimiterGrammar", optional=True),
+        ),
+        Ref("DelimiterGrammar"),
     ),
     OneOrMoreStatementsGrammar=AnyNumberOf(
         Ref("StatementAndDelimiterGrammar"),
@@ -451,6 +454,7 @@ tsql_dialect.add(
 )
 
 tsql_dialect.replace(
+    # DelimiterGrammar=AnyNumberOf(Ref("SemicolonSegment")),
     # Overriding to cover TSQL allowed identifier name characters
     # https://docs.microsoft.com/en-us/sql/relational-databases/databases/database-identifiers
     NakedIdentifierSegment=SegmentGenerator(
