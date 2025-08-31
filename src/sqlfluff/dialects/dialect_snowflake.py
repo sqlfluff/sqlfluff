@@ -5902,6 +5902,11 @@ class CsvFileFormatTypeParameters(BaseSegment):
             Ref("EqualsSegment"),
             Ref("CompressionType"),
         ),
+        Sequence(
+            "MULTI_LINE",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
         Sequence("FILE_EXTENSION", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
         Sequence(
             "SKIP_HEADER",

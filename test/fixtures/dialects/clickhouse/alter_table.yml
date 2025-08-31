@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 218a737e4d9075599ddf01a2260e7aad078e4d6472e4276ad71297c4cd741e20
+_hash: 6dbe11ccf20071e36fd4bc834de1d67b8aa497152ce9849f6ff363b157c4701d
 file:
 - statement:
     alter_table_statement:
@@ -1277,4 +1277,82 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: DROP
+    - keyword: PARTITION
+    - naked_identifier: y
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: DROP
+    - keyword: PARTITION
+    - quoted_identifier: "'y'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: DROP
+    - keyword: PART
+    - quoted_identifier: "'y'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: DROP
+    - keyword: PART
+    - quoted_identifier: "'y'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: REPLACE
+    - keyword: PARTITION
+    - quoted_identifier: "'y'"
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: z
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: REPLACE
+    - keyword: PARTITION
+    - quoted_identifier: "'y'"
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: z
 - statement_terminator: ;
