@@ -22,7 +22,7 @@ file:
                       quoted_literal: "'0'"
                   - comma: ','
                   - expression:
-                      numeric_literal: '3'
+                      integer_literal: '3'
                       binary_operator: '-'
                       function:
                         function_name:
@@ -55,7 +55,7 @@ file:
                       quoted_literal: "'0'"
                   - comma: ','
                   - expression:
-                      numeric_literal: '3'
+                      integer_literal: '3'
                       binary_operator: '-'
                       function:
                         function_name:
@@ -93,7 +93,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '128'
+                integer_literal: '128'
               end_bracket: )
         statement_terminator: ;
   - statement:
@@ -129,7 +129,7 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        numeric_literal: '128'
+                        integer_literal: '128'
                       end_bracket: )
                 end_bracket: )
         statement_terminator: ;

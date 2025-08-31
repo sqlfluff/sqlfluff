@@ -22,7 +22,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '128'
+                integer_literal: '128'
               end_bracket: )
         statement_terminator: ;
   - statement:
@@ -58,7 +58,7 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        numeric_literal: '128'
+                        integer_literal: '128'
                       end_bracket: )
                 end_bracket: )
         statement_terminator: ;

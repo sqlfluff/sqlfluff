@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3a1902cc6ad1478fa1a51f3170e8b348c241f15e527959e4ea3f7300d3bc6907
+_hash: 524c430d1557fe70c1c5fab559ff7a11cf7b2bc3322124b3244447cc97bcceb5
 file:
 - batch:
     statement:
@@ -60,7 +60,7 @@ file:
               naked_identifier: TerritoryID
             comparison_operator:
               raw_comparison_operator: '='
-            numeric_literal: '5'
+            integer_literal: '5'
         option_clause:
           keyword: OPTION
           bracketed:
@@ -70,90 +70,91 @@ file:
             - keyword: JOIN
             end_bracket: )
         statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
-    create_procedure_statement:
-    - keyword: CREATE
-    - keyword: PROCEDURE
-    - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: RetrievePersonAddress
-    - procedure_parameter_list:
-      - parameter: '@city_name'
-      - data_type:
-          data_type_identifier: NVARCHAR
-          bracketed_arguments:
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '30'
-              end_bracket: )
-      - comma: ','
-      - parameter: '@postal_code'
-      - data_type:
-          data_type_identifier: NVARCHAR
-          bracketed_arguments:
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '15'
-              end_bracket: )
-    - keyword: AS
-    - procedure_statement:
-        statement:
-          select_statement:
-            select_clause:
-              keyword: SELECT
-              select_clause_element:
-                wildcard_expression:
-                  wildcard_identifier:
-                    star: '*'
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                    - naked_identifier: Person
-                    - dot: .
-                    - naked_identifier: Address
-            where_clause:
-              keyword: WHERE
-              expression:
-              - column_reference:
-                  naked_identifier: City
-              - comparison_operator:
-                  raw_comparison_operator: '='
-              - parameter: '@city_name'
-              - binary_operator: AND
-              - column_reference:
-                  naked_identifier: PostalCode
-              - comparison_operator:
-                  raw_comparison_operator: '='
-              - parameter: '@postal_code'
-            option_clause:
-              keyword: OPTION
+    statement:
+      create_procedure_statement:
+      - keyword: CREATE
+      - keyword: PROCEDURE
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: RetrievePersonAddress
+      - procedure_parameter_list:
+        - parameter: '@city_name'
+        - data_type:
+            data_type_identifier: NVARCHAR
+            bracketed_arguments:
               bracketed:
                 start_bracket: (
-                query_hint_segment:
-                - keyword: OPTIMIZE
-                - keyword: FOR
-                - bracketed:
-                  - start_bracket: (
-                  - parameter: '@city_name'
-                  - comparison_operator:
-                      raw_comparison_operator: '='
-                  - quoted_literal: "'Seattle'"
-                  - comma: ','
-                  - parameter: '@postal_code'
-                  - keyword: UNKNOWN
-                  - end_bracket: )
+                expression:
+                  integer_literal: '30'
                 end_bracket: )
-            statement_terminator: ;
-- go_statement:
-    keyword: GO
+        - comma: ','
+        - parameter: '@postal_code'
+        - data_type:
+            data_type_identifier: NVARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                expression:
+                  integer_literal: '15'
+                end_bracket: )
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  wildcard_expression:
+                    wildcard_identifier:
+                      star: '*'
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                      - naked_identifier: Person
+                      - dot: .
+                      - naked_identifier: Address
+              where_clause:
+                keyword: WHERE
+                expression:
+                - column_reference:
+                    naked_identifier: City
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - parameter: '@city_name'
+                - binary_operator: AND
+                - column_reference:
+                    naked_identifier: PostalCode
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - parameter: '@postal_code'
+              option_clause:
+                keyword: OPTION
+                bracketed:
+                  start_bracket: (
+                  query_hint_segment:
+                  - keyword: OPTIMIZE
+                  - keyword: FOR
+                  - bracketed:
+                    - start_bracket: (
+                    - parameter: '@city_name'
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - quoted_literal: "'Seattle'"
+                    - comma: ','
+                    - parameter: '@postal_code'
+                    - keyword: UNKNOWN
+                    - end_bracket: )
+                  end_bracket: )
+              statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       with_compound_statement:
@@ -291,8 +292,8 @@ file:
                 numeric_literal: '2'
               end_bracket: )
           statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       set_expression:
@@ -347,8 +348,8 @@ file:
             - keyword: UNION
             end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -393,7 +394,7 @@ file:
               naked_identifier: UnitPrice
             comparison_operator:
               raw_comparison_operator: <
-            numeric_literal: '5'
+            integer_literal: '5'
         groupby_clause:
         - keyword: GROUP
         - keyword: BY
@@ -423,8 +424,8 @@ file:
               numeric_literal: '10'
           - end_bracket: )
         statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -469,7 +470,7 @@ file:
               naked_identifier: UnitPrice
             comparison_operator:
               raw_comparison_operator: <
-            numeric_literal: '5'
+            integer_literal: '5'
         groupby_clause:
         - keyword: GROUP
         - keyword: BY
@@ -495,8 +496,8 @@ file:
               numeric_literal: '2'
             end_bracket: )
         statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -528,7 +529,7 @@ file:
               naked_identifier: PostalCode
           - comparison_operator:
               raw_comparison_operator: '='
-          - numeric_literal: '98104'
+          - integer_literal: '98104'
         option_clause:
           keyword: OPTION
           bracketed:
@@ -547,8 +548,8 @@ file:
               - end_bracket: )
           - end_bracket: )
         statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -580,7 +581,7 @@ file:
               naked_identifier: PostalCode
           - comparison_operator:
               raw_comparison_operator: '='
-          - numeric_literal: '98104'
+          - integer_literal: '98104'
         option_clause:
           keyword: OPTION
           bracketed:
@@ -590,8 +591,8 @@ file:
               numeric_literal: '4199'
             end_bracket: )
         statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -623,7 +624,7 @@ file:
               naked_identifier: PostalCode
           - comparison_operator:
               raw_comparison_operator: '='
-          - numeric_literal: '98104'
+          - integer_literal: '98104'
         option_clause:
           keyword: OPTION
           bracketed:
@@ -637,8 +638,8 @@ file:
               numeric_literal: '4137'
           - end_bracket: )
         statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       update_statement:
@@ -674,8 +675,8 @@ file:
             keyword: LIKE
             quoted_literal: "'BK-%'"
         statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -740,7 +741,7 @@ file:
             - naked_identifier: TotalDue
             comparison_operator:
               raw_comparison_operator: '>'
-            numeric_literal: '100'
+            integer_literal: '100'
             binary_operator: AND
             bracketed:
               start_bracket: (
@@ -751,7 +752,7 @@ file:
                 - naked_identifier: OrderQty
               - comparison_operator:
                   raw_comparison_operator: '>'
-              - numeric_literal: '5'
+              - integer_literal: '5'
               - binary_operator: OR
               - column_reference:
                 - naked_identifier: d
@@ -762,8 +763,8 @@ file:
               - numeric_literal: '1000.00'
               end_bracket: )
         statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -850,7 +851,7 @@ file:
             - naked_identifier: TotalDue
             comparison_operator:
               raw_comparison_operator: '>'
-            numeric_literal: '100'
+            integer_literal: '100'
             binary_operator: AND
             bracketed:
               start_bracket: (
@@ -861,7 +862,7 @@ file:
                 - naked_identifier: OrderQty
               - comparison_operator:
                   raw_comparison_operator: '>'
-              - numeric_literal: '5'
+              - integer_literal: '5'
               - binary_operator: OR
               - column_reference:
                 - naked_identifier: d
@@ -872,8 +873,8 @@ file:
               - numeric_literal: '1000.00'
               end_bracket: )
         statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -951,7 +952,7 @@ file:
             - naked_identifier: TotalDue
             comparison_operator:
               raw_comparison_operator: '>'
-            numeric_literal: '100'
+            integer_literal: '100'
             binary_operator: AND
             bracketed:
               start_bracket: (
@@ -962,7 +963,7 @@ file:
                 - naked_identifier: OrderQty
               - comparison_operator:
                   raw_comparison_operator: '>'
-              - numeric_literal: '5'
+              - integer_literal: '5'
               - binary_operator: OR
               - column_reference:
                 - naked_identifier: d
@@ -973,8 +974,8 @@ file:
               - numeric_literal: '1000.00'
               end_bracket: )
         statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -999,8 +1000,8 @@ file:
                     query_hint_segment:
                       keyword: NOLOCK
                     end_bracket: )
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -1024,5 +1025,5 @@ file:
                     query_hint_segment:
                       keyword: NOLOCK
                     end_bracket: )
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO

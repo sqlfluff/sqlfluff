@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 24dceed7a3e011ab5c6f65e97a705d9a988ca9bd6a99da65557acf056d3653b5
+_hash: 14f8011ab0491aa10933c6f6afe83b3543d8144f3327425e1367768a5eb3db6d
 file:
   batch:
   - statement:
@@ -122,7 +122,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: <
             - raw_comparison_operator: '>'
-          - numeric_literal: '0'
+          - integer_literal: '0'
         named_window:
           keyword: WINDOW
           named_window_expression:
@@ -276,9 +276,9 @@ file:
             keyword: IN
             bracketed:
             - start_bracket: (
-            - numeric_literal: '43659'
+            - integer_literal: '43659'
             - comma: ','
-            - numeric_literal: '43664'
+            - integer_literal: '43664'
             - end_bracket: )
         named_window:
           keyword: WINDOW
@@ -413,9 +413,9 @@ file:
           - keyword: IN
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '43659'
+            - integer_literal: '43659'
             - comma: ','
-            - numeric_literal: '43664'
+            - integer_literal: '43664'
             - end_bracket: )
           - binary_operator: AND
           - column_reference:
@@ -518,9 +518,9 @@ file:
           - keyword: IN
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '43659'
+            - integer_literal: '43659'
             - comma: ','
-            - numeric_literal: '43664'
+            - integer_literal: '43664'
             - end_bracket: )
           - binary_operator: AND
           - column_reference:
