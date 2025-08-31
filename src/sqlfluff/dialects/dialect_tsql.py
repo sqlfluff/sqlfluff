@@ -302,6 +302,11 @@ tsql_dialect.add(
         LiteralSegment,
         type="integer_literal",
     ),
+    BinaryLiteralSegment=RegexParser(
+        r"0[xX][\da-fA-F]*",
+        LiteralSegment,
+        type="binary_literal",
+    ),
     TransactionGrammar=OneOf(
         "TRANSACTION",
         "TRAN",
@@ -482,6 +487,7 @@ tsql_dialect.replace(
         insert=[
             Ref("QuotedLiteralSegmentWithN"),
             Ref("IntegerLiteralSegment"),
+            Ref("BinaryLiteralSegment"),
         ],
         before=Ref("NumericLiteralSegment"),
         remove=[
