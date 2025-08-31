@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2432afab98214e095edba7cfb916f170a6681733d13b00b8c75639bf3228c300
+_hash: 96b5383446e47c2824ceb2dfa9c744e2ab3c8e265572e0d4272a5c3f25c51b33
 file:
 - batch:
     statement:
@@ -15,8 +15,8 @@ file:
         - dot: .
         - naked_identifier: SalesPersonQuotaHistory
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       delete_statement:
@@ -35,8 +35,8 @@ file:
               raw_comparison_operator: '>'
             numeric_literal: '1000.00'
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
   - statement:
       delete_statement:
@@ -81,12 +81,12 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        numeric_literal: '3'
+                        integer_literal: '3'
                       end_bracket: )
                 end_bracket: )
         statement_terminator: ;
-- go_statement:
-    keyword: GO
+  - go_statement:
+      keyword: GO
 - batch:
   - statement:
       declare_segment:
@@ -202,8 +202,8 @@ file:
         keyword: DEALLOCATE
         naked_identifier: complex_cursor
   - statement_terminator: ;
-- go_statement:
-    keyword: GO
+  - go_statement:
+      keyword: GO
 - batch:
     statement:
       delete_statement:
@@ -246,8 +246,8 @@ file:
                     numeric_literal: '2500000.00'
               end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       delete_statement:
@@ -307,8 +307,8 @@ file:
               raw_comparison_operator: '>'
             numeric_literal: '2500000.00'
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
   - statement:
       delete_statement:
@@ -372,7 +372,7 @@ file:
       - bracketed:
           start_bracket: (
           expression:
-            numeric_literal: '20'
+            integer_literal: '20'
           end_bracket: )
       - keyword: FROM
       - table_reference:
@@ -388,8 +388,8 @@ file:
               raw_comparison_operator: <
             quoted_literal: "'20020701'"
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+  - go_statement:
+      keyword: GO
 - batch:
     statement:
       delete_statement:
@@ -413,7 +413,7 @@ file:
                   select_clause_modifier:
                     keyword: TOP
                     expression:
-                      numeric_literal: '10'
+                      integer_literal: '10'
                   select_clause_element:
                     column_reference:
                       naked_identifier: PurchaseOrderDetailID
@@ -434,8 +434,8 @@ file:
                 - keyword: ASC
               end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       delete_statement:
@@ -455,10 +455,10 @@ file:
               naked_identifier: DepartmentID
             comparison_operator:
               raw_comparison_operator: '>'
-            numeric_literal: '16'
+            integer_literal: '16'
         statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       delete_statement:
@@ -472,8 +472,8 @@ file:
             WHERE DepartmentID = 18'"
           end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       delete_statement:
@@ -489,8 +489,8 @@ file:
           - table_reference:
               naked_identifier: Department
           - end_bracket: )
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
   - statement:
       delete_statement:
@@ -517,7 +517,7 @@ file:
               naked_identifier: DepartmentID
             comparison_operator:
               raw_comparison_operator: '='
-            numeric_literal: '17'
+            integer_literal: '17'
       - statement_terminator: ;
   - statement:
       delete_statement:
@@ -540,7 +540,7 @@ file:
               naked_identifier: ShoppingCartID
             comparison_operator:
               raw_comparison_operator: '='
-            numeric_literal: '20621'
+            integer_literal: '20621'
         statement_terminator: ;
   - statement:
       declare_segment:
@@ -565,7 +565,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '50'
+                    integer_literal: '50'
                   end_bracket: )
             column_constraint_segment:
             - keyword: NOT
@@ -665,7 +665,7 @@ file:
             - dot: .
             - naked_identifier: ProductModelID
           - keyword: BETWEEN
-          - numeric_literal: '120'
+          - integer_literal: '120'
           - keyword: and
-          - numeric_literal: '130'
+          - integer_literal: '130'
         statement_terminator: ;

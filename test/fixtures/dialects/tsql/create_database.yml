@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6cb1ce877a67cf2f98af157b6438ebd456c972981990eb1b71ebdd0da587aa73
+_hash: a56b651f70869ddf897d090eab06dc410092dd246ffc1040e6b2cd9bbfb4973a
 file:
 - batch:
   - statement:
@@ -22,66 +22,76 @@ file:
       - keyword: 'ON'
       - file_spec:
           bracketed:
-          - start_bracket: (
-          - logical_file_name:
-              keyword: NAME
-              comparison_operator:
-                raw_comparison_operator: '='
-              naked_identifier: Sales_dat
-              comma: ','
-          - keyword: FILENAME
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - quoted_literal: "'C:\\Program Files\\Microsoft SQL Server\\MSSQL13.MSSQLSERVER\\\
-              MSSQL\\DATA\\saledat.mdf'"
-          - comma: ','
-          - keyword: SIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '10'
-          - comma: ','
-          - keyword: MAXSIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '50'
-          - comma: ','
-          - keyword: FILEGROWTH
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '5'
-          - end_bracket: )
+            start_bracket: (
+            file_spec_without_bracket:
+              logical_file_name:
+                keyword: NAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                naked_identifier: Sales_dat
+              file_spec_file_name:
+                comma: ','
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'C:\\Program Files\\Microsoft SQL Server\\MSSQL13.MSSQLSERVER\\\
+                  MSSQL\\DATA\\saledat.mdf'"
+              file_spec_size:
+                comma: ','
+                keyword: SIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '10'
+              file_spec_max_size:
+                comma: ','
+                keyword: MAXSIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '50'
+              file_spec_file_growth:
+                comma: ','
+                keyword: FILEGROWTH
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '5'
+            end_bracket: )
       - keyword: LOG
       - keyword: 'ON'
       - file_spec:
           bracketed:
-          - start_bracket: (
-          - logical_file_name:
-              keyword: NAME
-              comparison_operator:
-                raw_comparison_operator: '='
-              naked_identifier: Sales_log
-              comma: ','
-          - keyword: FILENAME
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - quoted_literal: "'C:\\Program Files\\Microsoft SQL Server\\MSSQL13.MSSQLSERVER\\\
-              MSSQL\\DATA\\salelog.ldf'"
-          - comma: ','
-          - keyword: SIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - size_literal: 5MB
-          - comma: ','
-          - keyword: MAXSIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - size_literal: 25MB
-          - comma: ','
-          - keyword: FILEGROWTH
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - size_literal: 5MB
-          - end_bracket: )
+            start_bracket: (
+            file_spec_without_bracket:
+              logical_file_name:
+                keyword: NAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                naked_identifier: Sales_log
+              file_spec_file_name:
+                comma: ','
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'C:\\Program Files\\Microsoft SQL Server\\MSSQL13.MSSQLSERVER\\\
+                  MSSQL\\DATA\\salelog.ldf'"
+              file_spec_size:
+                comma: ','
+                keyword: SIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                size_literal: 5MB
+              file_spec_max_size:
+                comma: ','
+                keyword: MAXSIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                size_literal: 25MB
+              file_spec_file_growth:
+                comma: ','
+                keyword: FILEGROWTH
+                comparison_operator:
+                  raw_comparison_operator: '='
+                size_literal: 5MB
+            end_bracket: )
   - statement_terminator: ;
   - go_statement:
       keyword: GO
@@ -96,154 +106,179 @@ file:
       - keyword: PRIMARY
       - file_spec:
           bracketed:
-          - start_bracket: (
-          - logical_file_name:
-              keyword: NAME
-              comparison_operator:
-                raw_comparison_operator: '='
-              naked_identifier: Arch1
-              comma: ','
-          - keyword: FILENAME
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - quoted_literal: "'D:\\SalesData\\archdat1.mdf'"
-          - comma: ','
-          - keyword: SIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - size_literal: 100MB
-          - comma: ','
-          - keyword: MAXSIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '200'
-          - comma: ','
-          - keyword: FILEGROWTH
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '20'
-          - end_bracket: )
+            start_bracket: (
+            file_spec_without_bracket:
+              logical_file_name:
+                keyword: NAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                naked_identifier: Arch1
+              file_spec_file_name:
+                comma: ','
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'D:\\SalesData\\archdat1.mdf'"
+              file_spec_size:
+                comma: ','
+                keyword: SIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                size_literal: 100MB
+              file_spec_max_size:
+                comma: ','
+                keyword: MAXSIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '200'
+              file_spec_file_growth:
+                comma: ','
+                keyword: FILEGROWTH
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '20'
+            end_bracket: )
       - comma: ','
       - file_spec:
           bracketed:
-          - start_bracket: (
-          - logical_file_name:
-              keyword: NAME
-              comparison_operator:
-                raw_comparison_operator: '='
-              naked_identifier: Arch2
-              comma: ','
-          - keyword: FILENAME
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - quoted_literal: "'D:\\SalesData\\archdat2.ndf'"
-          - comma: ','
-          - keyword: SIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - size_literal: 100MB
-          - comma: ','
-          - keyword: MAXSIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '200'
-          - comma: ','
-          - keyword: FILEGROWTH
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '20'
-          - end_bracket: )
+            start_bracket: (
+            file_spec_without_bracket:
+              logical_file_name:
+                keyword: NAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                naked_identifier: Arch2
+              file_spec_file_name:
+                comma: ','
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'D:\\SalesData\\archdat2.ndf'"
+              file_spec_size:
+                comma: ','
+                keyword: SIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                size_literal: 100MB
+              file_spec_max_size:
+                comma: ','
+                keyword: MAXSIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '200'
+              file_spec_file_growth:
+                comma: ','
+                keyword: FILEGROWTH
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '20'
+            end_bracket: )
       - comma: ','
       - file_spec:
           bracketed:
-          - start_bracket: (
-          - logical_file_name:
-              keyword: NAME
-              comparison_operator:
-                raw_comparison_operator: '='
-              naked_identifier: Arch3
-              comma: ','
-          - keyword: FILENAME
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - quoted_literal: "'D:\\SalesData\\archdat3.ndf'"
-          - comma: ','
-          - keyword: SIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - size_literal: 100MB
-          - comma: ','
-          - keyword: MAXSIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '200'
-          - comma: ','
-          - keyword: FILEGROWTH
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '20'
-          - end_bracket: )
+            start_bracket: (
+            file_spec_without_bracket:
+              logical_file_name:
+                keyword: NAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                naked_identifier: Arch3
+              file_spec_file_name:
+                comma: ','
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'D:\\SalesData\\archdat3.ndf'"
+              file_spec_size:
+                comma: ','
+                keyword: SIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                size_literal: 100MB
+              file_spec_max_size:
+                comma: ','
+                keyword: MAXSIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '200'
+              file_spec_file_growth:
+                comma: ','
+                keyword: FILEGROWTH
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '20'
+            end_bracket: )
       - keyword: LOG
       - keyword: 'ON'
       - file_spec:
           bracketed:
-          - start_bracket: (
-          - logical_file_name:
-              keyword: NAME
-              comparison_operator:
-                raw_comparison_operator: '='
-              naked_identifier: Archlog1
-              comma: ','
-          - keyword: FILENAME
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - quoted_literal: "'D:\\SalesData\\archlog1.ldf'"
-          - comma: ','
-          - keyword: SIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - size_literal: 100MB
-          - comma: ','
-          - keyword: MAXSIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '200'
-          - comma: ','
-          - keyword: FILEGROWTH
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '20'
-          - end_bracket: )
+            start_bracket: (
+            file_spec_without_bracket:
+              logical_file_name:
+                keyword: NAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                naked_identifier: Archlog1
+              file_spec_file_name:
+                comma: ','
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'D:\\SalesData\\archlog1.ldf'"
+              file_spec_size:
+                comma: ','
+                keyword: SIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                size_literal: 100MB
+              file_spec_max_size:
+                comma: ','
+                keyword: MAXSIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '200'
+              file_spec_file_growth:
+                comma: ','
+                keyword: FILEGROWTH
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '20'
+            end_bracket: )
       - comma: ','
       - file_spec:
           bracketed:
-          - start_bracket: (
-          - logical_file_name:
-              keyword: NAME
-              comparison_operator:
-                raw_comparison_operator: '='
-              naked_identifier: Archlog2
-              comma: ','
-          - keyword: FILENAME
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - quoted_literal: "'D:\\SalesData\\archlog2.ldf'"
-          - comma: ','
-          - keyword: SIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - size_literal: 100MB
-          - comma: ','
-          - keyword: MAXSIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '200'
-          - comma: ','
-          - keyword: FILEGROWTH
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '20'
-          - end_bracket: )
+            start_bracket: (
+            file_spec_without_bracket:
+              logical_file_name:
+                keyword: NAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                naked_identifier: Archlog2
+              file_spec_file_name:
+                comma: ','
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'D:\\SalesData\\archlog2.ldf'"
+              file_spec_size:
+                comma: ','
+                keyword: SIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                size_literal: 100MB
+              file_spec_max_size:
+                comma: ','
+                keyword: MAXSIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '200'
+              file_spec_file_growth:
+                comma: ','
+                keyword: FILEGROWTH
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '20'
+            end_bracket: )
     statement_terminator: ;
     go_statement:
       keyword: GO
@@ -258,220 +293,255 @@ file:
       - keyword: PRIMARY
       - file_spec:
           bracketed:
-          - start_bracket: (
-          - logical_file_name:
-              keyword: NAME
-              comparison_operator:
-                raw_comparison_operator: '='
-              naked_identifier: SPri1_dat
-              comma: ','
-          - keyword: FILENAME
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - quoted_literal: "'D:\\SalesData\\SPri1dat.mdf'"
-          - comma: ','
-          - keyword: SIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '10'
-          - comma: ','
-          - keyword: MAXSIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '50'
-          - comma: ','
-          - keyword: FILEGROWTH
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '15'
-          - percent: '%'
-          - end_bracket: )
+            start_bracket: (
+            file_spec_without_bracket:
+              logical_file_name:
+                keyword: NAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                naked_identifier: SPri1_dat
+              file_spec_file_name:
+                comma: ','
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'D:\\SalesData\\SPri1dat.mdf'"
+              file_spec_size:
+                comma: ','
+                keyword: SIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '10'
+              file_spec_max_size:
+                comma: ','
+                keyword: MAXSIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '50'
+              file_spec_file_growth:
+                comma: ','
+                keyword: FILEGROWTH
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '15'
+                percent: '%'
+            end_bracket: )
       - comma: ','
       - file_spec:
           bracketed:
-          - start_bracket: (
-          - logical_file_name:
-              keyword: NAME
-              comparison_operator:
-                raw_comparison_operator: '='
-              naked_identifier: SPri2_dat
-              comma: ','
-          - keyword: FILENAME
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - quoted_literal: "'D:\\SalesData\\SPri2dt.ndf'"
-          - comma: ','
-          - keyword: SIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '10'
-          - comma: ','
-          - keyword: MAXSIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '50'
-          - comma: ','
-          - keyword: FILEGROWTH
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '15'
-          - percent: '%'
-          - end_bracket: )
+            start_bracket: (
+            file_spec_without_bracket:
+              logical_file_name:
+                keyword: NAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                naked_identifier: SPri2_dat
+              file_spec_file_name:
+                comma: ','
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'D:\\SalesData\\SPri2dt.ndf'"
+              file_spec_size:
+                comma: ','
+                keyword: SIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '10'
+              file_spec_max_size:
+                comma: ','
+                keyword: MAXSIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '50'
+              file_spec_file_growth:
+                comma: ','
+                keyword: FILEGROWTH
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '15'
+                percent: '%'
+            end_bracket: )
       - comma: ','
       - keyword: FILEGROUP
       - naked_identifier: SalesGroup1
       - file_spec:
           bracketed:
-          - start_bracket: (
-          - logical_file_name:
-              keyword: NAME
-              comparison_operator:
-                raw_comparison_operator: '='
-              naked_identifier: SGrp1Fi1_dat
-              comma: ','
-          - keyword: FILENAME
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - quoted_literal: "'D:\\SalesData\\SG1Fi1dt.ndf'"
-          - comma: ','
-          - keyword: SIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '10'
-          - comma: ','
-          - keyword: MAXSIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '50'
-          - comma: ','
-          - keyword: FILEGROWTH
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '5'
-          - end_bracket: )
+            start_bracket: (
+            file_spec_without_bracket:
+              logical_file_name:
+                keyword: NAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                naked_identifier: SGrp1Fi1_dat
+              file_spec_file_name:
+                comma: ','
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'D:\\SalesData\\SG1Fi1dt.ndf'"
+              file_spec_size:
+                comma: ','
+                keyword: SIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '10'
+              file_spec_max_size:
+                comma: ','
+                keyword: MAXSIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '50'
+              file_spec_file_growth:
+                comma: ','
+                keyword: FILEGROWTH
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '5'
+            end_bracket: )
       - comma: ','
       - file_spec:
           bracketed:
-          - start_bracket: (
-          - logical_file_name:
-              keyword: NAME
-              comparison_operator:
-                raw_comparison_operator: '='
-              naked_identifier: SGrp1Fi2_dat
-              comma: ','
-          - keyword: FILENAME
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - quoted_literal: "'D:\\SalesData\\SG1Fi2dt.ndf'"
-          - comma: ','
-          - keyword: SIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '10'
-          - comma: ','
-          - keyword: MAXSIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '50'
-          - comma: ','
-          - keyword: FILEGROWTH
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '5'
-          - end_bracket: )
+            start_bracket: (
+            file_spec_without_bracket:
+              logical_file_name:
+                keyword: NAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                naked_identifier: SGrp1Fi2_dat
+              file_spec_file_name:
+                comma: ','
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'D:\\SalesData\\SG1Fi2dt.ndf'"
+              file_spec_size:
+                comma: ','
+                keyword: SIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '10'
+              file_spec_max_size:
+                comma: ','
+                keyword: MAXSIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '50'
+              file_spec_file_growth:
+                comma: ','
+                keyword: FILEGROWTH
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '5'
+            end_bracket: )
       - comma: ','
       - keyword: FILEGROUP
       - naked_identifier: SalesGroup2
       - file_spec:
           bracketed:
-          - start_bracket: (
-          - logical_file_name:
-              keyword: NAME
-              comparison_operator:
-                raw_comparison_operator: '='
-              naked_identifier: SGrp2Fi1_dat
-              comma: ','
-          - keyword: FILENAME
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - quoted_literal: "'D:\\SalesData\\SG2Fi1dt.ndf'"
-          - comma: ','
-          - keyword: SIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '10'
-          - comma: ','
-          - keyword: MAXSIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '50'
-          - comma: ','
-          - keyword: FILEGROWTH
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '5'
-          - end_bracket: )
+            start_bracket: (
+            file_spec_without_bracket:
+              logical_file_name:
+                keyword: NAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                naked_identifier: SGrp2Fi1_dat
+              file_spec_file_name:
+                comma: ','
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'D:\\SalesData\\SG2Fi1dt.ndf'"
+              file_spec_size:
+                comma: ','
+                keyword: SIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '10'
+              file_spec_max_size:
+                comma: ','
+                keyword: MAXSIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '50'
+              file_spec_file_growth:
+                comma: ','
+                keyword: FILEGROWTH
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '5'
+            end_bracket: )
       - comma: ','
       - file_spec:
           bracketed:
-          - start_bracket: (
-          - logical_file_name:
-              keyword: NAME
-              comparison_operator:
-                raw_comparison_operator: '='
-              naked_identifier: SGrp2Fi2_dat
-              comma: ','
-          - keyword: FILENAME
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - quoted_literal: "'D:\\SalesData\\SG2Fi2dt.ndf'"
-          - comma: ','
-          - keyword: SIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '10'
-          - comma: ','
-          - keyword: MAXSIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '50'
-          - comma: ','
-          - keyword: FILEGROWTH
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - numeric_literal: '5'
-          - end_bracket: )
+            start_bracket: (
+            file_spec_without_bracket:
+              logical_file_name:
+                keyword: NAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                naked_identifier: SGrp2Fi2_dat
+              file_spec_file_name:
+                comma: ','
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'D:\\SalesData\\SG2Fi2dt.ndf'"
+              file_spec_size:
+                comma: ','
+                keyword: SIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '10'
+              file_spec_max_size:
+                comma: ','
+                keyword: MAXSIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '50'
+              file_spec_file_growth:
+                comma: ','
+                keyword: FILEGROWTH
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '5'
+            end_bracket: )
       - keyword: LOG
       - keyword: 'ON'
       - file_spec:
           bracketed:
-          - start_bracket: (
-          - logical_file_name:
-              keyword: NAME
-              comparison_operator:
-                raw_comparison_operator: '='
-              naked_identifier: Sales_log
-              comma: ','
-          - keyword: FILENAME
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - quoted_literal: "'E:\\SalesLog\\salelog.ldf'"
-          - comma: ','
-          - keyword: SIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - size_literal: 5MB
-          - comma: ','
-          - keyword: MAXSIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - size_literal: 25MB
-          - comma: ','
-          - keyword: FILEGROWTH
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - size_literal: 5MB
-          - end_bracket: )
+            start_bracket: (
+            file_spec_without_bracket:
+              logical_file_name:
+                keyword: NAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                naked_identifier: Sales_log
+              file_spec_file_name:
+                comma: ','
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'E:\\SalesLog\\salelog.ldf'"
+              file_spec_size:
+                comma: ','
+                keyword: SIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                size_literal: 5MB
+              file_spec_max_size:
+                comma: ','
+                keyword: MAXSIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                size_literal: 25MB
+              file_spec_file_growth:
+                comma: ','
+                keyword: FILEGROWTH
+                comparison_operator:
+                  raw_comparison_operator: '='
+                size_literal: 5MB
+            end_bracket: )
     statement_terminator: ;
     go_statement:
       keyword: GO
@@ -490,11 +560,12 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             naked_identifier: SPri1_dat
+          file_spec_file_name:
             comma: ','
-          keyword: FILENAME
-          comparison_operator:
-            raw_comparison_operator: '='
-          quoted_literal: "'D:\\SalesData\\SPri1dat_0600.ss'"
+            keyword: FILENAME
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'D:\\SalesData\\SPri1dat_0600.ss'"
           end_bracket: )
       - comma: ','
       - bracketed:
@@ -504,11 +575,12 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             naked_identifier: SPri2_dat
+          file_spec_file_name:
             comma: ','
-          keyword: FILENAME
-          comparison_operator:
-            raw_comparison_operator: '='
-          quoted_literal: "'D:\\SalesData\\SPri2dt_0600.ss'"
+            keyword: FILENAME
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'D:\\SalesData\\SPri2dt_0600.ss'"
           end_bracket: )
       - comma: ','
       - bracketed:
@@ -518,11 +590,12 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             naked_identifier: SGrp1Fi1_dat
+          file_spec_file_name:
             comma: ','
-          keyword: FILENAME
-          comparison_operator:
-            raw_comparison_operator: '='
-          quoted_literal: "'D:\\SalesData\\SG1Fi1dt_0600.ss'"
+            keyword: FILENAME
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'D:\\SalesData\\SG1Fi1dt_0600.ss'"
           end_bracket: )
       - comma: ','
       - bracketed:
@@ -532,11 +605,12 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             naked_identifier: SGrp1Fi2_dat
+          file_spec_file_name:
             comma: ','
-          keyword: FILENAME
-          comparison_operator:
-            raw_comparison_operator: '='
-          quoted_literal: "'D:\\SalesData\\SG1Fi2dt_0600.ss'"
+            keyword: FILENAME
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'D:\\SalesData\\SG1Fi2dt_0600.ss'"
           end_bracket: )
       - comma: ','
       - bracketed:
@@ -546,11 +620,12 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             naked_identifier: SGrp2Fi1_dat
+          file_spec_file_name:
             comma: ','
-          keyword: FILENAME
-          comparison_operator:
-            raw_comparison_operator: '='
-          quoted_literal: "'D:\\SalesData\\SG2Fi1dt_0600.ss'"
+            keyword: FILENAME
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'D:\\SalesData\\SG2Fi1dt_0600.ss'"
           end_bracket: )
       - comma: ','
       - bracketed:
@@ -560,11 +635,12 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             naked_identifier: SGrp2Fi2_dat
+          file_spec_file_name:
             comma: ','
-          keyword: FILENAME
-          comparison_operator:
-            raw_comparison_operator: '='
-          quoted_literal: "'D:\\SalesData\\SG2Fi2dt_0600.ss'"
+            keyword: FILENAME
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'D:\\SalesData\\SG2Fi2dt_0600.ss'"
           end_bracket: )
       - keyword: AS
       - keyword: SNAPSHOT
@@ -600,30 +676,36 @@ file:
       - file_spec:
           bracketed:
             start_bracket: (
-            keyword: FILENAME
-            comparison_operator:
-              raw_comparison_operator: '='
-            quoted_literal: "'c:\\Program Files\\Microsoft SQL Server\\MSSQL13.MSSQLSERVER\\\
-              MSSQL\\Data\\AdventureWorks2022_data.mdf'"
+            file_spec_without_bracket:
+              file_spec_file_name:
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'c:\\Program Files\\Microsoft SQL Server\\MSSQL13.MSSQLSERVER\\\
+                  MSSQL\\Data\\AdventureWorks2022_data.mdf'"
             end_bracket: )
       - comma: ','
       - file_spec:
           bracketed:
             start_bracket: (
-            keyword: FILENAME
-            comparison_operator:
-              raw_comparison_operator: '='
-            quoted_literal: "'c:\\Program Files\\Microsoft SQL Server\\MSSQL13.MSSQLSERVER\\\
-              MSSQL\\Data\\AdventureWorks2022_log.ldf'"
+            file_spec_without_bracket:
+              file_spec_file_name:
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'c:\\Program Files\\Microsoft SQL Server\\MSSQL13.MSSQLSERVER\\\
+                  MSSQL\\Data\\AdventureWorks2022_log.ldf'"
             end_bracket: )
       - comma: ','
       - file_spec:
           bracketed:
             start_bracket: (
-            keyword: FILENAME
-            comparison_operator:
-              raw_comparison_operator: '='
-            quoted_literal: "'c:\\myFTCatalogs\\AdvWksFtCat'"
+            file_spec_without_bracket:
+              file_spec_file_name:
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'c:\\myFTCatalogs\\AdvWksFtCat'"
             end_bracket: )
       - keyword: FOR
       - keyword: ATTACH
@@ -645,33 +727,38 @@ file:
       - keyword: PRIMARY
       - file_spec:
           bracketed:
-          - start_bracket: (
-          - logical_file_name:
-              keyword: NAME
-              comparison_operator:
-                raw_comparison_operator: '='
-              quoted_literal: "N'BlobStore1'"
-              comma: ','
-          - keyword: FILENAME
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - quoted_literal: "N'C:\\BlobStore\\BlobStore1.mdf'"
-          - comma: ','
-          - keyword: SIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - size_literal: 100MB
-          - comma: ','
-          - keyword: MAXSIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - keyword: UNLIMITED
-          - comma: ','
-          - keyword: FILEGROWTH
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - size_literal: 1MB
-          - end_bracket: )
+            start_bracket: (
+            file_spec_without_bracket:
+              logical_file_name:
+                keyword: NAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "N'BlobStore1'"
+              file_spec_file_name:
+                comma: ','
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "N'C:\\BlobStore\\BlobStore1.mdf'"
+              file_spec_size:
+                comma: ','
+                keyword: SIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                size_literal: 100MB
+              file_spec_max_size:
+              - comma: ','
+              - keyword: MAXSIZE
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - keyword: UNLIMITED
+              file_spec_file_growth:
+                comma: ','
+                keyword: FILEGROWTH
+                comparison_operator:
+                  raw_comparison_operator: '='
+                size_literal: 1MB
+            end_bracket: )
       - comma: ','
       - keyword: FILEGROUP
       - quoted_identifier: '[FS]'
@@ -680,74 +767,85 @@ file:
       - keyword: DEFAULT
       - file_spec:
           bracketed:
-          - start_bracket: (
-          - logical_file_name:
-              keyword: NAME
-              comparison_operator:
-                raw_comparison_operator: '='
-              quoted_literal: "N'FS1'"
-              comma: ','
-          - keyword: FILENAME
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - quoted_literal: "N'C:\\BlobStore\\FS1'"
-          - comma: ','
-          - keyword: MAXSIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - keyword: UNLIMITED
-          - end_bracket: )
+            start_bracket: (
+            file_spec_without_bracket:
+              logical_file_name:
+                keyword: NAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "N'FS1'"
+              file_spec_file_name:
+                comma: ','
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "N'C:\\BlobStore\\FS1'"
+              file_spec_max_size:
+              - comma: ','
+              - keyword: MAXSIZE
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - keyword: UNLIMITED
+            end_bracket: )
       - comma: ','
       - file_spec:
           bracketed:
-          - start_bracket: (
-          - logical_file_name:
-              keyword: NAME
-              comparison_operator:
-                raw_comparison_operator: '='
-              quoted_literal: "N'FS2'"
-              comma: ','
-          - keyword: FILENAME
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - quoted_literal: "N'C:\\BlobStore\\FS2'"
-          - comma: ','
-          - keyword: MAXSIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - size_literal: 100MB
-          - end_bracket: )
+            start_bracket: (
+            file_spec_without_bracket:
+              logical_file_name:
+                keyword: NAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "N'FS2'"
+              file_spec_file_name:
+                comma: ','
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "N'C:\\BlobStore\\FS2'"
+              file_spec_max_size:
+                comma: ','
+                keyword: MAXSIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                size_literal: 100MB
+            end_bracket: )
       - keyword: LOG
       - keyword: 'ON'
       - file_spec:
           bracketed:
-          - start_bracket: (
-          - logical_file_name:
-              keyword: NAME
-              comparison_operator:
-                raw_comparison_operator: '='
-              quoted_literal: "N'BlobStore1_log'"
-              comma: ','
-          - keyword: FILENAME
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - quoted_literal: "N'C:\\BlobStore\\BlobStore1_log.ldf'"
-          - comma: ','
-          - keyword: SIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - size_literal: 100MB
-          - comma: ','
-          - keyword: MAXSIZE
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - size_literal: 1GB
-          - comma: ','
-          - keyword: FILEGROWTH
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - size_literal: 1MB
-          - end_bracket: )
+            start_bracket: (
+            file_spec_without_bracket:
+              logical_file_name:
+                keyword: NAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "N'BlobStore1_log'"
+              file_spec_file_name:
+                comma: ','
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "N'C:\\BlobStore\\BlobStore1_log.ldf'"
+              file_spec_size:
+                comma: ','
+                keyword: SIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                size_literal: 100MB
+              file_spec_max_size:
+                comma: ','
+                keyword: MAXSIZE
+                comparison_operator:
+                  raw_comparison_operator: '='
+                size_literal: 1GB
+              file_spec_file_growth:
+                comma: ','
+                keyword: FILEGROWTH
+                comparison_operator:
+                  raw_comparison_operator: '='
+                size_literal: 1MB
+            end_bracket: )
     statement_terminator: ;
     go_statement:
       keyword: GO
@@ -787,10 +885,12 @@ file:
       - file_spec:
           bracketed:
             start_bracket: (
-            keyword: FILENAME
-            comparison_operator:
-              raw_comparison_operator: '='
-            quoted_literal: "'D:\\SalesData\\archdat1.mdf'"
+            file_spec_without_bracket:
+              file_spec_file_name:
+                keyword: FILENAME
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'D:\\SalesData\\archdat1.mdf'"
             end_bracket: )
       - keyword: FOR
       - keyword: ATTACH
