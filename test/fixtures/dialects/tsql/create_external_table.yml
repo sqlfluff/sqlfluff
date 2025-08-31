@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0011b4bff405995cd8650f894336a6ccc8fe336b1989056543054c7b8a7628d2
+_hash: c263819fa6cb975216a75d976000aded350cc54e866945623c2bc99a36d3957e
 file:
   batch:
   - statement:
@@ -25,7 +25,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '50'
+                    integer_literal: '50'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -36,7 +36,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '50'
+                    integer_literal: '50'
                   end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
@@ -49,7 +49,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '50'
+                    integer_literal: '50'
                   end_bracket: )
             column_constraint_segment:
             - keyword: NOT
@@ -110,7 +110,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '50'
+                    integer_literal: '50'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -121,7 +121,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '50'
+                    integer_literal: '50'
                   end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
@@ -134,7 +134,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '50'
+                    integer_literal: '50'
                   end_bracket: )
             column_constraint_segment:
             - keyword: NOT
@@ -198,7 +198,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '38'
+                    integer_literal: '38'
                   end_bracket: )
             column_constraint_segment:
             - keyword: NOT
@@ -212,7 +212,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '38'
+                    integer_literal: '38'
                   end_bracket: )
             column_constraint_segment:
             - keyword: NOT
@@ -238,10 +238,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '15'
+                    integer_literal: '15'
                 - comma: ','
                 - expression:
-                    numeric_literal: '2'
+                    integer_literal: '2'
                 - end_bracket: )
             column_constraint_segment:
             - keyword: NOT
@@ -255,7 +255,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '0'
+                    integer_literal: '0'
                   end_bracket: )
             column_constraint_segment:
             - keyword: NOT
@@ -269,7 +269,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '15'
+                    integer_literal: '15'
                   end_bracket: )
           - column_constraint_segment:
               keyword: COLLATE
@@ -287,7 +287,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '15'
+                    integer_literal: '15'
                   end_bracket: )
           - column_constraint_segment:
               keyword: COLLATE
@@ -305,7 +305,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '38'
+                    integer_literal: '38'
                   end_bracket: )
             column_constraint_segment:
             - keyword: NOT
@@ -319,7 +319,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '79'
+                    integer_literal: '79'
                   end_bracket: )
           - column_constraint_segment:
               keyword: COLLATE

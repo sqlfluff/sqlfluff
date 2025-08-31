@@ -1,0 +1,84 @@
+-- Rename database
+ALTER DATABASE AdventureWorks2022
+Modify Name = Northwind ;
+GO
+
+ALTER DATABASE db1
+    MODIFY Name = db2 ;
+
+ALTER DATABASE CURRENT
+    MODIFY Name = db2 ;
+
+-- Change collation
+ALTER DATABASE testDB
+COLLATE French_CI_AI ;
+GO
+
+-- Add file
+ALTER DATABASE WideWorldImporters
+  ADD FILE (NAME = 'data_17');
+
+-- change database options using SET
+ALTER DATABASE CustomerSales
+    SET AUTO_CREATE_STATISTICS ON;
+
+ALTER DATABASE CustomerSales
+    SET AUTO_UPDATE_STATISTICS ON;
+
+ALTER DATABASE CURRENT
+    SET AUTO_UPDATE_STATISTICS_ASYNC ON;
+
+-- Add / remove secondary database
+ALTER DATABASE db1
+ADD SECONDARY ON SERVER secondaryserver;
+
+ALTER DATABASE db1
+ADD SECONDARY ON SERVER secondaryserver
+WITH ( ALLOW_CONNECTIONS = ALL );
+
+ALTER DATABASE db1
+REMOVE SECONDARY ON SERVER testsecondaryserver;
+
+-- Initiate failover
+ALTER DATABASE db1 FAILOVER;
+
+ALTER DATABASE db1 FORCE_FAILOVER_ALLOW_DATA_LOSS;
+
+ALTER DATABASE [mySampleDatabase] PERFORM_CUTOVER;
+
+-- Modify database options using MODIFY
+ALTER DATABASE current
+    MODIFY (EDITION = 'Premium');
+
+ALTER DATABASE db1
+    MODIFY (SERVICE_OBJECTIVE = 'P6');
+
+ALTER DATABASE dw1 MODIFY ( MAXSIZE=10240 GB );
+
+ALTER DATABASE [db1]
+    MODIFY (EDITION = 'Standard', MAXSIZE = 250 GB, SERVICE_OBJECTIVE = 'S0');
+
+ALTER DATABASE db1
+    MODIFY ( SERVICE_OBJECTIVE = ELASTIC_POOL ( name = pool1 ) ) ;
+
+ALTER DATABASE [mySampleDatabase]
+   MODIFY (EDITION = 'Hyperscale', SERVICE_OBJECTIVE = 'HS_Gen5_2')
+   WITH MANUAL_CUTOVER;
+
+ALTER DATABASE db1
+    MODIFY BACKUP_STORAGE_REDUNDANCY = 'ZONE';
+
+ALTER DATABASE CustomerSales
+    SET ( AUTOGROW = ON );
+
+ALTER DATABASE CustomerSales
+    SET ( REPLICATED_SIZE = 1 GB );
+
+ALTER DATABASE CustomerSales
+    SET ( DISTRIBUTED_SIZE = 1000 GB );
+
+ALTER DATABASE CustomerSales
+    SET ( LOG_SIZE = 10 GB );
+
+ALTER DATABASE CustomerSales
+    SET ( AUTOGROW = ON, LOG_SIZE = 10 GB );

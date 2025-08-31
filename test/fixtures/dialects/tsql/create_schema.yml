@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c308748e09e74b7c6c4e3a3cdbf45e63a4a756b19637c7fc16cf053dabb11c88
+_hash: aa88b774d251afb10bff49bd8ba6f74a9e5a57e4679cdfa4a11ed9262015f113
 file:
 - batch:
     statement:
@@ -12,8 +12,8 @@ file:
       - keyword: SCHEMA
       - schema_reference:
           quoted_identifier: '[Reporting]'
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_schema_statement:
@@ -25,5 +25,5 @@ file:
       - role_reference:
           quoted_identifier: '[dbo]'
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO

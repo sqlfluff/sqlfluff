@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6ac05f7d3868d577713bf0c9fd2bb14064734dfeda97fe0636bd3747732a926c
+_hash: 53386a039d8feacad8152fe4e5054037b4918d9192976d44dced09dc9fbeaee5
 file:
   batch:
   - statement:
@@ -85,7 +85,7 @@ file:
                           bracketed:
                             start_bracket: (
                             expression:
-                              numeric_literal: '3'
+                              integer_literal: '3'
                             end_bracket: )
                     - comma: ','
                     - column_reference:
@@ -136,7 +136,7 @@ file:
                           bracketed:
                             start_bracket: (
                             expression:
-                              numeric_literal: '200'
+                              integer_literal: '200'
                             end_bracket: )
                     - quoted_literal: "'$.Order.Number'"
                     - comma: ','
@@ -154,7 +154,7 @@ file:
                           bracketed:
                             start_bracket: (
                             expression:
-                              numeric_literal: '200'
+                              integer_literal: '200'
                             end_bracket: )
                     - quoted_literal: "'$.AccountNumber'"
                     - comma: ','
@@ -229,7 +229,7 @@ file:
                             bracketed:
                               start_bracket: (
                               expression:
-                                numeric_literal: '100'
+                                integer_literal: '100'
                               end_bracket: )
                         quoted_literal: "'$'"
                         end_bracket: )
@@ -296,7 +296,7 @@ file:
                             bracketed:
                               start_bracket: (
                               expression:
-                                numeric_literal: '500'
+                                integer_literal: '500'
                               end_bracket: )
                       - comma: ','
                       - column_reference:
@@ -307,7 +307,7 @@ file:
                             bracketed:
                               start_bracket: (
                               expression:
-                                numeric_literal: '500'
+                                integer_literal: '500'
                               end_bracket: )
                       - quoted_literal: "'$.postcode'"
                       - comma: ','
@@ -370,7 +370,7 @@ file:
                             bracketed:
                               start_bracket: (
                               expression:
-                                numeric_literal: '50'
+                                integer_literal: '50'
                               end_bracket: )
                       - comma: ','
                       - column_reference:
@@ -381,7 +381,7 @@ file:
                             bracketed:
                               start_bracket: (
                               expression:
-                                numeric_literal: '50'
+                                integer_literal: '50'
                               end_bracket: )
                       - comma: ','
                       - column_reference:
@@ -407,7 +407,7 @@ file:
                             bracketed:
                               start_bracket: (
                               expression:
-                                numeric_literal: '50'
+                                integer_literal: '50'
                               end_bracket: )
                       - end_bracket: )
             statement_terminator: ;

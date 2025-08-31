@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 698fc3e052539d86352bbfca199a76a7809282b7a4834e12b7671cbfc94b00e7
+_hash: e64b9c172b854bed107cf62fa618aaec906090bbb1a71056a452d69683251cec
 file:
 - batch:
     statement:
@@ -49,7 +49,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
             column_constraint_segment:
               keyword: DEFAULT
@@ -77,7 +77,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '30'
+                    integer_literal: '30'
                   end_bracket: )
             column_constraint_segment:
               keyword: DEFAULT
@@ -144,8 +144,8 @@ file:
           - column_constraint_segment:
               keyword: 'NULL'
         - end_bracket: )
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -174,8 +174,8 @@ file:
                   keyword: ASC
                 end_bracket: )
           end_bracket: )
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -207,8 +207,8 @@ file:
                   keyword: DESC
                 end_bracket: )
           end_bracket: )
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -228,7 +228,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
           - column_constraint_segment:
               keyword: FILESTREAM
@@ -251,7 +251,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
           - column_constraint_segment:
               keyword: 'NULL'
@@ -268,10 +268,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
             column_constraint_segment:
             - keyword: GENERATED
@@ -289,7 +289,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
             column_constraint_segment:
               encrypted_with_grammar:
@@ -321,15 +321,15 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
             column_constraint_segment:
               keyword: collate
               collation_reference:
                 naked_identifier: Latin1_General_BIN
         - end_bracket: )
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:

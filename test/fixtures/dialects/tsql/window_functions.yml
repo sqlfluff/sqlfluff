@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bbb3c4c89f2e59ba5265dee316396e1ec222dd96735873bb59313661160a9936
+_hash: c56509ae7acfbf6289d14e48b3f249d21604a0180ae633043c88e58070ed271e
 file:
   batch:
   - statement:
@@ -71,7 +71,7 @@ file:
                     - keyword: PARTITION
                     - keyword: BY
                     - expression:
-                        numeric_literal: '1'
+                        integer_literal: '1'
                     orderby_clause:
                     - keyword: ORDER
                     - keyword: BY
@@ -127,7 +127,7 @@ file:
                               quoted_literal: "'value'"
                           - keyword: THEN
                           - expression:
-                              numeric_literal: '1'
+                              integer_literal: '1'
                         - keyword: END
                     orderby_clause:
                     - keyword: ORDER
@@ -189,7 +189,7 @@ file:
                               quoted_literal: "'value'"
                           - keyword: THEN
                           - expression:
-                              numeric_literal: '1'
+                              integer_literal: '1'
                         - keyword: END
                     - comma: ','
                     - column_reference:
