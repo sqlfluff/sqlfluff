@@ -3,13 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6d2f93bc16f9afad5bf4684431460f2177822a6f827e3f85e30482459bf8a9d6
+_hash: f5349eaa0c44b220ca663750aceb9eaf89a936d8e86614334b8a2507d210e069
 file:
   batch:
-  - statement:
-      execute_script_statement:
-        object_reference:
-          quoted_identifier: '"""T-SQL binary constants variable assignment test cases."""'
   - statement:
       declare_segment:
         keyword: declare

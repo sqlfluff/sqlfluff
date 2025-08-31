@@ -3,142 +3,138 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8f8c065c94903acbd8cf9005b044524153eefe655967ae7246d80c85aa8d641c
+_hash: e88d0b33632b129d39a95e537cb35cd0b590eacd700fa6f3200bb2e37234ff22
 file:
   batch:
-    statement:
-      execute_script_statement:
-      - object_reference:
-          quoted_identifier: '"""T-SQL binary constants function calls test cases."""'
-      - expression:
-          select_statement:
-            select_clause:
-              keyword: select
-              select_clause_element:
-                function:
-                  function_name:
-                    keyword: CAST
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        numeric_literal: '0x0'
-                      keyword: as
-                      data_type:
-                        data_type_identifier: uniqueidentifier
-                      end_bracket: )
-            statement_terminator: ;
-      - expression:
-          select_statement:
-            select_clause:
-              keyword: select
-              select_clause_element:
-                function:
-                  function_name:
-                    keyword: CAST
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        numeric_literal: '0xAE'
-                      keyword: as
-                      data_type:
-                        data_type_identifier: binary
-                        bracketed_arguments:
-                          bracketed:
-                            start_bracket: (
-                            expression:
-                              numeric_literal: '2'
-                            end_bracket: )
-                      end_bracket: )
-            statement_terminator: ;
-      - expression:
-          select_statement:
-            select_clause:
-              keyword: select
-              select_clause_element:
-                function:
-                  function_name:
-                    keyword: CAST
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        numeric_literal: '0x12Ef'
-                      keyword: as
-                      data_type:
-                        data_type_identifier: varbinary
-                        bracketed_arguments:
-                          bracketed:
-                            start_bracket: (
-                            expression:
-                              numeric_literal: '16'
-                            end_bracket: )
-                      end_bracket: )
-            statement_terminator: ;
-      - expression:
-          select_statement:
-            select_clause:
-              keyword: select
-              select_clause_element:
-                function:
-                  function_name:
-                    keyword: CAST
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        numeric_literal: 0X0
-                      keyword: as
-                      data_type:
-                        data_type_identifier: uniqueidentifier
-                      end_bracket: )
-            statement_terminator: ;
-      - expression:
-          select_statement:
-            select_clause:
-              keyword: select
-              select_clause_element:
-                function:
-                  function_name:
-                    keyword: CONVERT
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      data_type:
-                        data_type_identifier: binary
-                        bracketed_arguments:
-                          bracketed:
-                            start_bracket: (
-                            expression:
-                              numeric_literal: '4'
-                            end_bracket: )
-                      comma: ','
-                      expression:
-                        numeric_literal: '0x69048AEF'
-                      end_bracket: )
-            statement_terminator: ;
-      - expression:
-          select_statement:
-            select_clause:
-              keyword: select
-              select_clause_element:
-                function:
-                  function_name:
-                    keyword: CAST
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        numeric_literal: 0x
-                      keyword: as
-                      data_type:
-                        data_type_identifier: binary
-                        bracketed_arguments:
-                          bracketed:
-                            start_bracket: (
-                            expression:
-                              numeric_literal: '1'
-                            end_bracket: )
-                      end_bracket: )
-            statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            function:
+              function_name:
+                keyword: CAST
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '0x0'
+                  keyword: as
+                  data_type:
+                    data_type_identifier: uniqueidentifier
+                  end_bracket: )
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            function:
+              function_name:
+                keyword: CAST
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '0xAE'
+                  keyword: as
+                  data_type:
+                    data_type_identifier: binary
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          numeric_literal: '2'
+                        end_bracket: )
+                  end_bracket: )
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            function:
+              function_name:
+                keyword: CAST
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '0x12Ef'
+                  keyword: as
+                  data_type:
+                    data_type_identifier: varbinary
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          numeric_literal: '16'
+                        end_bracket: )
+                  end_bracket: )
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            function:
+              function_name:
+                keyword: CAST
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: 0X0
+                  keyword: as
+                  data_type:
+                    data_type_identifier: uniqueidentifier
+                  end_bracket: )
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            function:
+              function_name:
+                keyword: CONVERT
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  data_type:
+                    data_type_identifier: binary
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          numeric_literal: '4'
+                        end_bracket: )
+                  comma: ','
+                  expression:
+                    numeric_literal: '0x69048AEF'
+                  end_bracket: )
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            function:
+              function_name:
+                keyword: CAST
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: 0x
+                  keyword: as
+                  data_type:
+                    data_type_identifier: binary
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          numeric_literal: '1'
+                        end_bracket: )
+                  end_bracket: )
+        statement_terminator: ;

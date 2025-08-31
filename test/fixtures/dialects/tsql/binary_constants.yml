@@ -3,82 +3,78 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e3a37e5e9c43a15d7aa17e43c4b90f0622ac1ca9ee9d5fe5b81080641e131c15
+_hash: cdd22319b7ef05b176574a63e5e21ab8b7356c60b78e44750370a35748c8d2d4
 file:
   batch:
-    statement:
-      execute_script_statement:
-      - object_reference:
-          quoted_identifier: '"""T-SQL binary constants test cases."""'
-      - expression:
-          select_statement:
-            select_clause:
-              keyword: select
-              select_clause_element:
-                numeric_literal: '0x0'
-            statement_terminator: ;
-      - expression:
-          select_statement:
-            select_clause:
-              keyword: select
-              select_clause_element:
-                numeric_literal: '0xAE'
-            statement_terminator: ;
-      - expression:
-          select_statement:
-            select_clause:
-              keyword: select
-              select_clause_element:
-                numeric_literal: '0x12Ef'
-            statement_terminator: ;
-      - expression:
-          select_statement:
-            select_clause:
-              keyword: select
-              select_clause_element:
-                numeric_literal: '0x69048AEFDD010E'
-            statement_terminator: ;
-      - expression:
-          select_statement:
-            select_clause:
-              keyword: select
-              select_clause_element:
-                numeric_literal: 0x
-            statement_terminator: ;
-      - expression:
-          select_statement:
-            select_clause:
-              keyword: select
-              select_clause_element:
-                numeric_literal: 0X0
-            statement_terminator: ;
-      - expression:
-          select_statement:
-            select_clause:
-              keyword: select
-              select_clause_element:
-                numeric_literal: 0XAE
-            statement_terminator: ;
-      - expression:
-          select_statement:
-            select_clause:
-            - keyword: select
-            - select_clause_element:
-                numeric_literal: '0x0'
-            - comma: ','
-            - select_clause_element:
-                numeric_literal: '0xAE'
-            - comma: ','
-            - select_clause_element:
-                numeric_literal: '0x12Ef'
-            statement_terminator: ;
-      - expression:
-          select_statement:
-            select_clause:
-            - keyword: select
-            - select_clause_element:
-                numeric_literal: "x'FF'"
-            - comma: ','
-            - select_clause_element:
-                numeric_literal: "X'DEAD'"
-            statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '0x0'
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '0xAE'
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '0x12Ef'
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '0x69048AEFDD010E'
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: 0x
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: 0X0
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: 0XAE
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            numeric_literal: '0x0'
+        - comma: ','
+        - select_clause_element:
+            numeric_literal: '0xAE'
+        - comma: ','
+        - select_clause_element:
+            numeric_literal: '0x12Ef'
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            numeric_literal: "x'FF'"
+        - comma: ','
+        - select_clause_element:
+            numeric_literal: "X'DEAD'"
+        statement_terminator: ;
