@@ -265,12 +265,6 @@ tsql_dialect.patch_lexer_matchers(
     ]
 )
 
-tsql_dialect.replace(
-    DelimiterGrammar=Sequence(
-        Ref("SemicolonSegment"), AnyNumberOf(Ref("SemicolonSegment"))
-    )
-)
-
 tsql_dialect.add(
     BracketedIdentifierSegment=TypedParser(
         "square_quote",
@@ -674,6 +668,9 @@ tsql_dialect.replace(
             Ref("DivisionAssignmentSegment"),
             Ref("ModulusAssignmentSegment"),
         ]
+    ),
+    DelimiterGrammar=Sequence(
+        Ref("SemicolonSegment"), AnyNumberOf(Ref("SemicolonSegment"))
     ),
 )
 

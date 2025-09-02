@@ -55,10 +55,10 @@ class Rule_TQ02(BaseRule):
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         # Only apply to tsql dialect.
-        if context.dialect.name != "tsql":  # pragma: no cover - safety
+        if context.dialect.name != "tsql":  # pragma: no cover
             return None
         # Only operate once at file segment root.
-        if not context.segment.is_type("file"):
+        if not context.segment.is_type("file"):  # pragma: no cover
             return None
 
         raw = context.segment.raw
