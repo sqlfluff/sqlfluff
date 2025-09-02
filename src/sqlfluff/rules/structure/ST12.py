@@ -1,31 +1,19 @@
-"""Implementation of Rule TQ02: Warn on consecutive semicolons in T-SQL.
-
-This rule flags runs of two or more semicolons (optionally with intervening
-whitespace/newlines) which usually indicate an empty statement or an
-accidental duplicate terminator. While T-SQL permits extra semicolons,
-surfacing them helps users clean up scripts or diagnose parsing issues.
-
-Currently this rule ONLY emits a warning (no automatic fix). Replacing partial
-raw slices at file-root safely needs more invasive changes. A future iteration
-could implement targeted fixes by reconstructing affected segments.
-"""
-
-from __future__ import annotations
+"""Implementation of Rule ST12."""
 
 import re
 
 from sqlfluff.core.rules import BaseRule, EvalResultType, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
-# Matches two or more semicolons where only whitespace (incl. newlines) may
-# appear between them. Examples matched: ';;', '; ;', ';; ;', ';\n;', ';;\n;'
-# and longer runs like '; ; ;' or ';;  ;'. A single semicolon or runs with
-# non-whitespace characters between semicolons (e.g. ';x;') are not matched.
 CONSECUTIVE_SEMICOLONS_REGEX = re.compile(r";(?:\s*;){1,}")
 
 
-class Rule_TQ02(BaseRule):
+class Rule_ST12(BaseRule):
     """Consecutive semicolons detected.
+
+    This rule flags runs of two or more semicolons (optionally with intervening
+    whitespace/newlines) which usually indicate an empty statement or an
+    accidental duplicate terminator.
 
     **Anti-pattern**
 
@@ -46,24 +34,19 @@ class Rule_TQ02(BaseRule):
         SELECT 2;
     """
 
-    name = "tsql.consecutive_semicolons"
-    # Keep only the canonical name; avoid alias collision with code grouping.
-    aliases: tuple[str, ...] = tuple()
-    groups = ("all", "tsql")
-    # Seek only the root file segment so we run once per file.
+    name = "structure.consecutive_semicolons"
+    aliases: tuple[str, ...] = ()
+    groups = ("all", "structure")
     crawl_behaviour = SegmentSeekerCrawler({"file"})
+    is_fix_compatible = False
 
     def _eval(self, context: RuleContext) -> EvalResultType:
-        # Only apply to tsql dialect.
-        if context.dialect.name != "tsql":  # pragma: no cover
-            return None
         # Only operate once at file segment root.
         if not context.segment.is_type("file"):  # pragma: no cover
             return None
 
         raw = context.segment.raw
         results: list[LintResult] = []
-        # Iterate with non-overlapping logic by advancing index manually
         idx = 0
         while True:
             m = CONSECUTIVE_SEMICOLONS_REGEX.search(raw, idx)
@@ -82,7 +65,6 @@ class Rule_TQ02(BaseRule):
                 "Consecutive semicolons detected (count "
                 f"{count}). At line {line}, column {col}."
             )
-            # Anchor: attempt to find the first raw semicolon segment at this position.
             anchor_seg = context.segment
             cumulative = 0
             for seg in context.segment.get_raw_segments():

@@ -18,6 +18,5 @@ def get_rules() -> list[type[BaseRule]]:
     when rules aren't used.
     """
     from sqlfluff.rules.tsql.TQ01 import Rule_TQ01
-    from sqlfluff.rules.tsql.TQ02 import Rule_TQ02
 
-    return [Rule_TQ01, Rule_TQ02]
+    return [Rule_TQ01]
