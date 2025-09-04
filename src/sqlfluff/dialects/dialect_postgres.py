@@ -126,7 +126,7 @@ postgres_dialect.insert_lexer_matchers(
         # <->>>  strict_word_similarity distance (reverse)
         RegexLexer(
             "pg_trgm_operator",
-            r"<<<->|<->>>|<->>|<<->|<<%|%>>|<%|%>",
+            r"<<<->|<->>>|<->>|<<->(?!>)|<<%|%>>|<%|%>",
             SymbolSegment,
         ),
         # L2 nearest neighbor (<->),
