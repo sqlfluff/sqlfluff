@@ -116,6 +116,19 @@ postgres_dialect.insert_lexer_matchers(
             r"->>?|#>>?|@[>@?]|<@|\?[|&]?|#-",
             SymbolSegment,
         ),
+        # <%  word_similarity
+        # %>  word_similarity (reverse)
+        # <<%  strict_word_similarity
+        # %>>  strict_word_similarity (reverse)
+        # <<->  word_similarity distance
+        # <->>  word_similarity distance (reverse)
+        # <<<->  strict_word_similarity distance
+        # <->>>  strict_word_similarity distance (reverse)
+        RegexLexer(
+            "pg_trgm_operator",
+            r"<<<->|<->>>|<->>|<<->|<<%|%>>|<%|%>",
+            SymbolSegment,
+        ),
         # L2 nearest neighbor (<->),
         # inner product (<#>),
         # cosine distance (<=>),
@@ -354,6 +367,9 @@ postgres_dialect.add(
     PgvectorOperatorSegment=TypedParser(
         "pgvector_operator", SymbolSegment, type="binary_operator"
     ),
+    PgTrgmOperatorSegment=TypedParser(
+        "pg_trgm_operator", SymbolSegment, type="binary_operator"
+    ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
     # N.B. this MultilineConcatenateDelimiterGrammar is only created
     # to parse multiline-concatenated string literals
@@ -470,6 +486,7 @@ postgres_dialect.replace(
         Ref("AdjacentSegment"),
         Ref("PostgisOperatorSegment"),
         Ref("PgvectorOperatorSegment"),
+        Ref("PgTrgmOperatorSegment"),
     ),
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
@@ -5795,9 +5812,7 @@ class CopyStatementSegment(BaseSegment):
                 _postgres9_compatible_stdin_options,
             ),
             Sequence(
-                OneOf(
-                    _table_definition, Bracketed(Ref("UnorderedSelectStatementSegment"))
-                ),
+                OneOf(_table_definition, Bracketed(Ref("SelectableGrammar"))),
                 "TO",
                 OneOf(
                     _target_subset,
@@ -5806,9 +5821,7 @@ class CopyStatementSegment(BaseSegment):
                 _option,
             ),
             Sequence(
-                OneOf(
-                    _table_definition, Bracketed(Ref("UnorderedSelectStatementSegment"))
-                ),
+                OneOf(_table_definition, Bracketed(Ref("SelectableGrammar"))),
                 "TO",
                 OneOf(
                     Ref("QuotedLiteralSegment"),
