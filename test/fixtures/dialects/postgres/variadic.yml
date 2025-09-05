@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6dacdf26ce3f1ff3d42b8fdbb1c200bd193fe971a3c4d24d27192f35dcef2c7b
+_hash: 92b2cf467675139e3bc7ac853e3792c534f91964fa86bc59d627204c88e096a4
 file:
 - statement:
     create_function_statement:
@@ -518,62 +518,4 @@ file:
                       - numeric_literal: '3'
                       - end_square_bracket: ']'
               - end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          column_reference:
-            naked_identifier: id
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              function:
-                function_name:
-                  function_name_identifier: table_function
-                function_contents:
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: event_at
-                      comparison_operator:
-                        raw_comparison_operator: '='
-                      quoted_literal: "'2025-07-21T12:45:54.123Z'"
-                  - comma: ','
-                  - keyword: VARIADIC
-                  - expression:
-                      column_reference:
-                        naked_identifier: requests
-                      comparison_operator:
-                        raw_comparison_operator: '='
-                      typed_array_literal:
-                        array_type:
-                          keyword: ARRAY
-                        array_literal:
-                        - start_square_bracket: '['
-                        - expression:
-                            bracketed:
-                            - start_bracket: (
-                            - quoted_literal: "'param1'"
-                            - comma: ','
-                            - quoted_literal: "'param2'"
-                            - comma: ','
-                            - quoted_literal: "'10.00'"
-                            - end_bracket: )
-                        - comma: ','
-                        - expression:
-                            bracketed:
-                            - start_bracket: (
-                            - quoted_literal: "'param3'"
-                            - comma: ','
-                            - quoted_literal: "'param4'"
-                            - comma: ','
-                            - quoted_literal: "'9.26'"
-                            - end_bracket: )
-                        - end_square_bracket: ']'
-                  - end_bracket: )
 - statement_terminator: ;
