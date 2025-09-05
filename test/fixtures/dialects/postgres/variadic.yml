@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bb65cc3c9b09e1bfd50bb9cff407fffcaf933dd3e2e6def51b4cfc580b874f9c
+_hash: 6dacdf26ce3f1ff3d42b8fdbb1c200bd193fe971a3c4d24d27192f35dcef2c7b
 file:
 - statement:
     create_function_statement:
@@ -387,4 +387,193 @@ file:
                                       naked_identifier: table1
                         end_bracket: )
                 end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: my_function
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: VARIADIC
+                expression:
+                  column_reference:
+                    naked_identifier: param_name
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '1'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - comma: ','
+                    - numeric_literal: '3'
+                    - end_square_bracket: ']'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: my_function
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: regular_param
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  quoted_literal: "'value'"
+              - comma: ','
+              - keyword: VARIADIC
+              - expression:
+                  column_reference:
+                    naked_identifier: variadic_param
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '1'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - comma: ','
+                    - numeric_literal: '3'
+                    - end_square_bracket: ']'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: my_function
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: VARIADIC
+                named_argument:
+                  naked_identifier: param_name
+                  right_arrow: =>
+                  expression:
+                    typed_array_literal:
+                      array_type:
+                        keyword: ARRAY
+                      array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '1'
+                      - comma: ','
+                      - numeric_literal: '2'
+                      - comma: ','
+                      - numeric_literal: '3'
+                      - end_square_bracket: ']'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: my_function
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - named_argument:
+                  naked_identifier: regular_param
+                  right_arrow: =>
+                  expression:
+                    quoted_literal: "'value'"
+              - comma: ','
+              - keyword: VARIADIC
+              - named_argument:
+                  naked_identifier: variadic_param
+                  right_arrow: =>
+                  expression:
+                    typed_array_literal:
+                      array_type:
+                        keyword: ARRAY
+                      array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '1'
+                      - comma: ','
+                      - numeric_literal: '2'
+                      - comma: ','
+                      - numeric_literal: '3'
+                      - end_square_bracket: ']'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: id
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: table_function
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: event_at
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      quoted_literal: "'2025-07-21T12:45:54.123Z'"
+                  - comma: ','
+                  - keyword: VARIADIC
+                  - expression:
+                      column_reference:
+                        naked_identifier: requests
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      typed_array_literal:
+                        array_type:
+                          keyword: ARRAY
+                        array_literal:
+                        - start_square_bracket: '['
+                        - expression:
+                            bracketed:
+                            - start_bracket: (
+                            - quoted_literal: "'param1'"
+                            - comma: ','
+                            - quoted_literal: "'param2'"
+                            - comma: ','
+                            - quoted_literal: "'10.00'"
+                            - end_bracket: )
+                        - comma: ','
+                        - expression:
+                            bracketed:
+                            - start_bracket: (
+                            - quoted_literal: "'param3'"
+                            - comma: ','
+                            - quoted_literal: "'param4'"
+                            - comma: ','
+                            - quoted_literal: "'9.26'"
+                            - end_bracket: )
+                        - end_square_bracket: ']'
+                  - end_bracket: )
 - statement_terminator: ;
