@@ -206,6 +206,19 @@ tsql_dialect.insert_lexer_matchers(
     before="back_quote",
 )
 
+# Add hexadecimal literal lexer matcher before word matcher to ensure
+# patterns like 0x0, 0xAE are tokenized as numeric literals, not words
+tsql_dialect.insert_lexer_matchers(
+    [
+        RegexLexer(
+            "numeric_literal",
+            r"([xX]'([\da-fA-F][\da-fA-F])+'|0[xX][\da-fA-F]*)",
+            LiteralSegment,
+        ),
+    ],
+    before="word",
+)
+
 tsql_dialect.patch_lexer_matchers(
     [
         # Patching single_quote to allow for TSQL-style escaped quotes
@@ -391,7 +404,7 @@ tsql_dialect.add(
     # LT01's respace rule.
     LeadingDotSegment=StringParser(".", SymbolSegment, type="leading_dot"),
     HexadecimalLiteralSegment=RegexParser(
-        r"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+)",
+        r"([xX]'([\da-fA-F][\da-fA-F])+'|0[xX][\da-fA-F]*)",
         LiteralSegment,
         type="numeric_literal",
     ),
