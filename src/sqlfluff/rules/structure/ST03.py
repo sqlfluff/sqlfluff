@@ -23,7 +23,7 @@ def _is_data_modifying_cte(cte_query: Query) -> bool:
         except StopIteration:
             return False
 
-    raise NotImplementedError("CTE definition is required") # pragma: no cover
+    raise NotImplementedError("CTE definition is required")  # pragma: no cover
 
 
 class Rule_ST03(BaseRule):
