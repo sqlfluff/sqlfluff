@@ -504,6 +504,11 @@ postgres_dialect.replace(
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),
         Ref("NamedArgumentSegment"),
+        # VARIADIC function call argument
+        # https://www.postgresql.org/docs/current/xfunc-sql.html#XFUNC-SQL-VARIADIC-FUNCTIONS
+        Sequence(
+            "VARIADIC", OneOf(Ref("ExpressionSegment"), Ref("NamedArgumentSegment"))
+        ),
     ),
     FunctionContentsGrammar=AnyNumberOf(
         Ref("ExpressionSegment"),
@@ -527,9 +532,6 @@ postgres_dialect.replace(
                 optional=True,
             ),
         ),
-        # VARIADIC function call argument
-        # https://www.postgresql.org/docs/current/xfunc-sql.html#XFUNC-SQL-VARIADIC-FUNCTIONS
-        Sequence("VARIADIC", Ref("ExpressionSegment")),
         Sequence(
             # Allow an optional distinct keyword here.
             Ref.keyword("DISTINCT", optional=True),
@@ -6490,7 +6492,9 @@ class NamedArgumentSegment(BaseSegment):
     type = "named_argument"
     match_grammar = Sequence(
         Ref("NakedIdentifierSegment"),
-        OneOf(Ref("RightArrowSegment"), Ref("WalrusOperatorSegment")),
+        OneOf(
+            Ref("RightArrowSegment"), Ref("WalrusOperatorSegment"), Ref("EqualsSegment")
+        ),
         Ref("ExpressionSegment"),
     )
 
