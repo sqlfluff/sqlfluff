@@ -312,10 +312,12 @@ tsql_dialect.add(
     SystemVariableSegment=RegexParser(
         r"@@[A-Za-z0-9_]+", CodeSegment, type="system_variable"
     ),
+    # Statement optionally followed by a delimiter.
     StatementAndDelimiterGrammar=Sequence(
         Ref("StatementSegment"),
         Ref("DelimiterGrammar", optional=True),
     ),
+    # One or more statements & delimiters (simple form as in HEAD).
     OneOrMoreStatementsGrammar=AnyNumberOf(
         Ref("StatementAndDelimiterGrammar"),
         min_times=1,
@@ -679,6 +681,9 @@ tsql_dialect.replace(
             Ref("DivisionAssignmentSegment"),
             Ref("ModulusAssignmentSegment"),
         ]
+    ),
+    DelimiterGrammar=Sequence(
+        Ref("SemicolonSegment"), AnyNumberOf(Ref("SemicolonSegment"))
     ),
 )
 
@@ -4191,12 +4196,16 @@ class TryCatchSegment(BaseSegment):
 
 
 class BatchSegment(BaseSegment):
-    """A segment representing a GO batch within a file or script."""
+    """A segment representing a GO or ; batch within a file or script."""
 
     type = "batch"
     match_grammar = OneOf(
         # Things that can be bundled
-        Ref("OneOrMoreStatementsGrammar"),
+        Sequence(
+            AnyNumberOf(Ref("DelimiterGrammar")),
+            Ref("OneOrMoreStatementsGrammar"),
+            AnyNumberOf(Ref("DelimiterGrammar")),
+        ),
         # Things that can't be bundled
         Ref("CreateProcedureStatementSegment"),
     )
@@ -4216,17 +4225,28 @@ class FileSegment(BaseFileSegment):
 
     match_grammar = Sequence(
         AnyNumberOf(Ref("BatchDelimiterGrammar")),
-        Delimited(
-            Ref("BatchSegment"),
-            delimiter=AnyNumberOf(
-                Sequence(
-                    Ref("DelimiterGrammar", optional=True), Ref("BatchDelimiterGrammar")
+        # Either GO-delimited batches OR just a run of statements (no GO).
+        OneOf(
+            Delimited(
+                Ref("BatchSegment"),
+                delimiter=AnyNumberOf(
+                    Sequence(
+                        Ref("DelimiterGrammar", optional=True),
+                        Ref("BatchDelimiterGrammar"),
+                    ),
+                    min_times=1,
                 ),
-                min_times=1,
+                allow_gaps=True,
+                allow_trailing=True,
             ),
-            allow_gaps=True,
-            allow_trailing=True,
+            # Plain statements (no GO): allow leading & trailing delimiters.
+            Sequence(
+                AnyNumberOf(Ref("DelimiterGrammar")),
+                Ref("OneOrMoreStatementsGrammar"),
+                AnyNumberOf(Ref("DelimiterGrammar")),
+            ),
         ),
+        AnyNumberOf(Ref("DelimiterGrammar")),
     )
 
 

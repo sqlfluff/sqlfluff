@@ -605,6 +605,7 @@ class FileSegment(BaseFileSegment):
     # NB: We don't need a match_grammar here because we're
     # going straight into instantiating it directly usually.
     match_grammar = Sequence(
+        AnyNumberOf(Ref("DelimiterGrammar")),
         Sequence(
             OneOf(
                 Ref("MultiStatementSegment"),
@@ -618,7 +619,7 @@ class FileSegment(BaseFileSegment):
                 Ref("StatementSegment"),
             ),
         ),
-        Ref("DelimiterGrammar", optional=True),
+        AnyNumberOf(Ref("DelimiterGrammar")),
     )
 
 
