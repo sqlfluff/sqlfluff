@@ -4951,6 +4951,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropPublicationStatementSegment"),
             Ref("CreateTypeStatementSegment"),
             Ref("AlterTypeStatementSegment"),
+            Ref("CreateTextSearchConfigurationStatementSegment"),
+            Ref("AlterTextSearchConfigurationStatementSegment"),
+            Ref("DropTextSearchConfigurationStatementSegment"),
             Ref("AlterSchemaStatementSegment"),
             Ref("LockTableStatementSegment"),
             Ref("ClusterStatementSegment"),
@@ -6083,6 +6086,125 @@ class CreateTypeStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         Sequence("AS", OneOf("ENUM", "RANGE", optional=True), optional=True),
         Bracketed(Delimited(Anything(), optional=True), optional=True),
+    )
+
+
+class CreateTextSearchConfigurationStatementSegment(BaseSegment):
+    """A `CREATE TEXT SEARCH CONFIGURATION` statement.
+
+    https://www.postgresql.org/docs/current/sql-createtsconfig.html
+    """
+
+    type = "create_text_search_configuration_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "TEXT",
+        "SEARCH",
+        "CONFIGURATION",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            OneOf(
+                Sequence("PARSER", Ref("EqualsSegment"), Ref("ObjectReferenceSegment")),
+                Sequence("COPY", Ref("EqualsSegment"), Ref("ObjectReferenceSegment")),
+            )
+        ),
+    )
+
+
+class AlterTextSearchConfigurationStatementSegment(BaseSegment):
+    """An `ALTER TEXT SEARCH CONFIGURATION` statement.
+
+    https://www.postgresql.org/docs/current/sql-altertsconfig.html
+    """
+
+    type = "alter_text_search_configuration_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "TEXT",
+        "SEARCH",
+        "CONFIGURATION",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "ADD",
+                "MAPPING",
+                "FOR",
+                Delimited(Ref("ObjectReferenceSegment")),
+                "WITH",
+                Delimited(Ref("ObjectReferenceSegment")),
+            ),
+            Sequence(
+                "ALTER",
+                "MAPPING",
+                "FOR",
+                Delimited(Ref("ObjectReferenceSegment")),
+                "WITH",
+                Delimited(Ref("ObjectReferenceSegment")),
+            ),
+            Sequence(
+                "ALTER",
+                "MAPPING",
+                "REPLACE",
+                Ref("ObjectReferenceSegment"),
+                "WITH",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "ALTER",
+                "MAPPING",
+                "FOR",
+                Delimited(Ref("ObjectReferenceSegment")),
+                "REPLACE",
+                Ref("ObjectReferenceSegment"),
+                "WITH",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "DROP",
+                "MAPPING",
+                Ref("IfExistsGrammar", optional=True),
+                "FOR",
+                Delimited(Ref("ObjectReferenceSegment")),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                ),
+            ),
+            Sequence(
+                "SET",
+                "SCHEMA",
+                Ref("ObjectReferenceSegment"),
+            ),
+        ),
+    )
+
+
+class DropTextSearchConfigurationStatementSegment(BaseSegment):
+    """A `DROP TEXT SEARCH CONFIGURATION` statement.
+
+    https://www.postgresql.org/docs/current/sql-droptsconfig.html
+    """
+
+    type = "drop_text_search_configuration_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "TEXT",
+        "SEARCH",
+        "CONFIGURATION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
