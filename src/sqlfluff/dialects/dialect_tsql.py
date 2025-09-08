@@ -496,7 +496,7 @@ tsql_dialect.replace(
     ),
     NumericLiteralSegment=OneOf(
         # Try integer first, then fallback to the original numeric
-        TypedParser("integer_literal", LiteralSegment, type="integer_literal"),
+        TypedParser("integer_literal", LiteralSegment, type="numeric_literal"),
         TypedParser("numeric_literal", LiteralSegment, type="numeric_literal"),
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar")
