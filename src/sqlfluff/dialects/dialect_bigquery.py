@@ -3128,7 +3128,21 @@ class CreateVectorIndexStatementSegment(BaseSegment):
                 Ref("IndexColumnDefinitionSegment"),
             ),
         ),
+        Ref("StoringSegment", optional=True),
         Ref("OptionsSegment"),
+    )
+
+
+class StoringSegment(BaseSegment):
+    """The `STORING` clause for a `CREATE VECTOR INDEX` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_vector_index_statement
+    """
+
+    type = "storing_segment"
+    match_grammar: Matchable = Sequence(
+        "STORING",
+        Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
     )
 
 
