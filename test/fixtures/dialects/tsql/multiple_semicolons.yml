@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6526d69d595083784cf08b5e759e6444e3683f635cf4643ac786551969ac9ee0
+_hash: e76bda6bc966b736d968ce85feebd1f477d6c906643be817ac5b0f3d0117aae2
 file:
 - batch:
   - statement_terminator: ;
@@ -31,14 +31,14 @@ file:
             column_reference:
               naked_identifier: col2
         from_clause:
-        - keyword: FROM
-        - from_expression:
+          keyword: FROM
+          from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
                   naked_identifier: tbl2
-        - statement_terminator: ;
-        - statement_terminator: ;
+          statement_terminator: ;
+        statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -47,16 +47,16 @@ file:
             column_reference:
               naked_identifier: col3
         from_clause:
-        - keyword: FROM
-        - from_expression:
+          keyword: FROM
+          from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
                   naked_identifier: tbl3
-        - statement_terminator: ;
-        - statement_terminator: ;
-        - statement_terminator: ;
-        - statement_terminator: ;
+          statement_terminator: ;
+        statement_terminator: ;
+  - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -65,16 +65,16 @@ file:
             column_reference:
               naked_identifier: col4
         from_clause:
-        - keyword: FROM
-        - from_expression:
+          keyword: FROM
+          from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
                   naked_identifier: tbl4
-        - statement_terminator: ;
-        - statement_terminator: ;
-        - statement_terminator: ;
-        - statement_terminator: ;
+          statement_terminator: ;
+        statement_terminator: ;
+  - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -83,15 +83,15 @@ file:
             column_reference:
               naked_identifier: col5
         from_clause:
-        - keyword: FROM
-        - from_expression:
+          keyword: FROM
+          from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
                   naked_identifier: tbl5
-        - statement_terminator: ;
-        - statement_terminator: ;
-        - statement_terminator: ;
+          statement_terminator: ;
+        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -100,18 +100,18 @@ file:
             column_reference:
               naked_identifier: col6
         from_clause:
-        - keyword: FROM
-        - from_expression:
+          keyword: FROM
+          from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
                   naked_identifier: tbl6
-        - statement_terminator: ;
-        - statement_terminator: ;
-        - statement_terminator: ;
-        - statement_terminator: ;
-        - statement_terminator: ;
-        - statement_terminator: ;
+          statement_terminator: ;
+        statement_terminator: ;
+  - statement_terminator: ;
+  - statement_terminator: ;
+  - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:

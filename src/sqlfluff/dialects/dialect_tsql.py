@@ -304,10 +304,19 @@ tsql_dialect.add(
         Ref("StatementSegment"),
         Ref("DelimiterGrammar", optional=True),
     ),
-    # One or more statements & delimiters (simple form as in HEAD).
-    OneOrMoreStatementsGrammar=AnyNumberOf(
+    # One or more statements, allowing extra delimiters between them.
+    # Only a single delimiter is attached to the preceding statement (via
+    # StatementAndDelimiterGrammar). Any additional delimiters between
+    # statements are parsed at the same (batch) level and not nested under
+    # the statement.
+    OneOrMoreStatementsGrammar=Sequence(
         Ref("StatementAndDelimiterGrammar"),
-        min_times=1,
+        AnyNumberOf(
+            Sequence(
+                AnyNumberOf(Ref("DelimiterGrammar")),
+                Ref("StatementAndDelimiterGrammar"),
+            )
+        ),
     ),
     TopPercentGrammar=Sequence(
         "TOP",
@@ -668,9 +677,6 @@ tsql_dialect.replace(
             Ref("DivisionAssignmentSegment"),
             Ref("ModulusAssignmentSegment"),
         ]
-    ),
-    DelimiterGrammar=Sequence(
-        Ref("SemicolonSegment"), AnyNumberOf(Ref("SemicolonSegment"))
     ),
 )
 
