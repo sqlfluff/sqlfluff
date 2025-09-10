@@ -282,7 +282,7 @@ SELECT
 FROM abc;
 
 -- Test 28: CASE expression with bracketed condition
-SELECT 
+SELECT
     CASE
         WHEN abc = 1 THEN NULL
         WHEN (
