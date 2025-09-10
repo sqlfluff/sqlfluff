@@ -280,3 +280,14 @@ SELECT
         ELSE 0
     END my_case AS result
 FROM abc;
+
+-- Test 28: CASE expression with bracketed condition
+SELECT 
+    CASE
+        WHEN abc = 1 THEN NULL
+        WHEN (
+            defg = 2
+            AND hijk = 3
+        ) THEN NULL
+    END AS result
+FROM abc;
