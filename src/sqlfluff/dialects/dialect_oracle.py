@@ -2520,7 +2520,7 @@ class CaseExpressionSegment(BaseSegment):
             "CASE",
             ImplicitIndent,
             AnyNumberOf(
-                Ref("WhenClauseSegment"),
+                Ref("WhenClauseSegment", terminators=[Ref.keyword("WHEN")]),
                 reset_terminators=True,
                 terminators=[Ref.keyword("ELSE"), Ref.keyword("END")],
             ),
@@ -2537,7 +2537,7 @@ class CaseExpressionSegment(BaseSegment):
             "CASE",
             ImplicitIndent,
             AnyNumberOf(
-                Ref("WhenClauseSegment"),
+                Ref("WhenClauseSegment", terminators=[Ref.keyword("WHEN")]),
                 reset_terminators=True,
                 terminators=[Ref.keyword("ELSE"), Ref.keyword("END")],
             ),
@@ -2560,7 +2560,7 @@ class CaseExpressionSegment(BaseSegment):
             ),
             ImplicitIndent,
             AnyNumberOf(
-                Ref("WhenClauseSegment"),
+                Ref("WhenClauseSegment", terminators=[Ref.keyword("WHEN")]),
                 reset_terminators=True,
                 terminators=[Ref.keyword("ELSE"), Ref.keyword("END")],
             ),

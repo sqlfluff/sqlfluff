@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3e97b082c60397a779fe8a11a12edd2b13365b238d4456fbdbac139747b6f76d
+_hash: 162ce31b0e333dc38b301e2cd94fff10314fd8eec6c2863fdd253212729da876
 file:
 - statement:
     select_statement:
@@ -1702,6 +1702,59 @@ file:
                   numeric_literal: '0'
             - keyword: END
             - naked_identifier: my_case
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: abc
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '1'
+              - keyword: THEN
+              - expression:
+                  null_literal: 'NULL'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                    - column_reference:
+                        naked_identifier: defg
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - numeric_literal: '2'
+                    - binary_operator: AND
+                    - column_reference:
+                        naked_identifier: hijk
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - numeric_literal: '3'
+                    end_bracket: )
+              - keyword: THEN
+              - expression:
+                  null_literal: 'NULL'
+            - keyword: END
           alias_expression:
             alias_operator:
               keyword: AS
