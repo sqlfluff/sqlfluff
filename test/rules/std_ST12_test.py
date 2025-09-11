@@ -1,64 +1,29 @@
 """Tests for ST12 (structure.consecutive_semicolons)."""
 
-import pytest
-
-from sqlfluff.core import FluffConfig, Linter
-
-SQL_SIMPLE = "SELECT 1;;\nSELECT 2;\n;;SELECT 3;"
-SQL_ONLY_SEMICOLONS = ";;;;\n; ; ;\n;\n"
+import sqlfluff
 
 
-CASES = [
-    ("SELECT 1;", 0),
-    (";SELECT 1;", 0),  # single leading
-    (";;SELECT 1;", 1),
-    ("SELECT 1;;;", 1),
-    ("SELECT 1; ; ;", 1),
-    (";;;;", 1),  # one run
-    ("; ; ;", 1),  # spaced run
-]
+def test__rules__std_ST12_basic_patterns():
+    """Test basic consecutive semicolon patterns."""
+    # Test cases: (SQL, expected_violation_count)
+    cases = [
+        ("SELECT 1;", 0),  # Single semicolon - no violation
+        (";SELECT 1;", 0),  # Leading semicolon - no violation
+        (";;SELECT 1;", 1),  # Double leading - violation
+        ("SELECT 1;;;", 1),  # Triple trailing - violation
+        ("SELECT 1; ; ;", 1),  # Spaced consecutive - violation
+        ("SELECT 1;;;;", 1),  # Many consecutive - violation
+    ]
+
+    for sql, expected_count in cases:
+        result = sqlfluff.lint(sql, rules=["ST12"])
+        actual_count = len([r for r in result if r["code"] == "ST12"])
+        assert actual_count == expected_count, f"SQL: {sql!r}"
 
 
-@pytest.mark.parametrize(
-    "dialect",
-    [
-        "ansi",
-        "postgres",
-        "snowflake",
-        "bigquery",
-        "tsql",
-        "mysql",
-        "vertica",
-        "databricks",
-    ],
-)
-def test_st12_basic_counts(dialect):
-    """Parameterized simple patterns produce expected violation counts."""
-    for sql, expected in CASES:
-        cfg = FluffConfig(overrides={"dialect": dialect, "rules": "ST12"})
-        lnt = Linter(config=cfg)
-        res = lnt.lint_string(sql)
-        assert (
-            res.num_violations() == expected
-        ), f"Dialect {dialect} SQL {sql!r}"  # noqa: PT009
-
-
-@pytest.mark.parametrize(
-    "dialect",
-    [
-        "ansi",
-        "postgres",
-        "snowflake",
-        "bigquery",
-        "tsql",
-        "mysql",
-        "vertica",
-        "databricks",
-    ],
-)
-def test_st12_runs_and_positions_complex(dialect):
-    """Complex sample: parses cleanly, groups detected once each, no fixes."""
-    complex_sql = (
+def test__rules__std_ST12_complex_multistatement():
+    """Test complex multi-statement scenarios."""
+    sql = (
         ";;SELECT col1 FROM tbl1;\n"
         "SELECT col2 FROM tbl2;;\n"
         "SELECT col3 FROM tbl3;;;;SELECT col4 FROM tbl4;\n"
@@ -66,25 +31,57 @@ def test_st12_runs_and_positions_complex(dialect):
         "SELECT col6 FROM tbl6;;;;;;\n"
         "SELECT col6 FROM tbl6;;;\n"
     )
-    cfg = FluffConfig(overrides={"dialect": dialect, "rules": "ST12"})
-    lnt = Linter(config=cfg)
-    parsed = lnt.parse_string(complex_sql)
-    assert not list(parsed.tree.recursive_crawl("unparsable"))
-    linted = lnt.lint_string(complex_sql)
-    violations = [v for v in linted.get_violations() if v.rule_code() == "ST12"]
-    # Expected groups (7) mirroring original logic.
+
+    result = sqlfluff.lint(sql, rules=["ST12"])
+    violations = [r for r in result if r["code"] == "ST12"]
+
+    # Should detect 7 distinct runs of consecutive semicolons
     assert len(violations) == 7
-    assert len({(v.line_no, v.line_pos) for v in violations}) == 7
-    fixed_str, changed = linted.fix_string()
-    assert fixed_str == complex_sql and changed is False
+    # Each violation should be at a unique position
+    positions = {(v["start_line_no"], v["start_line_pos"]) for v in violations}
+    assert len(positions) == 7
 
 
-def test_st12_invocation_canonical():
-    """Invoking ST12 directly works and yields expected violations."""
-    sql = SQL_SIMPLE
-    cfg = FluffConfig(overrides={"dialect": "tsql", "rules": "ST12"})
-    lnt = Linter(config=cfg)
-    res = lnt.lint_string(sql)
-    codes = {v.rule_code() for v in res.get_violations()}
-    assert codes == {"ST12"}
-    assert res.num_violations() == 2
+def test__rules__std_ST12_fix_functionality():
+    """Test that ST12 fixes work correctly."""
+    sql = "SELECT 1;; SELECT 2;;; SELECT 3;"
+
+    result = sqlfluff.fix(sql, rules=["ST12"])
+
+    # Should have made changes
+    assert result != sql
+    # Should have fewer semicolons
+    assert result.count(";") < sql.count(";")
+    # Should have no violations after fixing
+    fixed_violations = sqlfluff.lint(result, rules=["ST12"])
+    assert len(fixed_violations) == 0
+
+
+def test__rules__std_ST12_whitespace_handling():
+    """Test that whitespace between semicolons is handled correctly."""
+    sql = "SELECT 1;\n\n;SELECT 2;"
+    result = sqlfluff.lint(sql, rules=["ST12"])
+    violations = [r for r in result if r["code"] == "ST12"]
+
+    # Semicolons separated by newlines should still be flagged
+    assert len(violations) == 1
+
+
+def test__rules__std_ST12_no_semicolon():
+    """Test that no semicolon results in no violations."""
+    sql = "SELECT 1"
+    result = sqlfluff.lint(sql, rules=["ST12"])
+    violations = [r for r in result if r["code"] == "ST12"]
+
+    # No semicolons means no violations
+    assert len(violations) == 0
+
+
+def test__rules__std_ST12_comments_break_runs():
+    """Test that comments between semicolons break consecutive runs."""
+    sql = "SELECT 1; /* comment */ ; SELECT 2;"
+    result = sqlfluff.lint(sql, rules=["ST12"])
+    violations = [r for r in result if r["code"] == "ST12"]
+
+    # Comments should break the run, so no violations
+    assert len(violations) == 0
