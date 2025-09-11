@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6ccdd4fc819582a748c5513e359b50dc00c38f2478fb31ebf838e4b491e1c8d1
+_hash: 6ad333d1c2ec7a41ff35dc2c1320ccb47bc566cdc8935fe2bbd36aafc92ea349
 file:
   batch:
     statement:
@@ -39,7 +39,7 @@ file:
                                 - date_part: month
                                 - comma: ','
                                 - expression:
-                                    numeric_literal: '0'
+                                    integer_literal: '0'
                                 - comma: ','
                                 - expression:
                                     column_reference:
@@ -49,7 +49,7 @@ file:
                                 - end_bracket: )
                         - comma: ','
                         - expression:
-                            numeric_literal: '0'
+                            integer_literal: '0'
                         - end_bracket: )
                   end_bracket: )
             alias_expression:
@@ -105,7 +105,7 @@ file:
                                 - date_part: yy
                                 - comma: ','
                                 - expression:
-                                    numeric_literal: '0'
+                                    integer_literal: '0'
                                 - comma: ','
                                 - expression:
                                     function:
@@ -117,9 +117,9 @@ file:
                                           end_bracket: )
                                 - end_bracket: )
                             binary_operator: '-'
-                            numeric_literal: '1'
+                            integer_literal: '1'
                         - comma: ','
                         - expression:
-                            numeric_literal: '0'
+                            integer_literal: '0'
                         - end_bracket: )
                   end_bracket: )

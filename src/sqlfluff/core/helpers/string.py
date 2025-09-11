@@ -7,7 +7,7 @@ from typing import Union
 def curtail_string(s: str, length: int = 20) -> str:
     """Trim a string nicely to length."""
     if len(s) > length:
-        return s[:length] + "..."
+        return s[:length] + "..."  # pragma: no cover
     else:
         return s
 

@@ -33,3 +33,4 @@ SET @param1 += 1,
 -- Param with sequence in expression
 SET @param1 = (NEXT VALUE FOR [dbo].[SEQUENCE_NAME])
 ;
+DECLARE @BinaryVariable2 BINARY(2) = 0xFA;
