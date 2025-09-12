@@ -36,3 +36,21 @@ from tbl1;
 
 select cast(pg_namespace.nspname as information_schema.sql_identifier)
 from pg_namespace;
+
+select col1::"varchar"
+from tbl1;
+
+select
+    col1::"text",
+    col2::"varchar"
+from tbl1;
+
+select null::"varchar" as col1;
+
+select
+    null::"varchar" as col1,
+    null::varchar as col2;
+
+select
+    'test'::"varchar" as col1,
+    'test2'::"text" as col2;
