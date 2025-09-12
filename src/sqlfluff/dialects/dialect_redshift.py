@@ -643,6 +643,8 @@ class DatatypeSegment(BaseSegment):
             Ref("BracketedArguments", optional=True),
         ),
         "ANYELEMENT",
+        # quoted simple datatypes
+        Ref("DatatypeIdentifierSegment"),
         Sequence(
             Ref("SingleIdentifierGrammar"),
             Ref("DotSegment"),
