@@ -82,7 +82,7 @@ class RawSegment(BaseSegment):
         self.quoted_value = quoted_value
         self.escape_replacements = escape_replacements
         self.casefold = casefold
-        self._raw_value: str = self._raw_normalized()
+        self._raw_value: str = self.raw_normalized()
         # print(self)
         # print(f"class name raw end: {self.__class__.__name__}")
 
