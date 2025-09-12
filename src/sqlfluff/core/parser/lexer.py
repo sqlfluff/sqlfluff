@@ -907,7 +907,7 @@ class PyLexer:
 
 
 try:
-    from rsqlfluff import RsLexer  # type: ignore
+    from rsqlfluff import RsLexer
 
     def get_segment_type_map(base_class: type) -> dict[str, type[RawSegment]]:
         """Dynamically create a map of segment types to their subclasses."""

@@ -121,7 +121,9 @@ class FluffConfig:
         if configs:
             validate_config_dict(configs, "<provided configs>")
         self._configs = nested_combine(
-            defaults, configs or {"core": {}}, overrides or {}
+            defaults,
+            configs or {"core": {}},  # type: ignore
+            overrides or {},
         )
         # Some configs require special treatment
         self._configs["core"]["color"] = (
