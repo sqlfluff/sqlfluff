@@ -1,0 +1,1 @@
+python utils/build_lexers.py > src/dialect/matcher.rs
