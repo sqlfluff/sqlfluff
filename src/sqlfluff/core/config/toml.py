@@ -6,7 +6,7 @@ from typing import Any, TypeVar
 if sys.version_info >= (3, 11):
     import tomllib
 else:  # pragma: no cover
-    import toml as tomllib
+    import tomli as tomllib
 
 from sqlfluff.core.helpers.dict import (
     NestedDictRecord,

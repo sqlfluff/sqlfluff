@@ -550,7 +550,7 @@ test_fail_unqual_refs_multi_table_statements_ignore_external_references:
   configs:
     rules:
       references.qualification:
-        subqueries_ignore_external_references: True
+        subqueries_ignore_external_references: true
 
 test_fail_unqual_refs_multi_table_statements_subq_ignore_external_references:
   fail_str: |
@@ -563,7 +563,7 @@ test_fail_unqual_refs_multi_table_statements_subq_ignore_external_references:
   configs:
     rules:
       references.qualification:
-        subqueries_ignore_external_references: True
+        subqueries_ignore_external_references: true
 
 test_pass_unreferenced_subquery_column_subqueries_ignore_external_references:
   pass_str: |
@@ -573,7 +573,7 @@ test_pass_unreferenced_subquery_column_subqueries_ignore_external_references:
   configs:
     rules:
       references.qualification:
-        subqueries_ignore_external_references: True
+        subqueries_ignore_external_references: true
 
 test_pass_select_scalar_subquery_subqueries_ignore_external_references:
   pass_str: |
@@ -583,7 +583,7 @@ test_pass_select_scalar_subquery_subqueries_ignore_external_references:
   configs:
     rules:
       references.qualification:
-        subqueries_ignore_external_references: True
+        subqueries_ignore_external_references: true
 
 test_pass_exists_subquery_subqueries_ignore_external_references:
   pass_str: |
@@ -596,4 +596,4 @@ test_pass_exists_subquery_subqueries_ignore_external_references:
   configs:
     rules:
       references.qualification:
-        subqueries_ignore_external_references: True
+        subqueries_ignore_external_references: true

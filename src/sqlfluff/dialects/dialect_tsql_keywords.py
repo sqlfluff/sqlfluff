@@ -210,6 +210,7 @@ RESERVED_KEYWORDS = [
     "TABLESAMPLE",
     "TEXTSIZE",
     "THEN",
+    "THROW",
     "TO",
     "TOP",
     "TRAN",
@@ -302,6 +303,7 @@ UNRESERVED_KEYWORDS = [
     "COMPRESSION",
     "CONCAT_NULL_YIELDS_NULL",
     "CONCAT",
+    "CONNECTION",
     "CONNECTION_OPTIONS",
     "CONTAINED",
     "CONTEXT_INFO",
@@ -340,6 +342,7 @@ UNRESERVED_KEYWORDS = [
     "DROP_EXISTING",
     "DUMP",  # listed as reserved but functionally unreserved
     "DURABILITY",
+    "EDGE",
     "ELEMENT",  # *future*
     "ELEMENTS",
     "ENCODING",
@@ -463,6 +466,7 @@ UNRESERVED_KEYWORDS = [
     "NO_PERFORMANCE_SPOOL",
     "NO",
     "NOCOUNT",
+    "NODE",
     "NOEXEC",
     "NOEXPAND",
     "NOLOCK",
@@ -560,6 +564,7 @@ UNRESERVED_KEYWORDS = [
     "REPLACE",
     "REPLICATE",  # Azure Synapse Analytics
     "RESPECT",
+    "RESULT",
     "RESULT_SET_CACHING",  # Azure Synapse Analytics specific
     "RESUMABLE",
     "RESUME",
@@ -597,6 +602,7 @@ UNRESERVED_KEYWORDS = [
     "SERVER",
     "SERVICE",
     "SETERROR",
+    "SETS",
     "SETVAR",  # sqlcmd command
     "SHOWPLAN_ALL",
     "SHOWPLAN_TEXT",
@@ -629,7 +635,6 @@ UNRESERVED_KEYWORDS = [
     "TAKE",
     "TARGET",
     "TEXTIMAGE_ON",
-    "THROW",
     "TIES",
     "TIME",
     "TIMEOUT",
@@ -641,6 +646,7 @@ UNRESERVED_KEYWORDS = [
     "TYPE",
     "UNBOUNDED",
     "UNCOMMITTED",
+    "UNDEFINED",
     "UNKNOWN",
     "UPDLOCK",
     "USE_TYPE_DEFAULT",

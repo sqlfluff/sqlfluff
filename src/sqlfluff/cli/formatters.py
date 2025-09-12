@@ -1,5 +1,6 @@
 """Defines the formatters for the CLI."""
 
+import os
 import sys
 from io import StringIO
 from typing import Optional, Union
@@ -103,7 +104,9 @@ class OutputStreamFormatter(FormatterInterface):
     @staticmethod
     def should_produce_plain_output(nocolor: bool) -> bool:
         """Returns True if text output should be plain (not colored)."""
-        return nocolor or not sys.stdout.isatty()
+        # If `--color` is specified (nocolor is False), we ignore `NO_COLOR`
+        env_nocolor = bool(os.getenv("NO_COLOR")) and nocolor is not False
+        return nocolor or not sys.stdout.isatty() or env_nocolor
 
     def _dispatch(self, s: str) -> None:
         """Dispatch a string to the callback.

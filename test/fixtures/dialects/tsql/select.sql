@@ -121,3 +121,6 @@ select
     'Tabellen' as Objekt,
     Count(*) as Anzahl
 from dbo.sql_modules;
+
+-- naked identifier with extended Unicode characters
+select field1 AS 日期差多少天;

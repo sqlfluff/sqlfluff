@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7b6491692953ce94d2346c76f3a90039d863be132e68472aa4362ff4fadb8d0b
+_hash: 3328a0794154dc6533d372799c22f442b19a2fc6574b11652203bb378eb0660a
 file:
 - statement:
     create_table_statement:
@@ -183,7 +183,8 @@ file:
               binary_operator: +
               numeric_literal: '1'
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: c
         from_clause:
           keyword: from
@@ -585,6 +586,35 @@ file:
             collation_reference:
               quoted_literal: "'sp'"
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: t2
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            expression:
+              column_reference:
+                naked_identifier: col1
+              keyword: collate
+              collation_reference:
+                quoted_literal: "'fr'"
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: col1
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t1
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -1608,7 +1638,7 @@ file:
         bracketed:
           start_bracket: (
           bind_variable:
-            colon: ':'
+            colon_prefix: ':'
             variable: SOME_TABLE
           end_bracket: )
     - bracketed:
@@ -2584,4 +2614,23 @@ file:
           - keyword: NOT
           - keyword: 'NULL'
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: DELTA
+          data_type:
+            data_type_identifier: INT
+        end_bracket: )
 - statement_terminator: ;

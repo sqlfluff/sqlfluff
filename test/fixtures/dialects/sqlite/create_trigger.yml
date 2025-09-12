@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2f921f4c3a819a43013daaffbe9cc90ce983411531c2ead3376633ac6557dd26
+_hash: 13aaf97dae29df6299a0e6162bba68dda476463abf453b36aedc777abb092c5d
 file:
 - statement:
     create_trigger:
@@ -295,6 +295,38 @@ file:
             - naked_identifier: new
             - dot: .
             - naked_identifier: rowid
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: trigger_name
+    - keyword: AFTER
+    - keyword: UPDATE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: BEGIN
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: table_name_history
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: action
+          end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+            start_bracket: (
+            expression:
+              quoted_literal: "'UPDATE'"
+            end_bracket: )
     - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;

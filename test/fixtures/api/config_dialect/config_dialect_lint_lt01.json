@@ -1,0 +1,26 @@
+[
+    {
+        "code": "LT01",
+        "description": "Expected only single space before naked identifier. Found '  '.",
+        "end_file_pos": 6,
+        "end_line_no": 1,
+        "end_line_pos": 7,
+        "fixes": [
+            {
+                "edit": " ",
+                "end_file_pos": 6,
+                "end_line_no": 1,
+                "end_line_pos": 7,
+                "start_file_pos": 4,
+                "start_line_no": 1,
+                "start_line_pos": 5,
+                "type": "replace"
+            }
+        ],
+        "name": "layout.spacing",
+        "start_file_pos": 4,
+        "start_line_no": 1,
+        "start_line_pos": 5,
+        "warning": false
+    }
+]

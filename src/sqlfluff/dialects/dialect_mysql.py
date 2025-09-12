@@ -350,7 +350,7 @@ mysql_dialect.add(
 )
 
 
-class AliasExpressionSegment(BaseSegment):
+class AliasExpressionSegment(ansi.AliasExpressionSegment):
     """A reference to an object with an `AS` clause.
 
     The optional AS keyword allows both implicit and explicit aliasing.
@@ -359,7 +359,7 @@ class AliasExpressionSegment(BaseSegment):
     type = "alias_expression"
     match_grammar = Sequence(
         Indent,
-        Ref.keyword("AS", optional=True),
+        Ref("AsAliasOperatorSegment", optional=True),
         OneOf(
             Ref("SingleIdentifierGrammar"),
             Ref("SingleQuotedIdentifierSegment"),
@@ -997,6 +997,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
             OneOf("STORED", "VIRTUAL", optional=True),
         ),
         Sequence("SRID", Ref("NumericLiteralSegment")),
+        OneOf("INVISIBLE", "VISIBLE"),
     )
 
 
@@ -1572,6 +1573,25 @@ class AlterTableStatementSegment(BaseSegment):
                         optional=True,
                     ),
                 ),
+                # Alter Column
+                Sequence(
+                    "ALTER",
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("SingleIdentifierGrammar"),  # Column name
+                    AnySetOf(
+                        OneOf(
+                            Sequence(
+                                "SET",
+                                "DEFAULT",
+                                OneOf(Ref("LiteralGrammar"), Ref("ExpressionSegment")),
+                            ),
+                            Sequence("DROP", "DEFAULT"),
+                        ),
+                        Sequence("SET", OneOf("INVISIBLE", "VISIBLE")),
+                        min_times=1,
+                    ),
+                ),
+                # Modify Column
                 Sequence(
                     "MODIFY",
                     Ref.keyword("COLUMN", optional=True),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2c6fe53182dfd033347e294bf471abfe987dc6390f23392a58b88dd8dd0d8a07
+_hash: 4d86372fa8b793433cdd8e27997908e7be15b0993e8978fe0ad3dd3c909de3a1
 file:
 - statement:
     create_table_statement:
@@ -660,4 +660,31 @@ file:
           - keyword: ZEROFILL
           - keyword: UNSIGNED
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: i
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+            keyword: VISIBLE
+      - comma: ','
+      - column_definition:
+          naked_identifier: j
+          data_type:
+            data_type_identifier: DATE
+          column_constraint_segment:
+            keyword: INVISIBLE
+      - end_bracket: )
+    - parameter: ENGINE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: InnoDB
 - statement_terminator: ;

@@ -1,0 +1,10 @@
+CREATE TABLE t2
+(
+  c1 INT,
+  c2 INT MAX
+)
+AGGREGATE KEY(c1)
+DISTRIBUTED BY HASH(c1)
+PROPERTIES (
+  'replication_num' = '1'
+);

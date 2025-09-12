@@ -9,3 +9,5 @@ ALTER FOREIGN TABLE myschema.distributors OPTIONS (ADD opt1 'value', SET opt2 'v
 ALTER FOREIGN TABLE test OPTIONS (SET table $$(select my_column from my_table)$$);
 
 ALTER FOREIGN TABLE test ADD COLUMN new_column int8, OPTIONS (SET table $$(select my_column from my_table)$$);
+
+ALTER FOREIGN TABLE test RENAME TO test_renamed;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 463ccb113694bd00e6f5469567e7457499877265cde53fdb0b4246fa1bf16c3b
+_hash: 1cf564a17627f9d44b2a1ff1df37c5703825b77823235b186fa17492b8985625
 file:
 - statement:
     select_statement:
@@ -44,15 +44,18 @@ file:
                       - start_bracket: (
                       - parameter: price
                       - data_type:
-                          keyword: REAL
+                          primitive_type:
+                            keyword: REAL
                       - comma: ','
                       - parameter: store
                       - data_type:
-                          keyword: VARCHAR
+                          primitive_type:
+                            keyword: VARCHAR
                       - end_bracket: )
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: data_row
       from_clause:
         keyword: FROM
@@ -96,11 +99,13 @@ file:
                         - start_bracket: (
                         - parameter: x
                         - data_type:
-                            keyword: BIGINT
+                            primitive_type:
+                              keyword: BIGINT
                         - comma: ','
                         - parameter: y
                         - data_type:
-                            keyword: DOUBLE
+                            primitive_type:
+                              keyword: DOUBLE
                         - end_bracket: )
                   end_bracket: )
             semi_structured_expression:

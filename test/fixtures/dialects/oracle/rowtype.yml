@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 68079a7f079026780f4052ad59b5aa8d021a1b94b91ab755bf49b0eae4d425c3
+_hash: 87adef57fce4ffed927bf721969f02633090061bb86cdeff4e74eb5b2cc07f92
 file:
 - statement:
     begin_end_block:
@@ -23,9 +23,7 @@ file:
           - naked_identifier: dept_rec
           - dot: .
           - naked_identifier: department_id
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             numeric_literal: '10'
     - statement_terminator: ;
@@ -35,9 +33,7 @@ file:
           - naked_identifier: dept_rec
           - dot: .
           - naked_identifier: department_name
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             quoted_literal: "'Administration'"
     - statement_terminator: ;
@@ -47,9 +43,7 @@ file:
           - naked_identifier: dept_rec
           - dot: .
           - naked_identifier: manager_id
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             numeric_literal: '200'
     - statement_terminator: ;
@@ -59,9 +53,7 @@ file:
           - naked_identifier: dept_rec
           - dot: .
           - naked_identifier: location_id
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             numeric_literal: '1700'
     - statement_terminator: ;
@@ -317,9 +309,7 @@ file:
           - naked_identifier: friend
           - dot: .
           - naked_identifier: first_name
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             quoted_literal: "'John'"
     - statement_terminator: ;
@@ -329,9 +319,7 @@ file:
           - naked_identifier: friend
           - dot: .
           - naked_identifier: last_name
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             quoted_literal: "'Smith'"
     - statement_terminator: ;
@@ -341,9 +329,7 @@ file:
           - naked_identifier: friend
           - dot: .
           - naked_identifier: phone_number
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             quoted_literal: "'1-650-555-1234'"
     - statement_terminator: ;
@@ -595,9 +581,7 @@ file:
           - naked_identifier: source
           - dot: .
           - naked_identifier: first_name
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             quoted_literal: "'Jane'"
     - statement_terminator: ;
@@ -607,9 +591,7 @@ file:
           - naked_identifier: source
           - dot: .
           - naked_identifier: last_name
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             quoted_literal: "'Smith'"
     - statement_terminator: ;
@@ -648,9 +630,7 @@ file:
         assignment_segment_statement:
           object_reference:
             naked_identifier: target
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             column_reference:
               naked_identifier: source

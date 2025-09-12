@@ -1083,3 +1083,134 @@ test_pass_nested_table_function_with_subquery:
   configs:
     core:
       dialect: snowflake
+
+test_fail_mariadb_insert_cte_select:
+  fail_str: |
+    INSERT INTO test_hold (
+        uid,
+        date_created,
+        date_updated,
+        earliest_activity,
+        latest_activity,
+        reason
+    )
+    SELECT
+        uid,
+        sub.earliest_date_created AS date_created,
+        sub.latest_date_updated AS date_updated,
+        earliest_activity,
+        latest_activity,
+        sub.reason
+    FROM test AS t
+    INNER JOIN (
+        SELECT
+            reason,
+            MIN(date_created) AS earliest_date_created,
+            MAX(date_updated) AS latest_date_updated
+        FROM test
+        GROUP BY reason
+    ) AS sub ON t.reason = sub.reason
+    GROUP BY t.reason;
+  fix_str: |
+    INSERT INTO test_hold (
+        uid,
+        date_created,
+        date_updated,
+        earliest_activity,
+        latest_activity,
+        reason
+    )
+    WITH sub AS (
+        SELECT
+            reason,
+            MIN(date_created) AS earliest_date_created,
+            MAX(date_updated) AS latest_date_updated
+        FROM test
+        GROUP BY reason
+    )
+    SELECT
+        uid,
+        sub.earliest_date_created AS date_created,
+        sub.latest_date_updated AS date_updated,
+        earliest_activity,
+        latest_activity,
+        sub.reason
+    FROM test AS t
+    INNER JOIN sub ON t.reason = sub.reason
+    GROUP BY t.reason;
+  configs:
+    core:
+      dialect: mariadb
+
+test_fail_tsql_insert:
+  fail_str: |
+    INSERT INTO Table1 (Id,Name,Attribute)
+    SELECT
+    Main.Id
+    ,Main.Name
+    ,Subq.Attribute
+    FROM MainTable AS Main
+    LEFT JOIN
+    (SELECT
+    Id
+    ,Attribute
+    FROM Table2) Subq
+    ON Main.Id = Subq.Id
+  fix_str: |
+    WITH Subq AS (SELECT
+    Id
+    ,Attribute
+    FROM Table2)
+    INSERT INTO Table1 (Id,Name,Attribute)
+    SELECT
+    Main.Id
+    ,Main.Name
+    ,Subq.Attribute
+    FROM MainTable AS Main
+    LEFT JOIN
+    Subq
+    ON Main.Id = Subq.Id
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_existing_cte_with_insert:
+  fail_str: |
+    WITH MainTable as (
+        select *
+        from sales
+    )
+
+    INSERT INTO Table1 (Id,Name,Attribute)
+    SELECT
+    Main.Id
+    ,Main.Name
+    ,Subq.Attribute
+    FROM MainTable AS Main
+    LEFT JOIN
+    (SELECT
+    Id
+    ,Attribute
+    FROM Table2) Subq
+    ON Main.Id = Subq.Id
+  fix_str: |
+    WITH MainTable as (
+        select *
+        from sales
+    ),
+    Subq AS (SELECT
+    Id
+    ,Attribute
+    FROM Table2)
+    INSERT INTO Table1 (Id,Name,Attribute)
+    SELECT
+    Main.Id
+    ,Main.Name
+    ,Subq.Attribute
+    FROM MainTable AS Main
+    LEFT JOIN
+    Subq
+    ON Main.Id = Subq.Id
+  configs:
+    core:
+      dialect: tsql

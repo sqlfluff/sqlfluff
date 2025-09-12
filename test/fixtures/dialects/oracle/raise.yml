@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d600b2ec2d61a0bbc758596b53549e857b5f86d7f0081b8dcd1932f8cfa42669
+_hash: acaeb3e2b1089b2d6122ba504ef0ad701c7aeaa61faaa1bf2a81a43ef4eeb0d5
 file:
 - statement:
     create_procedure_statement:
@@ -92,9 +92,7 @@ file:
         naked_identifier: default_number
         data_type:
           data_type_identifier: NUMBER
-        colon: ':'
-        comparison_operator:
-          raw_comparison_operator: '='
+        assignment_operator: :=
         expression:
           numeric_literal: '0'
         statement_terminator: ;
@@ -191,18 +189,14 @@ file:
       - naked_identifier: current_salary
       - data_type:
           data_type_identifier: NUMBER
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           numeric_literal: '20000'
       - statement_terminator: ;
       - naked_identifier: max_salary
       - data_type:
           data_type_identifier: NUMBER
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           numeric_literal: '10000'
       - statement_terminator: ;
@@ -242,9 +236,7 @@ file:
             assignment_segment_statement:
               object_reference:
                 naked_identifier: erroneous_salary
-              colon: ':'
-              comparison_operator:
-                raw_comparison_operator: '='
+              assignment_operator: :=
               expression:
                 column_reference:
                   naked_identifier: current_salary
@@ -307,9 +299,7 @@ file:
         assignment_segment_statement:
           object_reference:
             naked_identifier: current_salary
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             column_reference:
               naked_identifier: max_salary

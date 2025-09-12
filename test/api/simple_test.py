@@ -1,6 +1,7 @@
 """Tests for simple use cases of the public api."""
 
 import json
+from contextlib import nullcontext
 
 import pytest
 
@@ -521,6 +522,107 @@ def test__api__config_path():
 
     # Compare JSON from parse to expected result.
     assert parsed == expected_parsed
+
+
+@pytest.mark.parametrize(
+    "dialect,config_path,expectation",
+    [
+        (None, "test/fixtures/api/config_dialect/.sqlfluff", nullcontext()),
+        (None, None, pytest.raises(APIParsingError)),
+        ("duckdb", None, nullcontext()),
+        ("ansi", None, pytest.raises(APIParsingError)),
+    ],
+)
+def test__api__parse_dialect_config_path(dialect, config_path, expectation):
+    """Test that we can load a dialect from a config file in the Simple API parse."""
+    # Load test SQL file.
+    with open("test/fixtures/api/config_dialect/config_dialect.sql", "r") as f:
+        sql = f.read()
+
+    # Load in expected result.
+    with open("test/fixtures/api/config_dialect/config_dialect_parse.json", "r") as f:
+        expected_parsed = json.load(f)
+
+    was_parsed = False
+    with expectation:
+        # Pass a config path to the Simple API.
+        parsed = sqlfluff.parse(
+            sql,
+            dialect=dialect,
+            config_path=config_path,
+        )
+        was_parsed = True
+        # Compare JSON from parse to expected result.
+        assert parsed == expected_parsed
+
+    if isinstance(expectation, nullcontext):
+        assert was_parsed
+    else:
+        assert not was_parsed
+
+
+@pytest.mark.parametrize(
+    "dialect,config_path,fails",
+    [
+        (None, "test/fixtures/api/config_dialect/.sqlfluff", False),
+        (None, None, True),
+        ("duckdb", None, False),
+        ("ansi", None, True),
+    ],
+)
+def test__api__lint_dialect_config_path(dialect, config_path, fails):
+    """Test that we can load a dialect from a config file in the Simple API lint."""
+    # Load test SQL file.
+    with open("test/fixtures/api/config_dialect/config_dialect.sql", "r") as f:
+        sql = f.read()
+
+    # Load in expected result.
+    issue_type = "prs" if fails else "lt01"
+    with open(
+        f"test/fixtures/api/config_dialect/config_dialect_lint_{issue_type}.json", "r"
+    ) as f:
+        expected_lint = json.load(f)
+
+    # Pass a config path to the Simple API.
+    linted = sqlfluff.lint(
+        sql,
+        dialect=dialect,
+        config_path=config_path,
+    )
+    # Compare JSON from lint to expected result.
+    assert linted == expected_lint
+
+
+@pytest.mark.parametrize(
+    "dialect,config_path,fails",
+    [
+        (None, "test/fixtures/api/config_dialect/.sqlfluff", False),
+        (None, None, True),
+        ("duckdb", None, False),
+        ("ansi", None, True),
+    ],
+)
+def test__api__fix_dialect_config_path(dialect, config_path, fails):
+    """Test that we can load a dialect from a config file in the Simple API fix."""
+    # Load test SQL file.
+    with open("test/fixtures/api/config_dialect/config_dialect.sql", "r") as f:
+        sql = f.read()
+
+    # Load in expected result.
+    if fails:
+        expected_fix = sql
+    else:
+        with open("test/fixtures/api/config_dialect/config_dialect_fix.sql", "r") as f:
+            expected_fix = f.read()
+
+    # Pass a config path to the Simple API.
+    fixed = sqlfluff.fix(
+        sql,
+        dialect=dialect,
+        config_path=config_path,
+    )
+    # Compare to expected result.
+    assert fixed == expected_fix
 
 
 @pytest.mark.parametrize(

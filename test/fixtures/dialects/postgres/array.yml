@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d4020c54f4e3367377f32edeab8b49eb6f0b1623677c3737ecf1a8f22c025851
+_hash: 7da1743e6b8a4d2d629db820b6f5d6571c4b73a0011e185324a6b18ff30e46d8
 file:
 - statement:
     select_statement:
@@ -66,26 +66,26 @@ file:
         naked_identifier: sal_emp
     - bracketed:
       - start_bracket: (
-      - column_reference:
+      - column_definition:
           naked_identifier: name
-      - data_type:
-          keyword: text
+          data_type:
+            keyword: text
       - comma: ','
-      - column_reference:
+      - column_definition:
           naked_identifier: pay_by_quarter
-      - data_type:
-          keyword: integer
-          start_square_bracket: '['
-          end_square_bracket: ']'
+          data_type:
+            keyword: integer
+            start_square_bracket: '['
+            end_square_bracket: ']'
       - comma: ','
-      - column_reference:
+      - column_definition:
           naked_identifier: schedule
-      - data_type:
-        - keyword: text
-        - start_square_bracket: '['
-        - end_square_bracket: ']'
-        - start_square_bracket: '['
-        - end_square_bracket: ']'
+          data_type:
+          - keyword: text
+          - start_square_bracket: '['
+          - end_square_bracket: ']'
+          - start_square_bracket: '['
+          - end_square_bracket: ']'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -96,18 +96,18 @@ file:
         naked_identifier: tictactoe
     - bracketed:
         start_bracket: (
-        column_reference:
+        column_definition:
           naked_identifier: squares
-        data_type:
-        - keyword: integer
-        - start_square_bracket: '['
-        - expression:
-            numeric_literal: '3'
-        - end_square_bracket: ']'
-        - start_square_bracket: '['
-        - expression:
-            numeric_literal: '3'
-        - end_square_bracket: ']'
+          data_type:
+          - keyword: integer
+          - start_square_bracket: '['
+          - expression:
+              numeric_literal: '3'
+          - end_square_bracket: ']'
+          - start_square_bracket: '['
+          - expression:
+              numeric_literal: '3'
+          - end_square_bracket: ']'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -552,7 +552,8 @@ file:
               numeric_literal: '3'
               end_square_bracket: ']'
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: e1
       - comma: ','
       - select_clause_element:
@@ -574,7 +575,8 @@ file:
               numeric_literal: '5'
               end_square_bracket: ']'
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: e2
       from_clause:
         keyword: FROM
@@ -596,11 +598,13 @@ file:
                             start_square_bracket: '['
                             end_square_bracket: ']'
                       alias_expression:
-                        keyword: AS
+                        alias_operator:
+                          keyword: AS
                         naked_identifier: f1
                 end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: ss
 - statement_terminator: ;
 - statement:
@@ -615,7 +619,8 @@ file:
               data_type:
                 data_type_identifier: _text
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: text_array
 - statement_terminator: ;
 - statement:

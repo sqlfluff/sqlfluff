@@ -1,0 +1,357 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9a8e4e050743f228c2747538c6facfef1c90a9fdf99b5a11036c10699d4d7f0f
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_OBJECT
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'name'"
+              - colon: ':'
+              - expression:
+                - column_reference:
+                    naked_identifier: first_name
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - quoted_literal: "' '"
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - column_reference:
+                    naked_identifier: last_name
+              - comma: ','
+              - expression:
+                  quoted_literal: "'email'"
+              - colon: ':'
+              - expression:
+                  column_reference:
+                    naked_identifier: email
+              - comma: ','
+              - expression:
+                  quoted_literal: "'phone'"
+              - colon: ':'
+              - expression:
+                  column_reference:
+                    naked_identifier: phone_number
+              - comma: ','
+              - expression:
+                  quoted_literal: "'hire_date'"
+              - colon: ':'
+              - expression:
+                  column_reference:
+                    naked_identifier: hire_date
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: employee_id
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '140'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_OBJECT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: employee_id
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '140'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_OBJECT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                quoted_literal: "'NAME'"
+                keyword: VALUE
+                expression:
+                  column_reference:
+                    naked_identifier: first_name
+                end_bracket: )
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+            alias_expression:
+              naked_identifier: e
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: departments
+            alias_expression:
+              naked_identifier: d
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: e
+          - dot: .
+          - naked_identifier: department_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: d
+          - dot: .
+          - naked_identifier: department_id
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: e
+          - dot: .
+          - naked_identifier: employee_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '140'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_ARRAYAGG
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: JSON_OBJECT
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        star: '*'
+                        end_bracket: )
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: departments
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_OBJECT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                quoted_literal: "'name'"
+                keyword: value
+                expression:
+                  quoted_literal: "'Foo'"
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: DUAL
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_OBJECT
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - quoted_literal: "'name'"
+              - keyword: value
+              - expression:
+                  quoted_literal: "'Foo'"
+              - keyword: FORMAT
+              - keyword: JSON
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: DUAL
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_OBJECT
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - keyword: KEY
+              - quoted_literal: "'deptno'"
+              - keyword: VALUE
+              - expression:
+                  column_reference:
+                  - naked_identifier: d
+                  - dot: .
+                  - naked_identifier: department_id
+              - comma: ','
+              - keyword: KEY
+              - quoted_literal: "'deptname'"
+              - keyword: VALUE
+              - expression:
+                  column_reference:
+                  - naked_identifier: d
+                  - dot: .
+                  - naked_identifier: department_name
+              - end_bracket: )
+          alias_expression:
+            quoted_identifier: '"Department Objects"'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: departments
+            alias_expression:
+              naked_identifier: d
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: d
+        - dot: .
+        - naked_identifier: department_id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_OBJECT
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: first_name
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: last_name
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: email
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: hire_date
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: employee_id
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '140'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: JSON_OBJECT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: eMail
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: employee_id
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '140'
+- statement_terminator: ;
