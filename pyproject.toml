@@ -242,33 +242,6 @@ extend-select = ["I", "D"]
 ignore = ["D107", "D105", "D418"]
 
 
-[tool.coverage.run]
-source = ["src/sqlfluff"]
-omit = [
-    "src/sqlfluff/__main__.py",
-    "plugins/sqlfluff-templater-dbt/sqlfluff_templater_dbt/osmosis/*.py",
-]
-
-[tool.coverage.report]
-exclude_lines = [
-    "sys.version_info",
-    "pragma: no cover",
-    # See: https://github.com/nedbat/coveragepy/issues/970
-    # NOTE: Prefer not including the ... instead
-    "@overload",
-    # See: https://github.com/pytest-dev/pytest-cov/issues/428
-    "@abstractmethod",
-    # NOTE: Prefer not including the ... instead
-]
-
-[tool.coverage.paths]
-source = [
-    # Local path
-    "src/",
-    # Path in tox environments
-    ".tox/*/lib/python*/site-packages/",
-]
-
 [tool.ruff.lint.isort]
 # Mark sqlfluff, test and it's plugins as known first party
 known-first-party = [
