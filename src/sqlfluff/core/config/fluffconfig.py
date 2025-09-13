@@ -123,9 +123,7 @@ class FluffConfig:
         empty_config: ConfigMappingType = {"core": {}}
         empty_overrides: ConfigMappingType = {}
         self._configs = nested_combine(
-            defaults,
-            configs or empty_config,
-            overrides or empty_overrides
+            defaults, configs or empty_config, overrides or empty_overrides
         )
         # Some configs require special treatment
         self._configs["core"]["color"] = (
