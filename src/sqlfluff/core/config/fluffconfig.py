@@ -120,8 +120,12 @@ class FluffConfig:
         # If any existing configs are provided. Validate them:
         if configs:
             validate_config_dict(configs, "<provided configs>")
+        empty_config: ConfigMappingType = {"core": {}}
+        empty_overrides: ConfigMappingType = {}
         self._configs = nested_combine(
-            defaults, configs or {"core": {}}, overrides or {}
+            defaults,
+            configs or empty_config,
+            overrides or empty_overrides
         )
         # Some configs require special treatment
         self._configs["core"]["color"] = (
