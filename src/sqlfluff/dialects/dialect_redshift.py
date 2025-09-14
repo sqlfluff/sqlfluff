@@ -643,42 +643,13 @@ class DatatypeSegment(BaseSegment):
             Ref("BracketedArguments", optional=True),
         ),
         "ANYELEMENT",
+        # quoted simple datatypes
+        Ref("DatatypeIdentifierSegment"),
         Sequence(
             Ref("SingleIdentifierGrammar"),
             Ref("DotSegment"),
             Ref("DatatypeIdentifierSegment"),
             allow_gaps=False,
-        ),
-    )
-
-
-class QuotedDatatypeSegment(BaseSegment):
-    """A quoted datatype segment for Redshift cast expressions."""
-
-    type = "data_type"
-    match_grammar = Ref("QuotedIdentifierSegment")
-
-
-class ShorthandCastSegment(ansi.ShorthandCastSegment):
-    """A casting operation using '::' with support for quoted datatypes."""
-
-    type = "cast_expression"
-    match_grammar: Matchable = Sequence(
-        OneOf(
-            Ref("Expression_D_Grammar"),
-            Ref("CaseExpressionSegment"),
-        ),
-        AnyNumberOf(
-            Sequence(
-                Ref("CastOperatorSegment"),
-                OneOf(
-                    Ref("DatatypeSegment"),
-                    # Allow quoted datatypes specifically in cast expressions
-                    Ref("QuotedDatatypeSegment"),
-                ),
-                Ref("TimeZoneGrammar", optional=True),
-            ),
-            min_times=1,
         ),
     )
 
