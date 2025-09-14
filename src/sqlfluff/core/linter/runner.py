@@ -165,7 +165,6 @@ class ParallelRunner(BaseRunner):
         for result in results:
             yield result
 
-
     def run(self, fnames: list[str], fix: bool) -> Iterator[LintedFile]:
         """Parallel implementation.
 
