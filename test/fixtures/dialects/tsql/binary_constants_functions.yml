@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e88d0b33632b129d39a95e537cb35cd0b590eacd700fa6f3200bb2e37234ff22
+_hash: f12221a8e7cfa2d7e24322b9d1eefb122cd5e4ec0fef843a0c1f313430a51751
 file:
   batch:
   - statement:
@@ -18,7 +18,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '0x0'
+                    binary_literal: '0x0'
                   keyword: as
                   data_type:
                     data_type_identifier: uniqueidentifier
@@ -36,7 +36,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '0xAE'
+                    binary_literal: '0xAE'
                   keyword: as
                   data_type:
                     data_type_identifier: binary
@@ -44,7 +44,7 @@ file:
                       bracketed:
                         start_bracket: (
                         expression:
-                          numeric_literal: '2'
+                          integer_literal: '2'
                         end_bracket: )
                   end_bracket: )
         statement_terminator: ;
@@ -60,7 +60,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '0x12Ef'
+                    binary_literal: '0x12Ef'
                   keyword: as
                   data_type:
                     data_type_identifier: varbinary
@@ -68,7 +68,7 @@ file:
                       bracketed:
                         start_bracket: (
                         expression:
-                          numeric_literal: '16'
+                          integer_literal: '16'
                         end_bracket: )
                   end_bracket: )
         statement_terminator: ;
@@ -84,7 +84,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: 0X0
+                    binary_literal: 0X0
                   keyword: as
                   data_type:
                     data_type_identifier: uniqueidentifier
@@ -107,11 +107,11 @@ file:
                       bracketed:
                         start_bracket: (
                         expression:
-                          numeric_literal: '4'
+                          integer_literal: '4'
                         end_bracket: )
                   comma: ','
                   expression:
-                    numeric_literal: '0x69048AEF'
+                    binary_literal: '0x69048AEF'
                   end_bracket: )
         statement_terminator: ;
   - statement:
@@ -126,7 +126,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: 0x
+                    binary_literal: 0x
                   keyword: as
                   data_type:
                     data_type_identifier: binary
@@ -134,7 +134,7 @@ file:
                       bracketed:
                         start_bracket: (
                         expression:
-                          numeric_literal: '1'
+                          integer_literal: '1'
                         end_bracket: )
                   end_bracket: )
         statement_terminator: ;

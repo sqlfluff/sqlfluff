@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c6b1721989e1c1a27945606b69a0849014796d39f869e76969243459b0a0d603
+_hash: 133f6821f8c566a867edc5e4af101f1ed2bd0d8f1a9ec2d7e2d69a945df52100
 file:
 - batch:
   - statement:
@@ -217,7 +217,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -228,7 +228,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -239,10 +239,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_option_statement:
@@ -271,8 +271,8 @@ file:
           - end_bracket: )
       - statement_terminator: ;
   - statement_terminator: ;
-- go_statement:
-    keyword: GO
+  - go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -302,7 +302,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '50'
+                    integer_literal: '50'
                   end_bracket: )
             column_constraint_segment:
             - keyword: NOT
@@ -383,8 +383,8 @@ file:
               end_bracket: )
           - end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -404,7 +404,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -415,7 +415,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -426,10 +426,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_option_statement:
@@ -444,8 +444,8 @@ file:
             end_bracket: )
       - statement_terminator: ;
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -465,7 +465,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -476,7 +476,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -487,10 +487,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_option_statement:
@@ -517,8 +517,8 @@ file:
           - end_bracket: )
       - statement_terminator: ;
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -538,7 +538,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -549,7 +549,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -560,10 +560,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_option_statement:
@@ -596,8 +596,8 @@ file:
               end_bracket: )
           - end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -617,7 +617,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -628,7 +628,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -639,10 +639,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_option_statement:
@@ -691,8 +691,8 @@ file:
               end_bracket: )
           - end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -712,7 +712,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -723,7 +723,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -734,10 +734,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_option_statement:
@@ -760,8 +760,8 @@ file:
               end_bracket: )
           - end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -781,7 +781,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -792,7 +792,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -803,10 +803,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_option_statement:
@@ -831,8 +831,8 @@ file:
           - keyword: 'OFF'
           - end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -852,7 +852,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -863,7 +863,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -874,10 +874,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_option_statement:
@@ -927,8 +927,8 @@ file:
               naked_identifier: constraint4
           - end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -948,7 +948,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -959,7 +959,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -970,10 +970,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_option_statement:
@@ -1018,5 +1018,5 @@ file:
             - end_bracket: )
           - end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO

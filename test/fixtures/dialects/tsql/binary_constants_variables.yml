@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f5349eaa0c44b220ca663750aceb9eaf89a936d8e86614334b8a2507d210e069
+_hash: c8218318266ceaf3cde4066af35b1fcebbbeee18ccaa186753e754d2b3948dcd
 file:
   batch:
   - statement:
@@ -16,7 +16,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '1'
+                integer_literal: '1'
               end_bracket: )
         statement_terminator: ;
   - statement:
@@ -26,7 +26,7 @@ file:
         assignment_operator:
           raw_comparison_operator: '='
         expression:
-          numeric_literal: '0x0'
+          binary_literal: '0x0'
         statement_terminator: ;
   - statement:
       declare_segment:
@@ -38,7 +38,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '2'
+                integer_literal: '2'
               end_bracket: )
         statement_terminator: ;
   - statement:
@@ -48,7 +48,7 @@ file:
         assignment_operator:
           raw_comparison_operator: '='
         expression:
-          numeric_literal: '0xAE'
+          binary_literal: '0xAE'
         statement_terminator: ;
   - statement:
       declare_segment:
@@ -60,7 +60,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '8'
+                integer_literal: '8'
               end_bracket: )
         statement_terminator: ;
   - statement:
@@ -70,7 +70,7 @@ file:
         assignment_operator:
           raw_comparison_operator: '='
         expression:
-          numeric_literal: '0x69048AEFDD010E'
+          binary_literal: '0x69048AEFDD010E'
         statement_terminator: ;
   - statement:
       declare_segment:
@@ -82,7 +82,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '16'
+                integer_literal: '16'
               end_bracket: )
         statement_terminator: ;
   - statement:
@@ -92,5 +92,5 @@ file:
         assignment_operator:
           raw_comparison_operator: '='
         expression:
-          numeric_literal: 0x
+          binary_literal: 0x
         statement_terminator: ;
