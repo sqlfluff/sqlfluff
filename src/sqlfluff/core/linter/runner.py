@@ -132,6 +132,40 @@ class ParallelRunner(BaseRunner):
         super().__init__(linter, config)
         self.processes = processes
 
+    @staticmethod
+    def _render_file_static(args: tuple[str, Linter, FluffConfig]):
+        """Static helper for multiprocessing."""
+        fname, linter, config = args
+        try:
+            return fname, linter.render_file(fname, config)
+        except SQLFluffSkipFile as s:
+            linter_logger.warning(str(s))
+            return None
+
+    def iter_rendered(self, fnames: list[str]) -> Iterator[tuple[str, RenderedFile]]:
+        """Iterate through rendered files ready for linting."""
+        sequenced = list(self.linter.templater.sequence_files(
+            fnames, config=self.config, formatter=self.linter.formatter
+        ))
+        # Prepare arguments for each file
+        args_list = [(fname, self.linter, self.config) for fname in sequenced]
+
+        results = []
+        with self._create_pool(
+            self.processes,
+            self._init_global,
+        ) as pool:
+            for result in pool.imap_unordered(self._render_file_static, args_list, chunksize=10):
+                if result is not None:
+                    results.append(result)
+
+        # Instead of yielding in the loop above (which would double our number
+        # of spawned processes), render everything first (taking the memory hit
+        # of storing all rendered files) then yield.
+        for result in results:
+            yield result
+
+
     def run(self, fnames: list[str], fix: bool) -> Iterator[LintedFile]:
         """Parallel implementation.
 
@@ -254,7 +288,7 @@ class MultiProcessRunner(ParallelRunner):
         We use this so we can iterate through results as they arrive, and while other
         files are still being processed.
         """
-        return pool.imap_unordered(func=func, iterable=iterable)
+        return pool.imap_unordered(func=func, iterable=iterable, chunksize=10)
 
 
 class MultiThreadRunner(ParallelRunner):
