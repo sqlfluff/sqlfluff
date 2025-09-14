@@ -1814,10 +1814,7 @@ class ProcedureParameterListSegment(BaseSegment):
 class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE PROCEDURE` statement.
 
-    https://www.postgresql.org/docs/14/sql-createprocedure.html
-
-    TODO: Just a basic statement for now, without full syntax.
-    based on CreateFunctionStatementSegment without a return type.
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_PROCEDURE.html
     """
 
     type = "create_procedure_statement"
@@ -1828,6 +1825,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         "PROCEDURE",
         Ref("FunctionNameSegment"),
         Ref("ProcedureParameterListSegment"),
+        Ref.keyword("NONATOMIC", optional=True),
         Ref("FunctionDefinitionGrammar"),
     )
 

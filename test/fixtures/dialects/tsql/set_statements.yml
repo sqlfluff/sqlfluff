@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ad529eb73bf8da610ceddcbb5d0a7f5cbfa86bc470a92596bf7c4c82704278c1
+_hash: c543f490a50ebe1e67dc4e64012f915be911fdf643e2d25c289f04dbf6a98860
 file:
   batch:
   - statement:
@@ -22,7 +22,7 @@ file:
         assignment_operator:
           raw_comparison_operator: '='
         expression:
-          numeric_literal: '1'
+          integer_literal: '1'
         statement_terminator: ;
   - statement:
       set_segment:
@@ -31,13 +31,13 @@ file:
       - assignment_operator:
           raw_comparison_operator: '='
       - expression:
-          numeric_literal: '1'
+          integer_literal: '1'
       - comma: ','
       - parameter: '@param2'
       - assignment_operator:
           raw_comparison_operator: '='
       - expression:
-          numeric_literal: '2'
+          integer_literal: '2'
       - statement_terminator: ;
   - statement:
       set_segment:
@@ -53,7 +53,7 @@ file:
       - assignment_operator:
           raw_comparison_operator: '='
       - expression:
-          numeric_literal: '2'
+          integer_literal: '2'
       - statement_terminator: ;
   - statement:
       set_segment:
@@ -75,7 +75,7 @@ file:
       - assignment_operator:
           raw_comparison_operator: '='
       - expression:
-          numeric_literal: '2'
+          integer_literal: '2'
       - statement_terminator: ;
   - statement:
       set_segment:
@@ -85,42 +85,42 @@ file:
           binary_operator: +
           raw_comparison_operator: '='
       - expression:
-          numeric_literal: '1'
+          integer_literal: '1'
       - comma: ','
       - parameter: '@param2'
       - assignment_operator:
           binary_operator: '-'
           raw_comparison_operator: '='
       - expression:
-          numeric_literal: '2'
+          integer_literal: '2'
       - comma: ','
       - parameter: '@param3'
       - assignment_operator:
           binary_operator: '*'
           raw_comparison_operator: '='
       - expression:
-          numeric_literal: '3'
+          integer_literal: '3'
       - comma: ','
       - parameter: '@param4'
       - assignment_operator:
           binary_operator: /
           raw_comparison_operator: '='
       - expression:
-          numeric_literal: '4'
+          integer_literal: '4'
       - comma: ','
       - parameter: '@param5'
       - assignment_operator:
           binary_operator: '%'
           raw_comparison_operator: '='
       - expression:
-          numeric_literal: '5'
+          integer_literal: '5'
       - comma: ','
       - parameter: '@param5'
       - assignment_operator:
           binary_operator: ^
           raw_comparison_operator: '='
       - expression:
-          numeric_literal: '6'
+          integer_literal: '6'
       - comma: ','
       - parameter: '@param5'
       - assignment_operator:
@@ -128,7 +128,7 @@ file:
             ampersand: '&'
           raw_comparison_operator: '='
       - expression:
-          numeric_literal: '7'
+          integer_literal: '7'
       - comma: ','
       - parameter: '@param5'
       - assignment_operator:
@@ -136,7 +136,7 @@ file:
             pipe: '|'
           raw_comparison_operator: '='
       - expression:
-          numeric_literal: '8'
+          integer_literal: '8'
       - statement_terminator: ;
   - statement:
       set_segment:
@@ -157,4 +157,21 @@ file:
                 - dot: .
                 - quoted_identifier: '[SEQUENCE_NAME]'
             end_bracket: )
+        statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@BinaryVariable2'
+        data_type:
+          data_type_identifier: BINARY
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '2'
+              end_bracket: )
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          binary_literal: '0xFA'
         statement_terminator: ;
