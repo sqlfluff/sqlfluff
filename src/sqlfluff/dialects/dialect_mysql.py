@@ -14,6 +14,7 @@ from sqlfluff.core.parser import (
     Bracketed,
     CodeSegment,
     CommentSegment,
+    CompositeComparisonOperatorSegment,
     Dedent,
     Delimited,
     IdentifierSegment,
@@ -306,6 +307,9 @@ mysql_dialect.replace(
     ),
     LikeGrammar=OneOf("LIKE", "RLIKE", "REGEXP"),
     CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
+    ComparisonOperatorGrammar=ansi_dialect.get_grammar(
+        "ComparisonOperatorGrammar"
+    ).copy(insert=[Ref("NullSafeEqualsSegment")]),
 )
 
 mysql_dialect.add(
@@ -325,7 +329,7 @@ mysql_dialect.add(
         type="at_sign_literal",
     ),
     SystemVariableSegment=RegexParser(
-        r"@@((session|global)\.)?[A-Za-z0-9_]+",
+        r"@@((session|global|local|persist|persist_only)\.)?[A-Za-z0-9_]+",
         CodeSegment,
         type="system_variable",
     ),
@@ -346,7 +350,7 @@ mysql_dialect.add(
 )
 
 
-class AliasExpressionSegment(BaseSegment):
+class AliasExpressionSegment(ansi.AliasExpressionSegment):
     """A reference to an object with an `AS` clause.
 
     The optional AS keyword allows both implicit and explicit aliasing.
@@ -355,7 +359,7 @@ class AliasExpressionSegment(BaseSegment):
     type = "alias_expression"
     match_grammar = Sequence(
         Indent,
-        Ref.keyword("AS", optional=True),
+        Ref("AsAliasOperatorSegment", optional=True),
         OneOf(
             Ref("SingleIdentifierGrammar"),
             Ref("SingleQuotedIdentifierSegment"),
@@ -993,6 +997,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
             OneOf("STORED", "VIRTUAL", optional=True),
         ),
         Sequence("SRID", Ref("NumericLiteralSegment")),
+        OneOf("INVISIBLE", "VISIBLE"),
     )
 
 
@@ -1568,6 +1573,25 @@ class AlterTableStatementSegment(BaseSegment):
                         optional=True,
                     ),
                 ),
+                # Alter Column
+                Sequence(
+                    "ALTER",
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("SingleIdentifierGrammar"),  # Column name
+                    AnySetOf(
+                        OneOf(
+                            Sequence(
+                                "SET",
+                                "DEFAULT",
+                                OneOf(Ref("LiteralGrammar"), Ref("ExpressionSegment")),
+                            ),
+                            Sequence("DROP", "DEFAULT"),
+                        ),
+                        Sequence("SET", OneOf("INVISIBLE", "VISIBLE")),
+                        min_times=1,
+                    ),
+                ),
+                # Modify Column
                 Sequence(
                     "MODIFY",
                     Ref.keyword("COLUMN", optional=True),
@@ -1805,7 +1829,7 @@ class ProcedureParameterListGrammar(BaseSegment):
 class SetAssignmentStatementSegment(BaseSegment):
     """A `SET` statement.
 
-    https://dev.mysql.com/doc/refman/8.0/en/set-variable.html
+    https://dev.mysql.com/doc/refman/9.3/en/set-variable.html
     """
 
     type = "set_statement"
@@ -1816,13 +1840,24 @@ class SetAssignmentStatementSegment(BaseSegment):
             Sequence(
                 Sequence(OneOf("NEW", "OLD"), Ref("DotSegment"), optional=True),
                 OneOf(
-                    Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")
+                    "GLOBAL",
+                    "PERSIST",
+                    "PERSIST_ONLY",
+                    "SESSION",
+                    "LOCAL",
+                    optional=True,
+                ),
+                OneOf(
+                    Ref("SessionVariableNameSegment"),
+                    Ref("LocalVariableNameSegment"),
+                    Ref("SystemVariableSegment"),
                 ),
                 OneOf(
                     Ref("EqualsSegment"),
                     Ref("WalrusOperatorSegment"),
                 ),
                 AnyNumberOf(
+                    Ref("NumericLiteralSegment"),
                     Ref("QuotedLiteralSegment"),
                     Ref("DoubleQuotedLiteralSegment"),
                     Ref("SessionVariableNameSegment"),
@@ -3230,4 +3265,18 @@ class DatatypeSegment(BaseSegment):
             ),
         ),
         Ref("ArrayTypeSegment"),
+    )
+
+
+class NullSafeEqualsSegment(CompositeComparisonOperatorSegment):
+    """NULL-safe equals operator.
+
+    https://dev.mysql.com/doc/refman/9.3/en/comparison-operators.html#operator_equal-to
+    """
+
+    match_grammar: Matchable = Sequence(
+        Ref("RawLessThanSegment"),
+        Ref("RawEqualsSegment"),
+        Ref("RawGreaterThanSegment"),
+        allow_gaps=False,
     )

@@ -442,3 +442,138 @@ test_mysql_identifier_with_backticks_should_not_except:
   configs:
     core:
       dialect: mysql
+
+test_snowflake_pass_dot_inside_quotes:
+  pass_str: |
+    WITH CTE_DUMMY AS (
+        SELECT
+            1 AS "DUMMY.ALIAS"
+            , 2 AS "DUMMY_ALIAS"
+        FROM DUAL
+    )
+
+    SELECT
+        C1."DUMMY.ALIAS"
+        , C1."DUMMY_ALIAS"
+    FROM CTE_DUMMY AS C1
+  configs:
+    core:
+      dialect: snowflake
+
+test_postgres_pass_dot_inside_quotes:
+  pass_str: |
+    SELECT "a.b"
+    FROM table
+  configs:
+    core:
+      dialect: postgres
+
+test_tsql_bracketed_identifiers_pass:
+  pass_str: |
+    select
+        [t1].[field1],
+        [t2].[field2],
+        t1.field3,
+        "t1".field4,
+        [t3].field5,
+        "t3".field6,
+        t3.field7
+    from [table1] as [t1]
+    inner join [table2] as [t2]
+        on [t2].[pk] = [t1].[pk]
+    inner join [table3] as t3
+        on t3.pk = t1.pk
+  configs:
+    core:
+      dialect: tsql
+
+test_bigquery_unnest_with_offset_pass:
+  pass_str: |
+    select
+        ix,
+        v
+    from t
+    left join
+        unnest(t.value_list) as v
+        with offset as ix
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_tsql_pivot_table_alias:
+  pass_str: |
+    select
+        pvt.cl1
+        , pvt.cl2
+        , pvt.cl3
+        , [1] as lvl_1
+        , [2] as lvl_2
+        , [3] as lvl_3
+    from
+        levels as lvl
+    pivot
+    (max(value) for rn in([1], [2], [3]) ) as pvt
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_postgres_create_policy_using_target_table:
+  pass_str: |
+    CREATE POLICY policy_1 ON table_1
+    FOR SELECT TO PUBLIC
+    USING (
+      EXISTS (
+        SELECT 1
+        FROM table_2
+        WHERE
+          table_2.col_1 = table_1.id
+          AND table_2.col_2 = current_user
+      )
+    )
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_create_policy_with_check_target_table:
+  pass_str: |
+    CREATE POLICY policy_1 ON table_1
+    FOR UPDATE TO PUBLIC
+    USING (table_1.id = current_user)
+    WITH CHECK (table_1.id = current_user AND table_1.col_1 IS NOT NULL)
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_alter_policy_target_table:
+  pass_str: |
+    ALTER POLICY policy_1 ON table_1
+    WITH CHECK (table_1.col_1 = current_user AND table_1.col_2 > 0)
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_postgres_create_policy_unreferenced_table:
+  fail_str: |
+    CREATE POLICY policy_1 ON table_1
+    FOR SELECT TO PUBLIC
+    USING (
+      EXISTS (
+        SELECT 1
+        FROM table_2
+        WHERE
+          table_2.col_1 = table_3.id
+          AND table_2.col_2 = current_user
+      )
+    )
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_create_policy_no_table_reference:
+  pass_str: |
+    CREATE POLICY policy_1 ON table_1
+    FOR SELECT TO PUBLIC
+    USING (true)
+  configs:
+    core:
+      dialect: postgres

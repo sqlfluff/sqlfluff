@@ -9,7 +9,8 @@ from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.reference import object_ref_matches_table
-from sqlfluff.utils.analysis.query import Query
+from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
+from sqlfluff.utils.analysis.query import Query, Selectable
 
 _START_TYPES = [
     "delete_statement",
@@ -70,7 +71,7 @@ class Rule_RF01(BaseRule):
 
     def _eval(self, context: RuleContext) -> list[LintResult]:
         violations: list[LintResult] = []
-        dml_target_table: Optional[tuple[str, ...]] = None
+        dml_target_table: Optional[list[tuple[str, ...]]] = None
         self.logger.debug("Trigger on: %s", context.segment)
         if not context.segment.is_type("select_statement"):
             # Extract first table reference. This will be the target
@@ -79,7 +80,9 @@ class Rule_RF01(BaseRule):
                 context.segment.recursive_crawl("table_reference"), None
             )
             if table_reference:
-                dml_target_table = self._table_ref_as_tuple(table_reference)
+                dml_target_table = self._table_ref_as_tuple(
+                    cast(ObjectReferenceSegment, table_reference)
+                )
 
         self.logger.debug("DML Reference Table: %s", dml_target_table)
         # Verify table references in any SELECT statements found in or
@@ -91,23 +94,32 @@ class Rule_RF01(BaseRule):
         )
         return violations
 
-    @classmethod
-    def _alias_info_as_tuples(cls, alias_info: AliasInfo) -> list[tuple[str, ...]]:
+    def _alias_info_as_tuples(self, alias_info: AliasInfo) -> list[tuple[str, ...]]:
         result: list[tuple[str, ...]] = []
         if alias_info.aliased:
             result.append((alias_info.ref_str,))
         if alias_info.object_reference:
-            result.append(cls._table_ref_as_tuple(alias_info.object_reference))
+            result += self._table_ref_as_tuple(
+                cast(ObjectReferenceSegment, alias_info.object_reference)
+            )
         return result
 
-    @staticmethod
-    def _table_ref_as_tuple(table_reference) -> tuple[str, ...]:
-        return tuple(ref.part for ref in table_reference.iter_raw_references())
+    def _table_ref_as_tuple(
+        self,
+        table_reference: ObjectReferenceSegment,
+    ) -> list[tuple[str, ...]]:
+        return [
+            tuple(ref.part for ref in table_reference.iter_raw_references()),
+            tuple(
+                ref.segments[0].normalize(ref.part)
+                for ref in table_reference.iter_raw_references()
+            ),
+        ]
 
     def _analyze_table_references(
         self,
         query: RF01Query,
-        dml_target_table: Optional[tuple[str, ...]],
+        dml_target_table: Optional[list[tuple[str, ...]]],
         dialect: Dialect,
         violations: list[LintResult],
     ) -> None:
@@ -145,8 +157,9 @@ class Rule_RF01(BaseRule):
                 cast(RF01Query, child), dml_target_table, dialect, violations
             )
 
-    @staticmethod
-    def _should_ignore_reference(reference, selectable) -> bool:
+    def _should_ignore_reference(
+        self, reference: ObjectReferenceSegment, selectable: Selectable
+    ) -> bool:
         ref_path = selectable.selectable.path_to(reference)
         # Ignore references occurring in an "INTO" clause:
         # - They are table references, not column references.
@@ -158,10 +171,13 @@ class Rule_RF01(BaseRule):
         else:
             return False  # pragma: no cover
 
-    @staticmethod
-    def _get_table_refs(ref, dialect):
+    def _get_table_refs(
+        self, ref: ObjectReferenceSegment, dialect: Dialect
+    ) -> list[tuple[ObjectReferenceSegment.ObjectReferencePart, tuple[str, ...]]]:
         """Given ObjectReferenceSegment, determine possible table references."""
-        tbl_refs = []
+        tbl_refs: list[
+            tuple[ObjectReferenceSegment.ObjectReferencePart, tuple[str, ...]]
+        ] = []
         # First, handle any schema.table references.
         for sr, tr in ref.extract_possible_multipart_references(
             levels=[
@@ -170,6 +186,15 @@ class Rule_RF01(BaseRule):
             ]
         ):
             tbl_refs.append((tr, (sr.part, tr.part)))
+            tbl_refs.append(
+                (
+                    tr,
+                    (
+                        sr.segments[0].normalize(sr.part),
+                        tr.segments[0].normalize(tr.part),
+                    ),
+                )
+            )
         # Maybe check for simple table references. Two cases:
         # - For most dialects, skip this if it's a schema+table reference -- the
         #   reference was specific, so we shouldn't ignore that by looking
@@ -186,20 +211,31 @@ class Rule_RF01(BaseRule):
                 level=ref.ObjectReferenceLevel.TABLE
             ):
                 tbl_refs.append((tr, (tr.part,)))
+                tbl_refs.append((tr, (tr.segments[0].normalize(tr.part),)))
         return tbl_refs
 
     def _resolve_reference(
-        self, r, tbl_refs, dml_target_table: Optional[tuple[str, ...]], query: RF01Query
+        self,
+        r: ObjectReferenceSegment,
+        tbl_refs: list[
+            tuple[ObjectReferenceSegment.ObjectReferencePart, tuple[str, ...]]
+        ],
+        dml_target_table: Optional[list[tuple[str, ...]]],
+        query: RF01Query,
     ) -> Optional[LintResult]:
         # Does this query define the referenced table?
         possible_references = [tbl_ref[1] for tbl_ref in tbl_refs]
-        targets = []
+        targets: list[tuple[str, ...]] = []
         for alias in query.aliases:
             targets += self._alias_info_as_tuples(alias)
         for standalone_alias in query.standalone_aliases:
             targets.append((standalone_alias.raw,))
+            targets.append((standalone_alias.raw_normalized(False),))
+        distinct_targets = set(tuple(s.upper() for s in t) for t in targets)
 
-        if len(targets) == 1 and self._dialect_supports_dot_access(query.dialect):
+        if len(distinct_targets) == 1 and self._dialect_supports_dot_access(
+            query.dialect
+        ):
             self.force_enable: bool
             if self.force_enable:
                 # Backwards compatibility.
@@ -220,7 +256,7 @@ class Rule_RF01(BaseRule):
             # No parent query. If there's a DML statement at the root, check its
             # target table or alias.
             elif not dml_target_table or not object_ref_matches_table(
-                possible_references, [dml_target_table]
+                possible_references, dml_target_table
             ):
                 return LintResult(
                     # Return the first segment rather than the string
@@ -232,8 +268,7 @@ class Rule_RF01(BaseRule):
 
         return None
 
-    @staticmethod
-    def _get_implicit_targets(query: RF01Query) -> list[tuple[str, ...]]:
+    def _get_implicit_targets(self, query: RF01Query) -> list[tuple[str, ...]]:
         if query.dialect.name == "sqlite":
             maybe_create_trigger: Optional[BaseSegment] = next(
                 (
@@ -246,19 +281,29 @@ class Rule_RF01(BaseRule):
             if not maybe_create_trigger:
                 return []
             for seg in maybe_create_trigger.segments:
-                if seg.is_type("keyword") and seg.raw_normalized() == "INSERT":
+                if seg.is_type("keyword") and seg.raw_upper == "INSERT":
                     return [("new",)]
-                elif seg.is_type("keyword") and seg.raw_normalized() == "UPDATE":
+                elif seg.is_type("keyword") and seg.raw_upper == "UPDATE":
                     return [("new",), ("old",)]
-                elif seg.is_type("keyword") and seg.raw_normalized() == "DELETE":
+                elif seg.is_type("keyword") and seg.raw_upper == "DELETE":
                     return [("old",)]
                 else:
                     pass  # pragma: no cover
 
+        if query.dialect.name == "postgres":
+            for seg in reversed(query.parent_stack):
+                if seg.is_type("create_policy_statement") or seg.is_type(
+                    "alter_policy_statement"
+                ):
+                    table_reference = next(seg.recursive_crawl("table_reference"), None)
+                    if table_reference:
+                        return self._table_ref_as_tuple(
+                            cast(ObjectReferenceSegment, table_reference)
+                        )
+
         return []
 
-    @staticmethod
-    def _dialect_supports_dot_access(dialect: Dialect) -> bool:
+    def _dialect_supports_dot_access(self, dialect: Dialect) -> bool:
         # Athena:
         # https://docs.aws.amazon.com/athena/latest/ug/filtering-with-dot.html
         # BigQuery:

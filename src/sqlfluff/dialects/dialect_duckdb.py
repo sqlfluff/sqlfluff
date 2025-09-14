@@ -10,6 +10,7 @@ from sqlfluff.core.parser import (
     BinaryOperatorSegment,
     Bracketed,
     CodeSegment,
+    ComparisonOperatorSegment,
     Dedent,
     Delimited,
     IdentifierSegment,
@@ -62,6 +63,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
     [
         "ANTI",
         "ASOF",
+        "GLOB",
         "MACRO",
         "MAP",
         "POSITIONAL",
@@ -74,6 +76,8 @@ duckdb_dialect.sets("unreserved_keywords").update(
 duckdb_dialect.add(
     LambdaArrowSegment=StringParser("->", SymbolSegment, type="lambda_arrow"),
     OrIgnoreGrammar=Sequence("OR", "IGNORE"),
+    EqualsSegment_a=StringParser("==", ComparisonOperatorSegment),
+    UnpackingOperatorSegment=TypedParser("star", SymbolSegment, "unpacking_operator"),
 )
 
 duckdb_dialect.replace(
@@ -128,7 +132,9 @@ duckdb_dialect.replace(
         Ref("NamedArgumentSegment"),
         Ref("ExpressionSegment"),
     ),
-    ColumnsExpressionNameGrammar=Ref.keyword("COLUMNS"),
+    ColumnsExpressionNameGrammar=Sequence(
+        Ref("UnpackingOperatorSegment", optional=True), "COLUMNS"
+    ),
     # Uses grammar for LT06 support
     ColumnsExpressionGrammar=Sequence(
         Ref("ColumnsExpressionFunctionNameSegment"),
@@ -142,6 +148,17 @@ duckdb_dialect.replace(
         "single_quote", IdentifierSegment, type="quoted_identifier", casefold=str.lower
     ),
     ListComprehensionGrammar=Ref("ListComprehensionExpressionSegment"),
+    ComparisonOperatorGrammar=ansi_dialect.get_grammar(
+        "ComparisonOperatorGrammar"
+    ).copy(
+        insert=[
+            Ref("EqualsSegment_a"),
+            Ref("GlobOperatorSegment"),
+        ]
+    ),
+    LikeGrammar=postgres_dialect.get_grammar("LikeGrammar").copy(
+        insert=[Ref.keyword("GLOB")],
+    ),
 )
 
 duckdb_dialect.insert_lexer_matchers(
@@ -173,6 +190,7 @@ duckdb_dialect.patch_lexer_matchers(
                 "escape_replacements": [(r'""', '"')],
             },
         ),
+        RegexLexer("equals", r"==?", CodeSegment),
     ]
 )
 
@@ -406,6 +424,45 @@ class WildcardReplaceExpressionSegment(BaseSegment):
     )
 
 
+class WildcardRenameExpressionSegment(BaseSegment):
+    """A `RENAME` clause within a wildcard expression."""
+
+    type = "wildcard_rename"
+    match_grammar = Sequence(
+        "RENAME",
+        OneOf(
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("BaseExpressionElementGrammar"),
+                        Ref("AliasExpressionSegment", optional=True),
+                    ),
+                )
+            ),
+            Sequence(
+                Ref("BaseExpressionElementGrammar"),
+                Ref("AliasExpressionSegment", optional=True),
+            ),
+        ),
+    )
+
+
+class WildcardPatternMatchingSegment(BaseSegment):
+    """A pattern matching operator clause within a wildcard expression."""
+
+    type = "wildcard_pattern_matching"
+    match_grammar = OneOf(
+        Ref("LikeExpressionGrammar"),
+        Sequence(
+            OneOf(
+                Ref("LikeOperatorSegment"),
+                Ref("GlobOperatorSegment"),
+            ),
+            Ref("QuotedLiteralSegment"),
+        ),
+    )
+
+
 class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
     """An extension of the star expression for DuckDB."""
 
@@ -414,7 +471,14 @@ class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
         Ref("WildcardIdentifierSegment"),
         # Optional EXCLUDE or REPLACE clause
         Ref("WildcardExcludeExpressionSegment", optional=True),
-        Ref("WildcardReplaceExpressionSegment", optional=True),
+        OneOf(
+            Sequence(
+                Ref("WildcardReplaceExpressionSegment", optional=True),
+                Ref("WildcardRenameExpressionSegment", optional=True),
+            ),
+            Ref("WildcardPatternMatchingSegment"),
+            optional=True,
+        ),
     )
 
 
@@ -449,8 +513,8 @@ class ColumnsExpressionFunctionContentsSegment(
         Bracketed(
             OneOf(
                 Ref("WildcardExpressionSegment"),
-                Ref("QuotedLiteralSegment"),
                 Ref("LambdaExpressionSegment"),
+                Ref("BaseExpressionElementGrammar"),
             ),
         ),
     )

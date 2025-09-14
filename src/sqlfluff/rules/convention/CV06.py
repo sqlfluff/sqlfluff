@@ -59,6 +59,32 @@ class Rule_CV06(BaseRule):
     is_fix_compatible = True
 
     @staticmethod
+    def _is_segment_semicolon(segment: BaseSegment) -> bool:
+        """Check if a segment is a semicolon statement terminator."""
+        return segment.is_type("statement_terminator") and segment.raw == ";"
+
+    @staticmethod
+    def _get_last_statement(file_segment: BaseSegment) -> Optional[BaseSegment]:
+        """Get the last statement from a file segment."""
+        for seg in reversed(file_segment.segments):
+            if seg.is_type("statement"):
+                return seg
+        return None
+
+    def _has_final_non_semicolon_terminator(self, file_segment: BaseSegment) -> bool:
+        """Check if a statement has a non-semicolon terminator at the end."""
+        last_statement = self._get_last_statement(file_segment)
+
+        if last_statement is not None:
+            statement_terminators = list(
+                last_statement.recursive_crawl("statement_terminator")
+            )
+            if statement_terminators:
+                last_terminator = statement_terminators[-1]
+                return not self._is_segment_semicolon(last_terminator)
+        return False
+
+    @staticmethod
     def _handle_preceding_inline_comments(
         before_segment: Sequence[BaseSegment], anchor_segment: BaseSegment
     ):
@@ -316,7 +342,8 @@ class Rule_CV06(BaseRule):
         for segment in parent_segment.segments[::-1]:
             anchor_segment = segment
             if segment.is_type("statement_terminator"):
-                semi_colon_exist_flag = True
+                if self._is_segment_semicolon(segment):
+                    semi_colon_exist_flag = True
             elif segment.is_code:
                 is_one_line = self._is_one_line_statement(parent_segment, segment)
                 break
@@ -395,14 +422,21 @@ class Rule_CV06(BaseRule):
                 # If it's a terminator then we know it's a raw.
                 seg = cast(RawSegment, seg)
                 self.logger.debug("Handling semi-colon: %s", seg)
-                res = self._handle_semicolon(seg, context.segment)
+
+                if self._is_segment_semicolon(seg):
+                    res = self._handle_semicolon(seg, context.segment)
             # Otherwise handle the end of the file separately.
             elif (
                 self.require_final_semicolon
                 and idx == len(context.segment.segments) - 1
             ):
                 self.logger.debug("Handling final segment: %s", seg)
-                res = self._ensure_final_semicolon(context.segment)
+                has_final_non_semicolon_terminator = (
+                    self._has_final_non_semicolon_terminator(context.segment)
+                )
+
+                if not has_final_non_semicolon_terminator:
+                    res = self._ensure_final_semicolon(context.segment)
             if res:
                 results.append(res)
 

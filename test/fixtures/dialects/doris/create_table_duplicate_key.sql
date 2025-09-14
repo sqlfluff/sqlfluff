@@ -1,0 +1,10 @@
+CREATE TABLE t1
+(
+  c1 INT,
+  c2 STRING
+)
+DUPLICATE KEY(c1)
+DISTRIBUTED BY HASH(c1)
+PROPERTIES (
+  'replication_num' = '1'
+);

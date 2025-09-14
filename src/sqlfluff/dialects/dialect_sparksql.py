@@ -471,6 +471,17 @@ sparksql_dialect.replace(
     NonWithNonSelectableGrammar=ansi_dialect.get_grammar(
         "NonWithNonSelectableGrammar"
     ).copy(insert=[Ref("InsertOverwriteDirectorySegment")]),
+    ColumnGeneratedGrammar=Sequence(
+        "GENERATED",
+        "ALWAYS",
+        "AS",
+        Bracketed(
+            OneOf(
+                Ref("FunctionSegment"),
+                Ref("BareFunctionSegment"),
+            ),
+        ),
+    ),
 )
 
 sparksql_dialect.add(
@@ -769,6 +780,18 @@ sparksql_dialect.add(
     TablePropertiesGrammar=Sequence(
         "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
     ),
+    CreateViewClausesGrammar=Sequence(
+        "WITH",
+        "SCHEMA",
+        OneOf(
+            "BINDING",
+            "COMPENSATION",
+            Sequence(
+                Ref.keyword("TYPE", optional=True),
+                "EVOLUTION",
+            ),
+        ),
+    ),
     RawQuotedLiteralSegment=OneOf(
         TypedParser(
             "raw_single_quote",
@@ -865,7 +888,6 @@ sparksql_dialect.add(
                     Sequence(
                         OneOf(
                             Ref("ColumnFieldDefinitionSegment"),
-                            Ref("GeneratedColumnDefinitionSegment"),
                             Ref("TableConstraintSegment", optional=True),
                         ),
                         Ref("CommentGrammar", optional=True),
@@ -894,7 +916,7 @@ sparksql_dialect.add(
             Ref("LocationGrammar"),
             Ref("CommentGrammar"),
             Ref("TablePropertiesGrammar"),
-            Sequence("CLUSTER", "BY", Ref("BracketedColumnReferenceListGrammar")),
+            Ref("TableClusterByClauseSegment"),
             optional=True,
         ),
         # Create AS syntax:
@@ -1519,6 +1541,25 @@ class ColumnFieldDefinitionSegment(ansi.ColumnDefinitionSegment):
     )
 
 
+class TableClusterByClauseSegment(BaseSegment):
+    """A `CLUSTER BY` clause in table definitions.
+
+    https://spark.apache.org/docs/4.0.0/sql-ref-syntax-ddl-alter-table.html#cluster-by
+    """
+
+    type = "table_cluster_by_clause"
+    match_grammar = Sequence(
+        "CLUSTER",
+        "BY",
+        Indent,
+        OneOf(
+            Ref("BracketedColumnReferenceListGrammar"),
+            "NONE",
+        ),
+        Dedent,
+    )
+
+
 class AlterViewStatementSegment(BaseSegment):
     """A `ALTER VIEW` statement to change the view schema or properties.
 
@@ -1652,6 +1693,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("OptionsGrammar", optional=True),
         Ref("CommentGrammar", optional=True),
         Ref("TablePropertiesGrammar", optional=True),
+        Ref("CreateViewClausesGrammar", optional=True),
         Sequence("AS", OptionallyBracketed(Ref("SelectableGrammar")), optional=True),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
@@ -2254,9 +2296,10 @@ class LateralViewClauseSegment(BaseSegment):
     type = "lateral_view_clause"
 
     match_grammar = Sequence(
+        Ref("CommaSegment", optional=True),
         Indent,
         "LATERAL",
-        "VIEW",
+        Ref.keyword("VIEW", optional=True),
         Ref.keyword("OUTER", optional=True),
         Ref("FunctionSegment"),
         OneOf(
@@ -2910,7 +2953,8 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
     """
 
     match_grammar = Sequence(
-        Ref.keyword("AS", optional=True),
+        Indent,
+        Ref("AsAliasOperatorSegment", optional=True),
         OneOf(
             # maybe table alias and column aliases
             Sequence(
@@ -2928,6 +2972,7 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
                 "FROM",
             ),
         ),
+        Dedent,
     )
 
 
@@ -3065,35 +3110,6 @@ class PropertyNameSegment(BaseSegment):
                 allow_gaps=False,
             ),
             Ref("SingleIdentifierGrammar"),
-        ),
-    )
-
-
-class GeneratedColumnDefinitionSegment(BaseSegment):
-    """A generated column definition, e.g. for CREATE TABLE or ALTER TABLE.
-
-    https://docs.delta.io/latest/delta-batch.html#use-generated-columns
-    """
-
-    type = "generated_column_definition"
-
-    match_grammar: Matchable = Sequence(
-        Ref("SingleIdentifierGrammar"),  # Column name
-        Ref("DatatypeSegment"),  # Column type
-        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
-        Sequence(
-            "GENERATED",
-            "ALWAYS",
-            "AS",
-            Bracketed(
-                OneOf(
-                    Ref("FunctionSegment"),
-                    Ref("BareFunctionSegment"),
-                ),
-            ),
-        ),
-        AnyNumberOf(
-            Ref("ColumnConstraintSegment", optional=True),
         ),
     )
 

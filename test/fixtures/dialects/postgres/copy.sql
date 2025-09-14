@@ -8,6 +8,7 @@ COPY (Select * From my_table) TO '/tmp/dump.csv' WITH (FORMAT csv, ESCAPE '\', F
 COPY (Select * From my_table) TO '/tmp/dump.csv' WITH (FORMAT csv, ESCAPE '\', FORCE_NULL (col1, col2), FREEZE false);
 COPY (Select * From my_table) TO STDOUT WITH (FORMAT csv, ESCAPE '\', FORCE_NULL (col1, col2), FREEZE true);
 COPY (Select * From my_table) TO PROGRAM '/path/to/script' WITH (FORMAT csv, ESCAPE '\', FORCE_NULL (col1, col2), FREEZE false);
+COPY (WITH c AS (SELECT 1::int AS id) SELECT id FROM c) TO STDOUT WITH (FORMAT csv, HEADER);
 COPY my_table(col) TO '/tmp/dump.csv';
 COPY my_table TO '/tmp/dump.csv' WITH (FORMAT csv, HEADER true, FREEZE true, FORCE_NULL (col1, col2));
 COPY my_table(col1, col2) TO '/tmp/dump.csv' WITH (FORMAT csv, HEADER true);

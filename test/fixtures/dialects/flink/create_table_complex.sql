@@ -1,0 +1,30 @@
+CREATE TABLE complex_table (
+    session_id STRING,
+    session_ts TIMESTAMP(3),
+    source_name STRING,
+    service STRING,
+    category STRING,
+    category_id STRING,
+    type STRING,
+    type_id STRING,
+    identifier STRING,
+    identifier_id STRING,
+    event_type STRING,
+    action_type STRING,
+    resource_type STRING,
+    value DOUBLE,
+    quantity DOUBLE,
+    request_url STRING,
+    is_deleted BOOLEAN,
+    item_count INT,
+    created_ts TIMESTAMP(3),
+    updated_ts TIMESTAMP(3),
+    processed_ts TIMESTAMP(3),
+    received_ts TIMESTAMP(3),
+    sequence_ts TIMESTAMP(3)
+) WITH (
+    'connector' = 'test-connector',
+    'project' = 'test-project',
+    'dataset' = 'test-dataset',
+    'table' = 'test-table'
+);

@@ -108,7 +108,9 @@ SELECT
     CURRENT_USER,
     SESSION_USER,
     SYSTEM_USER,
-	test(default, 2)
+    USER,
+
+    test(default, 2)
 
 
 FROM dbo . all_pop;
@@ -119,3 +121,6 @@ select
     'Tabellen' as Objekt,
     Count(*) as Anzahl
 from dbo.sql_modules;
+
+-- naked identifier with extended Unicode characters
+select field1 AS 日期差多少天;

@@ -28,6 +28,10 @@ on:
       gh_token:
         required: true
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.python-version }}-${{ inputs.dbt-version }}-${{ inputs.coverage }}
+  cancel-in-progress: true
+
 jobs:
   modular-python-test:
     name: py${{ inputs.python-version }}-${{ inputs.dbt-version }}

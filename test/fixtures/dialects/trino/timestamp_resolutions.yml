@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 351e0f55b3561e752332d82fa7478e3c75b97e39a1f457890aceb9c14db716e0
+_hash: e0a22b7ce9143a2851a299f9027668a2b1d7536047b11084c582603b19c81da4
 file:
 - statement:
     select_statement:
@@ -25,7 +25,8 @@ file:
                     end_bracket: )
                 keyword: AS
                 data_type:
-                  keyword: TIMESTAMP
+                  primitive_type:
+                    keyword: TIMESTAMP
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -48,12 +49,13 @@ file:
                     end_bracket: )
                 keyword: AS
                 data_type:
-                  keyword: TIMESTAMP
-                  bracketed_arguments:
-                    bracketed:
-                      start_bracket: (
-                      numeric_literal: '0'
-                      end_bracket: )
+                  primitive_type:
+                    keyword: TIMESTAMP
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        numeric_literal: '0'
+                        end_bracket: )
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -76,12 +78,13 @@ file:
                     end_bracket: )
                 keyword: AS
                 data_type:
-                  keyword: TIMESTAMP
-                  bracketed_arguments:
-                    bracketed:
-                      start_bracket: (
-                      numeric_literal: '12'
-                      end_bracket: )
+                  primitive_type:
+                    keyword: TIMESTAMP
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        numeric_literal: '12'
+                        end_bracket: )
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -104,10 +107,11 @@ file:
                     end_bracket: )
                 keyword: AS
                 data_type:
-                - keyword: TIMESTAMP
-                - keyword: WITH
-                - keyword: TIME
-                - keyword: ZONE
+                  primitive_type:
+                  - keyword: TIMESTAMP
+                  - keyword: WITH
+                  - keyword: TIME
+                  - keyword: ZONE
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -130,10 +134,11 @@ file:
                     end_bracket: )
                 keyword: AS
                 data_type:
-                - keyword: TIMESTAMP
-                - keyword: WITHOUT
-                - keyword: TIME
-                - keyword: ZONE
+                  primitive_type:
+                  - keyword: TIMESTAMP
+                  - keyword: WITHOUT
+                  - keyword: TIME
+                  - keyword: ZONE
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -156,15 +161,16 @@ file:
                     end_bracket: )
                 keyword: AS
                 data_type:
-                - keyword: TIMESTAMP
-                - bracketed_arguments:
-                    bracketed:
-                      start_bracket: (
-                      numeric_literal: '6'
-                      end_bracket: )
-                - keyword: WITH
-                - keyword: TIME
-                - keyword: ZONE
+                  primitive_type:
+                  - keyword: TIMESTAMP
+                  - bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        numeric_literal: '6'
+                        end_bracket: )
+                  - keyword: WITH
+                  - keyword: TIME
+                  - keyword: ZONE
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -187,14 +193,15 @@ file:
                     end_bracket: )
                 keyword: AS
                 data_type:
-                - keyword: TIMESTAMP
-                - bracketed_arguments:
-                    bracketed:
-                      start_bracket: (
-                      numeric_literal: '6'
-                      end_bracket: )
-                - keyword: WITHOUT
-                - keyword: TIME
-                - keyword: ZONE
+                  primitive_type:
+                  - keyword: TIMESTAMP
+                  - bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        numeric_literal: '6'
+                        end_bracket: )
+                  - keyword: WITHOUT
+                  - keyword: TIME
+                  - keyword: ZONE
                 end_bracket: )
 - statement_terminator: ;

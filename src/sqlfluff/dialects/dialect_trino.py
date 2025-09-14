@@ -69,6 +69,7 @@ trino_dialect.insert_lexer_matchers(
     # Regexp Replace w/ Lambda: https://trino.io/docs/422/functions/regexp.html
     [
         StringLexer("right_arrow", "->", CodeSegment),
+        StringLexer("fat_right_arrow", "=>", CodeSegment),
     ],
     before="like_operator",
 )
@@ -76,6 +77,7 @@ trino_dialect.insert_lexer_matchers(
 trino_dialect.add(
     RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
     LambdaArrowSegment=StringParser("->", SymbolSegment, type="lambda_arrow"),
+    ExecuteArrowSegment=StringParser("=>", SymbolSegment, type="execute_arrow"),
     StartAngleBracketSegment=StringParser(
         "<", SymbolSegment, type="start_angle_bracket"
     ),
@@ -282,13 +284,13 @@ trino_dialect.replace(
 )
 
 
-class DatatypeSegment(BaseSegment):
-    """Data type segment.
+class PrimitiveTypeSegment(BaseSegment):
+    """Primitive type segment.
 
     See https://trino.io/docs/current/language/types.html
     """
 
-    type = "data_type"
+    type = "primitive_type"
     match_grammar = OneOf(
         # Boolean
         "BOOLEAN",
@@ -316,13 +318,25 @@ class DatatypeSegment(BaseSegment):
         # Date and time
         "DATE",
         Ref("TimeWithTZGrammar"),
-        # Structural
-        Ref("ArrayTypeSegment"),
-        "MAP",
-        Ref("RowTypeSegment"),
         # Others
         "IPADDRESS",
         "UUID",
+    )
+
+
+class DatatypeSegment(BaseSegment):
+    """Data type segment.
+
+    See https://trino.io/docs/current/language/types.html
+    """
+
+    type = "data_type"
+    match_grammar = OneOf(
+        Ref("PrimitiveTypeSegment"),
+        # Structural
+        Ref("ArrayTypeSegment"),
+        Ref("MapTypeSegment"),
+        Ref("RowTypeSegment"),
     )
 
 
@@ -491,6 +505,7 @@ class StatementSegment(ansi.StatementSegment):
         Ref("TransactionStatementSegment"),
         Ref("UpdateStatementSegment"),
         Ref("UseStatementSegment"),
+        Ref("SetSessionStatementSegment"),
         terminators=[Ref("DelimiterGrammar")],
     )
 
@@ -744,8 +759,11 @@ class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),  # Column name
         Ref("DatatypeSegment"),  # Column type
-        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
         AnySetOf(
+            Sequence(
+                "NOT",
+                "NULL",
+            ),
             Ref("CommentClauseSegment"),
             Sequence(
                 "WITH",
@@ -764,28 +782,232 @@ class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
 class TransactionStatementSegment(ansi.TransactionStatementSegment):
     """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement.
 
-    As per https://trino.io/docs/current/sql/start-transaction.html
+    https://trino.io/docs/current/sql/commit.html
+    https://trino.io/docs/current/sql/rollback.html
+    https://trino.io/docs/current/sql/start-transaction.html
     """
 
     type = "transaction_statement"
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            "COMMIT",
+            Ref.keyword("WORK", optional=True),
+        ),
+        Sequence(
+            "ROLLBACK",
+            Ref.keyword("WORK", optional=True),
+        ),
+        Sequence(
+            "START",
+            "TRANSACTION",
+            Delimited(
+                Sequence(
+                    "ISOLATION",
+                    "LEVEL",
+                    OneOf(
+                        Sequence("READ", "UNCOMMITTED"),
+                        Sequence("READ", "COMMITTED"),
+                        Sequence("REPEATABLE", "READ"),
+                        "SERIALIZABLE",
+                    ),
+                ),
+                Sequence(
+                    "READ",
+                    OneOf("ONLY", "WRITE"),
+                ),
+                optional=True,
+            ),
+        ),
+    )
+
+
+class InsertStatementSegment(ansi.InsertStatementSegment):
+    """An `INSERT` statement.
+
+    https://trino.io/docs/current/sql/insert.html
+    """
+
+    type = "insert_statement"
     match_grammar: Matchable = Sequence(
-        "START",
-        "TRANSACTION",
-        Delimited(
+        "INSERT",
+        "INTO",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Ref("SelectableGrammar"),
             Sequence(
-                "ISOLATION",
-                "LEVEL",
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref("SelectableGrammar"),
+            ),
+            Ref("DefaultValuesGrammar"),
+        ),
+    )
+
+
+class SetSessionStatementSegment(BaseSegment):
+    """A `SET SESSION` statement.
+
+    https://trino.io/docs/current/sql/set-session.html
+    """
+
+    type = "set_session_statement"
+    match_grammar: Matchable = Sequence(
+        "SET",
+        "SESSION",
+        Sequence(
+            Ref("ParameterNameSegment"),
+            Ref("DotSegment"),
+            optional=True,
+        ),
+        Ref("ParameterNameSegment"),
+        Ref("EqualsSegment"),
+        Ref("ExpressionSegment"),
+    )
+
+
+class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
+    """A `ALTER TABLE` statement.
+
+    https://trino.io/docs/current/sql/alter-table.html
+    """
+
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "ADD",
+                "COLUMN",
+                Ref("IfNotExistsGrammar", optional=True),
+                Ref("ColumnDefinitionSegment"),
                 OneOf(
-                    Sequence("READ", "UNCOMMITTED"),
-                    Sequence("READ", "COMMITTED"),
-                    Sequence("REPEATABLE", "READ"),
-                    "SERIALIZABLE",
+                    "FIRST",
+                    "LAST",
+                    Sequence(
+                        "AFTER",
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                    optional=True,
                 ),
             ),
             Sequence(
-                "READ",
-                OneOf("ONLY", "WRITE"),
+                "DROP",
+                "COLUMN",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("ColumnReferenceSegment"),
             ),
-            optional=True,
+            Sequence(
+                "RENAME",
+                "COLUMN",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("ColumnReferenceSegment"),
+                "TO",
+                Ref("ColumnReferenceSegment"),
+            ),
+            Sequence(
+                "ALTER",
+                "COLUMN",
+                Ref("ColumnReferenceSegment"),
+                OneOf(
+                    Sequence(
+                        "SET",
+                        "DATA",
+                        "TYPE",
+                        Ref("DatatypeSegment"),
+                    ),
+                    Sequence(
+                        "DROP",
+                        "NOT",
+                        "NULL",
+                    ),
+                ),
+            ),
+            Sequence(
+                "SET",
+                "AUTHORIZATION",
+                OneOf(
+                    Ref("RoleReferenceSegment"),
+                    Sequence(
+                        "USER",
+                        Ref("RoleReferenceSegment"),
+                    ),
+                    Sequence(
+                        "ROLE",
+                        Ref("RoleReferenceSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "SET",
+                "PROPERTIES",
+                Delimited(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "EXECUTE",
+                Ref("FunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("ExecuteArrowSegment"),
+                            Ref("ExpressionSegment"),
+                        ),
+                    ),
+                    optional=True,
+                ),
+                Sequence(
+                    "WHERE",
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+            ),
+        ),
+    )
+
+
+class MapTypeSegment(BaseSegment):
+    """Expression to construct a MAP datatype."""
+
+    type = "map_type"
+    match_grammar = Sequence(
+        "MAP",
+        Ref("MapTypeSchemaSegment", optional=True),
+    )
+
+
+class MapTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a MAP datatype."""
+
+    type = "map_type_schema"
+    match_grammar = OneOf(
+        Bracketed(
+            Sequence(
+                Ref("PrimitiveTypeSegment"),
+                Ref("CommaSegment"),
+                Ref("DatatypeSegment"),
+            ),
+            bracket_pairs_set="angle_bracket_pairs",
+            bracket_type="angle",
+        ),
+        Bracketed(
+            Sequence(
+                Ref("PrimitiveTypeSegment"),
+                Ref("CommaSegment"),
+                Ref("DatatypeSegment"),
+            ),
+            bracket_pairs_set="bracket_pairs",
+            bracket_type="round",
         ),
     )

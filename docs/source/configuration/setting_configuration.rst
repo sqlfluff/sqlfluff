@@ -28,7 +28,7 @@ any values read from earlier files.
 
 Within these files, the first four will be read like a `cfg file`_, and
 *SQLFluff* will look for sections which start with :code:`sqlfluff`, and where
-subsections are delimited by a semicolon. For example the *jinjacontext*
+subsections are delimited by a colon. For example the *jinjacontext*
 section will be indicated in the section started with
 :code:`[sqlfluff:jinjacontext]`.
 

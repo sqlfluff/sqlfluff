@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2a844546fb0be7e2cd866ce6bda44934d264960c867a71d8e3194006c1f94da7
+_hash: 112fa70a0e52c988c9eaa79cf6d401471472ece3b4084a04d67b104b71fdd7ae
 file:
 - statement:
     select_statement:
@@ -54,7 +54,8 @@ file:
                     naked_identifier: num
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator:
+              keyword: as
             naked_identifier: sum_num
       from_clause:
         keyword: from
@@ -100,7 +101,8 @@ file:
                     naked_identifier: num
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator:
+              keyword: as
             naked_identifier: sum_num
       from_clause:
         keyword: from
@@ -151,7 +153,8 @@ file:
                     naked_identifier: product_count
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator:
+              keyword: as
             naked_identifier: product_sum
       from_clause:
         keyword: from
@@ -221,7 +224,8 @@ file:
                     naked_identifier: product_count
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator:
+              keyword: as
             naked_identifier: product_sum
       from_clause:
         keyword: from
@@ -291,7 +295,8 @@ file:
                     naked_identifier: product_count
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator:
+              keyword: as
             naked_identifier: product_sum
       from_clause:
         keyword: from
@@ -348,7 +353,8 @@ file:
                     naked_identifier: product_count
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator:
+              keyword: as
             naked_identifier: product_sum
       from_clause:
         keyword: from

@@ -33,3 +33,14 @@ create table `tickets` (
 create table _ (a int);
 
 create table y LIKE x;
+
+CREATE TABLE `messages_daily_stats` (
+    `id` int(20) NOT NULL AUTO_INCREMENT,
+    `optional` int(20) NOT NULL,
+    `test` int(11) GENERATED ALWAYS AS (case when `optional` = 1 then `id` else NULL end) STORED INVISIBLE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE t1 (
+    i INT VISIBLE,
+    j DATE INVISIBLE
+) ENGINE = InnoDB;

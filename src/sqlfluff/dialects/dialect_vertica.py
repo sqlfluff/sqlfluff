@@ -375,18 +375,7 @@ vertica_dialect.replace(
         Ref("Tail_Recurse_Expression_A_Grammar"),
         AnyNumberOf(
             OneOf(
-                Sequence(
-                    Sequence(
-                        Ref.keyword("NOT", optional=True),
-                        Ref("LikeGrammar"),
-                    ),
-                    Ref("Expression_A_Grammar"),
-                    Sequence(
-                        Ref.keyword("ESCAPE"),
-                        Ref("Tail_Recurse_Expression_A_Grammar"),
-                        optional=True,
-                    ),
-                ),
+                Ref("LikeExpressionGrammar"),
                 Sequence(
                     Ref("BinaryOperatorGrammar"),
                     Ref("Tail_Recurse_Expression_A_Grammar"),
@@ -2108,7 +2097,8 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
 
     match_grammar: Matchable = OneOf(
         Sequence(
-            Ref.keyword("AS", optional=True),
+            Indent,
+            Ref("AsAliasOperatorSegment", optional=True),
             OneOf(
                 Sequence(
                     Ref("SingleIdentifierGrammar"),
@@ -2118,11 +2108,12 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
                 Sequence(Bracketed(Ref("SingleIdentifierListSegment"), optional=True)),
                 Ref("SingleQuotedIdentifierSegment"),
             ),
+            Dedent,
         ),
         # Some functions alias several columns in brackets () like mapkeys or explode
         Sequence(
             Indent,
-            Ref.keyword("AS"),
+            Ref("AsAliasOperatorSegment", optional=True),
             Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
             Dedent,
         ),

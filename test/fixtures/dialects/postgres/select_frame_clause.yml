@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c2c66df487b74028706ce5926aa7ea0d2ee2e1882275b27702b8c06ec1bf4baf
+_hash: dcabe28ed50f2cde06ada224c3dcc904e98d398f2476505d0119874cd5fa4069
 file:
 - statement:
     select_statement:
@@ -61,7 +61,8 @@ file:
                   - keyword: following
                 end_bracket: )
           alias_expression:
-            keyword: as
+            alias_operator:
+              keyword: as
             naked_identifier: col_name
       from_clause:
         keyword: from
@@ -161,12 +162,14 @@ file:
                   frame_clause:
                   - keyword: RANGE
                   - keyword: BETWEEN
-                  - keyword: INTERVAL
-                  - quoted_literal: "'1 YEAR - 1 DAYS'"
+                  - interval_expression:
+                      keyword: INTERVAL
+                      quoted_literal: "'1 YEAR - 1 DAYS'"
                   - keyword: PRECEDING
                   - keyword: AND
-                  - keyword: INTERVAL
-                  - quoted_literal: "'15 DAYS'"
+                  - interval_expression:
+                      keyword: INTERVAL
+                      quoted_literal: "'15 DAYS'"
                   - keyword: PRECEDING
                 end_bracket: )
 - statement_terminator: ;

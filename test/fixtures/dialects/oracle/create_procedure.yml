@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6fe577f21a538a984752889d5c57e135c42f82ea9954f5a82e1d7024932ee3a1
+_hash: 35e04399a637d23004021bd8ef4c6b1752c79266805ac0ac258ed75767673f7d
 file:
 - statement:
     create_procedure_statement:
@@ -57,9 +57,7 @@ file:
           assignment_segment_statement:
             object_reference:
               naked_identifier: tot_emps
-            colon: ':'
-            comparison_operator:
-              raw_comparison_operator: '='
+            assignment_operator: :=
             expression:
               column_reference:
                 naked_identifier: tot_emps
@@ -175,9 +173,7 @@ file:
       - naked_identifier: bonus
       - data_type:
           data_type_identifier: NUMBER
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           numeric_literal: '0'
       - statement_terminator: ;
@@ -189,9 +185,7 @@ file:
               start_bracket: (
               numeric_literal: '3'
               end_bracket: )
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           quoted_literal: "'No'"
       - statement_terminator: ;
@@ -219,9 +213,7 @@ file:
               assignment_segment_statement:
                 object_reference:
                   naked_identifier: bonus
-                colon: ':'
-                comparison_operator:
-                  raw_comparison_operator: '='
+                assignment_operator: :=
                 expression:
                   bracketed:
                     start_bracket: (
@@ -267,9 +259,7 @@ file:
               assignment_segment_statement:
                 object_reference:
                   naked_identifier: updated
-                colon: ':'
-                comparison_operator:
-                  raw_comparison_operator: '='
+                assignment_operator: :=
                 expression:
                   quoted_literal: "'Yes'"
           - statement_terminator: ;
@@ -340,9 +330,7 @@ file:
         naked_identifier: bonus
         data_type:
           data_type_identifier: NUMBER
-        colon: ':'
-        comparison_operator:
-          raw_comparison_operator: '='
+        assignment_operator: :=
         expression:
           numeric_literal: '0'
         statement_terminator: ;
@@ -370,9 +358,7 @@ file:
               assignment_segment_statement:
                 object_reference:
                   naked_identifier: bonus
-                colon: ':'
-                comparison_operator:
-                  raw_comparison_operator: '='
+                assignment_operator: :=
                 expression:
                   bracketed:
                     start_bracket: (
@@ -403,9 +389,7 @@ file:
                   assignment_segment_statement:
                     object_reference:
                       naked_identifier: bonus
-                    colon: ':'
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    assignment_operator: :=
                     expression:
                       numeric_literal: '50'
               - statement_terminator: ;
@@ -414,9 +398,7 @@ file:
                   assignment_segment_statement:
                     object_reference:
                       naked_identifier: bonus
-                    colon: ':'
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    assignment_operator: :=
                     expression:
                       numeric_literal: '0'
               - statement_terminator: ;
@@ -506,9 +488,7 @@ file:
               start_bracket: (
               numeric_literal: '30'
               end_bracket: )
-        colon: ':'
-        comparison_operator:
-          raw_comparison_operator: '='
+        assignment_operator: :=
         expression:
           quoted_literal: "'Email address is too long.'"
         statement_terminator: ;
@@ -518,9 +498,7 @@ file:
           assignment_segment_statement:
             object_reference:
               naked_identifier: email
-            colon: ':'
-            comparison_operator:
-              raw_comparison_operator: '='
+            assignment_operator: :=
             expression:
             - column_reference:
                 naked_identifier: name1

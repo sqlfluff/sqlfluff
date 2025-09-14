@@ -165,6 +165,14 @@ class ReflowBlock(ReflowElement):
     #: of the segment in this block.
     #: See :ref:`layoutspacingconfig`
     keyword_line_position_configs: dict[int, str]
+    #: Parent segments which this block's keyword line positioning
+    #: should not apply.
+    #: See :ref:`layoutspacingconfig`
+    keyword_line_position_exclusions: Union[str, list[str], None]
+    #: Configurations for parent segments which this block's keyword
+    #: line positioning should not apply.
+    #: See :ref:`layoutspacingconfig`
+    keyword_line_position_exclusions_configs: dict[int, Union[str, list[str]]]
 
     @classmethod
     def from_config(
@@ -184,6 +192,7 @@ class ReflowBlock(ReflowElement):
         stack_spacing_configs = {}
         line_position_configs = {}
         keyword_line_position_configs = {}
+        keyword_line_position_exclusions_configs = {}
         for hash, class_types in zip(
             depth_info.stack_hashes, depth_info.stack_class_types
         ):
@@ -194,6 +203,10 @@ class ReflowBlock(ReflowElement):
                 line_position_configs[hash] = cfg.line_position
             if cfg.keyword_line_position:
                 keyword_line_position_configs[hash] = cfg.keyword_line_position
+            if cfg.keyword_line_position_exclusions:
+                keyword_line_position_exclusions_configs[hash] = (
+                    cfg.keyword_line_position_exclusions
+                )
         return cls(
             segments=segments,
             spacing_before=block_config.spacing_before,
@@ -204,6 +217,12 @@ class ReflowBlock(ReflowElement):
             line_position_configs=line_position_configs,
             keyword_line_position=block_config.keyword_line_position,
             keyword_line_position_configs=keyword_line_position_configs,
+            keyword_line_position_exclusions=(
+                block_config.keyword_line_position_exclusions
+            ),
+            keyword_line_position_exclusions_configs=(
+                keyword_line_position_exclusions_configs
+            ),
         )
 
 
@@ -738,7 +757,9 @@ class ReflowPoint(ReflowElement):
                         # Not just unequal. Must be actively _before_.
                         # NOTE: Based on working locations
                         and prev_seg.get_end_loc() < last_whitespace.get_start_loc()
-                    ):
+                    ):  # pragma: no cover
+                        # Excluded from coverage: no longer triggered since AL01 rule
+                        # was refactored
                         reflow_logger.debug(
                             "    Removing non-contiguous whitespace post removal."
                         )

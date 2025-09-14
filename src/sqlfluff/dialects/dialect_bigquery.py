@@ -6,6 +6,8 @@ and
 https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
 """
 
+from collections.abc import Generator
+
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -27,6 +29,7 @@ from sqlfluff.core.parser import (
     OneOf,
     OptionallyBracketed,
     ParseMode,
+    RawSegment,
     Ref,
     RegexLexer,
     RegexParser,
@@ -1457,7 +1460,27 @@ class SemiStructuredAccessorSegment(BaseSegment):
     )
 
 
-class ColumnReferenceSegment(ansi.ObjectReferenceSegment):
+class SplittableObjectReferenceGrammar(ansi.ObjectReferenceSegment):
+    """An extended object reference grammar for BigQuery.
+
+    This class customizes the splitting of object references (such as table or column
+    names) to handle BigQuery's syntax, where object names may be quoted and
+    can refer to columns, tables, datasets, or projects. In BigQuery, object references
+    can be multi-part (e.g., `project.dataset.table.column`) and may include quoted
+    identifiers that contain keywords or special characters.
+    """
+
+    @classmethod
+    def _iter_reference_parts(
+        cls, elem: RawSegment
+    ) -> Generator[ansi.ObjectReferenceSegment.ObjectReferencePart, None, None]:
+        """Extract the elements of a reference and yield."""
+        # trim on quotes and split out any dots.
+        for part in elem.raw_trimmed().split("."):
+            yield cls.ObjectReferencePart(part, [elem])
+
+
+class ColumnReferenceSegment(SplittableObjectReferenceGrammar):
     """A reference to column, field or alias.
 
     We override this for BigQuery to allow keywords in structures
@@ -1544,7 +1567,7 @@ class ColumnReferenceSegment(ansi.ObjectReferenceSegment):
         return super().extract_possible_multipart_references(levels)
 
 
-class TableReferenceSegment(ansi.ObjectReferenceSegment):
+class TableReferenceSegment(SplittableObjectReferenceGrammar):
     """A reference to an object that may contain embedded hyphens."""
 
     type = "table_reference"
@@ -2499,7 +2522,7 @@ class UnpivotAliasExpressionSegment(BaseSegment):
     type = "alias_expression"
     match_grammar = Sequence(
         Indent,
-        Ref.keyword("AS", optional=True),
+        Ref("AsAliasOperatorSegment", optional=True),
         OneOf(
             Ref("QuotedLiteralSegment"),
             Ref("NumericLiteralSegment"),

@@ -131,7 +131,7 @@ tsql_dialect.sets("date_format").update(
 )
 
 tsql_dialect.sets("bare_functions").update(
-    ["system_user", "session_user", "current_user"]
+    ["CURRENT_USER", "SESSION_USER", "SYSTEM_USER", "USER"]
 )
 
 tsql_dialect.sets("sqlcmd_operators").clear()
@@ -206,6 +206,19 @@ tsql_dialect.insert_lexer_matchers(
     before="back_quote",
 )
 
+# Add hexadecimal literal lexer matcher before word matcher to ensure
+# patterns like 0x0, 0xAE are tokenized as numeric literals, not words
+tsql_dialect.insert_lexer_matchers(
+    [
+        RegexLexer(
+            "numeric_literal",
+            r"([xX]'([\da-fA-F][\da-fA-F])+'|0[xX][\da-fA-F]*)",
+            LiteralSegment,
+        ),
+    ],
+    before="word",
+)
+
 tsql_dialect.patch_lexer_matchers(
     [
         # Patching single_quote to allow for TSQL-style escaped quotes
@@ -260,7 +273,7 @@ tsql_dialect.patch_lexer_matchers(
             ),
         ),
         RegexLexer(
-            "word", r"[0-9a-zA-Z_#@]+", WordSegment
+            "word", r"[0-9a-zA-Z_#@\p{L}]+", WordSegment
         ),  # overriding to allow hash mark and at-sign in code
     ]
 )
@@ -391,7 +404,7 @@ tsql_dialect.add(
     # LT01's respace rule.
     LeadingDotSegment=StringParser(".", SymbolSegment, type="leading_dot"),
     HexadecimalLiteralSegment=RegexParser(
-        r"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+)",
+        r"([xX]'([\da-fA-F][\da-fA-F])+'|0[xX][\da-fA-F]*)",
         LiteralSegment,
         type="numeric_literal",
     ),
@@ -418,7 +431,7 @@ tsql_dialect.replace(
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
-            r"[A-Z_][A-Z0-9_@$#]*",
+            r"[A-Z_\p{L}][A-Z0-9_@$#\p{L}]*",
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^("
@@ -681,6 +694,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SetStatementSegment"),
             Ref("AlterTableSwitchStatementSegment"),
             Ref("PrintStatementSegment"),
+            Ref("CreateTableGraphStatementSegment"),
             Ref(
                 "CreateTableAsSelectStatementSegment"
             ),  # Azure Synapse Analytics specific
@@ -732,6 +746,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("OpenSymmetricKeySegment"),
             Ref("CreateLoginStatementSegment"),
             Ref("SetContextInfoSegment"),
+            Ref("CreateSecurityPolicySegment"),
+            Ref("AlterSecurityPolicySegment"),
+            Ref("DropSecurityPolicySegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -824,8 +841,17 @@ class AltAliasExpressionSegment(BaseSegment):
             Ref("BracketedIdentifierSegment"),
             Ref("SingleQuotedIdentifierSegment"),
         ),
-        Ref("RawEqualsSegment"),
+        Indent,
+        Ref("EqualAliasOperatorSegment"),
+        Dedent,
     )
+
+
+class EqualAliasOperatorSegment(BaseSegment):
+    """The as alias expression operator."""
+
+    type = "alias_operator"
+    match_grammar: Matchable = Sequence(Ref("RawEqualsSegment"))
 
 
 class SelectClauseModifierSegment(BaseSegment):
@@ -1892,6 +1918,33 @@ class CheckConstraintGrammar(BaseSegment):
         Sequence("NOT", "FOR", "REPLICATION", optional=True),
         Bracketed(
             Ref("ExpressionSegment"),
+        ),
+    )
+
+
+class ConnectionConstraintGrammar(BaseSegment):
+    """CONNECTION constraint option in `CREATE TABLE` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-table-sql-graph
+    """
+
+    type = "connection_constraint_grammar"
+    match_grammar = Sequence(
+        "CONNECTION",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("TableReferenceSegment"),
+                    "TO",
+                    Ref("TableReferenceSegment"),
+                    optional=True,
+                ),
+                allow_trailing=True,
+            )
+        ),
+        AnySetOf(
+            Sequence("ON", "DELETE", OneOf(Sequence("NO", "ACTION"), "CASCADE")),
+            Sequence("ON", "UPDATE", OneOf(Sequence("NO", "ACTION"), "CASCADE")),
         ),
     )
 
@@ -3423,19 +3476,16 @@ class CreateTableStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         OneOf(
             # Columns and comment syntax:
-            Sequence(
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            Ref("TableConstraintSegment"),
-                            Ref("ComputedColumnDefinitionSegment"),
-                            Ref("ColumnDefinitionSegment"),
-                            Ref("TableIndexSegment"),
-                            Ref("PeriodSegment"),
-                        ),
-                        allow_trailing=True,
-                    )
+            Bracketed(
+                Delimited(
+                    Ref("TableConstraintSegment"),
+                    Ref("ComputedColumnDefinitionSegment"),
+                    Ref("ColumnDefinitionSegment"),
+                    Ref("TableIndexSegment"),
+                    Ref("PeriodSegment"),
+                    allow_trailing=True,
                 ),
+                optional=True,
             ),
             # Create AS syntax:
             Sequence(
@@ -3452,6 +3502,39 @@ class CreateTableStatementSegment(BaseSegment):
         Ref("FilestreamOnOptionSegment", optional=True),
         Ref("TextimageOnOptionSegment", optional=True),
         Ref("TableOptionSegment", optional=True),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class CreateTableGraphStatementSegment(BaseSegment):
+    """A `CREATE TABLE` GRAPH statement."""
+
+    type = "create_table_graph_statement"
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-table-sql-graph
+    match_grammar = Sequence(
+        "CREATE",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Ref("GraphTableConstraintSegment"),
+                Ref("ComputedColumnDefinitionSegment"),
+                Ref("ColumnDefinitionSegment"),
+                Ref("TableIndexSegment"),
+                Ref("PeriodSegment"),
+                allow_trailing=True,
+            ),
+            optional=True,
+        ),
+        # GRAPH
+        Sequence(
+            "AS",
+            OneOf(
+                "NODE",
+                "EDGE",
+            ),
+        ),
+        Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
     )
 
@@ -3512,11 +3595,14 @@ class AlterTableStatementSegment(BaseSegment):
                     Ref("TableConstraintSegment"),
                 ),
                 Sequence(
-                    OneOf(
-                        "CHECK",
-                        "DROP",
-                    ),
+                    "CHECK",
                     "CONSTRAINT",
+                    Ref("ObjectReferenceSegment"),
+                ),
+                Sequence(
+                    "DROP",
+                    "CONSTRAINT",
+                    Ref("IfExistsGrammar", optional=True),
                     Ref("ObjectReferenceSegment"),
                 ),
                 # Rename
@@ -3627,6 +3713,35 @@ class TableConstraintSegment(BaseSegment):
                 # REFERENCES reftable [ ( refcolumn) ] + ON DELETE/ON UPDATE
                 Ref("ReferencesConstraintGrammar"),
             ),
+            Ref("CheckConstraintGrammar", optional=True),
+        ),
+    )
+
+
+class GraphTableConstraintSegment(BaseSegment):
+    """A table constraint segment for graph tables, including connection constraints."""
+
+    type = "graph_table_constraint"
+    match_grammar = Sequence(
+        Sequence(  # [ CONSTRAINT <Constraint name> ]
+            "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
+        ),
+        OneOf(
+            Sequence(
+                Ref("PrimaryKeyGrammar"),
+                Ref("BracketedIndexColumnListGrammar"),
+                Ref("RelationalIndexOptionsSegment", optional=True),
+                Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
+            ),
+            Sequence(  # FOREIGN KEY ( column_name [, ... ] )
+                # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+                Ref("ForeignKeyGrammar"),
+                # Local columns making up FOREIGN KEY constraint
+                Ref("BracketedColumnReferenceListGrammar"),
+                # REFERENCES reftable [ ( refcolumn) ] + ON DELETE/ON UPDATE
+                Ref("ReferencesConstraintGrammar"),
+            ),
+            Ref("ConnectionConstraintGrammar", optional=True),
             Ref("CheckConstraintGrammar", optional=True),
         ),
     )
@@ -4976,6 +5091,84 @@ class ForClauseSegment(BaseSegment):
     )
 
 
+class ExecuteOptionSegment(BaseSegment):
+    """An option for EXEC/EXECUTE WITH clause."""
+
+    type = "execute_option"
+
+    _result_sets_definition = OneOf(
+        # ( { column_name data_type [ COLLATE collation_name ]
+        # [ NULL | NOT NULL ] } [,...n ] )
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("DatatypeSegment"),
+                    Sequence(
+                        "COLLATE",
+                        Ref("ObjectReferenceSegment"),
+                        optional=True,
+                    ),
+                    OneOf("NULL", Sequence("NOT", "NULL"), optional=True),
+                ),
+            )
+        ),
+        # AS OBJECT [ db_name . [ schema_name ] . | schema_name . ]
+        # {table_name | view_name | table_valued_function_name }
+        Sequence(
+            "AS",
+            "OBJECT",
+            Sequence(
+                Ref("SingleIdentifierGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+                optional=True,
+            ),
+            Ref("ObjectReferenceSegment"),
+        ),
+        # AS TYPE [ schema_name.]table_type_name
+        Sequence(
+            "AS",
+            "TYPE",
+            Sequence(
+                Ref("ObjectReferenceSegment"),
+                Ref("DotSegment"),
+                optional=True,
+            ),
+            Ref("ObjectReferenceSegment"),
+        ),
+        # AS FOR XML
+        Sequence("AS", "FOR", "XML"),
+    )
+
+    match_grammar = OneOf(
+        "RECOMPILE",
+        Sequence("RESULT", "SETS", "UNDEFINED"),
+        Sequence("RESULT", "SETS", "NONE"),
+        Sequence(
+            "RESULT",
+            "SETS",
+            Bracketed(
+                Delimited(_result_sets_definition),
+            ),
+        ),
+    )
+
+
+class LoginUserSegment(BaseSegment):
+    """A `LOGIN` or `USER` segment.
+
+    This is used in the EXECUTE statement to specify the login or user context.
+    """
+
+    type = "login_user_segment"
+    match_grammar = Sequence(
+        "AS",
+        OneOf("LOGIN", "USER"),
+        Ref("RawEqualsSegment"),
+        Ref("QuotedLiteralSegment"),
+    )
+
+
 class ExecuteScriptSegment(BaseSegment):
     """`EXECUTE` statement.
 
@@ -4983,45 +5176,114 @@ class ExecuteScriptSegment(BaseSegment):
     https://docs.microsoft.com/en-us/sql/t-sql/language-elements/execute-transact-sql
     """
 
-    type = "execute_script_statement"
-    match_grammar = Sequence(
-        OneOf("EXEC", "EXECUTE"),
-        Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
-        OneOf(
-            OptionallyBracketed(
-                OneOf(
-                    Ref("ObjectReferenceSegment"),
-                    Ref("QuotedLiteralSegment"),
-                )
-            ),
-            Bracketed(Ref("BaseExpressionElementGrammar")),
-        ),
-        Indent,
+    # Execute a stored procedure or function
+    _execute_stored_procedure_or_function = Sequence(
+        # [ @return_status = ]
         Sequence(
-            Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
-            OneOf(
-                "DEFAULT",
-                Ref("LiteralGrammar"),
-                Ref("ParameterNameSegment"),
-                Ref("SingleIdentifierGrammar"),
-            ),
-            Sequence("OUTPUT", optional=True),
-            AnyNumberOf(
-                Ref("CommaSegment"),
-                Sequence(
-                    Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True
-                ),
-                OneOf(
-                    "DEFAULT",
-                    Ref("LiteralGrammar"),
-                    Ref("ParameterNameSegment"),
-                    Ref("SingleIdentifierGrammar"),
-                ),
-                Sequence("OUTPUT", optional=True),
-            ),
+            Ref("ParameterNameSegment"),
+            Ref("RawEqualsSegment"),
             optional=True,
         ),
+        OneOf(
+            # module_name [;number] or @module_name_var
+            Sequence(
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    Ref("SemicolonSegment"),
+                    Ref("NumericLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+            Ref("ParameterNameSegment"),
+        ),
+        # Parameter list (optional, comma-separated)
+        Indent,
+        AnyNumberOf(
+            Delimited(
+                Sequence(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        optional=True,
+                    ),
+                    OneOf(
+                        Ref("ExpressionSegment"),
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Sequence("OUTPUT", optional=True),
+                        ),
+                        "DEFAULT",
+                    ),
+                )
+            )
+        ),
         Dedent,
+        Sequence(
+            "WITH",
+            Ref("ExecuteOptionSegment"),
+            optional=True,
+        ),
+    )
+
+    # Execute a character string
+    _execute_a_characters_string = Sequence(
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("ParameterNameSegment"),
+                    Ref("QuotedLiteralSegmentOptWithN"),
+                ),
+                delimiter=Ref("PlusSegment"),
+            )
+        ),
+        Ref("LoginUserSegment", optional=True),
+    )
+
+    #  Execute a pass-through command against a linked server
+    _execute_pass_through_command = Sequence(
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("ParameterNameSegment"),
+                    Ref("QuotedLiteralSegmentOptWithN"),
+                ),
+                delimiter=Ref("PlusSegment"),
+            ),
+            # Optional: , { value | @variable [ OUTPUT ] } [,...n]
+            Sequence(
+                Ref("CommaSegment"),
+                Delimited(
+                    Sequence(
+                        OneOf(
+                            Ref("ExpressionSegment"),
+                            Ref("ParameterNameSegment"),
+                        ),
+                        Sequence("OUTPUT", optional=True),
+                    ),
+                ),
+                optional=True,
+            ),
+        ),
+        # Optional: [ AS { LOGIN | USER } = ' name ' ]
+        Ref("LoginUserSegment", optional=True),
+        # Optional: [ AT linked_server_name ]
+        # Optional: [ AT DATA_SOURCE data_source_name ]
+        Sequence(
+            "AT",
+            Sequence("DATA_SOURCE", optional=True),
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+    )
+
+    type = "execute_script_statement"
+    match_grammar = Sequence(
+        OneOf("EXEC", "EXECUTE", optional=True),
+        OneOf(
+            _execute_stored_procedure_or_function,
+            _execute_a_characters_string,
+            _execute_pass_through_command,
+        ),
         Ref("DelimiterGrammar", optional=True),
     )
 
@@ -6794,6 +7056,148 @@ class DropMasterKeySegment(BaseSegment):
         "DROP",
         "MASTER",
         "KEY",
+    )
+
+
+class CreateSecurityPolicySegment(BaseSegment):
+    """A `CREATE SECURITY POLICY` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-security-policy-transact-sql
+
+    type = "create_security_policy_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SECURITY",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        Delimited(
+            Sequence(
+                "ADD",
+                OneOf("FILTER", "BLOCK", optional=True),
+                "PREDICATE",
+                Ref("ObjectReferenceSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+                "ON",
+                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    Sequence(
+                        "AFTER",
+                        OneOf("INSERT", "UPDATE"),
+                    ),
+                    Sequence(
+                        "BEFORE",
+                        OneOf("UPDATE", "DELETE"),
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Delimited(
+                    Sequence("STATE", Ref("EqualsSegment"), OneOf("ON", "OFF")),
+                    Sequence("SCHEMABINDING", Ref("EqualsSegment"), OneOf("ON", "OFF")),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "NOT",
+            "FOR",
+            "REPLICATION",
+            optional=True,
+        ),
+    )
+
+
+class AlterSecurityPolicySegment(BaseSegment):
+    """A `ALTER SECURITY POLICY` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-security-policy-transact-sql
+
+    type = "alter_security_policy_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "SECURITY",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        Delimited(
+            Sequence(
+                OneOf("ADD", "ALTER"),
+                OneOf("FILTER", "BLOCK", optional=True),
+                "PREDICATE",
+                Ref("ObjectReferenceSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+                "ON",
+                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    Sequence(
+                        "AFTER",
+                        OneOf("INSERT", "UPDATE"),
+                    ),
+                    Sequence(
+                        "BEFORE",
+                        OneOf("UPDATE", "DELETE"),
+                    ),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "DROP",
+                OneOf("FILTER", "BLOCK", optional=True),
+                "PREDICATE",
+                "ON",
+                Ref("ObjectReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Delimited(
+                    Sequence("STATE", Ref("EqualsSegment"), OneOf("ON", "OFF")),
+                    Sequence("SCHEMABINDING", Ref("EqualsSegment"), OneOf("ON", "OFF")),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "NOT",
+            "FOR",
+            "REPLICATION",
+            optional=True,
+        ),
+    )
+
+
+class DropSecurityPolicySegment(BaseSegment):
+    """A `DROP SECURITY POLICY` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-security-policy-transact-sql
+
+    type = "drop_security_policy"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "SECURITY",
+        "POLICY",
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("ObjectReferenceSegment"),
     )
 
 

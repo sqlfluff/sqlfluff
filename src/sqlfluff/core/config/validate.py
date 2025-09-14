@@ -12,6 +12,7 @@ ALLOWABLE_LAYOUT_CONFIG_KEYS = (
     "align_within",
     "align_scope",
     "keyword_line_position",
+    "keyword_line_position_exclusions",
 )
 
 
