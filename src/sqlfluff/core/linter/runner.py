@@ -155,7 +155,11 @@ class ParallelRunner(BaseRunner):
             self.processes,
             self._init_global,
         ) as pool:
-            for result in pool.imap_unordered(self._render_file_static, args_list, chunksize=10):
+            for result in pool.imap_unordered(
+                self._render_file_static,
+                args_list,
+                chunksize=5
+            ):
                 if result is not None:
                     results.append(result)
 
@@ -287,7 +291,7 @@ class MultiProcessRunner(ParallelRunner):
         We use this so we can iterate through results as they arrive, and while other
         files are still being processed.
         """
-        return pool.imap_unordered(func=func, iterable=iterable, chunksize=10)
+        return pool.imap_unordered(func=func, iterable=iterable)
 
 
 class MultiThreadRunner(ParallelRunner):
