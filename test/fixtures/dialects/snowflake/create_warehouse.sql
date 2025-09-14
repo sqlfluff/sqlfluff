@@ -12,3 +12,17 @@ create warehouse my_wh
 ;
 
 CREATE OR ALTER WAREHOUSE my_wh;
+
+create warehouse my_wh
+    resource_constraint = 'STANDARD_GEN_1'
+    warehouse_size = 'medium'
+;
+
+create warehouse my_wh
+    resource_constraint = STANDARD_GEN_2
+    warehouse_size = 'medium'
+    SCALING_POLICY = ECONOMY
+    comment = 'comment'
+    auto_suspend = 60
+;
+
