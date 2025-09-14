@@ -652,6 +652,13 @@ class DatatypeSegment(BaseSegment):
     )
 
 
+class QuotedDatatypeSegment(BaseSegment):
+    """A quoted datatype segment for Redshift cast expressions."""
+
+    type = "data_type"
+    match_grammar = Ref("QuotedIdentifierSegment")
+
+
 class ShorthandCastSegment(ansi.ShorthandCastSegment):
     """A casting operation using '::' with support for quoted datatypes."""
 
@@ -666,8 +673,8 @@ class ShorthandCastSegment(ansi.ShorthandCastSegment):
                 Ref("CastOperatorSegment"),
                 OneOf(
                     Ref("DatatypeSegment"),
-                    # Allow quoted identifiers specifically in cast expressions
-                    Ref("QuotedIdentifierSegment"),
+                    # Allow quoted datatypes specifically in cast expressions
+                    Ref("QuotedDatatypeSegment"),
                 ),
                 Ref("TimeZoneGrammar", optional=True),
             ),
