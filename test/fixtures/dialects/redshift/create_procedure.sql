@@ -29,3 +29,30 @@ BEGIN
   SELECT INTO out_var count(*) from my_etl;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE PROCEDURE test_sp_nonatomic ()
+NONATOMIC
+AS $$
+BEGIN
+    SELECT 1;
+END;
+$$ LANGUAGE plpgsql
+SECURITY INVOKER;
+
+CREATE PROCEDURE etl.test_sp_na (param1 int)
+NONATOMIC
+AS $$
+BEGIN
+    INSERT INTO test_table VALUES (param1);
+    COMMIT;
+    SELECT param1;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE PROCEDURE test_set_config()
+AS $$
+BEGIN
+    SELECT 1;
+END;
+$$ LANGUAGE plpgsql
+SET work_mem = '256MB';
