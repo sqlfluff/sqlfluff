@@ -676,10 +676,7 @@ class WaitOptionSegment(BaseSegment):
 
 
 class CreateIndexStatementSegment(mysql.CreateIndexStatementSegment):
-    """A `CREATE INDEX` statement for MariaDB.
-
-    As per https://mariadb.com/docs/server/reference/sql-statements/data-definition/create/create-index
-    """
+    """A `CREATE INDEX` statement for MariaDB."""
 
     type = "create_index_statement"
 
@@ -702,4 +699,3 @@ class CreateIndexStatementSegment(mysql.CreateIndexStatementSegment):
             optional=True,
         ),
     )
-
