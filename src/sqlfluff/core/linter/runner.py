@@ -133,7 +133,7 @@ class ParallelRunner(BaseRunner):
         self.processes = processes
 
     @staticmethod
-    def _render_file_static(args: tuple[str, Linter, FluffConfig]):
+    def _render_file_static(args: tuple[str, Linter, FluffConfig]) -> tuple[str, RenderedFile] | None:
         """Static helper for multiprocessing."""
         fname, linter, config = args
         try:
@@ -142,6 +142,7 @@ class ParallelRunner(BaseRunner):
             linter_logger.warning(str(s))
             return None
 
+    # Overriden from BaseRunner
     def iter_rendered(self, fnames: list[str]) -> Iterator[tuple[str, RenderedFile]]:
         """Iterate through rendered files ready for linting."""
         sequenced = list(self.linter.templater.sequence_files(
