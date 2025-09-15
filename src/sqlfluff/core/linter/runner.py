@@ -157,9 +157,7 @@ class ParallelRunner(BaseRunner):
             self._init_global,
         ) as pool:
             for result in pool.imap_unordered(
-                self._render_file_static,
-                args_list,
-                chunksize=5
+                self._render_file_static, args_list, chunksize=5
             ):
                 if result is not None:
                     results.append(result)
