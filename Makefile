@@ -1,6 +1,13 @@
-.PHONY: help build clean fresh shell start stop
+.PHONY: help build clean fresh release shell start stop
 
 .DEFAULT_GOAL := help
+
+# Set VERSION from first argument if provided
+VERSION := $(word 2,$(filter-out $(.DEFAULT_GOAL),$(MAKECMDGOALS)))
+
+# Treat flow name as a target (prevents make errors)
+$(VERSION):
+	@:
 
 help: ## Show this available targets
 	@grep -E '^[/a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -15,6 +22,9 @@ clean: ## Clean up all containers and images
 
 fresh: ## Build the development container from scratch
 	docker-compose build --no-cache development
+
+release: ## Release a new version
+	@python util.py release $(VERSION)
 
 shell: ## Start a bash session in the development container
 	docker-compose exec development bash
