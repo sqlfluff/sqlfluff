@@ -1,0 +1,402 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d94814131b9204de4ffab1b073a1353f1ad8a05629d65dcc9af9d313fb35a190
+file:
+- batch:
+    statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: AdventureWorks2022
+      - keyword: Modify
+      - keyword: Name
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - database_reference:
+          naked_identifier: Northwind
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: db1
+      - keyword: MODIFY
+      - keyword: Name
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - database_reference:
+          naked_identifier: db2
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - keyword: CURRENT
+      - keyword: MODIFY
+      - keyword: Name
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - database_reference:
+          naked_identifier: db2
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: testDB
+      - keyword: COLLATE
+      - collation_reference:
+          naked_identifier: French_CI_AI
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: WideWorldImporters
+      - keyword: ADD
+      - keyword: FILE
+      - file_spec:
+          bracketed:
+            start_bracket: (
+            logical_file_name:
+              keyword: NAME
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'data_17'"
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: CustomerSales
+      - keyword: SET
+      - auto_option:
+        - keyword: AUTO_CREATE_STATISTICS
+        - keyword: 'ON'
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: CustomerSales
+      - keyword: SET
+      - auto_option:
+        - keyword: AUTO_UPDATE_STATISTICS
+        - keyword: 'ON'
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - keyword: CURRENT
+      - keyword: SET
+      - auto_option:
+        - keyword: AUTO_UPDATE_STATISTICS_ASYNC
+        - keyword: 'ON'
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: db1
+      - keyword: ADD
+      - keyword: SECONDARY
+      - keyword: 'ON'
+      - keyword: SERVER
+      - naked_identifier: secondaryserver
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: db1
+      - keyword: ADD
+      - keyword: SECONDARY
+      - keyword: 'ON'
+      - keyword: SERVER
+      - naked_identifier: secondaryserver
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          allow_connections:
+          - keyword: ALLOW_CONNECTIONS
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: ALL
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: db1
+      - keyword: REMOVE
+      - keyword: SECONDARY
+      - keyword: 'ON'
+      - keyword: SERVER
+      - naked_identifier: testsecondaryserver
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: db1
+      - keyword: FAILOVER
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: db1
+      - keyword: FORCE_FAILOVER_ALLOW_DATA_LOSS
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          quoted_identifier: '[mySampleDatabase]'
+      - keyword: PERFORM_CUTOVER
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - keyword: current
+      - keyword: MODIFY
+      - bracketed:
+          start_bracket: (
+          edition:
+            keyword: EDITION
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'Premium'"
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: db1
+      - keyword: MODIFY
+      - bracketed:
+          start_bracket: (
+          service_objective:
+            keyword: SERVICE_OBJECTIVE
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'P6'"
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: dw1
+      - keyword: MODIFY
+      - bracketed:
+          start_bracket: (
+          file_spec_max_size:
+          - keyword: MAXSIZE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '10240'
+          - keyword: GB
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          quoted_identifier: '[db1]'
+      - keyword: MODIFY
+      - bracketed:
+        - start_bracket: (
+        - edition:
+            keyword: EDITION
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'Standard'"
+        - comma: ','
+        - file_spec_max_size:
+          - keyword: MAXSIZE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '250'
+          - keyword: GB
+        - comma: ','
+        - service_objective:
+            keyword: SERVICE_OBJECTIVE
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'S0'"
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: db1
+      - keyword: MODIFY
+      - bracketed:
+          start_bracket: (
+          service_objective:
+          - keyword: SERVICE_OBJECTIVE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: ELASTIC_POOL
+          - bracketed:
+              start_bracket: (
+              keyword: name
+              comparison_operator:
+                raw_comparison_operator: '='
+              naked_identifier: pool1
+              end_bracket: )
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          quoted_identifier: '[mySampleDatabase]'
+      - keyword: MODIFY
+      - bracketed:
+          start_bracket: (
+          edition:
+            keyword: EDITION
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'Hyperscale'"
+          comma: ','
+          service_objective:
+            keyword: SERVICE_OBJECTIVE
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'HS_Gen5_2'"
+          end_bracket: )
+      - keyword: WITH
+      - keyword: MANUAL_CUTOVER
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: db1
+      - keyword: MODIFY
+      - backup_storage_redundancy:
+          keyword: BACKUP_STORAGE_REDUNDANCY
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'ZONE'"
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: CustomerSales
+      - keyword: SET
+      - bracketed:
+          start_bracket: (
+          naked_identifier: AUTOGROW
+          comparison_operator:
+            raw_comparison_operator: '='
+          keyword: 'ON'
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: CustomerSales
+      - keyword: SET
+      - bracketed:
+          start_bracket: (
+          naked_identifier: REPLICATED_SIZE
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+          keyword: GB
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: CustomerSales
+      - keyword: SET
+      - bracketed:
+          start_bracket: (
+          naked_identifier: DISTRIBUTED_SIZE
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1000'
+          keyword: GB
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: CustomerSales
+      - keyword: SET
+      - bracketed:
+          start_bracket: (
+          naked_identifier: LOG_SIZE
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '10'
+          keyword: GB
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: CustomerSales
+      - keyword: SET
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier: AUTOGROW
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - comma: ','
+        - naked_identifier: LOG_SIZE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '10'
+        - keyword: GB
+        - end_bracket: )
+  - statement_terminator: ;

@@ -3,25 +3,26 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3910763517513e7ea6dbda1a8a1635760254af12f4a764e1db41d3b306fdf832
+_hash: 8a1bf8c74f2a5ec810e3c7af749965cb97fe62375bae63d35a84bf04cfc39471
 file:
   batch:
-    create_procedure_statement:
-    - keyword: CREATE
-    - keyword: PROC
-    - object_reference:
-        naked_identifier: ProcedureName
-    - keyword: AS
-    - procedure_statement:
-        statement:
-          select_statement:
-            select_clause:
-              keyword: SELECT
-              select_clause_element:
-                function:
-                  function_name:
-                    function_name_identifier: DB_NAME
-                  function_contents:
-                    bracketed:
-                      start_bracket: (
-                      end_bracket: )
+    statement:
+      create_procedure_statement:
+      - keyword: CREATE
+      - keyword: PROC
+      - object_reference:
+          naked_identifier: ProcedureName
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: DB_NAME
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )

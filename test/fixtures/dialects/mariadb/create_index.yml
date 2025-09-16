@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5ba008b762b05319be63ea1b01262c62e054e8ba120801da8589dc396cd1fdd3
+_hash: 70e8096d9ebac30601b9494145812f9a3a853e35558fb69843eed2d9413be171
 file:
 - statement:
     create_index_statement:
@@ -169,8 +169,9 @@ file:
         column_reference:
           naked_identifier: col
         end_bracket: )
-    - keyword: ALGORITHM
-    - keyword: DEFAULT
+    - algorithm_option:
+      - keyword: ALGORITHM
+      - keyword: DEFAULT
 - statement_terminator: ;
 - statement:
     create_index_statement:
@@ -186,8 +187,9 @@ file:
         column_reference:
           naked_identifier: col
         end_bracket: )
-    - keyword: ALGORITHM
-    - keyword: NOCOPY
+    - algorithm_option:
+      - keyword: ALGORITHM
+      - keyword: NOCOPY
 - statement_terminator: ;
 - statement:
     create_index_statement:
@@ -203,8 +205,9 @@ file:
         column_reference:
           naked_identifier: col
         end_bracket: )
-    - keyword: ALGORITHM
-    - keyword: INSTANT
+    - algorithm_option:
+      - keyword: ALGORITHM
+      - keyword: INSTANT
 - statement_terminator: ;
 - statement:
     create_index_statement:
@@ -220,8 +223,9 @@ file:
         column_reference:
           naked_identifier: col
         end_bracket: )
-    - keyword: LOCK
-    - keyword: DEFAULT
+    - lock_option:
+      - keyword: LOCK
+      - keyword: DEFAULT
 - statement_terminator: ;
 - statement:
     create_index_statement:
@@ -257,4 +261,22 @@ file:
       - column_reference:
           naked_identifier: col1
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - index_reference:
+        naked_identifier: index_name
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: table_name
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: field_name
+        end_bracket: )
 - statement_terminator: ;

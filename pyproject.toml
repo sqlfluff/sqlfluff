@@ -236,6 +236,7 @@ extend-select = ["I", "D"]
 # D418: Function/ Method decorated with @overload shouldn’t contain a docstring
 ignore = ["D107", "D105", "D418"]
 
+
 [tool.ruff.lint.isort]
 # Mark sqlfluff, test and it's plugins as known first party
 known-first-party = [
