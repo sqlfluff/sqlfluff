@@ -1,1 +1,1 @@
-python utils/build_lexers.py > src/dialect/matcher.rs
+python utils/build_lexers.py > rsqlfluff/src/dialect/matcher.rs

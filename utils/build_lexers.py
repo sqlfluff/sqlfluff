@@ -48,8 +48,7 @@ pub fn get_lexers(dialect: Dialect) -> &'static Vec<LexMatcher> {{
     match dialect {{
         {dialect_match}
     }}
-}}
-"""
+}}"""
     )
 
 
@@ -145,8 +144,10 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
         template = f'r#"{lexer_matcher.template}"#'
         if template == r'r#"\[{2}([^[\\]|\\.)*\]{2}"#':
             template = r'r#"\[{2}([^\[\\]|\\.)*\]{2}"#'
-        fallback = f"{fallback_function.get(lexer_matcher.name, None)},"
-        is_match_valid = f"{is_match_valid_dict.get(lexer_matcher.name, '|_| true')},"
+        fallback = f"\n        {fallback_function.get(lexer_matcher.name, None)},"
+        is_match_valid = (
+            f"\n        {is_match_valid_dict.get(lexer_matcher.name, '|_| true')},"
+        )
     else:
         raise ValueError
 
@@ -160,9 +161,7 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
         {trim_post_subdivide},
         {trim_start},
         {trim_chars},
-        Uuid::new_v4().to_string(),
-        {fallback}
-        {is_match_valid}
+        Uuid::new_v4().to_string(),{fallback}{is_match_valid}
         {kwarg_type},
     )"""
 
