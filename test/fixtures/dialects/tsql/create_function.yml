@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b35bb87fc4b1ed65c08dc99bf79bf9a1655dade4d630a97c1ec6a0bd4ee7006e
+_hash: 7d5de0e4d9becaba930116f389423f5ecd48dcee6a43ccd5e13e48d2f4d80edd
 file:
 - batch:
     statement:
@@ -43,7 +43,7 @@ file:
                     data_type_identifier: int
                   statement_terminator: ;
             - statement:
-                set_segment:
+                set_local_variable_segment:
                   keyword: SET
                   parameter: '@ISOweek'
                   assignment_operator:
@@ -103,7 +103,7 @@ file:
                             binary_operator: +
                             quoted_literal: "'0104'"
                           end_bracket: )
-                  statement_terminator: ;
+            - statement_terminator: ;
             - statement:
                 if_then_statement:
                   if_clause:
@@ -118,7 +118,7 @@ file:
                           integer_literal: '0'
                         end_bracket: )
                   statement:
-                    set_segment:
+                    set_local_variable_segment:
                       keyword: SET
                       parameter: '@ISOweek'
                       assignment_operator:
@@ -199,7 +199,7 @@ file:
                               end_bracket: )
                         binary_operator: +
                         integer_literal: '1'
-                      statement_terminator: ;
+                  statement_terminator: ;
             - statement:
                 if_then_statement:
                   if_clause:
@@ -264,14 +264,14 @@ file:
                             end_bracket: )
                         end_bracket: )
                   statement:
-                    set_segment:
+                    set_local_variable_segment:
                       keyword: SET
                       parameter: '@ISOweek'
                       assignment_operator:
                         raw_comparison_operator: '='
                       expression:
                         integer_literal: '1'
-                      statement_terminator: ;
+                  statement_terminator: ;
             - statement:
                 return_segment:
                   keyword: RETURN

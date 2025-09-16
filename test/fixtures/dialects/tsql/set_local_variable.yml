@@ -1,0 +1,493 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5fc1f18065f3833fcf98078b3ed4a14e29e8f8ae8c18169d0b19c982769ca340
+file:
+- batch:
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@myVar'
+        data_type:
+          data_type_identifier: CHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '20'
+              end_bracket: )
+        statement_terminator: ;
+  - statement:
+      set_local_variable_segment:
+        keyword: SET
+        parameter: '@myVar'
+        assignment_operator:
+          raw_comparison_operator: '='
+        expression:
+          quoted_literal: "'This is a test'"
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            parameter: '@myVar'
+        statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@state'
+        data_type:
+          data_type_identifier: CHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '25'
+              end_bracket: )
+        statement_terminator: ;
+  - statement:
+      set_local_variable_segment:
+        keyword: SET
+        parameter: '@state'
+        assignment_operator:
+          raw_comparison_operator: '='
+        expression:
+          quoted_literal: "N'Oregon'"
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: CITY
+        - comma: ','
+        - select_clause_element:
+            expression:
+            - function:
+                function_name:
+                  function_name_identifier: RTRIM
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: FIRSTNAME
+                    end_bracket: )
+            - binary_operator: +
+            - quoted_literal: "' '"
+            - binary_operator: +
+            - function:
+                function_name:
+                  function_name_identifier: RTRIM
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: LASTNAME
+                    end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: FULL_NAME
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: HUMANRESOURCES
+                - dot: .
+                - naked_identifier: VEMPLOYEE
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: STATEPROVINCENAME
+            comparison_operator:
+              raw_comparison_operator: '='
+            parameter: '@state'
+        statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@NewBalance'
+        data_type:
+          data_type_identifier: INT
+        statement_terminator: ;
+  - statement:
+      set_local_variable_segment:
+        keyword: SET
+        parameter: '@NewBalance'
+        assignment_operator:
+          raw_comparison_operator: '='
+        expression:
+          integer_literal: '10'
+  - statement_terminator: ;
+  - statement:
+      set_local_variable_segment:
+        keyword: SET
+        parameter: '@NewBalance'
+        assignment_operator:
+          raw_comparison_operator: '='
+        expression:
+          parameter: '@NewBalance'
+          binary_operator: '*'
+          integer_literal: '10'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            parameter: '@NewBalance'
+        statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        naked_identifier: MY_CURSOR
+        cursor_definition:
+        - keyword: CURSOR
+        - keyword: GLOBAL
+        - keyword: FOR
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: SHIP_DATE
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: PURCHASING
+                    - dot: .
+                    - naked_identifier: SHIPMETHOD
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@my_variable'
+      - keyword: CURSOR
+      - statement_terminator: ;
+  - statement:
+      set_local_variable_segment:
+        keyword: SET
+        parameter: '@my_variable'
+        assignment_operator:
+          raw_comparison_operator: '='
+        expression:
+          column_reference:
+            naked_identifier: MY_CURSOR
+  - statement_terminator: ;
+  - statement:
+      deallocate_cursor_statement:
+        keyword: DEALLOCATE
+        naked_identifier: MY_CURSOR
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@CursorVar'
+      - keyword: CURSOR
+      - statement_terminator: ;
+  - statement:
+      set_local_variable_segment:
+        keyword: SET
+        parameter: '@CursorVar'
+        comparison_operator:
+          raw_comparison_operator: '='
+        cursor_definition:
+        - keyword: CURSOR
+        - keyword: SCROLL
+        - keyword: DYNAMIC
+        - keyword: FOR
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: LASTNAME
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: FIRSTNAME
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: ADVENTUREWORKS2022
+                    - dot: .
+                    - naked_identifier: HUMANRESOURCES
+                    - dot: .
+                    - naked_identifier: EMPLOYEE
+            where_clause:
+              keyword: WHERE
+              expression:
+                column_reference:
+                  naked_identifier: LASTNAME
+                keyword: LIKE
+                quoted_literal: "'B%'"
+            statement_terminator: ;
+  - statement:
+      open_cursor_statement:
+        keyword: OPEN
+        parameter: '@CursorVar'
+  - statement_terminator: ;
+  - statement:
+      fetch_cursor_statement:
+      - keyword: FETCH
+      - keyword: NEXT
+      - keyword: FROM
+      - parameter: '@CursorVar'
+  - statement_terminator: ;
+  - statement:
+      while_statement:
+        keyword: WHILE
+        expression:
+          system_variable: '@@FETCH_STATUS'
+          comparison_operator:
+            raw_comparison_operator: '='
+          integer_literal: '0'
+        statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              fetch_cursor_statement:
+              - keyword: FETCH
+              - keyword: NEXT
+              - keyword: FROM
+              - parameter: '@CursorVar'
+          - keyword: END
+        statement_terminator: ;
+  - statement:
+      close_cursor_statement:
+        keyword: CLOSE
+        parameter: '@CursorVar'
+  - statement_terminator: ;
+  - statement:
+      deallocate_cursor_statement:
+        keyword: DEALLOCATE
+        parameter: '@CursorVar'
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+    statement:
+      use_statement:
+        keyword: USE
+        database_reference:
+          naked_identifier: ADVENTUREWORKS2022
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@rows'
+        data_type:
+          data_type_identifier: INT
+        statement_terminator: ;
+  - statement:
+      set_local_variable_segment:
+        keyword: SET
+        parameter: '@rows'
+        assignment_operator:
+          raw_comparison_operator: '='
+        expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    function:
+                      function_name:
+                        function_name_identifier: COUNT
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          star: '*'
+                          end_bracket: )
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - naked_identifier: SALES
+                        - dot: .
+                        - naked_identifier: CUSTOMER
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            parameter: '@rows'
+        statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      set_local_variable_segment:
+        keyword: SET
+        parameter: '@param1'
+        assignment_operator:
+          raw_comparison_operator: '='
+        expression:
+          integer_literal: '1'
+  - statement_terminator: ;
+  - statement:
+      set_local_variable_segment:
+      - keyword: SET
+      - parameter: '@param1'
+      - assignment_operator:
+          raw_comparison_operator: '='
+      - expression:
+          integer_literal: '1'
+      - comma: ','
+      - parameter: '@param2'
+      - assignment_operator:
+          raw_comparison_operator: '='
+      - expression:
+          integer_literal: '2'
+  - statement_terminator: ;
+  - statement:
+      set_local_variable_segment:
+      - keyword: SET
+      - parameter: '@param1'
+      - assignment_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            quoted_identifier: '"test, test"'
+      - comma: ','
+      - parameter: '@param2'
+      - assignment_operator:
+          raw_comparison_operator: '='
+      - expression:
+          integer_literal: '2'
+  - statement_terminator: ;
+  - statement:
+      set_local_variable_segment:
+      - keyword: SET
+      - parameter: '@param1'
+      - assignment_operator:
+          raw_comparison_operator: '='
+      - expression:
+          bracketed:
+          - start_bracket: (
+          - column_reference:
+              quoted_identifier: '"test"'
+          - comma: ','
+          - column_reference:
+              quoted_identifier: '"test"'
+          - end_bracket: )
+      - comma: ','
+      - parameter: '@param2'
+      - assignment_operator:
+          raw_comparison_operator: '='
+      - expression:
+          integer_literal: '2'
+  - statement_terminator: ;
+  - statement:
+      set_local_variable_segment:
+      - keyword: SET
+      - parameter: '@param1'
+      - assignment_operator:
+          binary_operator: +
+          raw_comparison_operator: '='
+      - expression:
+          integer_literal: '1'
+      - comma: ','
+      - parameter: '@param2'
+      - assignment_operator:
+          binary_operator: '-'
+          raw_comparison_operator: '='
+      - expression:
+          integer_literal: '2'
+      - comma: ','
+      - parameter: '@param3'
+      - assignment_operator:
+          binary_operator: '*'
+          raw_comparison_operator: '='
+      - expression:
+          integer_literal: '3'
+      - comma: ','
+      - parameter: '@param4'
+      - assignment_operator:
+          binary_operator: /
+          raw_comparison_operator: '='
+      - expression:
+          integer_literal: '4'
+      - comma: ','
+      - parameter: '@param5'
+      - assignment_operator:
+          binary_operator: '%'
+          raw_comparison_operator: '='
+      - expression:
+          integer_literal: '5'
+      - comma: ','
+      - parameter: '@param5'
+      - assignment_operator:
+          binary_operator: ^
+          raw_comparison_operator: '='
+      - expression:
+          integer_literal: '6'
+      - comma: ','
+      - parameter: '@param5'
+      - assignment_operator:
+          binary_operator:
+            ampersand: '&'
+          raw_comparison_operator: '='
+      - expression:
+          integer_literal: '7'
+      - comma: ','
+      - parameter: '@param5'
+      - assignment_operator:
+          binary_operator:
+            pipe: '|'
+          raw_comparison_operator: '='
+      - expression:
+          integer_literal: '8'
+  - statement_terminator: ;
+  - statement:
+      set_local_variable_segment:
+        keyword: SET
+        parameter: '@param1'
+        assignment_operator:
+          raw_comparison_operator: '='
+        expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              sequence_next_value:
+              - keyword: NEXT
+              - keyword: VALUE
+              - keyword: FOR
+              - object_reference:
+                - quoted_identifier: '[dbo]'
+                - dot: .
+                - quoted_identifier: '[sequence_name]'
+            end_bracket: )
+  - statement_terminator: ;
