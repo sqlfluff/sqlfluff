@@ -1,1 +1,1 @@
--e ./rsqlfluff
+-e ./sqlfluffrs

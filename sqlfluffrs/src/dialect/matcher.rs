@@ -5,7 +5,7 @@ use crate::matcher::{LexMatcher, extract_nested_block_comment};
 use std::str::FromStr;
 use crate::token::Token;
 
-pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Ansi,
@@ -554,7 +554,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Athena,
@@ -1116,7 +1116,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Bigquery,
@@ -1734,7 +1734,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Clickhouse,
@@ -2296,7 +2296,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Databricks,
@@ -3064,7 +3064,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Db2,
@@ -3626,7 +3626,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Doris,
@@ -4285,7 +4285,7 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Duckdb,
@@ -5066,7 +5066,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Exasol,
@@ -5775,7 +5775,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static FLINK_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static FLINK_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Flink,
@@ -6326,7 +6326,7 @@ pub static FLINK_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Greenplum,
@@ -7092,7 +7092,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Hive,
@@ -7641,7 +7641,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Impala,
@@ -8190,7 +8190,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Mariadb,
@@ -8849,7 +8849,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Materialize,
@@ -9615,7 +9615,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Mysql,
@@ -10274,7 +10274,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Oracle,
@@ -10890,7 +10890,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Postgres,
@@ -11656,7 +11656,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Redshift,
@@ -12422,7 +12422,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Snowflake,
@@ -13139,7 +13139,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Soql,
@@ -13718,7 +13718,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Sparksql,
@@ -14398,7 +14398,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Sqlite,
@@ -15033,7 +15033,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Starrocks,
@@ -15692,7 +15692,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Teradata,
@@ -16241,7 +16241,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Trino,
@@ -16816,7 +16816,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Tsql,
@@ -17470,7 +17470,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
         None,
     ),
 ]});
-pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| {{ vec![
+pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         Dialect::Vertica,

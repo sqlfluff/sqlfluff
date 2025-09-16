@@ -33,7 +33,7 @@ from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.markers import PositionMarker
 
-# from rsqlfluff import RsPositionMarker
+# from sqlfluffrs import RsPositionMarker
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.types import SimpleHintType

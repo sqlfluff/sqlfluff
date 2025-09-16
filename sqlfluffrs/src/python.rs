@@ -8,8 +8,8 @@ use crate::token::python::PyToken;
 use pyo3::prelude::*;
 
 /// A Python module implemented in Rust.
-#[pymodule(name = "rsqlfluff", module = "rsqlfluff")]
-fn rsqlfluff(m: &Bound<'_, PyModule>) -> PyResult<()> {
+#[pymodule(name = "sqlfluffrs", module = "sqlfluffrs")]
+fn sqlfluffrs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     let env = env_logger::Env::default().filter_or("RUST_LOG", "warn");
     env_logger::Builder::from_env(env)
         .try_init()

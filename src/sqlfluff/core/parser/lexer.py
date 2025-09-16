@@ -907,7 +907,7 @@ class PyLexer:
 
 
 try:
-    from rsqlfluff import RsLexer
+    from sqlfluffrs import RsLexer
 
     def get_segment_type_map(base_class: type) -> dict[str, type[RawSegment]]:
         """Dynamically create a map of segment types to their subclasses."""
@@ -927,7 +927,7 @@ try:
     segment_types = get_segment_type_map(RawSegment)
 
     class PyRsLexer(RsLexer):
-        """A wrapper around the rsqlfluff lexer."""
+        """A wrapper around the sqlfluffrs lexer."""
 
         def lex(
             self, raw: Union[str, TemplatedFile]
@@ -941,8 +941,8 @@ try:
                 template.source_str,
                 template.fname,
                 template.templated_str,
-                template.sliced_file,
-                template.raw_sliced,
+                template.sliced_file,  # type: ignore
+                template.raw_sliced,  # type: ignore
             )
 
             return (
@@ -972,6 +972,6 @@ try:
                 dialect=dialect,
             )
 
-    lexer_logger.info("Using rsqlfluff lexer.")
+    lexer_logger.info("Using sqlfluffrs lexer.")
 except ImportError:
     ...

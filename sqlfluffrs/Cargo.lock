@@ -382,25 +382,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 
 [[package]]
-name = "rsqlfluff"
-version = "0.1.0"
-dependencies = [
- "env_logger",
- "fancy-regex",
- "hashbrown",
- "itertools",
- "log",
- "once_cell",
- "pyo3",
- "pyo3-log",
- "regex",
- "serde",
- "serde_json",
- "slotmap",
- "uuid",
-]
-
-[[package]]
 name = "ryu"
 version = "1.0.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -445,6 +426,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dbff4acf519f630b3a3ddcfaea6c06b42174d9a44bc70c620e9ed1649d58b82a"
 dependencies = [
  "version_check",
+]
+
+[[package]]
+name = "sqlfluffrs"
+version = "0.1.0"
+dependencies = [
+ "env_logger",
+ "fancy-regex",
+ "hashbrown",
+ "itertools",
+ "log",
+ "once_cell",
+ "pyo3",
+ "pyo3-log",
+ "regex",
+ "serde",
+ "serde_json",
+ "slotmap",
+ "uuid",
 ]
 
 [[package]]

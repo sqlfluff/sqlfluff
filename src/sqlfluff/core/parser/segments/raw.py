@@ -13,8 +13,8 @@ from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 
 if TYPE_CHECKING:
-    from rsqlfluff import RsToken
     from sqlfluff.core.templaters import TemplatedFile
+    from sqlfluffrs import RsToken
 
 
 class RawSegment(BaseSegment):
@@ -82,7 +82,7 @@ class RawSegment(BaseSegment):
         self.quoted_value = quoted_value
         self.escape_replacements = escape_replacements
         self.casefold = casefold
-        self._raw_value: str = self.raw_normalized()
+        self._raw_value: str = self.normalize()
         # print(self)
         # print(f"class name raw end: {self.__class__.__name__}")
 

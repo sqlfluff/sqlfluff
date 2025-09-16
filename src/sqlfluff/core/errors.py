@@ -18,7 +18,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.rules import BaseRule, LintFix
 
     try:
-        from rsqlfluff import RsSQLLexerError
+        from sqlfluffrs import RsSQLLexerError
     except ImportError:
         ...
 

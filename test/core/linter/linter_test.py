@@ -23,7 +23,7 @@ from sqlfluff.core.linter.runner import get_runner
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 try:
-    from rsqlfluff import RsSQLLexerError
+    from sqlfluffrs import RsSQLLexerError
 
     SQLLexErrorClass = (SQLLexError, RsSQLLexerError)
 except ImportError:

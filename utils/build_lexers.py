@@ -64,7 +64,7 @@ def generate_lexers():
         loaded_dialect = dialect_selector(dialect.label)
         print(
             f"pub static {dialect.label.upper()}_LEXERS:"
-            " Lazy<Vec<LexMatcher>> = Lazy::new(|| {{"
+            " Lazy<Vec<LexMatcher>> = Lazy::new(|| {"
             " vec!["
         )
         for matcher in loaded_dialect.get_lexer_matchers():

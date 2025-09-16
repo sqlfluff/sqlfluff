@@ -93,10 +93,3 @@ repos:
       - id: codespell
         exclude: (?x)^(test/fixtures/.*|pyproject.toml)$
         additional_dependencies: [tomli]
-  - repo: local
-    hooks:
-      - id: rsqlfluff-build
-        name: rsqlfluff-build
-        entry: python utils/check_build.py
-        language: system
-        pass_filenames: false

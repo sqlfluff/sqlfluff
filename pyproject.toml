@@ -7,12 +7,10 @@ build-backend = "setuptools.build_meta"
 name = "sqlfluff"
 version = "3.4.2"
 description = "The SQL Linter for Humans"
-readme = {file = "README.md", content-type = "text/markdown"}
+readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.9"
-authors = [
-  {name = "Alan Cruickshank", email = "alan@designingoverload.com"},
-]
-license = {file = "LICENSE.md"}
+authors = [{ name = "Alan Cruickshank", email = "alan@designingoverload.com" }]
+license = { file = "LICENSE.md" }
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
@@ -100,9 +98,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-rs = [
-    "rsqlfluff @ file:./rsqlfluff"
-]
+rs = ["sqlfluffrs @ file:./sqlfluffrs"]
 
 [project.urls]
 Homepage = "https://www.sqlfluff.com"
@@ -153,9 +149,7 @@ root_package = "sqlfluff"
 [[tool.importlinter.contracts]]
 name = "Forbid dependencies outside core"
 type = "forbidden"
-source_modules = [
-    "sqlfluff.core",
-]
+source_modules = ["sqlfluff.core"]
 forbidden_modules = [
     "sqlfluff.api",
     "sqlfluff.cli",
@@ -167,12 +161,8 @@ forbidden_modules = [
 [[tool.importlinter.contracts]]
 name = "API may not depend on CLI"
 type = "forbidden"
-source_modules = [
-    "sqlfluff.api",
-]
-forbidden_modules = [
-    "sqlfluff.cli",
-]
+source_modules = ["sqlfluff.api"]
+forbidden_modules = ["sqlfluff.cli"]
 
 [[tool.importlinter.contracts]]
 name = "Helper methods must be internally independent"
@@ -227,6 +217,7 @@ warn_unused_ignores = true
 strict_equality = true
 extra_checks = true
 no_implicit_reexport = true
+mypy_path = "$MYPY_CONFIG_FILE_DIR/sqlfluffrs"
 
 # skip type checking for 3rd party packages for which stubs are not available
 [[tool.mypy.overrides]]
@@ -236,7 +227,6 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = "tblib.*"
 ignore_missing_imports = true
-
 
 [tool.ruff.lint]
 extend-select = ["I", "D"]
@@ -284,7 +274,7 @@ ignore-path = "docs/source/_partials/"
 skip = "*/test/fixtures/*,*/.*,*/pyproject.toml"
 
 check-hidden = true
-quiet-level=2
+quiet-level = 2
 # ignore-regex = '\\[fnrstv]'
 builtin = "clear,rare,informal,names"
 
@@ -292,7 +282,7 @@ ignore-words-list = "fo,ws,falsy,coo,inout,deque,crate,trough,ro,mange,identifer
 
 # ignore-words = "dev/tools/codespell/codespell-ignore.txt"
 # exclude-file = "dev/tools/codespell/codespell-lines-ignore.txt"
-uri-ignore-words-list="crate"
+uri-ignore-words-list = "crate"
 
 # For future reference: it is not currently possible to specify
 # the standard dictionary and the custom dictionary in the configuration

@@ -13,7 +13,7 @@ from sqlfluff.core.templaters import JinjaTemplater, RawFileSlice, TemplatedFile
 from sqlfluff.core.templaters.base import TemplatedFileSlice
 
 try:
-    from rsqlfluff import RsSQLLexerError
+    from sqlfluffrs import RsSQLLexerError
 
     SQLLexErrorClass = (SQLLexError, RsSQLLexerError)
 except ImportError:

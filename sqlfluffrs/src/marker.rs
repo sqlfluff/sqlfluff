@@ -254,7 +254,7 @@ pub mod python {
 
     use super::PositionMarker;
 
-    #[pyclass(name = "RsPositionMarker", str, eq, ord, frozen, module = "rsqlfluff")]
+    #[pyclass(name = "RsPositionMarker", str, eq, ord, frozen, module = "sqlfluffrs")]
     #[repr(transparent)]
     #[derive(Debug, Clone)]
     pub struct PyPositionMarker(pub PositionMarker);

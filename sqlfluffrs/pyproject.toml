@@ -3,7 +3,7 @@ requires = ["maturin>=1.8,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "rsqlfluff"
+name = "sqlfluffrs"
 requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Rust",

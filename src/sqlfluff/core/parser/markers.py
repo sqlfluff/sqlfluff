@@ -10,8 +10,8 @@ from typing import TYPE_CHECKING, Any, Optional
 from sqlfluff.core.helpers.slice import zero_slice
 
 if TYPE_CHECKING:
-    from rsqlfluff import RsPositionMarker
     from sqlfluff.core.templaters import TemplatedFile
+    from sqlfluffrs import RsPositionMarker
 
 
 @dataclass(frozen=True)
