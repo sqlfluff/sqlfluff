@@ -40,4 +40,4 @@ types-tqdm
 # util.py dependencies
 # ----
 requests
-ghapi
+ghapi==1.0.6  # See: https://github.com/AnswerDotAI/ghapi/issues/197
