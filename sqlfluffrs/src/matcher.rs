@@ -57,6 +57,8 @@ pub struct LexMatcher {
     pub trim_start: Option<Vec<String>>,
     pub trim_chars: Option<Vec<String>>,
     pub cache_key: String,
+    pub quoted_value: Option<(LexerMode, usize)>,
+    pub escape_replacements: Option<(LexerMode, String)>,
     pub kwarg_type: Option<String>,
 }
 
@@ -77,8 +79,41 @@ impl LexMatcher {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
+        quoted_value: Option<(String, usize)>,
+        escape_replacements: Option<(String, String)>,
         kwarg_type: Option<String>,
     ) -> Self {
+        let quoted_value = match &quoted_value {
+            Some((qv_pattern, group_idx)) => match RegexBuilder::new(qv_pattern).build() {
+                Ok(regex) => Some((LexerMode::Regex(regex, move |_| true), *group_idx)),
+                Err(_) => match FancyRegexBuilder::new(qv_pattern).build() {
+                    Ok(fancy_regex) => Some((
+                        LexerMode::FancyRegex(fancy_regex, move |_| true),
+                        *group_idx,
+                    )),
+                    Err(_) => {
+                        panic!("Unable to compile regex {:?}", quoted_value)
+                    }
+                },
+            },
+            None => None,
+        };
+
+        let escape_replacements = match &escape_replacements {
+            Some((re, replacement)) => match RegexBuilder::new(re).build() {
+                Ok(regex) => Some((LexerMode::Regex(regex, |_| true), replacement.clone())),
+                Err(_) => match FancyRegexBuilder::new(re).build() {
+                    Ok(regex) => {
+                        Some((LexerMode::FancyRegex(regex, |_| true), replacement.clone()))
+                    }
+                    Err(_) => {
+                        panic!("Unable to compile regex {:?}", escape_replacements)
+                    }
+                },
+            },
+            None => None,
+        };
+
         Self {
             dialect,
             name: name.to_string(),
@@ -89,6 +124,8 @@ impl LexMatcher {
             trim_start,
             trim_chars,
             cache_key,
+            quoted_value,
+            escape_replacements,
             kwarg_type,
         }
     }
@@ -103,6 +140,8 @@ impl LexMatcher {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
+        quoted_value: Option<(String, usize)>,
+        escape_replacements: Option<(String, String)>,
         fallback_lexer: Option<fn(&str, Dialect) -> Option<&str>>,
         precheck: fn(&str) -> bool,
         kwarg_type: Option<String>,
@@ -124,6 +163,37 @@ impl LexMatcher {
             },
         };
 
+        let quoted_value = match &quoted_value {
+            Some((qv_pattern, group_idx)) => match RegexBuilder::new(qv_pattern).build() {
+                Ok(regex) => Some((LexerMode::Regex(regex, move |_| true), *group_idx)),
+                Err(_) => match FancyRegexBuilder::new(qv_pattern).build() {
+                    Ok(fancy_regex) => Some((
+                        LexerMode::FancyRegex(fancy_regex, move |_| true),
+                        *group_idx,
+                    )),
+                    Err(_) => {
+                        panic!("Unable to compile regex {:?}", quoted_value)
+                    }
+                },
+            },
+            None => None,
+        };
+
+        let escape_replacements = match &escape_replacements {
+            Some((re, replacement)) => match RegexBuilder::new(re).build() {
+                Ok(regex) => Some((LexerMode::Regex(regex, |_| true), replacement.clone())),
+                Err(_) => match FancyRegexBuilder::new(re).build() {
+                    Ok(regex) => {
+                        Some((LexerMode::FancyRegex(regex, |_| true), replacement.clone()))
+                    }
+                    Err(_) => {
+                        panic!("Unable to compile regex {:?}", escape_replacements)
+                    }
+                },
+            },
+            None => None,
+        };
+
         Self {
             dialect,
             name: name.to_string(),
@@ -134,6 +204,8 @@ impl LexMatcher {
             trim_start,
             trim_chars,
             cache_key,
+            quoted_value,
+            escape_replacements,
             kwarg_type,
         }
     }
@@ -148,6 +220,8 @@ impl LexMatcher {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
+        quoted_value: Option<(String, usize)>,
+        escape_replacements: Option<(String, String)>,
         fallback_lexer: Option<fn(&str, Dialect) -> Option<&str>>,
         precheck: fn(&str) -> bool,
         kwarg_type: Option<String>,
@@ -163,6 +237,8 @@ impl LexMatcher {
             trim_start,
             trim_chars,
             cache_key,
+            quoted_value,
+            escape_replacements,
             fallback_lexer,
             precheck,
             kwarg_type,
@@ -179,6 +255,8 @@ impl LexMatcher {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
+        quoted_value: Option<(String, usize)>,
+        escape_replacements: Option<(String, String)>,
         fallback_lexer: Option<fn(&str, Dialect) -> Option<&str>>,
         precheck: fn(&str) -> bool,
         kwarg_type: Option<String>,
@@ -194,6 +272,8 @@ impl LexMatcher {
             trim_start,
             trim_chars,
             cache_key,
+            quoted_value,
+            escape_replacements,
             fallback_lexer,
             precheck,
             kwarg_type,
@@ -414,6 +494,8 @@ mod test {
                 None,
                 Uuid::new_v4().to_string(),
                 None,
+                None,
+                None,
                 |_| true,
                 None,
             ))),
@@ -428,12 +510,16 @@ mod test {
                 None,
                 Uuid::new_v4().to_string(),
                 None,
+                None,
+                None,
                 |_| true,
                 None,
             ))),
             None,
             None,
             Uuid::new_v4().to_string(),
+            None,
+            None,
             Some(extract_nested_block_comment),
             |input| input.starts_with("/"),
             None,

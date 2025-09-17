@@ -235,6 +235,8 @@ impl Lexer {
                 None,
                 "0".to_string(),
                 None,
+                None,
+                None,
                 |_| true,
                 None,
             )
