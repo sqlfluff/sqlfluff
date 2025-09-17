@@ -1075,7 +1075,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         references as we go). This tries to be as efficient in that process as
         possible.
         """
-        # print(f"running path_to: {self.__class__.__name__}")
         # Return empty if they are the same segment.
         if self is other:
             return []  # pragma: no cover

@@ -337,14 +337,12 @@ class Linter:
             t1 = time.monotonic()
             linter_logger.info("Parse Rendered. Parsing Variant %s", idx)
             if tokens:
-                linter_logger.info("parsing tokens")
                 parsed, parse_errors = cls._parse_tokens(
                     tokens,
                     rendered.config,
                     fname=rendered.fname,
                     parse_statistics=parse_statistics,
                 )
-                linter_logger.info("end parsing tokens")
             else:  # pragma: no cover
                 parsed = None
                 parse_errors = []
