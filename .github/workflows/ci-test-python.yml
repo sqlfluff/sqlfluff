@@ -91,7 +91,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: ${{ inputs.coverage }}
       with:
-        name: coverage-data-py${{ inputs.python-version }}-${{ inputs.marks }}${{ steps.parse_rust.outputs.WITH_RUST }}
+        name: coverage-data-py${{ inputs.python-version }}-${{ inputs.marks }}${{ inputs.with-rust }}
         path: ".coverage.*"
         if-no-files-found: ignore
         include-hidden-files: true
