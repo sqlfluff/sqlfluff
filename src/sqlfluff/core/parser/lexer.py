@@ -2,7 +2,7 @@
 
 import logging
 from collections.abc import Iterator
-from typing import Any, NamedTuple, Optional, Self, Union
+from typing import Any, NamedTuple, Optional, Union
 from uuid import UUID, uuid4
 
 import regex
@@ -898,7 +898,7 @@ class PyLexer:
         config: Optional[FluffConfig] = None,
         last_resort_lexer: Optional[StringLexer] = None,
         dialect: Optional[str] = None,
-    ) -> Self:
+    ) -> "PyLexer":
         """Builder for the Lexer.
 
         This should be used to correctly select the appropriate lexer.
@@ -961,7 +961,7 @@ try:
             config: Optional[FluffConfig] = None,
             last_resort_lexer: Optional[StringLexer] = None,
             dialect: Optional[str] = None,
-        ) -> Self:
+        ) -> "PyRsLexer":
             """Builder for the Lexer.
 
             This should be used to correctly select the appropriate lexer.
