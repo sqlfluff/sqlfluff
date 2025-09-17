@@ -4,7 +4,7 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
-from typing import TYPE_CHECKING, Any, Callable, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, Optional, Self, Union, cast
 from uuid import uuid4
 
 import regex as re
@@ -308,7 +308,7 @@ class RawSegment(BaseSegment):
         cls,
         token: "RsToken",
         tf: "TemplatedFile",
-    ):
+    ) -> Self:
         """Create a RawSegment from an RSQL token."""
         segment = cls(
             raw=token.raw,
