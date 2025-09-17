@@ -51,7 +51,6 @@ class RawSegment(BaseSegment):
         If pos_marker is not provided, it is assume that this will be
         inserted later as part of a reposition phase.
         """
-        # print(f"class name raw: {self.__class__.__name__}")
         if raw is not None:  # NB, raw *can* be an empty string and be valid
             self._raw = raw
         else:
@@ -83,8 +82,6 @@ class RawSegment(BaseSegment):
         self.escape_replacements = escape_replacements
         self.casefold = casefold
         self._raw_value: str = self.normalize()
-        # print(self)
-        # print(f"class name raw end: {self.__class__.__name__}")
 
     def __repr__(self) -> str:
         # This is calculated at __init__, because all elements are immutable
@@ -317,26 +314,11 @@ class RawSegment(BaseSegment):
             raw=token.raw,
             pos_marker=PositionMarker.from_rs_position_marker(token.pos_marker, tf),
             instance_types=tuple(token.instance_types),
-            # type = token.type,
             trim_start=token.trim_start,
             trim_chars=token.trim_chars,
             source_fixes=token.source_fixes,
             uuid=token.uuid,
-            # quoted_value=token.quoted_value,
-            # escape_replacements=token.escape_replacements,
-            # casefold=token.casefold,
         )
-        # segment.type = token.type
-        # segment.instance_types = tuple(token.instance_types)
-        # segment._class_types = frozenset(token.class_types)
-        # segment.can_start_end_non_code = token.can_start_end_non_code
-        # segment._is_code = token.is_code
-        # segment._is_comment = token.is_comment
-        # segment._is_whitespace = token.is_whitespace
-        # segment.indent_val = token.indent_val
-        # segment.is_meta = token.is_meta
-        # segment.is_implicit = token.is_implicit
-        # segment._preface_modifier = token.preface_modifier
         return segment
 
 

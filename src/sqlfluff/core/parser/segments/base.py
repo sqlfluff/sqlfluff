@@ -32,8 +32,6 @@ from uuid import uuid4
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.markers import PositionMarker
-
-# from sqlfluffrs import RsPositionMarker
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.types import SimpleHintType
@@ -187,7 +185,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         pos_marker: Optional[PositionMarker] = None,
         uuid: Optional[int] = None,
     ) -> None:
-        # print(f"class name: {self.__class__.__name__} {time.monotonic()}")
         if len(segments) == 0:  # pragma: no cover
             raise RuntimeError(
                 "Setting {} with a zero length segment set. This shouldn't "
@@ -195,33 +192,24 @@ class BaseSegment(metaclass=SegmentMetaclass):
             )
 
         if not pos_marker:
-            # print(f"no pos marker: {self.__class__.__name__} {time.monotonic()}")
             # If no pos given, work it out from the children.
             if all(seg.pos_marker for seg in segments):
-                # print("getting position from children")
                 pos_marker = PositionMarker.from_child_markers(
                     [seg.pos_marker for seg in segments]
                 )
 
         assert not hasattr(self, "parse_grammar"), "parse_grammar is deprecated."
 
-        # print(f"set pos marker: {self.__class__.__name__} {time.monotonic()}")
         self.pos_marker = pos_marker
-        # print(f"set segments: {self.__class__.__name__} {time.monotonic()}")
         self.segments: tuple[BaseSegment, ...] = segments
         # Tracker for matching when things start moving.
         # NOTE: We're storing the .int attribute so that it's swifter
         # for comparisons.
-        # print(f"set uuid: {self.__class__.__name__} {time.monotonic()}")
         self.uuid = uuid or uuid4().int
 
-        # print(f"set as parent: {self.__class__.__name__} {time.monotonic()}")
         self.set_as_parent(recurse=False)
-        # print(f"validate non code ends: {self.__class__.__name__} {time.monotonic()}")
         self.validate_non_code_ends()
-        # print(f"recalculate caches: {self.__class__.__name__} {time.monotonic()}")
         self._recalculate_caches()
-        # print(f"ending class name: {self.__class__.__name__} {time.monotonic()}")
 
     def __setattr__(self, key: str, value: Any) -> None:
         try:
@@ -284,7 +272,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         """Set state during process of unpickling."""
-        # print(f"running __setstate__ for : {self.__class__.__name__}")
         self.__dict__ = state.copy()
         # Once state is ingested - repopulate, NOT recursing.
         # Child segments will do it for themselves on unpickling.
@@ -598,7 +585,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         This is used in the .as_record() method.
         """
-        # print(elem)
         assert len(elem) == 2
         key, value = elem
         assert isinstance(key, str)
@@ -611,7 +597,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # Otherwise value is a tuple with length.
         # Simplify all the child elements
         contents = [cls.structural_simplify(e) for e in value]
-        # print(contents)
 
         # Any duplicate elements?
         subkeys: list[str] = []
@@ -889,7 +874,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         source object, but at the same time we should be mindful of what
         _needs_ to be copied to avoid a deep copy where one isn't required.
         """
-        # print(f"making copy of {self.__class__.__name__}")
         cls = self.__class__
         new_segment = cls.__new__(cls)
         # Position markers are immutable, and it's important that we keep
@@ -1254,7 +1238,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         segment_kwargs: dict[str, Any],
     ) -> BaseSegment:
         """Create an instance of this class from a tuple of matched segments."""
-        # print(type(cls), result_segments, segment_kwargs)
         return cls(segments=result_segments, **segment_kwargs)
 
 

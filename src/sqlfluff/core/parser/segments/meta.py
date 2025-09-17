@@ -6,8 +6,6 @@ from uuid import UUID
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.markers import PositionMarker
-
-# from sqlfluffrs import RsPositionMarker
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix
@@ -291,7 +289,6 @@ class TemplateSegment(MetaSegment):
     @classmethod
     def from_rstoken(cls, token: "RsToken", tf: TemplatedFile):
         """Create a TemplateSegment from a token."""
-        # print("templatesegment from_rstoken")
         segment = cls(
             pos_marker=PositionMarker.from_rs_position_marker(token.pos_marker, tf),
             source_str=token.source_str,

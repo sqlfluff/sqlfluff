@@ -3,8 +3,6 @@
 from typing import TYPE_CHECKING, Callable, Optional, Union
 
 from sqlfluff.core.parser.markers import PositionMarker
-
-# from sqlfluffrs import RsPositionMarker
 from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.parser.segments.common import WordSegment
 
@@ -75,9 +73,6 @@ class KeywordSegment(WordSegment):
             instance_types=tuple(token.instance_types),
             source_fixes=token.source_fixes,
             trim_chars=token.trim_chars,
-            # quoted_value=token.quoted_value,
-            # escape_replacements=token.escape_replacements,
-            # casefold=token.casefold,
         )
 
 

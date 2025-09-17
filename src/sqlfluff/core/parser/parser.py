@@ -47,11 +47,9 @@ class Parser:
         # Kick off parsing with the root segment. The BaseFileSegment has
         # a unique entry point to facilitate exactly this. All other segments
         # will use the standard .match() route.
-        # print("root parsing")
         root = self.RootSegment.root_parse(
             tuple(segments), fname=fname, parse_context=ctx
         )
-        # print("end root parsing")
 
         # Basic Validation, that we haven't dropped anything.
         check_still_complete(tuple(segments), (root,), ())

@@ -263,7 +263,4 @@ class PositionMarker:
             source_slice=rs_position_marker.source_slice,
             templated_slice=rs_position_marker.templated_slice,
             templated_file=templated_file,
-            # TODO: fix the working position.
-            # working_line_no=rs_position_marker.working_line_no,
-            # working_line_pos=rs_position_marker.working_line_pos,
         )

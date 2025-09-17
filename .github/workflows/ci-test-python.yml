@@ -25,12 +25,15 @@ on:
         required: false
         type: boolean
         default: false
+      with-rust:
+        required: true
+        type: boolean
     secrets:
       gh_token:
         required: true
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.python-version }}-${{ inputs.marks }}-${{ inputs.coverage }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.python-version }}-${{ inputs.marks }}-${{ inputs.coverage }}-${{ inputs.with-rust }}
   cancel-in-progress: true
 
 jobs:
@@ -58,6 +61,15 @@ jobs:
         PYVERSION=$(echo "${{ inputs.python-version }}" | sed -e 's/\.//g')
         echo "PYVERSION=$PYVERSION" >> $GITHUB_OUTPUT
 
+    - name: Parse Rust name
+      id: parse_rust
+      run: |
+        if [ "${{ inputs.with-rust }}" = "true" ]; then
+            echo "WITH_RUST=-rust" >> $GITHUB_OUTPUT
+            else
+            echo "WITH_RUST=" >> $GITHUB_OUTPUT
+        fi
+
     # Run test process (with or without coverage).
     # Arguments after the "--" are passed through to pytest:
     #   --cov=...       The library to include in coverage reporting.
@@ -69,10 +81,10 @@ jobs:
       # NOTE: We have a separate job for coverage reporting because
       # it impacts performance and slows the test suite significantly.
       if: ${{ inputs.coverage }}
-      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- --cov=sqlfluff -n 2 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
+      run: tox -e py${{ steps.py_version.outputs.PYVERSION }}${{ steps.parse_rust.outputs.WITH_RUST }} -- --cov=sqlfluff -n 2 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
     - name: Run the tests (without coverage)
       if: ${{ !inputs.coverage }}
-      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- -n 2 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
+      run: tox -e py${{ steps.py_version.outputs.PYVERSION }}${{ steps.parse_rust.outputs.WITH_RUST }} -- -n 2 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
 
     - name: Rename coverage files with suffix
       # NOTE: We do this because we're using the same tox environment for multiple
@@ -88,7 +100,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: ${{ inputs.coverage }}
       with:
-        name: coverage-data-py${{ inputs.python-version }}-${{ inputs.marks }}
+        name: coverage-data-py${{ inputs.python-version }}-${{ inputs.marks }}${{ steps.parse_rust.outputs.WITH_RUST }}
         path: ".coverage.*"
         if-no-files-found: ignore
         include-hidden-files: true
