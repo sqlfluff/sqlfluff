@@ -490,6 +490,9 @@ fn iter_tokens(
                                     Some(consumed_length..(consumed_length + incremental_length)),
                                 ));
                                 consumed_length += incremental_length;
+                                tfs_idx += 1;
+                                templated_file_slices.next();
+                                continue;
                             } else {
                                 debug!("     Spilling over literal slice.");
                                 if stashed_source_idx.is_none() {
