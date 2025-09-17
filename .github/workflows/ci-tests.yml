@@ -86,6 +86,7 @@ jobs:
     with:
       python-version: ${{ matrix.python-version }}
       coverage: ${{ matrix.coverage }}
+      with-rust: ${{ matrix.with-rust }}
     secrets:
       gh_token: ${{ secrets.github_token }}
 
@@ -160,6 +161,7 @@ jobs:
       python-version: "3.13"
       marks: ${{ matrix.marks }}
       coverage: ${{ matrix.coverage }}
+      with-rust: ${{ matrix.with-rust }}
     secrets:
       gh_token: ${{ secrets.github_token }}
 
