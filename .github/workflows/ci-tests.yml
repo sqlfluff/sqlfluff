@@ -78,7 +78,7 @@ jobs:
           # Override coverage to be true for most recent python version.
           - python-version: "3.13"
             coverage: true
-        with-rust: [ true, false ]
+        with-rust: [ "-rust", "" ]
     permissions:
       contents: read
       pull-requests: write
@@ -153,6 +153,7 @@ jobs:
           # issues.
           - marks: "rules_suite"
             coverage: true
+        with-rust: [ "-rust", "" ]
     permissions:
       contents: read
       pull-requests: write

@@ -27,7 +27,7 @@ on:
         default: false
       with-rust:
         required: true
-        type: boolean
+        type: string
     secrets:
       gh_token:
         required: true
@@ -61,15 +61,6 @@ jobs:
         PYVERSION=$(echo "${{ inputs.python-version }}" | sed -e 's/\.//g')
         echo "PYVERSION=$PYVERSION" >> $GITHUB_OUTPUT
 
-    - name: Parse Rust name
-      id: parse_rust
-      run: |
-        if [ "${{ inputs.with-rust }}" = "true" ]; then
-            echo "WITH_RUST=-rust" >> $GITHUB_OUTPUT
-            else
-            echo "WITH_RUST=" >> $GITHUB_OUTPUT
-        fi
-
     # Run test process (with or without coverage).
     # Arguments after the "--" are passed through to pytest:
     #   --cov=...       The library to include in coverage reporting.
@@ -81,10 +72,10 @@ jobs:
       # NOTE: We have a separate job for coverage reporting because
       # it impacts performance and slows the test suite significantly.
       if: ${{ inputs.coverage }}
-      run: tox -e py${{ steps.py_version.outputs.PYVERSION }}${{ steps.parse_rust.outputs.WITH_RUST }} -- --cov=sqlfluff -n 2 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
+      run: tox -e py${{ steps.py_version.outputs.PYVERSION }}${{ inputs.with-rust }} -- --cov=sqlfluff -n 2 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
     - name: Run the tests (without coverage)
       if: ${{ !inputs.coverage }}
-      run: tox -e py${{ steps.py_version.outputs.PYVERSION }}${{ steps.parse_rust.outputs.WITH_RUST }} -- -n 2 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
+      run: tox -e py${{ steps.py_version.outputs.PYVERSION }}${{ inputs.with-rust }} -- -n 2 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
 
     - name: Rename coverage files with suffix
       # NOTE: We do this because we're using the same tox environment for multiple
