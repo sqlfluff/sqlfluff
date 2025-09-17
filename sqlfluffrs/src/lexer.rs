@@ -668,12 +668,18 @@ fn handle_zero_length_slice(
         // Forward jump detection
         if let Some(peek) = next_tfs {
             if peek.source_codepoint_slice.start > tfs.source_codepoint_slice.stop {
-                let placeholder_str = templated_file
+                let mut placeholder_str = templated_file
                     .source_str
                     .chars()
                     .skip(tfs.source_codepoint_slice.stop)
                     .take(peek.source_codepoint_slice.start - tfs.source_codepoint_slice.stop)
                     .collect::<String>();
+                if placeholder_str.chars().count() >= 20 {
+                    placeholder_str = format!(
+                        "... [{} unused template characters] ...",
+                        placeholder_str.chars().count()
+                    );
+                }
                 log::debug!("      Forward jump detected. Inserting placeholder");
                 let pos_marker = PositionMarker::new(
                     Slice::from(tfs.source_codepoint_slice.stop..peek.source_codepoint_slice.start),
