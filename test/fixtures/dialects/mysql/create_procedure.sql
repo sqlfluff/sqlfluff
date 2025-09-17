@@ -1,0 +1,4 @@
+CREATE PROCEDURE IF NOT EXISTS create_if_not_exists()
+BEGIN
+  SELECT 1;
+END;

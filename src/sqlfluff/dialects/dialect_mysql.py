@@ -1478,6 +1478,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         "CREATE",
         Ref("DefinerSegment", optional=True),
         "PROCEDURE",
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("ProcedureParameterListGrammar", optional=True),
         Ref("CommentClauseSegment", optional=True),
