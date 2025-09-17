@@ -1,6 +1,8 @@
 use std::{fmt::Display, ops::Range};
 
-#[derive(Debug, PartialEq, Hash, Eq, Clone, Copy)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, PartialEq, Hash, Eq, Clone, Copy, Serialize, Deserialize)]
 pub struct Slice {
     pub start: usize,
     pub stop: usize,
