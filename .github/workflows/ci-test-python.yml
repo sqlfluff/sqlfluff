@@ -60,11 +60,10 @@ jobs:
         pattern: wheels-*
         merge-multiple: true
 
-    - name: Unzip built wheels
+    - name: Debug rust wheel -- to remove
       if: ${{ inputs.with_rust }} == '-rust'
       run: |
-        ls -ltra ./dist
-        unzip -o -d ./dist/ ./dist/*.zip
+        pwd ./dist
 
     - name: Install dependencies
       run: pip install tox
