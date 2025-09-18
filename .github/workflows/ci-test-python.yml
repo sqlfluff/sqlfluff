@@ -57,7 +57,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         path: ./dist
-        pattern: wheels-*
+        pattern: wheels-*.whl
 
     - name: Install dependencies
       run: pip install tox
