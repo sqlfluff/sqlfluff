@@ -262,6 +262,7 @@ jobs:
 
   dialect-tests:
     name: Dialect ${{ matrix.marks }}${{ matrix.with-rust }}
+    needs: rs-build-linux
     strategy:
       matrix:
         marks: [ "parse_suite", "fix_suite", "rules_suite" ]
