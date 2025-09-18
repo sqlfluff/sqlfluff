@@ -126,9 +126,10 @@ jobs:
       gh_token: ${{ secrets.github_token }}
 
   dialect-tests:
-    name: Dialect ${{ matrix.marks }}
+    name: Dialect ${{ matrix.marks }}${{ matrix.with-rust }}
     strategy:
       matrix:
+        marks: [ "parse_suite", "fix_suite", "rules_suite" ]
         with-rust: [ "-rust", "" ]
         include:
           # This runs the bulk of the dialect _parsing_ tests.
