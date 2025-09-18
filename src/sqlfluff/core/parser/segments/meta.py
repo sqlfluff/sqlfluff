@@ -11,7 +11,7 @@ from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix
 from sqlfluff.core.templaters.base import TemplatedFile
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlfluffrs import RsToken
 
 

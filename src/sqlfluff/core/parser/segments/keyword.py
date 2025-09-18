@@ -6,7 +6,7 @@ from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.parser.segments.common import WordSegment
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.templaters import TemplatedFile
     from sqlfluffrs import RsToken
 

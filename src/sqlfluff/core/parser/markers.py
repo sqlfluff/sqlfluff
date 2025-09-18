@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from sqlfluff.core.helpers.slice import zero_slice
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.templaters import TemplatedFile
     from sqlfluffrs import RsPositionMarker
 

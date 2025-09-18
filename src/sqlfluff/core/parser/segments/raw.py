@@ -12,7 +12,7 @@ import regex as re
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.templaters import TemplatedFile
     from sqlfluffrs import RsToken
 
