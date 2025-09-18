@@ -60,11 +60,6 @@ jobs:
         pattern: wheels-*
         merge-multiple: true
 
-    - name: Debug rust wheel -- to remove
-      if: ${{ inputs.with_rust }} == '-rust'
-      run: |
-        pwd ./dist
-
     - name: Install dependencies
       run: pip install tox
 
