@@ -1,14 +1,10 @@
 """The KeywordSegment class."""
 
-from typing import TYPE_CHECKING, Callable, Optional, Union
+from typing import Callable, Optional, Union
 
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.parser.segments.common import WordSegment
-
-if TYPE_CHECKING:  # pragma: no cover
-    from sqlfluff.core.templaters import TemplatedFile
-    from sqlfluffrs import RsToken
 
 
 class KeywordSegment(WordSegment):
@@ -64,16 +60,17 @@ class KeywordSegment(WordSegment):
             source_fixes=source_fixes or self.source_fixes,
         )
 
-    @classmethod
-    def from_rstoken(cls, token: "RsToken", tf: "TemplatedFile") -> "KeywordSegment":
-        """Create a KeywordSegment from a token."""
-        return cls(
-            raw=token.raw,
-            pos_marker=PositionMarker.from_rs_position_marker(token.pos_marker, tf),
-            instance_types=tuple(token.instance_types),
-            source_fixes=token.source_fixes,
-            trim_chars=token.trim_chars,
-        )
+    # Remove for now?
+    # @classmethod
+    # def from_rstoken(cls, token: "RsToken", tf: "TemplatedFile") -> "KeywordSegment":
+    #     """Create a KeywordSegment from a token."""
+    #     return cls(
+    #         raw=token.raw,
+    #         pos_marker=PositionMarker.from_rs_position_marker(token.pos_marker, tf),
+    #         instance_types=tuple(token.instance_types),
+    #         source_fixes=token.source_fixes,
+    #         trim_chars=token.trim_chars,
+    #     )
 
 
 class LiteralKeywordSegment(KeywordSegment):
