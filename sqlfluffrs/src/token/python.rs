@@ -6,11 +6,15 @@ use std::{
 use hashbrown::{HashMap, HashSet};
 use pyo3::{
     prelude::*,
-    types::{PyString, PyTuple, PyType},
+    types::{PyDict, PyString, PyTuple, PyType},
+    IntoPyObjectExt,
 };
 use uuid::Uuid;
 
-use crate::marker::python::{PyPositionMarker, PySqlFluffPositionMarker};
+use crate::{
+    marker::python::{PyPositionMarker, PySqlFluffPositionMarker},
+    regex::RegexModeGroup,
+};
 
 use super::{path::PathStep, SourceFix, Token, TupleSerialisedSegment};
 
@@ -183,7 +187,8 @@ impl PyToken {
         let seg_strs = seg_type
             .extract::<Vec<String>>()
             .expect("args should be all strings");
-        self.0.is_type(&seg_strs.iter().map(String::as_str).collect::<Vec<&str>>())
+        self.0
+            .is_type(&seg_strs.iter().map(String::as_str).collect::<Vec<&str>>())
     }
 
     #[getter]
@@ -343,8 +348,40 @@ impl PyToken {
         self.0.raw_segments().into_iter().map(Into::into).collect()
     }
 
-    pub fn _get_raw_segment_kwargs(&self) -> HashMap<String, String> {
-        self.0._get_raw_segment_kwargs()
+    pub fn _get_raw_segment_kwargs<'py>(&self, py: Python<'py>) -> Bound<'py, PyDict> {
+        let dict = PyDict::new(py);
+        if let Some(ref quoted_value) = self.0.quoted_value {
+            dict.set_item("quoted_value", quoted_value.clone()).unwrap();
+        } else {
+            dict.set_item("quoted_value", py.None()).unwrap();
+        }
+        if let Some(ref escape_replacement) = self.0.escape_replacement {
+            dict.set_item("escape_replacements", vec![escape_replacement])
+                .unwrap();
+        } else {
+            dict.set_item("escape_replacements", py.None()).unwrap();
+        }
+        dict
+    }
+
+    #[getter]
+    pub fn quoted_value<'py>(&self, py: Python<'py>) -> Option<(String, PyObject)> {
+        self.0.quoted_value.clone().map(|(s, g)| {
+            let py_group: PyObject = match g {
+                RegexModeGroup::Index(idx) => idx.into_pyobject(py).unwrap().into(),
+                RegexModeGroup::Name(name) => name.into_pyobject(py).unwrap().into(),
+            };
+            (s, py_group)
+        })
+    }
+
+    #[getter]
+    pub fn escape_replacements(&self) -> Option<Vec<(String, String)>> {
+        if self.0.escape_replacement.is_none() {
+            None
+        } else {
+            Some(vec![self.0.escape_replacement.clone().unwrap()])
+        }
     }
 
     pub fn set_parent(&self, parent: &Bound<'_, PyAny>, idx: usize) -> PyResult<()> {

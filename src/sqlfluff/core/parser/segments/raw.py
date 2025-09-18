@@ -318,6 +318,8 @@ class RawSegment(BaseSegment):
             trim_chars=token.trim_chars,
             source_fixes=token.source_fixes,
             uuid=token.uuid,
+            quoted_value=token.quoted_value,
+            escape_replacements=token.escape_replacements,
         )
         return segment
 

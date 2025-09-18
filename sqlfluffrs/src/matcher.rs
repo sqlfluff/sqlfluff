@@ -4,7 +4,7 @@ use fancy_regex::{Regex as FancyRegex, RegexBuilder as FancyRegexBuilder};
 use hashbrown::HashSet;
 use regex::{Regex, RegexBuilder};
 
-use crate::{dialect::matcher::Dialect, marker::PositionMarker, regex::RegexMode, token::Token};
+use crate::{dialect::matcher::Dialect, marker::PositionMarker, regex::RegexModeGroup, token::Token};
 
 pub type TokenGenerator = fn(
     String,
@@ -14,7 +14,7 @@ pub type TokenGenerator = fn(
     Option<Vec<String>>,
     Option<Vec<String>>,
     String,
-    Option<(String, usize)>,
+    Option<(String, RegexModeGroup)>,
     Option<(String, String)>,
     Option<fn(&str) -> str>,
 ) -> Token;
@@ -60,7 +60,7 @@ pub struct LexMatcher {
     pub trim_start: Option<Vec<String>>,
     pub trim_chars: Option<Vec<String>>,
     pub cache_key: String,
-    pub quoted_value: Option<(String, usize)>,
+    pub quoted_value: Option<(String, RegexModeGroup)>,
     pub escape_replacements: Option<(String, String)>,
     pub casefold: Option<fn(&str) -> str>,
     pub kwarg_type: Option<String>,
@@ -83,7 +83,7 @@ impl LexMatcher {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
-        quoted_value: Option<(String, usize)>,
+        quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacements: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
         kwarg_type: Option<String>,
@@ -115,7 +115,7 @@ impl LexMatcher {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
-        quoted_value: Option<(String, usize)>,
+        quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacements: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
         fallback_lexer: Option<fn(&str, Dialect) -> Option<&str>>,
@@ -166,7 +166,7 @@ impl LexMatcher {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
-        quoted_value: Option<(String, usize)>,
+        quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacements: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
         fallback_lexer: Option<fn(&str, Dialect) -> Option<&str>>,
@@ -203,7 +203,7 @@ impl LexMatcher {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
-        quoted_value: Option<(String, usize)>,
+        quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacements: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
         fallback_lexer: Option<fn(&str, Dialect) -> Option<&str>>,

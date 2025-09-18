@@ -1,5 +1,5 @@
 use super::Token;
-use crate::{marker::PositionMarker, slice::Slice, templater::templatefile::TemplatedFile};
+use crate::{marker::PositionMarker, regex::RegexModeGroup, slice::Slice, templater::templatefile::TemplatedFile};
 
 use std::sync::Arc;
 
@@ -16,7 +16,7 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
-        quoted_value: Option<(String, usize)>,
+        quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
     ) -> Self {
@@ -65,7 +65,7 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
-        quoted_value: Option<(String, usize)>,
+        quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
     ) -> Self {
@@ -98,7 +98,7 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
-        quoted_value: Option<(String, usize)>,
+        quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
     ) -> Self {
@@ -126,7 +126,7 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
-        quoted_value: Option<(String, usize)>,
+        quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
     ) -> Self {
@@ -156,7 +156,7 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
-        quoted_value: Option<(String, usize)>,
+        quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
     ) -> Self {
@@ -186,7 +186,7 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
-        quoted_value: Option<(String, usize)>,
+        quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
     ) -> Self {
@@ -216,7 +216,7 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
-        quoted_value: Option<(String, usize)>,
+        quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
     ) -> Self {
@@ -246,7 +246,7 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
-        quoted_value: Option<(String, usize)>,
+        quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
     ) -> Self {
@@ -276,7 +276,7 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
-        quoted_value: Option<(String, usize)>,
+        quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
     ) -> Self {
@@ -306,7 +306,7 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
-        quoted_value: Option<(String, usize)>,
+        quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
     ) -> Self {
@@ -336,7 +336,7 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
-        quoted_value: Option<(String, usize)>,
+        quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
     ) -> Self {
@@ -370,7 +370,7 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
-        quoted_value: Option<(String, usize)>,
+        quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
     ) -> Self {
@@ -404,7 +404,7 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
-        quoted_value: Option<(String, usize)>,
+        quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
     ) -> Self {

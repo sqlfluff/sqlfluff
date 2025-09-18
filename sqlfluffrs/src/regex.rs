@@ -1,7 +1,33 @@
 use std::fmt::Display;
 
 use fancy_regex::{Regex as FancyRegex, RegexBuilder as FancyRegexBuilder};
+use pyo3::pyclass;
 use regex::{Regex, RegexBuilder};
+
+#[pyclass]
+#[derive(Debug, Clone)]
+pub enum RegexModeGroup {
+    Index(usize),
+    Name(String),
+}
+
+impl From<usize> for RegexModeGroup {
+    fn from(idx: usize) -> Self {
+        RegexModeGroup::Index(idx)
+    }
+}
+
+impl From<&str> for RegexModeGroup {
+    fn from(name: &str) -> Self {
+        RegexModeGroup::Name(name.to_string())
+    }
+}
+
+impl From<String> for RegexModeGroup {
+    fn from(name: String) -> Self {
+        RegexModeGroup::Name(name)
+    }
+}
 
 #[derive(Debug, Clone)]
 pub enum RegexMode {
@@ -21,23 +47,21 @@ impl RegexMode {
         }
     }
 
-    pub fn capture(&self, group_idx: usize, text: &str) -> Option<String> {
+    pub fn capture(&self, group: impl Into<RegexModeGroup>, text: &str) -> Option<String> {
         match self {
             RegexMode::Regex(re) => {
-                if let Some(caps) = re.captures(text) {
-                    if let Some(m) = caps.get(group_idx) {
-                        return Some(m.as_str().to_string());
-                    }
+                let caps = re.captures(text)?;
+                match group.into() {
+                    RegexModeGroup::Index(idx) => caps.get(idx).map(|m| m.as_str().to_string()),
+                    RegexModeGroup::Name(name) => caps.name(&name).map(|m| m.as_str().to_string()),
                 }
-                None
             }
             RegexMode::FancyRegex(re) => {
-                if let Some(caps) = re.captures(text).ok()? {
-                    if let Some(m) = caps.get(group_idx) {
-                        return Some(m.as_str().to_string());
-                    }
+                let caps = re.captures(text).ok()??;
+                match group.into() {
+                    RegexModeGroup::Index(idx) => caps.get(idx).map(|m| m.as_str().to_string()),
+                    RegexModeGroup::Name(name) => caps.name(&name).map(|m| m.as_str().to_string()),
                 }
-                None
             }
         }
     }

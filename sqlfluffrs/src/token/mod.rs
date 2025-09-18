@@ -12,11 +12,14 @@ use std::{
 };
 
 use fix::SourceFix;
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashSet;
 use path::PathStep;
 use uuid::Uuid;
 
-use crate::{marker::PositionMarker, regex::RegexMode};
+use crate::{
+    marker::PositionMarker,
+    regex::{RegexMode, RegexModeGroup},
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum TupleSerialisedSegment {
@@ -53,7 +56,7 @@ pub struct Token {
     pub trim_start: Option<Vec<String>>,
     pub trim_chars: Option<Vec<String>>,
     pub cache_key: String,
-    quoted_value: Option<(String, usize)>,
+    quoted_value: Option<(String, RegexModeGroup)>,
     escape_replacement: Option<(String, String)>,
     casefold: Option<fn(&str) -> str>,
     raw_value: String,
@@ -117,7 +120,7 @@ impl Token {
 
     pub fn normalize(
         value: &String,
-        quoted_value: Option<(String, usize)>,
+        quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
     ) -> String {
         let mut str_buffer = value.clone();
@@ -299,12 +302,12 @@ impl Token {
         }
     }
 
-    pub fn _get_raw_segment_kwargs(&self) -> HashMap<String, String> {
-        let kwargs = HashMap::new();
-        // kwargs.insert("quoted_value", self.quoted_value);
-        // kwargs.insert("escape_replacements", vec![self.escape_replacement]);
-        kwargs
-    }
+    // pub fn _get_raw_segment_kwargs(&self) -> HashMap<String, _> {
+    //     let kwargs = HashMap::new();
+    //     kwargs.insert("quoted_value", self.quoted_value);
+    //     kwargs.insert("escape_replacements", vec![self.escape_replacement]);
+    //     kwargs
+    // }
 
     pub fn iter_unparseables(&self) -> Vec<Token> {
         self.segments

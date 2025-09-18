@@ -60,6 +60,7 @@ def generate_lexers():
     print("use crate::matcher::{LexMatcher, extract_nested_block_comment};")
     print("use std::str::FromStr;")
     print("use crate::token::Token;")
+    print("use crate::regex::RegexModeGroup;")
     print()
     for dialect in dialect_readout():
         loaded_dialect = dialect_selector(dialect.label)
@@ -166,7 +167,16 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
         quoted_value = f'r#"{quoted_value[0]}"#', quoted_value[1]
         if quoted_value[0] == r'r#"\[{2}([^[\\]|\\.)*\]{2}"#':
             quoted_value = r'r#"\[{2}([^\[\\]|\\.)*\]{2}"#', quoted_value[1]
-        quoted_value = f"Some(({quoted_value[0]}.to_string(), {quoted_value[1]}))"
+        if isinstance(quoted_value[1], int):
+            quoted_value = (
+                f"Some(({quoted_value[0]}.to_string(),"
+                f" RegexModeGroup::Index({quoted_value[1]})))"
+            )
+        else:
+            quoted_value = (
+                f"Some(({quoted_value[0]}.to_string(),"
+                f' RegexModeGroup::Name("{quoted_value[1]}".to_string())))'
+            )
 
     if escape_replacements:
         escape_replacement = escape_replacements[0]
