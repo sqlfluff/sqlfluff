@@ -58,6 +58,7 @@ jobs:
       with:
         path: ./dist
         pattern: wheels-*.whl
+        merge-multiple: true
 
     - name: Install dependencies
       run: pip install tox
