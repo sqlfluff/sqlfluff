@@ -3,6 +3,7 @@ pub mod dialect;
 pub mod lexer;
 pub mod marker;
 pub mod matcher;
+pub mod regex;
 pub mod slice;
 pub mod templater;
 pub mod token;

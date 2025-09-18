@@ -518,6 +518,9 @@ impl<'py> FromPyObject<'py> for PySqlFluffToken {
             None,
             None,
             cache_key,
+            None,
+            None,
+            None,
         ))))
     }
 }

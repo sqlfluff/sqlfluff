@@ -4,7 +4,7 @@ use fancy_regex::{Regex as FancyRegex, RegexBuilder as FancyRegexBuilder};
 use hashbrown::HashSet;
 use regex::{Regex, RegexBuilder};
 
-use crate::{dialect::matcher::Dialect, marker::PositionMarker, token::Token};
+use crate::{dialect::matcher::Dialect, marker::PositionMarker, regex::RegexMode, token::Token};
 
 pub type TokenGenerator = fn(
     String,
@@ -14,6 +14,9 @@ pub type TokenGenerator = fn(
     Option<Vec<String>>,
     Option<Vec<String>>,
     String,
+    Option<(String, usize)>,
+    Option<(String, String)>,
+    Option<fn(&str) -> str>,
 ) -> Token;
 
 #[derive(Debug, Clone)]
@@ -57,8 +60,9 @@ pub struct LexMatcher {
     pub trim_start: Option<Vec<String>>,
     pub trim_chars: Option<Vec<String>>,
     pub cache_key: String,
-    pub quoted_value: Option<(LexerMode, usize)>,
-    pub escape_replacements: Option<(LexerMode, String)>,
+    pub quoted_value: Option<(String, usize)>,
+    pub escape_replacements: Option<(String, String)>,
+    pub casefold: Option<fn(&str) -> str>,
     pub kwarg_type: Option<String>,
 }
 
@@ -81,39 +85,9 @@ impl LexMatcher {
         cache_key: String,
         quoted_value: Option<(String, usize)>,
         escape_replacements: Option<(String, String)>,
+        casefold: Option<fn(&str) -> str>,
         kwarg_type: Option<String>,
     ) -> Self {
-        let quoted_value = match &quoted_value {
-            Some((qv_pattern, group_idx)) => match RegexBuilder::new(qv_pattern).build() {
-                Ok(regex) => Some((LexerMode::Regex(regex, move |_| true), *group_idx)),
-                Err(_) => match FancyRegexBuilder::new(qv_pattern).build() {
-                    Ok(fancy_regex) => Some((
-                        LexerMode::FancyRegex(fancy_regex, move |_| true),
-                        *group_idx,
-                    )),
-                    Err(_) => {
-                        panic!("Unable to compile regex {:?}", quoted_value)
-                    }
-                },
-            },
-            None => None,
-        };
-
-        let escape_replacements = match &escape_replacements {
-            Some((re, replacement)) => match RegexBuilder::new(re).build() {
-                Ok(regex) => Some((LexerMode::Regex(regex, |_| true), replacement.clone())),
-                Err(_) => match FancyRegexBuilder::new(re).build() {
-                    Ok(regex) => {
-                        Some((LexerMode::FancyRegex(regex, |_| true), replacement.clone()))
-                    }
-                    Err(_) => {
-                        panic!("Unable to compile regex {:?}", escape_replacements)
-                    }
-                },
-            },
-            None => None,
-        };
-
         Self {
             dialect,
             name: name.to_string(),
@@ -126,6 +100,7 @@ impl LexMatcher {
             cache_key,
             quoted_value,
             escape_replacements,
+            casefold,
             kwarg_type,
         }
     }
@@ -142,6 +117,7 @@ impl LexMatcher {
         cache_key: String,
         quoted_value: Option<(String, usize)>,
         escape_replacements: Option<(String, String)>,
+        casefold: Option<fn(&str) -> str>,
         fallback_lexer: Option<fn(&str, Dialect) -> Option<&str>>,
         precheck: fn(&str) -> bool,
         kwarg_type: Option<String>,
@@ -163,37 +139,6 @@ impl LexMatcher {
             },
         };
 
-        let quoted_value = match &quoted_value {
-            Some((qv_pattern, group_idx)) => match RegexBuilder::new(qv_pattern).build() {
-                Ok(regex) => Some((LexerMode::Regex(regex, move |_| true), *group_idx)),
-                Err(_) => match FancyRegexBuilder::new(qv_pattern).build() {
-                    Ok(fancy_regex) => Some((
-                        LexerMode::FancyRegex(fancy_regex, move |_| true),
-                        *group_idx,
-                    )),
-                    Err(_) => {
-                        panic!("Unable to compile regex {:?}", quoted_value)
-                    }
-                },
-            },
-            None => None,
-        };
-
-        let escape_replacements = match &escape_replacements {
-            Some((re, replacement)) => match RegexBuilder::new(re).build() {
-                Ok(regex) => Some((LexerMode::Regex(regex, |_| true), replacement.clone())),
-                Err(_) => match FancyRegexBuilder::new(re).build() {
-                    Ok(regex) => {
-                        Some((LexerMode::FancyRegex(regex, |_| true), replacement.clone()))
-                    }
-                    Err(_) => {
-                        panic!("Unable to compile regex {:?}", escape_replacements)
-                    }
-                },
-            },
-            None => None,
-        };
-
         Self {
             dialect,
             name: name.to_string(),
@@ -206,6 +151,7 @@ impl LexMatcher {
             cache_key,
             quoted_value,
             escape_replacements,
+            casefold,
             kwarg_type,
         }
     }
@@ -222,6 +168,7 @@ impl LexMatcher {
         cache_key: String,
         quoted_value: Option<(String, usize)>,
         escape_replacements: Option<(String, String)>,
+        casefold: Option<fn(&str) -> str>,
         fallback_lexer: Option<fn(&str, Dialect) -> Option<&str>>,
         precheck: fn(&str) -> bool,
         kwarg_type: Option<String>,
@@ -239,6 +186,7 @@ impl LexMatcher {
             cache_key,
             quoted_value,
             escape_replacements,
+            casefold,
             fallback_lexer,
             precheck,
             kwarg_type,
@@ -257,6 +205,7 @@ impl LexMatcher {
         cache_key: String,
         quoted_value: Option<(String, usize)>,
         escape_replacements: Option<(String, String)>,
+        casefold: Option<fn(&str) -> str>,
         fallback_lexer: Option<fn(&str, Dialect) -> Option<&str>>,
         precheck: fn(&str) -> bool,
         kwarg_type: Option<String>,
@@ -274,6 +223,7 @@ impl LexMatcher {
             cache_key,
             quoted_value,
             escape_replacements,
+            casefold,
             fallback_lexer,
             precheck,
             kwarg_type,
@@ -423,6 +373,9 @@ impl LexMatcher {
             self.trim_start.clone(),
             self.trim_chars.clone(),
             self.cache_key.clone(),
+            self.quoted_value.clone(),
+            self.escape_replacements.clone(),
+            self.casefold.clone(),
         )
     }
 }
@@ -496,6 +449,7 @@ mod test {
                 None,
                 None,
                 None,
+                None,
                 |_| true,
                 None,
             ))),
@@ -512,12 +466,14 @@ mod test {
                 None,
                 None,
                 None,
+                None,
                 |_| true,
                 None,
             ))),
             None,
             None,
             Uuid::new_v4().to_string(),
+            None,
             None,
             None,
             Some(extract_nested_block_comment),

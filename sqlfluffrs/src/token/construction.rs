@@ -16,8 +16,12 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
+        quoted_value: Option<(String, usize)>,
+        escape_replacement: Option<(String, String)>,
+        casefold: Option<fn(&str) -> str>,
     ) -> Self {
         let (token_types, class_types) = iter_base_types("base", class_types.clone());
+        let raw_value = Token::normalize(&raw, quoted_value.clone(), escape_replacement.clone());
         Self {
             token_type: token_types,
             instance_types,
@@ -46,6 +50,10 @@ impl Token {
             trim_start,
             trim_chars,
             cache_key,
+            quoted_value,
+            escape_replacement,
+            casefold,
+            raw_value,
         }
     }
 
@@ -57,6 +65,9 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
+        quoted_value: Option<(String, usize)>,
+        escape_replacement: Option<(String, String)>,
+        casefold: Option<fn(&str) -> str>,
     ) -> Self {
         let (token_type, class_types) = iter_base_types("raw", class_types);
         Self {
@@ -72,6 +83,9 @@ impl Token {
                 trim_start,
                 trim_chars,
                 cache_key,
+                quoted_value,
+                escape_replacement,
+                casefold,
             )
         }
     }
@@ -84,6 +98,9 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
+        quoted_value: Option<(String, usize)>,
+        escape_replacement: Option<(String, String)>,
+        casefold: Option<fn(&str) -> str>,
     ) -> Self {
         Self {
             ..Self::raw_token(
@@ -94,6 +111,9 @@ impl Token {
                 trim_start,
                 trim_chars,
                 cache_key,
+                quoted_value,
+                escape_replacement,
+                casefold,
             )
         }
     }
@@ -106,6 +126,9 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
+        quoted_value: Option<(String, usize)>,
+        escape_replacement: Option<(String, String)>,
+        casefold: Option<fn(&str) -> str>,
     ) -> Self {
         let (token_type, class_types) = iter_base_types("symbol", class_types);
         Self {
@@ -118,6 +141,9 @@ impl Token {
                 trim_start,
                 trim_chars,
                 cache_key,
+                quoted_value,
+                escape_replacement,
+                casefold,
             )
         }
     }
@@ -130,6 +156,9 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
+        quoted_value: Option<(String, usize)>,
+        escape_replacement: Option<(String, String)>,
+        casefold: Option<fn(&str) -> str>,
     ) -> Self {
         let (token_type, class_types) = iter_base_types("identifier", class_types);
         Self {
@@ -142,6 +171,9 @@ impl Token {
                 trim_start,
                 trim_chars,
                 cache_key,
+                quoted_value,
+                escape_replacement,
+                casefold,
             )
         }
     }
@@ -154,6 +186,9 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
+        quoted_value: Option<(String, usize)>,
+        escape_replacement: Option<(String, String)>,
+        casefold: Option<fn(&str) -> str>,
     ) -> Self {
         let (token_type, class_types) = iter_base_types("literal", class_types);
         Self {
@@ -166,6 +201,9 @@ impl Token {
                 trim_start,
                 trim_chars,
                 cache_key,
+                quoted_value,
+                escape_replacement,
+                casefold,
             )
         }
     }
@@ -178,6 +216,9 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
+        quoted_value: Option<(String, usize)>,
+        escape_replacement: Option<(String, String)>,
+        casefold: Option<fn(&str) -> str>,
     ) -> Self {
         let (token_type, class_types) = iter_base_types("binary_operator", class_types);
         Self {
@@ -190,6 +231,9 @@ impl Token {
                 trim_start,
                 trim_chars,
                 cache_key,
+                quoted_value,
+                escape_replacement,
+                casefold,
             )
         }
     }
@@ -202,6 +246,9 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
+        quoted_value: Option<(String, usize)>,
+        escape_replacement: Option<(String, String)>,
+        casefold: Option<fn(&str) -> str>,
     ) -> Self {
         let (token_type, class_types) = iter_base_types("comparison_operator", class_types);
         Self {
@@ -214,6 +261,9 @@ impl Token {
                 trim_start,
                 trim_chars,
                 cache_key,
+                quoted_value,
+                escape_replacement,
+                casefold,
             )
         }
     }
@@ -226,6 +276,9 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
+        quoted_value: Option<(String, usize)>,
+        escape_replacement: Option<(String, String)>,
+        casefold: Option<fn(&str) -> str>,
     ) -> Self {
         let (token_type, class_types) = iter_base_types("word", class_types);
         Self {
@@ -238,6 +291,9 @@ impl Token {
                 trim_start,
                 trim_chars,
                 cache_key,
+                quoted_value,
+                escape_replacement,
+                casefold,
             )
         }
     }
@@ -250,6 +306,9 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
+        quoted_value: Option<(String, usize)>,
+        escape_replacement: Option<(String, String)>,
+        casefold: Option<fn(&str) -> str>,
     ) -> Self {
         let (token_type, class_types) = iter_base_types("unlexable", class_types);
         Self {
@@ -262,6 +321,9 @@ impl Token {
                 trim_start,
                 trim_chars,
                 cache_key,
+                quoted_value,
+                escape_replacement,
+                casefold,
             )
         }
     }
@@ -274,6 +336,9 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
+        quoted_value: Option<(String, usize)>,
+        escape_replacement: Option<(String, String)>,
+        casefold: Option<fn(&str) -> str>,
     ) -> Self {
         let (token_type, class_types) = iter_base_types("whitespace", class_types);
         Self {
@@ -290,6 +355,9 @@ impl Token {
                 trim_start,
                 trim_chars,
                 cache_key,
+                quoted_value,
+                escape_replacement,
+                casefold,
             )
         }
     }
@@ -302,6 +370,9 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
+        quoted_value: Option<(String, usize)>,
+        escape_replacement: Option<(String, String)>,
+        casefold: Option<fn(&str) -> str>,
     ) -> Self {
         let (token_type, class_types) = iter_base_types("newline", class_types);
         Self {
@@ -318,6 +389,9 @@ impl Token {
                 trim_start,
                 trim_chars,
                 cache_key,
+                quoted_value,
+                escape_replacement,
+                casefold,
             )
         }
     }
@@ -330,6 +404,9 @@ impl Token {
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
         cache_key: String,
+        quoted_value: Option<(String, usize)>,
+        escape_replacement: Option<(String, String)>,
+        casefold: Option<fn(&str) -> str>,
     ) -> Self {
         let (token_type, class_types) = iter_base_types("comment", class_types);
         Self {
@@ -344,6 +421,9 @@ impl Token {
                 trim_start,
                 trim_chars,
                 cache_key,
+                quoted_value,
+                escape_replacement,
+                casefold,
             )
         }
     }
@@ -372,6 +452,9 @@ impl Token {
                 None,
                 None,
                 cache_key,
+                None,
+                None,
+                None,
             )
         }
     }
@@ -511,10 +594,7 @@ impl Token {
     }
 }
 
-fn iter_base_types(
-    token_type: &str,
-    class_types: HashSet<String>,
-) -> (String, HashSet<String>) {
+fn iter_base_types(token_type: &str, class_types: HashSet<String>) -> (String, HashSet<String>) {
     let mut class_types = class_types;
     let token_type = token_type.to_string();
     class_types.insert(token_type.clone());

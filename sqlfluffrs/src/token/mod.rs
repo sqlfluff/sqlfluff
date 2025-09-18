@@ -16,7 +16,7 @@ use hashbrown::{HashMap, HashSet};
 use path::PathStep;
 use uuid::Uuid;
 
-use crate::marker::PositionMarker;
+use crate::{marker::PositionMarker, regex::RegexMode};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum TupleSerialisedSegment {
@@ -53,6 +53,10 @@ pub struct Token {
     pub trim_start: Option<Vec<String>>,
     pub trim_chars: Option<Vec<String>>,
     pub cache_key: String,
+    quoted_value: Option<(String, usize)>,
+    escape_replacement: Option<(String, String)>,
+    casefold: Option<fn(&str) -> str>,
+    raw_value: String,
 }
 
 impl Token {
@@ -109,6 +113,26 @@ impl Token {
 
     pub fn raw_upper(&self) -> String {
         self.raw.to_uppercase()
+    }
+
+    pub fn normalize(
+        value: &String,
+        quoted_value: Option<(String, usize)>,
+        escape_replacement: Option<(String, String)>,
+    ) -> String {
+        let mut str_buffer = value.clone();
+
+        if let Some((ref regex_str, idx)) = quoted_value {
+            if let Some(captured) = RegexMode::new(&regex_str).capture(idx, value) {
+                str_buffer = captured;
+            }
+        }
+
+        if let Some((ref regex_str, ref replacement)) = escape_replacement {
+            str_buffer = RegexMode::new(&regex_str).replace_all(&str_buffer, replacement.as_str());
+        }
+
+        str_buffer
     }
 
     pub fn raw_segments(&self) -> Vec<Token> {
@@ -276,7 +300,10 @@ impl Token {
     }
 
     pub fn _get_raw_segment_kwargs(&self) -> HashMap<String, String> {
-        HashMap::new()
+        let kwargs = HashMap::new();
+        // kwargs.insert("quoted_value", self.quoted_value);
+        // kwargs.insert("escape_replacements", vec![self.escape_replacement]);
+        kwargs
     }
 
     pub fn iter_unparseables(&self) -> Vec<Token> {
@@ -782,6 +809,9 @@ mod tests {
                 None,
                 None,
                 cache_key,
+                None,
+                None,
+                None,
             ));
             idx += elem.len();
         }

@@ -1,6 +1,7 @@
 """For autogenerating rust lexers."""
 
 import re
+from collections.abc import Callable
 from typing import Optional, Union
 
 from sqlfluff.core.dialects import dialect_readout, dialect_selector
@@ -137,8 +138,11 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
     quoted_value: Optional[Union[str, int]] = lexer_matcher.segment_kwargs.get(
         "quoted_value"
     )
-    escape_replacements: Optional[Union[str, str]] = lexer_matcher.segment_kwargs.get(
-        "escape_replacements"
+    escape_replacements: Optional[list[tuple[str, str]]] = (
+        lexer_matcher.segment_kwargs.get("escape_replacements")
+    )
+    casefold: Optional[Callable[[str], str]] = lexer_matcher.segment_kwargs.get(
+        "casefold"
     )
 
     if lexer_class == "StringLexer":
@@ -162,19 +166,30 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
         quoted_value = f'r#"{quoted_value[0]}"#', quoted_value[1]
         if quoted_value[0] == r'r#"\[{2}([^[\\]|\\.)*\]{2}"#':
             quoted_value = r'r#"\[{2}([^\[\\]|\\.)*\]{2}"#', quoted_value[1]
-        quoted_value = f"Some(({quoted_value[0]}, {quoted_value[1]}))"
+        quoted_value = f"Some(({quoted_value[0]}.to_string(), {quoted_value[1]}))"
 
     if escape_replacements:
-        escape_replacements = escape_replacements[0]
-        escape_replacements = f'r#"{escape_replacements[0]}"#', escape_replacements[1]
-        if escape_replacements[0] == r'r#"\[{2}([^[\\]|\\.)*\]{2}"#':
-            escape_replacements = (
-                r'r#"\[{2}([^\[\\]|\\.)*\]{2}"#',
-                escape_replacements[1],
-            )
-        escape_replacements = (
-            f'Some(({escape_replacements[0]}, r#"{escape_replacements[1]}"#))'
+        escape_replacement = escape_replacements[0]
+        escape_replacement = (
+            f'r#"{escape_replacement[0]}"#',
+            f'r#"{escape_replacement[1]}"#',
         )
+        if escape_replacement[0] == r'r#"\[{2}([^[\\]|\\.)*\]{2}"#':
+            escape_replacement = (
+                r'r#"\[{2}([^\[\\]|\\.)*\]{2}"#',
+                escape_replacement[1],
+            )
+        if escape_replacement[1] == r'r#"\[{2}([^[\\]|\\.)*\]{2}"#':
+            escape_replacement = (
+                escape_replacement[0],
+                r'r#"\[{2}([^\[\\]|\\.)*\]{2}"#',
+            )
+        escape_replacement = (
+            f"Some(({escape_replacement[0]}.to_string(),"
+            f" {escape_replacement[1]}.to_string()))"
+        )
+    else:
+        escape_replacement = None
 
     return f"""
     LexMatcher::{rust_fn}(
@@ -188,7 +203,8 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
         {trim_chars},
         Uuid::new_v4().to_string(),
         {quoted_value},
-        {escape_replacements},{fallback}{is_match_valid}
+        {escape_replacement},
+        {casefold},{fallback}{is_match_valid}
         {kwarg_type},
     )"""
 

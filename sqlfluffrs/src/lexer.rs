@@ -237,6 +237,7 @@ impl Lexer {
                 None,
                 None,
                 None,
+                None,
                 |_| true,
                 None,
             )
