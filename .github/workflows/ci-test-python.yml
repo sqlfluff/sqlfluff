@@ -52,6 +52,13 @@ jobs:
           setup.cfg
           requirements_dev.txt
 
+    - name: Download built wheels
+      if: matrix.with_rust == '-rust'
+      uses: actions/download-artifact@v4
+      with:
+        path: ./dist
+        pattern: wheels-*
+
     - name: Install dependencies
       run: pip install tox
 
