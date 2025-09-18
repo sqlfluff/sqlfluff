@@ -129,6 +129,7 @@ jobs:
     name: Dialect ${{ matrix.marks }}
     strategy:
       matrix:
+        with-rust: [ "-rust", "" ]
         include:
           # This runs the bulk of the dialect _parsing_ tests.
           #
@@ -153,7 +154,6 @@ jobs:
           # issues.
           - marks: "rules_suite"
             coverage: true
-        with-rust: [ "-rust", "" ]
     permissions:
       contents: read
       pull-requests: write
