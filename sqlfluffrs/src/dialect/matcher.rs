@@ -196,7 +196,7 @@ pub static ANSI_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -862,7 +862,7 @@ pub static ATHENA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -1544,7 +1544,7 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -2294,7 +2294,7 @@ pub static CLICKHOUSE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -3152,7 +3152,7 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -3906,7 +3906,7 @@ pub static DB2_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -4624,7 +4624,7 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -5388,7 +5388,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -6334,7 +6334,7 @@ pub static EXASOL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -7193,7 +7193,7 @@ pub static FLINK_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -7861,7 +7861,7 @@ pub static GREENPLUM_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -8789,7 +8789,7 @@ pub static HIVE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -9455,7 +9455,7 @@ pub static IMPALA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -10157,7 +10157,7 @@ pub static MARIADB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -10921,7 +10921,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -11885,7 +11885,7 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -12649,7 +12649,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -13397,7 +13397,7 @@ pub static POSTGRES_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -14325,7 +14325,7 @@ pub static REDSHIFT_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -15253,7 +15253,7 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -16159,7 +16159,7 @@ pub static SOQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -16929,7 +16929,7 @@ pub static SPARKSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -17649,7 +17649,7 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -18455,7 +18455,7 @@ pub static STARROCKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -19219,7 +19219,7 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -19885,7 +19885,7 @@ pub static TRINO_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -20691,7 +20691,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -21163,7 +21163,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
@@ -21375,7 +21375,7 @@ pub static VERTICA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        |input| input.starts_with(['.','0','1','2','3','4','5','6','7','8','9']),
+        |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
     ),
 
