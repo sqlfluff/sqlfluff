@@ -57,8 +57,13 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         path: ./dist
-        pattern: wheels-*.whl
+        pattern: wheels-*
         merge-multiple: true
+
+    - name: Unzip built wheels
+      if: ${{ inputs.with_rust }} == '-rust'
+      shell: bash
+      run: unzip -o -d dist/ dist/*.zip
 
     - name: Install dependencies
       run: pip install tox
