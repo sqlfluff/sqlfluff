@@ -76,8 +76,20 @@ class Rule_CV05(BaseRule):
         if context.segment.raw not in ("=", "!=", "<>"):
             return None
 
-        # We only care if it's followed by a NULL literal.
+        # Check if this is a T-SQL variable assignment in a SELECT statement
+        # In T-SQL, @Variable = NULL is an assignment, not a comparison
         siblings = Segments(*context.parent_stack[-1].segments)
+        before_op_list = siblings.select(stop_seg=context.segment)
+        prev_code = before_op_list.last(sp.is_code())
+        
+        # If the previous code is a parameter (T-SQL variable starting with @)
+        # and we're in a select_clause_element, this is likely a variable assignment
+        if (prev_code and prev_code.get() and prev_code.get().is_type("parameter") and 
+            prev_code.get().raw.startswith("@") and
+            any(seg.is_type("select_clause_element") for seg in context.parent_stack)):
+            return None
+
+        # We only care if it's followed by a NULL literal.
         after_op_list = siblings.select(start_seg=context.segment)
         next_code = after_op_list.first(sp.is_code())
 
