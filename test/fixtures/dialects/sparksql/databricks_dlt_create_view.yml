@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3add1f2a77193be920c457af4cdfd2d84ae0317af896aefaf18bb4533cef2ec9
+_hash: 555cf4e02736d842de63f822a3855bd54d969e2fb17a88186d4b53e039aa3241
 file:
 - statement:
     create_view_statement:
@@ -229,7 +229,7 @@ file:
       - data_type:
           primitive_type:
             keyword: STRING
-      - keyword: comment
+      - keyword: COMMENT
       - quoted_literal: "'Dummy column 1'"
       - comma: ','
       - column_reference:
@@ -237,7 +237,7 @@ file:
       - data_type:
           primitive_type:
             keyword: BIGINT
-      - keyword: comment
+      - keyword: COMMENT
       - quoted_literal: "'Dummy column 2'"
       - comma: ','
       - column_reference:
@@ -245,7 +245,7 @@ file:
       - data_type:
           primitive_type:
             keyword: BOOLEAN
-      - keyword: comment
+      - keyword: COMMENT
       - quoted_literal: "'Dummy column 3'"
       - end_bracket: )
     - keyword: PARTITIONED
