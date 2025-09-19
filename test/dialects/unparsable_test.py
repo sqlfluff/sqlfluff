@@ -140,7 +140,7 @@ def test_dialect_unparsable(
     assert not issubclass(Seg, RawSegment)
 
     # Lex the raw string.
-    lex = Lexer(config=config)
+    lex = Lexer.build(config=config)
     segments, vs = lex.lex(raw)
     assert not vs
     # Strip the end of file token if it's there. It will

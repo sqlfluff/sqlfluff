@@ -25,7 +25,7 @@ def time_function(func, name, iterations=20):
 
 # Set up some classes to process the data
 kwargs = dict(dialect="ansi")
-lexer = Lexer(**kwargs)
+lexer = Lexer.build(**kwargs)
 parser = Parser(**kwargs)
 linter = Linter(**kwargs)
 

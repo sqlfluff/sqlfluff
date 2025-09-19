@@ -195,7 +195,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # If no pos given, work it out from the children.
             if all(seg.pos_marker for seg in segments):
                 pos_marker = PositionMarker.from_child_markers(
-                    *(seg.pos_marker for seg in segments)
+                    [seg.pos_marker for seg in segments]
                 )
 
         assert not hasattr(self, "parse_grammar"), "parse_grammar is deprecated."
@@ -688,8 +688,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
         for idx, seg in enumerate(self.segments):
             seg.set_parent(self, idx)
             # Recurse if not disabled
-            if recurse:
-                seg.set_as_parent(recurse=recurse)
+            if not recurse:
+                continue
+            seg.set_as_parent(recurse=recurse)
 
     def set_parent(self, parent: BaseSegment, idx: int) -> None:
         """Set the weak reference to the parent.

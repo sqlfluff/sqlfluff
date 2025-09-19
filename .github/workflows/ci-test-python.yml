@@ -25,12 +25,15 @@ on:
         required: false
         type: boolean
         default: false
+      with-rust:
+        required: true
+        type: string
     secrets:
       gh_token:
         required: true
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.python-version }}-${{ inputs.marks }}-${{ inputs.coverage }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.python-version }}-${{ inputs.marks }}-${{ inputs.coverage }}-${{ inputs.with-rust }}
   cancel-in-progress: true
 
 jobs:
@@ -48,6 +51,14 @@ jobs:
         cache-dependency-path: |
           setup.cfg
           requirements_dev.txt
+
+    - name: Download built wheels
+      if: ${{ inputs.with_rust }} == '-rust'
+      uses: actions/download-artifact@v4
+      with:
+        path: ./dist
+        pattern: wheels-*
+        merge-multiple: true
 
     - name: Install dependencies
       run: pip install tox
@@ -69,10 +80,10 @@ jobs:
       # NOTE: We have a separate job for coverage reporting because
       # it impacts performance and slows the test suite significantly.
       if: ${{ inputs.coverage }}
-      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- --cov=sqlfluff -n 2 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
+      run: tox -e py${{ steps.py_version.outputs.PYVERSION }}${{ inputs.with-rust }} -- --cov=sqlfluff -n 2 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
     - name: Run the tests (without coverage)
       if: ${{ !inputs.coverage }}
-      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- -n 2 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
+      run: tox -e py${{ steps.py_version.outputs.PYVERSION }}${{ inputs.with-rust }} -- -n 2 test -m "${{ inputs.marks }}" --durations=16 --verbosity=0
 
     - name: Rename coverage files with suffix
       # NOTE: We do this because we're using the same tox environment for multiple
@@ -88,7 +99,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: ${{ inputs.coverage }}
       with:
-        name: coverage-data-py${{ inputs.python-version }}-${{ inputs.marks }}
+        name: coverage-data-py${{ inputs.python-version }}-${{ inputs.marks }}${{ inputs.with-rust }}
         path: ".coverage.*"
         if-no-files-found: ignore
         include-hidden-files: true
