@@ -1662,7 +1662,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
 class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     """A `CREATE VIEW` statement.
 
-    https://spark.apache.org/docs/3.0.0/sql-ref-syntax-ddl-create-view.html#syntax
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-view.html#syntax
     """
 
     match_grammar = Sequence(
@@ -1691,6 +1691,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         ),
         Sequence("USING", Ref("DataSourceFormatSegment"), optional=True),
         Ref("OptionsGrammar", optional=True),
+        OneOf(Ref("PartitionSpecGrammar"), Ref("TableClusterByClauseSegment"), optional=True),
         Ref("CommentGrammar", optional=True),
         Ref("TablePropertiesGrammar", optional=True),
         Ref("CreateViewClausesGrammar", optional=True),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 662d898d3182641df898b2ce6e2764fddffcbeb3003ad42317b6830c756b48ca
+_hash: 3add1f2a77193be920c457af4cdfd2d84ae0317af896aefaf18bb4533cef2ec9
 file:
 - statement:
     create_view_statement:
@@ -212,4 +212,157 @@ file:
                 - naked_identifier: live
                 - dot: .
                 - naked_identifier: dlt_bronze
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_dlt_mat_view
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - data_type:
+          primitive_type:
+            keyword: STRING
+      - keyword: comment
+      - quoted_literal: "'Dummy column 1'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - data_type:
+          primitive_type:
+            keyword: BIGINT
+      - keyword: comment
+      - quoted_literal: "'Dummy column 2'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: col3
+      - data_type:
+          primitive_type:
+            keyword: BOOLEAN
+      - keyword: comment
+      - quoted_literal: "'Dummy column 3'"
+      - end_bracket: )
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col1
+        end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: "'Example simplified materialized view with dummy fields.'"
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'quality'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'gold'"
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col3
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_source_table
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_dlt_mat_view
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - data_type:
+          primitive_type:
+            keyword: STRING
+      - keyword: COMMENT
+      - quoted_literal: "'Dummy column 1'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - data_type:
+          primitive_type:
+            keyword: BIGINT
+      - keyword: COMMENT
+      - quoted_literal: "'Dummy column 2'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: col3
+      - data_type:
+          primitive_type:
+            keyword: BOOLEAN
+      - keyword: COMMENT
+      - quoted_literal: "'Dummy column 3'"
+      - end_bracket: )
+    - table_cluster_by_clause:
+      - keyword: CLUSTER
+      - keyword: BY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: col1
+          end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: "'Example simplified materialized view with dummy fields.'"
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'quality'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'gold'"
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col3
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_source_table
 - statement_terminator: ;
