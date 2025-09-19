@@ -1691,7 +1691,11 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         ),
         Sequence("USING", Ref("DataSourceFormatSegment"), optional=True),
         Ref("OptionsGrammar", optional=True),
-        OneOf(Ref("PartitionSpecGrammar"), Ref("TableClusterByClauseSegment"), optional=True),
+        OneOf(
+            Ref("PartitionSpecGrammar"),
+            Ref("TableClusterByClauseSegment"),
+            optional=True,
+        ),
         Ref("CommentGrammar", optional=True),
         Ref("TablePropertiesGrammar", optional=True),
         Ref("CreateViewClausesGrammar", optional=True),
