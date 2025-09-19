@@ -56,11 +56,11 @@ impl PositionMarker {
         // Example implementation: move forward by the length of the string
         let lines: Vec<&str> = raw.split('\n').collect();
         if lines.len() > 1 {
-            let num_lines: usize = lines.len().try_into().unwrap();
-            let last_line_len: usize = lines.last().unwrap().len().try_into().unwrap();
+            let num_lines: usize = lines.len();
+            let last_line_len: usize = lines.last().unwrap().len();
             (line_no + num_lines - 1, last_line_len + 1)
         } else {
-            let first_line_len: usize = raw.len().try_into().unwrap();
+            let first_line_len: usize = raw.len();
             (line_no, line_pos + first_line_len)
         }
     }
@@ -164,8 +164,8 @@ impl PositionMarker {
         }
 
         PositionMarker::new(
-            start_marker.source_slice.clone(),
-            start_marker.templated_slice.clone(),
+            start_marker.source_slice,
+            start_marker.templated_slice,
             &start_marker.templated_file,
             Some(start_marker.working_line_no),
             Some(start_marker.working_line_pos),
@@ -263,12 +263,12 @@ pub mod python {
     impl PyPositionMarker {
         #[getter]
         pub fn source_slice(&self) -> Slice {
-            self.0.source_slice.clone()
+            self.0.source_slice
         }
 
         #[getter]
         pub fn templated_slice(&self) -> Slice {
-            self.0.templated_slice.clone()
+            self.0.templated_slice
         }
 
         // #[getter]
@@ -327,7 +327,7 @@ pub mod python {
             line_no: usize,
             line_pos: usize,
         ) -> (usize, usize) {
-            self.0.infer_next_position(&raw, line_no, line_pos)
+            self.0.infer_next_position(raw, line_no, line_pos)
         }
 
         pub fn line_no(&self) -> usize {
@@ -400,9 +400,15 @@ pub mod python {
         }
     }
 
-    impl Into<PositionMarker> for PyPositionMarker {
-        fn into(self) -> PositionMarker {
-            self.0
+    impl From<PyPositionMarker> for PySqlFluffTemplatedFile {
+        fn from(value: PyPositionMarker) -> Self {
+            PySqlFluffTemplatedFile(PyTemplatedFile::from(value.0.templated_file.clone()))
+        }
+    }
+
+    impl From<PyPositionMarker> for PositionMarker {
+        fn from(value: PyPositionMarker) -> Self {
+            value.0
         }
     }
 
@@ -451,15 +457,15 @@ pub mod python {
         }
     }
 
-    impl Into<PyPositionMarker> for PySqlFluffPositionMarker {
-        fn into(self) -> PyPositionMarker {
-            PyPositionMarker(self.0 .0)
+    impl From<PySqlFluffPositionMarker> for PyPositionMarker {
+        fn from(value: PySqlFluffPositionMarker) -> Self {
+            value.0
         }
     }
 
-    impl Into<PositionMarker> for PySqlFluffPositionMarker {
-        fn into(self) -> PositionMarker {
-            self.0 .0
+    impl From<PySqlFluffPositionMarker> for PositionMarker {
+        fn from(value: PySqlFluffPositionMarker) -> Self {
+            value.0 .0
         }
     }
 }

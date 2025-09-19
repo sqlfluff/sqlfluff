@@ -119,20 +119,20 @@ impl Token {
     }
 
     pub fn normalize(
-        value: &String,
+        value: &str,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
     ) -> String {
-        let mut str_buffer = value.clone();
+        let mut str_buffer = value.to_string();
 
         if let Some((ref regex_str, idx)) = quoted_value {
-            if let Some(captured) = RegexMode::new(&regex_str).capture(idx, value) {
-                str_buffer = captured;
+            if let Some(captured) = RegexMode::new(regex_str).capture(idx, value) {
+                str_buffer = captured
             }
         }
 
         if let Some((ref regex_str, ref replacement)) = escape_replacement {
-            str_buffer = RegexMode::new(&regex_str).replace_all(&str_buffer, replacement.as_str());
+            str_buffer = RegexMode::new(regex_str).replace_all(&str_buffer, replacement.as_str());
         }
 
         str_buffer
@@ -343,7 +343,7 @@ impl Token {
     }
 
     pub fn is_raw(&self) -> bool {
-        self.segments.len() == 0
+        self.segments.is_empty()
     }
 
     pub fn block_type(&self) -> Option<String> {
@@ -357,36 +357,39 @@ impl Token {
         no_recursive_seg_type: Option<&[&str]>,
         allow_self: bool,
     ) -> Vec<Token> {
-        let seg_type_set: HashSet<String> = seg_types.iter().map(|s| s.to_string()).collect();
-        let seg_type_vec: Vec<&str> = seg_types.iter().cloned().collect();
+        let mut results = Vec::new();
+
+        // If recurse_into is False and this matches, don't recurse
+        if !recurse_into && self.is_type(seg_types) {
+            if allow_self {
+                results.push(self.clone());
+            }
+            return results;
+        }
+
+        // Check if self matches the given segment types
+        if allow_self && self.is_type(seg_types) {
+            results.push(self.clone());
+        }
+
+        // Convert no_recursive_seg_type to HashSet for efficient lookups
         let no_recursive_set: HashSet<&str> = no_recursive_seg_type
             .unwrap_or(&[])
             .iter()
             .cloned()
             .collect();
 
-        let mut results = Vec::new();
-
-        // Check if self matches the given segment types
-        if allow_self && self.is_type(&seg_type_vec) {
-            results.push(self.clone());
-        }
-
-        // If no matching descendants, terminate early
-        if self.descendant_type_set().is_disjoint(&seg_type_set) {
-            return results;
-        }
-
         // Recursively process child segments
         for seg in &self.segments {
-            if !no_recursive_set.contains(seg.token_type.as_str()) {
-                results.extend(seg.recursive_crawl(
-                    seg_types,
-                    recurse_into,
-                    no_recursive_seg_type,
-                    true,
-                ));
+            if no_recursive_set.contains(seg.token_type.as_str()) {
+                continue;
             }
+            results.extend(seg.recursive_crawl(
+                seg_types,
+                recurse_into,
+                no_recursive_seg_type,
+                true,
+            ));
         }
 
         results
@@ -453,7 +456,7 @@ impl Token {
 
             let step = PathStep {
                 segment: Arc::new(self.clone()),
-                idx: idx,
+                idx,
                 len: self.segments.clone().len(),
                 code_idxs: self.code_indices().clone(),
             };
@@ -570,8 +573,8 @@ impl Token {
         parent_idx: Option<usize>,
     ) -> Token {
         let mut new_segment = self.clone();
-        new_segment.parent = parent.as_ref().map(Arc::downgrade).into();
-        new_segment.parent_idx = parent_idx.into();
+        new_segment.parent = parent.as_ref().map(Arc::downgrade);
+        new_segment.parent_idx = parent_idx;
 
         if let Some(ref segs) = segments {
             new_segment.segments = segs.clone();
@@ -583,8 +586,8 @@ impl Token {
                 .map(|(idx, seg)| {
                     seg.copy(
                         None,
-                        Some(Arc::new(new_segment.clone())).into(),
-                        Some(idx).into(),
+                        Some(Arc::new(new_segment.clone())),
+                        Some(idx),
                     )
                 })
                 .collect();
@@ -650,7 +653,7 @@ impl Token {
                 if !segment.segments.is_empty() && old_position != Some(new_position.clone()) {
                     let child_segments =
                         Token::position_segments(&segment.segments, new_position.clone());
-                    segment.copy(Some(child_segments.into()), None, None)
+                    segment.copy(Some(child_segments), None, None)
                 } else {
                     segment.copy(None, None, None)
                 };
@@ -823,7 +826,7 @@ mod tests {
     }
 
     fn raw_segments() -> Vec<Token> {
-        generate_test_segments(&vec!["foobar", ".barfoo"])
+        generate_test_segments(&["foobar", ".barfoo"])
     }
 
     #[test]

@@ -40,8 +40,8 @@ impl Token {
             block_uuid: None,
             source_str: None,
             block_type: None,
-            parent: None.into(),
-            parent_idx: None.into(),
+            parent: None,
+            parent_idx: None,
             segments,
             preface_modifier: "".to_string(),
             suffix: "".to_string(),
@@ -571,7 +571,7 @@ impl Token {
         class_types: HashSet<String>,
     ) -> Self {
         let pos_marker = PositionMarker::new(
-            source_slice.clone(),
+            source_slice,
             templated_slice,
             templated_file,
             None,

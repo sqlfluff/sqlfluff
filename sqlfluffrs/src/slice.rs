@@ -25,6 +25,10 @@ impl Slice {
     pub fn len(&self) -> usize {
         self.stop - self.start
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 }
 
 impl Display for Slice {

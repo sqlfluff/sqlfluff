@@ -3,11 +3,10 @@ use std::{
     sync::Arc,
 };
 
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashSet;
 use pyo3::{
     prelude::*,
     types::{PyDict, PyString, PyTuple, PyType},
-    IntoPyObjectExt,
 };
 use uuid::Uuid;
 
@@ -23,9 +22,9 @@ use super::{path::PathStep, SourceFix, Token, TupleSerialisedSegment};
 #[derive(Clone)]
 pub struct PySourceFix(pub SourceFix);
 
-impl Into<SourceFix> for PySourceFix {
-    fn into(self) -> SourceFix {
-        self.0
+impl From<PySourceFix> for SourceFix {
+    fn from(value: PySourceFix) -> SourceFix {
+        value.0
     }
 }
 
@@ -40,9 +39,9 @@ impl From<SourceFix> for PySourceFix {
 #[derive(Clone)]
 pub struct PyPathStep(pub PathStep);
 
-impl Into<PathStep> for PyPathStep {
-    fn into(self) -> PathStep {
-        self.0
+impl From<PyPathStep> for PathStep {
+    fn from(value: PyPathStep) -> Self {
+        value.0
     }
 }
 
@@ -61,7 +60,7 @@ impl PyTupleSerialisedSegment {
     pub fn to_py_tuple<'py>(&self, py: Python<'py>) -> Result<Bound<'py, PyTuple>, PyErr> {
         match &self.0 {
             TupleSerialisedSegment::Str(segment_type, raw_value) => {
-                PyTuple::new(py, &[segment_type, raw_value])
+                PyTuple::new(py, [segment_type, raw_value])
             }
             TupleSerialisedSegment::Nested(segment_type, segments) => {
                 let py_segment_type = PyString::new(py, segment_type);
@@ -85,9 +84,9 @@ impl PyTupleSerialisedSegment {
     }
 }
 
-impl Into<TupleSerialisedSegment> for PyTupleSerialisedSegment {
-    fn into(self) -> TupleSerialisedSegment {
-        self.0
+impl From<PyTupleSerialisedSegment> for TupleSerialisedSegment {
+    fn from(value: PyTupleSerialisedSegment) -> Self {
+        value.0
     }
 }
 
@@ -159,7 +158,7 @@ impl PyToken {
 
     #[getter]
     pub fn block_uuid(&self) -> Option<Uuid> {
-        self.0.block_uuid.clone()
+        self.0.block_uuid
     }
 
     #[getter]
@@ -183,7 +182,7 @@ impl PyToken {
     }
 
     #[pyo3(signature = (*seg_type))]
-    pub fn is_type<'py>(&self, seg_type: &Bound<'py, PyTuple>) -> bool {
+    pub fn is_type(&self, seg_type: &Bound<'_, PyTuple>) -> bool {
         let seg_strs = seg_type
             .extract::<Vec<String>>()
             .expect("args should be all strings");
@@ -239,7 +238,7 @@ impl PyToken {
     }
 
     #[pyo3(signature = (*seg_type))]
-    pub fn class_is_type<'py>(&self, seg_type: &Bound<'py, PyTuple>) -> bool {
+    pub fn class_is_type(&self, seg_type: &Bound<'_, PyTuple>) -> bool {
         let seg_strs = seg_type
             .extract::<Vec<String>>()
             .expect("args should be all strings");
@@ -270,9 +269,9 @@ impl PyToken {
     }
 
     #[pyo3(signature = (*seg_type, recurse_into = true, no_recursive_seg_type = None, allow_self = true))]
-    pub fn recursive_crawl<'py>(
+    pub fn recursive_crawl(
         &self,
-        seg_type: &Bound<'py, PyTuple>,
+        seg_type: &Bound<'_, PyTuple>,
         recurse_into: bool,
         no_recursive_seg_type: Option<Bound<'_, PyAny>>,
         allow_self: bool,
@@ -311,7 +310,6 @@ impl PyToken {
     pub fn recursive_crawl_all(&self, reverse: bool) -> Vec<PyToken> {
         self.0
             .recursive_crawl_all(reverse)
-            .into_iter()
             .map(|t| t.clone().into())
             .collect()
     }
@@ -365,7 +363,7 @@ impl PyToken {
     }
 
     #[getter]
-    pub fn quoted_value<'py>(&self, py: Python<'py>) -> Option<(String, PyObject)> {
+    pub fn quoted_value(&self, py: Python<'_>) -> Option<(String, PyObject)> {
         self.0.quoted_value.clone().map(|(s, g)| {
             let py_group: PyObject = match g {
                 RegexModeGroup::Index(idx) => idx.into_pyobject(py).unwrap().into(),
@@ -495,9 +493,9 @@ impl Display for PyToken {
     }
 }
 
-impl Into<Token> for PyToken {
-    fn into(self) -> Token {
-        self.0
+impl From<PyToken> for Token {
+    fn from(value: PyToken) -> Token {
+        value.0
     }
 }
 
@@ -562,9 +560,9 @@ impl<'py> FromPyObject<'py> for PySqlFluffToken {
     }
 }
 
-impl Into<Token> for PySqlFluffToken {
-    fn into(self) -> Token {
-        self.0 .0
+impl From<PySqlFluffToken> for Token {
+    fn from(value: PySqlFluffToken) -> Token {
+        value.0 .0
     }
 }
 

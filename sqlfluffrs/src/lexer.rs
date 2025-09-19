@@ -28,6 +28,12 @@ pub struct BlockTracker {
     map: HashMap<Slice, Uuid>,
 }
 
+impl Default for BlockTracker {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl BlockTracker {
     /// Create a new `BlockTracker`.
     pub fn new() -> Self {
@@ -39,11 +45,7 @@ impl BlockTracker {
 
     /// Enter a block given a source slice (start, end).
     pub fn enter(&mut self, src_slice: Slice) {
-        let uuid = self
-            .map
-            .entry(src_slice.clone())
-            .or_insert_with(Uuid::new_v4)
-            .clone();
+        let uuid = *self.map.entry(src_slice).or_insert_with(Uuid::new_v4);
 
         log::debug!(
             "       Entering block stack @ {:?}: {} ({})",
@@ -205,11 +207,11 @@ impl SQLLexError {
         self.name.clone().unwrap_or("????".to_string())
     }
 
-    fn ignore_if_in(&mut self, ignore_iterable: &[String]) -> () {
+    fn ignore_if_in(&mut self, ignore_iterable: &[String]) {
         self.ignore = ignore_iterable.contains(&self.identifier);
     }
 
-    fn warning_if_in(&mut self, warning_iterable: &[String]) -> () {
+    fn warning_if_in(&mut self, warning_iterable: &[String]) {
         self.warning = warning_iterable.contains(&self.rule_code())
             || warning_iterable.contains(&self.rule_name());
     }
@@ -290,7 +292,7 @@ impl Lexer {
             idx += element_len;
 
             // Create a TemplateElement from the LexedElement and the template slice
-            let templated_element = TemplateElement::from_element(element, template_slice.clone());
+            let templated_element = TemplateElement::from_element(element, template_slice);
             templated_buff.push(templated_element);
 
             // // Validate that the slice matches the element's raw content
@@ -420,7 +422,7 @@ fn iter_tokens(
                 if is_zero_slice(&tfs.templated_codepoint_slice) {
                     let next_tfs = templated_file_slices.clone().peek().cloned();
                     segments.extend(handle_zero_length_slice(
-                        &tfs,
+                        tfs,
                         next_tfs.as_ref(),
                         &mut block_stack,
                         templated_file,
@@ -449,7 +451,7 @@ fn iter_tokens(
                                     Slice::from(
                                         slice_start..(element.template_slice.stop + tfs_offset),
                                     ),
-                                    element.template_slice.clone(),
+                                    element.template_slice,
                                     templated_file,
                                     None,
                                     None,
@@ -485,7 +487,7 @@ fn iter_tokens(
                                                 + tfs_offset)
                                                 ..tfs.templated_codepoint_slice.stop + tfs_offset,
                                         ),
-                                        element.template_slice.clone(),
+                                        element.template_slice,
                                         templated_file,
                                         None,
                                         None,
@@ -514,7 +516,7 @@ fn iter_tokens(
                     "templated" | "block_start" | "escaped" => {
                         if !is_zero_slice(&tfs.templated_codepoint_slice) {
                             if tfs.slice_type == "block_start" {
-                                block_stack.enter(tfs.source_codepoint_slice.clone());
+                                block_stack.enter(tfs.source_codepoint_slice);
                             }
 
                             if element.template_slice.stop <= tfs.templated_codepoint_slice.stop {
@@ -523,7 +525,7 @@ fn iter_tokens(
                                 segments.push(element.to_token(
                                     PositionMarker::new(
                                         Slice::from(slice_start..tfs.source_codepoint_slice.stop),
-                                        element.template_slice.clone(),
+                                        element.template_slice,
                                         templated_file,
                                         None,
                                         None,
@@ -625,7 +627,7 @@ fn handle_zero_length_slice(
     // Block handling
     if tfs.slice_type.starts_with("block") {
         if tfs.slice_type == "block_start" {
-            block_stack.enter(tfs.source_codepoint_slice.clone());
+            block_stack.enter(tfs.source_codepoint_slice);
         } else if add_indents && (tfs.slice_type == "block_end" || tfs.slice_type == "block_mid") {
             let pos_marker = PositionMarker::from_point(
                 tfs.source_codepoint_slice.start,
@@ -643,8 +645,8 @@ fn handle_zero_length_slice(
         }
 
         segments.push(Token::template_placeholder_token_from_slice(
-            tfs.source_codepoint_slice.clone(),
-            tfs.templated_codepoint_slice.clone(),
+            tfs.source_codepoint_slice,
+            tfs.templated_codepoint_slice,
             tfs.slice_type.clone(),
             templated_file,
             Some(block_stack.top()),
@@ -689,7 +691,7 @@ fn handle_zero_length_slice(
                 log::debug!("      Forward jump detected. Inserting placeholder");
                 let pos_marker = PositionMarker::new(
                     Slice::from(tfs.source_codepoint_slice.stop..peek.source_codepoint_slice.start),
-                    tfs.templated_codepoint_slice.clone(),
+                    tfs.templated_codepoint_slice,
                     templated_file,
                     None,
                     None,
@@ -709,8 +711,8 @@ fn handle_zero_length_slice(
 
     // Default zero-length slice handling
     segments.push(Token::template_placeholder_token_from_slice(
-        tfs.source_codepoint_slice.clone(),
-        tfs.templated_codepoint_slice.clone(),
+        tfs.source_codepoint_slice,
+        tfs.templated_codepoint_slice,
         tfs.slice_type.clone(),
         templated_file,
         None,
@@ -756,9 +758,9 @@ pub mod python {
         PyTemplatedFile(PyTemplatedFile),
     }
 
-    impl Into<LexInput> for PyLexInput {
-        fn into(self) -> LexInput {
-            match self {
+    impl From<PyLexInput> for LexInput {
+        fn from(value: PyLexInput) -> Self {
+            match value {
                 PyLexInput::String(s) => LexInput::String(s),
                 PyLexInput::PySqlFluffTemplatedFile(py_sql_fluff_templated_file) => {
                     LexInput::TemplatedFile(py_sql_fluff_templated_file.into())
@@ -831,11 +833,11 @@ pub mod python {
             self.0.source_signature()
         }
 
-        fn ignore_if_in(&mut self, ignore_iterable: Vec<String>) -> () {
+        fn ignore_if_in(&mut self, ignore_iterable: Vec<String>) {
             self.0.ignore_if_in(&ignore_iterable)
         }
 
-        fn warning_if_in(&mut self, ignore_iterable: Vec<String>) -> () {
+        fn warning_if_in(&mut self, ignore_iterable: Vec<String>) {
             self.0.warning_if_in(&ignore_iterable)
         }
 
@@ -859,11 +861,11 @@ pub mod python {
         }
     }
 
-    impl Into<SQLLexError> for PySQLLexError {
-        fn into(self) -> SQLLexError {
-            self.0
-        }
-    }
+    // impl Into<SQLLexError> for PySQLLexError {
+    //     fn into(self) -> SQLLexError {
+    //         self.0
+    //     }
+    // }
 
     impl From<SQLLexError> for PySQLLexError {
         fn from(value: SQLLexError) -> Self {
@@ -887,10 +889,9 @@ pub mod python {
         ) -> Self {
             let _last_resort_lexer = last_resort_lexer;
             let cfg_dialect = config
-                .map(|cfg| cfg.0.dialect.map(|d| Dialect::from_str(&d).ok()))
-                .flatten()
+                .and_then(|cfg| cfg.0.dialect.map(|d| Dialect::from_str(&d).ok()))
                 .flatten();
-            let in_dialect = dialect.map(|d| Dialect::from_str(d).ok()).flatten();
+            let in_dialect = dialect.and_then(|d| Dialect::from_str(d).ok());
             if cfg_dialect.is_some() && in_dialect.is_some() {
                 panic!("Lexer does not support setting both `config` and `dialect`.")
             }

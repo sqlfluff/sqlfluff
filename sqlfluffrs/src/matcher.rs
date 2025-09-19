@@ -307,7 +307,7 @@ impl LexMatcher {
                     });
                     buffer = &buffer[end..];
                 } else {
-                    let trimmed_elems = self.trim_match(&buffer);
+                    let trimmed_elems = self.trim_match(buffer);
                     elements.extend(trimmed_elems);
                     break;
                 }
@@ -375,7 +375,7 @@ impl LexMatcher {
             self.cache_key.clone(),
             self.quoted_value.clone(),
             self.escape_replacements.clone(),
-            self.casefold.clone(),
+            self.casefold,
         )
     }
 }

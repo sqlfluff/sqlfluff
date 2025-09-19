@@ -244,14 +244,9 @@ impl TemplatedFile {
                 panic!("Starting position higher than sliced file position");
             }
             if ts_start_sf_start < self.sliced_file.len() {
-                return self.sliced_file[1].source_codepoint_slice.clone();
+                return self.sliced_file[1].source_codepoint_slice;
             } else {
-                return self
-                    .sliced_file
-                    .last()
-                    .unwrap()
-                    .source_codepoint_slice
-                    .clone();
+                return self.sliced_file.last().unwrap().source_codepoint_slice;
             }
         }
 
@@ -267,8 +262,8 @@ impl TemplatedFile {
         // otherwise we're greedy.
 
         // Start.
-        let source_start = if insertion_point.is_some() {
-            insertion_point.unwrap()
+        let source_start = if let Some(source_start) = insertion_point {
+            source_start
         } else if start_slices[0].slice_type == "literal" {
             let offset = template_slice.start - start_slices[0].templated_codepoint_slice.start;
             start_slices[0].source_codepoint_slice.start + offset
@@ -488,7 +483,6 @@ pub mod python {
     use super::TemplatedFile;
     use once_cell::sync::Lazy;
 
-
     #[pyclass(name = "RsTemplatedFile", frozen, module = "sqlfluffrs")]
     #[repr(transparent)]
     #[derive(Clone, PartialEq, Hash)]
@@ -631,10 +625,7 @@ pub mod python {
 
         fn py_raw_slices(raw_sliced: &[PyRawFileSlice]) -> Vec<RawFileSlice> {
             if raw_sliced.len() == 1 {
-                return raw_sliced
-                    .into_iter()
-                    .map(|s| s.0.clone())
-                    .collect::<Vec<_>>();
+                return raw_sliced.iter().map(|s| s.0.clone()).collect::<Vec<_>>();
             }
             let mut idx = 0;
             raw_sliced
@@ -706,10 +697,10 @@ pub mod python {
         }
     }
 
-    impl Into<Arc<TemplatedFile>> for PyTemplatedFile {
-        fn into(self) -> Arc<TemplatedFile> {
-            log::debug!("PyTemplatedFile::into<ArcTemplated>");
-            self.0
+    impl From<PyTemplatedFile> for Arc<TemplatedFile> {
+        fn from(value: PyTemplatedFile) -> Self {
+            log::debug!("PyTemplatedFile::from<ArcTemplated> {}", value.0.fname);
+            value.0
         }
     }
 
@@ -768,33 +759,30 @@ pub mod python {
                 .getattr("_templated_newlines")?
                 .extract::<Vec<usize>>()?;
 
-            let tf = Self(
-                PyTemplatedFile::from_python(
-                    source_str,
-                    fname,
-                    templated_str,
-                    sliced_file,
-                    raw_sliced,
-                    py_source_newlines,
-                    py_templated_newlines,
-                )
-                .into(),
-            );
+            let tf = Self(PyTemplatedFile::from_python(
+                source_str,
+                fname,
+                templated_str,
+                sliced_file,
+                raw_sliced,
+                py_source_newlines,
+                py_templated_newlines,
+            ));
 
             cache.insert(key, tf.0 .0.clone());
             Ok(tf)
         }
     }
 
-    impl Into<PyTemplatedFile> for PySqlFluffTemplatedFile {
-        fn into(self) -> PyTemplatedFile {
-            self.0
+    impl From<PySqlFluffTemplatedFile> for PyTemplatedFile {
+        fn from(value: PySqlFluffTemplatedFile) -> Self {
+            value.0
         }
     }
 
-    impl Into<Arc<TemplatedFile>> for PySqlFluffTemplatedFile {
-        fn into(self) -> Arc<TemplatedFile> {
-            self.0 .0
+    impl From<PySqlFluffTemplatedFile> for Arc<TemplatedFile> {
+        fn from(value: PySqlFluffTemplatedFile) -> Self {
+            value.0 .0
         }
     }
 }
@@ -1193,8 +1181,8 @@ mod tests {
                     .map(|slc| {
                         TemplatedFileSlice::new(
                             "templated".to_string(),
-                            slc.source_codepoint_slice.clone(),
-                            slc.templated_codepoint_slice.clone(),
+                            slc.source_codepoint_slice,
+                            slc.templated_codepoint_slice,
                         )
                     })
                     .collect(),
@@ -1205,7 +1193,7 @@ mod tests {
                         RawFileSlice::new(
                             slc.raw.clone(),
                             "templated".to_string(),
-                            slc.source_idx.clone(),
+                            slc.source_idx,
                             None,
                             None,
                         )
@@ -1329,12 +1317,9 @@ mod tests {
                 Some(sliced_file),
                 Some(raw_sliced),
             );
-            let source_slice = file.templated_slice_to_source_slice(in_slice.clone());
+            let source_slice = file.templated_slice_to_source_slice(in_slice);
             let literal_test = file.is_source_slice_literal(&source_slice);
-            assert_eq!(
-                (is_literal, source_slice.clone()),
-                (literal_test, out_slice)
-            );
+            assert_eq!((is_literal, source_slice), (literal_test, out_slice));
         }
     }
 

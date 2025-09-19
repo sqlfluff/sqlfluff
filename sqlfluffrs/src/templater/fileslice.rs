@@ -36,7 +36,7 @@ impl RawFileSlice {
 
     pub fn end_source_idx(&self) -> usize {
         // Return the closing index of this slice.
-        let len: usize = self.raw.chars().count().try_into().unwrap();
+        let len: usize = self.raw.chars().count();
         self.source_idx + len
     }
 
@@ -50,10 +50,10 @@ impl RawFileSlice {
         // There are *also* some which are source only because they render
         // to an empty string.
         // TODO: should any new logic go here?
-        match self.slice_type.as_str() {
-            "comment" | "block_end" | "block_start" | "block_mid" => true,
-            _ => false,
-        }
+        matches!(
+            self.slice_type.as_str(),
+            "comment" | "block_end" | "block_start" | "block_mid"
+        )
     }
 }
 
@@ -161,9 +161,9 @@ pub mod python {
         }
     }
 
-    impl Into<RawFileSlice> for PyRawFileSlice {
-        fn into(self) -> RawFileSlice {
-            self.0
+    impl From<PyRawFileSlice> for RawFileSlice {
+        fn from(value: PyRawFileSlice) -> Self {
+            value.0
         }
     }
 
@@ -212,12 +212,11 @@ pub mod python {
             Ok(PyBytes::new(py, &bytes))
         }
 
-
         pub fn __getnewargs__(&self) -> PyResult<(String, Slice, Slice)> {
             Ok((
                 self.0.slice_type.clone(),
-                self.0.source_codepoint_slice.clone(),
-                self.0.templated_codepoint_slice.clone(),
+                self.0.source_codepoint_slice,
+                self.0.templated_codepoint_slice,
             ))
         }
 
@@ -228,18 +227,18 @@ pub mod python {
 
         #[getter]
         fn source_slice(&self) -> PyResult<Slice> {
-            Ok(self.0.source_codepoint_slice.clone())
+            Ok(self.0.source_codepoint_slice)
         }
 
         #[getter]
         fn templated_slice(&self) -> PyResult<Slice> {
-            Ok(self.0.templated_codepoint_slice.clone())
+            Ok(self.0.templated_codepoint_slice)
         }
     }
 
-    impl Into<TemplatedFileSlice> for PyTemplatedFileSlice {
-        fn into(self) -> TemplatedFileSlice {
-            self.0
+    impl From<PyTemplatedFileSlice> for TemplatedFileSlice {
+        fn from(value: PyTemplatedFileSlice) -> Self {
+            value.0
         }
     }
 
@@ -276,15 +275,15 @@ pub mod python {
             }
         }
 
-        impl Into<PyTemplatedFileSlice> for PySqlFluffTemplatedFileSlice {
-            fn into(self) -> PyTemplatedFileSlice {
-                PyTemplatedFileSlice(self.0 .0)
+        impl From<PySqlFluffTemplatedFileSlice> for PyTemplatedFileSlice {
+            fn from(value: PySqlFluffTemplatedFileSlice) -> Self {
+                value.0
             }
         }
 
-        impl Into<TemplatedFileSlice> for PySqlFluffTemplatedFileSlice {
-            fn into(self) -> TemplatedFileSlice {
-                self.0 .0
+        impl From<PySqlFluffTemplatedFileSlice> for TemplatedFileSlice {
+            fn from(value: PySqlFluffTemplatedFileSlice) -> Self {
+                value.0 .0
             }
         }
 
@@ -302,22 +301,22 @@ pub mod python {
                 Ok(Self(PyRawFileSlice(RawFileSlice::new(
                     raw.clone(),
                     slice_type,
-                    source_idx.unwrap_or_else(|| raw.len()),
+                    source_idx.unwrap_or(raw.len()),
                     block_idx,
                     tag,
                 ))))
             }
         }
 
-        impl Into<PyRawFileSlice> for PySqlFluffRawFileSlice {
-            fn into(self) -> PyRawFileSlice {
-                PyRawFileSlice(self.0 .0)
+        impl From<PySqlFluffRawFileSlice> for PyRawFileSlice {
+            fn from(value: PySqlFluffRawFileSlice) -> Self {
+                value.0
             }
         }
 
-        impl Into<RawFileSlice> for PySqlFluffRawFileSlice {
-            fn into(self) -> RawFileSlice {
-                self.0 .0
+        impl From<PySqlFluffRawFileSlice> for RawFileSlice {
+            fn from(value: PySqlFluffRawFileSlice) -> Self {
+                value.0 .0
             }
         }
     }

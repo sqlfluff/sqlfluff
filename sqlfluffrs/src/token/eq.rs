@@ -17,6 +17,8 @@ impl Hash for Token {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.token_type.hash(state);
         self.raw.hash(state);
-        self.pos_marker.as_ref().map(|p| p.working_loc().hash(state));
+        if let Some(p) = self.pos_marker.as_ref() {
+            p.working_loc().hash(state)
+        }
     }
 }
