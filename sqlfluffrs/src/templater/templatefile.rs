@@ -79,7 +79,7 @@ impl TemplatedFile {
 
         // Consistency check templated string and slices (codepoints, not bytes).
         let mut previous_slice: Option<&TemplatedFileSlice> = None;
-        for tfs in sliced_file.iter() {
+        for tfs in &sliced_file {
             if let Some(prev_slice) = previous_slice {
                 if tfs.templated_codepoint_slice.start != prev_slice.templated_codepoint_slice.stop
                 {
@@ -212,9 +212,8 @@ impl TemplatedFile {
                     ts_start_subsliced_file[0].source_codepoint_slice.start + offset
                         ..(ts_start_subsliced_file[0].source_codepoint_slice.start + offset),
                 );
-            } else {
-                panic!("Attempting a single length slice within a templated section!");
             }
+            panic!("Attempting a single length slice within a templated section!");
         }
 
         // Otherwise it's a slice with length.
@@ -227,11 +226,10 @@ impl TemplatedFile {
         let mut ts_start_sf_start = ts_start_sf_start;
         if insertion_point.is_some() {
             for elem in self.sliced_file.iter().skip(ts_start_sf_start) {
-                if elem.source_codepoint_slice.start != insertion_point.unwrap() {
-                    ts_start_sf_start += 1;
-                } else {
+                if elem.source_codepoint_slice.start == insertion_point.unwrap() {
                     break;
                 }
+                ts_start_sf_start += 1;
             }
         }
 
@@ -245,9 +243,8 @@ impl TemplatedFile {
             }
             if ts_start_sf_start < self.sliced_file.len() {
                 return self.sliced_file[1].source_codepoint_slice;
-            } else {
-                return self.sliced_file.last().unwrap().source_codepoint_slice;
             }
+            return self.sliced_file.last().unwrap().source_codepoint_slice;
         }
 
         // Define start and stop slices
@@ -332,7 +329,7 @@ impl TemplatedFile {
 
     /// Find a subset of the sliced file which touch this point.
     ///
-    /// NB: the last_idx is exclusive, as the intent is to use this as a slice.
+    /// NB: the `last_idx` is exclusive, as the intent is to use this as a slice.
     fn find_slice_indices_of_templated_pos(
         &self,
         templated_pos: usize,
@@ -477,7 +474,7 @@ pub mod python {
     use crate::templater::fileslice::python::sqlfluff::{
         PySqlFluffRawFileSlice, PySqlFluffTemplatedFileSlice,
     };
-    use crate::templater::fileslice::python::*;
+    use crate::templater::fileslice::python::{PyRawFileSlice, PyTemplatedFileSlice};
     use crate::templater::fileslice::{RawFileSlice, TemplatedFileSlice};
 
     use super::TemplatedFile;
@@ -647,13 +644,11 @@ pub mod python {
             if source_str.len()
                 == sliced_file
                     .last()
-                    .map(|s| s.0.source_codepoint_slice.stop)
-                    .unwrap_or(0)
+                    .map_or(0, |s| s.0.source_codepoint_slice.stop)
                 && source_str.len()
                     == sliced_file
                         .last()
-                        .map(|s| s.0.templated_codepoint_slice.stop)
-                        .unwrap_or(0)
+                        .map_or(0, |s| s.0.templated_codepoint_slice.stop)
             {
                 return sliced_file.iter().map(|ts| ts.0.clone()).collect();
             }
@@ -667,20 +662,16 @@ pub mod python {
 
                     new_slice.source_codepoint_slice.start = char_source_vec
                         .get(new_slice.source_codepoint_slice.start)
-                        .map(|c| c.0)
-                        .unwrap_or_else(|| char_source_vec.len());
+                        .map_or_else(|| char_source_vec.len(), |c| c.0);
                     new_slice.source_codepoint_slice.stop = char_source_vec
                         .get(new_slice.source_codepoint_slice.stop)
-                        .map(|c| c.0)
-                        .unwrap_or_else(|| char_source_vec.len());
+                        .map_or_else(|| char_source_vec.len(), |c| c.0);
                     new_slice.templated_codepoint_slice.start = char_templated_vec
                         .get(new_slice.templated_codepoint_slice.start)
-                        .map(|c| c.0)
-                        .unwrap_or_else(|| char_templated_vec.len());
+                        .map_or_else(|| char_templated_vec.len(), |c| c.0);
                     new_slice.templated_codepoint_slice.stop = char_templated_vec
                         .get(new_slice.templated_codepoint_slice.stop)
-                        .map(|c| c.0)
-                        .unwrap_or_else(|| char_templated_vec.len());
+                        .map_or_else(|| char_templated_vec.len(), |c| c.0);
 
                     // log::debug!("{:?}", new_slice);
 

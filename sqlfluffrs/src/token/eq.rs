@@ -18,7 +18,7 @@ impl Hash for Token {
         self.token_type.hash(state);
         self.raw.hash(state);
         if let Some(p) = self.pos_marker.as_ref() {
-            p.working_loc().hash(state)
+            p.working_loc().hash(state);
         }
     }
 }

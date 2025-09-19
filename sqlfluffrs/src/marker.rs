@@ -16,6 +16,7 @@ pub struct PositionMarker {
 }
 
 impl PositionMarker {
+    #[must_use]
     pub fn new(
         source_slice: Slice,
         templated_slice: Slice,
@@ -37,15 +38,18 @@ impl PositionMarker {
         }
     }
 
+    #[must_use]
     pub fn working_loc(&self) -> (usize, usize) {
         (self.working_line_no, self.working_line_pos)
     }
 
+    #[must_use]
     pub fn working_loc_after(&self, raw: &str) -> (usize, usize) {
         // Infer next position based on the raw string
         self.infer_next_position(raw, self.working_line_no, self.working_line_pos)
     }
 
+    #[must_use]
     pub fn infer_next_position(
         &self,
         raw: &str,
@@ -65,29 +69,35 @@ impl PositionMarker {
         }
     }
 
+    #[must_use]
     pub fn source_position(&self) -> (usize, usize) {
         self.templated_file
             .get_line_pos_of_char_pos(self.source_slice.start, true)
     }
 
+    #[must_use]
     pub fn templated_position(&self) -> (usize, usize) {
         self.templated_file
             .get_line_pos_of_char_pos(self.source_slice.start, false)
     }
 
+    #[must_use]
     pub fn line_no(&self) -> usize {
         self.source_position().0
     }
 
+    #[must_use]
     pub fn line_pos(&self) -> usize {
         self.source_position().1
     }
 
+    #[must_use]
     pub fn to_source_string(&self) -> String {
         let (line, pos) = self.source_position();
         format!("[L:{line:3}, P:{pos:3}]")
     }
 
+    #[must_use]
     pub fn start_point_marker(&self) -> Self {
         PositionMarker::from_point(
             self.source_slice.start,
@@ -98,6 +108,7 @@ impl PositionMarker {
         )
     }
 
+    #[must_use]
     pub fn end_point_marker(&self) -> Self {
         PositionMarker::from_point(
             self.source_slice.stop,
@@ -108,10 +119,12 @@ impl PositionMarker {
         )
     }
 
+    #[must_use]
     pub fn is_point(&self) -> bool {
         slice_is_point(&self.source_slice) && slice_is_point(&self.templated_slice)
     }
 
+    #[must_use]
     pub fn with_working_position(&self, line_no: usize, line_pos: usize) -> Self {
         PositionMarker {
             working_line_no: line_no,
@@ -120,11 +133,13 @@ impl PositionMarker {
         }
     }
 
+    #[must_use]
     pub fn is_literal(&self) -> bool {
         self.templated_file
             .is_source_slice_literal(&self.source_slice)
     }
 
+    #[must_use]
     pub fn source_str(&self) -> String {
         self.templated_file
             .source_str
@@ -134,11 +149,13 @@ impl PositionMarker {
             .collect::<String>()
     }
 
+    #[must_use]
     pub fn to_source_dict(&self) -> HashMap<String, usize> {
         self.templated_file
             .source_position_dict_from_slice(&self.source_slice)
     }
 
+    #[must_use]
     pub fn from_point(
         source_point: usize,
         templated_point: usize,
@@ -158,6 +175,7 @@ impl PositionMarker {
         )
     }
 
+    #[must_use]
     pub fn from_points(start_marker: &PositionMarker, end_marker: &PositionMarker) -> Self {
         if start_marker.templated_file != end_marker.templated_file {
             panic!("Markers must refer to the same templated file.");
@@ -172,6 +190,7 @@ impl PositionMarker {
         )
     }
 
+    #[must_use]
     pub fn from_child_markers(markers: &[Option<PositionMarker>]) -> Self {
         let mut source_start = usize::MAX;
         let mut source_stop = usize::MIN;
@@ -233,6 +252,7 @@ impl Display for PositionMarker {
     }
 }
 
+#[must_use]
 pub fn slice_is_point(test_slice: &Slice) -> bool {
     test_slice.start == test_slice.stop
 }

@@ -11,4 +11,4 @@ pub mod token;
 pub mod python;
 // include!(concat!(env!("OUT_DIR"), "/dialect_matcher.rs"));
 
-use crate::dialect::matcher::*;
+use crate::dialect::matcher::{Dialect, get_lexers};

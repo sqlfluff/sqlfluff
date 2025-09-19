@@ -363,9 +363,9 @@ impl PyToken {
     }
 
     #[getter]
-    pub fn quoted_value(&self, py: Python<'_>) -> Option<(String, PyObject)> {
+    pub fn quoted_value(&self, py: Python<'_>) -> Option<(String, Py<PyAny>)> {
         self.0.quoted_value.clone().map(|(s, g)| {
-            let py_group: PyObject = match g {
+            let py_group: Py<PyAny> = match g {
                 RegexModeGroup::Index(idx) => idx.into_pyobject(py).unwrap().into(),
                 RegexModeGroup::Name(name) => name.into_pyobject(py).unwrap().into(),
             };
@@ -510,10 +510,7 @@ pub struct PySqlFluffToken(pub PyToken);
 
 impl<'py> FromPyObject<'py> for PySqlFluffToken {
     fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
-        // println!("{}{}{:?}{:?}", ob, ob.get_type(), ob.str(), ob.repr());
-        // println!("{:?}", ob);
         let raw = ob.getattr("raw")?.extract::<String>()?;
-        // println!("raw: {:?}", raw);
         let class_types = ob
             .getattr("_class_types")
             .unwrap_or(ob.getattr("class_types")?)
@@ -527,23 +524,18 @@ impl<'py> FromPyObject<'py> for PySqlFluffToken {
             .into_iter()
             .map(|s| s.to_string())
             .collect::<Vec<String>>();
-        // println!("class_types: {:?}", class_types);
-        // println!("{}{:?}", raw, class_types);
         let segments = ob
             .getattr("segments")?
             .extract::<Vec<PySqlFluffToken>>()
             .map(|s| s.into_iter().map(Into::into).collect::<Vec<Token>>())?;
-        // println!("segments: {:#?}", segments);
         let pos_marker = ob
             .getattr("pos_marker")?
             .extract::<PySqlFluffPositionMarker>()?;
-        // println!("{:#?}", ob);
         let cache_key = ob
             .getattr("_cache_key")
             .unwrap_or(ob.getattr("cache_key")?)
             .extract::<String>()
             .unwrap_or("".to_string());
-        // println!("pos_marker: {:?}", pos_marker);
         Ok(Self(PyToken(Token::base_token(
             raw,
             pos_marker.into(),
