@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0d3e1a239cfc078f09e11cf7d587ef50fa821012b42cb3e13079f6e3d457e410
+_hash: 07d4fe3480678462b502f76cca4c139e8990dd21b70cfc444680e8f76d0b3860
 file:
 - batch:
     statement:
@@ -31,7 +31,7 @@ file:
             - naked_identifier: rn
           - comparison_operator:
               raw_comparison_operator: '='
-          - numeric_literal: '1'
+          - integer_literal: '1'
           - binary_operator: and
           - column_reference:
             - naked_identifier: dst
@@ -84,8 +84,8 @@ file:
                     - naked_identifier: src
                     - dot: .
                     - naked_identifier: e_date_from
-- go_statement:
-    keyword: go
+    go_statement:
+      keyword: go
 - batch:
     statement:
       with_compound_statement:
@@ -240,8 +240,8 @@ file:
                       naked_identifier: cc_description
                 - end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: go
+    go_statement:
+      keyword: go
 - batch:
     statement:
       merge_statement:
@@ -414,7 +414,7 @@ file:
                 naked_identifier: s_id
               comparison_operator:
                 raw_comparison_operator: '='
-              numeric_literal: '1'
+              integer_literal: '1'
               keyword: in
               bracketed:
                 start_bracket: (
@@ -462,8 +462,8 @@ file:
                     column_reference:
                       naked_identifier: col2
     statement_terminator: ;
-- go_statement:
-    keyword: go
+    go_statement:
+      keyword: go
 - batch:
     statement:
       merge_statement:
@@ -584,8 +584,8 @@ file:
           - table_reference:
               hash_identifier: '#MyTempTable'
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       merge_statement:
@@ -716,7 +716,7 @@ file:
             - comparison_operator:
               - raw_comparison_operator: <
               - raw_comparison_operator: '='
-            - numeric_literal: '0'
+            - integer_literal: '0'
           - keyword: THEN
           - merge_delete_clause:
               keyword: DELETE
@@ -796,8 +796,8 @@ file:
             - dot: .
             - naked_identifier: ModifiedDate
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       merge_statement:
@@ -926,7 +926,7 @@ file:
             - comparison_operator:
               - raw_comparison_operator: '>'
               - raw_comparison_operator: '='
-            - numeric_literal: '0'
+            - integer_literal: '0'
           - keyword: THEN
           - merge_update_clause:
               keyword: UPDATE
@@ -966,7 +966,7 @@ file:
             - comparison_operator:
               - raw_comparison_operator: <
               - raw_comparison_operator: '='
-            - numeric_literal: '0'
+            - integer_literal: '0'
           - keyword: THEN
           - merge_delete_clause:
               keyword: DELETE
@@ -1003,8 +1003,8 @@ file:
                 keyword: AS
               naked_identifier: PreviousQty
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       insert_statement:
@@ -1113,8 +1113,8 @@ file:
                     keyword: as
                   naked_identifier: upd
             statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       merge_statement:
@@ -1241,8 +1241,8 @@ file:
           - table_reference:
               hash_identifier: '#MyTempTable'
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       merge_statement:
@@ -1389,7 +1389,7 @@ file:
             - comparison_operator:
               - raw_comparison_operator: '>'
               - raw_comparison_operator: '='
-            - numeric_literal: '0'
+            - integer_literal: '0'
           - keyword: THEN
           - merge_update_clause:
               keyword: UPDATE
@@ -1429,7 +1429,7 @@ file:
             - comparison_operator:
               - raw_comparison_operator: <
               - raw_comparison_operator: '='
-            - numeric_literal: '0'
+            - integer_literal: '0'
           - keyword: THEN
           - merge_delete_clause:
               keyword: DELETE
@@ -1466,8 +1466,8 @@ file:
                 keyword: AS
               naked_identifier: PreviousQty
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       merge_statement:
@@ -1484,7 +1484,7 @@ file:
             select_clause:
               keyword: SELECT
               select_clause_element:
-                numeric_literal: '1'
+                integer_literal: '1'
                 alias_expression:
                   alias_operator:
                     keyword: AS
