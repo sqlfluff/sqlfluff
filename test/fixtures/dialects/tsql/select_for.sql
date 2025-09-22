@@ -49,6 +49,10 @@ FROM Production.ProductModel
 WHERE ProductModelID=122 OR ProductModelID=119
 FOR XML PATH ('root');
 
+-- Per Issue #5567
+SELECT 0 ErrorCode
+FOR XML PATH('Result'), TYPE
+
 -- FOR BROWSE
 SELECT 1 AS a
 FOR BROWSE
