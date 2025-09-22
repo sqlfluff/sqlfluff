@@ -145,6 +145,13 @@ class ParallelRunner(BaseRunner):
     # Overriden from BaseRunner
     def iter_rendered(self, fnames: list[str]) -> Iterator[tuple[str, RenderedFile]]:
         """Iterate through rendered files ready for linting."""
+        # DBT itself already does some amount of parallelism, so we delegate to
+        # the parent class.
+        if self.config.get_templater().name == "dbt":
+            for result in super().iter_rendered(fnames):
+                yield result
+            return
+
         sequenced = list(self.linter.templater.sequence_files(
             fnames, config=self.config, formatter=self.linter.formatter
         ))
