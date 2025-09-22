@@ -53,6 +53,12 @@ FOR XML PATH ('root');
 SELECT 0 ErrorCode
 FOR XML PATH('Result'), TYPE
 
+SELECT 0 ErrorCode
+FOR XML PATH('Result'), ROOT('RootName'), TYPE
+
+SELECT 0 ErrorCode
+FOR XML PATH('Result'), TYPE, ROOT('RootName')
+
 -- FOR BROWSE
 SELECT 1 AS a
 FOR BROWSE

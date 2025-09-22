@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 73cba65618ffd7b7b376e8b950120ae69402f2886e4907418c56cda78a54dfb2
+_hash: 47a072e8ebd4a29ab9931979bd82178bd5475e916339440d64592b82401343fb
 file:
 - batch:
     statement:
@@ -328,6 +328,54 @@ file:
             end_bracket: )
         - comma: ','
         - keyword: TYPE
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            integer_literal: '0'
+            alias_expression:
+              naked_identifier: ErrorCode
+        for_clause:
+        - keyword: FOR
+        - keyword: XML
+        - keyword: PATH
+        - bracketed:
+            start_bracket: (
+            quoted_literal: "'Result'"
+            end_bracket: )
+        - comma: ','
+        - keyword: ROOT
+        - bracketed:
+            start_bracket: (
+            quoted_literal: "'RootName'"
+            end_bracket: )
+        - comma: ','
+        - keyword: TYPE
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            integer_literal: '0'
+            alias_expression:
+              naked_identifier: ErrorCode
+        for_clause:
+        - keyword: FOR
+        - keyword: XML
+        - keyword: PATH
+        - bracketed:
+            start_bracket: (
+            quoted_literal: "'Result'"
+            end_bracket: )
+        - comma: ','
+        - keyword: TYPE
+        - comma: ','
+        - keyword: ROOT
+        - bracketed:
+            start_bracket: (
+            quoted_literal: "'RootName'"
+            end_bracket: )
   - statement:
       select_statement:
         select_clause:
