@@ -1567,6 +1567,10 @@ class CommentOnStatementSegment(BaseSegment):
                 "VOLUME",
                 Ref("VolumeReferenceSegment"),
             ),
+            Sequence(
+                "COLUMN",
+                Ref("ColumnReferenceSegment"),
+            ),
             # TODO: Split out individual items if they have references
             Sequence(
                 OneOf(
