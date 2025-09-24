@@ -67,7 +67,6 @@ oracle_dialect.sets("reserved_keywords").update(
         "CHECK",
         "CLUSTER",
         "COLUMN",
-        "COLUMN_VALUE",
         "COMMENT",
         "COMPRESS",
         "CONNECT",
@@ -268,6 +267,7 @@ oracle_dialect.sets("unreserved_keywords").update(
 oracle_dialect.sets("bare_functions").clear()
 oracle_dialect.sets("bare_functions").update(
     [
+        "COLUMN_VALUE",
         "current_date",
         "current_timestamp",
         "dbtimezone",
