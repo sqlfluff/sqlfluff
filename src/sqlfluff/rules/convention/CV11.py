@@ -202,8 +202,11 @@ class Rule_CV11(BaseRule):
         # Config type hints
         self.preferred_type_casting_style: str
 
-        # Rule disabled for teradata.
-        if context.dialect.name == "teradata":
+        # Rule disabled for teradata, athena, or trino.
+        # They only support one of the options
+        # TODO: add additional dialects that only support a single option here.
+        # TODO: add a tier list for dialects support multiples, but not all.
+        if context.dialect.name in ("teradata", "athena", "trino"):
             return None
 
         # If we're in a templated section, don't consider the current location.
