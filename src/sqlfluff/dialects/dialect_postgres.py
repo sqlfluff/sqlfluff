@@ -4977,6 +4977,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("LockTableStatementSegment"),
             Ref("ClusterStatementSegment"),
             Ref("CreateCollationStatementSegment"),
+            Ref("DropCollationStatementSegment"),
             Ref("CallStoredProcedureSegment"),
             Ref("CreateServerStatementSegment"),
             Ref("CreateUserMappingStatementSegment"),
@@ -6375,6 +6376,22 @@ class CreateCollationStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
             ),
         ),
+    )
+
+
+class DropCollationStatementSegment(BaseSegment):
+    """A `DROP COLLATION` statement.
+
+    https://www.postgresql.org/docs/current/sql-dropcollation.html
+    """
+
+    type = "drop_collation_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "COLLATION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf("CASCADE", "RESTRICT", optional=True),
     )
 
 
