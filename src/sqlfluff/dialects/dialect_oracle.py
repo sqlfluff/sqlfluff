@@ -67,6 +67,7 @@ oracle_dialect.sets("reserved_keywords").update(
         "CHECK",
         "CLUSTER",
         "COLUMN",
+        "COLUMN_VALUE",
         "COMMENT",
         "COMPRESS",
         "CONNECT",
