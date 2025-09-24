@@ -6391,7 +6391,7 @@ class DropCollationStatementSegment(BaseSegment):
         "COLLATION",
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
