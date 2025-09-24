@@ -683,6 +683,29 @@ sparksql_dialect.add(
         "OF",
         Ref("NumericLiteralSegment"),
     ),
+    InsertSourceGrammar=OneOf(
+        AnyNumberOf(
+            Ref("ValuesClauseSegment"),
+            min_times=1,
+        ),
+        Ref("SelectableGrammar"),
+        Sequence(
+            Ref.keyword("TABLE", optional=True),
+            Ref("TableReferenceSegment"),
+        ),
+        Sequence(
+            "FROM",
+            Ref("TableReferenceSegment"),
+            "SELECT",
+            Delimited(
+                Ref("ColumnReferenceSegment"),
+            ),
+            Ref("WhereClauseSegment", optional=True),
+            Ref("GroupByClauseSegment", optional=True),
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+        ),
+    ),
     # Adding Hint related segments so they are not treated as generic comments
     # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
     StartHintSegment=StringParser("/*+", SymbolSegment, type="start_hint"),
@@ -1829,10 +1852,9 @@ class UseDatabaseStatementSegment(BaseSegment):
 
 # Data Manipulation Statements
 class InsertStatementSegment(BaseSegment):
-    """A `INSERT [TABLE]` statement to insert or overwrite new rows into a table.
+    """An `INSERT [TABLE]` statement to insert or overwrite new rows into a table.
 
-    https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-into.html
-    https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-overwrite-table.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-table.html#insert-table
     """
 
     type = "insert_statement"
@@ -1842,29 +1864,22 @@ class InsertStatementSegment(BaseSegment):
         OneOf("INTO", "OVERWRITE"),
         Ref.keyword("TABLE", optional=True),
         Ref("TableReferenceSegment"),
-        Ref("PartitionSpecGrammar", optional=True),
-        Ref("BracketedColumnReferenceListGrammar", optional=True),
         OneOf(
-            AnyNumberOf(
-                Ref("ValuesClauseSegment"),
-                min_times=1,
-            ),
-            Ref("SelectableGrammar"),
             Sequence(
-                Ref.keyword("TABLE", optional=True),
-                Ref("TableReferenceSegment"),
+                Ref("PartitionSpecGrammar", optional=True),
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Ref("InsertSourceGrammar"),
             ),
             Sequence(
-                "FROM",
-                Ref("TableReferenceSegment"),
-                "SELECT",
-                Delimited(
-                    Ref("ColumnReferenceSegment"),
-                ),
-                Ref("WhereClauseSegment", optional=True),
-                Ref("GroupByClauseSegment", optional=True),
-                Ref("OrderByClauseSegment", optional=True),
-                Ref("LimitClauseSegment", optional=True),
+                "REPLACE",
+                Ref("WhereClauseSegment"),
+                Ref("InsertSourceGrammar"),
+            ),
+            Sequence(
+                "REPLACE",
+                "USING",
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref("InsertSourceGrammar"),
             ),
         ),
     )
