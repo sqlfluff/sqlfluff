@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e067fa235baf988cfe2e40310992835c4212ac563dcc68c59c45348dab8585b0
+_hash: b38b8436fb6e83416b265978f28ba7795341b9d69d04287a55c8ef4c6f890501
 file:
   batch:
     statement:
@@ -111,7 +111,7 @@ file:
                     bare_function: CURRENT_TIMESTAMP
                   statement_terminator: ;
             - statement:
-                set_segment:
+                set_local_variable_segment:
                   keyword: SET
                   parameter: '@EOMONTH'
                   assignment_operator:
@@ -123,7 +123,7 @@ file:
                         quoted_literal: "'2000-01-01'"
                       end_bracket: )
             - statement:
-                set_segment:
+                set_local_variable_segment:
                   keyword: SET
                   parameter: '@EOMONTH'
                   assignment_operator:
@@ -134,7 +134,7 @@ file:
                       expression:
                         quoted_literal: "'2001-01-01'"
                       end_bracket: )
-                  statement_terminator: ;
+            - statement_terminator: ;
             - statement:
                 if_then_statement:
                   if_clause:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 96b5383446e47c2824ceb2dfa9c744e2ab3c8e265572e0d4272a5c3f25c51b33
+_hash: 2e331e3cca75d2ef01d27bc0bcff842a46d66f49250ead969821052c21a7c7fa
 file:
 - batch:
     statement:
@@ -90,84 +90,85 @@ file:
 - batch:
   - statement:
       declare_segment:
-      - keyword: DECLARE
-      - naked_identifier: complex_cursor
-      - keyword: CURSOR
-      - keyword: FOR
-      - select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              column_reference:
-              - naked_identifier: a
-              - dot: .
-              - naked_identifier: BusinessEntityID
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                  - naked_identifier: HumanResources
-                  - dot: .
-                  - naked_identifier: EmployeePayHistory
-                alias_expression:
-                  alias_operator:
-                    keyword: AS
-                  naked_identifier: a
-          where_clause:
-            keyword: WHERE
-            expression:
-              column_reference:
-                naked_identifier: RateChangeDate
-              comparison_operator:
-              - raw_comparison_operator: <
-              - raw_comparison_operator: '>'
-              bracketed:
-                start_bracket: (
-                expression:
-                  select_statement:
-                    select_clause:
-                      keyword: SELECT
-                      select_clause_element:
-                        function:
-                          function_name:
-                            function_name_identifier: MAX
-                          function_contents:
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                column_reference:
-                                  naked_identifier: RateChangeDate
-                              end_bracket: )
-                    from_clause:
-                      keyword: FROM
-                      from_expression:
-                        from_expression_element:
-                          table_expression:
-                            table_reference:
-                            - naked_identifier: HumanResources
-                            - dot: .
-                            - naked_identifier: EmployeePayHistory
-                          alias_expression:
-                            alias_operator:
-                              keyword: AS
-                            naked_identifier: b
-                    where_clause:
-                      keyword: WHERE
-                      expression:
-                      - column_reference:
-                        - naked_identifier: a
-                        - dot: .
-                        - naked_identifier: BusinessEntityID
-                      - comparison_operator:
-                          raw_comparison_operator: '='
-                      - column_reference:
-                        - naked_identifier: b
-                        - dot: .
-                        - naked_identifier: BusinessEntityID
-                end_bracket: )
-          statement_terminator: ;
+        keyword: DECLARE
+        naked_identifier: complex_cursor
+        cursor_definition:
+        - keyword: CURSOR
+        - keyword: FOR
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                - naked_identifier: a
+                - dot: .
+                - naked_identifier: BusinessEntityID
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: HumanResources
+                    - dot: .
+                    - naked_identifier: EmployeePayHistory
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: a
+            where_clause:
+              keyword: WHERE
+              expression:
+                column_reference:
+                  naked_identifier: RateChangeDate
+                comparison_operator:
+                - raw_comparison_operator: <
+                - raw_comparison_operator: '>'
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    select_statement:
+                      select_clause:
+                        keyword: SELECT
+                        select_clause_element:
+                          function:
+                            function_name:
+                              function_name_identifier: MAX
+                            function_contents:
+                              bracketed:
+                                start_bracket: (
+                                expression:
+                                  column_reference:
+                                    naked_identifier: RateChangeDate
+                                end_bracket: )
+                      from_clause:
+                        keyword: FROM
+                        from_expression:
+                          from_expression_element:
+                            table_expression:
+                              table_reference:
+                              - naked_identifier: HumanResources
+                              - dot: .
+                              - naked_identifier: EmployeePayHistory
+                            alias_expression:
+                              alias_operator:
+                                keyword: AS
+                              naked_identifier: b
+                      where_clause:
+                        keyword: WHERE
+                        expression:
+                        - column_reference:
+                          - naked_identifier: a
+                          - dot: .
+                          - naked_identifier: BusinessEntityID
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - column_reference:
+                          - naked_identifier: b
+                          - dot: .
+                          - naked_identifier: BusinessEntityID
+                  end_bracket: )
+            statement_terminator: ;
   - statement:
       open_cursor_statement:
         keyword: OPEN
