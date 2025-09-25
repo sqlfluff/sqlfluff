@@ -105,7 +105,7 @@ def test__rules__std_ST12_templated_consecutive_semicolons_detected():
     """Actual consecutive semicolons in templated output must still be flagged."""
     sql = """
     {% for _ in range(2) %}
-    ;SELECT 1;
+    ;SELECT 1;;
     {% endfor %}
     """
     cfg = FluffConfig(overrides={"dialect": "ansi", "templater": "jinja"})

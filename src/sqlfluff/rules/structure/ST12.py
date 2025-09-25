@@ -1,5 +1,7 @@
 """Implementation of Rule ST12."""
 
+# Standard library imports intentionally minimal.
+
 from sqlfluff.core.rules import (
     BaseRule,
     EvalResultType,
@@ -7,7 +9,7 @@ from sqlfluff.core.rules import (
     LintResult,
     RuleContext,
 )
-from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 
 
 class Rule_ST12(BaseRule):
@@ -39,90 +41,95 @@ class Rule_ST12(BaseRule):
     name = "structure.consecutive_semicolons"
     aliases: tuple[str, ...] = ()
     groups: tuple[str, ...] = ("all", "structure")
-    crawl_behaviour = SegmentSeekerCrawler({"file"})
+    crawl_behaviour = RootOnlyCrawler()
     is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> EvalResultType:
-        """Find consecutive semicolons and provide fixes.
+        """Detect consecutive semicolons and provide fixes.
 
-        1. Operate only at file segment root for comprehensive view
-        2. Collect all statement terminators in source order
-        3. Identify runs of consecutive semicolons (separated only by whitespace)
-        4. For each run >= 2 semicolons, delete all but the first one
+        Operates at the file root, builds a cached bounded prefix of
+        non-whitespace characters, then finds adjacent terminators that
+        are separated only by whitespace.
         """
-        # Only operate once at file segment root.
         if not context.segment.is_type("file"):  # pragma: no cover
             return None
 
         file_seg = context.segment
 
-        # Collect all statement terminators in source order.
+        def _pos_start(seg):
+            m = seg.pos_marker
+            assert m
+            # Use templated positions when a templated file exists.
+            # Otherwise use source positions.
+            return (
+                m.templated_slice.start
+                if context.templated_file is not None
+                else m.source_slice.start
+            )
+
+        def _pos_stop(seg):
+            m = seg.pos_marker
+            assert m
+            return (
+                m.templated_slice.stop
+                if context.templated_file is not None
+                else m.source_slice.stop
+            )
+
+        # Collect semicolon terminators assuming they are in order.
         terms = [
             t for t in file_seg.recursive_crawl("statement_terminator") if t.pos_marker
         ]
-        if not terms:
+        if len(terms) <= 1:
             return None
 
-        using_templated_positions = context.templated_file is not None
+        # Calculate the bounding window across all terminators. Using the
+        # min and max across all starts/stops avoids relying on their order
+        # in the parse tree and eliminates the need for a defensive guard.
+        starts = [_pos_start(t) for t in terms]
+        stops = [_pos_stop(t) for t in terms]
+        min_start = min(starts)
+        max_stop = max(stops)
 
-        def seg_start(segment) -> int:
-            marker = segment.pos_marker
-            assert marker
-            return (
-                marker.templated_slice.start
-                if using_templated_positions
-                else marker.source_slice.start
-            )
+        # Prefer the templated view when available.
+        # Otherwise fall back to the raw file text.
+        s = (
+            context.templated_file.templated_str
+            if context.templated_file is not None
+            else file_seg.raw
+        )
+        sub = s[min_start:max_stop]
+        # prefix[i] counts non-whitespace characters in sub[:i]
+        prefix = [0] * (len(sub) + 1)
+        acc = 0
+        _isspace = str.isspace
+        for i, ch in enumerate(sub):
+            if not _isspace(ch):
+                acc += 1
+            prefix[i + 1] = acc
 
-        def seg_stop(segment) -> int:
-            marker = segment.pos_marker
-            assert marker
-            return (
-                marker.templated_slice.stop
-                if using_templated_positions
-                else marker.source_slice.stop
-            )
-
-        terms.sort(key=seg_start)
-
-        # Pre-fetch raw segments for whitespace-only checks between terminators.
-        raw_segs = [
-            (raw_seg, seg_start(raw_seg), seg_stop(raw_seg))
-            for raw_seg in file_seg.raw_segments
-            if raw_seg.pos_marker
-        ]
-
-        def whitespace_only_between(a, b) -> bool:
-            """Return True if only whitespace exists between two terminators.
-
-            We intentionally do NOT treat comments as whitespace; if comments
-            or any other non-whitespace raw tokens appear between semicolons,
-            this is not considered a consecutive run for the purposes of ST12.
-            """
-            assert a.pos_marker and b.pos_marker
-            lo = seg_stop(a)
-            hi = seg_start(b)
-            if lo >= hi:
+        # Is the range between two segments only whitespace?
+        def _whitespace_only_between(a, b) -> bool:
+            lo = _pos_stop(a)
+            hi = _pos_start(b)
+            lo_rel = lo - min_start
+            hi_rel = hi - min_start
+            # If the end is at or after the start there are no characters
+            # between them, so consider that whitespace-only (i.e. empty).
+            if hi_rel <= lo_rel:
                 return True
-            for raw_seg, start, stop in raw_segs:
-                if start >= hi or stop <= lo:
-                    continue
-                if raw_seg.is_meta:
-                    continue
-                if raw_seg.is_whitespace:
-                    continue
-                return False
-            return True
+            # Relative indices should be within the prefix range.
+            # Compute the difference.
+            return (prefix[hi_rel] - prefix[lo_rel]) == 0
 
+        # Find runs of adjacent semicolons separated only by whitespace
         results: list[LintResult] = []
         i = 0
         n = len(terms)
         while i < n - 1:
             j = i
-            # Grow the run while only whitespace is between adjacent semicolons.
-            while j + 1 < n and whitespace_only_between(terms[j], terms[j + 1]):
+            while j + 1 < n and _whitespace_only_between(terms[j], terms[j + 1]):
                 j += 1
-
             run_len = j - i + 1
             if run_len >= 2:
                 anchor = terms[i]
@@ -140,5 +147,31 @@ class Rule_ST12(BaseRule):
                 i = j + 1
             else:
                 i += 1
+        # Run detection complete
+
+        # In templated files, collapse duplicate violations that map to
+        # the same source slice to avoid repeated reports.
+        if results and context.templated_file is not None:
+            seen_keys = set()
+            deduped_results: list[LintResult] = []
+            for res in results:
+                # Anchors from `terms` have position markers; assert the invariant.
+                assert res.anchor is not None
+                assert res.anchor.pos_marker is not None
+                pm = res.anchor.pos_marker
+                src_slice = pm.source_slice
+                key = (
+                    (
+                        src_slice.start
+                        if src_slice is not None
+                        else pm.templated_slice.start
+                    ),
+                    res.anchor.raw,
+                )
+                if key in seen_keys:
+                    continue
+                seen_keys.add(key)
+                deduped_results.append(res)
+            results = deduped_results
 
         return results or None
