@@ -1,6 +1,7 @@
 """Tests for ST12 (structure.consecutive_semicolons)."""
 
 import sqlfluff
+from sqlfluff.core.config import FluffConfig
 
 
 def test__rules__std_ST12_basic_patterns():
@@ -85,3 +86,29 @@ def test__rules__std_ST12_comments_break_runs():
 
     # Comments should break the run, so no violations
     assert len(violations) == 0
+
+
+def test__rules__std_ST12_templated_loop_no_false_positive():
+    """Templated loops rendering full statements should not trigger ST12."""
+    sql = """
+    {% for i in range(3) %}
+    SELECT {{ i }};
+    {% endfor %}
+    """
+    cfg = FluffConfig(overrides={"dialect": "ansi", "templater": "jinja"})
+    result = sqlfluff.lint(sql, rules=["ST12"], config=cfg)
+    violations = [r for r in result if r["code"] == "ST12"]
+    assert violations == []
+
+
+def test__rules__std_ST12_templated_consecutive_semicolons_detected():
+    """Actual consecutive semicolons in templated output must still be flagged."""
+    sql = """
+    {% for _ in range(2) %}
+    ;SELECT 1;
+    {% endfor %}
+    """
+    cfg = FluffConfig(overrides={"dialect": "ansi", "templater": "jinja"})
+    result = sqlfluff.lint(sql, rules=["ST12"], config=cfg)
+    violations = [r for r in result if r["code"] == "ST12"]
+    assert len(violations) == 1

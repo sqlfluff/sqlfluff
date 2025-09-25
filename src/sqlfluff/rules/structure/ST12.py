@@ -63,12 +63,34 @@ class Rule_ST12(BaseRule):
         if not terms:
             return None
 
-        terms.sort(
-            key=lambda s: s.pos_marker.source_slice.start  # type: ignore[union-attr]
-        )
+        using_templated_positions = context.templated_file is not None
+
+        def seg_start(segment) -> int:
+            marker = segment.pos_marker
+            assert marker
+            return (
+                marker.templated_slice.start
+                if using_templated_positions
+                else marker.source_slice.start
+            )
+
+        def seg_stop(segment) -> int:
+            marker = segment.pos_marker
+            assert marker
+            return (
+                marker.templated_slice.stop
+                if using_templated_positions
+                else marker.source_slice.stop
+            )
+
+        terms.sort(key=seg_start)
 
         # Pre-fetch raw segments for whitespace-only checks between terminators.
-        raw_segs = file_seg.raw_segments
+        raw_segs = [
+            (raw_seg, seg_start(raw_seg), seg_stop(raw_seg))
+            for raw_seg in file_seg.raw_segments
+            if raw_seg.pos_marker
+        ]
 
         def whitespace_only_between(a, b) -> bool:
             """Return True if only whitespace exists between two terminators.
@@ -78,18 +100,18 @@ class Rule_ST12(BaseRule):
             this is not considered a consecutive run for the purposes of ST12.
             """
             assert a.pos_marker and b.pos_marker
-            lo = a.pos_marker.source_slice.stop
-            hi = b.pos_marker.source_slice.start
+            lo = seg_stop(a)
+            hi = seg_start(b)
             if lo >= hi:
                 return True
-            for rs in raw_segs:
-                assert rs.pos_marker
-                s = rs.pos_marker.source_slice.start
-                e = rs.pos_marker.source_slice.stop
-                # Consider raw segments strictly between the two.
-                if s >= lo and e <= hi:
-                    if not rs.is_whitespace:
-                        return False
+            for raw_seg, start, stop in raw_segs:
+                if start >= hi or stop <= lo:
+                    continue
+                if raw_seg.is_meta:
+                    continue
+                if raw_seg.is_whitespace:
+                    continue
+                return False
             return True
 
         results: list[LintResult] = []
