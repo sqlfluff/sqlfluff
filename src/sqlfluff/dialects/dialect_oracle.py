@@ -268,6 +268,7 @@ oracle_dialect.sets("unreserved_keywords").update(
 oracle_dialect.sets("bare_functions").clear()
 oracle_dialect.sets("bare_functions").update(
     [
+        "column_value",
         "current_date",
         "current_timestamp",
         "dbtimezone",
