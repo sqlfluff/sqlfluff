@@ -1,0 +1,39 @@
+- filepath: test/fixtures/dialects/mariadb/create_or_replace_procedure.sql
+  segments:
+    file:
+    - statement:
+        create_procedure_statement:
+        - keyword: CREATE
+        - whitespace: ' '
+        - keyword: OR
+        - whitespace: ' '
+        - keyword: REPLACE
+        - whitespace: ' '
+        - keyword: PROCEDURE
+        - whitespace: ' '
+        - function_name:
+            quoted_identifier: '`testprocedure`'
+        - procedure_parameter_list:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+        - newline: "\n"
+        - function_definition:
+            transaction_statement:
+              keyword: BEGIN
+              newline: "\n"
+              whitespace: '    '
+              statement:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    whitespace: ' '
+                    select_clause_element:
+                      numeric_literal: '1'
+    - statement_terminator: ;
+    - newline: "\n"
+    - statement:
+        transaction_statement:
+          keyword: END
+    - statement_terminator: '~'
+    - newline: "\n"

@@ -1,0 +1,51 @@
+- filepath: test/fixtures/dialects/mariadb/create_or_replace_function.sql
+  segments:
+    file:
+    - statement:
+        create_function_statement:
+        - keyword: CREATE
+        - whitespace: ' '
+        - keyword: OR
+        - whitespace: ' '
+        - keyword: REPLACE
+        - whitespace: ' '
+        - keyword: FUNCTION
+        - whitespace: ' '
+        - function_name:
+            quoted_identifier: '`testfunction`'
+        - function_parameter_list:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+        - newline: "\n"
+        - keyword: RETURNS
+        - whitespace: ' '
+        - data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                end_bracket: )
+        - newline: "\n"
+        - characteristic_statement:
+            keyword: DETERMINISTIC
+        - newline: "\n"
+        - function_definition:
+            transaction_statement:
+              keyword: BEGIN
+              newline: "\n"
+              whitespace: '    '
+              statement:
+                return_statement:
+                  keyword: RETURN
+                  whitespace: ' '
+                  expression:
+                    quoted_literal: '"foo"'
+    - statement_terminator: ;
+    - newline: "\n"
+    - statement:
+        transaction_statement:
+          keyword: END
+    - statement_terminator: '~'
+    - newline: "\n"
