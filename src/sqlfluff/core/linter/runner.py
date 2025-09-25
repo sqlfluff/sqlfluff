@@ -158,16 +158,16 @@ class ParallelRunner(BaseRunner):
         # Prepare arguments for each file
         args_list = [(fname, self.linter, self.config) for fname in sequenced]
 
-        results = []
+        results: list[tuple[str, RenderedFile]] = []
         with self._create_pool(
             self.processes,
             self._init_global,
         ) as pool:
-            for result in pool.imap_unordered(
+            for r in pool.imap_unordered(
                 self._render_file_static, args_list, chunksize=5
             ):
-                if result is not None:
-                    results.append(result)
+                if r is not None:
+                    results.append(r)
 
         # Instead of yielding in the loop above (which would double our number
         # of spawned processes), render everything first (taking the memory hit
