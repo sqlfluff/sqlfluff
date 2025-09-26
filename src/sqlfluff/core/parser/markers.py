@@ -3,13 +3,15 @@
 This class is a construct to keep track of positions within a file.
 """
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Optional
 
 from sqlfluff.core.helpers.slice import zero_slice
 
-if TYPE_CHECKING:
-    from sqlfluff.core.templaters import TemplatedFile  # pragma: no cover
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.templaters import TemplatedFile
+    from sqlfluffrs import RsPositionMarker
 
 
 @dataclass(frozen=True)
@@ -124,7 +126,7 @@ class PositionMarker:
 
     @classmethod
     def from_child_markers(
-        cls, *markers: Optional["PositionMarker"]
+        cls, markers: Sequence[Optional["PositionMarker"]]
     ) -> "PositionMarker":
         """Create a parent marker from it's children."""
         source_slice = slice(
@@ -249,3 +251,16 @@ class PositionMarker:
     def to_source_dict(self) -> dict[str, int]:
         """Serialise the source position."""
         return self.templated_file.source_position_dict_from_slice(self.source_slice)
+
+    @classmethod
+    def from_rs_position_marker(
+        cls,
+        rs_position_marker: "RsPositionMarker",
+        templated_file: "TemplatedFile",
+    ) -> "PositionMarker":
+        """Create a PositionMarker from an RsPositionMarker."""
+        return cls(
+            source_slice=rs_position_marker.source_slice,
+            templated_slice=rs_position_marker.templated_slice,
+            templated_file=templated_file,
+        )

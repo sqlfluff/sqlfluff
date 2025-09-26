@@ -113,7 +113,7 @@ bigquery_dialect.patch_lexer_matchers(
                     r"|[^'])*(?<!\\)(?:\\{2})*)')",
                     "value",
                 ),
-                "escape_replacements": [(r"\\([\\`\"'?])", "\1")],
+                "escape_replacements": [(r"\\([\\`\"'?])", r"\1")],
             },
         ),
         RegexLexer(
@@ -130,7 +130,7 @@ bigquery_dialect.patch_lexer_matchers(
                     r'(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*)")',
                     "value",
                 ),
-                "escape_replacements": [(r"\\([\\`\"'?])", "\1")],
+                "escape_replacements": [(r"\\([\\`\"'?])", r"\1")],
             },
         ),
     ]
