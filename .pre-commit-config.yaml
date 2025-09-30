@@ -70,7 +70,7 @@ repos:
     rev: 7.1.1
     hooks:
       - id: flake8
-        additional_dependencies: [flake8-black>=0.3.6]
+        additional_dependencies: [flake8-black>=0.3.7]
   - repo: https://github.com/pycqa/doc8
     rev: v1.1.2
     hooks:

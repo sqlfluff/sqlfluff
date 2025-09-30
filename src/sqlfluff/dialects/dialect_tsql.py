@@ -5670,7 +5670,7 @@ class ForClauseSegment(BaseSegment):
 
     type = "for_clause"
 
-    _common_directives_for_xml = Sequence(
+    _common_directives_for_xml = AnyNumberOf(
         Sequence(
             "BINARY",
             "BASE64",
