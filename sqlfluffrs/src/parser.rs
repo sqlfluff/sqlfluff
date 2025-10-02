@@ -305,14 +305,23 @@ impl Parser<'_> {
             } => {
                 dbg!("Bracketed elements: {:?}", elements);
                 let saved_pos = self.pos;
+                self.skip_transparent(*allow_gaps);
                 // Expect opening bracket
                 match self.parse_with_grammar(&bracket_pairs.0) {
                     Ok(open_node) => {
                         let mut children = vec![open_node];
+
+                        // Try to parse elements until we can't anymore
+                        let mut last_successful_pos = self.pos;
                         loop {
                             if self.is_terminated(terminators) {
                                 break;
                             }
+
+                            // Skip transparent tokens before each element
+                            self.skip_transparent(*allow_gaps);
+
+                            // Try to match each element type
                             let mut matched = false;
                             let saved_inner_pos = self.pos;
                             for elem in elements {
@@ -320,16 +329,21 @@ impl Parser<'_> {
                                     Ok(node) => {
                                         children.push(node);
                                         matched = true;
+                                        last_successful_pos = self.pos;
                                         break;
                                     }
                                     Err(_) => self.pos = saved_inner_pos,
                                 }
                             }
-                            if !matched {
+
+                            // If we didn't match any element, or haven't made progress, break
+                            if !matched || self.pos <= last_successful_pos {
+                                self.pos = last_successful_pos;  // Restore to last good position
                                 break;
                             }
                         }
                         // Expect closing bracket
+                        self.skip_transparent(*allow_gaps);
                         match self.parse_with_grammar(&bracket_pairs.1) {
                             Ok(close_node) => {
                                 children.push(close_node);
@@ -682,6 +696,28 @@ mod tests {
         };
 
         let ast = parser.call_rule("SelectClauseSegment")?;
+        println!("AST: {:#?}", ast);
+
+        Ok(())
+    }
+
+    #[test]
+    fn parse_bracket() -> Result<(), ParseError> {
+        let raw = "( this, that )";
+        let input = LexInput::String(raw.into());
+        let dialect = Dialect::Postgres;
+        let lexer = Lexer::new(None, dialect);
+        let (tokens, _errors) = lexer.lex(input, false);
+
+        dbg!("Tokens: {:#?}", &tokens);
+
+        let mut parser = Parser {
+            tokens: &tokens,
+            pos: 0,
+            dialect,
+        };
+
+        let ast = parser.call_rule("BracketedColumnReferenceListGrammar")?;
         println!("AST: {:#?}", ast);
 
         Ok(())

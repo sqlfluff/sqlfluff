@@ -14,10 +14,43 @@ impl Dialect {
             "SelectClauseElementSegment" => Some(&SELECT_CLAUSE_ELEMENT_GRAMMAR),
             "SelectClauseModifierSegment" => Some(&Grammar::Empty),
             "Identifier" => Some(&Grammar::Empty),
+            "BracketedColumnReferenceListGrammar" => Some(&BRACKETED_COLUMN_REFERENCE_LIST_GRAMMAR),
+            "ColumnReferenceSegment" => Some(&Grammar::Ref {
+                name: "Identifier",
+                optional: false,
+                allow_gaps: true,
+            }),
             _ => None,
         }
     }
 }
+
+pub static BRACKETED_COLUMN_REFERENCE_LIST_GRAMMAR: Lazy<Grammar> =
+    Lazy::new(|| Grammar::Bracketed {
+        elements: vec![Grammar::Delimited {
+            elements: vec![Grammar::Ref {
+                name: "ColumnReferenceSegment",
+                optional: false,
+                allow_gaps: true,
+            }],
+            delimiter: Box::new(Grammar::Ref {
+                name: "CommaSegment",
+                optional: false,
+                allow_gaps: true,
+            }),
+            allow_trailing: false,
+            optional: false,
+            terminators: vec![],
+            allow_gaps: true,
+        }],
+        bracket_pairs: (
+            Box::new(Grammar::Symbol("(")),
+            Box::new(Grammar::Symbol(")")),
+        ),
+        optional: false,
+        terminators: vec![],
+        allow_gaps: true,
+    });
 
 pub static ANSI_SELECT_CLAUSE: Lazy<SegmentDef> = Lazy::new(|| SegmentDef {
     name: "SelectClauseSegment",
