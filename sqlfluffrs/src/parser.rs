@@ -1,3 +1,5 @@
+use std::vec;
+
 use crate::{dialect::matcher::Dialect, token::Token};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -6,11 +8,21 @@ pub enum Grammar {
         elements: Vec<Grammar>,
         optional: bool,
         terminators: Vec<Grammar>,
+        allow_gaps: bool,
+    },
+    AnyNumberOf {
+        element: Box<Grammar>,
+        min_times: usize,
+        max_times: Option<usize>,
+        optional: bool,
+        terminators: Vec<Grammar>,
+        allow_gaps: bool,
     },
     OneOf {
         elements: Vec<Grammar>,
         optional: bool,
         terminators: Vec<Grammar>,
+        allow_gaps: bool,
     },
     Delimited {
         elements: Vec<Grammar>,
@@ -18,12 +30,25 @@ pub enum Grammar {
         allow_trailing: bool,
         optional: bool,
         terminators: Vec<Grammar>,
+        allow_gaps: bool,
+    },
+    Bracketed {
+        elements: Vec<Grammar>,
+        bracket_pairs: (Box<Grammar>, Box<Grammar>),
+        optional: bool,
+        terminators: Vec<Grammar>,
+        allow_gaps: bool,
     },
     Ref {
         name: &'static str,
         optional: bool,
+        allow_gaps: bool,
     },
-    Keyword(&'static str),
+    Keyword {
+        name: &'static str,
+        optional: bool,
+        allow_gaps: bool,
+    },
     Symbol(&'static str),
     Empty,
 }
@@ -43,6 +68,8 @@ pub enum Node {
     /// A sequence of child nodes (used for Grammar::Sequence)
     Sequence(Vec<Node>),
 
+    OneOf(Box<Node>),
+
     /// A list of elements separated by commas
     DelimitedList(Vec<Node>),
 
@@ -54,9 +81,6 @@ pub enum Node {
 
     /// Used when an optional part didn’t match
     Empty,
-
-    /// Placeholder for terminator definitions (not usually emitted in final AST)
-    Terminators(Vec<Grammar>),
 }
 
 pub struct Parser<'a> {
@@ -67,16 +91,18 @@ pub struct Parser<'a> {
 
 impl Parser<'_> {
     fn parse_with_grammar(&mut self, grammar: &Grammar) -> Result<Node, ParseError> {
-        self.skip_transparent();
         dbg!("Parsing with grammar: {:?}", grammar);
         match grammar {
-            Grammar::Keyword(kw) => {
-                dbg!("Expecting keyword: {}", kw);
-                self.expect_keyword(kw)
+            Grammar::Keyword {
+                name,
+                optional,
+                allow_gaps,
+            } => {
+                dbg!("Expecting keyword: {}", name);
+                self.expect_keyword(name, *allow_gaps)
             }
             Grammar::Symbol(sym) => {
                 dbg!("Expecting symbol: {}", sym);
-                self.skip_transparent();
                 match self.peek() {
                     Some(t) if t.raw() == *sym => {
                         self.bump();
@@ -85,9 +111,15 @@ impl Parser<'_> {
                     _ => Err(ParseError::new(format!("Expected symbol '{}'", sym))),
                 }
             }
-            Grammar::Ref { name, optional } => {
+            Grammar::Ref {
+                name,
+                optional,
+                allow_gaps,
+            } => {
+                self.skip_transparent(*allow_gaps);
                 dbg!("Ref to segment: {}, optional: {}", name, optional);
                 if *name == "Identifier" {
+                    self.skip_transparent(*allow_gaps);
                     Ok(self.parse_identifier()?)
                 } else if *optional && !self.can_parse(name)? {
                     Ok(Node::Empty)
@@ -99,8 +131,10 @@ impl Parser<'_> {
                 elements,
                 optional,
                 terminators,
+                allow_gaps,
             } => {
                 dbg!("Sequence elements: {:?}", elements);
+                let saved = self.pos;
                 let mut children = vec![];
                 for element in elements {
                     dbg!("Sequence element: {:?}", element);
@@ -108,7 +142,18 @@ impl Parser<'_> {
                         dbg!("Sequence terminated!");
                         break;
                     }
-                    children.push(self.parse_with_grammar(element)?);
+                    match self.parse_with_grammar(element) {
+                        Ok(node) => children.push(node),
+                        Err(e) => {
+                            if *optional {
+                                dbg!("Sequence element optional, skipping");
+                                self.pos = saved; // whole sequence optional → rewind
+                                return Ok(Node::Empty);
+                            } else {
+                                return Err(e);
+                            }
+                        }
+                    }
                 }
                 dbg!("Sequence children: {:?}", &children);
                 Ok(Node::Sequence(children))
@@ -117,27 +162,74 @@ impl Parser<'_> {
                 elements,
                 optional,
                 terminators,
+                allow_gaps,
             } => {
                 dbg!("OneOf elements: {:?}", elements);
-                if self.is_terminated(terminators) {
-                    if *optional {
-                        return Ok(Node::Empty);
-                    } else {
-                        return Err(ParseError::new(
-                            "Expected one of options, found terminator".to_string(),
-                        ));
+                let saved = self.pos;
+                for element in elements {
+                    if self.is_terminated(terminators) {
+                        break;
+                    }
+                    let attempt = self.parse_with_grammar(element);
+                    if attempt.is_ok() {
+                        return Ok(Node::OneOf(Box::new(attempt?)));
                     }
                 }
-                let saved_pos = self.pos;
-                for element in elements {
+
+                if *optional {
+                    self.pos = saved;
+                    Ok(Node::Empty)
+                } else {
+                    Err(ParseError::new("Expected one of choices".into()))
+                }
+            }
+            Grammar::AnyNumberOf {
+                element,
+                min_times,
+                max_times,
+                optional,
+                terminators,
+                allow_gaps,
+            } => {
+                dbg!("AnyNumberOf element: {:?}", element);
+                let mut items = vec![];
+                let mut count = 0;
+
+                loop {
+                    if self.is_terminated(terminators) {
+                        break;
+                    }
+
+                    let saved_pos = self.pos;
                     match self.parse_with_grammar(element) {
-                        Ok(node) => return Ok(Node::Sequence(vec![node])),
+                        Ok(node) => {
+                            items.push(node);
+                            count += 1;
+                            if let Some(max) = max_times {
+                                if count >= *max {
+                                    break;
+                                }
+                            }
+                        }
                         Err(_) => {
-                            self.pos = saved_pos; // backtrack and try next
+                            self.pos = saved_pos; // rewind
+                            break;
                         }
                     }
                 }
-                Err(ParseError::new("No option in OneOf matched".to_string()))
+
+                if count < *min_times {
+                    if *optional {
+                        Ok(Node::Empty)
+                    } else {
+                        Err(ParseError::new(format!(
+                            "Expected at least {} occurrences, found {}",
+                            min_times, count
+                        )))
+                    }
+                } else {
+                    Ok(Node::DelimitedList(items))
+                }
             }
             Grammar::Delimited {
                 elements,
@@ -145,6 +237,7 @@ impl Parser<'_> {
                 allow_trailing,
                 optional,
                 terminators,
+                allow_gaps,
             } => {
                 dbg!("Delimited elements: {:?}", elements);
                 let mut items = vec![];
@@ -160,7 +253,7 @@ impl Parser<'_> {
                     }
 
                     // match one element
-                    self.skip_transparent();
+                    self.skip_transparent(*allow_gaps);
                     let mut matched = false;
                     let saved_pos = self.pos;
                     for elem in elements {
@@ -180,7 +273,7 @@ impl Parser<'_> {
                     }
 
                     // try delimiter
-                    self.skip_transparent();
+                    self.skip_transparent(*allow_gaps);
                     let saved_pos = self.pos;
                     if let Ok(delim_node) = self.parse_with_grammar(delimiter) {
                         // check if element follows
@@ -203,6 +296,64 @@ impl Parser<'_> {
 
                 Ok(Node::DelimitedList(items))
             }
+            Grammar::Bracketed {
+                elements,
+                bracket_pairs,
+                optional,
+                terminators,
+                allow_gaps,
+            } => {
+                dbg!("Bracketed elements: {:?}", elements);
+                let saved_pos = self.pos;
+                // Expect opening bracket
+                match self.parse_with_grammar(&bracket_pairs.0) {
+                    Ok(open_node) => {
+                        let mut children = vec![open_node];
+                        loop {
+                            if self.is_terminated(terminators) {
+                                break;
+                            }
+                            let mut matched = false;
+                            let saved_inner_pos = self.pos;
+                            for elem in elements {
+                                match self.parse_with_grammar(elem) {
+                                    Ok(node) => {
+                                        children.push(node);
+                                        matched = true;
+                                        break;
+                                    }
+                                    Err(_) => self.pos = saved_inner_pos,
+                                }
+                            }
+                            if !matched {
+                                break;
+                            }
+                        }
+                        // Expect closing bracket
+                        match self.parse_with_grammar(&bracket_pairs.1) {
+                            Ok(close_node) => {
+                                children.push(close_node);
+                                Ok(Node::Sequence(children))
+                            }
+                            Err(e) => Err(ParseError::new(format!(
+                                "Expected closing bracket: {}",
+                                e.message
+                            ))),
+                        }
+                    }
+                    Err(e) => {
+                        if *optional {
+                            self.pos = saved_pos;
+                            Ok(Node::Empty)
+                        } else {
+                            Err(ParseError::new(format!(
+                                "Expected opening bracket: {}",
+                                e.message
+                            )))
+                        }
+                    }
+                }
+            }
             Grammar::Empty => Ok(Node::Empty),
         }
     }
@@ -220,7 +371,10 @@ impl Parser<'_> {
     }
 
     /// Skip all transparent tokens (whitespace, newlines)
-    pub fn skip_transparent(&mut self) {
+    pub fn skip_transparent(&mut self, allow_gaps: bool) {
+        if !allow_gaps {
+            return;
+        }
         while let Some(tok) = self.peek() {
             match tok {
                 tok if !tok.is_code() => self.bump(),
@@ -230,7 +384,7 @@ impl Parser<'_> {
     }
 
     fn is_terminated(&mut self, terminators: &[Grammar]) -> bool {
-        self.skip_transparent();
+        self.skip_transparent(true);
         let saved_pos = self.pos;
         dbg!(
             "Checking terminators: {:?} at pos {:?}",
@@ -259,8 +413,8 @@ impl Parser<'_> {
         None
     }
 
-    pub fn expect_keyword(&mut self, kw: &str) -> Result<Node, ParseError> {
-        self.skip_transparent();
+    pub fn expect_keyword(&mut self, kw: &str, allow_gaps: bool) -> Result<Node, ParseError> {
+        self.skip_transparent(allow_gaps);
         match self.peek() {
             Some(tok) if tok.is_type(&["word"]) && tok.raw().eq_ignore_ascii_case(kw) => {
                 let keyword = tok.raw().to_string();
@@ -289,7 +443,6 @@ impl Parser<'_> {
     }
 
     pub fn parse_identifier(&mut self) -> Result<Node, ParseError> {
-        self.skip_transparent();
         match self.peek() {
             Some(token) if token.is_type(&["word"]) => {
                 // Check it's not a keyword
@@ -491,8 +644,30 @@ mod tests {
     };
 
     #[test]
-    fn parse_select() -> Result<(), ParseError> {
+    fn parse_select_delimited() -> Result<(), ParseError> {
         let raw = "SELECT a, b FROM my_table;";
+        let input = LexInput::String(raw.into());
+        let dialect = Dialect::Postgres;
+        let lexer = Lexer::new(None, dialect);
+        let (tokens, _errors) = lexer.lex(input, false);
+
+        dbg!("Tokens: {:#?}", &tokens);
+
+        let mut parser = Parser {
+            tokens: &tokens,
+            pos: 0,
+            dialect,
+        };
+
+        let ast = parser.call_rule("SelectClauseSegment")?;
+        println!("AST: {:#?}", ast);
+
+        Ok(())
+    }
+
+    #[test]
+    fn parse_select_single_item() -> Result<(), ParseError> {
+        let raw = "SELECT a;";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Postgres;
         let lexer = Lexer::new(None, dialect);
