@@ -1421,6 +1421,34 @@ class DropUserStatementSegment(ansi.DropUserStatementSegment):
     )
 
 
+class CreateUserStatementSegment(BaseSegment):
+    """A `CREATE USER` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/create/user/
+    """
+
+    type = "create_user_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "USER",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        Ref("OnClusterClauseSegment", optional=True),
+        # IDENTIFIED BY 'password' or IDENTIFIED WITH ... BY ...
+        AnyNumberOf(
+            Sequence(
+                "IDENTIFIED",
+                OneOf(
+                    Sequence("WITH", Ref("SingleIdentifierGrammar"), "BY", Ref("QuotedLiteralSegment")),
+                    Sequence("BY", Ref("QuotedLiteralSegment")),
+                ),
+            ),
+        ),
+    )
+
+
 class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
     """A `DROP ROLE` statement.
 
@@ -2140,6 +2168,7 @@ class StatementSegment(ansi.StatementSegment):
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
+            Ref("CreateUserStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
             Ref("DropDictionaryStatementSegment"),
             Ref("DropQuotaStatementSegment"),
