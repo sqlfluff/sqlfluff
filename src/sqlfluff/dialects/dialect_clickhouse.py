@@ -1439,14 +1439,14 @@ class CreateUserStatementSegment(BaseSegment):
         # IDENTIFIED BY 'password' or IDENTIFIED WITH ... BY ...
         Sequence(
             "IDENTIFIED",
-            OneOf(
-                Sequence(
-                    "WITH",
-                    Ref("SingleIdentifierGrammar"),
-                    "BY",
-                    Ref("QuotedLiteralSegment"),
-                ),
-                Sequence("BY", Ref("QuotedLiteralSegment")),
+            Sequence(
+                "WITH",
+                Ref("SingleIdentifierGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "BY",
+                Ref("QuotedLiteralSegment"),
             ),
             optional=True,
         ),
