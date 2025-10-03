@@ -1437,14 +1437,18 @@ class CreateUserStatementSegment(BaseSegment):
         Ref("SingleIdentifierGrammar"),
         Ref("OnClusterClauseSegment", optional=True),
         # IDENTIFIED BY 'password' or IDENTIFIED WITH ... BY ...
-        AnyNumberOf(
-            Sequence(
-                "IDENTIFIED",
-                OneOf(
-                    Sequence("WITH", Ref("SingleIdentifierGrammar"), "BY", Ref("QuotedLiteralSegment")),
-                    Sequence("BY", Ref("QuotedLiteralSegment")),
+        Sequence(
+            "IDENTIFIED",
+            OneOf(
+                Sequence(
+                    "WITH",
+                    Ref("SingleIdentifierGrammar"),
+                    "BY",
+                    Ref("QuotedLiteralSegment"),
                 ),
+                Sequence("BY", Ref("QuotedLiteralSegment")),
             ),
+            optional=True,
         ),
     )
 
