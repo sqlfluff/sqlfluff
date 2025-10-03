@@ -832,6 +832,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ExecuteScriptSegment"),
             # Ref("PermissionStatementSegment"),
             Ref("SetStatementSegment"),
+            Ref("SetLanguageStatementSegment"),
             # Ref("UseStatementSegment"),
             # Unsorted
             #  Azure Synapse Analytics specific
@@ -5417,6 +5418,21 @@ class SetContextInfoSegment(BaseSegment):
             Ref("HexadecimalLiteralSegment"),
             Ref("ParameterNameSegment"),
         ),
+    )
+
+
+class SetLanguageStatementSegment(BaseSegment):
+    """A `SET LANGUAGE` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/set-language-transact-sql
+    """
+
+    type = "set_language_statement"
+    match_grammar = Sequence(
+        "SET",
+        "LANGUAGE",
+        Ref("NakedIdentifierSegment"),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
