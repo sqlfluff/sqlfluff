@@ -454,7 +454,6 @@ tsql_dialect.add(
 )
 
 tsql_dialect.replace(
-    # DelimiterGrammar=AnyNumberOf(Ref("SemicolonSegment")),
     # Overriding to cover TSQL allowed identifier name characters
     # https://docs.microsoft.com/en-us/sql/relational-databases/databases/database-identifiers
     NakedIdentifierSegment=SegmentGenerator(
@@ -744,12 +743,16 @@ class BatchSegment(BaseSegment):
     """A segment representing a GO batch within a file or script."""
 
     type = "batch"
-    match_grammar = OneOf(
-        Sequence(
-            Ref("OneOrMoreStatementsGrammar"),
-            Ref("BatchDelimiterGrammar", optional=True),
+    match_grammar = Sequence(
+        AnyNumberOf(Ref("DelimiterGrammar")),
+        OneOf(
+            Sequence(
+                Ref("OneOrMoreStatementsGrammar"),
+                Ref("BatchDelimiterGrammar", optional=True),
+            ),
+            Ref("BatchDelimiterGrammar"),
         ),
-        Ref("BatchDelimiterGrammar"),
+        AnyNumberOf(Ref("DelimiterGrammar")),
     )
 
 
