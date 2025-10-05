@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b227019a09cb36cf82bd18f0eed983d21a02cb14dead33e699dc264103614cc6
+_hash: e4bfc3027cccd8358898f1632cde0c85fa1eeb48e2ae882aa91d36b48600abb3
 file:
 - statement:
     alter_warehouse_statement:
@@ -382,6 +382,32 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         warehouse_size: "'SNOWPARK-OPTIMIZED'"
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: RESOURCE_CONSTRAINT
+        comparison_operator:
+          raw_comparison_operator: '='
+        resource_constraint: "'MEMORY_64X'"
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: RESOURCE_CONSTRAINT
+        comparison_operator:
+          raw_comparison_operator: '='
+        resource_constraint: MEMORY_1X
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:

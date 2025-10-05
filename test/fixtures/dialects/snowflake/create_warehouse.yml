@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: de761543eef0be5d871c4b1a1ac070e8c2048b350c9577099cd604ecc0607484
+_hash: c8aa1c8d1703ac6362bfed86ee6cd05d33f7847f043864f4996a21f146439cee
 file:
 - statement:
     create_statement:
@@ -110,4 +110,50 @@ file:
     - keyword: WAREHOUSE
     - object_reference:
         naked_identifier: my_wh
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: my_wh
+    - warehouse_object_properties:
+      - keyword: resource_constraint
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - resource_constraint: "'STANDARD_GEN_1'"
+      - keyword: warehouse_size
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - warehouse_size: "'medium'"
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: my_wh
+    - warehouse_object_properties:
+      - keyword: resource_constraint
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - resource_constraint: STANDARD_GEN_2
+      - keyword: warehouse_size
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - warehouse_size: "'medium'"
+      - keyword: SCALING_POLICY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - scaling_policy: ECONOMY
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'comment'"
+    - warehouse_object_properties:
+        keyword: auto_suspend
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '60'
 - statement_terminator: ;
