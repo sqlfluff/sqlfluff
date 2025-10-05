@@ -4,7 +4,7 @@ use fancy_regex::{Regex as FancyRegex, RegexBuilder as FancyRegexBuilder};
 use hashbrown::HashSet;
 use regex::{Regex, RegexBuilder};
 
-use crate::{dialect::matcher::Dialect, marker::PositionMarker, regex::RegexModeGroup, token::Token};
+use crate::{dialect::Dialect, marker::PositionMarker, regex::RegexModeGroup, token::Token};
 
 pub type TokenGenerator = fn(
     String,
@@ -425,7 +425,7 @@ pub mod python {}
 mod test {
     use uuid::Uuid;
 
-    use crate::{dialect::matcher::Dialect, token::Token};
+    use crate::{dialect::Dialect, token::Token};
 
     use super::{extract_nested_block_comment, LexMatcher};
 
