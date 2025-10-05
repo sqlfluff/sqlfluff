@@ -5431,7 +5431,11 @@ class SetLanguageStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "SET",
         "LANGUAGE",
-        Ref("NakedIdentifierSegment"),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("BracketedIdentifierSegment"),
+            Ref("NakedIdentifierSegment"),
+        ),
         Ref("DelimiterGrammar", optional=True),
     )
 
