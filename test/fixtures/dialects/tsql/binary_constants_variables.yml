@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c8218318266ceaf3cde4066af35b1fcebbbeee18ccaa186753e754d2b3948dcd
+_hash: 21a89969ddb2dd512dffd966e93dfd2e2330ab6439e5feb2023463fc81853a89
 file:
   batch:
   - statement:
@@ -20,14 +20,14 @@ file:
               end_bracket: )
         statement_terminator: ;
   - statement:
-      set_segment:
+      set_local_variable_segment:
         keyword: set
         parameter: '@var1'
         assignment_operator:
           raw_comparison_operator: '='
         expression:
           binary_literal: '0x0'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: declare
@@ -42,14 +42,14 @@ file:
               end_bracket: )
         statement_terminator: ;
   - statement:
-      set_segment:
+      set_local_variable_segment:
         keyword: set
         parameter: '@var2'
         assignment_operator:
           raw_comparison_operator: '='
         expression:
           binary_literal: '0xAE'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: declare
@@ -64,14 +64,14 @@ file:
               end_bracket: )
         statement_terminator: ;
   - statement:
-      set_segment:
+      set_local_variable_segment:
         keyword: set
         parameter: '@var3'
         assignment_operator:
           raw_comparison_operator: '='
         expression:
           binary_literal: '0x69048AEFDD010E'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: declare
@@ -86,11 +86,11 @@ file:
               end_bracket: )
         statement_terminator: ;
   - statement:
-      set_segment:
+      set_local_variable_segment:
         keyword: set
         parameter: '@var4'
         assignment_operator:
           raw_comparison_operator: '='
         expression:
           binary_literal: 0x
-        statement_terminator: ;
+  - statement_terminator: ;

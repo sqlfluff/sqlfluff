@@ -837,6 +837,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SetStatementSegment"),
             # Ref("UseStatementSegment"),
             # Unsorted
+            Ref("SetLocalVariableStatementSegment"),
             #  Azure Synapse Analytics specific
             Ref("CreateTableAsSelectStatementSegment"),
             # Azure Synapse Analytics specific
@@ -1528,6 +1529,25 @@ class BackupStorageRedundancySegment(BaseSegment):
         "BACKUP_STORAGE_REDUNDANCY",
         Ref("EqualsSegment"),
         Ref("QuotedLiteralSegment"),
+    )
+
+
+class CursorDefinitionSegment(BaseSegment):
+    """A cursor definition.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/cursors
+    """
+
+    type = "cursor_definition"
+    match_grammar: Matchable = Sequence(
+        "CURSOR",
+        OneOf("LOCAL", "GLOBAL", optional=True),
+        OneOf("FORWARD_ONLY", "SCROLL", optional=True),
+        OneOf("STATIC", "KEYSET", "DYNAMIC", "FAST_FORWARD", optional=True),
+        OneOf("READ_ONLY", "SCROLL_LOCKS", "OPTIMISTIC", optional=True),
+        Sequence("TYPE_WARNING", optional=True),
+        "FOR",
+        Ref("SelectStatementSegment"),
     )
 
 
@@ -3042,6 +3062,7 @@ class DeclareStatementSegment(BaseSegment):
                             optional=True,
                         ),
                     ),
+                    "CURSOR",
                     Sequence(
                         "TABLE",
                         Bracketed(
@@ -3071,15 +3092,17 @@ class DeclareCursorStatementSegment(BaseSegment):
     type = "declare_segment"
     match_grammar = Sequence(
         "DECLARE",
-        Ref("NakedIdentifierSegment"),
-        "CURSOR",
-        OneOf("LOCAL", "GLOBAL", optional=True),
-        OneOf("FORWARD_ONLY", "SCROLL", optional=True),
-        OneOf("STATIC", "KEYSET", "DYNAMIC", "FAST_FORWARD", optional=True),
-        OneOf("READ_ONLY", "SCROLL_LOCKS", "OPTIMISTIC", optional=True),
-        Sequence("TYPE_WARNING", optional=True),
-        "FOR",
-        Ref("SelectStatementSegment"),
+        Ref("CursorNameGrammar"),
+        OneOf(
+            Ref("CursorDefinitionSegment"),
+            Sequence(
+                Ref.keyword("INSENSITIVE", optional=True),
+                Ref.keyword("SCROLL", optional=True),
+                "CURSOR",
+                "FOR",
+                Ref("SelectStatementSegment"),
+            ),
+        ),
     )
 
 
@@ -3519,13 +3542,47 @@ class ExecuteAsClauseSegment(BaseSegment):
     )
 
 
+class SetLocalVariableStatementSegment(BaseSegment):
+    """A Set Local Variable statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/set-local-variable-transact-sql
+    """
+
+    type = "set_local_variable_segment"
+    match_grammar = Sequence(
+        "SET",
+        Indent,
+        Delimited(
+            OneOf(
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("AssignmentOperatorSegment"),
+                    OneOf(
+                        Ref("ExpressionSegment"),
+                        Ref("SelectableGrammar"),
+                    ),
+                ),
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("ParameterNameSegment"),
+                        Ref("NakedIdentifierSegment"),
+                        Ref("CursorDefinitionSegment"),
+                    ),
+                ),
+            ),
+        ),
+        Dedent,
+    )
+
+
 class SetStatementSegment(BaseSegment):
     """A Set statement.
 
     Setting an already declared variable or global variable.
     https://docs.microsoft.com/en-us/sql/t-sql/statements/set-statements-transact-sql
 
-    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/set-local-variable-transact-sql
     """
 
     type = "set_segment"
@@ -3615,14 +3672,6 @@ class SetStatementSegment(BaseSegment):
                         Ref("ParameterNameSegment"),
                         Ref("NumericLiteralSegment"),
                         Ref("QualifiedNumericLiteralSegment"),
-                    ),
-                ),
-                Sequence(
-                    Ref("ParameterNameSegment"),
-                    Ref("AssignmentOperatorSegment"),
-                    OneOf(
-                        Ref("ExpressionSegment"),
-                        Ref("SelectableGrammar"),
                     ),
                 ),
             ),
@@ -6594,6 +6643,7 @@ class OpenCursorStatementSegment(BaseSegment):
     type = "open_cursor_statement"
     match_grammar: Matchable = Sequence(
         "OPEN",
+        Ref.keyword("GLOBAL", optional=True),
         Ref("CursorNameGrammar"),
     )
 
@@ -6607,6 +6657,7 @@ class CloseCursorStatementSegment(BaseSegment):
     type = "close_cursor_statement"
     match_grammar: Matchable = Sequence(
         "CLOSE",
+        Ref.keyword("GLOBAL", optional=True),
         Ref("CursorNameGrammar"),
     )
 
@@ -6620,6 +6671,7 @@ class DeallocateCursorStatementSegment(BaseSegment):
     type = "deallocate_cursor_statement"
     match_grammar: Matchable = Sequence(
         "DEALLOCATE",
+        Ref.keyword("GLOBAL", optional=True),
         Ref("CursorNameGrammar"),
     )
 
@@ -6633,8 +6685,19 @@ class FetchCursorStatementSegment(BaseSegment):
     type = "fetch_cursor_statement"
     match_grammar: Matchable = Sequence(
         "FETCH",
-        OneOf("NEXT", "PRIOR", "FIRST", "LAST", optional=True),
-        "FROM",
+        OneOf(
+            "NEXT",
+            "PRIOR",
+            "FIRST",
+            "LAST",
+            Sequence(
+                OneOf("ABSOLUTE", "RELATIVE"),
+                Ref("SignedSegmentGrammar", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            optional=True,
+        ),
+        Ref.keyword("FROM", optional=True),
         Ref("CursorNameGrammar"),
         Sequence("INTO", Delimited(Ref("ParameterNameSegment")), optional=True),
     )
