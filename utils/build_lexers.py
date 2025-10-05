@@ -1,11 +1,22 @@
 """For autogenerating rust lexers."""
 
+import argparse
 import re
 from collections.abc import Callable
 from typing import Optional, Union
 
-from sqlfluff.core.dialects import dialect_readout, dialect_selector
+from sqlfluff.core.dialects import dialect_selector
 from sqlfluff.core.parser.lexer import LexerType
+
+
+def generate_use():
+    """Generates the `use` statements."""
+    print("use once_cell::sync::Lazy;")
+    print("use uuid::Uuid;")
+    print("use crate::matcher::{LexMatcher, extract_nested_block_comment};")
+    print("use crate::token::Token;")
+    print("use crate::regex::RegexModeGroup;")
+    print("use crate::dialect::Dialect;")
 
 
 def segment_to_token_name(s: str):
@@ -13,65 +24,30 @@ def segment_to_token_name(s: str):
     return re.sub("([A-Z])", r"_\1", s).strip("_").lower().replace("segment", "token")
 
 
-def generate_dialect_enum():
-    """Generate the dialect enum and associated functions."""
-    dialects = ",\n".join([dialect.label.capitalize() for dialect in dialect_readout()])
-    dialect_match = ",\n".join(
-        [
-            f"Dialect::{d.label.capitalize()} => &{d.label.upper()}_LEXERS"
-            for d in dialect_readout()
-        ]
-    )
-    dialect_strings = ",\n".join(
-        [
-            f'"{d.label}" => Ok(Dialect::{d.label.capitalize()})'
-            for d in dialect_readout()
-        ]
-    )
-    print(
-        f"""
-#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
-pub enum Dialect {{
-    {dialects}
-}}
-
-impl FromStr for Dialect {{
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {{
-        match s {{
-            {dialect_strings},
-            _ => Err(())
-        }}
-    }}
-}}
-
-pub fn get_lexers(dialect: Dialect) -> &'static Vec<LexMatcher> {{
-    match dialect {{
-        {dialect_match}
-    }}
-}}"""
-    )
-
-
-def generate_lexers():
+def generate_lexer(dialect: str):
     """Generate the lexers for all dialects."""
-    print("use once_cell::sync::Lazy;")
-    print("use uuid::Uuid;")
-    print("use crate::matcher::{LexMatcher, extract_nested_block_comment};")
-    print("use std::str::FromStr;")
-    print("use crate::token::Token;")
-    print("use crate::regex::RegexModeGroup;")
-    print()
-    for dialect in dialect_readout():
-        loaded_dialect = dialect_selector(dialect.label)
-        print(
-            f"pub static {dialect.label.upper()}_LEXERS:"
-            " Lazy<Vec<LexMatcher>> = Lazy::new(|| {"
-            " vec!["
-        )
-        for matcher in loaded_dialect.get_lexer_matchers():
-            print(f"{_as_rust_lexer_matcher(matcher, dialect.label.capitalize())},")
-        print("]});")
+    loaded_dialect = dialect_selector(dialect)
+    print(
+        f"pub static {dialect.upper()}_LEXERS:"
+        " Lazy<Vec<LexMatcher>> = Lazy::new(|| {"
+        " vec!["
+    )
+    for matcher in loaded_dialect.get_lexer_matchers():
+        print(f"{_as_rust_lexer_matcher(matcher, dialect.capitalize())},")
+    print("]});")
+
+
+def generate_reserved_keyword_list(dialect: str):
+    """Generate the keywords for a dialects."""
+    loaded_dialect = dialect_selector(dialect)
+    print(
+        f"pub static {dialect.upper()}_KEYWORDS:"
+        " Lazy<Vec<String>> = Lazy::new(|| {"
+        " vec!["
+    )
+    for kw in loaded_dialect.sets("reserved_keywords"):
+        print(f'    "{kw}".to_string(),')
+    print("]});")
 
 
 def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=False):
@@ -219,6 +195,18 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
     )"""
 
 
-print("/* This is a generated file! */")
-generate_lexers()
-generate_dialect_enum()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Build generated Rust output for a dialect."
+    )
+    parser.add_argument(
+        "dialect",
+    )
+    args = parser.parse_args()
+    print("/* This is a generated file! */")
+
+    generate_use()
+    print()
+    generate_lexer(args.dialect)
+    print()
+    generate_reserved_keyword_list(args.dialect)

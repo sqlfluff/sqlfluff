@@ -3,7 +3,6 @@ use std::sync::Arc;
 use log::debug;
 
 use crate::{
-    get_lexers,
     marker::PositionMarker,
     matcher::{LexMatcher, LexedElement},
     slice::Slice,
@@ -244,7 +243,7 @@ impl Lexer {
                 None,
             )
         });
-        let matcher = get_lexers(dialect).to_owned();
+        let matcher = dialect.get_lexers().to_owned();
         Self {
             last_resort_lexer,
             matcher,
@@ -738,7 +737,7 @@ pub mod python {
     use super::{LexInput, Lexer, SQLLexError};
     use crate::{
         config::fluffconfig::python::PyFluffConfig,
-        dialect::matcher::Dialect,
+        dialect::Dialect,
         marker::python::PyPositionMarker,
         templater::templatefile::python::{PySqlFluffTemplatedFile, PyTemplatedFile},
         token::python::PyToken,
