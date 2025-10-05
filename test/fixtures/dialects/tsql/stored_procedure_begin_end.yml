@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0afa8505cbd8f1d8327341e1d5d665f82a775dfc187a664be7869ccba360062b
+_hash: 1ba792a3cd074bd377899c7aaf968073f7630fd0cf891b48ebf314366e9d1d06
 file:
 - batch:
     statement:
@@ -213,7 +213,7 @@ file:
                 - keyword: BEGIN
                 - keyword: CATCH
                 - statement:
-                    set_segment:
+                    set_local_variable_segment:
                       keyword: SET
                       parameter: '@v_nSysErrorNum'
                       assignment_operator:
@@ -226,9 +226,9 @@ file:
                             bracketed:
                               start_bracket: (
                               end_bracket: )
-                      statement_terminator: ;
+                - statement_terminator: ;
                 - statement:
-                    set_segment:
+                    set_local_variable_segment:
                       keyword: SET
                       parameter: '@v_vchCode'
                       assignment_operator:
@@ -241,18 +241,18 @@ file:
                             bracketed:
                               start_bracket: (
                               end_bracket: )
-                      statement_terminator: ;
+                - statement_terminator: ;
                 - statement:
-                    set_segment:
+                    set_local_variable_segment:
                       keyword: SET
                       parameter: '@v_vchMsg'
                       assignment_operator:
                         raw_comparison_operator: '='
                       expression:
                         quoted_literal: "N'Missing control type.'"
-                      statement_terminator: ;
+                - statement_terminator: ;
                 - statement:
-                    set_segment:
+                    set_local_variable_segment:
                       keyword: SET
                       parameter: '@v_vchMsg'
                       assignment_operator:
@@ -269,7 +269,7 @@ file:
                             bracketed:
                               start_bracket: (
                               end_bracket: )
-                      statement_terminator: ;
+                - statement_terminator: ;
                 - statement:
                     goto_statement:
                       keyword: GOTO

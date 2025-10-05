@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e418009637f20fd939c7a0a5754d6b3874591875795a4f24787d02d46dec92b9
+_hash: eeb2da18f3e19d2c9f51ad0881154353b1bc9bf3203c92de1338600a4d3d42c6
 file:
   batch:
     statement:
@@ -42,7 +42,7 @@ file:
                   data_type:
                     data_type_identifier: BIGINT
             - statement:
-                set_segment:
+                set_local_variable_segment:
                   keyword: SET
                   parameter: '@result'
                   assignment_operator:
