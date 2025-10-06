@@ -45,7 +45,7 @@ def generate_reserved_keyword_list(dialect: str):
         " Lazy<Vec<String>> = Lazy::new(|| {"
         " vec!["
     )
-    for kw in loaded_dialect.sets("reserved_keywords"):
+    for kw in sorted(loaded_dialect.sets("reserved_keywords")):
         print(f'    "{kw}".to_string(),')
     print("]});")
 

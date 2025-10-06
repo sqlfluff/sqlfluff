@@ -14,11 +14,11 @@ def generate_use():
         print(f"pub mod {dialect.label.lower()};")
         print(
             f"use crate::dialect::{dialect.label.lower()}::matcher::"
-            f"{dialect.label.upper()}_LEXERS;"
+            f"{dialect.label.upper()}_KEYWORDS;"
         )
         print(
             f"use crate::dialect::{dialect.label.lower()}::matcher::"
-            f"{dialect.label.upper()}_KEYWORDS;"
+            f"{dialect.label.upper()}_LEXERS;"
         )
     print()
     print("use crate::matcher::LexMatcher;")
@@ -58,7 +58,7 @@ pub enum Dialect {{
 impl Dialect {{
     pub(crate) fn get_reserved_keywords(&self) -> &'static Vec<String> {{
         match self {{
-            {dialect_reserved_keywords}
+            {dialect_reserved_keywords},
         }}
     }}
 
@@ -66,7 +66,7 @@ impl Dialect {{
 
     pub fn get_lexers(&self) -> &'static Vec<LexMatcher> {{
         match self {{
-            {dialect_match}
+            {dialect_match},
         }}
     }}
 }}
@@ -76,7 +76,7 @@ impl FromStr for Dialect {{
     fn from_str(s: &str) -> Result<Self, Self::Err> {{
         match s {{
             {dialect_strings},
-            _ => Err(())
+            _ => Err(()),
         }}
     }}
 }}"""
