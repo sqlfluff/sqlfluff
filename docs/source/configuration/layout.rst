@@ -179,7 +179,7 @@ the regular templated working positions.
 
 Example (Jinja templating, align alias expressions within a select clause):
 
-.. code-block:: sql
+.. code-block:: jinja
 
     select
         {{ "longtemplated" }} as test_key,
@@ -216,11 +216,13 @@ Alternatively, the equivalent can be configured more declaratively:
 Supported values are ``source`` and ``templated``. In most cases, ``source`` is
 the recommended choice for readability.
 
+.. code-block:: sql
+
    WITH foo as (
       SELECT
          a,
          b,
-         c        AS first_column
+         c        AS first_column,
          d + e    AS second_column
    )
 
