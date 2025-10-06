@@ -4,89 +4,61 @@ pub mod parser;
 
 /* dialect mods */
 pub mod ansi;
-use crate::dialect::ansi::matcher::ANSI_KEYWORDS;
-use crate::dialect::ansi::matcher::ANSI_LEXERS;
+use crate::dialect::ansi::matcher::{ANSI_KEYWORDS, ANSI_LEXERS};
 pub mod athena;
-use crate::dialect::athena::matcher::ATHENA_KEYWORDS;
-use crate::dialect::athena::matcher::ATHENA_LEXERS;
+use crate::dialect::athena::matcher::{ATHENA_KEYWORDS, ATHENA_LEXERS};
 pub mod bigquery;
-use crate::dialect::bigquery::matcher::BIGQUERY_KEYWORDS;
-use crate::dialect::bigquery::matcher::BIGQUERY_LEXERS;
+use crate::dialect::bigquery::matcher::{BIGQUERY_KEYWORDS, BIGQUERY_LEXERS};
 pub mod clickhouse;
-use crate::dialect::clickhouse::matcher::CLICKHOUSE_KEYWORDS;
-use crate::dialect::clickhouse::matcher::CLICKHOUSE_LEXERS;
+use crate::dialect::clickhouse::matcher::{CLICKHOUSE_KEYWORDS, CLICKHOUSE_LEXERS};
 pub mod databricks;
-use crate::dialect::databricks::matcher::DATABRICKS_KEYWORDS;
-use crate::dialect::databricks::matcher::DATABRICKS_LEXERS;
+use crate::dialect::databricks::matcher::{DATABRICKS_KEYWORDS, DATABRICKS_LEXERS};
 pub mod db2;
-use crate::dialect::db2::matcher::DB2_KEYWORDS;
-use crate::dialect::db2::matcher::DB2_LEXERS;
+use crate::dialect::db2::matcher::{DB2_KEYWORDS, DB2_LEXERS};
 pub mod doris;
-use crate::dialect::doris::matcher::DORIS_KEYWORDS;
-use crate::dialect::doris::matcher::DORIS_LEXERS;
+use crate::dialect::doris::matcher::{DORIS_KEYWORDS, DORIS_LEXERS};
 pub mod duckdb;
-use crate::dialect::duckdb::matcher::DUCKDB_KEYWORDS;
-use crate::dialect::duckdb::matcher::DUCKDB_LEXERS;
+use crate::dialect::duckdb::matcher::{DUCKDB_KEYWORDS, DUCKDB_LEXERS};
 pub mod exasol;
-use crate::dialect::exasol::matcher::EXASOL_KEYWORDS;
-use crate::dialect::exasol::matcher::EXASOL_LEXERS;
+use crate::dialect::exasol::matcher::{EXASOL_KEYWORDS, EXASOL_LEXERS};
 pub mod flink;
-use crate::dialect::flink::matcher::FLINK_KEYWORDS;
-use crate::dialect::flink::matcher::FLINK_LEXERS;
+use crate::dialect::flink::matcher::{FLINK_KEYWORDS, FLINK_LEXERS};
 pub mod greenplum;
-use crate::dialect::greenplum::matcher::GREENPLUM_KEYWORDS;
-use crate::dialect::greenplum::matcher::GREENPLUM_LEXERS;
+use crate::dialect::greenplum::matcher::{GREENPLUM_KEYWORDS, GREENPLUM_LEXERS};
 pub mod hive;
-use crate::dialect::hive::matcher::HIVE_KEYWORDS;
-use crate::dialect::hive::matcher::HIVE_LEXERS;
+use crate::dialect::hive::matcher::{HIVE_KEYWORDS, HIVE_LEXERS};
 pub mod impala;
-use crate::dialect::impala::matcher::IMPALA_KEYWORDS;
-use crate::dialect::impala::matcher::IMPALA_LEXERS;
+use crate::dialect::impala::matcher::{IMPALA_KEYWORDS, IMPALA_LEXERS};
 pub mod mariadb;
-use crate::dialect::mariadb::matcher::MARIADB_KEYWORDS;
-use crate::dialect::mariadb::matcher::MARIADB_LEXERS;
+use crate::dialect::mariadb::matcher::{MARIADB_KEYWORDS, MARIADB_LEXERS};
 pub mod materialize;
-use crate::dialect::materialize::matcher::MATERIALIZE_KEYWORDS;
-use crate::dialect::materialize::matcher::MATERIALIZE_LEXERS;
+use crate::dialect::materialize::matcher::{MATERIALIZE_KEYWORDS, MATERIALIZE_LEXERS};
 pub mod mysql;
-use crate::dialect::mysql::matcher::MYSQL_KEYWORDS;
-use crate::dialect::mysql::matcher::MYSQL_LEXERS;
+use crate::dialect::mysql::matcher::{MYSQL_KEYWORDS, MYSQL_LEXERS};
 pub mod oracle;
-use crate::dialect::oracle::matcher::ORACLE_KEYWORDS;
-use crate::dialect::oracle::matcher::ORACLE_LEXERS;
+use crate::dialect::oracle::matcher::{ORACLE_KEYWORDS, ORACLE_LEXERS};
 pub mod postgres;
-use crate::dialect::postgres::matcher::POSTGRES_KEYWORDS;
-use crate::dialect::postgres::matcher::POSTGRES_LEXERS;
+use crate::dialect::postgres::matcher::{POSTGRES_KEYWORDS, POSTGRES_LEXERS};
 pub mod redshift;
-use crate::dialect::redshift::matcher::REDSHIFT_KEYWORDS;
-use crate::dialect::redshift::matcher::REDSHIFT_LEXERS;
+use crate::dialect::redshift::matcher::{REDSHIFT_KEYWORDS, REDSHIFT_LEXERS};
 pub mod snowflake;
-use crate::dialect::snowflake::matcher::SNOWFLAKE_KEYWORDS;
-use crate::dialect::snowflake::matcher::SNOWFLAKE_LEXERS;
+use crate::dialect::snowflake::matcher::{SNOWFLAKE_KEYWORDS, SNOWFLAKE_LEXERS};
 pub mod soql;
-use crate::dialect::soql::matcher::SOQL_KEYWORDS;
-use crate::dialect::soql::matcher::SOQL_LEXERS;
+use crate::dialect::soql::matcher::{SOQL_KEYWORDS, SOQL_LEXERS};
 pub mod sparksql;
-use crate::dialect::sparksql::matcher::SPARKSQL_KEYWORDS;
-use crate::dialect::sparksql::matcher::SPARKSQL_LEXERS;
+use crate::dialect::sparksql::matcher::{SPARKSQL_KEYWORDS, SPARKSQL_LEXERS};
 pub mod sqlite;
-use crate::dialect::sqlite::matcher::SQLITE_KEYWORDS;
-use crate::dialect::sqlite::matcher::SQLITE_LEXERS;
+use crate::dialect::sqlite::matcher::{SQLITE_KEYWORDS, SQLITE_LEXERS};
 pub mod starrocks;
-use crate::dialect::starrocks::matcher::STARROCKS_KEYWORDS;
-use crate::dialect::starrocks::matcher::STARROCKS_LEXERS;
+use crate::dialect::starrocks::matcher::{STARROCKS_KEYWORDS, STARROCKS_LEXERS};
 pub mod teradata;
-use crate::dialect::teradata::matcher::TERADATA_KEYWORDS;
-use crate::dialect::teradata::matcher::TERADATA_LEXERS;
+use crate::dialect::teradata::matcher::{TERADATA_KEYWORDS, TERADATA_LEXERS};
 pub mod trino;
-use crate::dialect::trino::matcher::TRINO_KEYWORDS;
-use crate::dialect::trino::matcher::TRINO_LEXERS;
+use crate::dialect::trino::matcher::{TRINO_KEYWORDS, TRINO_LEXERS};
 pub mod tsql;
-use crate::dialect::tsql::matcher::TSQL_KEYWORDS;
-use crate::dialect::tsql::matcher::TSQL_LEXERS;
+use crate::dialect::tsql::matcher::{TSQL_KEYWORDS, TSQL_LEXERS};
 pub mod vertica;
-use crate::dialect::vertica::matcher::VERTICA_KEYWORDS;
-use crate::dialect::vertica::matcher::VERTICA_LEXERS;
+use crate::dialect::vertica::matcher::{VERTICA_KEYWORDS, VERTICA_LEXERS};
 
 use crate::matcher::LexMatcher;
 use std::str::FromStr;
@@ -120,7 +92,7 @@ pub enum Dialect {
     Teradata,
     Trino,
     Tsql,
-    Vertica
+    Vertica,
 }
 
 impl Dialect {
@@ -156,8 +128,6 @@ impl Dialect {
             Dialect::Vertica => &VERTICA_KEYWORDS,
         }
     }
-
-
 
     pub fn get_lexers(&self) -> &'static Vec<LexMatcher> {
         match self {
