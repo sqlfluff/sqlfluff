@@ -688,9 +688,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
         for idx, seg in enumerate(self.segments):
             seg.set_parent(self, idx)
             # Recurse if not disabled
-            if not recurse:
-                continue
-            seg.set_as_parent(recurse=recurse)
+            if recurse:
+                seg.set_as_parent(recurse=recurse)
 
     def set_parent(self, parent: BaseSegment, idx: int) -> None:
         """Set the weak reference to the parent.
