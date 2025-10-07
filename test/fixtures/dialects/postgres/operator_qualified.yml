@@ -1,0 +1,423 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7039818af4594b041761facf666725f38ca5ebe4ff8aa6f974ead88c14cbc1e3
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: col1
+          qualified_operator:
+            keyword: OPERATOR
+            bracketed:
+              start_bracket: (
+              naked_identifier: public
+              dot: .
+              operator: '='
+              end_bracket: )
+          quoted_literal: "'value1'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: col3
+          qualified_operator:
+            keyword: OPERATOR
+            bracketed:
+              start_bracket: (
+              naked_identifier: myschema
+              dot: .
+              operator: '>'
+              end_bracket: )
+          numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: col4
+          qualified_operator:
+            keyword: OPERATOR
+            bracketed:
+              start_bracket: (
+              naked_identifier: myschema
+              dot: .
+              operator: <
+              end_bracket: )
+          numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: col1
+          - qualified_operator:
+              keyword: OPERATOR
+              bracketed:
+                start_bracket: (
+                naked_identifier: public
+                dot: .
+                operator: +
+                end_bracket: )
+          - column_reference:
+              naked_identifier: col2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: sum_result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: col1
+          - qualified_operator:
+              keyword: OPERATOR
+              bracketed:
+                start_bracket: (
+                naked_identifier: public
+                dot: .
+                operator: '-'
+                end_bracket: )
+          - column_reference:
+              naked_identifier: col2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: diff_result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: col1
+          - qualified_operator:
+              keyword: OPERATOR
+              bracketed:
+                start_bracket: (
+                naked_identifier: public
+                dot: .
+                operator: '*'
+                end_bracket: )
+          - column_reference:
+              naked_identifier: col2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: mult_result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: col1
+          - qualified_operator:
+              keyword: OPERATOR
+              bracketed:
+                start_bracket: (
+                naked_identifier: public
+                dot: .
+                operator: /
+                end_bracket: )
+          - column_reference:
+              naked_identifier: col2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: div_result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: category
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: COUNT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: products
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: category
+      having_clause:
+        keyword: HAVING
+        expression:
+          function:
+            function_name:
+              function_name_identifier: COUNT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+          qualified_operator:
+            keyword: OPERATOR
+            bracketed:
+              start_bracket: (
+              naked_identifier: public
+              dot: .
+              operator: '>'
+              end_bracket: )
+          numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t2
+          - dot: .
+          - naked_identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: t1
+          join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table2
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: t2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: t1
+                - dot: .
+                - naked_identifier: id
+              - qualified_operator:
+                  keyword: OPERATOR
+                  bracketed:
+                    start_bracket: (
+                    naked_identifier: public
+                    dot: .
+                    operator: '='
+                    end_bracket: )
+              - column_reference:
+                - naked_identifier: t2
+                - dot: .
+                - naked_identifier: table1_id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: value
+                  qualified_operator:
+                    keyword: OPERATOR
+                    bracketed:
+                      start_bracket: (
+                      naked_identifier: public
+                      dot: .
+                      operator: '>'
+                      end_bracket: )
+                  numeric_literal: '100'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'high'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: value
+                  qualified_operator:
+                    keyword: OPERATOR
+                    bracketed:
+                      start_bracket: (
+                      naked_identifier: public
+                      dot: .
+                      operator: <
+                      end_bracket: )
+                  numeric_literal: '100'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'low'"
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: category
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: measurements
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: col1
+        - qualified_operator:
+            keyword: OPERATOR
+            bracketed:
+              start_bracket: (
+              naked_identifier: schema1
+              dot: .
+              operator: '='
+              end_bracket: )
+        - column_reference:
+            naked_identifier: val1
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: col2
+        - qualified_operator:
+            keyword: OPERATOR
+            bracketed:
+              start_bracket: (
+              naked_identifier: schema2
+              dot: .
+              operator: '>'
+              end_bracket: )
+        - column_reference:
+            naked_identifier: val2
+- statement_terminator: ;
