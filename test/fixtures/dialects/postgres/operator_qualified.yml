@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7039818af4594b041761facf666725f38ca5ebe4ff8aa6f974ead88c14cbc1e3
+_hash: 4d167b7dec7a81b3c77bd82b7a72b67629550d70f755d8e90b8b0541bbc1cbf3
 file:
 - statement:
     select_statement:
@@ -34,6 +34,37 @@ file:
               operator: '='
               end_bracket: )
           quoted_literal: "'value1'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: col2
+          qualified_operator:
+            keyword: OPERATOR
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: pg_catalog
+            - dot: .
+            - operator: <
+            - operator: '>'
+            - end_bracket: )
+          quoted_literal: "'value2'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -94,6 +125,68 @@ file:
               operator: <
               end_bracket: )
           numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: col5
+          qualified_operator:
+            keyword: OPERATOR
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: public
+            - dot: .
+            - operator: '>'
+            - operator: '='
+            - end_bracket: )
+          numeric_literal: '50'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: col6
+          qualified_operator:
+            keyword: OPERATOR
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: public
+            - dot: .
+            - operator: <
+            - operator: '='
+            - end_bracket: )
+          numeric_literal: '50'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -207,6 +300,37 @@ file:
             alias_operator:
               keyword: AS
             naked_identifier: div_result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: str1
+          - qualified_operator:
+              keyword: OPERATOR
+              bracketed:
+              - start_bracket: (
+              - naked_identifier: public
+              - dot: .
+              - operator: '|'
+              - operator: '|'
+              - end_bracket: )
+          - column_reference:
+              naked_identifier: str2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: concatenated
       from_clause:
         keyword: FROM
         from_expression:
@@ -355,11 +479,12 @@ file:
                   qualified_operator:
                     keyword: OPERATOR
                     bracketed:
-                      start_bracket: (
-                      naked_identifier: public
-                      dot: .
-                      operator: <
-                      end_bracket: )
+                    - start_bracket: (
+                    - naked_identifier: public
+                    - dot: .
+                    - operator: <
+                    - operator: '='
+                    - end_bracket: )
                   numeric_literal: '100'
               - keyword: THEN
               - expression:
@@ -413,11 +538,12 @@ file:
         - qualified_operator:
             keyword: OPERATOR
             bracketed:
-              start_bracket: (
-              naked_identifier: schema2
-              dot: .
-              operator: '>'
-              end_bracket: )
+            - start_bracket: (
+            - naked_identifier: schema2
+            - dot: .
+            - operator: <
+            - operator: '>'
+            - end_bracket: )
         - column_reference:
             naked_identifier: val2
 - statement_terminator: ;

@@ -827,9 +827,14 @@ class QualifiedOperatorSegment(BaseSegment):
             Sequence(
                 Ref("NakedIdentifierSegment"),  # schema name
                 Ref("DotSegment"),
-                RegexParser(
-                    r"[!<>=~@#%^&|`?+\-*/]+", SymbolSegment, type="operator"
-                ),  # the operator itself
+                # Match one or more operator symbols to support multi-character operators
+                # Similar to CreateOperatorStatementSegment
+                AnyNumberOf(
+                    RegexParser(
+                        r"[!<>=~@#%^&|`?+\-*/]+", SymbolSegment, type="operator"
+                    ),
+                    min_times=1,
+                ),
             ),
         ),
     )
