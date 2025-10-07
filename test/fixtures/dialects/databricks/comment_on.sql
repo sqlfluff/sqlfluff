@@ -17,3 +17,7 @@ COMMENT ON RECIPIENT my_recipient IS 'A good recipient';
 COMMENT ON PROVIDER my_provider IS 'A good provider';
 
 COMMENT ON VOLUME my_volume IS 'Huge volume';
+
+COMMENT ON COLUMN my_catalog.my_schema.my_table.my_column IS 'This is my column in a catalog';
+
+COMMENT ON COLUMN my_column IS 'This is my column';

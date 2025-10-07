@@ -699,3 +699,27 @@ class CreateIndexStatementSegment(mysql.CreateIndexStatementSegment):
             optional=True,
         ),
     )
+
+
+class CreateProcedureStatementSegment(mysql.CreateProcedureStatementSegment):
+    """A `CREATE PROCEDURE` statement.
+
+    https://mariadb.com/docs/server/server-usage/stored-routines/stored-procedures/create-procedure
+    """
+
+    match_grammar = mysql.CreateProcedureStatementSegment.match_grammar.copy(
+        insert=[Ref("OrReplaceGrammar", optional=True)],
+        before=Ref("ProcedureKeywordSegment"),
+    )
+
+
+class CreateFunctionStatementSegment(mysql.CreateFunctionStatementSegment):
+    """A `CREATE FUNCTION` statement.
+
+    https://mariadb.com/docs/server/reference/sql-statements/data-definition/create/create-function
+    """
+
+    match_grammar = mysql.CreateFunctionStatementSegment.match_grammar.copy(
+        insert=[Ref("OrReplaceGrammar", optional=True)],
+        before=Ref("FunctionKeywordSegment"),
+    )

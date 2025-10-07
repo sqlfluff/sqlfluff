@@ -625,7 +625,7 @@ subsections of an :code:`ON` block with each other. If set to :code:`False`
 
 These can also be combined, so if :code:`indented_using_on` config is set to
 :code:`False`, :code:`indented_on_contents` is also set to :code:`False`, and
-:code:`allow_implicit_indents` is set tot :code:`True` then the SQL would
+:code:`allow_implicit_indents` is set to :code:`True` then the SQL would
 become:
 
 .. code-block:: sql

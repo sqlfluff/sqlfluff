@@ -268,6 +268,7 @@ oracle_dialect.sets("unreserved_keywords").update(
 oracle_dialect.sets("bare_functions").clear()
 oracle_dialect.sets("bare_functions").update(
     [
+        "column_value",
         "current_date",
         "current_timestamp",
         "dbtimezone",
@@ -281,7 +282,7 @@ oracle_dialect.sets("bare_functions").update(
 
 oracle_dialect.patch_lexer_matchers(
     [
-        RegexLexer("word", r"[a-zA-Z][0-9a-zA-Z_$#]*", WordSegment),
+        RegexLexer("word", r"[\p{L}][\p{L}\p{N}_$#]*", WordSegment),
         RegexLexer(
             "single_quote",
             r"'([^'\\]|\\|\\.|'')*'",
@@ -720,7 +721,7 @@ oracle_dialect.replace(
     ),
     NakedIdentifierSegment=SegmentGenerator(
         lambda dialect: RegexParser(
-            r"[A-Z0-9_]*[A-Z][A-Z0-9_#$]*",
+            r"[\p{L}\p{N}_]*[\p{L}][\p{L}\p{N}_#$]*",
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
