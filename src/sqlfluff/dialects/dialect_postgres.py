@@ -826,12 +826,7 @@ class QualifiedOperatorSegment(BaseSegment):
             Sequence(
                 Ref("NakedIdentifierSegment"),  # schema name
                 Ref("DotSegment"),
-                OneOf(
-                    Ref("ComparisonOperatorGrammar"),
-                    Ref("ArithmeticBinaryOperatorGrammar"),
-                    Ref("StringBinaryOperatorGrammar"),
-                    Ref("BooleanBinaryOperatorGrammar"),
-                ),  # the operator itself
+                RegexParser(r"[!<>=~@#%%^&|`?+\-*/]+", SymbolSegment, type="operator"),  # the operator itself
             ),
         ),
     )
