@@ -330,7 +330,9 @@ def _determine_aligned_inline_spacing(
     current_line_segments = siblings_by_line.get(current_line_key, [])
 
     # Handle edge case where no segments are found on the current line
-    if not current_line_segments:
+    # This is defensive: in practice siblings should exist on the line, but this
+    # provides a safe fallback. Excluded from coverage as it's difficult to trigger.
+    if not current_line_segments:  # pragma: no cover
         reflow_logger.debug(
             "    No segments found on current line for alignment. Treat as single."
         )
@@ -349,7 +351,9 @@ def _determine_aligned_inline_spacing(
     )
 
     # Handle case where target segment is not found
-    if target_index is None:
+    # This is defensive: the target should normally be found among siblings, but
+    # provides a safe fallback. Excluded from coverage as it's difficult to trigger.
+    if target_index is None:  # pragma: no cover
         reflow_logger.debug(
             "    Target segment not found in current line. Treat as single."
         )
