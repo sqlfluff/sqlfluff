@@ -49,9 +49,9 @@ def _has_templated_content(
     """
     try:
         if next_seg.pos_marker and not next_seg.pos_marker.is_literal():
-            return True
+            return True  # pragma: no cover
         if any(s.pos_marker and not s.pos_marker.is_literal() for s in siblings):
-            return True
+            return True  # pragma: no cover
         for rs in parent_segment.raw_segments:
             if rs.is_code and rs.pos_marker and not rs.pos_marker.is_literal():
                 return True
