@@ -53,7 +53,6 @@ if __name__ == "__main__":
     file_pair_list = [
         ("utils/build_dialects.py", "sqlfluffrs/src/dialect/mod.rs", []),
         *dialects_list,
-        # ("utils/build_lexers.py", "sqlfluffrs/src/dialect/matcher.rs", []),
     ]
     parser = argparse.ArgumentParser(
         description="Check or build generated Rust output."
