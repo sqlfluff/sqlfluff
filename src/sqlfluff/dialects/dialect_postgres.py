@@ -815,18 +815,21 @@ postgres_dialect.replace(
 
 class QualifiedOperatorSegment(BaseSegment):
     """A qualified operator using OPERATOR(schema.operator) syntax.
-    
+
     https://www.postgresql.org/docs/current/sql-createoperator.html
     """
+
     type = "qualified_operator"
-    
+
     match_grammar = Sequence(
         "OPERATOR",
         Bracketed(
             Sequence(
                 Ref("NakedIdentifierSegment"),  # schema name
                 Ref("DotSegment"),
-                RegexParser(r"[!<>=~@#%%^&|`?+\-*/]+", SymbolSegment, type="operator"),  # the operator itself
+                RegexParser(
+                    r"[!<>=~@#%^&|`?+\-*/]+", SymbolSegment, type="operator"
+                ),  # the operator itself
             ),
         ),
     )
