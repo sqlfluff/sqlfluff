@@ -5,7 +5,7 @@ def generate_use():
     """Generates the `use` statements."""
     print("#[allow(clippy::needless_raw_string_hashes)]")
     print("pub mod matcher;")
-    print("// pub mod parser;")
+    print("pub mod parser;")
 
 
 if __name__ == "__main__":

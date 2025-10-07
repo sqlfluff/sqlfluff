@@ -207,6 +207,6 @@ if __name__ == "__main__":
 
     generate_use()
     print()
-    generate_lexer(args.dialect)
-    print()
     generate_reserved_keyword_list(args.dialect)
+    print()
+    generate_lexer(args.dialect)

@@ -6,6 +6,34 @@ use crate::token::Token;
 use crate::regex::RegexModeGroup;
 use crate::dialect::Dialect;
 
+pub static TERADATA_KEYWORDS: Lazy<Vec<String>> = Lazy::new(|| { vec![
+    "CASE".to_string(),
+    "CROSS".to_string(),
+    "FULL".to_string(),
+    "IGNORE".to_string(),
+    "INNER".to_string(),
+    "INTERVAL".to_string(),
+    "JOIN".to_string(),
+    "LEFT".to_string(),
+    "LOCKING".to_string(),
+    "NATURAL".to_string(),
+    "NOT".to_string(),
+    "NULL".to_string(),
+    "ON".to_string(),
+    "ORDER".to_string(),
+    "OUTER".to_string(),
+    "PARTITION".to_string(),
+    "REPLACE".to_string(),
+    "RESPECT".to_string(),
+    "RIGHT".to_string(),
+    "ROWS".to_string(),
+    "SELECT".to_string(),
+    "SET".to_string(),
+    "TIMESTAMP".to_string(),
+    "UNION".to_string(),
+    "USING".to_string(),
+]});
+
 pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
@@ -671,32 +699,4 @@ pub static TERADATA_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         |_| true,
         None,
     ),
-]});
-
-pub static TERADATA_KEYWORDS: Lazy<Vec<String>> = Lazy::new(|| { vec![
-    "CASE".to_string(),
-    "CROSS".to_string(),
-    "FULL".to_string(),
-    "IGNORE".to_string(),
-    "INNER".to_string(),
-    "INTERVAL".to_string(),
-    "JOIN".to_string(),
-    "LEFT".to_string(),
-    "LOCKING".to_string(),
-    "NATURAL".to_string(),
-    "NOT".to_string(),
-    "NULL".to_string(),
-    "ON".to_string(),
-    "ORDER".to_string(),
-    "OUTER".to_string(),
-    "PARTITION".to_string(),
-    "REPLACE".to_string(),
-    "RESPECT".to_string(),
-    "RIGHT".to_string(),
-    "ROWS".to_string(),
-    "SELECT".to_string(),
-    "SET".to_string(),
-    "TIMESTAMP".to_string(),
-    "UNION".to_string(),
-    "USING".to_string(),
 ]});

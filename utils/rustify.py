@@ -47,6 +47,7 @@ if __name__ == "__main__":
         for builder, file, args in [
             ("build_dialect", "mod", []),
             ("build_lexers", "matcher", [dialect.label.lower()]),
+            ("build_parsers", "parser", [dialect.label.lower()]),
         ]
     ]
 

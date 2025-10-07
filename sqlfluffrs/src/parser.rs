@@ -1,6 +1,39 @@
 use std::vec;
 
-use crate::{dialect::matcher::Dialect, token::Token};
+use crate::{dialect::Dialect, token::Token};
+
+#[derive(Debug, Clone)]
+pub struct RegexParserConfig {
+    pattern: String,
+    segment_type: String,
+    parser_type: String,
+    anti_template: Option<String>,
+    casefold: Option<fn(&str) -> String>,
+}
+
+pub struct IdentifierSegmentGenerator {
+    reserved_keywords: Vec<String>,
+}
+
+impl IdentifierSegmentGenerator {
+    pub fn new(dialect: &Dialect) -> Self {
+        Self {
+            reserved_keywords: dialect.get_reserved_keywords().clone(),
+        }
+    }
+
+    pub fn generate(&self) -> RegexParserConfig {
+        let anti_template = format!("^({})$", self.reserved_keywords.join("|"));
+
+        RegexParserConfig {
+            pattern: String::from(r"[A-Z0-9_]*[A-Z][A-Z0-9_]*"),
+            segment_type: String::from("identifier"),
+            parser_type: String::from("naked_identifier"),
+            anti_template: Some(anti_template),
+            casefold: Some(|s: &str| s.to_uppercase()),
+        }
+    }
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Grammar {
@@ -11,7 +44,7 @@ pub enum Grammar {
         allow_gaps: bool,
     },
     AnyNumberOf {
-        element: Box<Grammar>,
+        elements: Vec<Grammar>,
         min_times: usize,
         max_times: Option<usize>,
         optional: bool,
@@ -50,6 +83,13 @@ pub enum Grammar {
         allow_gaps: bool,
     },
     Symbol(&'static str),
+    // StringParser(&'static str),
+    StringParser(),
+    TypedParser(),
+    MultiStringParser(),
+    RegexParser(),
+    Nothing(),
+    OptionallyBracketed(),
     Empty,
 }
 
@@ -184,14 +224,14 @@ impl Parser<'_> {
                 }
             }
             Grammar::AnyNumberOf {
-                element,
+                elements,
                 min_times,
                 max_times,
                 optional,
                 terminators,
                 allow_gaps,
             } => {
-                dbg!("AnyNumberOf element: {:?}", element);
+                dbg!("AnyNumberOf elements: {:?}", elements);
                 let mut items = vec![];
                 let mut count = 0;
 
@@ -201,18 +241,26 @@ impl Parser<'_> {
                     }
 
                     let saved_pos = self.pos;
-                    match self.parse_with_grammar(element) {
-                        Ok(node) => {
-                            items.push(node);
-                            count += 1;
-                            if let Some(max) = max_times {
-                                if count >= *max {
-                                    break;
-                                }
+                    let mut matched = false;
+
+                    for element in elements {
+                        match self.parse_with_grammar(element) {
+                            Ok(node) => {
+                                items.push(node);
+                                count += 1;
+                                matched = true;
+                                break;
                             }
+                            Err(_) => self.pos = saved_pos,
                         }
-                        Err(_) => {
-                            self.pos = saved_pos; // rewind
+                    }
+
+                    if !matched {
+                        break;
+                    }
+
+                    if let Some(max) = max_times {
+                        if count >= *max {
                             break;
                         }
                     }
@@ -338,7 +386,7 @@ impl Parser<'_> {
 
                             // If we didn't match any element, or haven't made progress, break
                             if !matched || self.pos <= last_successful_pos {
-                                self.pos = last_successful_pos;  // Restore to last good position
+                                self.pos = last_successful_pos; // Restore to last good position
                                 break;
                             }
                         }
@@ -369,6 +417,7 @@ impl Parser<'_> {
                 }
             }
             Grammar::Empty => Ok(Node::Empty),
+            _ => Err(ParseError::new("Unsupported grammar type".into())),
         }
     }
 
@@ -453,6 +502,42 @@ impl Parser<'_> {
                 true
             }
             _ => false,
+        }
+    }
+
+    fn parse_naked_identifier(&mut self) -> Result<Node, ParseError> {
+        let config = IdentifierSegmentGenerator::new(&self.dialect).generate();
+
+        // Use the config to parse
+        if let Some(token) = self.peek() {
+            let raw = token.raw();
+
+            // Check against pattern
+            if !regex::Regex::new(&config.pattern).unwrap().is_match(&raw) {
+                return Err(ParseError::new("Does not match identifier pattern".into()));
+            }
+
+            // Check against anti_template if present
+            if let Some(anti) = &config.anti_template {
+                if regex::Regex::new(anti).unwrap().is_match(&raw) {
+                    return Err(ParseError::new("Matches reserved keyword".into()));
+                }
+            }
+
+            // Apply casefold if needed
+            let final_value = if let Some(casefold) = config.casefold {
+                casefold(&raw)
+            } else {
+                raw
+            };
+
+            self.bump();
+            Ok(Node::Ref {
+                name: config.segment_type,
+                child: Box::new(Node::Keyword(final_value)),
+            })
+        } else {
+            Err(ParseError::new("Expected identifier".into()))
         }
     }
 
