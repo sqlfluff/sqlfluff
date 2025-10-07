@@ -5,9 +5,6 @@ from sqlfluff.core.dialects import dialect_readout
 
 def generate_use():
     """Generates the `use` statements."""
-    # print("#[allow(clippy::needless_raw_string_hashes)]")
-    # print("pub mod matcher;")
-    print("pub mod parser;")
     print()
     print("/* dialect mods */")
     for dialect in dialect_readout():

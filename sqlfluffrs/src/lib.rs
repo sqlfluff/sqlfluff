@@ -3,7 +3,6 @@ pub mod dialect;
 pub mod lexer;
 pub mod marker;
 pub mod matcher;
-pub mod parser;
 #[cfg(feature = "python")]
 pub mod python;
 pub mod regex;
