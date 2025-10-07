@@ -434,7 +434,7 @@ fn iter_tokens(
 
                 match tfs.slice_type.as_str() {
                     "literal" => {
-                        let tfs_offset = tfs.source_codepoint_slice.start - tfs.templated_codepoint_slice.start;
+                        let tfs_offset = tfs.source_codepoint_slice.start as isize - tfs.templated_codepoint_slice.start as isize;
 
                         if element.template_slice.stop <= tfs.templated_codepoint_slice.stop {
                             debug!(
@@ -442,13 +442,13 @@ fn iter_tokens(
                                 consumed_length
                             );
                             let slice_start = stashed_source_idx.unwrap_or_else(|| {
-                                element.template_slice.start + consumed_length + tfs_offset
+                                (element.template_slice.start as isize + consumed_length as isize + tfs_offset) as usize
                             });
 
                             segments.push(element.to_token(
                                 PositionMarker::new(
                                     Slice::from(
-                                        slice_start..(element.template_slice.stop + tfs_offset),
+                                        slice_start..(element.template_slice.stop as isize + tfs_offset) as usize,
                                     ),
                                     element.template_slice,
                                     templated_file,
@@ -481,10 +481,10 @@ fn iter_tokens(
                                 segments.push(element.to_token(
                                     PositionMarker::new(
                                         Slice::from(
-                                            (element.template_slice.start
-                                                + consumed_length
-                                                + tfs_offset)
-                                                ..tfs.templated_codepoint_slice.stop + tfs_offset,
+                                            (element.template_slice.start as isize
+                                                + consumed_length as isize
+                                                + tfs_offset) as usize
+                                                ..(tfs.templated_codepoint_slice.stop as isize + tfs_offset) as usize,
                                         ),
                                         element.template_slice,
                                         templated_file,
@@ -501,7 +501,7 @@ fn iter_tokens(
                                 debug!("     Spilling over literal slice.");
                                 if stashed_source_idx.is_none() {
                                     stashed_source_idx =
-                                        Some(element.template_slice.start + tfs_offset);
+                                        Some((element.template_slice.start as isize + tfs_offset) as usize);
                                         debug!(
                                             "     Stashing a source start. {:?}", stashed_source_idx
                                         );
