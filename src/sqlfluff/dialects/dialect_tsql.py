@@ -3068,11 +3068,9 @@ class DeclareStatementSegment(BaseSegment):
                         "TABLE",
                         Bracketed(
                             Delimited(
-                                OneOf(
-                                    Ref("TableConstraintSegment"),
-                                    Ref("ComputedColumnDefinitionSegment"),
-                                    Ref("ColumnDefinitionSegment"),
-                                ),
+                                Ref("TableConstraintSegment"),
+                                Ref("ComputedColumnDefinitionSegment"),
+                                Ref("ColumnDefinitionSegment"),
                                 allow_trailing=True,
                             )
                         ),
