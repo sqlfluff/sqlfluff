@@ -1,0 +1,4 @@
+CREATE OR REPLACE PROCEDURE `testprocedure`()
+BEGIN
+    SELECT 1;
+END~

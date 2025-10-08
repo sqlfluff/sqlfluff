@@ -98,7 +98,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-rs = ["sqlfluffrs @ file:./sqlfluffrs"]
+rs = ["sqlfluffrs~=0.1.0"]
 
 [project.urls]
 Homepage = "https://www.sqlfluff.com"

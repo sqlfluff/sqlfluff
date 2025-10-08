@@ -1,0 +1,360 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 76b88a6d72fb613db9df71b02500964c5cdb9a7a82a68bbc1435bc92d70b817c
+file:
+- batch:
+    statement:
+      use_statement:
+        keyword: USE
+        database_reference:
+          naked_identifier: ADVENTUREWORKS2022
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        naked_identifier: CONTACT_CURSOR
+        cursor_definition:
+        - keyword: CURSOR
+        - keyword: FOR
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: LASTNAME
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: PERSON
+                    - dot: .
+                    - naked_identifier: PERSON
+            where_clause:
+              keyword: WHERE
+              expression:
+                column_reference:
+                  naked_identifier: LASTNAME
+                keyword: LIKE
+                quoted_literal: "'B%'"
+            orderby_clause:
+            - keyword: ORDER
+            - keyword: BY
+            - column_reference:
+                naked_identifier: LASTNAME
+            statement_terminator: ;
+  - statement:
+      open_cursor_statement:
+        keyword: OPEN
+        naked_identifier: CONTACT_CURSOR
+  - statement_terminator: ;
+  - statement:
+      fetch_cursor_statement:
+      - keyword: FETCH
+      - keyword: NEXT
+      - keyword: FROM
+      - naked_identifier: CONTACT_CURSOR
+  - statement_terminator: ;
+  - statement:
+      while_statement:
+        keyword: WHILE
+        expression:
+          system_variable: '@@FETCH_STATUS'
+          comparison_operator:
+            raw_comparison_operator: '='
+          integer_literal: '0'
+        statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              fetch_cursor_statement:
+              - keyword: FETCH
+              - keyword: NEXT
+              - keyword: FROM
+              - naked_identifier: CONTACT_CURSOR
+          - statement_terminator: ;
+          - keyword: END
+  - statement:
+      close_cursor_statement:
+        keyword: CLOSE
+        naked_identifier: CONTACT_CURSOR
+  - statement_terminator: ;
+  - statement:
+      deallocate_cursor_statement:
+        keyword: DEALLOCATE
+        naked_identifier: CONTACT_CURSOR
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+    statement:
+      use_statement:
+        keyword: USE
+        database_reference:
+          naked_identifier: ADVENTUREWORKS2022
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@LastName'
+      - data_type:
+          data_type_identifier: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '50'
+              end_bracket: )
+      - comma: ','
+      - parameter: '@FirstName'
+      - data_type:
+          data_type_identifier: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '50'
+              end_bracket: )
+      - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        naked_identifier: CONTACT_CURSOR
+        cursor_definition:
+        - keyword: CURSOR
+        - keyword: FOR
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: LASTNAME
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: FIRSTNAME
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: PERSON
+                    - dot: .
+                    - naked_identifier: PERSON
+            where_clause:
+              keyword: WHERE
+              expression:
+                column_reference:
+                  naked_identifier: LASTNAME
+                keyword: LIKE
+                quoted_literal: "'B%'"
+            orderby_clause:
+            - keyword: ORDER
+            - keyword: BY
+            - column_reference:
+                naked_identifier: LASTNAME
+            - comma: ','
+            - column_reference:
+                naked_identifier: FIRSTNAME
+            statement_terminator: ;
+  - statement:
+      open_cursor_statement:
+        keyword: OPEN
+        naked_identifier: CONTACT_CURSOR
+  - statement_terminator: ;
+  - statement:
+      fetch_cursor_statement:
+      - keyword: FETCH
+      - keyword: NEXT
+      - keyword: FROM
+      - naked_identifier: CONTACT_CURSOR
+      - keyword: INTO
+      - parameter: '@LastName'
+      - comma: ','
+      - parameter: '@FirstName'
+  - statement_terminator: ;
+  - statement:
+      while_statement:
+        keyword: WHILE
+        expression:
+          system_variable: '@@FETCH_STATUS'
+          comparison_operator:
+            raw_comparison_operator: '='
+          integer_literal: '0'
+        statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              print_statement:
+                keyword: PRINT
+                expression:
+                - quoted_literal: "'Contact Name: '"
+                - binary_operator: +
+                - parameter: '@FirstName'
+                - binary_operator: +
+                - quoted_literal: "' '"
+                - binary_operator: +
+                - parameter: '@LastName'
+          - statement:
+              fetch_cursor_statement:
+              - keyword: FETCH
+              - keyword: NEXT
+              - keyword: FROM
+              - naked_identifier: CONTACT_CURSOR
+              - keyword: INTO
+              - parameter: '@LastName'
+              - comma: ','
+              - parameter: '@FirstName'
+          - statement_terminator: ;
+          - keyword: END
+  - statement:
+      close_cursor_statement:
+        keyword: CLOSE
+        naked_identifier: CONTACT_CURSOR
+  - statement_terminator: ;
+  - statement:
+      deallocate_cursor_statement:
+        keyword: DEALLOCATE
+        naked_identifier: CONTACT_CURSOR
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+    statement:
+      use_statement:
+        keyword: USE
+        database_reference:
+          naked_identifier: ADVENTUREWORKS2022
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: LASTNAME
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: FIRSTNAME
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: PERSON
+                - dot: .
+                - naked_identifier: PERSON
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: LASTNAME
+        - comma: ','
+        - column_reference:
+            naked_identifier: FIRSTNAME
+        statement_terminator: ;
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@contact_cursor'
+      - keyword: SCROLL
+      - keyword: CURSOR
+      - keyword: FOR
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                quoted_identifier: '[LastName]'
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                quoted_identifier: '[FirstName]'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - quoted_identifier: '[Person]'
+                  - dot: .
+                  - quoted_identifier: '[Person]'
+          orderby_clause:
+          - keyword: ORDER
+          - keyword: BY
+          - column_reference:
+              quoted_identifier: '[LastName]'
+          - comma: ','
+          - column_reference:
+              quoted_identifier: '[FirstName]'
+          statement_terminator: ;
+  - statement:
+      open_cursor_statement:
+        keyword: OPEN
+        naked_identifier: contact_cursor
+  - statement_terminator: ;
+  - statement:
+      fetch_cursor_statement:
+      - keyword: FETCH
+      - keyword: LAST
+      - keyword: FROM
+      - naked_identifier: contact_cursor
+  - statement_terminator: ;
+  - statement:
+      fetch_cursor_statement:
+      - keyword: FETCH
+      - keyword: PRIOR
+      - keyword: FROM
+      - naked_identifier: contact_cursor
+  - statement_terminator: ;
+  - statement:
+      fetch_cursor_statement:
+      - keyword: FETCH
+      - keyword: ABSOLUTE
+      - numeric_literal: '2'
+      - keyword: FROM
+      - naked_identifier: contact_cursor
+  - statement_terminator: ;
+  - statement:
+      fetch_cursor_statement:
+      - keyword: FETCH
+      - keyword: RELATIVE
+      - numeric_literal: '3'
+      - keyword: FROM
+      - naked_identifier: contact_cursor
+  - statement_terminator: ;
+  - statement:
+      fetch_cursor_statement:
+      - keyword: FETCH
+      - keyword: RELATIVE
+      - sign_indicator: '-'
+      - numeric_literal: '2'
+      - keyword: FROM
+      - naked_identifier: contact_cursor
+  - statement_terminator: ;
+  - statement:
+      close_cursor_statement:
+        keyword: CLOSE
+        naked_identifier: contact_cursor
+  - statement_terminator: ;
+  - statement:
+      deallocate_cursor_statement:
+        keyword: DEALLOCATE
+        naked_identifier: contact_cursor
+  - statement_terminator: ;

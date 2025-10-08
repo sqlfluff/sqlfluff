@@ -896,7 +896,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
     LexMatcher::regex_lexer(
         Dialect::Oracle,
         "word",
-        r#"[a-zA-Z][0-9a-zA-Z_$#]*"#,
+        r#"[\p{L}][\p{L}\p{N}_$#]*"#,
         Token::word_token,
         None,
         None,
