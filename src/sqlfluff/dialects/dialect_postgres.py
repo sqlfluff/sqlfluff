@@ -1,21 +1,47 @@
 """The PostgreSQL dialect."""
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.core.parser import (AnyNumberOf, AnySetOf, Anything, BaseSegment,
-                                  Bracketed, BracketedSegment, CodeSegment,
-                                  CommentSegment,
-                                  CompositeComparisonOperatorSegment, Dedent,
-                                  Delimited, IdentifierSegment, ImplicitIndent,
-                                  Indent, LiteralKeywordSegment,
-                                  LiteralSegment, Matchable, NewlineSegment,
-                                  Nothing, OneOf, OptionallyBracketed,
-                                  ParseMode, Ref, RegexLexer, RegexParser,
-                                  SegmentGenerator, Sequence, StringLexer,
-                                  StringParser, SymbolSegment, TypedParser,
-                                  WhitespaceSegment, WordSegment)
+from sqlfluff.core.parser import (
+    AnyNumberOf,
+    AnySetOf,
+    Anything,
+    BaseSegment,
+    Bracketed,
+    BracketedSegment,
+    CodeSegment,
+    CommentSegment,
+    CompositeComparisonOperatorSegment,
+    Dedent,
+    Delimited,
+    IdentifierSegment,
+    ImplicitIndent,
+    Indent,
+    LiteralKeywordSegment,
+    LiteralSegment,
+    Matchable,
+    NewlineSegment,
+    Nothing,
+    OneOf,
+    OptionallyBracketed,
+    ParseMode,
+    Ref,
+    RegexLexer,
+    RegexParser,
+    SegmentGenerator,
+    Sequence,
+    StringLexer,
+    StringParser,
+    SymbolSegment,
+    TypedParser,
+    WhitespaceSegment,
+    WordSegment,
+)
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_postgres_keywords import (
-    get_keywords, postgres_keywords, postgres_postgis_datatype_keywords)
+    get_keywords,
+    postgres_keywords,
+    postgres_postgis_datatype_keywords,
+)
 
 ansi_dialect = load_raw_dialect("ansi")
 
