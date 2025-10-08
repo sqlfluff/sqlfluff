@@ -4,26 +4,26 @@ use crate::{
 };
 use once_cell::sync::Lazy;
 
-impl Dialect {
-    pub fn get_segment_grammar(&self, name: &str) -> Option<&'static crate::parser::Grammar> {
-        match name {
-            // "SelectClauseElementSegment" => Some(&SELECT_CLAUSE_ELEMENT_GRAMMAR),
-            // "SelectClauseModifierSegment" => Some(&SELECT_CLAUSE_MODIFIER_GRAMMAR),
-            "CommaSegment" => Some(&COMMA_GRAMMAR),
-            "SelectClauseSegment" => Some(&POSTGRES_SELECT_CLAUSE),
-            "SelectClauseElementSegment" => Some(&SELECT_CLAUSE_ELEMENT_GRAMMAR),
-            "SelectClauseModifierSegment" => Some(&Grammar::Empty),
-            "Identifier" => Some(&Grammar::Empty),
-            "BracketedColumnReferenceListGrammar" => Some(&BRACKETED_COLUMN_REFERENCE_LIST_GRAMMAR),
-            "ColumnReferenceSegment" => Some(&Grammar::Ref {
-                name: "Identifier",
-                optional: false,
-                allow_gaps: true,
-            }),
-            _ => None,
-        }
-    }
-}
+// impl Dialect {
+//     pub fn get_segment_grammar(&self, name: &str) -> Option<&'static crate::parser::Grammar> {
+//         match name {
+//             // "SelectClauseElementSegment" => Some(&SELECT_CLAUSE_ELEMENT_GRAMMAR),
+//             // "SelectClauseModifierSegment" => Some(&SELECT_CLAUSE_MODIFIER_GRAMMAR),
+//             "CommaSegment" => Some(&COMMA_GRAMMAR),
+//             "SelectClauseSegment" => Some(&POSTGRES_SELECT_CLAUSE),
+//             "SelectClauseElementSegment" => Some(&SELECT_CLAUSE_ELEMENT_GRAMMAR),
+//             "SelectClauseModifierSegment" => Some(&Grammar::Empty),
+//             "Identifier" => Some(&Grammar::Empty),
+//             "BracketedColumnReferenceListGrammar" => Some(&BRACKETED_COLUMN_REFERENCE_LIST_GRAMMAR),
+//             "ColumnReferenceSegment" => Some(&Grammar::Ref {
+//                 name: "Identifier",
+//                 optional: false,
+//                 allow_gaps: true,
+//             }),
+//             _ => None,
+//         }
+//     }
+// }
 
 pub static BRACKETED_COLUMN_REFERENCE_LIST_GRAMMAR: Lazy<Grammar> =
     Lazy::new(|| Grammar::Bracketed {

@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from sqlfluff.core.dialects import dialect_selector
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.parser.grammar.anyof import AnyNumberOf, OneOf, OptionallyBracketed
-from sqlfluff.core.parser.grammar.base import Nothing, Ref
+from sqlfluff.core.parser.grammar.base import BaseGrammar, Nothing, Ref
 from sqlfluff.core.parser.grammar.delimited import Delimited
 from sqlfluff.core.parser.grammar.sequence import Bracketed, Sequence
 from sqlfluff.core.parser.parsers import (
@@ -17,7 +17,7 @@ from sqlfluff.core.parser.parsers import (
     TypedParser,
 )
 from sqlfluff.core.parser.segments.base import SegmentMetaclass
-from sqlfluff.core.parser.segments.meta import Indent
+from sqlfluff.core.parser.segments.meta import MetaSegment
 
 
 @dataclass
@@ -48,16 +48,20 @@ def generate_parser(dialect: str):
     parse_context = DummyParseContext(loaded_dialect)
     segment_grammars = []
 
-    for name, match_grammar in loaded_dialect._library.items():
-        segment_grammars.append(f'"{name}" => Some(&{matchable_to_const_name(name)}),')
-        print(f"// {name=}")
-        print(
-            f"pub static {matchable_to_const_name(name)}: Lazy<Grammar> = Lazy::new(|| "
-        )
-        _to_rust_parser_grammar(match_grammar, parse_context)
-        print(");")
-        print()
-        # break
+    # TODO: remove this if
+    if dialect == "ansi":
+        for name, match_grammar in loaded_dialect._library.items():
+            segment_grammars.append(
+                f'"{name}" => Some(&{matchable_to_const_name(name)}),'
+            )
+            print(f"// {name=}")
+            print(
+                f"pub static {matchable_to_const_name(name)}: "
+                "Lazy<Grammar> = Lazy::new(|| "
+            )
+            _to_rust_parser_grammar(match_grammar, parse_context)
+            print(");")
+            print()
     segment_grammars.append("_ => None,")
 
     print(
@@ -79,14 +83,44 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print(f"    optional: {str(match_grammar.optional).lower()},")
         print(f"    allow_gaps: {str(match_grammar.allow_gaps).lower()},")
         print("}")
-    elif match_grammar.__class__ is StringParser:
-        print("Grammar::StringParser()")
-    elif match_grammar.__class__ is TypedParser:
-        print("Grammar::TypedParser()")
-    elif match_grammar.__class__ is MultiStringParser:
-        print("Grammar::MultiStringParser()")
-    elif match_grammar.__class__ is RegexParser:
-        print("Grammar::RegexParser()")
+    elif match_grammar.__class__ is StringParser and isinstance(
+        match_grammar, StringParser
+    ):
+        print("Grammar::StringParser {")
+        print(f'    template: "{match_grammar.template}",')
+        print(f'    token_type: "{match_grammar._instance_types[0]}",')
+        print(f"    optional: {str(match_grammar.optional).lower()},")
+        print("}")
+    elif match_grammar.__class__ is TypedParser and isinstance(
+        match_grammar, TypedParser
+    ):
+        print("Grammar::TypedParser {")
+        print(f'    template: "{match_grammar.template}",')
+        print(f'    token_type: "{match_grammar._instance_types[0]}",')
+        print(f"    optional: {str(match_grammar.optional).lower()},")
+        print("}")
+    elif match_grammar.__class__ is MultiStringParser and isinstance(
+        match_grammar, MultiStringParser
+    ):
+        print("Grammar::MultiStringParser {")
+        multistring = ", ".join(
+            sorted(map(lambda x: f'"{x}"', match_grammar.templates))
+        )
+        print(f"    templates: vec![{multistring}],")
+        print(f'    token_type: "{match_grammar._instance_types[0]}",')
+        print(f"    optional: {str(match_grammar.optional).lower()},")
+        print("}")
+    elif match_grammar.__class__ is RegexParser and isinstance(
+        match_grammar, RegexParser
+    ):
+        print("Grammar::RegexParser {")
+        print(f'    template: r#"{match_grammar.template}"#,')
+        print(f'    token_type: "{match_grammar._instance_types[0]}",')
+        print(f"    optional: {str(match_grammar.optional).lower()},")
+        print(
+            f"    anti_template: {as_rust_option(match_grammar.anti_template, True)},"
+        )
+        print("}")
     elif match_grammar.__class__ is OptionallyBracketed:
         print("Grammar::OptionallyBracketed()")
     elif match_grammar.__class__ is Nothing:
@@ -179,9 +213,7 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
             print(",")
         print("    ],")
         print(f"    min_times: {match_grammar.min_times},")
-        max_times = (
-            f"Some({match_grammar.max_times})" if match_grammar.max_times else "None"
-        )
+        max_times = as_rust_option(match_grammar.max_times)
         print(f"    max_times: {max_times},")
         print(f"    optional: {str(match_grammar.optional).lower()},")
         print("    terminators: vec![")
@@ -191,18 +223,39 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print("    ],")
         print(f"    allow_gaps: {str(match_grammar.allow_gaps).lower()},")
         print("}")
-    elif isinstance(match_grammar, Indent):
-        print("here")
+    elif isinstance(match_grammar, BaseGrammar):
+        print(
+            f"// got to an unimplemented base grammar called {match_grammar.__class__}"
+        )
+        print("Grammar::Missing")
+    elif issubclass(match_grammar, MetaSegment):
+        print("// here for meta")
+        print("Grammar::Meta")
     elif (
         match_grammar.__class__ is SegmentMetaclass
         and isinstance(match_grammar, SegmentMetaclass)
         and hasattr(match_grammar, "match_grammar")
     ):
-        # print(match_grammar.match_grammar)
+        print(f"// {match_grammar.__name__}")
         _to_rust_parser_grammar(match_grammar.match_grammar, parse_context)
     else:
-        print(f"// Missing elements {match_grammar=}, type:{match_grammar.__class__}")
-        print("todo!()")
+        print(f"// Missing elements {match_grammar=}, {match_grammar.__class__=}")
+        print(f"// {match_grammar.__name__=}")
+        print(f"// {match_grammar.__qualname__=}")
+        # print(f"// {match_grammar.__mro__=}")
+        # print("todo!()")
+        print("Grammar::Missing")
+
+
+def as_rust_option(value, is_regex: bool = False):
+    """Converts an optional value to a Rust Option."""
+    if isinstance(value, str) and is_regex:
+        return f'Some(r#"{value}"#)' if value else "None"
+    if isinstance(value, str):
+        return f'Some("{value}")' if value else "None"
+    elif isinstance(value, bool):
+        return f"Some({str(value).lower()})" if value else "None"
+    return f"Some({value})" if value else "None"
 
 
 if __name__ == "__main__":

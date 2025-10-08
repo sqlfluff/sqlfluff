@@ -1,7 +1,5 @@
 /* This is a generated file! */
 
-pub mod parser;
-
 /* dialect mods */
 pub mod ansi;
 use crate::dialect::ansi::matcher::{ANSI_KEYWORDS, ANSI_LEXERS};
@@ -159,6 +157,39 @@ impl Dialect {
             Dialect::Trino => &TRINO_LEXERS,
             Dialect::Tsql => &TSQL_LEXERS,
             Dialect::Vertica => &VERTICA_LEXERS,
+        }
+    }
+
+    pub fn get_segment_grammar(&self, name: &str) -> Option<&'static crate::parser::Grammar> {
+        match self {
+            Dialect::Ansi => crate::dialect::ansi::parser::get_ansi_segment_grammar(name),
+            Dialect::Athena => crate::dialect::athena::parser::get_athena_segment_grammar(name),
+            Dialect::Bigquery => crate::dialect::bigquery::parser::get_bigquery_segment_grammar(name),
+            Dialect::Clickhouse => crate::dialect::clickhouse::parser::get_clickhouse_segment_grammar(name),
+            Dialect::Databricks => crate::dialect::databricks::parser::get_databricks_segment_grammar(name),
+            Dialect::Db2 => crate::dialect::db2::parser::get_db2_segment_grammar(name),
+            Dialect::Doris => crate::dialect::doris::parser::get_doris_segment_grammar(name),
+            Dialect::Duckdb => crate::dialect::duckdb::parser::get_duckdb_segment_grammar(name),
+            Dialect::Exasol => crate::dialect::exasol::parser::get_exasol_segment_grammar(name),
+            Dialect::Flink => crate::dialect::flink::parser::get_flink_segment_grammar(name),
+            Dialect::Greenplum => crate::dialect::greenplum::parser::get_greenplum_segment_grammar(name),
+            Dialect::Hive => crate::dialect::hive::parser::get_hive_segment_grammar(name),
+            Dialect::Impala => crate::dialect::impala::parser::get_impala_segment_grammar(name),
+            Dialect::Mariadb => crate::dialect::mariadb::parser::get_mariadb_segment_grammar(name),
+            Dialect::Materialize => crate::dialect::materialize::parser::get_materialize_segment_grammar(name),
+            Dialect::Mysql => crate::dialect::mysql::parser::get_mysql_segment_grammar(name),
+            Dialect::Oracle => crate::dialect::oracle::parser::get_oracle_segment_grammar(name),
+            Dialect::Postgres => crate::dialect::postgres::parser::get_postgres_segment_grammar(name),
+            Dialect::Redshift => crate::dialect::redshift::parser::get_redshift_segment_grammar(name),
+            Dialect::Snowflake => crate::dialect::snowflake::parser::get_snowflake_segment_grammar(name),
+            Dialect::Soql => crate::dialect::soql::parser::get_soql_segment_grammar(name),
+            Dialect::Sparksql => crate::dialect::sparksql::parser::get_sparksql_segment_grammar(name),
+            Dialect::Sqlite => crate::dialect::sqlite::parser::get_sqlite_segment_grammar(name),
+            Dialect::Starrocks => crate::dialect::starrocks::parser::get_starrocks_segment_grammar(name),
+            Dialect::Teradata => crate::dialect::teradata::parser::get_teradata_segment_grammar(name),
+            Dialect::Trino => crate::dialect::trino::parser::get_trino_segment_grammar(name),
+            Dialect::Tsql => crate::dialect::tsql::parser::get_tsql_segment_grammar(name),
+            Dialect::Vertica => crate::dialect::vertica::parser::get_vertica_segment_grammar(name),
         }
     }
 }

@@ -1,4 +1,7 @@
 pub mod config;
+#[allow(unreachable_code)]
+#[allow(unused)]
+#[allow(clippy::diverging_sub_expression)]
 pub mod dialect;
 pub mod lexer;
 pub mod marker;

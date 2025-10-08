@@ -1,4 +1,4 @@
-use std::vec;
+use std::{f32::consts::E, vec};
 
 use crate::{dialect::Dialect, token::Token};
 
@@ -83,14 +83,44 @@ pub enum Grammar {
         allow_gaps: bool,
     },
     Symbol(&'static str),
-    // StringParser(&'static str),
-    StringParser(),
-    TypedParser(),
-    MultiStringParser(),
-    RegexParser(),
+    StringParser {
+        template: &'static str,
+        // ?maybe raw_class?
+        token_type: &'static str,
+        optional: bool,
+        // trim_chars: Option<Vec<String>>,
+        // casefold: Option<fn(&str) -> String>,
+    },
+    MultiStringParser {
+        templates: Vec<&'static str>,
+        // ?maybe raw_class?
+        token_type: &'static str,
+        optional: bool,
+        // trim_chars: Option<Vec<String>>,
+        // casefold: Option<fn(&str) -> String>,
+    },
+    TypedParser {
+        template: &'static str,
+        // ?maybe raw_class?
+        token_type: &'static str,
+        optional: bool,
+        // trim_chars: Option<Vec<String>>,
+        // casefold: Option<fn(&str) -> String>,
+    },
+    RegexParser {
+        template: &'static str,
+        // ?maybe raw_class?
+        token_type: &'static str,
+        optional: bool,
+        // trim_chars: Option<Vec<String>>,
+        // casefold: Option<fn(&str) -> String>,
+        anti_template: Option<&'static str>,
+    },
+    Meta,
     Nothing(),
     OptionallyBracketed(),
     Empty,
+    Missing,
 }
 
 pub struct SegmentDef {
@@ -121,6 +151,7 @@ pub enum Node {
 
     /// Used when an optional part didn’t match
     Empty,
+    Meta,
 }
 
 pub struct Parser<'a> {
@@ -131,18 +162,162 @@ pub struct Parser<'a> {
 
 impl Parser<'_> {
     fn parse_with_grammar(&mut self, grammar: &Grammar) -> Result<Node, ParseError> {
-        dbg!("Parsing with grammar: {:?}", grammar);
+        println!("Parsing with grammar: {:?}@{}", grammar, self.pos);
         match grammar {
+            Grammar::Missing => {
+                println!("Expecting missing grammar");
+                Err(ParseError::new("Missing grammar encountered".into()))
+            }
             Grammar::Keyword {
                 name,
                 optional,
                 allow_gaps,
             } => {
-                dbg!("Expecting keyword: {}", name);
+                println!("Expecting keyword: {}", name);
                 self.expect_keyword(name, *allow_gaps)
             }
+            Grammar::Meta => {
+                println!("Expecting meta");
+                Ok(Node::Meta) // Placeholder for meta handling
+            }
+            Grammar::StringParser {
+                template,
+                token_type,
+                optional,
+            } => {
+                println!(
+                    "Expecting string parser: {}, type: {:?}",
+                    template, token_type
+                );
+                self.skip_transparent(true);
+                let tok_raw = self.peek().map(|t| t.raw().to_string());
+                match tok_raw {
+                    Some(tok) if tok.eq_ignore_ascii_case(template) => {
+                        self.bump();
+                        Ok(Node::Symbol(tok))
+                    }
+                    _ => {
+                        if *optional {
+                            Ok(Node::Empty)
+                        } else {
+                            Err(ParseError::new(format!("Expected string '{}'", template)))
+                        }
+                    }
+                }
+            }
+            Grammar::MultiStringParser {
+                templates,
+                token_type,
+                optional,
+            } => {
+                println!(
+                    "Expecting multi string parser: {:?}, type: {:?}",
+                    templates, token_type
+                );
+                self.skip_transparent(true);
+                let token_raw = self.peek().map(|t| t.raw().to_string());
+                match token_raw {
+                    Some(raw) if templates.iter().any(|&temp| raw.eq_ignore_ascii_case(temp)) => {
+                        self.bump();
+                        Ok(Node::Symbol(raw))
+                    }
+                    _ => {
+                        if *optional {
+                            Ok(Node::Empty)
+                        } else {
+                            Err(ParseError::new(format!(
+                                "Expected one of strings '{:?}'",
+                                templates
+                            )))
+                        }
+                    }
+                }
+            }
+            Grammar::RegexParser {
+                template,
+                token_type,
+                optional,
+                anti_template,
+            } => {
+                println!(
+                    "Expecting regex parser: {}, type: {:?}",
+                    template, token_type
+                );
+                self.skip_transparent(true);
+                let tok_raw = self.peek().map(|t| t.raw().to_string());
+                match tok_raw {
+                    Some(raw)
+                        if regex::RegexBuilder::new(template)
+                            .case_insensitive(true)
+                            .build()
+                            .unwrap()
+                            .is_match(&raw) =>
+                    {
+                        println!("Regex matched: {}", raw);
+                        if let Some(anti) = anti_template {
+                            if regex::RegexBuilder::new(anti)
+                                .case_insensitive(true)
+                                .build()
+                                .unwrap()
+                                .is_match(&raw)
+                            {
+                                if *optional {
+                                    return Ok(Node::Empty);
+                                } else {
+                                    return Err(ParseError::new(format!(
+                                        "Token '{}' matches anti-template '{}'",
+                                        raw, anti
+                                    )));
+                                }
+                            }
+                        }
+                        println!("Regex matched and non anti-match: {}", raw);
+                        self.bump();
+                        Ok(Node::Symbol(raw))
+                    }
+                    _ => {
+                        if *optional {
+                            Ok(Node::Empty)
+                        } else {
+                            Err(ParseError::new(format!(
+                                "Expected token matching regex '{}'",
+                                template
+                            )))
+                        }
+                    }
+                }
+            }
+            Grammar::TypedParser {
+                template,
+                token_type,
+                optional,
+            } => {
+                println!("Expecting typed parser: {}, type: {}", template, token_type);
+                self.skip_transparent(true);
+                if let Some(tok) = self.peek() {
+                    let tok = tok.clone();
+                    if tok.is_type(&[template]) {
+                        self.bump();
+                        Ok(Node::Symbol(tok.raw()))
+                    } else if *optional {
+                        Ok(Node::Empty)
+                    } else {
+                        Err(ParseError::new(format!(
+                            "Expected typed token '{}'",
+                            template
+                        )))
+                    }
+                } else if *optional {
+                    Ok(Node::Empty)
+                } else {
+                    Err(ParseError::new(format!(
+                        "Expected typed token '{}', found EOF",
+                        template
+                    )))
+                }
+            }
             Grammar::Symbol(sym) => {
-                dbg!("Expecting symbol: {}", sym);
+                println!("Expecting symbol: {}", sym);
                 match self.peek() {
                     Some(t) if t.raw() == *sym => {
                         self.bump();
@@ -156,15 +331,27 @@ impl Parser<'_> {
                 optional,
                 allow_gaps,
             } => {
+                println!("Ref to segment: {}, optional: {}", name, optional);
                 self.skip_transparent(*allow_gaps);
-                dbg!("Ref to segment: {}, optional: {}", name, optional);
-                if *name == "Identifier" {
-                    self.skip_transparent(*allow_gaps);
-                    Ok(self.parse_identifier()?)
-                } else if *optional && !self.can_parse(name)? {
-                    Ok(Node::Empty)
-                } else {
-                    self.call_rule(name)
+                // if *name == "Identifier" {
+                //     self.skip_transparent(*allow_gaps);
+                //     Ok(self.parse_identifier()?)
+                // } else if *optional && !self.can_parse(name)? {
+                //     Ok(Node::Empty)
+                // } else {
+                //     self.call_rule(name)
+                // }
+                let attempt = self.call_rule(name);
+                match attempt {
+                    Ok(node) => Ok(node),
+                    Err(e) => {
+                        if *optional {
+                            println!("Ref optional, skipping");
+                            Ok(Node::Empty)
+                        } else {
+                            Err(e)
+                        }
+                    }
                 }
             }
             Grammar::Sequence {
@@ -173,20 +360,24 @@ impl Parser<'_> {
                 terminators,
                 allow_gaps,
             } => {
-                dbg!("Sequence elements: {:?}", elements);
+                println!("Sequence elements: {:?}", elements);
                 let saved = self.pos;
+                self.skip_transparent(*allow_gaps);
                 let mut children = vec![];
                 for element in elements {
-                    dbg!("Sequence element: {:?}", element);
+                    println!("Sequence element: {:?}", element);
                     if self.is_terminated(terminators) {
-                        dbg!("Sequence terminated!");
+                        println!("Sequence terminated!");
                         break;
                     }
                     match self.parse_with_grammar(element) {
-                        Ok(node) => children.push(node),
+                        Ok(node) => {
+                            println!("Sequence element matched: {:?}", node);
+                            children.push(node)
+                        }
                         Err(e) => {
                             if *optional {
-                                dbg!("Sequence element optional, skipping");
+                                println!("Sequence element optional, skipping");
                                 self.pos = saved; // whole sequence optional → rewind
                                 return Ok(Node::Empty);
                             } else {
@@ -195,7 +386,7 @@ impl Parser<'_> {
                         }
                     }
                 }
-                dbg!("Sequence children: {:?}", &children);
+                println!("Sequence children: {:?}", &children);
                 Ok(Node::Sequence(children))
             }
             Grammar::OneOf {
@@ -204,8 +395,9 @@ impl Parser<'_> {
                 terminators,
                 allow_gaps,
             } => {
-                dbg!("OneOf elements: {:?}", elements);
+                println!("OneOf elements: {:?}", elements);
                 let saved = self.pos;
+                self.skip_transparent(*allow_gaps);
                 for element in elements {
                     if self.is_terminated(terminators) {
                         break;
@@ -231,7 +423,7 @@ impl Parser<'_> {
                 terminators,
                 allow_gaps,
             } => {
-                dbg!("AnyNumberOf elements: {:?}", elements);
+                println!("AnyNumberOf elements: {:?}", elements);
                 let mut items = vec![];
                 let mut count = 0;
 
@@ -242,6 +434,7 @@ impl Parser<'_> {
 
                     let saved_pos = self.pos;
                     let mut matched = false;
+                    self.skip_transparent(*allow_gaps);
 
                     for element in elements {
                         match self.parse_with_grammar(element) {
@@ -287,11 +480,11 @@ impl Parser<'_> {
                 terminators,
                 allow_gaps,
             } => {
-                dbg!("Delimited elements: {:?}", elements);
+                println!("Delimited elements: {:?}", elements);
                 let mut items = vec![];
 
                 if *optional && (self.is_at_end() || self.is_terminated(terminators)) {
-                    dbg!("Delimited: empty optional");
+                    println!("Delimited: empty optional");
                     return Ok(Node::DelimitedList(items));
                 }
 
@@ -301,9 +494,9 @@ impl Parser<'_> {
                     }
 
                     // match one element
-                    self.skip_transparent(*allow_gaps);
                     let mut matched = false;
                     let saved_pos = self.pos;
+                    self.skip_transparent(*allow_gaps);
                     for elem in elements {
                         match self.parse_with_grammar(elem) {
                             Ok(node) => {
@@ -316,13 +509,13 @@ impl Parser<'_> {
                     }
 
                     if !matched {
-                        dbg!("Delimited: no more elements matched");
+                        println!("Delimited: no more elements matched");
                         break;
                     }
 
                     // try delimiter
-                    self.skip_transparent(*allow_gaps);
                     let saved_pos = self.pos;
+                    self.skip_transparent(*allow_gaps);
                     if let Ok(delim_node) = self.parse_with_grammar(delimiter) {
                         // check if element follows
                         if self.is_terminated(terminators) {
@@ -333,11 +526,11 @@ impl Parser<'_> {
                             }
                             break;
                         }
-                        dbg!("Delimited: found delimiter");
+                        println!("Delimited: found delimiter");
                         items.push(delim_node);
                     } else {
                         self.pos = saved_pos;
-                        dbg!("Delimited: no delimiter found, ending");
+                        println!("Delimited: no delimiter found, ending");
                         break;
                     }
                 }
@@ -351,7 +544,7 @@ impl Parser<'_> {
                 terminators,
                 allow_gaps,
             } => {
-                dbg!("Bracketed elements: {:?}", elements);
+                println!("Bracketed elements: {:?}", elements);
                 let saved_pos = self.pos;
                 self.skip_transparent(*allow_gaps);
                 // Expect opening bracket
@@ -366,12 +559,13 @@ impl Parser<'_> {
                                 break;
                             }
 
-                            // Skip transparent tokens before each element
-                            self.skip_transparent(*allow_gaps);
-
                             // Try to match each element type
                             let mut matched = false;
                             let saved_inner_pos = self.pos;
+
+                            // Skip transparent tokens before each element
+                            self.skip_transparent(*allow_gaps);
+
                             for elem in elements {
                                 match self.parse_with_grammar(elem) {
                                     Ok(node) => {
@@ -404,8 +598,8 @@ impl Parser<'_> {
                         }
                     }
                     Err(e) => {
+                        self.pos = saved_pos;
                         if *optional {
-                            self.pos = saved_pos;
                             Ok(Node::Empty)
                         } else {
                             Err(ParseError::new(format!(
@@ -440,7 +634,10 @@ impl Parser<'_> {
         }
         while let Some(tok) = self.peek() {
             match tok {
-                tok if !tok.is_code() => self.bump(),
+                tok if !tok.is_code() => {
+                    println!("skipping token: {:?}", tok);
+                    self.bump()
+                }
                 _ => break,
             }
         }
@@ -449,10 +646,9 @@ impl Parser<'_> {
     fn is_terminated(&mut self, terminators: &[Grammar]) -> bool {
         self.skip_transparent(true);
         let saved_pos = self.pos;
-        dbg!(
+        println!(
             "Checking terminators: {:?} at pos {:?}",
-            terminators,
-            self.pos
+            terminators, self.pos
         );
         for term in terminators {
             if self.parse_with_grammar(term).is_ok() {
@@ -746,11 +942,11 @@ mod tests {
     fn parse_select_delimited() -> Result<(), ParseError> {
         let raw = "SELECT a, b FROM my_table;";
         let input = LexInput::String(raw.into());
-        let dialect = Dialect::Postgres;
+        let dialect = Dialect::Ansi;
         let lexer = Lexer::new(None, dialect);
         let (tokens, _errors) = lexer.lex(input, false);
 
-        dbg!("Tokens: {:#?}", &tokens);
+        println!("Tokens: {:#?}", &tokens);
 
         let mut parser = Parser {
             tokens: &tokens,
@@ -768,11 +964,11 @@ mod tests {
     fn parse_select_single_item() -> Result<(), ParseError> {
         let raw = "SELECT a;";
         let input = LexInput::String(raw.into());
-        let dialect = Dialect::Postgres;
+        let dialect = Dialect::Ansi;
         let lexer = Lexer::new(None, dialect);
         let (tokens, _errors) = lexer.lex(input, false);
 
-        dbg!("Tokens: {:#?}", &tokens);
+        println!("Tokens: {:#?}", &tokens);
 
         let mut parser = Parser {
             tokens: &tokens,
@@ -790,11 +986,11 @@ mod tests {
     fn parse_bracket() -> Result<(), ParseError> {
         let raw = "( this, that )";
         let input = LexInput::String(raw.into());
-        let dialect = Dialect::Postgres;
+        let dialect = Dialect::Ansi;
         let lexer = Lexer::new(None, dialect);
         let (tokens, _errors) = lexer.lex(input, false);
 
-        dbg!("Tokens: {:#?}", &tokens);
+        println!("Tokens: {:#?}", &tokens);
 
         let mut parser = Parser {
             tokens: &tokens,

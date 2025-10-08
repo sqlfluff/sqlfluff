@@ -7,8 +7,8 @@ def generate_use():
     """Generates the `use` statements."""
     # print("#[allow(clippy::needless_raw_string_hashes)]")
     # print("pub mod matcher;")
-    print("pub mod parser;")
-    print()
+    # print("pub mod parser;")
+    # print()
     print("/* dialect mods */")
     for dialect in dialect_readout():
         print(f"pub mod {dialect.label.lower()};")
@@ -18,6 +18,7 @@ def generate_use():
             f"{dialect.label.upper()}_LEXERS}};"
         )
     print()
+    print("use crate::parser::Grammar;")
     print("use crate::matcher::LexMatcher;")
     print("use std::str::FromStr;")
 
@@ -36,6 +37,14 @@ def generate_dialect_enum():
     dialect_reserved_keywords = ",\n            ".join(
         [
             f"Dialect::{d.label.capitalize()} => &{d.label.upper()}_KEYWORDS"
+            for d in dialect_readout()
+        ]
+    )
+    dialect_get_segments = ",\n            ".join(
+        [
+            f"Dialect::{d.label.capitalize()} => "
+            f"crate::dialect::{d.label.lower()}::"
+            f"parser::get_{d.label.lower()}_segment_grammar(name)"
             for d in dialect_readout()
         ]
     )
@@ -62,6 +71,12 @@ impl Dialect {{
     pub fn get_lexers(&self) -> &'static Vec<LexMatcher> {{
         match self {{
             {dialect_match},
+        }}
+    }}
+
+    pub fn get_segment_grammar(&self, name: &str) -> Option<&'static Grammar> {{
+        match self {{
+            {dialect_get_segments},
         }}
     }}
 }}
