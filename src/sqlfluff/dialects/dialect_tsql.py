@@ -3070,6 +3070,7 @@ class DeclareStatementSegment(BaseSegment):
                             Delimited(
                                 OneOf(
                                     Ref("TableConstraintSegment"),
+                                    Ref("ComputedColumnDefinitionSegment"),
                                     Ref("ColumnDefinitionSegment"),
                                 ),
                                 allow_trailing=True,
