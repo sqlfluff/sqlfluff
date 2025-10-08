@@ -827,7 +827,8 @@ class QualifiedOperatorSegment(BaseSegment):
             Sequence(
                 Ref("NakedIdentifierSegment"),  # schema name
                 Ref("DotSegment"),
-                # Match one or more operator symbols to support multi-character operators
+                # Match one or more operator symbols
+                # to support multi-character operators
                 # Similar to CreateOperatorStatementSegment
                 AnyNumberOf(
                     RegexParser(
