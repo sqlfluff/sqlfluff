@@ -831,7 +831,9 @@ class QualifiedOperatorSegment(BaseSegment):
                 # Similar to CreateOperatorStatementSegment
                 AnyNumberOf(
                     RegexParser(
-                        r"[!<>=~@#%^&|`?+\-*/]+", SymbolSegment, type="operator"
+                        r"[!<>=~@#%^&|`?+\-*/]+",
+                        SymbolSegment,
+                        type="operator",
                     ),
                     min_times=1,
                 ),
