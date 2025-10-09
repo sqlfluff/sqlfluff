@@ -40,6 +40,7 @@ def get_rules() -> list[type[BaseRule]]:
     from sqlfluff.rules.structure.ST09 import Rule_ST09
     from sqlfluff.rules.structure.ST10 import Rule_ST10
     from sqlfluff.rules.structure.ST11 import Rule_ST11
+    from sqlfluff.rules.structure.ST12 import Rule_ST12
 
     return [
         Rule_ST01,
@@ -53,4 +54,5 @@ def get_rules() -> list[type[BaseRule]]:
         Rule_ST09,
         Rule_ST10,
         Rule_ST11,
+        Rule_ST12,
     ]

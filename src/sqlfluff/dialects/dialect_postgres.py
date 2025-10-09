@@ -487,6 +487,7 @@ postgres_dialect.replace(
         Ref("PostgisOperatorSegment"),
         Ref("PgvectorOperatorSegment"),
         Ref("PgTrgmOperatorSegment"),
+        Ref("QualifiedOperatorSegment"),
     ),
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
@@ -810,6 +811,36 @@ postgres_dialect.replace(
         "NORMALIZED",
     ),
 )
+
+
+class QualifiedOperatorSegment(BaseSegment):
+    """A qualified operator using OPERATOR(schema.operator) syntax.
+
+    https://www.postgresql.org/docs/current/sql-createoperator.html
+    """
+
+    type = "qualified_operator"
+
+    match_grammar = Sequence(
+        "OPERATOR",
+        Bracketed(
+            Sequence(
+                Ref("NakedIdentifierSegment"),  # schema name
+                Ref("DotSegment"),
+                # Match one or more operator symbols
+                # to support multi-character operators
+                # Similar to CreateOperatorStatementSegment
+                AnyNumberOf(
+                    RegexParser(
+                        r"[!<>=~@#%^&|`?+\-*/]+",
+                        SymbolSegment,
+                        type="operator",
+                    ),
+                    min_times=1,
+                ),
+            ),
+        ),
+    )
 
 
 class OverlapSegment(CompositeComparisonOperatorSegment):
