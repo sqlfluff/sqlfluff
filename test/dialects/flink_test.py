@@ -175,6 +175,22 @@ class TestFlinkSQLDialect:
         result = linter.lint_string(sql)
         assert result is not None
 
+    def test_flink_set_statement(self):
+        """Test FlinkSQL SET statement."""
+        config = FluffConfig(overrides={"dialect": "flink"})
+        linter = Linter(config=config)
+
+        statements = [
+            "SET 'table.exec.state.ttl' = '1h'",
+            "SET 'execution.checkpointing.mode' = 'EXACTLY_ONCE'",
+            "SET 'execution.checkpointing.unaligned.enabled' = 'true'",
+            "SET 'execution.checkpointing.timeout' = '600000'",
+        ]
+
+        for sql in statements:
+            result = linter.lint_string(sql)
+            assert result is not None
+
     def test_flink_create_catalog(self):
         """Test FlinkSQL CREATE CATALOG statement."""
         config = FluffConfig(overrides={"dialect": "flink"})

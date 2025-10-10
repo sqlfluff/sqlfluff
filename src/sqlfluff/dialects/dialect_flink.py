@@ -418,6 +418,20 @@ class ShowStatementsSegment(BaseSegment):
     )
 
 
+class SetStatementSegment(BaseSegment):
+    """A FlinkSQL SET statement."""
+
+    type = "set_statement"
+    match_grammar = Sequence(
+        # SET 'table.exec.state.ttl' = '10d';
+        # SET 'execution.checkpointing.mode' = 'EXACTLY_ONCE'
+        "SET",
+        Ref("QuotedLiteralSegment"),  # 'key' format
+        Ref("EqualsSegment"),  # single =
+        Ref("QuotedLiteralSegment"),  # 'value' format
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
@@ -428,6 +442,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateDatabaseStatementSegment"),
             Ref("DescribeStatementSegment"),
             Ref("ShowStatementsSegment"),
+            Ref("SetStatementSegment"),
         ],
     )
 
