@@ -181,6 +181,7 @@ class TestFlinkSQLDialect:
         linter = Linter(config=config)
 
         statements = [
+            "SET",
             "SET 'table.exec.state.ttl' = '1h'",
             "SET 'execution.checkpointing.mode' = 'EXACTLY_ONCE'",
             "SET 'execution.checkpointing.unaligned.enabled' = 'true'",
