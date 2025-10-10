@@ -21,18 +21,16 @@ your time on what matters.
 
 ## Table of Contents
 
-- [The SQL Linter for Humans](#the-sql-linter-for-humans)
-  - [Table of Contents](#table-of-contents)
-  - [Dialects Supported](#dialects-supported)
-  - [Templates Supported](#templates-supported)
-  - [VS Code Extension](#vs-code-extension)
-- [Getting Started](#getting-started)
-- [Documentation](#documentation)
-- [Releases](#releases)
-- [SQLFluff on Slack](#sqlfluff-on-slack)
-- [SQLFluff on Twitter](#sqlfluff-on-twitter)
-- [Contributing](#contributing)
-- [Sponsors](#sponsors)
+1. [Dialects Supported](#dialects-supported)
+2. [Templates Supported](#templates-supported)
+3. [VS Code Extension](#vs-code-extension)
+4. [Getting Started](#getting-started)
+5. [Documentation](#documentation)
+6. [Releases](#releases)
+7. [SQLFluff on Slack](#sqlfluff-on-slack)
+8. [SQLFluff on Twitter](#sqlfluff-on-twitter)
+9. [Contributing](#contributing)
+10. [Sponsors](#sponsors)
 
 ## Dialects Supported
 
