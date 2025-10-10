@@ -3574,3 +3574,27 @@ class UnpivotOperatorSegment(BaseSegment):
         Ref("FromUnpivotExpressionSegment"),
         Ref("AliasExpressionSegment", optional=True),
     )
+
+
+class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
+    """A CTE Definition from a WITH statement.
+
+    BigQuery allows FROM clauses directly in CTEs without requiring SELECT statements.
+    This extends the ANSI definition to support this pipe syntax.
+    """
+
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Ref("CTEColumnList", optional=True),
+        Ref.keyword("AS", optional=True),
+        Bracketed(
+            OneOf(
+                Ref("SelectableGrammar"),
+                Sequence(
+                    Ref.keyword("FROM"),
+                    Ref("FromExpressionElementSegment"),
+                ),
+            ),
+            parse_mode=ParseMode.GREEDY,
+        ),
+    )
