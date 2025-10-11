@@ -119,7 +119,7 @@ def parse_example_file(dialect: str, sqlfile: str):
     # Load the SQL
     raw = load_file(dialect, sqlfile)
     # Lex and parse the file
-    tokens, _ = Lexer(config=config).lex(raw)
+    tokens, _ = Lexer.build(config=config).lex(raw)
     tree = Parser(config=config).parse(tokens, fname=dialect + "/" + sqlfile)
     return tree
 

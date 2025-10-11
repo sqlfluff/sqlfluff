@@ -6,11 +6,18 @@ from typing import Any, NamedTuple, Union
 import pytest
 
 from sqlfluff.core import FluffConfig, SQLLexError
-from sqlfluff.core.parser import CodeSegment, Lexer, NewlineSegment
+from sqlfluff.core.parser import CodeSegment, Lexer, NewlineSegment, PyLexer
 from sqlfluff.core.parser.lexer import LexMatch, RegexLexer, StringLexer
 from sqlfluff.core.parser.segments.meta import TemplateSegment
 from sqlfluff.core.templaters import JinjaTemplater, RawFileSlice, TemplatedFile
 from sqlfluff.core.templaters.base import TemplatedFileSlice
+
+try:
+    from sqlfluffrs import RsSQLLexerError
+
+    SQLLexErrorClass = (SQLLexError, RsSQLLexerError)
+except ImportError:
+    SQLLexErrorClass = (SQLLexError,)
 
 
 def assert_matches(instring, matcher, matchstring):
@@ -65,7 +72,7 @@ def assert_matches(instring, matcher, matchstring):
 )
 def test__parser__lexer_obj(raw, res, caplog):
     """Test the lexer splits as expected in a selection of cases."""
-    lex = Lexer(config=FluffConfig(overrides={"dialect": "ansi"}))
+    lex = Lexer.build(config=FluffConfig(overrides={"dialect": "ansi"}))
     with caplog.at_level(logging.DEBUG):
         lexing_segments, _ = lex.lex(raw)
         assert [seg.raw for seg in lexing_segments] == res
@@ -117,7 +124,7 @@ def test__parser__lexer_lex_match(caplog):
         RegexLexer("test", r"#[^#]*#", CodeSegment),
     ]
     with caplog.at_level(logging.DEBUG):
-        res = Lexer.lex_match("..#..#..#", matchers)
+        res = PyLexer.lex_match("..#..#..#", matchers)
         assert res.forward_string == "#"  # Should match right up to the final element
         assert len(res.elements) == 5
         assert res.elements[2].raw == "#..#"
@@ -125,24 +132,24 @@ def test__parser__lexer_lex_match(caplog):
 
 def test__parser__lexer_fail():
     """Test the how the lexer fails and reports errors."""
-    lex = Lexer(config=FluffConfig(overrides={"dialect": "ansi"}))
+    lex = Lexer.build(config=FluffConfig(overrides={"dialect": "ansi"}))
 
     _, vs = lex.lex("Select \u0394")
 
     assert len(vs) == 1
     err = vs[0]
-    assert isinstance(err, SQLLexError)
+    assert isinstance(err, SQLLexErrorClass)
     assert err.line_pos == 8
 
 
 def test__parser__lexer_fail_via_parse():
     """Test the how the parser fails and reports errors while lexing."""
-    lexer = Lexer(config=FluffConfig(overrides={"dialect": "ansi"}))
+    lexer = Lexer.build(config=FluffConfig(overrides={"dialect": "ansi"}))
     _, vs = lexer.lex("Select \u0394")
     assert vs
     assert len(vs) == 1
     err = vs[0]
-    assert isinstance(err, SQLLexError)
+    assert isinstance(err, SQLLexErrorClass)
     assert err.line_pos == 8
 
 
@@ -165,7 +172,7 @@ def test__parser__lexer_trim_post_subdivide(caplog):
         )
     ]
     with caplog.at_level(logging.DEBUG):
-        res = Lexer.lex_match(";\n/\n", matcher)
+        res = PyLexer.lex_match(";\n/\n", matcher)
         assert res.elements[0].raw == ";"
         assert res.elements[1].raw == "\n"
         assert res.elements[2].raw == "/"
@@ -298,7 +305,7 @@ def test__parser__lexer_slicing_calls(case: _LexerSlicingCase):
         not templater_violations
     ), f"Found templater violations: {templater_violations}"
 
-    lexer = Lexer(config=config)
+    lexer = Lexer.build(config=config)
     lexing_segments, lexing_violations = lexer.lex(templated_file)
 
     assert not lexing_violations, f"Found templater violations: {lexing_violations}"
@@ -433,7 +440,7 @@ def test__parser__lexer_slicing_from_template_file(case: _LexerSlicingTemplateFi
     """
     config = FluffConfig(overrides={"dialect": "ansi"})
 
-    lexer = Lexer(config=config)
+    lexer = Lexer.build(config=config)
     lexing_segments, lexing_violations = lexer.lex(case.file)
 
     assert not lexing_violations, f"Found templater violations: {lexing_violations}"

@@ -23,7 +23,7 @@ from sqlfluff.core.parser import Lexer
 def test__dialect__ansi__file_lex(raw, res, caplog):
     """Test we don't drop bits on simple examples."""
     config = FluffConfig(overrides=dict(dialect="ansi"))
-    lexer = Lexer(config=config)
+    lexer = Lexer.build(config=config)
     with caplog.at_level(logging.DEBUG):
         tokens, _ = lexer.lex(raw)
     # From just the initial parse, check we're all there

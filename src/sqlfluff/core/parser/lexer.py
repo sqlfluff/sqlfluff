@@ -15,7 +15,9 @@ from sqlfluff.core.parser.segments import (
     BaseSegment,
     Dedent,
     EndOfFile,
+    ImplicitIndent,
     Indent,
+    LiteralKeywordSegment,
     MetaSegment,
     RawSegment,
     TemplateLoop,
@@ -723,7 +725,7 @@ def _iter_segments(
         )
 
 
-class Lexer:
+class PyLexer:
     """The Lexer class actually does the lexing step."""
 
     def __init__(
@@ -825,7 +827,9 @@ class Lexer:
         return tuple(segment_buffer)
 
     @staticmethod
-    def violations_from_segments(segments: tuple[RawSegment, ...]) -> list[SQLLexError]:
+    def violations_from_segments(
+        segments: tuple[RawSegment, ...],
+    ) -> list[SQLLexError]:
         """Generate any lexing errors for any unlexables."""
         violations = []
         for segment in segments:
@@ -887,3 +891,87 @@ class Lexer:
                     f"{template.templated_str[template_slice]!r}"
                 )
         return templated_buff
+
+    @classmethod
+    def build(
+        cls,
+        config: Optional[FluffConfig] = None,
+        last_resort_lexer: Optional[StringLexer] = None,
+        dialect: Optional[str] = None,
+    ) -> "PyLexer":
+        """Builder for the Lexer.
+
+        This should be used to correctly select the appropriate lexer.
+        """
+        return cls(config, last_resort_lexer, dialect)
+
+
+try:
+    from sqlfluffrs import RsLexer
+
+    def get_segment_type_map(base_class: type) -> dict[str, type[RawSegment]]:
+        """Dynamically create a map of segment types to their subclasses."""
+        segment_map = {}
+        for subclass in base_class.__subclasses__():
+            if subclass is LiteralKeywordSegment or subclass is ImplicitIndent:
+                continue
+            if (
+                hasattr(subclass, "type") and subclass.type
+            ):  # Ensure the subclass has a type
+                segment_map[subclass.type] = subclass
+            # Recursively add subclasses of subclasses
+            segment_map.update(get_segment_type_map(subclass))
+        return segment_map
+
+    # Dynamically generate the segment_types map
+    segment_types = get_segment_type_map(RawSegment)
+
+    class PyRsLexer(RsLexer):
+        """A wrapper around the sqlfluffrs lexer."""
+
+        def lex(
+            self, raw: Union[str, TemplatedFile]
+        ) -> tuple[tuple[BaseSegment, ...], list[SQLLexError]]:
+            """Take a string or TemplatedFile and return segments."""
+            tokens, errors = self._lex(raw)
+            first_token = tokens[0]
+            assert first_token
+            template = first_token.pos_marker.templated_file
+            py_template = TemplatedFile(
+                template.source_str,
+                template.fname,
+                template.templated_str,
+                template.sliced_file,  # type: ignore
+                template.raw_sliced,  # type: ignore
+            )
+
+            return (
+                tuple(
+                    segment_types.get(token.type, RawSegment).from_rstoken(
+                        token, py_template
+                    )
+                    for token in tokens
+                ),
+                [SQLLexError.from_rs_error(error) for error in errors],
+            )
+
+        @classmethod
+        def build(
+            cls,
+            config: Optional[FluffConfig] = None,
+            last_resort_lexer: Optional[StringLexer] = None,
+            dialect: Optional[str] = None,
+        ) -> "PyRsLexer":
+            """Builder for the Lexer.
+
+            This should be used to correctly select the appropriate lexer.
+            """
+            return cls(
+                config=config,
+                last_resort_lexer=last_resort_lexer,
+                dialect=dialect,
+            )
+
+    lexer_logger.info("Using sqlfluffrs lexer.")
+except ImportError:
+    ...

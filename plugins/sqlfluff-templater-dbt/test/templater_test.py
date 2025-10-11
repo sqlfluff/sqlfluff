@@ -147,7 +147,7 @@ def _run_templater_and_verify_result(
     assert str(templated_file) == fixture_path.read_text()
     # Check we can lex the output too.
     # https://github.com/sqlfluff/sqlfluff/issues/4013
-    lexer = Lexer(config=config)
+    lexer = Lexer.build(config=config)
     _, lexing_violations = lexer.lex(templated_file)
     assert not lexing_violations
 
@@ -297,7 +297,7 @@ def test__templater_dbt_templating_test_lex(
         config=config,
     )
 
-    lexer = Lexer(config=config)
+    lexer = Lexer.build(config=config)
     # Test that it successfully lexes.
     _, _ = lexer.lex(templated_file)
 
