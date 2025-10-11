@@ -361,11 +361,13 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
         Indent,
         Ref("AsAliasOperatorSegment", optional=True),
         OneOf(
-            Ref("SingleIdentifierGrammar"),
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
+            ),
             Ref("SingleQuotedIdentifierSegment"),
             Ref("DoubleQuotedIdentifierSegment"),
         ),
-        Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
         Dedent,
     )
 
