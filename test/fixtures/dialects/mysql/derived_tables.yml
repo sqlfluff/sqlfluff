@@ -1,0 +1,88 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 04e003daed74bd3f24052f390df8dd3767fbd57d54d11b740cf61d1ce87de6fc
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '2'
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '4'
+                end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: dt
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '2'
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '4'
+                end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: dt
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: a
+                - comma: ','
+                - naked_identifier: b
+                - comma: ','
+                - naked_identifier: c
+                - comma: ','
+                - naked_identifier: d
+                end_bracket: )
+- statement_terminator: ;

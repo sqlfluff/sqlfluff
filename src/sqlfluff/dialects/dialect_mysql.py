@@ -365,6 +365,7 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
             Ref("SingleQuotedIdentifierSegment"),
             Ref("DoubleQuotedIdentifierSegment"),
         ),
+        Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
         Dedent,
     )
 

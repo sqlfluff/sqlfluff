@@ -1,0 +1,164 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 32ed0162ae5bfd2b9c50df4c13c6275b36cd3e056c0e6a1655a30d23e9ceed4c
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '2'
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '4'
+                end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: dt
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '2'
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '4'
+                end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: dt
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: a
+                - comma: ','
+                - naked_identifier: b
+                - comma: ','
+                - naked_identifier: c
+                - comma: ','
+                - naked_identifier: d
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: test
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  values_clause:
+                  - keyword: VALUES
+                  - bracketed:
+                      start_bracket: (
+                      numeric_literal: '1'
+                      comma: ','
+                      quoted_literal: '"a"'
+                      end_bracket: )
+                  - comma: ','
+                  - bracketed:
+                      start_bracket: (
+                      numeric_literal: '2'
+                      comma: ','
+                      quoted_literal: '"b"'
+                      end_bracket: )
+                end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: temp
+                bracketed:
+                  start_bracket: (
+                  identifier_list:
+                  - naked_identifier: col1
+                  - comma: ','
+                  - naked_identifier: col2
+                  end_bracket: )
+        where_clause:
+          keyword: WHERE
+          expression:
+          - keyword: NOT
+          - keyword: EXISTS
+          - bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    null_literal: 'NULL'
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: test
+              end_bracket: )
+- statement_terminator: ;
