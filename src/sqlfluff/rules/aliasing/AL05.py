@@ -67,6 +67,7 @@ class Rule_AL05(BaseRule):
         "snowflake",
         "tsql",
         "postgres",
+        "mariadb",
     ]
     is_fix_compatible = True
 
