@@ -1008,11 +1008,23 @@ class Linter:
         string: str,
         fname: str = "<string input>",
         fix: bool = False,
+        stdin_filename: Optional[str] = None,
     ) -> LintingResult:
         """Lint strings directly."""
         result = LintingResult()
         linted_path = LintedDir(fname)
-        linted_path.add(self.lint_string(string, fname=fname, fix=fix))
+        if stdin_filename:
+            # This opens up additional files like `Untitled` in vscode where linting
+            # may be desired.
+            sql_exts = ("",)
+            for _ in paths_from_path(
+                stdin_filename, target_file_exts=sql_exts, check_non_existent_file=True
+            ):
+                linted_path.add(self.lint_string(string, fname=fname, fix=fix))
+                # Only return the first item, as stdin should only be one
+                break
+        else:
+            linted_path.add(self.lint_string(string, fname=fname, fix=fix))
         result.add(linted_path)
         result.stop_timer()
         return result

@@ -70,9 +70,9 @@ ALTER TABLE my_table SET TAG tag1 = "some_value";
 
 ALTER TABLE my_table SET TAG tag1 = "some_value", tag2 = "some_value", tag3 = "some_value", tag4 = "some_value";
 
-ALTER TABLE my_table UNSET TAG tag1 = "some_value";
+ALTER TABLE my_table UNSET TAG tag1;
 
-ALTER TABLE my_table UNSET TAG tag1 = "some_value", tag2 = "some_value", tag3 = "some_value", tag4 = "some_value";
+ALTER TABLE my_table UNSET TAG tag1, tag2, tag3, tag4;
 
 ALTER TABLE my_table ADD ROW ACCESS POLICY my_policy ON (col1);
 

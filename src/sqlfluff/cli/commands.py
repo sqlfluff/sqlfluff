@@ -645,7 +645,9 @@ def lint(
                 lnt.config = lnt.config.make_child_from_path(
                     stdin_filename, require_dialect=False
                 )
-            result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
+            result = lnt.lint_string_wrapped(
+                sys.stdin.read(), fname="stdin", stdin_filename=stdin_filename
+            )
         else:
             result = lnt.lint_paths(
                 paths,
@@ -836,13 +838,18 @@ def _handle_unparsable(
 
 
 def _stdin_fix(
-    linter: Linter, formatter: OutputStreamFormatter, fix_even_unparsable: bool
+    linter: Linter,
+    formatter: OutputStreamFormatter,
+    fix_even_unparsable: bool,
+    stdin_filename: Optional[str] = None,
 ) -> None:
     """Handle fixing from stdin."""
     exit_code = EXIT_SUCCESS
     stdin = sys.stdin.read()
 
-    result = linter.lint_string_wrapped(stdin, fname="stdin", fix=True)
+    result = linter.lint_string_wrapped(
+        stdin, fname="stdin", fix=True, stdin_filename=stdin_filename
+    )
     templater_error = result.num_violations(types=SQLTemplaterError) > 0
     unfixable_error = result.num_violations(types=SQLLintError, fixable=False) > 0
 
@@ -1132,7 +1139,7 @@ def fix(
                 lnt.config = lnt.config.make_child_from_path(
                     stdin_filename, require_dialect=False
                 )
-            _stdin_fix(lnt, formatter, fix_even_unparsable)
+            _stdin_fix(lnt, formatter, fix_even_unparsable, stdin_filename)
         else:
             _paths_fix(
                 lnt,
@@ -1238,7 +1245,9 @@ def cli_format(
                 lnt.config = lnt.config.make_child_from_path(
                     stdin_filename, require_dialect=False
                 )
-            _stdin_fix(lnt, formatter, fix_even_unparsable=False)
+            _stdin_fix(
+                lnt, formatter, fix_even_unparsable=False, stdin_filename=stdin_filename
+            )
         else:
             _paths_fix(
                 lnt,
