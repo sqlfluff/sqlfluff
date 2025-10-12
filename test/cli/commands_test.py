@@ -308,6 +308,13 @@ stdin_cli_input = (
             "",
         ),
         (
+            lint,
+            "test/fixtures/cli/stdin_filename/ignored.sql",
+            0,
+            "re-run with `--disregard-sqlfluffignores`",
+            "",
+        ),
+        (
             cli_format,
             "test/fixtures/cli/stdin_filename/stdin_filename.sql",
             0,
@@ -329,6 +336,13 @@ stdin_cli_input = (
             "[1 templating/parsing errors found]",
         ),
         (
+            cli_format,
+            "test/fixtures/cli/stdin_filename/ignored.sql",
+            0,
+            stdin_cli_input,
+            "re-run with `--disregard-sqlfluffignores`",
+        ),
+        (
             fix,
             "test/fixtures/cli/stdin_filename/stdin_filename.sql",
             0,
@@ -348,6 +362,13 @@ stdin_cli_input = (
             1,
             "",
             "Unfixable violations detected.",
+        ),
+        (
+            fix,
+            "test/fixtures/cli/stdin_filename/ignored.sql",
+            0,
+            stdin_cli_input,
+            "re-run with `--disregard-sqlfluffignores`",
         ),
     ],
 )

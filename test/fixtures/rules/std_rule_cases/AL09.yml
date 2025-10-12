@@ -256,3 +256,49 @@ test_pass_mysql_quoted_identifiers:
     configs:
         core:
             dialect: mysql
+
+test_pass_tsql_quoted_column_no_space_with_as:
+    pass_str: |
+        SELECT c.[name]as clientName
+        FROM clients as c
+    configs:
+        core:
+            dialect: tsql
+
+test_pass_bigquery_quoted_column_no_space_with_as:
+    pass_str: |
+        SELECT `col`as`renamed_col`
+        FROM clients as c
+    configs:
+        core:
+            dialect: bigquery
+
+test_fail_bigquery_quoted_column_no_space_with_as:
+    fail_str: |
+        SELECT `col`as`col`
+        FROM clients as c
+    fix_str: |
+        SELECT `col`
+        FROM clients as c
+    configs:
+        core:
+            dialect: bigquery
+
+test_pass_bigquery_quoted_column_no_space_without_as:
+    pass_str: |
+        SELECT `col``renamed_col`
+        FROM clients as c
+    configs:
+        core:
+            dialect: bigquery
+
+test_fail_bigquery_quoted_column_no_space_without_as:
+    fail_str: |
+        SELECT `col``col`
+        FROM clients as c
+    fix_str: |
+        SELECT `col`
+        FROM clients as c
+    configs:
+        core:
+            dialect: bigquery
