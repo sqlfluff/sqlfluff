@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 48eeb996eeddab106dc4034aecfe49e68406319399b3e06f6a3f9bad378ab8e2
+_hash: 6ffa5a8e74bb9b7f048568b335d5f8d05e9b7ec2ae044ad88391c1c96d63f863
 file:
 - statement:
     create_task_statement:
@@ -639,4 +639,20 @@ file:
               bracketed:
                 start_bracket: (
                 end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: mytask
+    - keyword: AS
+    - statement:
+        alter_dynamic_table_statement:
+        - keyword: ALTER
+        - keyword: DYNAMIC
+        - keyword: TABLE
+        - table_reference:
+            naked_identifier: foo
+        - keyword: REFRESH
 - statement_terminator: ;

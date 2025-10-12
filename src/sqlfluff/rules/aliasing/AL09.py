@@ -148,9 +148,18 @@ class Rule_AL09(BaseRule):
             alias_keyword_raw = getattr(
                 alias_expression.get_child("alias_operator"), "raw", None
             )
+
+            # If the column identifier is quoted, the whitespace between the column
+            # identifier and the `AS` keyword are optional. The `layout.spacing` rule
+            # should be the responsible rule for fixing this case, but we want to
+            # account for the situation here.
+            quoted_without_whitespace = (
+                column_identifier.is_type("quoted_identifier") and whitespace is None
+            )
+
             # If the alias keyword is '=', then no whitespace have to be present
             # between the alias_keyword and the alias_identifier
-            if alias_keyword_raw != "=":
+            if alias_keyword_raw != "=" and not quoted_without_whitespace:
                 if not (whitespace and alias_identifier):  # pragma: no cover
                     # We *should* expect all of these to be non-null, but some bug
                     # reports suggest that that isn't always the case for some
