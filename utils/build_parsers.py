@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from sqlfluff.core.dialects import dialect_selector
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.parser.grammar.anyof import AnyNumberOf, OneOf, OptionallyBracketed
-from sqlfluff.core.parser.grammar.base import BaseGrammar, Nothing, Ref
+from sqlfluff.core.parser.grammar.base import Anything, BaseGrammar, Nothing, Ref
 from sqlfluff.core.parser.grammar.delimited import Delimited
 from sqlfluff.core.parser.grammar.sequence import Bracketed, Sequence
 from sqlfluff.core.parser.parsers import (
@@ -16,7 +16,7 @@ from sqlfluff.core.parser.parsers import (
     StringParser,
     TypedParser,
 )
-from sqlfluff.core.parser.segments.base import SegmentMetaclass
+from sqlfluff.core.parser.segments.base import BaseSegment, SegmentMetaclass
 from sqlfluff.core.parser.segments.meta import MetaSegment
 
 
@@ -50,14 +50,14 @@ def generate_parser(dialect: str):
 
     # TODO: remove this if
     if dialect == "ansi":
-        for name, match_grammar in loaded_dialect._library.items():
+        for name, match_grammar in sorted(loaded_dialect._library.items()):
             segment_grammars.append(
                 f'"{name}" => Some(&{matchable_to_const_name(name)}),'
             )
             print(f"// {name=}")
             print(
                 f"pub static {matchable_to_const_name(name)}: "
-                "Lazy<Grammar> = Lazy::new(|| "
+                "Lazy<Grammar> = Lazy::new(||"
             )
             _to_rust_parser_grammar(match_grammar, parse_context)
             print(");")
@@ -82,6 +82,11 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print(f'    name: "{match_grammar._ref}",')
         print(f"    optional: {str(match_grammar.optional).lower()},")
         print(f"    allow_gaps: {str(match_grammar.allow_gaps).lower()},")
+        print("    terminators: vec![")
+        for term_grammar in match_grammar.terminators:
+            _to_rust_parser_grammar(term_grammar, parse_context)
+            print(",")
+        print("    ],")
         print("}")
     elif match_grammar.__class__ is StringParser and isinstance(
         match_grammar, StringParser
@@ -223,6 +228,8 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print("    ],")
         print(f"    allow_gaps: {str(match_grammar.allow_gaps).lower()},")
         print("}")
+    elif isinstance(match_grammar, Anything):
+        print("Grammar::Anything")
     elif isinstance(match_grammar, BaseGrammar):
         print(
             f"// got to an unimplemented base grammar called {match_grammar.__class__}"
@@ -238,6 +245,13 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
     ):
         print(f"// {match_grammar.__name__}")
         _to_rust_parser_grammar(match_grammar.match_grammar, parse_context)
+    elif issubclass(match_grammar, BaseSegment) and not hasattr(
+        match_grammar, "match_grammar"
+    ):
+        print("Grammar::Token{")
+        print(f'    token_type: "{match_grammar.type}",')
+        print(f'//    token_type: "{match_grammar.__name__}",')
+        print("}")
     else:
         print(f"// Missing elements {match_grammar=}, {match_grammar.__class__=}")
         print(f"// {match_grammar.__name__=}")
@@ -271,4 +285,3 @@ if __name__ == "__main__":
     generate_use()
     print()
     generate_parser(args.dialect)
-    print()

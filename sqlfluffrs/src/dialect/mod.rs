@@ -58,6 +58,7 @@ use crate::dialect::tsql::matcher::{TSQL_KEYWORDS, TSQL_LEXERS};
 pub mod vertica;
 use crate::dialect::vertica::matcher::{VERTICA_KEYWORDS, VERTICA_LEXERS};
 
+use crate::parser::Grammar;
 use crate::matcher::LexMatcher;
 use std::str::FromStr;
 
@@ -160,7 +161,7 @@ impl Dialect {
         }
     }
 
-    pub fn get_segment_grammar(&self, name: &str) -> Option<&'static crate::parser::Grammar> {
+    pub fn get_segment_grammar(&self, name: &str) -> Option<&'static Grammar> {
         match self {
             Dialect::Ansi => crate::dialect::ansi::parser::get_ansi_segment_grammar(name),
             Dialect::Athena => crate::dialect::athena::parser::get_athena_segment_grammar(name),
