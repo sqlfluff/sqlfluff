@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b264b656bc34690e3553435a09549823a1f14646fe46fd36c89b6131aacc0509
+_hash: 7db209f0c7e592b08be653476499b31147b6276a754a92e57967fb4126c5db31
 file:
 - statement:
     pipe_statement:
@@ -1717,4 +1717,36 @@ file:
             alias_operator:
               keyword: AS
             naked_identifier: is_orange
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: bar
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          pipe_statement:
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: foo
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: bar
 - statement_terminator: ;
