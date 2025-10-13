@@ -3590,10 +3590,7 @@ class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
         Bracketed(
             OneOf(
                 Ref("SelectableGrammar"),
-                Sequence(
-                    Ref.keyword("FROM"),
-                    Ref("FromExpressionElementSegment"),
-                ),
+                Ref("PipeStatementSegment")
             ),
             parse_mode=ParseMode.GREEDY,
         ),
