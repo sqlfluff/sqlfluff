@@ -3588,10 +3588,7 @@ class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
         Ref("CTEColumnList", optional=True),
         Ref.keyword("AS", optional=True),
         Bracketed(
-            OneOf(
-                Ref("SelectableGrammar"),
-                Ref("PipeStatementSegment")
-            ),
+            OneOf(Ref("SelectableGrammar"), Ref("PipeStatementSegment")),
             parse_mode=ParseMode.GREEDY,
         ),
     )
