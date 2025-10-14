@@ -3642,6 +3642,13 @@ class AccessStatementSegment(BaseSegment):
                     _schema_object_types,
                 ),
             ),
+            Sequence(
+                "USE",
+                OneOf(
+                    "SCHEMA",
+                    "CATALOG"
+                )
+            ),
             Sequence("IMPORTED", "PRIVILEGES"),
             "APPLY",
             "CONNECT",
@@ -3683,6 +3690,7 @@ class AccessStatementSegment(BaseSegment):
                 "INTEGRATION",
                 "LANGUAGE",
                 "SCHEMA",
+                "CATALOG",
                 "ROLE",
                 "TABLESPACE",
                 "TYPE",
