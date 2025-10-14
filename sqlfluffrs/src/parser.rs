@@ -3,39 +3,6 @@ use std::vec;
 
 use crate::{dialect::Dialect, token::Token};
 
-#[derive(Debug, Clone)]
-pub struct RegexParserConfig {
-    pattern: String,
-    segment_type: String,
-    parser_type: String,
-    anti_template: Option<String>,
-    casefold: Option<fn(&str) -> String>,
-}
-
-pub struct IdentifierSegmentGenerator {
-    reserved_keywords: Vec<String>,
-}
-
-impl IdentifierSegmentGenerator {
-    pub fn new(dialect: &Dialect) -> Self {
-        Self {
-            reserved_keywords: dialect.get_reserved_keywords().clone(),
-        }
-    }
-
-    pub fn generate(&self) -> RegexParserConfig {
-        let anti_template = format!("^({})$", self.reserved_keywords.join("|"));
-
-        RegexParserConfig {
-            pattern: String::from(r"[A-Z0-9_]*[A-Z][A-Z0-9_]*"),
-            segment_type: String::from("identifier"),
-            parser_type: String::from("naked_identifier"),
-            anti_template: Some(anti_template),
-            casefold: Some(|s: &str| s.to_uppercase()),
-        }
-    }
-}
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum Grammar {
     Sequence {
@@ -879,95 +846,6 @@ impl Parser<'_> {
         }
     }
 
-    fn parse_naked_identifier(&mut self) -> Result<Node, ParseError> {
-        let config = IdentifierSegmentGenerator::new(&self.dialect).generate();
-
-        // Use the config to parse
-        if let Some(token) = self.peek() {
-            let raw = token.raw();
-
-            // Check against pattern
-            if !regex::Regex::new(&config.pattern).unwrap().is_match(&raw) {
-                return Err(ParseError::new("Does not match identifier pattern".into()));
-            }
-
-            // Check against anti_template if present
-            if let Some(anti) = &config.anti_template {
-                if regex::Regex::new(anti).unwrap().is_match(&raw) {
-                    return Err(ParseError::new("Matches reserved keyword".into()));
-                }
-            }
-
-            // Apply casefold if needed
-            let final_value = if let Some(casefold) = config.casefold {
-                casefold(&raw)
-            } else {
-                raw
-            };
-
-            self.bump();
-            Ok(Node::Ref {
-                name: config.segment_type,
-                child: Box::new(Node::Keyword(final_value)),
-            })
-        } else {
-            Err(ParseError::new("Expected identifier".into()))
-        }
-    }
-
-    pub fn parse_identifier(&mut self) -> Result<Node, ParseError> {
-        match self.peek() {
-            Some(token) if token.is_type(&["word"]) => {
-                // Check it's not a keyword
-                let upper = token.raw().to_uppercase();
-                if ["SELECT", "FROM", "WHERE", "INTO"].contains(&upper.as_str()) {
-                    return Err(ParseError::new(format!(
-                        "Expected identifier, got keyword '{}'",
-                        &token.raw()
-                    )));
-                }
-                let token_raw = token.raw().clone();
-                self.bump();
-                Ok(Node::Ref {
-                    name: "Identifier".into(),
-                    child: Box::new(Node::Keyword(token_raw)), // or Node::Identifier(s.clone())
-                })
-            }
-            Some(tok) => Err(ParseError::new(format!(
-                "Expected identifier, got {:?}",
-                tok
-            ))),
-            None => Err(ParseError::new("Expected identifier, got EOF".into())),
-        }
-    }
-
-    /// Tries to parse a segment by name.
-    /// Returns Some(Node) if it succeeds, None if it cannot be parsed (optional).
-    // pub fn can_parse(&mut self, name: &str) -> Result<bool, ParseError> {
-    //     // Look up the grammar for the segment
-    //     let grammar = match self.get_segment_grammar(name) {
-    //         Some(g) => g,
-    //         None => return Err(ParseError::unknown_segment(name.to_string())),
-    //     };
-
-    //     // Save parser state in case we fail
-    //     let saved_pos = self.pos;
-
-    //     // Try parsing
-    //     match self.parse_with_grammar(grammar) {
-    //         Ok(_node) => {
-    //             // Reset parser back; caller decides whether to consume
-    //             self.pos = saved_pos;
-    //             Ok(true)
-    //         }
-    //         Err(_) => {
-    //             // Restore parser state
-    //             self.pos = saved_pos;
-    //             Ok(false)
-    //         }
-    //     }
-    // }
-
     /// Call a grammar rule by name, producing a Node.
     pub fn call_rule(
         &mut self,
@@ -1042,75 +920,6 @@ pub enum ParseErrorType {
     MismatchedParentheses,
     UnknownSegment,
 }
-
-// pub struct Segment {
-//     segment_type: String,
-//     can_start_end_non_code: bool,
-//     allow_empty: bool,
-//     file_path: Option<String>,
-//     tokens: Vec<Token>,
-//     pos_marker: Option<PositionMarker>,
-// }
-
-// impl Segment {
-//     pub fn root_parse(
-//         &self,
-//         tokens: Vec<Token>,
-//         ctx: &ParseContext,
-//         fname: Option<&str>,
-//     ) -> Result<Segment, ParseError> {
-//         let start_idx = tokens.iter().position(|t| t.is_code()).unwrap_or(0);
-//         let end_idx = tokens
-//             .iter()
-//             .rposition(|t| t.is_code())
-//             .unwrap_or(tokens.len() - 1);
-
-//         if start_idx == end_idx {
-//             return Ok(Segment {
-//                 segment_type: String::from("file"),
-//                 can_start_end_non_code: true,
-//                 allow_empty: true,
-//                 file_path: fname.map(String::from),
-//                 tokens,
-//                 pos_marker: None,
-//             });
-//         }
-
-//         let matched = ();
-
-//         Ok(Segment {
-//             segment_type: String::from("file"),
-//             can_start_end_non_code: true,
-//             allow_empty: false,
-//             file_path: fname.map(String::from),
-//         })
-//     }
-// }
-
-// pub struct Parser {
-//     dialect: Dialect,
-//     root_segment: Segment,
-// }
-
-// impl Parser {
-//     pub fn new(dialect: Dialect) -> Self {
-//         dialect.
-//         Parser { dialect: dialect.clone(), }
-//     }
-
-//     pub fn parse(&self, tokens: Vec<Token>, fname: Option<&str>) -> Result<Parsed, ParseError> {
-//         if tokens.is_empty() {
-//             return Err(ParseError::EmptyInput);
-//         }
-
-//         let ctx = ParseContext::new(self.dialect.clone());
-
-//         let root = self.root_segment.root_parse(tokens, &ctx)?;
-
-//         // Parsing logic would go here.
-//         Ok(Parsed {})
-//     }
-// }
 
 #[cfg(test)]
 mod tests {
@@ -1271,7 +1080,73 @@ mod tests {
             dialect,
         };
 
-        let ast = parser.call_rule("CreateTableStatementSegment", &[])?;
+        let ast = parser.call_rule("FileSegment", &[])?;
+        println!("AST: {:#?}", ast);
+
+        Ok(())
+    }
+
+    #[test]
+    fn parse_many_join() -> Result<(), ParseError> {
+        let raw = "SELECT *
+FROM a as foo JOIN b JOIN c as foobar JOIN d, e as bar JOIN f JOIN g('blah') as tbl_func JOIN h, baz as buzz;
+
+
+SELECT
+ c.f1 as f1
+ , co.f2 as f2
+ , po.f3 as f3
+ , c2c.f4 as f4
+ , c_ph.f5 as f5
+FROM t1 AS c
+LEFT JOIN t2 AS co
+ ON c.f1 = co.f1
+LEFT JOIN t3 AS po
+ ON c.f1 = po.f1
+LEFT JOIN (
+ SELECT t._tmp as _tmp
+ FROM (SELECT * FROM t4) AS t
+) AS l_ccc
+ ON c.f1 = l_ccc._tmp
+LEFT JOIN t5 AS cc
+ ON l_ccc._tmp = cc.f1
+LEFT JOIN (
+     (
+         SELECT t._tmp AS _tmp
+         FROM (SELECT * FROM t6) AS t
+     ) AS l_c2c_c
+     LEFT JOIN (
+         SELECT a1._tmp AS _tmp
+           , h.id
+           , h.f1
+         FROM (
+           SELECT t.id
+             , t.f4
+
+           FROM (SELECT * FROM t7) AS t) AS h
+       LEFT JOIN (SELECT * FROM t8) AS a1
+                 ON a1.id = h.id
+     ) AS c2c
+             ON l_c2c_c._tmp = c2c.id
+)
+ON c.f1 = l_c2c_c._tmp
+LEFT JOIN t9 AS c_ph
+ ON c.f1 = c_ph.f1;
+";
+        let input = LexInput::String(raw.into());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, dialect);
+        let (tokens, _errors) = lexer.lex(input, false);
+
+        println!("Tokens: {:#?}", &tokens);
+
+        let mut parser = Parser {
+            tokens: &tokens,
+            pos: 0,
+            dialect,
+        };
+
+        let ast = parser.call_rule("FileSegment", &[])?;
         println!("AST: {:#?}", ast);
 
         Ok(())
