@@ -3642,13 +3642,7 @@ class AccessStatementSegment(BaseSegment):
                     _schema_object_types,
                 ),
             ),
-            Sequence(
-                "USE",
-                OneOf(
-                    "SCHEMA",
-                    "CATALOG"
-                )
-            ),
+            Sequence("USE", OneOf("SCHEMA", "CATALOG")),
             Sequence("IMPORTED", "PRIVILEGES"),
             "APPLY",
             "CONNECT",
