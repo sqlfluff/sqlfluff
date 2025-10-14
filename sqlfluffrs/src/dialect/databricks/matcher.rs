@@ -6,6 +6,25 @@ use crate::token::Token;
 use crate::regex::RegexModeGroup;
 use crate::dialect::Dialect;
 
+pub static DATABRICKS_KEYWORDS: Lazy<Vec<String>> = Lazy::new(|| { vec![
+    "ANTI".to_string(),
+    "CROSS".to_string(),
+    "EXCEPT".to_string(),
+    "FULL".to_string(),
+    "INNER".to_string(),
+    "INTERSECT".to_string(),
+    "JOIN".to_string(),
+    "LATERAL".to_string(),
+    "LEFT".to_string(),
+    "MINUS".to_string(),
+    "NATURAL".to_string(),
+    "ON".to_string(),
+    "RIGHT".to_string(),
+    "SEMI".to_string(),
+    "UNION".to_string(),
+    "USING".to_string(),
+]});
+
 pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
@@ -935,23 +954,4 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         |_| true,
         None,
     ),
-]});
-
-pub static DATABRICKS_KEYWORDS: Lazy<Vec<String>> = Lazy::new(|| { vec![
-    "ANTI".to_string(),
-    "CROSS".to_string(),
-    "EXCEPT".to_string(),
-    "FULL".to_string(),
-    "INNER".to_string(),
-    "INTERSECT".to_string(),
-    "JOIN".to_string(),
-    "LATERAL".to_string(),
-    "LEFT".to_string(),
-    "MINUS".to_string(),
-    "NATURAL".to_string(),
-    "ON".to_string(),
-    "RIGHT".to_string(),
-    "SEMI".to_string(),
-    "UNION".to_string(),
-    "USING".to_string(),
 ]});
