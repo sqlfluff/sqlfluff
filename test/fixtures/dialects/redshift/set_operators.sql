@@ -1,0 +1,19 @@
+SELECT col FROM tab1
+MINUS
+(SELECT col FROM tab2);
+
+SELECT col FROM tab1
+EXCEPT
+(SELECT col FROM tab2);
+
+SELECT col FROM tab1
+UNION
+(SELECT col FROM tab2);
+
+SELECT col FROM tab1
+INTERSECT
+(SELECT col FROM tab2);
+
+SELECT col FROM tab1
+UNION ALL
+(SELECT col FROM tab2);
