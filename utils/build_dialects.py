@@ -10,12 +10,9 @@ def generate_use():
     for dialect in dialect_readout():
         print(f"pub mod {dialect.label.lower()};")
         print(
-            f"use crate::dialect::{dialect.label.lower()}::matcher::"
-            f"{dialect.label.upper()}_KEYWORDS;"
-        )
-        print(
-            f"use crate::dialect::{dialect.label.lower()}::matcher::"
-            f"{dialect.label.upper()}_LEXERS;"
+            f"use crate::dialect::{dialect.label.lower()}::matcher::{{"
+            f"{dialect.label.upper()}_KEYWORDS, "
+            f"{dialect.label.upper()}_LEXERS}};"
         )
     print()
     print("use crate::matcher::LexMatcher;")
@@ -49,7 +46,7 @@ def generate_dialect_enum():
         f"""
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
 pub enum Dialect {{
-    {dialects}
+    {dialects},
 }}
 
 impl Dialect {{
@@ -58,8 +55,6 @@ impl Dialect {{
             {dialect_reserved_keywords},
         }}
     }}
-
-
 
     pub fn get_lexers(&self) -> &'static Vec<LexMatcher> {{
         match self {{
