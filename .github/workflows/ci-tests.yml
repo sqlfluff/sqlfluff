@@ -45,7 +45,7 @@ jobs:
             "mypy",
             "mypyc",
             "doctests",
-            "check-rust",
+            "check-rs",
           ]
         include:
           # Default to most recent python version
