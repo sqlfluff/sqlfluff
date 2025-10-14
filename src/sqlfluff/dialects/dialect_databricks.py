@@ -852,7 +852,7 @@ class AlterTableStatementSegment(sparksql.AlterTableStatementSegment):
                 "ADD",
                 OneOf("COLUMNS", "COLUMN"),
                 Indent,
-                Bracketed(
+                OptionallyBracketed(
                     Delimited(
                         Sequence(
                             Ref("ColumnFieldDefinitionSegment"),
