@@ -141,7 +141,7 @@ impl Hash for Grammar {
                 elements.hash(state);
                 optional.hash(state);
                 allow_gaps.hash(state);
-            },
+            }
             Grammar::AnyNumberOf {
                 elements,
                 optional,
@@ -151,7 +151,7 @@ impl Hash for Grammar {
                 elements.hash(state);
                 optional.hash(state);
                 allow_gaps.hash(state);
-            },
+            }
             Grammar::OneOf {
                 elements,
                 optional,
@@ -161,7 +161,7 @@ impl Hash for Grammar {
                 elements.hash(state);
                 optional.hash(state);
                 allow_gaps.hash(state);
-            },
+            }
             Grammar::Delimited {
                 elements,
                 optional,
@@ -179,7 +179,7 @@ impl Hash for Grammar {
                 allow_trailing.hash(state);
                 terminators.hash(state);
                 min_delimiters.hash(state);
-            },
+            }
             Grammar::Bracketed {
                 elements,
                 optional,
@@ -189,7 +189,7 @@ impl Hash for Grammar {
                 elements.hash(state);
                 optional.hash(state);
                 allow_gaps.hash(state);
-            },
+            }
             Grammar::Symbol(sym) => sym.hash(state),
             Grammar::Meta(s) => s.hash(state),
             Grammar::Nothing() => {}
@@ -431,6 +431,15 @@ pub enum Node {
     Keyword(String, usize),
 
     Code(String, usize),
+
+    /// Whitespace tokens (spaces, tabs)
+    Whitespace(String, usize),
+
+    /// Newline tokens
+    Newline(String, usize),
+
+    /// End of file marker
+    EndOfFile(String, usize),
 
     /// A sequence of child nodes (used for Grammar::Sequence)
     Sequence(Vec<Node>),
@@ -859,7 +868,9 @@ impl<'a> Parser<'_> {
                 for element in elements {
                     log::debug!("Sequence-@{}: {:?}", self.pos, element);
 
-                    self.skip_transparent(*allow_gaps);
+                    // Collect whitespace/newlines before each element
+                    let ws_nodes = self.collect_transparent(*allow_gaps);
+                    children.extend(ws_nodes);
 
                     // Check if we hit a terminator
                     if self.is_terminated(&all_terminators) {
@@ -921,6 +932,10 @@ impl<'a> Parser<'_> {
                     }
                 }
 
+                // Collect any trailing whitespace after the sequence
+                let trailing_ws = self.collect_transparent(*allow_gaps);
+                children.extend(trailing_ws);
+
                 log::debug!("MATCHED Sequence children: {:?}", &children);
 
                 // If we have no children and the sequence itself is optional, return Empty
@@ -941,7 +956,9 @@ impl<'a> Parser<'_> {
             } => {
                 log::debug!("Trying OneOf elements: {:?}", elements);
                 let initial_pos = self.pos;
-                self.skip_transparent(*allow_gaps);
+
+                // Collect leading whitespace
+                let leading_ws = self.collect_transparent(*allow_gaps);
                 let post_skip_pos = self.pos;
 
                 // Combine parent and local terminators
@@ -1017,6 +1034,14 @@ impl<'a> Parser<'_> {
                 if let Some((node, _)) = longest_match {
                     self.pos = best_pos;
                     log::debug!("MATCHED OneOf matched longest element: {:?}", node);
+
+                    // Wrap with leading whitespace if any
+                    if !leading_ws.is_empty() {
+                        let mut children = leading_ws;
+                        children.push(node);
+                        return Ok(Node::Sequence(children));
+                    }
+
                     return Ok(node);
                 }
 
@@ -1067,7 +1092,9 @@ impl<'a> Parser<'_> {
 
                 loop {
                     let mut matched = false;
-                    self.skip_transparent(*allow_gaps);
+
+                    // Collect whitespace before trying to match
+                    let ws_nodes = self.collect_transparent(*allow_gaps);
                     let post_skip_saved_pos = self.pos;
 
                     // Prune options before trying
@@ -1105,7 +1132,11 @@ impl<'a> Parser<'_> {
 
                     if let Some((node, _)) = longest_match {
                         self.pos = best_pos;
+
+                        // Add whitespace nodes before the matched element
+                        items.extend(ws_nodes);
                         items.push(node);
+
                         count += 1;
                         matched = true;
                     }
@@ -1201,7 +1232,9 @@ impl<'a> Parser<'_> {
                 loop {
                     let mut longest_match: Option<(Node, usize)> = None;
                     let saved_pos = self.pos;
-                    self.skip_transparent(*allow_gaps);
+
+                    // Collect whitespace before element
+                    let ws_before = self.collect_transparent(*allow_gaps);
                     let post_skip_saved_pos = self.pos;
 
                     // Try all elements and find the longest match
@@ -1224,6 +1257,9 @@ impl<'a> Parser<'_> {
                     match longest_match {
                         Some((node, consumed)) => {
                             self.pos = post_skip_saved_pos + consumed;
+
+                            // Add whitespace before the element
+                            items.extend(ws_before);
                             items.push(node);
                         }
                         None => {
@@ -1234,7 +1270,10 @@ impl<'a> Parser<'_> {
                     }
 
                     let saved_pos = self.pos;
-                    self.skip_transparent(*allow_gaps);
+
+                    // Collect whitespace before delimiter
+                    let ws_before_delim = self.collect_transparent(*allow_gaps);
+
                     if let Ok(delim_node) =
                         self.parse_with_grammar_cached(delimiter, &all_terminators)
                     {
@@ -1247,6 +1286,9 @@ impl<'a> Parser<'_> {
                             break;
                         }
                         log::debug!("MATCHED Delimited: found delimiter");
+
+                        // Add whitespace before delimiter
+                        items.extend(ws_before_delim);
                         items.push(delim_node);
                     } else {
                         self.pos = saved_pos;
@@ -1267,7 +1309,9 @@ impl<'a> Parser<'_> {
             } => {
                 log::debug!("Trying Bracketed elements: {:?}", elements);
                 let saved_pos = self.pos;
-                self.skip_transparent(*allow_gaps);
+
+                // Collect leading whitespace
+                let leading_ws = self.collect_transparent(*allow_gaps);
 
                 // Combine parent and local terminators
                 let all_terminators: Vec<Grammar> = if *reset_terminators {
@@ -1282,7 +1326,11 @@ impl<'a> Parser<'_> {
 
                 match self.parse_with_grammar_cached(&bracket_pairs.0, &all_terminators) {
                     Ok(open_node) => {
-                        let mut children = vec![open_node];
+                        let mut children = Vec::new();
+
+                        // Add leading whitespace before opening bracket
+                        children.extend(leading_ws);
+                        children.push(open_node);
 
                         let mut last_successful_pos = self.pos;
                         loop {
@@ -1293,7 +1341,9 @@ impl<'a> Parser<'_> {
 
                             let mut matched = false;
                             let saved_inner_pos = self.pos;
-                            self.skip_transparent(*allow_gaps);
+
+                            // Collect whitespace inside brackets
+                            let ws_inside = self.collect_transparent(*allow_gaps);
 
                             let mut longest_match: Option<(Node, usize)> = None;
                             let mut best_pos = self.pos;
@@ -1315,7 +1365,11 @@ impl<'a> Parser<'_> {
 
                             if let Some((node, _)) = longest_match {
                                 self.pos = best_pos;
+
+                                // Add whitespace before element
+                                children.extend(ws_inside);
                                 children.push(node);
+
                                 matched = true;
                                 last_successful_pos = self.pos;
                             }
@@ -1325,13 +1379,19 @@ impl<'a> Parser<'_> {
                                 break;
                             }
                         }
-                        self.skip_transparent(*allow_gaps);
+
+                        // Collect whitespace before closing bracket
+                        let ws_before_close = self.collect_transparent(*allow_gaps);
+
                         match self.parse_with_grammar_cached(
                             &bracket_pairs.1,
                             &[*bracket_pairs.1.clone()],
                         ) {
                             Ok(close_node) => {
+                                // Add whitespace before closing bracket
+                                children.extend(ws_before_close);
                                 children.push(close_node);
+
                                 log::debug!(
                                     "PARTMATCHED Bracketed matched children: {:?}, final pos: {}",
                                     &children,
@@ -1379,7 +1439,40 @@ impl<'a> Parser<'_> {
         self.pos >= self.tokens.len()
     }
 
-    /// Skip all transparent tokens (whitespace, newlines)
+    /// Collect all transparent tokens (whitespace, newlines) as nodes
+    pub fn collect_transparent(&mut self, allow_gaps: bool) -> Vec<Node> {
+        let mut transparent_nodes = Vec::new();
+
+        if !allow_gaps {
+            return transparent_nodes;
+        }
+
+        while let Some(tok) = self.peek() {
+            if tok.is_code() {
+                break;
+            }
+
+            let token_pos = self.pos;
+            let tok_type = tok.get_type();
+            let node = if tok_type == "whitespace" {
+                Node::Whitespace(tok.raw(), token_pos)
+            } else if tok_type == "newline" {
+                Node::Newline(tok.raw(), token_pos)
+            } else if tok_type == "end_of_file" {
+                Node::EndOfFile(tok.raw(), token_pos)
+            } else {
+                Node::Code(tok.raw(), token_pos) // Fallback for other non-code tokens
+            };
+
+            log::debug!("TRANSPARENT collecting token: {:?}", tok);
+            transparent_nodes.push(node);
+            self.bump();
+        }
+
+        transparent_nodes
+    }
+
+    /// Skip all transparent tokens (whitespace, newlines) without collecting them
     pub fn skip_transparent(&mut self, allow_gaps: bool) {
         if !allow_gaps {
             return;
@@ -1876,6 +1969,47 @@ LEFT JOIN t9 AS c_ph
 
         assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
         assert_eq!(parser.pos, parser.tokens.len());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_whitespace_in_ast() -> Result<(), ParseError> {
+        env_logger::try_init().ok();
+
+        let raw = "SELECT   a ,  b"; // Multiple spaces between tokens
+        let input = LexInput::String(raw.into());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, dialect);
+        let (tokens, _errors) = lexer.lex(input, false);
+
+        println!("\nTokens lexed:");
+        for (i, tok) in tokens.iter().enumerate() {
+            println!("  Token {}: '{}' | type: {}", i, tok.raw(), tok.get_type());
+        }
+
+        let mut parser = Parser::new(&tokens, dialect);
+        let ast = parser.call_rule("SelectClauseSegment", &[])?;
+
+        println!("\nAST:");
+        println!("{:#?}", ast);
+
+        // Check if AST contains whitespace nodes
+        fn has_whitespace_nodes(node: &Node) -> bool {
+            match node {
+                Node::Whitespace(_, _) => true,
+                Node::Sequence(nodes) | Node::DelimitedList(nodes) => {
+                    nodes.iter().any(has_whitespace_nodes)
+                }
+                Node::Ref { child, .. } => has_whitespace_nodes(child),
+                _ => false,
+            }
+        }
+
+        let has_whitespace = has_whitespace_nodes(&ast);
+        println!("\nAST contains whitespace nodes: {}", has_whitespace);
+
+        assert!(has_whitespace, "AST should contain whitespace nodes");
 
         Ok(())
     }
