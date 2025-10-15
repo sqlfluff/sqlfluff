@@ -187,7 +187,6 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
         {trim_post_subdivide},
         {trim_start},
         {trim_chars},
-        Uuid::new_v4().to_string(),
         {quoted_value},
         {escape_replacement},
         {casefold},{fallback}{is_match_valid}

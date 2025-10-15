@@ -55,7 +55,6 @@ pub struct Token {
     pub source_fixes: Option<Vec<SourceFix>>,
     pub trim_start: Option<Vec<String>>,
     pub trim_chars: Option<Vec<String>>,
-    pub cache_key: String,
     quoted_value: Option<(String, RegexModeGroup)>,
     escape_replacement: Option<(String, String)>,
     casefold: Option<fn(&str) -> str>,
@@ -749,50 +748,42 @@ mod tests {
                 ));
                 continue;
             }
-            let (token_fn, instance_types, cache_key): (TokenGenerator, Vec<String>, String) =
+            let (token_fn, instance_types): (TokenGenerator, Vec<String>) =
                 match elem {
                     " " | "\t" => (
                         Token::whitespace_token,
                         Vec::new(),
-                        Uuid::new_v4().to_string(),
                     ),
-                    "\n" => (Token::newline_token, Vec::new(), Uuid::new_v4().to_string()),
+                    "\n" => (Token::newline_token, Vec::new()),
                     "(" => (
                         Token::symbol_token,
                         Vec::from_iter(["start_bracket".to_string()]),
-                        Uuid::new_v4().to_string(),
                     ),
                     ")" => (
                         Token::symbol_token,
                         Vec::from_iter(["end_bracket".to_string()]),
-                        Uuid::new_v4().to_string(),
                     ),
                     "[" => (
                         Token::symbol_token,
                         Vec::from_iter(["start_square_bracket".to_string()]),
-                        Uuid::new_v4().to_string(),
                     ),
                     "]" => (
                         Token::symbol_token,
                         Vec::from_iter(["end_square_bracket".to_string()]),
-                        Uuid::new_v4().to_string(),
                     ),
                     s if s.starts_with("--") => (
                         Token::comment_token,
                         Vec::from_iter(["inline_comment".to_string()]),
-                        Uuid::new_v4().to_string(),
                     ),
                     s if s.starts_with("\"") => (
                         Token::code_token,
                         Vec::from_iter(["double_quote".to_string()]),
-                        Uuid::new_v4().to_string(),
                     ),
                     s if s.starts_with("'") => (
                         Token::code_token,
                         Vec::from_iter(["single_quote".to_string()]),
-                        Uuid::new_v4().to_string(),
                     ),
-                    _ => (Token::code_token, Vec::new(), Uuid::new_v4().to_string()),
+                    _ => (Token::code_token, Vec::new()),
                 };
 
             buff.push(token_fn(
@@ -814,7 +805,6 @@ mod tests {
                 instance_types,
                 None,
                 None,
-                cache_key,
                 None,
                 None,
                 None,

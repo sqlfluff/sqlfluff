@@ -15,7 +15,6 @@ impl Token {
         segments: Vec<Token>,
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
-        cache_key: String,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
@@ -49,7 +48,6 @@ impl Token {
             source_fixes: None,
             trim_start,
             trim_chars,
-            cache_key,
             quoted_value,
             escape_replacement,
             casefold,
@@ -64,7 +62,6 @@ impl Token {
         instance_types: Vec<String>,
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
-        cache_key: String,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
@@ -82,7 +79,6 @@ impl Token {
                 vec![],
                 trim_start,
                 trim_chars,
-                cache_key,
                 quoted_value,
                 escape_replacement,
                 casefold,
@@ -97,7 +93,6 @@ impl Token {
         instance_types: Vec<String>,
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
-        cache_key: String,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
@@ -110,7 +105,6 @@ impl Token {
                 instance_types,
                 trim_start,
                 trim_chars,
-                cache_key,
                 quoted_value,
                 escape_replacement,
                 casefold,
@@ -125,7 +119,6 @@ impl Token {
         instance_types: Vec<String>,
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
-        cache_key: String,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
@@ -140,7 +133,6 @@ impl Token {
                 instance_types,
                 trim_start,
                 trim_chars,
-                cache_key,
                 quoted_value,
                 escape_replacement,
                 casefold,
@@ -155,7 +147,6 @@ impl Token {
         instance_types: Vec<String>,
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
-        cache_key: String,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
@@ -170,7 +161,6 @@ impl Token {
                 instance_types,
                 trim_start,
                 trim_chars,
-                cache_key,
                 quoted_value,
                 escape_replacement,
                 casefold,
@@ -185,7 +175,6 @@ impl Token {
         instance_types: Vec<String>,
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
-        cache_key: String,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
@@ -200,7 +189,6 @@ impl Token {
                 instance_types,
                 trim_start,
                 trim_chars,
-                cache_key,
                 quoted_value,
                 escape_replacement,
                 casefold,
@@ -215,7 +203,6 @@ impl Token {
         instance_types: Vec<String>,
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
-        cache_key: String,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
@@ -230,7 +217,6 @@ impl Token {
                 instance_types,
                 trim_start,
                 trim_chars,
-                cache_key,
                 quoted_value,
                 escape_replacement,
                 casefold,
@@ -245,7 +231,6 @@ impl Token {
         instance_types: Vec<String>,
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
-        cache_key: String,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
@@ -260,7 +245,6 @@ impl Token {
                 instance_types,
                 trim_start,
                 trim_chars,
-                cache_key,
                 quoted_value,
                 escape_replacement,
                 casefold,
@@ -275,7 +259,6 @@ impl Token {
         instance_types: Vec<String>,
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
-        cache_key: String,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
@@ -290,7 +273,6 @@ impl Token {
                 instance_types,
                 trim_start,
                 trim_chars,
-                cache_key,
                 quoted_value,
                 escape_replacement,
                 casefold,
@@ -305,7 +287,6 @@ impl Token {
         instance_types: Vec<String>,
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
-        cache_key: String,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
@@ -320,7 +301,6 @@ impl Token {
                 instance_types,
                 trim_start,
                 trim_chars,
-                cache_key,
                 quoted_value,
                 escape_replacement,
                 casefold,
@@ -335,7 +315,6 @@ impl Token {
         instance_types: Vec<String>,
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
-        cache_key: String,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
@@ -354,7 +333,6 @@ impl Token {
                 instance_types,
                 trim_start,
                 trim_chars,
-                cache_key,
                 quoted_value,
                 escape_replacement,
                 casefold,
@@ -369,7 +347,6 @@ impl Token {
         instance_types: Vec<String>,
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
-        cache_key: String,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
@@ -388,7 +365,6 @@ impl Token {
                 instance_types,
                 trim_start,
                 trim_chars,
-                cache_key,
                 quoted_value,
                 escape_replacement,
                 casefold,
@@ -403,7 +379,6 @@ impl Token {
         instance_types: Vec<String>,
         trim_start: Option<Vec<String>>,
         trim_chars: Option<Vec<String>>,
-        cache_key: String,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
         casefold: Option<fn(&str) -> str>,
@@ -420,7 +395,6 @@ impl Token {
                 instance_types,
                 trim_start,
                 trim_chars,
-                cache_key,
                 quoted_value,
                 escape_replacement,
                 casefold,
@@ -433,7 +407,6 @@ impl Token {
         is_templated: bool,
         block_uuid: Option<Uuid>,
         class_types: HashSet<String>,
-        cache_key: String,
     ) -> Self {
         let (token_type, class_types) = iter_base_types("meta", class_types);
         Self {
@@ -451,7 +424,6 @@ impl Token {
                 vec![],
                 None,
                 None,
-                cache_key,
                 None,
                 None,
                 None,
@@ -473,7 +445,6 @@ impl Token {
                 is_templated,
                 block_uuid,
                 class_types,
-                "eof_token".to_string(),
             )
         }
     }
@@ -483,7 +454,6 @@ impl Token {
         is_templated: bool,
         block_uuid: Option<Uuid>,
         class_types: HashSet<String>,
-        cache_key: Option<String>,
     ) -> Self {
         let (token_type, class_types) = iter_base_types("indent", class_types);
         Self {
@@ -497,7 +467,6 @@ impl Token {
                 is_templated,
                 block_uuid,
                 class_types,
-                cache_key.unwrap_or("indent".to_string()),
             )
         }
     }
@@ -517,7 +486,6 @@ impl Token {
                 is_templated,
                 block_uuid,
                 class_types,
-                Some("dedent".to_string()),
             )
         }
     }
@@ -535,7 +503,6 @@ impl Token {
                 false,
                 block_uuid,
                 class_types,
-                "loop_token".to_string(),
             )
         }
     }
@@ -557,7 +524,6 @@ impl Token {
                 false,
                 block_uuid,
                 class_types,
-                "placeholder_token".to_string(),
             )
         }
     }

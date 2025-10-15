@@ -234,7 +234,6 @@ impl Lexer {
                 None,
                 None,
                 None,
-                "0".to_string(),
                 None,
                 None,
                 None,
@@ -615,7 +614,6 @@ fn handle_zero_length_slice(
                     true,
                     None,
                     HashSet::new(),
-                    None,
                 ));
             }
 
@@ -668,7 +666,6 @@ fn handle_zero_length_slice(
                 true,
                 Some(block_stack.top()),
                 HashSet::new(),
-                None,
             ));
         }
 

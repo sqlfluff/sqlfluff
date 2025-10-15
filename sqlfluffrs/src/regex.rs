@@ -1,10 +1,11 @@
 use std::fmt::Display;
 
 use fancy_regex::{Regex as FancyRegex, RegexBuilder as FancyRegexBuilder};
+#[cfg(feature = "python")]
 use pyo3::pyclass;
 use regex::{Regex, RegexBuilder};
 
-#[pyclass]
+#[cfg_attr(feature = "python", pyclass)]
 #[derive(Debug, Clone)]
 pub enum RegexModeGroup {
     Index(usize),
