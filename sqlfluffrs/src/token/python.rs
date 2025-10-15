@@ -163,7 +163,15 @@ impl PyToken {
 
     #[getter]
     pub fn cache_key(&self) -> String {
-        self.0.cache_key.clone()
+        use std::hash::{Hash, Hasher};
+        use std::collections::hash_map::DefaultHasher;
+
+        let mut hasher = DefaultHasher::new();
+        self.0.token_type.hash(&mut hasher);
+        for t in &self.0.instance_types {
+            t.hash(&mut hasher);
+        }
+        format!("{:016x}", hasher.finish())
     }
 
     #[getter]
@@ -531,11 +539,6 @@ impl<'py> FromPyObject<'py> for PySqlFluffToken {
         let pos_marker = ob
             .getattr("pos_marker")?
             .extract::<PySqlFluffPositionMarker>()?;
-        let cache_key = ob
-            .getattr("_cache_key")
-            .unwrap_or(ob.getattr("cache_key")?)
-            .extract::<String>()
-            .unwrap_or("".to_string());
         Ok(Self(PyToken(Token::base_token(
             raw,
             pos_marker.into(),
@@ -544,7 +547,6 @@ impl<'py> FromPyObject<'py> for PySqlFluffToken {
             segments,
             None,
             None,
-            cache_key,
             None,
             None,
             None,
