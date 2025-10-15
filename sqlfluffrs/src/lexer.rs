@@ -229,7 +229,7 @@ impl Lexer {
                 dialect,
                 "<unlexable>",
                 r#"[^\t\n\ ]*"#,
-                Token::unlexable_token,
+                Token::unlexable_token_compat,
                 None,
                 None,
                 None,
