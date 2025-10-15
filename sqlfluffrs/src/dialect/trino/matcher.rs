@@ -1,6 +1,5 @@
 /* This is a generated file! */
 use once_cell::sync::Lazy;
-use uuid::Uuid;
 use crate::matcher::{LexMatcher, extract_nested_block_comment};
 use crate::token::Token;
 use crate::regex::RegexModeGroup;

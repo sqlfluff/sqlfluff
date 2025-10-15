@@ -736,7 +736,6 @@ mod tests {
                     false,
                     None,
                     HashSet::new(),
-                    None,
                 ));
                 continue;
             } else if elem == "<dedent>" {

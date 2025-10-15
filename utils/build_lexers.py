@@ -12,7 +12,6 @@ from sqlfluff.core.parser.lexer import LexerType
 def generate_use():
     """Generates the `use` statements."""
     print("use once_cell::sync::Lazy;")
-    print("use uuid::Uuid;")
     print("use crate::matcher::{LexMatcher, extract_nested_block_comment};")
     print("use crate::token::Token;")
     print("use crate::regex::RegexModeGroup;")
