@@ -19,8 +19,15 @@ def generate_use():
 
 
 def segment_to_token_name(s: str):
-    """Convert a segment class name to a token name."""
-    return re.sub("([A-Z])", r"_\1", s).strip("_").lower().replace("segment", "token")
+    """Convert a segment class name to a token name.
+
+    Appends '_compat' suffix to maintain backward compatibility with
+    the old 9-parameter TokenGenerator signature.
+    """
+    base_name = (
+        re.sub("([A-Z])", r"_\1", s).strip("_").lower().replace("segment", "token")
+    )
+    return f"{base_name}_compat"
 
 
 def generate_lexer(dialect: str):

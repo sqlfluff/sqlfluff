@@ -1,5 +1,5 @@
-use super::Token;
-use crate::{marker::PositionMarker, regex::RegexModeGroup, slice::Slice, templater::templatefile::TemplatedFile};
+use super::{config::TokenConfig, Token};
+use crate::{marker::PositionMarker, slice::Slice, templater::templatefile::TemplatedFile};
 
 use std::sync::Arc;
 
@@ -10,15 +10,19 @@ impl Token {
     pub fn base_token(
         raw: String,
         pos_marker: PositionMarker,
-        class_types: HashSet<String>,
-        instance_types: Vec<String>,
+        config: TokenConfig,
         segments: Vec<Token>,
-        trim_start: Option<Vec<String>>,
-        trim_chars: Option<Vec<String>>,
-        quoted_value: Option<(String, RegexModeGroup)>,
-        escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
     ) -> Self {
+        let TokenConfig {
+            class_types,
+            instance_types,
+            trim_start,
+            trim_chars,
+            quoted_value,
+            escape_replacement,
+            casefold,
+        } = config;
+
         let (token_types, class_types) = iter_base_types("base", class_types.clone());
         let raw_value = Token::normalize(&raw, quoted_value.clone(), escape_replacement.clone());
         Self {
@@ -58,348 +62,221 @@ impl Token {
     pub fn raw_token(
         raw: String,
         pos_marker: PositionMarker,
-        class_types: HashSet<String>,
-        instance_types: Vec<String>,
-        trim_start: Option<Vec<String>>,
-        trim_chars: Option<Vec<String>>,
-        quoted_value: Option<(String, RegexModeGroup)>,
-        escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        config: TokenConfig,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("raw", class_types);
-        Self {
-            token_type,
-            // Match python's string
-            suffix: format!("'{}'", raw.escape_debug().to_string().trim_matches('"')),
-            ..Token::base_token(
-                raw,
-                pos_marker,
+        let (token_type, class_types) = iter_base_types("raw", config.class_types.clone());
+        let suffix = format!("'{}'", raw.escape_debug().to_string().trim_matches('"'));
+
+        let mut token = Token::base_token(
+            raw,
+            pos_marker,
+            TokenConfig {
                 class_types,
-                instance_types,
-                vec![],
-                trim_start,
-                trim_chars,
-                quoted_value,
-                escape_replacement,
-                casefold,
-            )
-        }
+                ..config
+            },
+            vec![],
+        );
+        token.suffix = suffix;
+        token.token_type = token_type;
+        token
     }
 
     pub fn code_token(
         raw: String,
         pos_marker: PositionMarker,
-        class_types: HashSet<String>,
-        instance_types: Vec<String>,
-        trim_start: Option<Vec<String>>,
-        trim_chars: Option<Vec<String>>,
-        quoted_value: Option<(String, RegexModeGroup)>,
-        escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        config: TokenConfig,
     ) -> Self {
-        Self {
-            ..Self::raw_token(
-                raw,
-                pos_marker,
-                class_types,
-                instance_types,
-                trim_start,
-                trim_chars,
-                quoted_value,
-                escape_replacement,
-                casefold,
-            )
-        }
+        Self::raw_token(raw, pos_marker, config)
     }
 
     pub fn symbol_token(
         raw: String,
         pos_marker: PositionMarker,
-        class_types: HashSet<String>,
-        instance_types: Vec<String>,
-        trim_start: Option<Vec<String>>,
-        trim_chars: Option<Vec<String>>,
-        quoted_value: Option<(String, RegexModeGroup)>,
-        escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        config: TokenConfig,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("symbol", class_types);
-        Self {
-            token_type,
-            ..Self::code_token(
-                raw,
-                pos_marker,
+        let (token_type, class_types) = iter_base_types("symbol", config.class_types.clone());
+        let mut token = Self::code_token(
+            raw,
+            pos_marker,
+            TokenConfig {
                 class_types,
-                instance_types,
-                trim_start,
-                trim_chars,
-                quoted_value,
-                escape_replacement,
-                casefold,
-            )
-        }
+                ..config
+            },
+        );
+        token.token_type = token_type;
+        token
     }
 
     pub fn identifier_token(
         raw: String,
         pos_marker: PositionMarker,
-        class_types: HashSet<String>,
-        instance_types: Vec<String>,
-        trim_start: Option<Vec<String>>,
-        trim_chars: Option<Vec<String>>,
-        quoted_value: Option<(String, RegexModeGroup)>,
-        escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        config: TokenConfig,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("identifier", class_types);
-        Self {
-            token_type,
-            ..Self::code_token(
-                raw,
-                pos_marker,
+        let (token_type, class_types) = iter_base_types("identifier", config.class_types.clone());
+        let mut token = Self::code_token(
+            raw,
+            pos_marker,
+            TokenConfig {
                 class_types,
-                instance_types,
-                trim_start,
-                trim_chars,
-                quoted_value,
-                escape_replacement,
-                casefold,
-            )
-        }
+                ..config
+            },
+        );
+        token.token_type = token_type;
+        token
     }
 
     pub fn literal_token(
         raw: String,
         pos_marker: PositionMarker,
-        class_types: HashSet<String>,
-        instance_types: Vec<String>,
-        trim_start: Option<Vec<String>>,
-        trim_chars: Option<Vec<String>>,
-        quoted_value: Option<(String, RegexModeGroup)>,
-        escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        config: TokenConfig,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("literal", class_types);
-        Self {
-            token_type,
-            ..Self::code_token(
-                raw,
-                pos_marker,
+        let (token_type, class_types) = iter_base_types("literal", config.class_types.clone());
+        let mut token = Self::code_token(
+            raw,
+            pos_marker,
+            TokenConfig {
                 class_types,
-                instance_types,
-                trim_start,
-                trim_chars,
-                quoted_value,
-                escape_replacement,
-                casefold,
-            )
-        }
+                ..config
+            },
+        );
+        token.token_type = token_type;
+        token
     }
 
     pub fn binary_operator_token(
         raw: String,
         pos_marker: PositionMarker,
-        class_types: HashSet<String>,
-        instance_types: Vec<String>,
-        trim_start: Option<Vec<String>>,
-        trim_chars: Option<Vec<String>>,
-        quoted_value: Option<(String, RegexModeGroup)>,
-        escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        config: TokenConfig,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("binary_operator", class_types);
-        Self {
-            token_type,
-            ..Self::code_token(
-                raw,
-                pos_marker,
+        let (token_type, class_types) = iter_base_types("binary_operator", config.class_types.clone());
+        let mut token = Self::code_token(
+            raw,
+            pos_marker,
+            TokenConfig {
                 class_types,
-                instance_types,
-                trim_start,
-                trim_chars,
-                quoted_value,
-                escape_replacement,
-                casefold,
-            )
-        }
+                ..config
+            },
+        );
+        token.token_type = token_type;
+        token
     }
 
     pub fn comparison_operator_token(
         raw: String,
         pos_marker: PositionMarker,
-        class_types: HashSet<String>,
-        instance_types: Vec<String>,
-        trim_start: Option<Vec<String>>,
-        trim_chars: Option<Vec<String>>,
-        quoted_value: Option<(String, RegexModeGroup)>,
-        escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        config: TokenConfig,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("comparison_operator", class_types);
-        Self {
-            token_type,
-            ..Self::code_token(
-                raw,
-                pos_marker,
+        let (token_type, class_types) = iter_base_types("comparison_operator", config.class_types.clone());
+        let mut token = Self::code_token(
+            raw,
+            pos_marker,
+            TokenConfig {
                 class_types,
-                instance_types,
-                trim_start,
-                trim_chars,
-                quoted_value,
-                escape_replacement,
-                casefold,
-            )
-        }
+                ..config
+            },
+        );
+        token.token_type = token_type;
+        token
     }
 
     pub fn word_token(
         raw: String,
         pos_marker: PositionMarker,
-        class_types: HashSet<String>,
-        instance_types: Vec<String>,
-        trim_start: Option<Vec<String>>,
-        trim_chars: Option<Vec<String>>,
-        quoted_value: Option<(String, RegexModeGroup)>,
-        escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        config: TokenConfig,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("word", class_types);
-        Self {
-            token_type,
-            ..Self::code_token(
-                raw,
-                pos_marker,
+        let (token_type, class_types) = iter_base_types("word", config.class_types.clone());
+        let mut token = Self::code_token(
+            raw,
+            pos_marker,
+            TokenConfig {
                 class_types,
-                instance_types,
-                trim_start,
-                trim_chars,
-                quoted_value,
-                escape_replacement,
-                casefold,
-            )
-        }
+                ..config
+            },
+        );
+        token.token_type = token_type;
+        token
     }
 
     pub fn unlexable_token(
         raw: String,
         pos_marker: PositionMarker,
-        class_types: HashSet<String>,
-        instance_types: Vec<String>,
-        trim_start: Option<Vec<String>>,
-        trim_chars: Option<Vec<String>>,
-        quoted_value: Option<(String, RegexModeGroup)>,
-        escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        config: TokenConfig,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("unlexable", class_types);
-        Self {
-            token_type,
-            ..Self::code_token(
-                raw,
-                pos_marker,
+        let (token_type, class_types) = iter_base_types("unlexable", config.class_types.clone());
+        let mut token = Self::code_token(
+            raw,
+            pos_marker,
+            TokenConfig {
                 class_types,
-                instance_types,
-                trim_start,
-                trim_chars,
-                quoted_value,
-                escape_replacement,
-                casefold,
-            )
-        }
+                ..config
+            },
+        );
+        token.token_type = token_type;
+        token
     }
 
     pub fn whitespace_token(
         raw: String,
         pos_marker: PositionMarker,
-        class_types: HashSet<String>,
-        instance_types: Vec<String>,
-        trim_start: Option<Vec<String>>,
-        trim_chars: Option<Vec<String>>,
-        quoted_value: Option<(String, RegexModeGroup)>,
-        escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        config: TokenConfig,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("whitespace", class_types);
-        Self {
-            token_type,
-            is_whitespace: true,
-            is_code: false,
-            is_comment: false,
-            _default_raw: " ".to_string(),
-            ..Self::raw_token(
-                raw,
-                pos_marker,
+        let (token_type, class_types) = iter_base_types("whitespace", config.class_types.clone());
+        let mut token = Self::raw_token(
+            raw,
+            pos_marker,
+            TokenConfig {
                 class_types,
-                instance_types,
-                trim_start,
-                trim_chars,
-                quoted_value,
-                escape_replacement,
-                casefold,
-            )
-        }
+                ..config
+            },
+        );
+        token.token_type = token_type;
+        token.is_whitespace = true;
+        token.is_code = false;
+        token.is_comment = false;
+        token._default_raw = " ".to_string();
+        token
     }
 
     pub fn newline_token(
         raw: String,
         pos_marker: PositionMarker,
-        class_types: HashSet<String>,
-        instance_types: Vec<String>,
-        trim_start: Option<Vec<String>>,
-        trim_chars: Option<Vec<String>>,
-        quoted_value: Option<(String, RegexModeGroup)>,
-        escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        config: TokenConfig,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("newline", class_types);
-        Self {
-            token_type,
-            is_whitespace: true,
-            is_code: false,
-            is_comment: false,
-            _default_raw: "\n".to_string(),
-            ..Self::raw_token(
-                raw,
-                pos_marker,
+        let (token_type, class_types) = iter_base_types("newline", config.class_types.clone());
+        let mut token = Self::raw_token(
+            raw,
+            pos_marker,
+            TokenConfig {
                 class_types,
-                instance_types,
-                trim_start,
-                trim_chars,
-                quoted_value,
-                escape_replacement,
-                casefold,
-            )
-        }
+                ..config
+            },
+        );
+        token.token_type = token_type;
+        token.is_whitespace = true;
+        token.is_code = false;
+        token.is_comment = false;
+        token._default_raw = "\n".to_string();
+        token
     }
 
     pub fn comment_token(
         raw: String,
         pos_marker: PositionMarker,
-        class_types: HashSet<String>,
-        instance_types: Vec<String>,
-        trim_start: Option<Vec<String>>,
-        trim_chars: Option<Vec<String>>,
-        quoted_value: Option<(String, RegexModeGroup)>,
-        escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        config: TokenConfig,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("comment", class_types);
-        Self {
-            token_type,
-            is_code: false,
-            is_comment: true,
-            ..Self::raw_token(
-                raw,
-                pos_marker,
+        let (token_type, class_types) = iter_base_types("comment", config.class_types.clone());
+        let mut token = Self::raw_token(
+            raw,
+            pos_marker,
+            TokenConfig {
                 class_types,
-                instance_types,
-                trim_start,
-                trim_chars,
-                quoted_value,
-                escape_replacement,
-                casefold,
-            )
-        }
+                ..config
+            },
+        );
+        token.token_type = token_type;
+        token.is_code = false;
+        token.is_comment = true;
+        token
     }
 
     pub fn meta_token(
@@ -408,27 +285,24 @@ impl Token {
         block_uuid: Option<Uuid>,
         class_types: HashSet<String>,
     ) -> Self {
-        let (token_type, class_types) = iter_base_types("meta", class_types);
-        Self {
-            token_type,
-            is_code: false,
-            is_meta: true,
-            is_templated,
-            block_uuid,
-            preface_modifier: "[META] ".to_string(),
-            suffix: String::new(),
-            ..Self::raw_token(
-                "".to_string(),
-                pos_marker,
+        let (token_type, class_types) = iter_base_types("meta", class_types.clone());
+        let mut token = Self::raw_token(
+            "".to_string(),
+            pos_marker,
+            TokenConfig {
                 class_types,
-                vec![],
-                None,
-                None,
-                None,
-                None,
-                None,
-            )
-        }
+                instance_types: vec![],
+                ..TokenConfig::default()
+            },
+        );
+        token.token_type = token_type;
+        token.is_code = false;
+        token.is_meta = true;
+        token.is_templated = is_templated;
+        token.block_uuid = block_uuid;
+        token.preface_modifier = "[META] ".to_string();
+        token.suffix = String::new();
+        token
     }
 
     pub fn end_of_file_token(

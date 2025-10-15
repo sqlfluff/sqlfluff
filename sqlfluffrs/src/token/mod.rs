@@ -1,3 +1,5 @@
+pub mod compat;
+pub mod config;
 pub mod construction;
 mod eq;
 pub mod fix;
@@ -750,39 +752,39 @@ mod tests {
             let (token_fn, instance_types): (TokenGenerator, Vec<String>) =
                 match elem {
                     " " | "\t" => (
-                        Token::whitespace_token,
+                        Token::whitespace_token_compat,
                         Vec::new(),
                     ),
-                    "\n" => (Token::newline_token, Vec::new()),
+                    "\n" => (Token::newline_token_compat, Vec::new()),
                     "(" => (
-                        Token::symbol_token,
+                        Token::symbol_token_compat,
                         Vec::from_iter(["start_bracket".to_string()]),
                     ),
                     ")" => (
-                        Token::symbol_token,
+                        Token::symbol_token_compat,
                         Vec::from_iter(["end_bracket".to_string()]),
                     ),
                     "[" => (
-                        Token::symbol_token,
+                        Token::symbol_token_compat,
                         Vec::from_iter(["start_square_bracket".to_string()]),
                     ),
                     "]" => (
-                        Token::symbol_token,
+                        Token::symbol_token_compat,
                         Vec::from_iter(["end_square_bracket".to_string()]),
                     ),
                     s if s.starts_with("--") => (
-                        Token::comment_token,
+                        Token::comment_token_compat,
                         Vec::from_iter(["inline_comment".to_string()]),
                     ),
                     s if s.starts_with("\"") => (
-                        Token::code_token,
+                        Token::code_token_compat,
                         Vec::from_iter(["double_quote".to_string()]),
                     ),
                     s if s.starts_with("'") => (
-                        Token::code_token,
+                        Token::code_token_compat,
                         Vec::from_iter(["single_quote".to_string()]),
                     ),
-                    _ => (Token::code_token, Vec::new()),
+                    _ => (Token::code_token_compat, Vec::new()),
                 };
 
             buff.push(token_fn(

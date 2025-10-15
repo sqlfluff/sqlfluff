@@ -21990,7 +21990,7 @@ Grammar::RegexParser {
     template: r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#,
     token_type: "naked_identifier",
     optional: false,
-    anti_template: Some(r#"^(OUTER|ROWS|ON|UNION|INTERVAL|SET|RESPECT|NULL|JOIN|FULL|NATURAL|LEFT|RIGHT|CROSS|IGNORE|NOT|PARTITION|ORDER|USING|CASE|SELECT|INNER)$"#),
+    anti_template: Some(r#"^(JOIN|IGNORE|RESPECT|LEFT|ORDER|SELECT|NATURAL|FULL|PARTITION|USING|NOT|CROSS|ROWS|RIGHT|INTERVAL|INNER|UNION|SET|ON|CASE|OUTER|NULL)$"#),
 }
 );
 

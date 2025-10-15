@@ -539,17 +539,17 @@ impl<'py> FromPyObject<'py> for PySqlFluffToken {
         let pos_marker = ob
             .getattr("pos_marker")?
             .extract::<PySqlFluffPositionMarker>()?;
+
+        use crate::token::config::TokenConfig;
         Ok(Self(PyToken(Token::base_token(
             raw,
             pos_marker.into(),
-            class_types,
-            instance_types,
+            TokenConfig {
+                class_types,
+                instance_types,
+                ..TokenConfig::default()
+            },
             segments,
-            None,
-            None,
-            None,
-            None,
-            None,
         ))))
     }
 }

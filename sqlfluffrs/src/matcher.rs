@@ -4,18 +4,25 @@ use fancy_regex::{Regex as FancyRegex, RegexBuilder as FancyRegexBuilder};
 use hashbrown::HashSet;
 use regex::{Regex, RegexBuilder};
 
-use crate::{dialect::Dialect, marker::PositionMarker, regex::RegexModeGroup, token::Token};
+use crate::{
+    dialect::Dialect,
+    marker::PositionMarker,
+    regex::RegexModeGroup,
+    token::Token,
+};
 
+/// Legacy function pointer type for token generation (maintains backward compatibility)
+/// This signature accepts individual parameters and constructs a TokenConfig internally
 pub type TokenGenerator = fn(
-    String,
-    PositionMarker,
-    HashSet<String>,
-    Vec<String>,
-    Option<Vec<String>>,
-    Option<Vec<String>>,
-    Option<(String, RegexModeGroup)>,
-    Option<(String, String)>,
-    Option<fn(&str) -> str>,
+    String,                                    // raw
+    PositionMarker,                            // pos_marker
+    HashSet<String>,                           // class_types
+    Vec<String>,                               // instance_types
+    Option<Vec<String>>,                       // trim_start
+    Option<Vec<String>>,                       // trim_chars
+    Option<(String, RegexModeGroup)>,          // quoted_value
+    Option<(String, String)>,                  // escape_replacement
+    Option<fn(&str) -> str>,                   // casefold
 ) -> Token;
 
 #[derive(Debug, Clone)]
@@ -422,12 +429,12 @@ mod test {
             Dialect::Ansi,
             "block_comment",
             r#"\/\*([^\*]|\*(?!\/))*\*\/"#,
-            Token::comment_token,
+            Token::comment_token_compat,
             Some(Box::new(LexMatcher::regex_subdivider(
                 Dialect::Ansi,
                 "newline",
                 r#"\r\n|\n"#,
-                Token::newline_token,
+                Token::newline_token_compat,
                 None,
                 None,
                 None,
@@ -443,7 +450,7 @@ mod test {
                 Dialect::Ansi,
                 "whitespace",
                 r#"[^\S\r\n]+"#,
-                Token::whitespace_token,
+                Token::whitespace_token_compat,
                 None,
                 None,
                 None,
