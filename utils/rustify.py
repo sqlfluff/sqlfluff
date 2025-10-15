@@ -2,6 +2,7 @@
 
 import argparse
 import hashlib
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -37,6 +38,9 @@ def build_generated_output(build_path: Path, output_path: Path, build_arg: list[
 
 
 if __name__ == "__main__":
+    # path goes up two levels once to utils once to the repo root
+    # resolve to an absolute path
+    os.chdir(Path(__file__).parent.parent.resolve())
     dialects_list = [
         (
             f"utils/{builder}.py",
