@@ -2,8 +2,10 @@
 use once_cell::sync::Lazy;
 use crate::matcher::{LexMatcher, extract_nested_block_comment};
 use crate::token::Token;
+use crate::token::config::TokenConfig;
 use crate::regex::RegexModeGroup;
 use crate::dialect::Dialect;
+use hashbrown::HashSet;
 
 pub static DORIS_KEYWORDS: Lazy<Vec<String>> = Lazy::new(|| { vec![
     "ACCOUNT_LOCK".to_string(),
@@ -196,7 +198,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "whitespace",
         r#"[^\S\r\n]+"#,
-        Token::whitespace_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::whitespace_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -213,7 +221,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "inline_comment",
         r#"(^--|-- |#)[^\n]*"#,
-        Token::comment_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comment_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         Some(vec![String::from("--"), String::from("#")]),
@@ -230,13 +244,25 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "block_comment",
         r#"\/\*([^\*]|\*(?!\/))*\*\/"#,
-        Token::comment_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comment_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         Some(Box::new(
     LexMatcher::regex_subdivider(
         Dialect::Doris,
         "newline",
         r#"\r\n|\n"#,
-        Token::newline_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::newline_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -253,7 +279,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "whitespace",
         r#"[^\S\r\n]+"#,
-        Token::whitespace_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::whitespace_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -279,7 +311,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "single_quote",
         r#"(?s)('(?:\\'|''|\\\\|[^'])*'(?!'))"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -303,7 +341,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "double_quote",
         r#"(?s)("(?:\\"|""|\\\\|[^"])*"(?!"))"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -327,7 +371,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "back_quote",
         r#"`(?:[^`\\]|\\.)*`"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -344,7 +394,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "dollar_quote",
         r#"\$(\w*)\$(.*?)\$\1\$"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -361,7 +417,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "hexadecimal_literal",
         r#"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+)"#,
-        Token::literal_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::literal_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -378,7 +440,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "bit_value_literal",
         r#"([bB]'[01]+'|0b[01]+)"#,
-        Token::literal_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::literal_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -395,7 +463,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "numeric_literal",
         r#"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))"#,
-        Token::literal_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::literal_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -412,7 +486,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "obevo_annotation",
         r#"////\s*(CHANGE|BODY|METADATA)[^\n]*"#,
-        Token::comment_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comment_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -429,7 +509,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "glob_operator",
         "~~~",
-        Token::comparison_operator_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comparison_operator_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -444,7 +530,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "like_operator",
         r#"!?~~?\*?"#,
-        Token::comparison_operator_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comparison_operator_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -461,7 +553,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "newline",
         r#"\r\n|\n"#,
-        Token::newline_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::newline_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -478,7 +576,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "casting_operator",
         "::",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -493,7 +597,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "walrus_operator",
         ":=",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -508,7 +618,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "equals",
         "=",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -523,7 +639,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "inline_path_operator",
         "->>",
-        Token::symbol_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::symbol_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -538,7 +660,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "column_path_operator",
         "->",
-        Token::symbol_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::symbol_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -553,7 +681,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "greater_than",
         ">",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -568,7 +702,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "less_than",
         "<",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -583,7 +723,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "not",
         "!",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -598,7 +744,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "dot",
         ".",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -613,7 +765,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "comma",
         ",",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -628,7 +786,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "plus",
         "+",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -643,7 +807,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "minus",
         "-",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -658,7 +828,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "divide",
         "/",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -673,7 +849,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "percent",
         "%",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -688,7 +870,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "question",
         "?",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -703,7 +891,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "double_ampersand",
         "&&",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -718,7 +912,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "ampersand",
         "&",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -733,7 +933,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "double_vertical_bar",
         "||",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -748,7 +954,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "vertical_bar",
         "|",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -763,7 +975,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "caret",
         "^",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -778,7 +996,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "star",
         "*",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -793,7 +1017,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "start_bracket",
         "(",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -808,7 +1038,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "end_bracket",
         ")",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -823,7 +1059,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "start_square_bracket",
         "[",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -838,7 +1080,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "end_square_bracket",
         "]",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -853,7 +1101,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "start_curly_bracket",
         "{",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -868,7 +1122,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "end_curly_bracket",
         "}",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -883,7 +1143,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "colon",
         ":",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -898,7 +1164,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "semicolon",
         ";",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -913,7 +1185,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "at_sign",
         r#"@@?[a-zA-Z0-9_$]*(\.[a-zA-Z0-9_$]+)?"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -930,7 +1208,13 @@ pub static DORIS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Doris,
         "word",
         r#"[0-9a-zA-Z_]+"#,
-        Token::word_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::word_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,

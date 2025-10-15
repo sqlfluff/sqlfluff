@@ -2,8 +2,10 @@
 use once_cell::sync::Lazy;
 use crate::matcher::{LexMatcher, extract_nested_block_comment};
 use crate::token::Token;
+use crate::token::config::TokenConfig;
 use crate::regex::RegexModeGroup;
 use crate::dialect::Dialect;
+use hashbrown::HashSet;
 
 pub static TSQL_KEYWORDS: Lazy<Vec<String>> = Lazy::new(|| { vec![
     "ADD".to_string(),
@@ -224,7 +226,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "whitespace",
         r#"[^\S\r\n]+"#,
-        Token::whitespace_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::whitespace_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -241,7 +249,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "inline_comment",
         r#"(--)[^\n]*"#,
-        Token::comment_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comment_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         Some(vec![String::from("-"), String::from("-")]),
@@ -258,13 +272,25 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "block_comment",
         r#"/\*(?>[^*/]+|\*(?!\/)|/[^*])*(?>(?R)(?>[^*/]+|\*(?!\/)|/[^*])*)*\*/"#,
-        Token::comment_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comment_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         Some(Box::new(
     LexMatcher::regex_subdivider(
         Dialect::Tsql,
         "newline",
         r#"\r\n|\n"#,
-        Token::newline_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::newline_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -281,7 +307,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "whitespace",
         r#"[^\S\r\n]+"#,
-        Token::whitespace_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::whitespace_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -307,7 +339,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "single_quote",
         r#"'([^']|'')*'"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -331,7 +369,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "double_quote",
         r#""(""|[^"\\]|\\.)*""#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -355,7 +399,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "atsign",
         r#"[@][a-zA-Z0-9_]+"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -372,7 +422,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "var_prefix",
         r#"[$][a-zA-Z0-9_]+"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -389,7 +445,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "square_quote",
         r#"\[([^\[\]]*)*\]"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -406,7 +468,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "single_quote_with_n",
         r#"N'([^']|'')*'"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -423,7 +491,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "hash_prefix",
         r#"[#][#]?[a-zA-Z0-9_]+"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -440,7 +514,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "unquoted_relative_sql_file_path",
         r#"[.\w\\/#-]+\.[sS][qQ][lL]\b"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -457,7 +537,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "back_quote",
         r#"`(?:[^`\\]|\\.)*`"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -474,7 +560,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "dollar_quote",
         r#"\$(\w*)\$(.*?)\$\1\$"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -491,7 +583,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "numeric_literal",
         r#"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))"#,
-        Token::literal_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::literal_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -508,7 +606,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "obevo_annotation",
         r#"////\s*(CHANGE|BODY|METADATA)[^\n]*"#,
-        Token::comment_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comment_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -525,7 +629,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "glob_operator",
         "~~~",
-        Token::comparison_operator_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comparison_operator_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -540,7 +650,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "like_operator",
         r#"!?~~?\*?"#,
-        Token::comparison_operator_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comparison_operator_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -557,7 +673,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "newline",
         r#"\r\n|\n"#,
-        Token::newline_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::newline_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -574,7 +696,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "casting_operator",
         "::",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -589,7 +717,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "equals",
         "=",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -604,7 +738,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "greater_than",
         ">",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -619,7 +759,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "less_than",
         "<",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -634,7 +780,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "not",
         "!",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -649,7 +801,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "dot",
         ".",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -664,7 +822,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "comma",
         ",",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -679,7 +843,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "plus",
         "+",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -694,7 +864,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "minus",
         "-",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -709,7 +885,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "divide",
         "/",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -724,7 +906,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "percent",
         "%",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -739,7 +927,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "question",
         "?",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -754,7 +948,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "ampersand",
         "&",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -769,7 +969,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "vertical_bar",
         "|",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -784,7 +990,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "caret",
         "^",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -799,7 +1011,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "star",
         "*",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -814,7 +1032,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "start_bracket",
         "(",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -829,7 +1053,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "end_bracket",
         ")",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -844,7 +1074,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "start_square_bracket",
         "[",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -859,7 +1095,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "end_square_bracket",
         "]",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -874,7 +1116,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "start_curly_bracket",
         "{",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -889,7 +1137,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "end_curly_bracket",
         "}",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -904,7 +1158,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "colon",
         ":",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -919,7 +1179,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "semicolon",
         ";",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -934,7 +1200,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "numeric_literal",
         r#"([xX]'([\da-fA-F][\da-fA-F])+'|0[xX][\da-fA-F]*)"#,
-        Token::literal_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::literal_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -951,7 +1223,13 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Tsql,
         "word",
         r#"[0-9a-zA-Z_#@\p{L}]+"#,
-        Token::word_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::word_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,

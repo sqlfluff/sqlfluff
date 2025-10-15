@@ -2,8 +2,10 @@
 use once_cell::sync::Lazy;
 use crate::matcher::{LexMatcher, extract_nested_block_comment};
 use crate::token::Token;
+use crate::token::config::TokenConfig;
 use crate::regex::RegexModeGroup;
 use crate::dialect::Dialect;
+use hashbrown::HashSet;
 
 pub static SNOWFLAKE_KEYWORDS: Lazy<Vec<String>> = Lazy::new(|| { vec![
     "ALL".to_string(),
@@ -106,7 +108,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "whitespace",
         r#"[^\S\r\n]+"#,
-        Token::whitespace_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::whitespace_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -123,7 +131,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "inline_comment",
         r#"(--|#|//)[^\n]*"#,
-        Token::comment_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comment_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         Some(vec![String::from("--"), String::from("#"), String::from("//")]),
@@ -140,13 +154,25 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "block_comment",
         r#"\/\*([^\*]|\*(?!\/))*\*\/"#,
-        Token::comment_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comment_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         Some(Box::new(
     LexMatcher::regex_subdivider(
         Dialect::Snowflake,
         "newline",
         r#"\r\n|\n"#,
-        Token::newline_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::newline_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -163,7 +189,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "whitespace",
         r#"[^\S\r\n]+"#,
-        Token::whitespace_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::whitespace_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -189,7 +221,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "single_quote",
         r#"'([^'\\]|\\.|'')*'"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -213,7 +251,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "double_quote",
         r#""(""|[^"\\]|\\.)*""#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -237,7 +281,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "back_quote",
         r#"`(?:[^`\\]|\\.)*`"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -254,7 +304,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "dollar_quote",
         r#"\$(\w*)\$(.*?)\$\1\$"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -271,7 +327,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "numeric_literal",
         r#"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))"#,
-        Token::literal_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::literal_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -288,7 +350,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "obevo_annotation",
         r#"////\s*(CHANGE|BODY|METADATA)[^\n]*"#,
-        Token::comment_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comment_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -305,7 +373,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "glob_operator",
         "~~~",
-        Token::comparison_operator_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comparison_operator_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -320,7 +394,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "parameter_assigner",
         "=>",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -335,7 +415,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "right_arrow",
         "->",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -350,7 +436,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "stage_path",
         r#"(?:@[^\s;)]+|'@[^']+')"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -367,7 +459,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "column_selector",
         r#"\$[0-9]+"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -384,7 +482,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "dollar_quote",
         r#"\$\$.*\$\$"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -401,7 +505,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "dollar_literal",
         r#"[$][a-zA-Z0-9_.]*"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -418,7 +528,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "inline_dollar_sign",
         r#"[a-zA-Z_][a-zA-Z0-9_$]*\$[a-zA-Z0-9_$]*"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -435,7 +551,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "unquoted_file_path",
         r#"file://(?:[a-zA-Z]+:|/)+(?:[0-9a-zA-Z\\/_*?-]+)(?:\.[0-9a-zA-Z]+)?"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -452,7 +574,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "question_mark",
         "?",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -467,7 +595,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "exclude_bracket_open",
         "{-",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -482,7 +616,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "exclude_bracket_close",
         "-}",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -497,7 +637,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "like_operator",
         r#"!?~~?\*?"#,
-        Token::comparison_operator_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comparison_operator_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -514,7 +660,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "newline",
         r#"\r\n|\n"#,
-        Token::newline_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::newline_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -531,7 +683,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "casting_operator",
         "::",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -546,7 +704,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "walrus_operator",
         ":=",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -561,7 +725,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "equals",
         "=",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -576,7 +746,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "greater_than",
         ">",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -591,7 +767,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "less_than",
         "<",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -606,7 +788,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "not",
         "!",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -621,7 +809,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "dot",
         ".",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -636,7 +830,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "comma",
         ",",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -651,7 +851,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "plus",
         "+",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -666,7 +872,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "minus",
         "-",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -681,7 +893,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "divide",
         "/",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -696,7 +914,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "percent",
         "%",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -711,7 +935,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "question",
         "?",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -726,7 +956,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "ampersand",
         "&",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -741,7 +977,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "vertical_bar",
         "|",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -756,7 +998,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "caret",
         "^",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -771,7 +1019,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "star",
         "*",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -786,7 +1040,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "start_bracket",
         "(",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -801,7 +1061,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "end_bracket",
         ")",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -816,7 +1082,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "start_square_bracket",
         "[",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -831,7 +1103,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "end_square_bracket",
         "]",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -846,7 +1124,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "start_curly_bracket",
         "{",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -861,7 +1145,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "end_curly_bracket",
         "}",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -876,7 +1166,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "colon",
         ":",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -891,7 +1187,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "semicolon",
         ";",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -906,7 +1208,13 @@ pub static SNOWFLAKE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Snowflake,
         "word",
         r#"[0-9a-zA-Z_]+"#,
-        Token::word_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::word_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,

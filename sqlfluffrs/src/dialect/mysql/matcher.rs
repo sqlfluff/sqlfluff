@@ -2,8 +2,10 @@
 use once_cell::sync::Lazy;
 use crate::matcher::{LexMatcher, extract_nested_block_comment};
 use crate::token::Token;
+use crate::token::config::TokenConfig;
 use crate::regex::RegexModeGroup;
 use crate::dialect::Dialect;
+use hashbrown::HashSet;
 
 pub static MYSQL_KEYWORDS: Lazy<Vec<String>> = Lazy::new(|| { vec![
     "ACCESSIBLE".to_string(),
@@ -272,7 +274,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "whitespace",
         r#"[^\S\r\n]+"#,
-        Token::whitespace_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::whitespace_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -289,7 +297,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "inline_comment",
         r#"(^--|-- |#)[^\n]*"#,
-        Token::comment_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comment_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         Some(vec![String::from("--"), String::from("#")]),
@@ -306,13 +320,25 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "block_comment",
         r#"\/\*([^\*]|\*(?!\/))*\*\/"#,
-        Token::comment_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comment_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         Some(Box::new(
     LexMatcher::regex_subdivider(
         Dialect::Mysql,
         "newline",
         r#"\r\n|\n"#,
-        Token::newline_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::newline_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -329,7 +355,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "whitespace",
         r#"[^\S\r\n]+"#,
-        Token::whitespace_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::whitespace_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -355,7 +387,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "single_quote",
         r#"(?s)('(?:\\'|''|\\\\|[^'])*'(?!'))"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -379,7 +417,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "double_quote",
         r#"(?s)("(?:\\"|""|\\\\|[^"])*"(?!"))"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -403,7 +447,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "back_quote",
         r#"`(?:[^`\\]|\\.)*`"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -420,7 +470,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "dollar_quote",
         r#"\$(\w*)\$(.*?)\$\1\$"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -437,7 +493,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "hexadecimal_literal",
         r#"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+)"#,
-        Token::literal_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::literal_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -454,7 +516,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "bit_value_literal",
         r#"([bB]'[01]+'|0b[01]+)"#,
-        Token::literal_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::literal_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -471,7 +539,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "numeric_literal",
         r#"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))"#,
-        Token::literal_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::literal_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -488,7 +562,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "obevo_annotation",
         r#"////\s*(CHANGE|BODY|METADATA)[^\n]*"#,
-        Token::comment_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comment_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -505,7 +585,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "glob_operator",
         "~~~",
-        Token::comparison_operator_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comparison_operator_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -520,7 +606,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "like_operator",
         r#"!?~~?\*?"#,
-        Token::comparison_operator_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comparison_operator_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -537,7 +629,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "newline",
         r#"\r\n|\n"#,
-        Token::newline_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::newline_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -554,7 +652,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "casting_operator",
         "::",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -569,7 +673,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "walrus_operator",
         ":=",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -584,7 +694,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "equals",
         "=",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -599,7 +715,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "inline_path_operator",
         "->>",
-        Token::symbol_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::symbol_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -614,7 +736,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "column_path_operator",
         "->",
-        Token::symbol_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::symbol_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -629,7 +757,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "greater_than",
         ">",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -644,7 +778,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "less_than",
         "<",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -659,7 +799,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "not",
         "!",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -674,7 +820,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "dot",
         ".",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -689,7 +841,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "comma",
         ",",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -704,7 +862,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "plus",
         "+",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -719,7 +883,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "minus",
         "-",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -734,7 +904,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "divide",
         "/",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -749,7 +925,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "percent",
         "%",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -764,7 +946,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "question",
         "?",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -779,7 +967,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "double_ampersand",
         "&&",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -794,7 +988,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "ampersand",
         "&",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -809,7 +1009,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "double_vertical_bar",
         "||",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -824,7 +1030,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "vertical_bar",
         "|",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -839,7 +1051,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "caret",
         "^",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -854,7 +1072,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "star",
         "*",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -869,7 +1093,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "start_bracket",
         "(",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -884,7 +1114,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "end_bracket",
         ")",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -899,7 +1135,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "start_square_bracket",
         "[",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -914,7 +1156,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "end_square_bracket",
         "]",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -929,7 +1177,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "start_curly_bracket",
         "{",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -944,7 +1198,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "end_curly_bracket",
         "}",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -959,7 +1219,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "colon",
         ":",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -974,7 +1240,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "semicolon",
         ";",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -989,7 +1261,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "at_sign",
         r#"@@?[a-zA-Z0-9_$]*(\.[a-zA-Z0-9_$]+)?"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -1006,7 +1284,13 @@ pub static MYSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Mysql,
         "word",
         r#"[0-9a-zA-Z_]+"#,
-        Token::word_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::word_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,

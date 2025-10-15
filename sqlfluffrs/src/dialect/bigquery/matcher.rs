@@ -2,8 +2,10 @@
 use once_cell::sync::Lazy;
 use crate::matcher::{LexMatcher, extract_nested_block_comment};
 use crate::token::Token;
+use crate::token::config::TokenConfig;
 use crate::regex::RegexModeGroup;
 use crate::dialect::Dialect;
+use hashbrown::HashSet;
 
 pub static BIGQUERY_KEYWORDS: Lazy<Vec<String>> = Lazy::new(|| { vec![
     "AGGREGATE".to_string(),
@@ -115,7 +117,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "whitespace",
         r#"[^\S\r\n]+"#,
-        Token::whitespace_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::whitespace_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -132,7 +140,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "inline_comment",
         r#"(--|#)[^\n]*"#,
-        Token::comment_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comment_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         Some(vec![String::from("--"), String::from("#")]),
@@ -149,13 +163,25 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "block_comment",
         r#"\/\*([^\*]|\*(?!\/))*\*\/"#,
-        Token::comment_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comment_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         Some(Box::new(
     LexMatcher::regex_subdivider(
         Dialect::Bigquery,
         "newline",
         r#"\r\n|\n"#,
-        Token::newline_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::newline_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -172,7 +198,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "whitespace",
         r#"[^\S\r\n]+"#,
-        Token::whitespace_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::whitespace_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -198,7 +230,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "single_quote",
         r#"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -222,7 +260,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "double_quote",
         r#"([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*")"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -246,7 +290,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "back_quote",
         r#"`(?:[^`\\]|\\.)*`"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -263,7 +313,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "dollar_quote",
         r#"\$(\w*)\$(.*?)\$\1\$"#,
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -280,7 +336,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "numeric_literal",
         r#"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))"#,
-        Token::literal_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::literal_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -297,7 +359,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "obevo_annotation",
         r#"////\s*(CHANGE|BODY|METADATA)[^\n]*"#,
-        Token::comment_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comment_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -314,7 +382,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "glob_operator",
         "~~~",
-        Token::comparison_operator_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comparison_operator_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -329,7 +403,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "like_operator",
         r#"!?~~?\*?"#,
-        Token::comparison_operator_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::comparison_operator_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -346,7 +426,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "newline",
         r#"\r\n|\n"#,
-        Token::newline_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::newline_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -363,7 +449,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "casting_operator",
         "::",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -378,7 +470,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "right_arrow",
         "=>",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -393,7 +491,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "question_mark",
         "?",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -408,7 +512,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "at_sign_literal",
         r#"@[a-zA-Z_][\w]*"#,
-        Token::literal_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::literal_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -425,7 +535,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "double_at_sign_literal",
         r#"@@[a-zA-Z_][\w\.]*"#,
-        Token::literal_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::literal_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -442,7 +558,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "pipe_operator",
         "|>",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -457,7 +579,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "equals",
         "=",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -472,7 +600,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "greater_than",
         ">",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -487,7 +621,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "less_than",
         "<",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -502,7 +642,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "not",
         "!",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -517,7 +663,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "dot",
         ".",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -532,7 +684,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "comma",
         ",",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -547,7 +705,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "plus",
         "+",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -562,7 +726,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "minus",
         "-",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -577,7 +747,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "divide",
         "/",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -592,7 +768,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "percent",
         "%",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -607,7 +789,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "question",
         "?",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -622,7 +810,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "ampersand",
         "&",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -637,7 +831,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "vertical_bar",
         "|",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -652,7 +852,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "caret",
         "^",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -667,7 +873,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "star",
         "*",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -682,7 +894,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "start_bracket",
         "(",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -697,7 +915,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "end_bracket",
         ")",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -712,7 +936,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "start_square_bracket",
         "[",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -727,7 +957,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "end_square_bracket",
         "]",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -742,7 +978,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "start_curly_bracket",
         "{",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -757,7 +999,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "end_curly_bracket",
         "}",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -772,7 +1020,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "colon",
         ":",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -787,7 +1041,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "semicolon",
         ";",
-        Token::code_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,
@@ -802,7 +1062,13 @@ pub static BIGQUERY_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         Dialect::Bigquery,
         "word",
         r#"[0-9a-zA-Z_]+"#,
-        Token::word_token_compat,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::word_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
         None,
         None,
         None,

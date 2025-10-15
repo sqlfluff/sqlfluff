@@ -14,20 +14,18 @@ def generate_use():
     print("use once_cell::sync::Lazy;")
     print("use crate::matcher::{LexMatcher, extract_nested_block_comment};")
     print("use crate::token::Token;")
+    print("use crate::token::config::TokenConfig;")
     print("use crate::regex::RegexModeGroup;")
     print("use crate::dialect::Dialect;")
+    print("use hashbrown::HashSet;")
 
 
 def segment_to_token_name(s: str):
-    """Convert a segment class name to a token name.
-
-    Appends '_compat' suffix to maintain backward compatibility with
-    the old 9-parameter TokenGenerator signature.
-    """
+    """Convert a segment class name to a token name."""
     base_name = (
         re.sub("([A-Z])", r"_\1", s).strip("_").lower().replace("segment", "token")
     )
-    return f"{base_name}_compat"
+    return base_name
 
 
 def generate_lexer(dialect: str):
@@ -183,12 +181,16 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
     else:
         escape_replacement = None
 
+    # Generate a closure that uses TokenConfig
+    token_closure = _generate_token_closure(
+        segment_name,
+    )
+
     return f"""
     LexMatcher::{rust_fn}(
         Dialect::{dialect},
         "{lexer_matcher.name}",
-        {template},
-        Token::{segment_name},
+        {template},{token_closure},
         {subdivider},
         {trim_post_subdivide},
         {trim_start},
@@ -198,6 +200,26 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
         {casefold},{fallback}{is_match_valid}
         {kwarg_type},
     )"""
+
+
+def _generate_token_closure(
+    segment_name: str,
+) -> str:
+    """Generate a closure that constructs a token with TokenConfig.
+
+    This generates a closure matching the TokenGenerator signature that
+    internally uses the new TokenConfig-based API.
+
+    Uses Rust's struct field shorthand syntax for cleaner code generation.
+    """
+    return f"""
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {{
+            Token::{segment_name}(raw, pos_marker, TokenConfig {{
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            }})
+        }}"""
 
 
 if __name__ == "__main__":
