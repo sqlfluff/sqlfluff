@@ -51,6 +51,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -71,6 +72,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -81,6 +83,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -89,6 +92,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -97,6 +101,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -105,6 +110,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -113,12 +119,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -126,6 +134,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -137,6 +146,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -145,6 +155,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -153,12 +164,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -170,6 +183,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -178,12 +192,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -195,6 +211,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -203,12 +220,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -220,6 +239,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -230,6 +250,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -238,12 +259,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -251,6 +274,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -258,6 +282,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -273,6 +298,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -283,6 +309,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -293,6 +320,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -301,12 +329,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -316,6 +346,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -326,6 +357,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -334,6 +366,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -342,6 +375,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -350,6 +384,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -358,6 +393,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -366,6 +402,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -374,6 +411,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -382,6 +420,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -390,6 +429,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -400,6 +440,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -408,12 +449,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -425,6 +468,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -433,12 +477,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -450,6 +496,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -458,12 +505,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -471,6 +520,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -478,6 +528,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -485,6 +536,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -496,6 +548,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -504,12 +557,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -519,6 +574,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -527,6 +583,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -535,6 +592,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -543,6 +601,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -551,6 +610,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -559,6 +619,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -567,6 +628,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -575,6 +637,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -583,6 +646,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -591,6 +655,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -599,6 +664,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -607,6 +673,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -615,6 +682,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -623,6 +691,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -631,6 +700,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -639,6 +709,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -647,6 +718,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -655,6 +727,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -663,6 +736,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -671,6 +745,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -679,6 +754,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -687,6 +763,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -697,6 +774,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -705,12 +783,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -718,6 +798,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -727,12 +808,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -740,6 +823,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -751,6 +835,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -762,10 +847,13 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
 Grammar::Ref {
@@ -774,6 +862,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -784,6 +873,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -798,6 +888,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -806,12 +897,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -821,6 +914,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -829,6 +923,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -837,6 +932,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -845,6 +941,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -853,6 +950,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -861,6 +959,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -869,6 +968,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -877,6 +977,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -885,6 +986,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -895,6 +997,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -905,6 +1008,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -915,6 +1019,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -923,12 +1028,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -936,6 +1043,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -943,6 +1051,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -954,6 +1063,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -962,6 +1072,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -970,6 +1081,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -978,12 +1090,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -995,6 +1109,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1003,6 +1118,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1011,6 +1127,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1019,12 +1136,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1036,6 +1155,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1044,6 +1164,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1052,6 +1173,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1060,6 +1182,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1068,6 +1191,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1076,6 +1200,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1084,6 +1209,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1092,6 +1218,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1100,6 +1227,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -1110,6 +1238,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1118,12 +1247,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1135,6 +1266,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1143,12 +1275,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1160,6 +1294,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1168,12 +1303,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1181,6 +1318,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1192,6 +1330,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -1202,6 +1341,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1210,6 +1350,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1218,6 +1359,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1226,6 +1368,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1234,6 +1377,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1242,6 +1386,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1250,6 +1395,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1258,6 +1404,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1266,12 +1413,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1281,6 +1430,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1289,12 +1439,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1306,6 +1458,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -1316,6 +1469,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1324,6 +1478,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1332,6 +1487,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1340,6 +1496,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1348,6 +1505,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1356,6 +1514,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1364,6 +1523,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1372,6 +1532,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1380,12 +1541,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1395,6 +1558,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -1405,6 +1569,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1413,12 +1578,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1426,6 +1593,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1433,6 +1601,7 @@ Grammar::Ref {
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1444,6 +1613,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -1454,6 +1624,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1462,12 +1633,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1477,6 +1650,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -1487,6 +1661,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -1498,6 +1673,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1506,16 +1682,20 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1527,6 +1707,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1535,6 +1716,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1543,12 +1725,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1556,6 +1740,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1563,6 +1748,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1574,6 +1760,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1582,12 +1769,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1599,6 +1788,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1607,6 +1797,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1615,6 +1806,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1623,12 +1815,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1638,12 +1832,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1653,6 +1849,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -1663,6 +1860,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1671,6 +1869,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1679,6 +1878,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1687,12 +1887,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1706,6 +1908,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1714,6 +1917,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1722,12 +1926,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1739,13 +1945,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
 Grammar::OneOf {
@@ -1758,6 +1967,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1766,6 +1976,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1774,12 +1985,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1791,6 +2004,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1799,6 +2013,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1807,12 +2022,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1824,6 +2041,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1832,6 +2050,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1840,12 +2059,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1853,6 +2074,7 @@ Grammar::Ref {
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1864,6 +2086,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1872,6 +2095,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -1882,6 +2106,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1890,6 +2115,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1898,12 +2124,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1911,6 +2139,7 @@ Grammar::Ref {
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1918,6 +2147,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1929,6 +2159,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -1939,6 +2170,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1947,6 +2179,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -1955,12 +2188,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -1982,6 +2217,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -1992,6 +2228,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2000,6 +2237,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2008,6 +2246,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2016,6 +2255,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2024,12 +2264,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2037,6 +2279,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2048,6 +2291,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2056,6 +2300,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2064,12 +2309,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2081,6 +2328,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2089,12 +2337,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2106,6 +2356,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2114,12 +2365,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2131,6 +2384,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -2141,6 +2395,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2149,12 +2404,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2162,6 +2419,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2169,6 +2427,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2184,6 +2443,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -2194,6 +2454,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -2204,6 +2465,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2212,12 +2474,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2227,6 +2491,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -2237,6 +2502,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2245,6 +2511,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2253,6 +2520,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2261,6 +2529,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2269,6 +2538,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2277,6 +2547,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2285,6 +2556,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2293,6 +2565,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2301,6 +2574,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -2311,6 +2585,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2319,12 +2594,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2336,6 +2613,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2344,12 +2622,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2361,6 +2641,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2369,12 +2650,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2382,6 +2665,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2389,6 +2673,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2396,6 +2681,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2407,6 +2693,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2415,12 +2702,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2430,6 +2719,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2438,6 +2728,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2446,6 +2737,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2454,6 +2746,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2462,6 +2755,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2470,6 +2764,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2478,6 +2773,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2486,6 +2782,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2494,6 +2791,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2502,6 +2800,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2510,6 +2809,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2518,6 +2818,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2526,6 +2827,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2534,6 +2836,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2542,6 +2845,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2550,6 +2854,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2558,6 +2863,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2566,6 +2872,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2574,6 +2881,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2582,6 +2890,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2590,6 +2899,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2598,6 +2908,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -2608,6 +2919,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2616,12 +2928,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2629,6 +2943,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2638,12 +2953,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2651,6 +2968,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2662,6 +2980,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -2673,10 +2992,13 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
 Grammar::Ref {
@@ -2685,6 +3007,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -2695,6 +3018,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -2709,6 +3033,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2717,12 +3042,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2732,6 +3059,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2740,6 +3068,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2748,6 +3077,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2756,6 +3086,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2764,6 +3095,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2772,6 +3104,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2780,6 +3113,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2788,6 +3122,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2796,6 +3131,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -2806,6 +3142,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -2816,6 +3153,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -2826,6 +3164,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2834,12 +3173,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2847,6 +3188,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2854,6 +3196,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2865,6 +3208,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2873,6 +3217,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2881,6 +3226,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2889,12 +3235,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2906,6 +3254,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2914,6 +3263,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2922,6 +3272,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2930,12 +3281,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -2947,6 +3300,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2955,6 +3309,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2963,6 +3318,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2971,6 +3327,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2979,6 +3336,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2987,6 +3345,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -2995,6 +3354,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3003,6 +3363,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3011,6 +3372,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -3021,6 +3383,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3029,12 +3392,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3046,6 +3411,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3054,12 +3420,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3071,6 +3439,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3079,12 +3448,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3092,6 +3463,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3103,6 +3475,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -3113,6 +3486,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3121,6 +3495,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3129,6 +3504,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3137,6 +3513,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3145,6 +3522,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3153,6 +3531,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3161,6 +3540,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3169,6 +3549,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3177,12 +3558,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3192,6 +3575,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3200,12 +3584,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3217,6 +3603,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -3227,6 +3614,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3235,6 +3623,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3243,6 +3632,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3251,6 +3641,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3259,6 +3650,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3267,6 +3659,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3275,6 +3668,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3283,6 +3677,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3291,12 +3686,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3306,6 +3703,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -3316,6 +3714,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3324,12 +3723,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3337,6 +3738,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3344,6 +3746,7 @@ Grammar::Ref {
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3355,6 +3758,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -3365,6 +3769,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3373,12 +3778,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3388,6 +3795,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -3398,6 +3806,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -3409,6 +3818,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3417,16 +3827,20 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3438,6 +3852,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3446,6 +3861,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3454,12 +3870,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3467,6 +3885,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3474,6 +3893,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3485,6 +3905,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3493,12 +3914,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3510,6 +3933,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3518,6 +3942,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3526,6 +3951,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3534,12 +3960,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3549,12 +3977,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3564,6 +3994,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -3574,6 +4005,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3582,6 +4014,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3590,6 +4023,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3598,12 +4032,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3615,6 +4051,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -3625,13 +4062,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
 Grammar::Ref {
@@ -3640,12 +4080,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3653,6 +4095,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -3667,14 +4110,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     min_times: 0,
     max_times: None,
-    optional: false,
+    optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -3760,6 +4205,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 );
 
@@ -3768,8 +4214,7 @@ pub static ALIAS_EXPRESSION_SEGMENT: Lazy<Grammar> = Lazy::new(||
 // AliasExpressionSegment
 Grammar::Sequence {
     elements: vec![
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::Ref {
     name: "AsAliasOperatorSegment",
@@ -3777,6 +4222,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -3789,6 +4235,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -3799,6 +4246,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -3821,6 +4269,7 @@ Grammar::StringParser {
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3828,6 +4277,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3837,22 +4287,24 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -3876,6 +4328,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3884,12 +4337,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -3943,6 +4398,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3951,6 +4407,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3959,12 +4416,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -3974,6 +4433,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -3982,6 +4442,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -3994,6 +4455,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4002,12 +4464,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -4017,12 +4481,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -4034,6 +4500,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4042,12 +4509,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -4057,12 +4526,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -4078,6 +4549,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4086,6 +4558,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4094,6 +4567,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::AnyNumberOf {
@@ -4104,14 +4578,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     min_times: 0,
     max_times: None,
-    optional: false,
+    optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -4119,6 +4595,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -4133,6 +4610,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4141,6 +4619,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4149,6 +4628,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4157,12 +4637,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -4179,6 +4661,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4187,6 +4670,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -4197,6 +4681,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4205,12 +4690,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -4218,6 +4705,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -4231,6 +4719,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4239,12 +4728,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -4254,6 +4745,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4262,6 +4754,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -4276,6 +4769,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4284,12 +4778,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -4299,12 +4795,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -4314,12 +4812,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -4327,6 +4827,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -4336,6 +4837,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -4346,6 +4848,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -4356,6 +4859,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4364,12 +4868,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -4379,12 +4885,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -4392,6 +4900,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -4407,6 +4916,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4415,6 +4925,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4423,6 +4934,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Delimited {
@@ -4433,6 +4945,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -4443,19 +4956,23 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -4551,6 +5068,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4559,6 +5077,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4567,6 +5086,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4575,6 +5095,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4583,6 +5104,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4591,6 +5113,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4599,6 +5122,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4607,6 +5131,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4615,6 +5140,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4623,12 +5149,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -4648,6 +5176,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -4656,12 +5185,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -4673,13 +5204,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
@@ -4702,6 +5236,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -4734,6 +5269,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -4744,13 +5280,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
@@ -4773,6 +5312,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -4794,12 +5334,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -4922,12 +5464,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -4996,6 +5540,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5004,6 +5549,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5012,6 +5558,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5020,6 +5567,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5028,6 +5576,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5036,6 +5585,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -5046,6 +5596,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5054,12 +5605,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -5072,6 +5625,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5080,9 +5634,11 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -5167,6 +5723,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5175,6 +5732,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5183,6 +5741,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5191,12 +5750,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -5254,6 +5815,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 );
 
@@ -5268,6 +5830,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5276,12 +5839,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: false,
 }
 );
@@ -5295,6 +5860,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 );
 
@@ -5309,6 +5875,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5317,12 +5884,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: false,
 }
 );
@@ -5364,6 +5933,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5372,12 +5942,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -5401,6 +5973,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5409,12 +5982,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -5441,6 +6016,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -5451,13 +6027,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
@@ -5480,6 +6059,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -5496,6 +6076,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -5506,13 +6087,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
@@ -5535,6 +6119,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -5557,6 +6142,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -5579,6 +6165,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -5639,6 +6226,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -5661,6 +6249,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -5676,6 +6265,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5684,6 +6274,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5692,6 +6283,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -5702,6 +6294,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -5724,6 +6317,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -5731,6 +6325,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -5802,10 +6397,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::AnyNumberOf {
     elements: vec![
@@ -5815,12 +6410,13 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     min_times: 0,
     max_times: None,
-    optional: false,
+    optional: true,
     terminators: vec![
 Grammar::Ref {
     name: "ElseKeywordSegment",
@@ -5828,6 +6424,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5836,9 +6433,11 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: true,
     allow_gaps: true,
 }
 ,
@@ -5853,13 +6452,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: true,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
 Grammar::Ref {
     name: "EndKeywordSegment",
@@ -5867,12 +6467,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -5884,6 +6486,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5892,10 +6495,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::AnyNumberOf {
     elements: vec![
@@ -5905,12 +6508,13 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     min_times: 0,
     max_times: None,
-    optional: false,
+    optional: true,
     terminators: vec![
 Grammar::Ref {
     name: "ElseKeywordSegment",
@@ -5918,6 +6522,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5926,9 +6531,11 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: true,
     allow_gaps: true,
 }
 ,
@@ -5943,13 +6550,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: true,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
 Grammar::Ref {
     name: "EndKeywordSegment",
@@ -5957,12 +6565,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -5975,6 +6585,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5983,6 +6594,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -5991,9 +6603,11 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -6315,6 +6929,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Delimited {
@@ -6325,6 +6940,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -6335,6 +6951,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -6346,16 +6963,20 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: false,
+    min_delimiters: 0,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -6433,6 +7054,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -6441,6 +7063,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -6449,6 +7072,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -6457,12 +7081,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -6480,6 +7106,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -6488,12 +7115,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -6507,6 +7136,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -6515,12 +7145,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -6532,6 +7164,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -6542,6 +7175,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -6564,6 +7198,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -6571,6 +7206,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -6582,6 +7218,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -6590,12 +7227,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -6607,6 +7246,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -6615,12 +7255,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -6630,6 +7272,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -6638,6 +7281,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -6648,6 +7292,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -6656,12 +7301,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -6671,6 +7318,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -6681,6 +7329,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -6689,12 +7338,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -6704,12 +7355,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -6717,6 +7370,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -6732,6 +7386,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -6740,6 +7395,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -6766,6 +7422,7 @@ Grammar::StringParser {
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -6777,14 +7434,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     min_times: 0,
     max_times: None,
-    optional: false,
+    optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -6792,6 +7451,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -6821,6 +7481,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -6831,6 +7492,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -6842,10 +7504,13 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: false,
+    min_delimiters: 0,
 }
 );
 
@@ -6873,6 +7538,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 );
 
@@ -6933,6 +7599,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -6941,12 +7608,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -6996,6 +7665,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7004,6 +7674,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7012,6 +7683,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7020,6 +7692,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7028,6 +7701,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7036,6 +7710,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7044,6 +7719,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7052,12 +7728,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -7124,6 +7802,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7132,12 +7811,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: false,
 }
 );
@@ -7168,6 +7849,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 );
 
@@ -7181,6 +7863,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7189,6 +7872,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7197,12 +7881,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -7398,6 +8084,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7406,6 +8093,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -7416,6 +8104,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7424,6 +8113,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7432,6 +8122,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -7454,6 +8145,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -7463,6 +8155,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7471,6 +8164,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -7481,6 +8175,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7489,6 +8184,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7497,6 +8193,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -7509,6 +8206,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7517,6 +8215,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7525,12 +8224,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -7540,12 +8241,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -7553,6 +8256,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -7562,6 +8266,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7570,6 +8275,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -7580,6 +8286,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7588,12 +8295,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -7605,6 +8314,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7613,12 +8323,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -7626,6 +8338,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -7641,6 +8354,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7649,6 +8363,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7657,6 +8372,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7665,12 +8381,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -7686,6 +8404,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7694,6 +8413,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7702,6 +8422,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7710,6 +8431,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7718,6 +8440,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7726,6 +8449,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7734,6 +8458,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -7744,6 +8469,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7752,12 +8478,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -7767,12 +8495,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -7788,6 +8518,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7796,6 +8527,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7804,6 +8536,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7812,6 +8545,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7820,6 +8554,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7828,6 +8563,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7836,6 +8572,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7844,6 +8581,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -7858,6 +8596,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -7868,13 +8607,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
@@ -7897,6 +8639,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -7904,6 +8647,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -7911,6 +8655,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -7935,6 +8680,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7943,6 +8689,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7951,6 +8698,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7959,6 +8707,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7967,6 +8716,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -7977,6 +8727,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -7991,6 +8742,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -7999,6 +8751,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -8009,6 +8762,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -8021,6 +8775,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -8031,13 +8786,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
@@ -8060,6 +8818,7 @@ Grammar::StringParser {
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8067,6 +8826,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8074,6 +8834,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8085,13 +8846,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
@@ -8114,6 +8878,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8121,6 +8886,7 @@ Grammar::StringParser {
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8130,6 +8896,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8138,12 +8905,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -8159,6 +8928,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8167,6 +8937,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8175,6 +8946,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8183,12 +8955,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -8204,6 +8978,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8212,6 +8987,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8220,6 +8996,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8228,12 +9005,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -8251,6 +9030,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8259,6 +9039,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8267,12 +9048,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8284,6 +9067,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8292,6 +9076,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8300,12 +9085,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8315,6 +9102,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8323,6 +9111,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -8335,6 +9124,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8343,12 +9133,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8358,12 +9150,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8375,6 +9169,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8383,12 +9178,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8398,12 +9195,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -8419,6 +9218,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8427,6 +9227,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8435,6 +9236,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::AnyNumberOf {
@@ -8445,6 +9247,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -8453,6 +9256,7 @@ Grammar::Ref {
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8460,6 +9264,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -8475,6 +9280,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8483,6 +9289,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8491,6 +9298,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8499,6 +9307,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8507,6 +9316,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8515,6 +9325,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -8533,6 +9344,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8541,12 +9353,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8558,13 +9372,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
@@ -8587,6 +9404,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8596,12 +9414,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8613,14 +9433,68 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-Grammar::OptionallyBracketed()
+Grammar::OneOf {
+    elements: vec![
+Grammar::Bracketed {
+    elements: vec![
+Grammar::Ref {
+    name: "SelectableGrammar",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    bracket_pairs: (
+        Box::new(
+Grammar::StringParser {
+    template: "(",
+    token_type: "start_bracket",
+    optional: false,
+}
+        ),
+        Box::new(
+Grammar::StringParser {
+    template: ")",
+    token_type: "end_bracket",
+    optional: false,
+}
+        )
+    ),
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Ref {
+    name: "SelectableGrammar",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8632,6 +9506,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8640,12 +9515,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8653,6 +9530,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8662,12 +9540,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -8683,6 +9563,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8691,6 +9572,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8699,6 +9581,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -8709,6 +9592,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8717,6 +9601,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -8727,6 +9612,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8735,12 +9621,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8748,6 +9636,7 @@ Grammar::Ref {
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8759,6 +9648,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8767,6 +9657,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -8777,6 +9668,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8785,6 +9677,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Delimited {
@@ -8795,6 +9688,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -8805,6 +9699,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -8816,6 +9711,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8824,16 +9720,20 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8845,6 +9745,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -8856,10 +9757,13 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
 Grammar::Ref {
@@ -8868,6 +9772,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8876,6 +9781,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::AnyNumberOf {
@@ -8888,6 +9794,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8896,6 +9803,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8904,6 +9812,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8912,6 +9821,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8920,6 +9830,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8928,6 +9839,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8936,6 +9848,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8944,6 +9857,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8952,12 +9866,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8969,6 +9885,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -8977,12 +9894,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -8996,6 +9915,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9004,12 +9924,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9021,6 +9943,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -9033,6 +9956,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9041,12 +9965,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9058,6 +9984,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9066,12 +9993,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9079,6 +10008,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9086,6 +10016,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9093,6 +10024,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9104,6 +10036,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9112,6 +10045,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -9122,6 +10056,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9130,12 +10065,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9143,6 +10080,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9154,6 +10092,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -9164,6 +10103,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -9186,6 +10126,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9193,15 +10134,17 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
     ],
     min_times: 0,
     max_times: None,
-    optional: false,
+    optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9213,6 +10156,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9221,6 +10165,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9229,6 +10174,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9237,12 +10183,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9250,6 +10198,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -9265,6 +10214,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9273,6 +10223,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9281,12 +10232,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -9302,6 +10255,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9310,6 +10264,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9318,6 +10273,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9326,6 +10282,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9334,6 +10291,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9342,6 +10300,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9350,9 +10309,62 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-Grammar::OptionallyBracketed()
+Grammar::OneOf {
+    elements: vec![
+Grammar::Bracketed {
+    elements: vec![
+Grammar::Ref {
+    name: "SelectableGrammar",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    bracket_pairs: (
+        Box::new(
+Grammar::StringParser {
+    template: "(",
+    token_type: "start_bracket",
+    optional: false,
+}
+        ),
+        Box::new(
+Grammar::StringParser {
+    template: ")",
+    token_type: "end_bracket",
+    optional: false,
+}
+        )
+    ),
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Ref {
+    name: "SelectableGrammar",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
 ,
 Grammar::Ref {
     name: "WithNoSchemaBindingClauseSegment",
@@ -9360,12 +10372,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -9447,6 +10461,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9455,12 +10470,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9472,6 +10489,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -9494,6 +10512,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9501,6 +10520,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -9651,6 +10671,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -9661,6 +10682,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -9672,10 +10694,13 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: false,
+    min_delimiters: 0,
 }
 );
 
@@ -9705,12 +10730,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -9726,6 +10753,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -9736,6 +10764,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9744,12 +10773,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9767,6 +10798,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9775,12 +10807,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9792,6 +10826,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -9802,6 +10837,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9810,12 +10846,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9823,6 +10861,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9830,6 +10869,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9843,6 +10883,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9851,12 +10892,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: false,
 }
 ,
@@ -9866,12 +10909,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: false,
 }
 ,
@@ -9879,6 +10924,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9888,6 +10934,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::AnyNumberOf {
@@ -9898,6 +10945,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9906,6 +10954,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -9914,6 +10963,7 @@ Grammar::Ref {
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9921,6 +10971,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -9930,12 +10981,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -9967,6 +11020,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 );
 
@@ -9985,6 +11039,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -9993,6 +11048,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -10003,13 +11059,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
@@ -10032,6 +11091,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -10039,6 +11099,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -10055,6 +11116,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10063,6 +11125,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10071,6 +11134,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10079,12 +11143,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -10098,6 +11164,7 @@ Grammar::TypedParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -10266,8 +11333,7 @@ Grammar::StringParser {
 
 // name='Dedent'
 pub static DEDENT: Lazy<Grammar> = Lazy::new(||
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 );
 
 // name='DefaultKeywordSegment'
@@ -10289,6 +11355,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10297,12 +11364,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -10399,6 +11468,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10407,6 +11477,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10415,12 +11486,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -10433,6 +11506,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 );
 
@@ -10528,6 +11602,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10536,6 +11611,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10544,12 +11620,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -10735,6 +11813,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10743,12 +11822,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -10764,6 +11845,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10772,6 +11854,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -10782,6 +11865,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10790,6 +11874,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10798,6 +11883,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -10820,6 +11906,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -10829,12 +11916,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -10850,6 +11939,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10858,6 +11948,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10866,6 +11957,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10874,6 +11966,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10882,12 +11975,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -10903,6 +11998,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10911,6 +12007,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10919,6 +12016,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10927,12 +12025,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -10948,6 +12048,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10956,6 +12057,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10964,6 +12066,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10972,6 +12075,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -10980,12 +12084,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -11010,6 +12116,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11018,6 +12125,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11026,6 +12134,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11034,12 +12143,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -11055,6 +12166,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11063,6 +12175,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11071,6 +12184,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11079,12 +12193,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -11100,6 +12216,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11108,6 +12225,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11116,6 +12234,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11124,6 +12243,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11132,12 +12252,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -11153,6 +12275,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11161,6 +12284,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11169,12 +12293,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -11190,6 +12316,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11198,6 +12325,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11206,6 +12334,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11214,6 +12343,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Delimited {
@@ -11224,6 +12354,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -11234,13 +12365,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
 Grammar::Ref {
@@ -11249,12 +12383,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -11270,6 +12406,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11278,6 +12415,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11286,6 +12424,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11294,12 +12433,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -11315,6 +12456,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11323,6 +12465,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11331,6 +12474,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11339,6 +12483,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11347,12 +12492,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -11368,6 +12515,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11376,6 +12524,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11384,6 +12533,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11392,12 +12542,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -11413,6 +12565,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11421,6 +12574,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11429,6 +12583,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11437,6 +12592,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11445,12 +12601,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -11529,10 +12687,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::Ref {
     name: "ExpressionSegment",
@@ -11540,15 +12698,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -11596,6 +12755,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -11611,6 +12771,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11619,12 +12780,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -11737,6 +12900,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 );
 
@@ -11904,6 +13068,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -11914,6 +13079,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11922,6 +13088,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11930,6 +13097,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -11938,12 +13106,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -11951,6 +13121,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -11964,6 +13135,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 );
 
@@ -11977,6 +13149,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::AnyNumberOf {
@@ -11989,6 +13162,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -11999,6 +13173,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12007,12 +13182,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12022,6 +13199,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -12032,6 +13210,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12040,6 +13219,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12048,12 +13228,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12063,6 +13245,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12071,6 +13254,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12079,6 +13263,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -12089,6 +13274,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12097,6 +13283,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12105,6 +13292,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12113,6 +13301,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12121,12 +13310,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12138,6 +13329,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12146,12 +13338,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12159,15 +13353,17 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
     ],
     min_times: 0,
     max_times: None,
-    optional: false,
+    optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12175,6 +13371,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -12189,6 +13386,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12197,6 +13395,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12205,6 +13404,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12213,12 +13413,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -12233,6 +13435,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::AnyNumberOf {
@@ -12249,6 +13452,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12257,6 +13461,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12265,12 +13470,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12280,12 +13487,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12293,15 +13502,17 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
     ],
     min_times: 0,
     max_times: None,
-    optional: false,
+    optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12309,6 +13520,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -12323,6 +13535,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12331,12 +13544,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -12353,6 +13568,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -12363,6 +13579,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -12385,6 +13602,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12392,6 +13610,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12405,6 +13624,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12413,12 +13633,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12430,6 +13652,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -12438,6 +13661,7 @@ Grammar::Ref {
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12445,6 +13669,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12454,6 +13679,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -12465,9 +13691,11 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -12484,6 +13712,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12492,6 +13721,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -12504,6 +13734,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12512,6 +13743,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Delimited {
@@ -12522,6 +13754,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12530,6 +13763,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12538,6 +13772,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12546,6 +13781,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12554,6 +13790,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -12564,19 +13801,23 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12600,6 +13841,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12609,6 +13851,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -12619,6 +13862,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12627,6 +13871,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12635,12 +13880,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12654,6 +13901,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12662,12 +13910,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12681,6 +13931,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -12691,13 +13942,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
@@ -12720,6 +13974,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12727,6 +13982,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12738,6 +13994,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -12748,6 +14005,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12756,6 +14014,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12764,6 +14023,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12772,6 +14032,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12780,12 +14041,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12793,6 +14056,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12802,6 +14066,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12810,6 +14075,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -12821,9 +14087,11 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -12833,12 +14101,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -12853,6 +14123,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12861,6 +14132,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12869,6 +14141,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12877,6 +14150,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12885,6 +14159,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12893,6 +14168,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -12901,12 +14177,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -12936,6 +14214,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -12946,6 +14225,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -12957,10 +14237,13 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: false,
+    min_delimiters: 0,
 }
 );
 
@@ -13011,6 +14294,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -13021,6 +14305,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13029,12 +14314,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13046,6 +14333,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13054,12 +14342,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13071,6 +14361,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13079,12 +14370,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13096,6 +14389,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -13106,6 +14400,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13114,12 +14409,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13127,6 +14424,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13134,6 +14432,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -13178,14 +14477,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     min_times: 0,
     max_times: None,
-    optional: false,
+    optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13197,6 +14498,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -13209,6 +14511,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -13217,6 +14520,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
     ),
@@ -13224,7 +14528,9 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
 Grammar::AnyNumberOf {
@@ -13235,14 +14541,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     min_times: 0,
     max_times: None,
-    optional: false,
+    optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13250,6 +14558,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -13273,6 +14582,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -13285,6 +14595,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13293,12 +14604,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13322,6 +14635,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13329,6 +14643,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -13442,6 +14757,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13450,12 +14766,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -13516,6 +14834,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -13530,6 +14849,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13538,12 +14858,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13557,6 +14879,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13565,6 +14888,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13573,6 +14897,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13581,12 +14906,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13598,6 +14925,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13606,12 +14934,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13619,6 +14949,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13626,6 +14957,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13637,6 +14969,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -13649,6 +14982,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13657,12 +14991,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13676,6 +15012,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13684,6 +15021,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13692,6 +15030,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13700,12 +15039,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13717,6 +15058,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13725,12 +15067,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13738,6 +15082,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13745,6 +15090,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13754,6 +15100,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -13766,6 +15113,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13774,12 +15122,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13793,6 +15143,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13801,6 +15152,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13809,6 +15161,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13817,12 +15170,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13834,6 +15189,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13842,12 +15198,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13855,6 +15213,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13862,6 +15221,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13869,6 +15229,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13876,6 +15237,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -13883,6 +15245,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -13897,6 +15260,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -13905,12 +15269,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -13962,6 +15328,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Delimited {
@@ -13972,6 +15339,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -13982,19 +15350,23 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -14009,6 +15381,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14017,6 +15390,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -14027,6 +15401,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14035,12 +15410,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14052,6 +15429,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14060,12 +15438,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14075,6 +15455,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14083,6 +15464,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14091,6 +15473,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14099,6 +15482,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14107,6 +15491,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14115,6 +15500,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14123,6 +15509,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14131,12 +15518,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -14154,9 +15543,62 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-Grammar::OptionallyBracketed()
+Grammar::OneOf {
+    elements: vec![
+Grammar::Bracketed {
+    elements: vec![
+Grammar::Ref {
+    name: "TableExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    bracket_pairs: (
+        Box::new(
+Grammar::StringParser {
+    template: "(",
+    token_type: "start_bracket",
+    optional: false,
+}
+        ),
+        Box::new(
+Grammar::StringParser {
+    template: ")",
+    token_type: "end_bracket",
+    optional: false,
+}
+        )
+    ),
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Ref {
+    name: "TableExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
 ,
 Grammar::Ref {
     name: "TemporalQuerySegment",
@@ -14164,6 +15606,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14172,6 +15615,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -14182,6 +15626,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14190,6 +15635,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14198,12 +15644,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14213,6 +15661,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14221,12 +15670,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14242,9 +15693,62 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-Grammar::OptionallyBracketed()
+Grammar::OneOf {
+    elements: vec![
+Grammar::Bracketed {
+    elements: vec![
+Grammar::Ref {
+    name: "TableExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    bracket_pairs: (
+        Box::new(
+Grammar::StringParser {
+    template: "(",
+    token_type: "start_bracket",
+    optional: false,
+}
+        ),
+        Box::new(
+Grammar::StringParser {
+    template: ")",
+    token_type: "end_bracket",
+    optional: false,
+}
+        )
+    ),
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Ref {
+    name: "TableExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
 ,
 Grammar::Ref {
     name: "TemporalQuerySegment",
@@ -14252,6 +15756,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14260,6 +15765,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -14270,6 +15776,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14278,6 +15785,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14286,12 +15794,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14301,6 +15811,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14309,12 +15820,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14326,14 +15839,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     min_times: 0,
     max_times: None,
-    optional: false,
+    optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14341,6 +15856,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14364,6 +15880,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14371,6 +15888,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -14378,7 +15896,527 @@ Grammar::StringParser {
 // name='FromExpressionSegment'
 pub static FROM_EXPRESSION_SEGMENT: Lazy<Grammar> = Lazy::new(||
 // FromExpressionSegment
-Grammar::OptionallyBracketed()
+Grammar::OneOf {
+    elements: vec![
+Grammar::Bracketed {
+    elements: vec![
+Grammar::Sequence {
+    elements: vec![
+Grammar::Meta("indent")
+,
+Grammar::OneOf {
+    elements: vec![
+Grammar::Ref {
+    name: "MLTableExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "FromExpressionElementSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Bracketed {
+    elements: vec![
+Grammar::Ref {
+    name: "FromExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    bracket_pairs: (
+        Box::new(
+Grammar::StringParser {
+    template: "(",
+    token_type: "start_bracket",
+    optional: false,
+}
+        ),
+        Box::new(
+Grammar::StringParser {
+    template: ")",
+    token_type: "end_bracket",
+    optional: false,
+}
+        )
+    ),
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+Grammar::Sequence {
+    elements: vec![
+Grammar::Ref {
+    name: "OrderKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "ByKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Sequence {
+    elements: vec![
+Grammar::Ref {
+    name: "GroupKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "ByKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Meta("dedent")
+,
+Grammar::Meta("conditional")
+,
+Grammar::AnyNumberOf {
+    elements: vec![
+Grammar::Sequence {
+    elements: vec![
+Grammar::OneOf {
+    elements: vec![
+Grammar::Ref {
+    name: "JoinClauseSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "JoinLikeClauseGrammar",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+    ],
+    min_times: 0,
+    max_times: None,
+    optional: true,
+    terminators: vec![
+Grammar::Sequence {
+    elements: vec![
+Grammar::Ref {
+    name: "OrderKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "ByKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Sequence {
+    elements: vec![
+Grammar::Ref {
+    name: "GroupKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "ByKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Meta("conditional")
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+    ],
+    bracket_pairs: (
+        Box::new(
+Grammar::StringParser {
+    template: "(",
+    token_type: "start_bracket",
+    optional: false,
+}
+        ),
+        Box::new(
+Grammar::StringParser {
+    template: ")",
+    token_type: "end_bracket",
+    optional: false,
+}
+        )
+    ),
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Sequence {
+    elements: vec![
+Grammar::Meta("indent")
+,
+Grammar::OneOf {
+    elements: vec![
+Grammar::Ref {
+    name: "MLTableExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "FromExpressionElementSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Bracketed {
+    elements: vec![
+Grammar::Ref {
+    name: "FromExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    bracket_pairs: (
+        Box::new(
+Grammar::StringParser {
+    template: "(",
+    token_type: "start_bracket",
+    optional: false,
+}
+        ),
+        Box::new(
+Grammar::StringParser {
+    template: ")",
+    token_type: "end_bracket",
+    optional: false,
+}
+        )
+    ),
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+Grammar::Sequence {
+    elements: vec![
+Grammar::Ref {
+    name: "OrderKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "ByKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Sequence {
+    elements: vec![
+Grammar::Ref {
+    name: "GroupKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "ByKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Meta("dedent")
+,
+Grammar::Meta("conditional")
+,
+Grammar::AnyNumberOf {
+    elements: vec![
+Grammar::Sequence {
+    elements: vec![
+Grammar::OneOf {
+    elements: vec![
+Grammar::Ref {
+    name: "JoinClauseSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "JoinLikeClauseGrammar",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+    ],
+    min_times: 0,
+    max_times: None,
+    optional: true,
+    terminators: vec![
+Grammar::Sequence {
+    elements: vec![
+Grammar::Ref {
+    name: "OrderKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "ByKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Sequence {
+    elements: vec![
+Grammar::Ref {
+    name: "GroupKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "ByKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Meta("conditional")
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
 );
 
 // name='FromKeywordSegment'
@@ -14416,6 +16454,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 );
 
@@ -14429,6 +16468,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -14439,6 +16479,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14447,6 +16488,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14455,12 +16497,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14472,6 +16516,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14480,6 +16525,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14488,6 +16534,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14496,12 +16543,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14515,6 +16564,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14523,12 +16573,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14538,6 +16590,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14546,12 +16599,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14563,6 +16618,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -14573,6 +16629,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Delimited {
@@ -14583,6 +16640,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -14593,12 +16651,23 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
+    allow_gaps: true,
+    min_delimiters: 0,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14606,13 +16675,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
-    allow_gaps: true,
-}
-,
-    ],
-    optional: false,
-    terminators: vec![
-    ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14622,6 +16685,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -14632,6 +16696,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14640,12 +16705,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14659,6 +16726,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14667,6 +16735,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14675,12 +16744,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14690,6 +16761,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -14700,6 +16772,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14708,6 +16781,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14716,12 +16790,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14729,6 +16805,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14738,6 +16815,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14746,6 +16824,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14754,14 +16833,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     min_times: 0,
     max_times: None,
-    optional: false,
+    optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -14779,6 +16860,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -14801,6 +16883,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14808,6 +16891,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -14823,6 +16907,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14831,6 +16916,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -14841,6 +16927,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14849,12 +16936,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14862,6 +16951,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -14899,6 +16989,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14907,19 +16998,21 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
     ],
     min_times: 0,
     max_times: None,
-    optional: false,
+    optional: true,
     terminators: vec![
 Grammar::Ref {
     name: "BracketedSegment",
@@ -14927,9 +17020,11 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14941,6 +17036,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -14949,6 +17045,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -14960,9 +17057,11 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -14970,6 +17069,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: false,
 }
 );
@@ -14986,6 +17086,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -14998,6 +17099,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15006,12 +17108,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -15021,12 +17125,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -15034,6 +17140,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -15047,6 +17154,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15055,12 +17163,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -15070,12 +17180,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -15083,6 +17195,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -15100,6 +17213,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -15110,13 +17224,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
@@ -15139,6 +17256,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -15156,6 +17274,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15164,12 +17283,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -15179,6 +17300,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -15191,6 +17313,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15199,12 +17322,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -15214,12 +17339,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -15227,6 +17354,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -15368,6 +17496,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15376,12 +17505,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: false,
 }
 );
@@ -15395,6 +17526,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 );
 
@@ -15418,6 +17550,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15426,10 +17559,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::OneOf {
     elements: vec![
@@ -15439,6 +17572,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15447,6 +17581,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15455,6 +17590,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -15469,6 +17605,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15477,6 +17614,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15485,12 +17623,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -15502,6 +17642,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -15513,9 +17654,20 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
+    allow_gaps: true,
+    min_delimiters: 0,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -15523,23 +17675,17 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
+,
+Grammar::Meta("dedent")
 ,
     ],
     optional: false,
     terminators: vec![
     ],
-    allow_gaps: true,
-}
-,
-// here for meta
-Grammar::Meta
-,
-    ],
-    optional: false,
-    terminators: vec![
-    ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -15556,6 +17702,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15564,12 +17711,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -15579,6 +17728,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15587,6 +17737,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15595,6 +17746,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15603,6 +17755,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15611,12 +17764,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -15645,6 +17800,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15653,6 +17809,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15661,6 +17818,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -15685,6 +17843,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -15692,6 +17851,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -15703,6 +17863,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -15714,16 +17875,20 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -15748,6 +17913,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15756,6 +17922,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -15768,6 +17935,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15776,6 +17944,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -15786,13 +17955,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
@@ -15815,6 +17987,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -15822,6 +17995,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -15846,20 +18020,72 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
-Grammar::OptionallyBracketed()
+Grammar::OneOf {
+    elements: vec![
+Grammar::Bracketed {
+    elements: vec![
+Grammar::Ref {
+    name: "ExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
 ,
-// here for meta
-Grammar::Meta
+    ],
+    bracket_pairs: (
+        Box::new(
+Grammar::StringParser {
+    template: "(",
+    token_type: "start_bracket",
+    optional: false,
+}
+        ),
+        Box::new(
+Grammar::StringParser {
+    template: ")",
+    token_type: "end_bracket",
+    optional: false,
+}
+        )
+    ),
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Ref {
+    name: "ExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Meta("dedent")
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -15876,6 +18102,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15884,12 +18111,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -15899,6 +18128,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15907,6 +18137,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15915,6 +18146,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -15923,12 +18155,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -16109,6 +18343,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -16117,12 +18352,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -16146,6 +18383,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -16154,6 +18392,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -16162,12 +18401,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -16193,6 +18434,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -16201,12 +18443,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -16216,12 +18460,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -16264,8 +18510,7 @@ Grammar::StringParser {
 
 // name='ImplicitIndent'
 pub static IMPLICIT_INDENT: Lazy<Grammar> = Lazy::new(||
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 );
 
 // name='ImplicitKeywordSegment'
@@ -16305,6 +18550,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -16313,6 +18559,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -16329,6 +18576,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -16339,13 +18587,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
 Grammar::Ref {
@@ -16354,12 +18605,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -16383,6 +18636,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -16392,12 +18646,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -16405,6 +18661,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -16438,8 +18695,7 @@ Grammar::StringParser {
 
 // name='Indent'
 pub static INDENT: Lazy<Grammar> = Lazy::new(||
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 );
 
 // name='IndexColumnDefinitionSegment'
@@ -16453,6 +18709,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -16463,6 +18720,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -16471,12 +18729,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -16484,6 +18744,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -16508,6 +18769,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -16518,6 +18780,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -16529,10 +18792,13 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: false,
+    min_delimiters: 0,
 }
 );
 
@@ -16664,6 +18930,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -16672,6 +18939,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -16680,6 +18948,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -16688,6 +18957,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -16698,6 +18968,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -16708,6 +18979,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -16716,12 +18988,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -16731,12 +19005,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -16744,6 +19020,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -16894,6 +19171,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -16906,6 +19184,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -16916,6 +19195,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -16924,12 +19204,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -16937,6 +19219,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -16946,6 +19229,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -16956,6 +19240,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -16966,6 +19251,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -16974,12 +19260,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -16987,6 +19275,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -16994,6 +19283,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -17001,6 +19291,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -17042,6 +19333,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -17050,6 +19342,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -17058,6 +19351,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -17066,6 +19360,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -17074,12 +19369,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -17094,6 +19391,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -17102,6 +19400,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -17110,6 +19409,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -17118,12 +19418,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -17191,6 +19493,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -17199,10 +19502,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::Ref {
     name: "FromExpressionElementSegment",
@@ -17210,6 +19513,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::AnyNumberOf {
@@ -17220,24 +19524,24 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     min_times: 0,
     max_times: None,
-    optional: false,
+    optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
 Grammar::Sequence {
     elements: vec![
-// got to an unimplemented base grammar called <class 'sqlfluff.core.parser.grammar.conditional.Conditional'>
-Grammar::Missing
+Grammar::Meta("conditional")
 ,
 Grammar::Ref {
     name: "MatchConditionSegment",
@@ -17245,6 +19549,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -17255,6 +19560,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -17263,22 +19569,24 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
-// got to an unimplemented base grammar called <class 'sqlfluff.core.parser.grammar.conditional.Conditional'>
-Grammar::Missing
+Grammar::Meta("conditional")
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -17286,6 +19594,7 @@ Grammar::Missing
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -17297,6 +19606,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -17305,10 +19615,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::Ref {
     name: "FromExpressionElementSegment",
@@ -17316,6 +19626,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -17324,15 +19635,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -17344,10 +19656,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::Ref {
     name: "FromExpressionElementSegment",
@@ -17355,15 +19667,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -17371,6 +19684,7 @@ Grammar::Meta
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -17394,12 +19708,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -17420,136 +19736,22 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// got to an unimplemented base grammar called <class 'sqlfluff.core.parser.grammar.conditional.Conditional'>
-Grammar::Missing
+Grammar::Meta("conditional")
 ,
-Grammar::OptionallyBracketed()
-,
-// got to an unimplemented base grammar called <class 'sqlfluff.core.parser.grammar.conditional.Conditional'>
-Grammar::Missing
-,
-    ],
-    optional: false,
-    terminators: vec![
-    ],
-    allow_gaps: true,
-}
-);
-
-// name='JoinTypeKeywordsGrammar'
-pub static JOIN_TYPE_KEYWORDS_GRAMMAR: Lazy<Grammar> = Lazy::new(||
 Grammar::OneOf {
     elements: vec![
-Grammar::Ref {
-    name: "InnerKeywordSegment",
-    optional: false,
-    allow_gaps: true,
-    terminators: vec![
-    ],
-}
-,
-Grammar::Sequence {
-    elements: vec![
-Grammar::OneOf {
-    elements: vec![
-Grammar::Ref {
-    name: "FullKeywordSegment",
-    optional: false,
-    allow_gaps: true,
-    terminators: vec![
-    ],
-}
-,
-Grammar::Ref {
-    name: "LeftKeywordSegment",
-    optional: false,
-    allow_gaps: true,
-    terminators: vec![
-    ],
-}
-,
-Grammar::Ref {
-    name: "RightKeywordSegment",
-    optional: false,
-    allow_gaps: true,
-    terminators: vec![
-    ],
-}
-,
-    ],
-    optional: false,
-    terminators: vec![
-    ],
-    allow_gaps: true,
-}
-,
-Grammar::Ref {
-    name: "OuterKeywordSegment",
-    optional: true,
-    allow_gaps: true,
-    terminators: vec![
-    ],
-}
-,
-    ],
-    optional: false,
-    terminators: vec![
-    ],
-    allow_gaps: true,
-}
-,
-    ],
-    optional: false,
-    terminators: vec![
-    ],
-    allow_gaps: true,
-}
-);
-
-// name='JoinUsingConditionGrammar'
-pub static JOIN_USING_CONDITION_GRAMMAR: Lazy<Grammar> = Lazy::new(||
-Grammar::Sequence {
-    elements: vec![
-Grammar::Ref {
-    name: "UsingKeywordSegment",
-    optional: false,
-    allow_gaps: true,
-    terminators: vec![
-    ],
-}
-,
-// here for meta
-Grammar::Meta
-,
 Grammar::Bracketed {
     elements: vec![
-Grammar::Delimited {
-    elements: vec![
 Grammar::Ref {
-    name: "SingleIdentifierGrammar",
+    name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
     terminators: vec![
     ],
-}
-,
-    ],
-    delimiter: Box::new(
-Grammar::Ref {
-    name: "CommaSegment",
-    optional: false,
-    allow_gaps: true,
-    terminators: vec![
-    ],
-}
-    ),
-    allow_trailing: false,
-    optional: false,
-    terminators: vec![
-    ],
-    allow_gaps: true,
+    reset_terminators: false,
 }
 ,
     ],
@@ -17572,16 +19774,195 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Ref {
+    name: "ExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Meta("conditional")
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+);
+
+// name='JoinTypeKeywordsGrammar'
+pub static JOIN_TYPE_KEYWORDS_GRAMMAR: Lazy<Grammar> = Lazy::new(||
+Grammar::OneOf {
+    elements: vec![
+Grammar::Ref {
+    name: "InnerKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Sequence {
+    elements: vec![
+Grammar::OneOf {
+    elements: vec![
+Grammar::Ref {
+    name: "FullKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "LeftKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "RightKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Ref {
+    name: "OuterKeywordSegment",
+    optional: true,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+);
+
+// name='JoinUsingConditionGrammar'
+pub static JOIN_USING_CONDITION_GRAMMAR: Lazy<Grammar> = Lazy::new(||
+Grammar::Sequence {
+    elements: vec![
+Grammar::Ref {
+    name: "UsingKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Meta("indent")
+,
+Grammar::Bracketed {
+    elements: vec![
+Grammar::Delimited {
+    elements: vec![
+Grammar::Ref {
+    name: "SingleIdentifierGrammar",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    delimiter: Box::new(
+Grammar::Ref {
+    name: "CommaSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+    ),
+    allow_trailing: false,
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    min_delimiters: 0,
+}
+,
+    ],
+    bracket_pairs: (
+        Box::new(
+Grammar::StringParser {
+    template: "(",
+    token_type: "start_bracket",
+    optional: false,
+}
+        ),
+        Box::new(
+Grammar::StringParser {
+    template: ")",
+    token_type: "end_bracket",
+    optional: false,
+}
+        )
+    ),
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Meta("dedent")
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -17776,6 +20157,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -17784,12 +20166,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: false,
 }
 );
@@ -17803,6 +20187,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 );
 
@@ -17827,6 +20212,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -17835,12 +20221,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -17850,6 +20238,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -17860,6 +20249,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -17868,12 +20258,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -17881,6 +20273,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -17895,6 +20288,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -17903,6 +20297,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -17911,12 +20306,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -17950,12 +20347,120 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
-Grammar::OptionallyBracketed()
+Grammar::OneOf {
+    elements: vec![
+Grammar::Bracketed {
+    elements: vec![
+Grammar::OneOf {
+    elements: vec![
+Grammar::Ref {
+    name: "NumericLiteralSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "ExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "AllKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+    ],
+    bracket_pairs: (
+        Box::new(
+Grammar::StringParser {
+    template: "(",
+    token_type: "start_bracket",
+    optional: false,
+}
+        ),
+        Box::new(
+Grammar::StringParser {
+    template: ")",
+    token_type: "end_bracket",
+    optional: false,
+}
+        )
+    ),
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::OneOf {
+    elements: vec![
+Grammar::Ref {
+    name: "NumericLiteralSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "ExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "AllKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
 ,
 Grammar::OneOf {
     elements: vec![
@@ -17967,6 +20472,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -17977,6 +20483,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -17985,12 +20492,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -17998,6 +20507,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -18009,6 +20519,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18017,12 +20528,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -18030,16 +20543,17 @@ Grammar::Ref {
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -18095,6 +20609,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18103,6 +20618,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18111,6 +20627,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18119,6 +20636,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18127,6 +20645,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18135,6 +20654,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18143,6 +20663,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18151,6 +20672,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18159,12 +20681,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -18364,6 +20888,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18372,6 +20897,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18380,6 +20906,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -18392,6 +20919,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18400,12 +20928,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -18417,6 +20947,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -18427,6 +20958,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -18449,6 +20981,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -18456,6 +20989,7 @@ Grammar::StringParser {
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -18479,6 +21013,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -18486,6 +21021,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -18637,6 +21173,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 );
 
@@ -18651,10 +21188,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::Ref {
     name: "BracketedColumnReferenceListGrammar",
@@ -18662,10 +21199,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
 Grammar::Ref {
     name: "ValuesClauseSegment",
@@ -18673,12 +21210,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -18693,6 +21232,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18701,12 +21241,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -18731,6 +21273,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18739,6 +21282,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -18747,6 +21291,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -18762,6 +21307,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18770,6 +21316,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -18780,6 +21327,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18788,12 +21336,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -18803,10 +21353,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::OneOf {
     elements: vec![
@@ -18816,6 +21366,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18824,22 +21375,24 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -18855,6 +21408,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18863,6 +21417,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18871,6 +21426,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -18881,6 +21437,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18889,12 +21446,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -18904,10 +21463,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::Ref {
     name: "MergeInsertClauseSegment",
@@ -18915,15 +21474,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -18939,10 +21499,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::OneOf {
     elements: vec![
@@ -18952,6 +21512,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18960,17 +21521,18 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
 Grammar::Ref {
     name: "UsingKeywordSegment",
@@ -18978,10 +21540,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::OneOf {
     elements: vec![
@@ -18991,6 +21553,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -18999,6 +21562,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -19011,6 +21575,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -19033,6 +21598,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -19042,12 +21608,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -19055,14 +21623,13 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
-// got to an unimplemented base grammar called <class 'sqlfluff.core.parser.grammar.conditional.Conditional'>
-Grammar::Missing
+Grammar::Meta("conditional")
 ,
 Grammar::Ref {
     name: "JoinOnConditionSegment",
@@ -19070,10 +21637,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// got to an unimplemented base grammar called <class 'sqlfluff.core.parser.grammar.conditional.Conditional'>
-Grammar::Missing
+Grammar::Meta("conditional")
 ,
 Grammar::Ref {
     name: "MergeMatchSegment",
@@ -19081,12 +21648,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -19102,10 +21671,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::Ref {
     name: "SetClauseListSegment",
@@ -19113,15 +21682,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -19420,7 +21990,7 @@ Grammar::RegexParser {
     template: r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#,
     token_type: "naked_identifier",
     optional: false,
-    anti_template: Some(r#"^(CASE|CROSS|INNER|PARTITION|INTERVAL|NULL|ORDER|USING|FULL|NOT|LEFT|UNION|ROWS|SET|RIGHT|JOIN|NATURAL|OUTER|ON|IGNORE|SELECT|RESPECT)$"#),
+    anti_template: Some(r#"^(OUTER|ROWS|ON|UNION|INTERVAL|SET|RESPECT|NULL|JOIN|FULL|NATURAL|LEFT|RIGHT|CROSS|IGNORE|NOT|PARTITION|ORDER|USING|CASE|SELECT|INNER)$"#),
 }
 );
 
@@ -19444,6 +22014,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -19452,6 +22023,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -19462,6 +22034,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -19472,6 +22045,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -19494,6 +22068,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -19501,6 +22076,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -19508,6 +22084,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -19523,10 +22100,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::Delimited {
     elements: vec![
@@ -19536,6 +22113,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -19546,22 +22124,25 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -19612,6 +22193,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -19620,12 +22202,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -19824,6 +22408,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -19832,6 +22417,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -19842,6 +22428,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -19864,6 +22451,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -19875,6 +22463,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -19897,6 +22486,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -19908,6 +22498,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -19930,6 +22521,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -19939,12 +22531,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -19964,6 +22558,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -19972,6 +22567,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -19980,6 +22576,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -19988,12 +22585,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -20008,9 +22607,62 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-Grammar::OptionallyBracketed()
+Grammar::OneOf {
+    elements: vec![
+Grammar::Bracketed {
+    elements: vec![
+Grammar::Ref {
+    name: "SelectStatementSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    bracket_pairs: (
+        Box::new(
+Grammar::StringParser {
+    template: "(",
+    token_type: "start_bracket",
+    optional: false,
+}
+        ),
+        Box::new(
+Grammar::StringParser {
+    template: ")",
+    token_type: "end_bracket",
+    optional: false,
+}
+        )
+    ),
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Ref {
+    name: "SelectStatementSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
 ,
 Grammar::Ref {
     name: "NonSetSelectableGrammar",
@@ -20018,12 +22670,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -20105,6 +22759,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20113,12 +22768,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: false,
 }
 ,
@@ -20130,6 +22787,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20138,12 +22796,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: false,
 }
 ,
@@ -20151,6 +22811,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -20306,6 +22967,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20314,6 +22976,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20322,12 +22985,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -20345,6 +23010,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -20355,13 +23021,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
@@ -20384,6 +23053,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -20398,6 +23068,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -20408,6 +23079,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20416,12 +23088,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -20429,6 +23103,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -20444,6 +23119,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -20454,6 +23130,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -20465,10 +23142,13 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: false,
+    min_delimiters: 0,
 }
 );
 
@@ -20482,6 +23162,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20490,6 +23171,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20498,6 +23180,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20506,6 +23189,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20514,6 +23198,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20522,6 +23207,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20530,6 +23216,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20538,6 +23225,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20546,6 +23234,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20554,6 +23243,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20562,6 +23252,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Token{
@@ -20573,6 +23264,7 @@ Grammar::Token{
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -20642,6 +23334,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -20652,6 +23345,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20660,12 +23354,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -20677,6 +23373,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20685,12 +23382,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -20698,6 +23397,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -20901,6 +23601,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20909,12 +23610,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -20930,6 +23633,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20938,10 +23642,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::Delimited {
     elements: vec![
@@ -20955,6 +23659,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20963,6 +23668,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20971,12 +23677,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -20988,6 +23696,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -20996,12 +23705,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -21013,6 +23724,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -21023,6 +23735,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -21031,12 +23744,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -21044,6 +23759,7 @@ Grammar::Ref {
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -21053,12 +23769,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -21070,6 +23788,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -21081,6 +23800,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -21089,19 +23809,22 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -21116,6 +23839,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -21124,6 +23848,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -21132,6 +23857,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -21140,6 +23866,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -21148,6 +23875,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -21156,6 +23884,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -21164,12 +23893,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -21193,6 +23924,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -21201,12 +23933,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -21279,8 +24013,7 @@ pub static OVER_CLAUSE_SEGMENT: Lazy<Grammar> = Lazy::new(||
 // OverClauseSegment
 Grammar::Sequence {
     elements: vec![
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::Ref {
     name: "IgnoreRespectNullsGrammar",
@@ -21288,6 +24021,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -21296,6 +24030,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -21306,6 +24041,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -21316,6 +24052,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -21338,6 +24075,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -21345,16 +24083,17 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -21379,6 +24118,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -21393,6 +24133,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -21401,6 +24142,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -21409,6 +24151,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -21431,6 +24174,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -21438,6 +24182,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -21447,12 +24192,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -21460,6 +24207,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -21647,6 +24395,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -21655,20 +24404,116 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
-Grammar::OptionallyBracketed()
+Grammar::OneOf {
+    elements: vec![
+Grammar::Bracketed {
+    elements: vec![
+Grammar::Delimited {
+    elements: vec![
+Grammar::Ref {
+    name: "ExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
 ,
-// here for meta
-Grammar::Meta
+    ],
+    delimiter: Box::new(
+Grammar::Ref {
+    name: "CommaSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+    ),
+    allow_trailing: false,
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    min_delimiters: 0,
+}
+,
+    ],
+    bracket_pairs: (
+        Box::new(
+Grammar::StringParser {
+    template: "(",
+    token_type: "start_bracket",
+    optional: false,
+}
+        ),
+        Box::new(
+Grammar::StringParser {
+    template: ")",
+    token_type: "end_bracket",
+    optional: false,
+}
+        )
+    ),
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Delimited {
+    elements: vec![
+Grammar::Ref {
+    name: "ExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    delimiter: Box::new(
+Grammar::Ref {
+    name: "CommaSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+    ),
+    allow_trailing: false,
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    min_delimiters: 0,
+}
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Meta("dedent")
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -21722,6 +24567,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Delimited {
@@ -21740,19 +24586,23 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: false,
+    min_delimiters: 0,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -21762,12 +24612,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -21913,6 +24765,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -21921,12 +24774,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -22032,6 +24887,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -22040,12 +24896,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -22169,6 +25027,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -22177,12 +25036,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -22403,6 +25264,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -22411,6 +25273,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -22419,6 +25282,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -22427,6 +25291,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 // got to an unimplemented base grammar called <class 'sqlfluff.core.parser.grammar.anyof.AnySetOf'>
@@ -22436,6 +25301,7 @@ Grammar::Missing
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -22450,6 +25316,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -22460,6 +25327,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -22468,6 +25336,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -22476,12 +25345,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -22489,6 +25360,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -22530,6 +25402,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -22538,6 +25411,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -22548,6 +25422,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -22556,12 +25431,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -22573,6 +25450,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -22581,12 +25459,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -22598,6 +25478,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -22606,12 +25487,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -22619,6 +25502,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -22974,6 +25858,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 );
 
@@ -23151,6 +26036,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -23161,6 +26047,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23169,12 +26056,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -23186,6 +26075,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -23208,6 +26098,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -23221,12 +26112,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -23238,6 +26131,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -23260,6 +26154,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -23267,6 +26162,7 @@ Grammar::StringParser {
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -23274,6 +26170,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -23325,6 +26222,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -23335,6 +26233,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -23346,10 +26245,13 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: false,
+    min_delimiters: 0,
 }
 );
 
@@ -23472,6 +26374,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -23482,6 +26385,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23490,12 +26394,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -23503,6 +26409,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -23518,6 +26425,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23526,12 +26434,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -23547,6 +26457,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23555,10 +26466,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::Delimited {
     elements: vec![
@@ -23568,6 +26479,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -23578,17 +26490,19 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: true,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
     ],
     optional: false,
@@ -23599,9 +26513,11 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -23616,6 +26532,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23624,6 +26541,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -23634,6 +26552,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23642,12 +26561,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -23657,6 +26578,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23665,6 +26587,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23673,6 +26596,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23681,12 +26605,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -23711,6 +26637,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23719,6 +26646,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23727,6 +26655,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23735,6 +26664,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23743,6 +26673,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23751,6 +26682,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23759,6 +26691,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23767,6 +26700,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23775,6 +26709,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23783,6 +26718,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23791,6 +26727,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23799,6 +26736,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -23810,6 +26748,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23818,6 +26757,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23826,9 +26766,11 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -23837,26 +26779,17 @@ Grammar::Ref {
 pub static SELECTABLE_GRAMMAR: Lazy<Grammar> = Lazy::new(||
 Grammar::OneOf {
     elements: vec![
-Grammar::OptionallyBracketed()
-,
-Grammar::OptionallyBracketed()
-,
-Grammar::Ref {
-    name: "NonWithSelectableGrammar",
-    optional: false,
-    allow_gaps: true,
-    terminators: vec![
-    ],
-}
-,
+Grammar::OneOf {
+    elements: vec![
 Grammar::Bracketed {
     elements: vec![
 Grammar::Ref {
-    name: "SelectableGrammar",
+    name: "WithCompoundStatementSegment",
     optional: false,
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -23879,6 +26812,122 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Ref {
+    name: "WithCompoundStatementSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::OneOf {
+    elements: vec![
+Grammar::Bracketed {
+    elements: vec![
+Grammar::Ref {
+    name: "WithCompoundNonSelectStatementSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    bracket_pairs: (
+        Box::new(
+Grammar::StringParser {
+    template: "(",
+    token_type: "start_bracket",
+    optional: false,
+}
+        ),
+        Box::new(
+Grammar::StringParser {
+    template: ")",
+    token_type: "end_bracket",
+    optional: false,
+}
+        )
+    ),
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Ref {
+    name: "WithCompoundNonSelectStatementSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Ref {
+    name: "NonWithSelectableGrammar",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Bracketed {
+    elements: vec![
+Grammar::Ref {
+    name: "SelectableGrammar",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    bracket_pairs: (
+        Box::new(
+Grammar::StringParser {
+    template: "(",
+    token_type: "start_bracket",
+    optional: false,
+}
+        ),
+        Box::new(
+Grammar::StringParser {
+    template: ")",
+    token_type: "end_bracket",
+    optional: false,
+}
+        )
+    ),
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -23886,6 +26935,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -23947,6 +26997,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23955,12 +27006,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -23972,6 +27025,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -23980,12 +27034,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -23993,6 +27049,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -24009,6 +27066,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24017,12 +27075,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -24034,6 +27094,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24042,12 +27103,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -24055,6 +27118,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -24070,6 +27134,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -24080,6 +27145,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -24091,10 +27157,13 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: false,
+    min_delimiters: 0,
 }
 );
 
@@ -24163,10 +27232,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::Delimited {
     elements: vec![
@@ -24176,6 +27245,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -24186,22 +27256,25 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -24217,6 +27290,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24225,6 +27299,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -24235,6 +27310,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24243,6 +27319,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24251,6 +27328,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24259,6 +27337,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24267,6 +27346,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24275,6 +27355,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24283,12 +27364,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -24296,6 +27379,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -24311,6 +27395,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::AnyNumberOf {
@@ -24323,6 +27408,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24331,12 +27417,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -24346,6 +27434,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -24355,6 +27444,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24363,6 +27453,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24371,12 +27462,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -24401,6 +27494,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -24413,6 +27507,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24421,12 +27516,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -24436,12 +27533,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -24451,12 +27550,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -24472,6 +27573,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24480,6 +27582,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24488,6 +27591,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24496,12 +27600,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -24564,6 +27670,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24572,12 +27679,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -24591,6 +27700,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24599,6 +27709,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24607,12 +27718,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -24622,6 +27735,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -24629,6 +27743,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -24670,6 +27785,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24678,12 +27794,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -24716,6 +27834,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24724,6 +27843,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -24735,9 +27855,11 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -24753,6 +27875,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -24763,13 +27886,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 );
 
@@ -24802,6 +27928,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -24810,12 +27937,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -25209,6 +28338,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25217,6 +28347,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25225,6 +28356,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25233,6 +28365,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25241,6 +28374,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25249,6 +28383,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25257,6 +28392,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25265,6 +28401,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25273,6 +28410,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25281,6 +28419,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25289,6 +28428,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25297,6 +28437,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25305,6 +28446,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25313,6 +28455,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25321,6 +28464,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25329,6 +28473,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25337,6 +28482,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25345,6 +28491,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25353,6 +28500,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25361,6 +28509,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25369,6 +28518,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25377,6 +28527,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25385,6 +28536,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25393,6 +28545,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25401,6 +28554,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25409,6 +28563,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25417,6 +28572,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25425,6 +28581,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25433,6 +28590,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25441,6 +28599,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25449,6 +28608,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25457,6 +28617,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25465,6 +28626,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25473,6 +28635,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25481,6 +28644,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25489,6 +28653,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25497,6 +28662,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25505,6 +28671,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25513,6 +28680,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -25524,9 +28692,11 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -25640,12 +28810,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -25674,6 +28846,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25682,12 +28855,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -25699,13 +28874,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
@@ -25728,6 +28906,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -25894,6 +29073,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25902,12 +29082,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -25921,6 +29103,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25929,12 +29112,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -25946,6 +29131,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25954,12 +29140,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -25971,6 +29159,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25979,6 +29168,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -25987,12 +29177,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -26000,6 +29192,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -26007,6 +29200,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -26028,6 +29222,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -26036,6 +29231,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -26044,6 +29240,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -26052,6 +29249,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -26062,6 +29260,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -26084,6 +29283,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -26095,6 +29295,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -26117,6 +29318,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -26124,6 +29326,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -26148,6 +29351,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -26158,6 +29362,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -26169,10 +29374,13 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: false,
+    min_delimiters: 0,
 }
 );
 
@@ -26223,6 +29431,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -26233,6 +29442,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -26244,10 +29454,13 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: false,
+    min_delimiters: 0,
 }
 );
 
@@ -26262,6 +29475,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -26272,6 +29486,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -26283,10 +29498,13 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: false,
+    min_delimiters: 0,
 }
 );
 
@@ -26302,12 +29520,13 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     min_times: 0,
     max_times: None,
-    optional: false,
+    optional: true,
     terminators: vec![
 Grammar::Ref {
     name: "BinaryOperatorGrammar",
@@ -26315,9 +29534,11 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -26327,12 +29548,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -26349,14 +29572,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     min_times: 0,
     max_times: None,
-    optional: false,
+    optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -26366,12 +29591,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -26428,6 +29655,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -26436,12 +29664,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -26465,6 +29695,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -26473,12 +29704,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -26576,6 +29809,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -26584,12 +29818,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -26599,6 +29835,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -26611,6 +29848,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -26619,12 +29857,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -26634,6 +29874,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -26642,12 +29883,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -26655,6 +29898,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -26672,6 +29916,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -26680,6 +29925,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -26688,6 +29934,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -26696,21 +29943,24 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
     ],
     min_times: 0,
     max_times: None,
-    optional: false,
+    optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -26845,6 +30095,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -26853,6 +30104,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -26861,6 +30113,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -26869,6 +30122,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -26877,12 +30131,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -26894,6 +30150,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -26902,12 +30159,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -26919,6 +30178,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -26927,12 +30187,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -26944,6 +30206,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -26952,6 +30215,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -26960,12 +30224,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -26973,6 +30239,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -27087,6 +30354,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -27097,6 +30365,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
@@ -27108,10 +30377,13 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: false,
+    min_delimiters: 0,
 }
 );
 
@@ -27161,6 +30433,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27169,6 +30442,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27177,12 +30451,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -27225,6 +30501,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27233,6 +30510,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27241,12 +30519,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -27282,6 +30562,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -27292,13 +30573,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
@@ -27321,6 +30605,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -27345,6 +30630,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27353,12 +30639,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -27374,6 +30662,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27382,12 +30671,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -27443,6 +30734,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27451,6 +30743,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27459,12 +30752,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -27506,6 +30801,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::OneOf {
@@ -27516,6 +30812,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27524,12 +30821,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -27537,6 +30836,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -27560,12 +30860,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -27640,6 +30942,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27648,6 +30951,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27656,6 +30960,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27664,6 +30969,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27672,6 +30978,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27680,6 +30987,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27688,6 +30996,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -27699,6 +31008,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27707,6 +31017,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27715,6 +31026,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27723,6 +31035,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27731,9 +31044,11 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -27749,6 +31064,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::AnyNumberOf {
@@ -27761,6 +31077,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27769,12 +31086,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -27784,6 +31103,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -27791,6 +31111,7 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -27833,10 +31154,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::Ref {
     name: "TableReferenceSegment",
@@ -27844,6 +31165,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27852,10 +31174,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
 Grammar::Ref {
     name: "SetClauseListSegment",
@@ -27863,6 +31185,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27871,6 +31194,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27879,12 +31203,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -27936,6 +31262,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -27944,12 +31271,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -28111,6 +31440,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -28119,12 +31449,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -28138,6 +31470,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Bracketed {
@@ -28150,6 +31483,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -28158,6 +31492,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -28166,6 +31501,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -28176,13 +31512,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
@@ -28205,6 +31544,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -28212,6 +31552,7 @@ Grammar::StringParser {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -28223,19 +31564,23 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: false,
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -28431,12 +31776,12 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
     elements: vec![
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
 Grammar::Ref {
     name: "ExpressionSegment",
@@ -28444,20 +31789,20 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("dedent")
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
-// got to an unimplemented base grammar called <class 'sqlfluff.core.parser.grammar.conditional.Conditional'>
-Grammar::Missing
+Grammar::Meta("conditional")
 ,
 Grammar::Ref {
     name: "ThenKeywordSegment",
@@ -28465,10 +31810,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// got to an unimplemented base grammar called <class 'sqlfluff.core.parser.grammar.conditional.Conditional'>
-Grammar::Missing
+Grammar::Meta("conditional")
 ,
 Grammar::Ref {
     name: "ExpressionSegment",
@@ -28476,18 +31821,18 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// got to an unimplemented base grammar called <class 'sqlfluff.core.parser.grammar.conditional.Conditional'>
-Grammar::Missing
+Grammar::Meta("conditional")
 ,
-// got to an unimplemented base grammar called <class 'sqlfluff.core.parser.grammar.conditional.Conditional'>
-Grammar::Missing
+Grammar::Meta("conditional")
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -28521,20 +31866,72 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// here for meta
-Grammar::Meta
+Grammar::Meta("indent")
 ,
-Grammar::OptionallyBracketed()
+Grammar::OneOf {
+    elements: vec![
+Grammar::Bracketed {
+    elements: vec![
+Grammar::Ref {
+    name: "ExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
 ,
-// here for meta
-Grammar::Meta
+    ],
+    bracket_pairs: (
+        Box::new(
+Grammar::StringParser {
+    template: "(",
+    token_type: "start_bracket",
+    optional: false,
+}
+        ),
+        Box::new(
+Grammar::StringParser {
+    template: ")",
+    token_type: "end_bracket",
+    optional: false,
+}
+        )
+    ),
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Ref {
+    name: "ExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
+    allow_gaps: true,
+}
+,
+Grammar::Meta("dedent")
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -28549,6 +31946,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -28559,6 +31957,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -28567,12 +31966,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -28584,6 +31985,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -28592,12 +31994,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -28607,6 +32011,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -28615,6 +32020,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -28623,6 +32029,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -28631,6 +32038,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -28639,12 +32047,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -28695,12 +32105,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -28722,6 +32134,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -28730,12 +32143,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -28747,6 +32162,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -28755,12 +32171,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -28768,15 +32186,17 @@ Grammar::Ref {
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
     ],
     min_times: 0,
     max_times: None,
-    optional: false,
+    optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -28786,12 +32206,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: false,
 }
 );
@@ -28816,6 +32238,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -28824,6 +32247,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -28832,6 +32256,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -28840,12 +32265,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -28861,6 +32288,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -28869,10 +32297,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// got to an unimplemented base grammar called <class 'sqlfluff.core.parser.grammar.conditional.Conditional'>
-Grammar::Missing
+Grammar::Meta("conditional")
 ,
 Grammar::Delimited {
     elements: vec![
@@ -28882,6 +32310,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -28892,6 +32321,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: true,
@@ -28903,14 +32333,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
-// got to an unimplemented base grammar called <class 'sqlfluff.core.parser.grammar.conditional.Conditional'>
-Grammar::Missing
+Grammar::Meta("conditional")
 ,
 Grammar::Ref {
     name: "NonWithNonSelectableGrammar",
@@ -28918,12 +32350,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -28939,6 +32373,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -28947,10 +32382,10 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
-// got to an unimplemented base grammar called <class 'sqlfluff.core.parser.grammar.conditional.Conditional'>
-Grammar::Missing
+Grammar::Meta("conditional")
 ,
 Grammar::Delimited {
     elements: vec![
@@ -28960,6 +32395,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
@@ -28970,6 +32406,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
     ),
     allow_trailing: true,
@@ -28981,14 +32418,16 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
+    reset_terminators: false,
     allow_gaps: true,
+    min_delimiters: 0,
 }
 ,
-// got to an unimplemented base grammar called <class 'sqlfluff.core.parser.grammar.conditional.Conditional'>
-Grammar::Missing
+Grammar::Meta("conditional")
 ,
 Grammar::Ref {
     name: "NonWithSelectableGrammar",
@@ -28996,12 +32435,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -29017,6 +32458,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Sequence {
@@ -29027,12 +32469,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: true,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 ,
@@ -29042,12 +32486,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );
@@ -29078,6 +32524,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -29086,6 +32533,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -29094,6 +32542,7 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
 Grammar::Ref {
@@ -29102,12 +32551,14 @@ Grammar::Ref {
     allow_gaps: true,
     terminators: vec![
     ],
+    reset_terminators: false,
 }
 ,
     ],
     optional: false,
     terminators: vec![
     ],
+    reset_terminators: false,
     allow_gaps: true,
 }
 );

@@ -3,12 +3,13 @@ use std::vec;
 
 use crate::{dialect::Dialect, token::Token};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub enum Grammar {
     Sequence {
         elements: Vec<Grammar>,
         optional: bool,
         terminators: Vec<Grammar>,
+        reset_terminators: bool,
         allow_gaps: bool,
     },
     AnyNumberOf {
@@ -17,12 +18,14 @@ pub enum Grammar {
         max_times: Option<usize>,
         optional: bool,
         terminators: Vec<Grammar>,
+        reset_terminators: bool,
         allow_gaps: bool,
     },
     OneOf {
         elements: Vec<Grammar>,
         optional: bool,
         terminators: Vec<Grammar>,
+        reset_terminators: bool,
         allow_gaps: bool,
     },
     Delimited {
@@ -31,27 +34,32 @@ pub enum Grammar {
         allow_trailing: bool,
         optional: bool,
         terminators: Vec<Grammar>,
+        reset_terminators: bool,
         allow_gaps: bool,
+        min_delimiters: usize,
     },
     Bracketed {
         elements: Vec<Grammar>,
         bracket_pairs: (Box<Grammar>, Box<Grammar>),
         optional: bool,
         terminators: Vec<Grammar>,
+        reset_terminators: bool,
         allow_gaps: bool,
     },
     Ref {
         name: &'static str,
         optional: bool,
         terminators: Vec<Grammar>,
+        reset_terminators: bool,
         allow_gaps: bool,
     },
-    Keyword {
-        name: &'static str,
-        optional: bool,
-        allow_gaps: bool,
-        terminators: Vec<Grammar>,
-    },
+    // Keyword {
+    //     name: &'static str,
+    //     optional: bool,
+    //     allow_gaps: bool,
+    //     terminators: Vec<Grammar>,
+    //     reset_terminators: bool,
+    // },
     Symbol(&'static str),
     StringParser {
         template: &'static str,
@@ -86,15 +94,172 @@ pub enum Grammar {
         // casefold: Option<fn(&str) -> String>,
         anti_template: Option<&'static str>,
     },
-    Meta,
+    Meta(&'static str),
     Nothing(),
     Anything,
-    OptionallyBracketed(),
     Empty,
     Missing,
     Token {
         token_type: &'static str,
     },
+}
+
+impl PartialEq for Grammar {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (
+                Grammar::Sequence {
+                    elements: e1,
+                    optional: o1,
+                    allow_gaps: g1,
+                    ..
+                },
+                Grammar::Sequence {
+                    elements: e2,
+                    optional: o2,
+                    allow_gaps: g2,
+                    ..
+                },
+            ) => e1 == e2 && o1 == o2 && g1 == g2,
+            (
+                Grammar::AnyNumberOf {
+                    elements: e1,
+                    optional: o1,
+                    allow_gaps: g1,
+                    ..
+                },
+                Grammar::AnyNumberOf {
+                    elements: e2,
+                    optional: o2,
+                    allow_gaps: g2,
+                    ..
+                },
+            ) => e1 == e2 && o1 == o2 && g1 == g2,
+            (
+                Grammar::OneOf {
+                    elements: e1,
+                    optional: o1,
+                    allow_gaps: g1,
+                    ..
+                },
+                Grammar::OneOf {
+                    elements: e2,
+                    optional: o2,
+                    allow_gaps: g2,
+                    ..
+                },
+            ) => e1 == e2 && o1 == o2 && g1 == g2,
+            (
+                Grammar::Delimited {
+                    elements: e1,
+                    optional: o1,
+                    allow_gaps: g1,
+                    delimiter: d1,
+                    allow_trailing: at1,
+                    terminators: t1,
+                    min_delimiters: md1,
+                    ..
+                },
+                Grammar::Delimited {
+                    elements: e2,
+                    optional: o2,
+                    allow_gaps: g2,
+                    delimiter: d2,
+                    allow_trailing: at2,
+                    terminators: t2,
+                    min_delimiters: md2,
+                    ..
+                },
+            ) => {
+                e1 == e2 && o1 == o2 && g1 == g2 && d1 == d2 && at1 == at2 && t1 == t2 && md1 == md2
+            }
+            (
+                Grammar::Bracketed {
+                    elements: e1,
+                    optional: o1,
+                    allow_gaps: g1,
+                    ..
+                },
+                Grammar::Bracketed {
+                    elements: e2,
+                    optional: o2,
+                    allow_gaps: g2,
+                    ..
+                },
+            ) => e1 == e2 && o1 == o2 && g1 == g2,
+            (
+                Grammar::Ref {
+                    name: n1,
+                    optional: o1,
+                    allow_gaps: g1,
+                    ..
+                },
+                Grammar::Ref {
+                    name: n2,
+                    optional: o2,
+                    allow_gaps: g2,
+                    ..
+                },
+            ) => n1 == n2 && o1 == o2 && g1 == g2,
+            (
+                Grammar::StringParser {
+                    template,
+                    token_type,
+                    optional,
+                },
+                Grammar::StringParser {
+                    template: t2,
+                    token_type: tt2,
+                    optional: o2,
+                },
+            ) => template == t2 && token_type == tt2 && optional == o2,
+            (
+                Grammar::MultiStringParser {
+                    templates,
+                    token_type,
+                    optional,
+                },
+                Grammar::MultiStringParser {
+                    templates: t2,
+                    token_type: tt2,
+                    optional: o2,
+                },
+            ) => templates == t2 && token_type == tt2 && optional == o2,
+            (
+                Grammar::TypedParser {
+                    template,
+                    token_type,
+                    optional,
+                },
+                Grammar::TypedParser {
+                    template: t2,
+                    token_type: tt2,
+                    optional: o2,
+                },
+            ) => template == t2 && token_type == tt2 && optional == o2,
+            (
+                Grammar::RegexParser {
+                    template,
+                    token_type,
+                    optional,
+                    anti_template,
+                },
+                Grammar::RegexParser {
+                    template: t2,
+                    token_type: tt2,
+                    optional: o2,
+                    anti_template: at2,
+                },
+            ) => template == t2 && token_type == tt2 && optional == o2 && anti_template == at2,
+            (Grammar::Meta(s1), Grammar::Meta(s2)) => s1 == s2,
+            (Grammar::Nothing(), Grammar::Nothing()) => true,
+            (Grammar::Anything, Grammar::Anything) => true,
+            (Grammar::Empty, Grammar::Empty) => true,
+            (Grammar::Missing, Grammar::Missing) => true,
+            (Grammar::Token { token_type: tt1 }, Grammar::Token { token_type: tt2 }) => tt1 == tt2,
+            _ => false,
+        }
+    }
 }
 
 impl Display for Grammar {
@@ -140,7 +305,7 @@ impl Display for Grammar {
                 )
             }
             Grammar::Ref { name, .. } => write!(f, "Ref({})", name),
-            Grammar::Keyword { name, .. } => write!(f, "Keyword({})", name),
+            // Grammar::Keyword { name, .. } => write!(f, "Keyword({})", name),
             Grammar::Symbol(sym) => write!(f, "Symbol({})", sym),
             Grammar::StringParser { template, .. } => write!(f, "StringParser({})", template),
             Grammar::MultiStringParser { templates, .. } => {
@@ -148,10 +313,9 @@ impl Display for Grammar {
             }
             Grammar::TypedParser { template, .. } => write!(f, "TypedParser({})", template),
             Grammar::RegexParser { template, .. } => write!(f, "RegexParser({})", template),
-            Grammar::Meta => write!(f, "Meta"),
+            Grammar::Meta(s) => write!(f, "Meta({})", s),
             Grammar::Nothing() => write!(f, "Nothing"),
             Grammar::Anything => write!(f, "Anything"),
-            Grammar::OptionallyBracketed() => write!(f, "OptionallyBracketed"),
             Grammar::Empty => write!(f, "Empty"),
             Grammar::Missing => write!(f, "Missing"),
             Grammar::Token { token_type } => write!(f, "Token({})", token_type),
@@ -167,14 +331,12 @@ pub struct SegmentDef {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Node {
     /// A plain SQL keyword like SELECT, FROM, INTO
-    Keyword(String),
+    Keyword(String, usize),
 
-    Code(String),
+    Code(String, usize),
 
     /// A sequence of child nodes (used for Grammar::Sequence)
     Sequence(Vec<Node>),
-
-    OneOf(Box<Node>),
 
     /// A list of elements separated by commas
     DelimitedList(Vec<Node>),
@@ -187,7 +349,28 @@ pub enum Node {
 
     /// Used when an optional part didn’t match
     Empty,
-    Meta,
+    Meta(&'static str),
+}
+
+impl Node {
+    fn is_empty(&self) -> bool {
+        match &self {
+            Node::Empty => true,
+            Node::DelimitedList(items) => {
+                items.is_empty()
+                    || items
+                        .iter()
+                        .all(|n| matches!(n, Node::Empty | Node::Meta(_)))
+            }
+            Node::Sequence(items) => {
+                items.is_empty()
+                    || items
+                        .iter()
+                        .all(|n| matches!(n, Node::Empty | Node::Meta(_)))
+            }
+            _ => false,
+        }
+    }
 }
 
 pub struct Parser<'a> {
@@ -198,43 +381,44 @@ pub struct Parser<'a> {
 
 impl Parser<'_> {
     fn parse_with_grammar(
-        &mut self,
+        &'_ mut self,
         grammar: &Grammar,
         parent_terminators: &[Grammar],
     ) -> Result<Node, ParseError> {
-        // println!("Parsing with grammar: {}@{}", grammar, self.pos);
-        // println!("Parent terminators: {:?}", parent_terminators);
+        log::debug!("Parsing with grammar: {}@{}", grammar, self.pos);
+        // log::debug!("Parent terminators: {:?}", parent_terminators);
         match grammar {
             Grammar::Missing => {
-                // println!("Expecting missing grammar");
+                log::debug!("Trying missing grammar");
                 todo!("Encountered Missing grammar in parse_with_grammar");
             }
             Grammar::Anything => {
                 // This matches anything
                 // it is greedy so will consume everything until a terminator is found
-                // println!("Expecting anything grammar");
+                log::debug!("Trying Anything grammar");
                 let mut anything_tokens = vec![];
                 loop {
                     if self.is_terminated(parent_terminators) || self.is_at_end() {
                         break;
                     }
                     if let Some(tok) = self.peek() {
-                        anything_tokens.push(Node::Code(tok.raw().to_string()));
+                        anything_tokens.push(Node::Code(tok.raw().to_string(), self.pos));
                         self.bump();
                     }
                 }
-                println!("Anything matched tokens: {:?}", anything_tokens);
+                log::debug!("Anything matched tokens: {:?}", anything_tokens);
                 Ok(Node::DelimitedList(anything_tokens))
             }
             Grammar::Token { token_type } => {
-                // println!("Expecting token, {}", token_type);
-                if let Some(tok) = self.peek() {
-                    let tok = tok.clone();
-                    // println!("Current token: {:?}", tok.get_type());
+                log::debug!("Trying token grammar, {}", token_type);
+                if let Some(token) = self.peek() {
+                    let tok = token.clone();
+                    log::debug!("Current token: {:?}", tok.get_type());
                     if tok.get_type() == *token_type {
+                        let node = Node::Code(tok.raw(), self.pos);
                         self.bump();
-                        println!("Token matched: {:?}", tok);
-                        Ok(Node::Code(tok.raw()))
+                        log::debug!("MATCHED Token matched: {:?}", tok);
+                        Ok(node)
                     } else {
                         Err(ParseError::new(format!(
                             "Expected token type {}, found {}",
@@ -246,39 +430,27 @@ impl Parser<'_> {
                     Err(ParseError::new("Expected token, found EOF".into()))
                 }
             }
-            Grammar::Keyword {
-                name,
-                optional,
-                terminators,
-                allow_gaps,
-            } => {
-                // println!("Expecting keyword: {}", name);
-                self.expect_keyword(name, *allow_gaps)
-            }
-            Grammar::Meta => {
-                println!("Expecting meta");
-                Ok(Node::Meta)
+            Grammar::Meta(token_type) => {
+                log::debug!("Trying meta");
+                Ok(Node::Meta(token_type))
             }
             Grammar::StringParser {
                 template,
                 token_type,
                 optional,
             } => {
-                // println!(
-                //     "Expecting string parser: {}, type: {:?}",
-                //     template, token_type
-                // );
+                log::debug!("Trying string parser: {}, type: {:?}", template, token_type);
                 self.skip_transparent(true);
-                let tok_raw = self.peek().map(|t| t.raw().to_string());
+                let tok_raw = self.peek().cloned();
                 match tok_raw {
-                    Some(tok) if tok.eq_ignore_ascii_case(template) => {
+                    Some(tok) if tok.raw().eq_ignore_ascii_case(template) => {
                         self.bump();
-                        println!("String matched: {}", tok);
-                        Ok(Node::Code(tok))
+                        log::debug!("MATCHED String matched: {}", tok);
+                        Ok(Node::Code(tok.raw(), self.pos))
                     }
                     _ => {
                         if *optional {
-                            // println!("String parser optional, skipping");
+                            log::debug!("String parser optional, skipping");
                             Ok(Node::Empty)
                         } else {
                             Err(ParseError::new(format!("Expected string '{}'", template)))
@@ -291,17 +463,22 @@ impl Parser<'_> {
                 token_type,
                 optional,
             } => {
-                // println!(
-                //     "Expecting multi string parser: {:?}, type: {:?}",
-                //     templates, token_type
-                // );
+                log::debug!(
+                    "Trying multi string parser: {:?}, type: {:?}",
+                    templates,
+                    token_type
+                );
                 self.skip_transparent(true);
-                let token_raw = self.peek().map(|t| t.raw().to_string());
-                match token_raw {
-                    Some(raw) if templates.iter().any(|&temp| raw.eq_ignore_ascii_case(temp)) => {
+                let token = self.peek().cloned();
+                match token {
+                    Some(tok)
+                        if templates
+                            .iter()
+                            .any(|&temp| tok.raw().eq_ignore_ascii_case(temp)) =>
+                    {
                         self.bump();
-                        println!("Multi string matched: {}", raw);
-                        Ok(Node::Code(raw))
+                        log::debug!("MATCHED Multi string matched: {}", tok);
+                        Ok(Node::Code(tok.raw(), self.pos))
                     }
                     _ => {
                         if *optional {
@@ -321,41 +498,39 @@ impl Parser<'_> {
                 optional,
                 anti_template,
             } => {
-                // println!(
-                //     "Expecting regex parser: {}, type: {:?}",
-                //     template, token_type
-                // );
+                log::debug!("Trying regex parser: {}, type: {:?}", template, token_type);
                 self.skip_transparent(true);
-                let tok_raw = self.peek().map(|t| t.raw().to_string());
-                match tok_raw {
-                    Some(raw)
+                let token = self.peek().cloned();
+                match token {
+                    Some(tok)
                         if regex::RegexBuilder::new(template)
                             .case_insensitive(true)
                             .build()
                             .unwrap()
-                            .is_match(&raw) =>
+                            .is_match(&tok.raw()) =>
                     {
-                        println!("Regex matched: {}", raw);
+                        log::debug!("Regex matched: {}", tok);
                         if let Some(anti) = anti_template {
                             if regex::RegexBuilder::new(anti)
                                 .case_insensitive(true)
                                 .build()
                                 .unwrap()
-                                .is_match(&raw)
+                                .is_match(&tok.raw())
                             {
+                                log::debug!("Regex anti-matched: {}", tok);
                                 if *optional {
                                     return Ok(Node::Empty);
                                 } else {
                                     return Err(ParseError::new(format!(
                                         "Token '{}' matches anti-template '{}'",
-                                        raw, anti
+                                        tok, anti
                                     )));
                                 }
                             }
                         }
-                        println!("Regex matched and non anti-match: {}", raw);
+                        log::debug!("MATCHED Regex matched and non anti-match: {}", tok);
                         self.bump();
-                        Ok(Node::Code(raw))
+                        Ok(Node::Code(tok.raw(), self.pos))
                     }
                     _ => {
                         if *optional {
@@ -374,25 +549,35 @@ impl Parser<'_> {
                 token_type,
                 optional,
             } => {
-                // println!("Expecting typed parser: {}, type: {}", template, token_type);
+                log::debug!("Trying typed parser: {}, type: {}", template, token_type);
                 self.skip_transparent(true);
-                if let Some(tok) = self.peek() {
-                    let tok = tok.clone();
+                if let Some(token) = self.peek() {
+                    let tok = token.clone();
                     if tok.is_type(&[template]) {
+                        let raw = tok.raw().to_string(); // Clone the raw value to avoid borrowing issues
+                        let node = Node::Code(raw, self.pos); // Pass the cloned raw value and the token reference
                         self.bump();
-                        println!("Typed matched: {}", tok.token_type);
-                        Ok(Node::Code(tok.raw()))
+                        log::debug!("MATCHED Typed matched: {}", tok.token_type);
+                        Ok(node)
                     } else if *optional {
+                        log::debug!("Typed parser optional, skipping");
                         Ok(Node::Empty)
                     } else {
+                        log::debug!(
+                            "NOMATCH Typed parser expected '{}', found '{}'",
+                            template,
+                            tok.token_type
+                        );
                         Err(ParseError::new(format!(
                             "Expected typed token '{}'",
                             template
                         )))
                     }
                 } else if *optional {
+                    log::debug!("Typed parser optional, skipping at EOF");
                     Ok(Node::Empty)
                 } else {
+                    log::debug!("NOMATCH Typed parser expected '{}', found EOF", template);
                     Err(ParseError::new(format!(
                         "Expected typed token '{}', found EOF",
                         template
@@ -400,12 +585,13 @@ impl Parser<'_> {
                 }
             }
             Grammar::Symbol(sym) => {
-                println!("Expecting symbol: {}", sym);
-                match self.peek() {
-                    Some(t) if t.raw() == *sym => {
+                log::debug!("Trying symbol: {}", sym);
+                let token = self.peek().cloned();
+                match token {
+                    Some(tok) if tok.raw() == *sym => {
                         self.bump();
-                        println!("Symbol matched: {}", sym);
-                        Ok(Node::Code(sym.to_string()))
+                        log::debug!("MATCHED Symbol matched: {}", sym);
+                        Ok(Node::Code(tok.raw(), self.pos))
                     }
                     _ => Err(ParseError::new(format!("Expected symbol '{}'", sym))),
                 }
@@ -415,28 +601,33 @@ impl Parser<'_> {
                 optional,
                 allow_gaps,
                 terminators,
+                reset_terminators,
             } => {
-                // println!("Ref to segment: {}, optional: {}", name, optional);
+                log::debug!("Trying Ref to segment: {}, optional: {}", name, optional);
                 let saved = self.pos;
                 self.skip_transparent(*allow_gaps);
 
                 // Combine parent and local terminators
-                let all_terminators: Vec<Grammar> = terminators
-                    .iter()
-                    .cloned()
-                    .chain(parent_terminators.iter().cloned())
-                    .collect();
+                let all_terminators: Vec<Grammar> = if *reset_terminators {
+                    terminators.clone()
+                } else {
+                    terminators
+                        .iter()
+                        .cloned()
+                        .chain(parent_terminators.iter().cloned())
+                        .collect()
+                };
 
                 let attempt = self.call_rule(name, &all_terminators);
                 match attempt {
                     Ok(node) => {
-                        println!("Ref matched segment: {}", name);
+                        log::debug!("MATCHED Ref matched segment: {}", name);
                         Ok(node)
                     }
                     Err(e) => {
                         self.pos = saved;
                         if *optional {
-                            // println!("Ref optional, skipping");
+                            log::debug!("Ref optional, skipping");
                             Ok(Node::Empty)
                         } else {
                             Err(e)
@@ -448,80 +639,174 @@ impl Parser<'_> {
                 elements,
                 optional,
                 terminators,
+                reset_terminators,
                 allow_gaps,
             } => {
-                // println!("Sequence elements: {:?}", elements);
-                let saved = self.pos;
-                self.skip_transparent(*allow_gaps);
-                let mut children = vec![];
+                // log::debug!("Sequence elements: {:?}", elements);
+
+                // Jump to first code token
+                let start_idx = self.pos;
+                let mut matched_idx = self.pos;
 
                 // Combine parent and local terminators
-                let all_terminators: Vec<Grammar> = terminators
-                    .iter()
-                    .cloned()
-                    .chain(parent_terminators.iter().cloned())
-                    .collect();
+                let all_terminators: Vec<Grammar> = if *reset_terminators {
+                    terminators.clone()
+                } else {
+                    terminators
+                        .iter()
+                        .cloned()
+                        .chain(parent_terminators.iter().cloned())
+                        .collect()
+                };
+
+                let mut longest_matches: Vec<(Node, usize)> = Vec::new();
 
                 for element in elements {
-                    // println!("Sequence element: {:?}", element);
+                    log::debug!("Sequence-@{}: {:?}", self.pos, element);
+
+                    self.skip_transparent(*allow_gaps);
                     if self.is_terminated(&all_terminators) {
-                        // println!("Sequence terminated!");
+                        log::debug!("Sequence terminated!");
                         break;
                     }
+
+                    let element_start = self.pos;
+                    let mut longest_match = None;
+
                     match self.parse_with_grammar(element, &all_terminators) {
                         Ok(node) => {
-                            println!("Sequence element matched: {:?}", node);
-                            children.push(node)
+                            let consumed = self.pos - element_start;
+                            if !node.is_empty()
+                                && longest_match.as_ref().map_or(0, |(_, s)| *s) < consumed
+                            {
+                                longest_match = Some((node, consumed));
+                                log::debug!(
+                                    "MATCHED Sequence element matched: {:?}, consumed: {}",
+                                    longest_match.as_ref().unwrap().0,
+                                    consumed
+                                );
+                            } else if longest_match.is_none() {
+                                // Empty node, only count if no other match exists
+                                longest_match = Some((node, consumed));
+                            }
+                            self.pos = element_start;
                         }
                         Err(e) => {
-                            self.pos = saved;
-                            if *optional {
-                                // println!("Sequence element optional, skipping");
+                            // Element failed to match
+                            self.pos = element_start;
+
+                            // Check if this specific element is optional
+                            let element_is_optional = match element {
+                                Grammar::Sequence { optional, .. } => *optional,
+                                Grammar::AnyNumberOf { optional, .. } => *optional,
+                                Grammar::OneOf { optional, .. } => *optional,
+                                Grammar::Delimited { optional, .. } => *optional,
+                                Grammar::Bracketed { optional, .. } => *optional,
+                                Grammar::Ref { optional, .. } => *optional,
+                                Grammar::StringParser { optional, .. } => *optional,
+                                Grammar::MultiStringParser { optional, .. } => *optional,
+                                Grammar::TypedParser { optional, .. } => *optional,
+                                Grammar::RegexParser { optional, .. } => *optional,
+                                _ => false,
+                            };
+
+                            if element_is_optional {
+                                // This element is optional, continue with next element
+                                log::debug!("NOMATCH Sequence element is optional, continuing");
+                                continue;
+                            } else if *optional {
+                                // The whole sequence is optional, so we can return empty
+                                log::debug!("NOMATCH Sequence is optional, returning empty");
+                                self.pos = start_idx;
                                 return Ok(Node::Empty);
                             } else {
+                                // Required element failed, fail the whole sequence
                                 return Err(e);
                             }
                         }
                     }
+
+                    if let Some((node, consumed)) = longest_match {
+                        longest_matches.push((node, consumed));
+                        self.pos = element_start + consumed;
+                    }
                 }
-                println!("Sequence children: {:?}", &children);
+
+                let children = longest_matches.into_iter().map(|(node, _)| node).collect();
+                log::debug!("MATCHED Sequence children: {:?}", &children);
                 Ok(Node::Sequence(children))
             }
             Grammar::OneOf {
                 elements,
                 optional,
                 terminators,
+                reset_terminators,
                 allow_gaps,
             } => {
-                // println!("OneOf elements: {:?}", elements);
+                log::debug!("Trying OneOf elements: {:?}", elements);
                 let initial_pos = self.pos;
                 self.skip_transparent(*allow_gaps);
+                let post_skip_pos = self.pos;
 
                 // Combine parent and local terminators
-                let all_terminators: Vec<Grammar> = terminators
-                    .iter()
-                    .cloned()
-                    .chain(parent_terminators.iter().cloned())
-                    .collect();
+                let all_terminators: Vec<Grammar> = if *reset_terminators {
+                    terminators.clone()
+                } else {
+                    terminators
+                        .iter()
+                        .cloned()
+                        .chain(parent_terminators.iter().cloned())
+                        .collect()
+                };
+
+                if self.is_terminated(&all_terminators) {
+                    self.pos = initial_pos;
+                    return if *optional {
+                        Ok(Node::Empty)
+                    } else {
+                        Err(ParseError::new(
+                            "Expected one of choices, but terminated".into(),
+                        ))
+                    };
+                }
+
+                let mut longest_match: Option<(Node, usize)> = None;
+                let mut best_pos = post_skip_pos;
 
                 for element in elements {
-                    if self.is_terminated(&all_terminators) {
-                        break;
-                    }
-                    let element_start = self.pos;
+                    self.pos = post_skip_pos;
+
                     match self.parse_with_grammar(element, &all_terminators) {
-                        Ok(node) => {
-                            println!("OneOf matched element: {:?}", node);
-                            return Ok(Node::OneOf(Box::new(node)));
+                        Ok(node) if !node.is_empty() => {
+                            let consumed = self.pos - post_skip_pos;
+                            if longest_match.is_none()
+                                || consumed > longest_match.as_ref().unwrap().1
+                            {
+                                longest_match = Some((node, consumed));
+                                best_pos = self.pos;
+                                log::debug!(
+                                    "PARTMATCHED OneOf element matched, consumed: {}",
+                                    consumed
+                                );
+                            }
+                        }
+                        Ok(_) => {
+                            // Empty node, continue trying other elements
                         }
                         Err(_) => {
-                            self.pos = element_start;
+                            // No match for this element, continue
                         }
                     }
                 }
 
+                if let Some((node, _)) = longest_match {
+                    self.pos = best_pos;
+                    log::debug!("MATCHED OneOf matched longest element: {:?}", node);
+                    return Ok(node);
+                }
+
+                self.pos = initial_pos;
                 if *optional {
-                    self.pos = initial_pos;
                     Ok(Node::Empty)
                 } else {
                     Err(ParseError::new("Expected one of choices".into()))
@@ -533,52 +818,76 @@ impl Parser<'_> {
                 max_times,
                 optional,
                 terminators,
+                reset_terminators,
                 allow_gaps,
             } => {
-                // println!("AnyNumberOf elements: {:?}", elements);
+                log::debug!("Trying AnyNumberOf elements: {:?}", elements);
                 let mut items = vec![];
                 let mut count = 0;
-                let saved_pos = self.pos;
+                let initial_pos = self.pos;
 
                 // Combine parent and local terminators
-                let all_terminators: Vec<Grammar> = terminators
-                    .iter()
-                    .cloned()
-                    .chain(parent_terminators.iter().cloned())
-                    .collect();
+                let all_terminators: Vec<Grammar> = if *reset_terminators {
+                    terminators.clone()
+                } else {
+                    terminators
+                        .iter()
+                        .cloned()
+                        .chain(parent_terminators.iter().cloned())
+                        .collect()
+                };
+
+                if self.is_terminated(&all_terminators) {
+                    if *optional || *min_times == 0 {
+                        log::debug!("AnyNumberOf: empty optional or min_times=0");
+                        return Ok(Node::DelimitedList(items));
+                    } else {
+                        return Err(ParseError::new(format!(
+                            "Expected at least {} occurrences, found 0",
+                            min_times
+                        )));
+                    }
+                }
 
                 loop {
-                    if self.is_terminated(&all_terminators) {
-                        break;
-                    }
-
                     let mut matched = false;
                     self.skip_transparent(*allow_gaps);
                     let post_skip_saved_pos = self.pos;
 
+                    let mut longest_match: Option<(Node, usize)> = None;
+                    let mut best_pos = post_skip_saved_pos;
+
                     for element in elements {
+                        self.pos = post_skip_saved_pos;
                         match self.parse_with_grammar(element, &all_terminators) {
-                            Ok(node) if node != Node::Empty => {
-                                items.push(node);
-                                count += 1;
-                                matched = true;
-                                break;
+                            Ok(node) if !node.is_empty() => {
+                                let consumed = self.pos - post_skip_saved_pos;
+                                if longest_match.is_none()
+                                    || consumed > longest_match.as_ref().unwrap().1
+                                {
+                                    longest_match = Some((node, consumed));
+                                    best_pos = self.pos;
+                                }
                             }
                             Ok(_) => {
-                                // if self.pos > post_skip_saved_pos {
-                                //     // items.push(node);
-                                // }
-                                // If position didn't advance, treat as no match
-                                // self.pos = post_skip_saved_pos;
-                                // panic!("Parser did not advance position, possible infinite loop");
+                                // Empty node, skip
                             }
-                            Err(_) => self.pos = saved_pos,
+                            Err(_) => {
+                                // No match for this element
+                            }
                         }
                     }
 
+                    if let Some((node, _)) = longest_match {
+                        self.pos = best_pos;
+                        items.push(node);
+                        count += 1;
+                        matched = true;
+                    }
+
                     if !matched {
-                        // If no elements matched, restore to initial position
-                        self.pos = saved_pos;
+                        // If no elements matched, restore to position BEFORE this iteration
+                        self.pos = post_skip_saved_pos;
                         break;
                     }
 
@@ -591,6 +900,7 @@ impl Parser<'_> {
 
                 if count < *min_times {
                     if *optional {
+                        self.pos = initial_pos;
                         Ok(Node::Empty)
                     } else {
                         Err(ParseError::new(format!(
@@ -599,7 +909,7 @@ impl Parser<'_> {
                         )))
                     }
                 } else {
-                    println!("AnyNumberOf matched items: {:?}", items);
+                    log::debug!("MATCHED AnyNumberOf matched items: {:?}", items);
                     Ok(Node::DelimitedList(items))
                 }
             }
@@ -609,51 +919,87 @@ impl Parser<'_> {
                 allow_trailing,
                 optional,
                 terminators,
+                reset_terminators,
                 allow_gaps,
+                min_delimiters,
             } => {
-                // println!("Delimited elements: {:?}", elements);
+                log::debug!("Trying Delimited elements: {:?}", elements);
                 let mut items = vec![];
 
                 // Combine parent and local terminators
-                let all_terminators: Vec<Grammar> = terminators
+                let filtered_terminators: Vec<Grammar> = terminators
                     .iter()
                     .cloned()
-                    .chain(parent_terminators.iter().cloned())
+                    .chain(
+                        parent_terminators
+                            .iter()
+                            .filter(|&t| t != delimiter.as_ref())
+                            .cloned(),
+                    )
                     .collect();
 
+                let all_terminators: Vec<Grammar> = if *reset_terminators {
+                    log::debug!(
+                        "Delimited: reset_terminators=true, using only local terminators: {:?}",
+                        terminators
+                    );
+                    terminators.clone()
+                } else {
+                    let before_filter: Vec<Grammar> = terminators
+                        .iter()
+                        .cloned()
+                        .chain(parent_terminators.iter().cloned())
+                        .collect();
+
+                    log::debug!(
+                        "Delimited: delimiter={},\n before_filter={:?},\n filtered_out={:?},\n all_terminators={:?}",
+                        delimiter,
+                        before_filter,
+                        before_filter.iter().filter(|t| *t == delimiter.as_ref()).collect::<Vec<_>>(),
+                        filtered_terminators
+                    );
+
+                    filtered_terminators
+                };
+
                 if *optional && (self.is_at_end() || self.is_terminated(&all_terminators)) {
-                    println!("Delimited: empty optional");
+                    log::debug!("  TERM Delimited: empty optional");
                     return Ok(Node::DelimitedList(items));
                 }
 
                 loop {
-                    if self.is_terminated(&all_terminators) {
-                        break;
-                    }
-
-                    let mut matched = false;
+                    let mut longest_match: Option<(Node, usize)> = None;
                     let saved_pos = self.pos;
                     self.skip_transparent(*allow_gaps);
                     let post_skip_saved_pos = self.pos;
+
+                    // Try all elements and find the longest match
                     for elem in elements {
-                        match self.parse_with_grammar(elem, &all_terminators) {
-                            Ok(node) => {
-                                if self.pos > post_skip_saved_pos {
-                                    items.push(node);
-                                    matched = true;
-                                    break;
+                        self.pos = post_skip_saved_pos;
+                        if let Ok(node) = self.parse_with_grammar(elem, &all_terminators) {
+                            let consumed = self.pos - post_skip_saved_pos;
+                            if consumed > 0 {
+                                // Update if this is the longest match so far
+                                if longest_match.is_none()
+                                    || consumed > longest_match.as_ref().unwrap().1
+                                {
+                                    longest_match = Some((node, consumed));
                                 }
-                                // If position didn't advance, treat as no match
-                                // self.pos = post_skip_saved_pos;
-                                panic!("Parser did not advance position, possible infinite loop");
                             }
-                            Err(_) => self.pos = saved_pos,
                         }
                     }
 
-                    if !matched {
-                        // println!("Delimited: no more elements matched");
-                        break;
+                    // Apply the longest match
+                    match longest_match {
+                        Some((node, consumed)) => {
+                            self.pos = post_skip_saved_pos + consumed;
+                            items.push(node);
+                        }
+                        None => {
+                            self.pos = saved_pos;
+                            log::debug!("Delimited: no more elements matched");
+                            break;
+                        }
                     }
 
                     let saved_pos = self.pos;
@@ -667,11 +1013,11 @@ impl Parser<'_> {
                             }
                             break;
                         }
-                        println!("Delimited: found delimiter");
+                        log::debug!("MATCHED Delimited: found delimiter");
                         items.push(delim_node);
                     } else {
                         self.pos = saved_pos;
-                        println!("Delimited: no delimiter found, ending");
+                        log::debug!("Delimited: no delimiter found, ending");
                         break;
                     }
                 }
@@ -683,26 +1029,32 @@ impl Parser<'_> {
                 bracket_pairs,
                 optional,
                 terminators,
+                reset_terminators,
                 allow_gaps,
             } => {
-                println!("Bracketed elements: {:?}", elements);
+                log::debug!("Trying Bracketed elements: {:?}", elements);
                 let saved_pos = self.pos;
                 self.skip_transparent(*allow_gaps);
 
                 // Combine parent and local terminators
-                // let all_terminators: Vec<Grammar> = terminators
-                //     .iter()
-                //     .cloned()
-                //     .chain(parent_terminators.iter().cloned())
-                //     .collect();
+                let all_terminators: Vec<Grammar> = if *reset_terminators {
+                    terminators.clone()
+                } else {
+                    terminators
+                        .iter()
+                        .cloned()
+                        .chain(parent_terminators.iter().cloned())
+                        .collect()
+                };
 
-                match self.parse_with_grammar(&bracket_pairs.0, &[]) {
+                match self.parse_with_grammar(&bracket_pairs.0, &all_terminators) {
                     Ok(open_node) => {
                         let mut children = vec![open_node];
 
                         let mut last_successful_pos = self.pos;
                         loop {
                             if self.is_terminated(&[*bracket_pairs.1.clone()]) {
+                                log::debug!("  TERM Bracketed: found closing bracket terminator");
                                 break;
                             }
 
@@ -710,16 +1062,29 @@ impl Parser<'_> {
                             let saved_inner_pos = self.pos;
                             self.skip_transparent(*allow_gaps);
 
+                            let mut longest_match: Option<(Node, usize)> = None;
+                            let mut best_pos = self.pos;
+
                             for elem in elements {
-                                match self.parse_with_grammar(elem, &[*bracket_pairs.1.clone()]) {
-                                    Ok(node) => {
-                                        children.push(node);
-                                        matched = true;
-                                        last_successful_pos = self.pos;
-                                        break;
+                                self.pos = saved_inner_pos;
+                                if let Ok(node) =
+                                    self.parse_with_grammar(elem, &[*bracket_pairs.1.clone()])
+                                {
+                                    let consumed = self.pos - saved_inner_pos;
+                                    if longest_match.is_none()
+                                        || consumed > longest_match.as_ref().unwrap().1
+                                    {
+                                        longest_match = Some((node, consumed));
+                                        best_pos = self.pos;
                                     }
-                                    Err(_) => self.pos = saved_inner_pos,
                                 }
+                            }
+
+                            if let Some((node, _)) = longest_match {
+                                self.pos = best_pos;
+                                children.push(node);
+                                matched = true;
+                                last_successful_pos = self.pos;
                             }
 
                             if !matched || self.pos <= last_successful_pos {
@@ -732,7 +1097,10 @@ impl Parser<'_> {
                         {
                             Ok(close_node) => {
                                 children.push(close_node);
-                                println!("Bracketed matched children: {:?}", &children);
+                                log::debug!(
+                                    "PARTMATCHED Bracketed matched children: {:?}",
+                                    &children
+                                );
                                 Ok(Node::Sequence(children))
                             }
                             Err(e) => Err(ParseError::new(format!(
@@ -755,6 +1123,10 @@ impl Parser<'_> {
                 }
             }
             Grammar::Empty => Ok(Node::Empty),
+            Grammar::Nothing() => {
+                log::debug!("Expecting nothing grammar");
+                Err(ParseError::new("Nothing grammar won't match".into()))
+            }
             _ => Err(ParseError::new("Unsupported grammar type".into())),
         }
     }
@@ -779,7 +1151,7 @@ impl Parser<'_> {
         while let Some(tok) = self.peek() {
             match tok {
                 tok if !tok.is_code() => {
-                    println!("skipping token: {:?}", tok);
+                    log::debug!("NOCODE skipping token: {:?}", tok);
                     self.bump()
                 }
                 _ => break,
@@ -788,63 +1160,68 @@ impl Parser<'_> {
     }
 
     fn is_terminated(&mut self, terminators: &[Grammar]) -> bool {
+        let init_pos = self.pos;
         self.skip_transparent(true);
         let saved_pos = self.pos;
-        // println!(
-        //     "Checking terminators: {:?} at pos {:?}",
-        //     terminators, self.pos
-        // );
-        for term in terminators {
-            if self.parse_with_grammar(term, &[]).is_ok() {
-                self.pos = saved_pos; // don’t consume
+
+        // Check if we've reached end of file
+        if self.is_at_end() {
+            log::debug!("  TERMED Reached end of file");
+            return true;
+        }
+
+        // Check if current token is end_of_file type
+        if let Some(tok) = self.peek() {
+            if tok.get_type() == "end_of_file" {
+                log::debug!("  TERMED Found end_of_file token");
                 return true;
+            }
+        }
+
+        log::debug!(
+            "  TERM Checking terminators: {:?} at pos {:?}",
+            terminators,
+            self.pos
+        );
+        for term in terminators {
+            if let Ok(node) = self.parse_with_grammar(term, &[]) {
+                self.pos = saved_pos; // don't consume
+
+                // Check if the node is "empty" in various ways
+                let is_empty = node.is_empty();
+
+                if !is_empty {
+                    log::debug!("  TERMED Terminator matched: {}", term);
+                    self.pos = init_pos; // restore original position
+                    return true;
+                }
             }
             self.pos = saved_pos;
         }
+        log::debug!("  NOTERM No terminators matched");
+        self.pos = init_pos; // restore original position
         false
     }
 
-    /// Peek after skipping transparent tokens
-    pub fn peek_non_transparent(&mut self) -> Option<&Token> {
-        let mut pos = self.pos;
-        while let Some(tok) = self.tokens.get(pos) {
-            match tok {
-                tok if !tok.is_code() => pos += 1,
-                _ => return Some(tok),
-            }
-        }
-        None
-    }
-
-    pub fn expect_keyword(&mut self, kw: &str, allow_gaps: bool) -> Result<Node, ParseError> {
-        self.skip_transparent(allow_gaps);
-        match self.peek() {
-            Some(tok) if tok.is_type(&["word"]) && tok.raw().eq_ignore_ascii_case(kw) => {
-                let keyword = tok.raw().to_string();
-                self.bump(); // consume the keyword
-                println!("Keyword matched: {}", keyword);
-                Ok(Node::Keyword(keyword))
-            }
-            Some(tok) => Err(ParseError::new(format!(
-                "Expected keyword '{}', found {:?}",
-                kw, tok
-            ))),
-            None => Err(ParseError::new(format!(
-                "Expected keyword '{}', found end of input",
-                kw
-            ))),
-        }
-    }
-
-    pub fn consume_keyword(&mut self, kw: &str) -> bool {
-        match self.peek() {
-            Some(tok) if tok.is_type(&["word"]) && tok.raw().eq_ignore_ascii_case(kw) => {
-                self.bump();
-                true
-            }
-            _ => false,
-        }
-    }
+    // fn expect_keyword(&mut self, kw: &str, allow_gaps: bool) -> Result<Node, ParseError> {
+    //     self.skip_transparent(allow_gaps);
+    //     let token = self.peek().cloned();
+    //     match token {
+    //         Some(tok) if tok.is_type(&["word"]) && tok.raw().eq_ignore_ascii_case(kw) => {
+    //             self.bump(); // consume the keyword
+    //             log::debug!("Keyword matched: {}", tok.raw());
+    //             Ok(Node::Keyword(tok.raw(), self.pos))
+    //         }
+    //         Some(tok) => Err(ParseError::new(format!(
+    //             "Expected keyword '{}', found {:?}",
+    //             kw, tok
+    //         ))),
+    //         None => Err(ParseError::new(format!(
+    //             "Expected keyword '{}', found end of input",
+    //             kw
+    //         ))),
+    //     }
+    // }
 
     /// Call a grammar rule by name, producing a Node.
     pub fn call_rule(
@@ -937,8 +1314,9 @@ mod tests {
         let lexer = Lexer::new(None, dialect);
         let (tokens, _errors) = lexer.lex(input, false);
 
-        println!("Tokens: {:#?}", &tokens);
+        log::debug!("Tokens: {:#?}", &tokens);
 
+        env_logger::try_init().ok();
         let mut parser = Parser {
             tokens: &tokens,
             pos: 0,
@@ -947,6 +1325,9 @@ mod tests {
 
         let ast = parser.call_rule("SelectStatementSegment", &[])?;
         println!("AST: {:#?}", ast);
+
+        assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
+        assert_eq!(parser.pos, parser.tokens.len());
 
         Ok(())
     }
@@ -959,8 +1340,9 @@ mod tests {
         let lexer = Lexer::new(None, dialect);
         let (tokens, _errors) = lexer.lex(input, false);
 
-        println!("Tokens: {:#?}", &tokens);
+        log::debug!("Tokens: {:#?}", &tokens);
 
+        env_logger::try_init().ok();
         let mut parser = Parser {
             tokens: &tokens,
             pos: 0,
@@ -969,6 +1351,9 @@ mod tests {
 
         let ast = parser.call_rule("SelectClauseSegment", &[])?;
         println!("AST: {:#?}", ast);
+
+        assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
+        assert_eq!(parser.pos, parser.tokens.len());
 
         Ok(())
     }
@@ -981,8 +1366,9 @@ mod tests {
         let lexer = Lexer::new(None, dialect);
         let (tokens, _errors) = lexer.lex(input, false);
 
-        println!("Tokens: {:#?}", &tokens);
+        log::debug!("Tokens: {:#?}", &tokens);
 
+        env_logger::try_init().ok();
         let mut parser = Parser {
             tokens: &tokens,
             pos: 0,
@@ -991,6 +1377,9 @@ mod tests {
 
         let ast = parser.call_rule("BracketedColumnReferenceListGrammar", &[])?;
         println!("AST: {:#?}", ast);
+
+        assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
+        assert_eq!(parser.pos, parser.tokens.len());
 
         Ok(())
     }
@@ -1003,8 +1392,9 @@ mod tests {
         let lexer = Lexer::new(None, dialect);
         let (tokens, _errors) = lexer.lex(input, false);
 
-        println!("Tokens: {:#?}", &tokens);
+        log::debug!("Tokens: {:#?}", &tokens);
 
+        env_logger::try_init().ok();
         let mut parser = Parser {
             tokens: &tokens,
             pos: 0,
@@ -1013,6 +1403,9 @@ mod tests {
 
         let ast = parser.call_rule("BaseExpressionElementGrammar", &[])?;
         println!("AST: {:#?}", ast);
+
+        assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
+        assert_eq!(parser.pos, parser.tokens.len());
 
         Ok(())
     }
@@ -1025,8 +1418,9 @@ mod tests {
         let lexer = Lexer::new(None, dialect);
         let (tokens, _errors) = lexer.lex(input, false);
 
-        println!("Tokens: {:#?}", &tokens);
+        log::debug!("Tokens: {:#?}", &tokens);
 
+        env_logger::try_init().ok();
         let mut parser = Parser {
             tokens: &tokens,
             pos: 0,
@@ -1036,19 +1430,24 @@ mod tests {
         let ast = parser.call_rule("SelectClauseTerminatorGrammar", &[])?;
         println!("AST: {:#?}", ast);
 
+        assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
+        assert_eq!(parser.pos, parser.tokens.len());
+
         Ok(())
     }
 
     #[test]
     fn parse_statements() -> Result<(), ParseError> {
-        let raw = "SELECT 1; SELECT 2;";
+        env_logger::try_init().ok();
+        let raw = "SELECT 1 FROM tabx as b";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
         let lexer = Lexer::new(None, dialect);
         let (tokens, _errors) = lexer.lex(input, false);
 
-        println!("Tokens: {:#?}", &tokens);
+        log::debug!("Tokens: {:#?}", &tokens);
 
+        env_logger::try_init().ok();
         let mut parser = Parser {
             tokens: &tokens,
             pos: 0,
@@ -1057,6 +1456,9 @@ mod tests {
 
         let ast = parser.call_rule("FileSegment", &[])?;
         println!("AST: {:#?}", ast);
+
+        assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
+        assert_eq!(parser.pos, parser.tokens.len());
 
         Ok(())
     }
@@ -1072,7 +1474,10 @@ mod tests {
         let lexer = Lexer::new(None, dialect);
         let (tokens, _errors) = lexer.lex(input, false);
 
-        println!("Tokens: {:#?}", &tokens);
+        env_logger::try_init().ok();
+        for (idx, token) in tokens.iter().enumerate() {
+            println!("Token {}: '{}' | {}", idx, token.raw(), token.get_type());
+        }
 
         let mut parser = Parser {
             tokens: &tokens,
@@ -1080,8 +1485,70 @@ mod tests {
             dialect,
         };
 
-        let ast = parser.call_rule("FileSegment", &[])?;
+        // let ast = parser.call_rule("FileSegment", &[])?;
+        let ast = parser.call_rule("CreateTableStatementSegment", &[])?;
         println!("AST: {:#?}", ast);
+
+        assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
+        assert_eq!(parser.pos, parser.tokens.len());
+
+        Ok(())
+    }
+
+    #[test]
+    fn parse_column_def_segment() -> Result<(), ParseError> {
+        let raw = "c1 INT NOT NULL";
+        let input = LexInput::String(raw.into());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, dialect);
+        let (tokens, _errors) = lexer.lex(input, false);
+
+        env_logger::try_init().ok();
+        for (idx, token) in tokens.iter().enumerate() {
+            println!("Token {}: '{}' | {}", idx, token.raw(), token.get_type());
+        }
+
+        let mut parser = Parser {
+            tokens: &tokens,
+            pos: 0,
+            dialect,
+        };
+
+        // let ast = parser.call_rule("FileSegment", &[])?;
+        let ast = parser.call_rule("ColumnDefinitionSegment", &[])?;
+        println!("AST: {:#?}", ast);
+
+        assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
+        assert_eq!(parser.pos, parser.tokens.len());
+
+        Ok(())
+    }
+
+    #[test]
+    fn parse_datatype_segment() -> Result<(), ParseError> {
+        let raw = "INT";
+        let input = LexInput::String(raw.into());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, dialect);
+        let (tokens, _errors) = lexer.lex(input, false);
+
+        env_logger::try_init().ok();
+        for (idx, token) in tokens.iter().enumerate() {
+            println!("Token {}: '{}' | {}", idx, token.raw(), token.get_type());
+        }
+
+        let mut parser = Parser {
+            tokens: &tokens,
+            pos: 0,
+            dialect,
+        };
+
+        // let ast = parser.call_rule("FileSegment", &[])?;
+        let ast = parser.call_rule("DatatypeSegment", &[])?;
+        println!("AST: {:#?}", ast);
+
+        assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
+        assert_eq!(parser.pos, parser.tokens.len());
 
         Ok(())
     }
@@ -1138,7 +1605,7 @@ LEFT JOIN t9 AS c_ph
         let lexer = Lexer::new(None, dialect);
         let (tokens, _errors) = lexer.lex(input, false);
 
-        println!("Tokens: {:#?}", &tokens);
+        log::debug!("Tokens: {:#?}", &tokens);
 
         let mut parser = Parser {
             tokens: &tokens,
@@ -1146,22 +1613,27 @@ LEFT JOIN t9 AS c_ph
             dialect,
         };
 
+        env_logger::try_init().ok();
         let ast = parser.call_rule("FileSegment", &[])?;
         println!("AST: {:#?}", ast);
+
+        assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
+        assert_eq!(parser.pos, parser.tokens.len());
 
         Ok(())
     }
 
     #[test]
-    fn parse_datatype_segment() -> Result<(), ParseError> {
+    fn parse_col_def_segment() -> Result<(), ParseError> {
         let raw = "col1 int";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
         let lexer = Lexer::new(None, dialect);
         let (tokens, _errors) = lexer.lex(input, false);
 
-        println!("Tokens: {:#?}", &tokens);
+        log::debug!("Tokens: {:#?}", &tokens);
 
+        env_logger::try_init().ok();
         let mut parser = Parser {
             tokens: &tokens,
             pos: 0,
@@ -1170,6 +1642,35 @@ LEFT JOIN t9 AS c_ph
 
         let ast = parser.call_rule("ColumnDefinitionSegment", &[])?;
         println!("AST: {:#?}", ast);
+
+        assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
+        assert_eq!(parser.pos, parser.tokens.len());
+
+        Ok(())
+    }
+
+    #[test]
+    fn parse_from_expression_segment() -> Result<(), ParseError> {
+        let raw = "from table_name_a JOIN table_name_b, table_name_c as bar";
+        let input = LexInput::String(raw.into());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, dialect);
+        let (tokens, _errors) = lexer.lex(input, false);
+
+        log::debug!("Tokens: {:#?}", &tokens);
+
+        env_logger::try_init().ok();
+        let mut parser = Parser {
+            tokens: &tokens,
+            pos: 0,
+            dialect,
+        };
+
+        let ast = parser.call_rule("FromClauseSegment", &[])?;
+        println!("AST: {:#?}", ast);
+
+        assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
+        assert_eq!(parser.pos, parser.tokens.len());
 
         Ok(())
     }
