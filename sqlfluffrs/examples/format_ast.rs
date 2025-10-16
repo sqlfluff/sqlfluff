@@ -27,6 +27,10 @@ fn main() {
     let ast = parser.call_rule("FileSegment", &[])
         .expect("Failed to parse");
 
+    println!("=== AST ===");
+    println!("{:#?}", ast);
+    println!();
+
     // Debug: check parser position after parsing
     println!("Parser position after parsing: {} / {}", parser.pos, tokens.len());
 

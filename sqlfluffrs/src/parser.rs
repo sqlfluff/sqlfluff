@@ -1741,6 +1741,219 @@ impl<'a> Parser<'_> {
                 );
                 Ok(Node::DelimitedList(items))
             }
+            Grammar::AnySetOf {
+                elements,
+                min_times,
+                max_times,
+                optional,
+                terminators,
+                reset_terminators,
+                allow_gaps,
+                parse_mode,
+            } => {
+                // AnySetOf is AnyNumberOf with max_times_per_element=1
+                // Each element can only be matched once
+                log::debug!(
+                    "Trying AnySetOf with {} elements, parse_mode: {:?}",
+                    elements.len(),
+                    parse_mode
+                );
+
+                let mut items = vec![];
+                let mut count = 0;
+                let initial_pos = self.pos;
+
+                // Track which elements have been matched (by cache key)
+                let mut matched_elements: std::collections::HashSet<u64> =
+                    std::collections::HashSet::new();
+
+                // Combine parent and local terminators
+                let all_terminators: Vec<Grammar> = if *reset_terminators {
+                    terminators.clone()
+                } else {
+                    terminators
+                        .iter()
+                        .cloned()
+                        .chain(parent_terminators.iter().cloned())
+                        .collect()
+                };
+
+                // Determine max_idx based on parse_mode
+                let max_idx = if *parse_mode == ParseMode::Greedy {
+                    self.trim_to_terminator(initial_pos, &all_terminators)
+                } else {
+                    self.tokens.len()
+                };
+
+                log::debug!("AnySetOf max_idx: {} (tokens.len: {})", max_idx, self.tokens.len());
+
+                // Track matched_idx and working_idx
+                let mut matched_idx = initial_pos;
+                let mut working_idx = initial_pos;
+
+                loop {
+                    // Check if we've met min_times and reached limits
+                    if count >= *min_times
+                        && (matched_idx >= max_idx
+                            || (max_times.is_some() && count >= max_times.unwrap()))
+                    {
+                        log::debug!(
+                            "AnySetOf: reached limits at {} matches, matched_idx: {}, max_idx: {}",
+                            count, matched_idx, max_idx
+                        );
+                        break;
+                    }
+
+                    // Is there nothing left to match?
+                    if matched_idx >= max_idx {
+                        // If we haven't met the hurdle rate, fail
+                        if count < *min_times {
+                            if *optional {
+                                self.pos = initial_pos;
+                                log::debug!("AnySetOf returning Empty (didn't meet min_times)");
+                                return Ok(Node::Empty);
+                            } else {
+                                return Err(ParseError::new(format!(
+                                    "Expected at least {} occurrences, found {}",
+                                    min_times, count
+                                )));
+                            }
+                        }
+                        break;
+                    }
+
+                    // Update working_idx to skip whitespace if allowed
+                    if *allow_gaps {
+                        working_idx = self.skip_start_index_forward_to_code(working_idx, max_idx);
+                    }
+
+                    // Try to find longest match among UNMATCHED elements
+                    let mut longest_match: Option<(Node, usize, usize, u64)> = None;
+
+                    for element in elements {
+                        let element_key = element.cache_key();
+
+                        // Skip if this element has already been matched (AnySetOf constraint)
+                        if matched_elements.contains(&element_key) {
+                            log::debug!(
+                                "AnySetOf: element already matched, skipping"
+                            );
+                            continue;
+                        }
+
+                        self.pos = working_idx;
+
+                        match self.parse_with_grammar_cached(element, &all_terminators) {
+                            Ok(node) if !node.is_empty() => {
+                                let end_pos = self.pos;
+                                let consumed = end_pos - working_idx;
+
+                                if longest_match.is_none()
+                                    || consumed > longest_match.as_ref().unwrap().2
+                                {
+                                    longest_match = Some((node, end_pos, consumed, element_key));
+                                }
+                            }
+                            Ok(_) => {
+                                // Empty node, skip
+                            }
+                            Err(_) => {
+                                // No match for this element
+                            }
+                        }
+                    }
+
+                    // Did we fail to match?
+                    if longest_match.is_none() {
+                        log::debug!("AnySetOf: no match found at position {}", working_idx);
+                        // If we haven't met the hurdle rate, fail
+                        if count < *min_times {
+                            if *optional {
+                                self.pos = initial_pos;
+                                log::debug!("AnySetOf optional, returning Empty");
+                                return Ok(Node::Empty);
+                            } else {
+                                return Err(ParseError::new(format!(
+                                    "Expected at least {} occurrences, found {}",
+                                    min_times, count
+                                )));
+                            }
+                        } else {
+                            // We met the hurdle, done
+                            break;
+                        }
+                    }
+
+                    // Success - add the match
+                    let (node, end_pos, _consumed, element_key) = longest_match.unwrap();
+
+                    // Mark this element as matched (AnySetOf constraint)
+                    matched_elements.insert(element_key);
+
+                    items.push(node);
+                    matched_idx = end_pos;
+                    working_idx = matched_idx;
+                    count += 1;
+
+                    log::debug!(
+                        "AnySetOf: matched element #{}, matched_idx now: {}",
+                        count, matched_idx
+                    );
+
+                    // Check max_times limit
+                    if let Some(max) = max_times {
+                        if count >= *max {
+                            log::debug!("AnySetOf: reached max_times {}", max);
+                            break;
+                        }
+                    }
+                }
+
+                // Update parser position to matched_idx
+                self.pos = matched_idx;
+
+                // Apply parse_mode logic for remaining content (GREEDY mode)
+                if *parse_mode == ParseMode::Greedy {
+                    // Check if there's unparsable content remaining
+                    if matched_idx < max_idx {
+                        // Check if all remaining is non-code
+                        let all_non_code = (matched_idx..max_idx)
+                            .all(|i| {
+                                self.tokens.get(i)
+                                    .map_or(true, |t| !t.is_code())
+                            });
+
+                        if !all_non_code {
+                            // There's code content we didn't match - consume as tokens
+                            log::debug!(
+                                "AnySetOf GREEDY mode: consuming remaining tokens from {} to {}",
+                                matched_idx, max_idx
+                            );
+
+                            while self.pos < max_idx {
+                                if let Some(tok) = self.peek() {
+                                    let tok_type = tok.get_type();
+                                    if tok_type == "whitespace" {
+                                        items.push(Node::Whitespace(tok.raw().to_string(), self.pos));
+                                    } else if tok_type == "newline" {
+                                        items.push(Node::Newline(tok.raw().to_string(), self.pos));
+                                    } else {
+                                        items.push(Node::Code(tok.raw().to_string(), self.pos));
+                                    }
+                                }
+                                self.bump();
+                            }
+                        }
+                    }
+                }
+
+                log::debug!(
+                    "MATCHED AnySetOf with {} items at position {}",
+                    items.len(),
+                    self.pos
+                );
+                Ok(Node::DelimitedList(items))
+            }
             Grammar::Delimited {
                 elements,
                 delimiter,
@@ -2724,6 +2937,85 @@ LEFT JOIN t9 AS c_ph
         println!("\nAST contains whitespace nodes: {}", has_whitespace);
 
         assert!(has_whitespace, "AST should contain whitespace nodes");
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_anysetof_foreign_key() -> Result<(), ParseError> {
+        env_logger::try_init().ok();
+
+        // Test AnySetOf with foreign key ON DELETE/ON UPDATE clauses
+        // These can appear in any order and each at most once
+        let raw = "CREATE TABLE orders (
+    id INT PRIMARY KEY,
+    customer_id INT,
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
+        ON DELETE CASCADE
+        ON UPDATE SET NULL
+)";
+        let input = LexInput::String(raw.into());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, dialect);
+        let (tokens, _errors) = lexer.lex(input, false);
+
+        println!("\nTokens lexed: {} tokens", tokens.len());
+
+        let mut parser = Parser::new(&tokens, dialect);
+        let ast = parser.call_rule("CreateTableStatementSegment", &[])?;
+
+        println!("\nParsed CREATE TABLE with FOREIGN KEY successfully");
+        println!("AST depth: {}", count_depth(&ast));
+
+        // Verify we consumed all tokens
+        assert_eq!(parser.pos, parser.tokens.len());
+        assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
+
+        // Helper function to count AST depth
+        fn count_depth(node: &Node) -> usize {
+            match node {
+                Node::Ref { child, .. } => 1 + count_depth(child),
+                Node::Sequence(children) | Node::DelimitedList(children) => {
+                    1 + children.iter().map(count_depth).max().unwrap_or(0)
+                }
+                _ => 1,
+            }
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_anysetof_order_independence() -> Result<(), ParseError> {
+        env_logger::try_init().ok();
+
+        // Test that ON DELETE and ON UPDATE can appear in either order
+        let raw1 = "FOREIGN KEY (col) REFERENCES other(col) ON DELETE CASCADE ON UPDATE SET NULL";
+        let raw2 = "FOREIGN KEY (col) REFERENCES other(col) ON UPDATE SET NULL ON DELETE CASCADE";
+
+        let dialect = Dialect::Ansi;
+
+        // Parse first order
+        let input1 = LexInput::String(raw1.into());
+        let lexer1 = Lexer::new(None, dialect);
+        let (tokens1, _) = lexer1.lex(input1, false);
+        let mut parser1 = Parser::new(&tokens1, dialect);
+        let ast1 = parser1.call_rule("TableConstraintSegment", &[]);
+
+        // Parse second order (reversed)
+        let input2 = LexInput::String(raw2.into());
+        let lexer2 = Lexer::new(None, dialect);
+        let (tokens2, _) = lexer2.lex(input2, false);
+        let mut parser2 = Parser::new(&tokens2, dialect);
+        let ast2 = parser2.call_rule("TableConstraintSegment", &[]);
+
+        // Both should parse successfully (regardless of order)
+        assert!(ast1.is_ok(), "First order (DELETE then UPDATE) should parse");
+        assert!(ast2.is_ok(), "Second order (UPDATE then DELETE) should parse");
+
+        println!("\nBoth orderings parsed successfully!");
+        println!("DELETE->UPDATE: consumed {} tokens", parser1.pos);
+        println!("UPDATE->DELETE: consumed {} tokens", parser2.pos);
 
         Ok(())
     }
