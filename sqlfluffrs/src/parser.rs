@@ -948,9 +948,20 @@ enum DelimitedState {
 impl<'a> Parser<'_> {
     /// Check if a grammar element is optional
     fn is_grammar_optional(grammar: &Grammar) -> bool {
-        match grammar {
+        let result = match grammar {
             Grammar::Sequence { optional, .. } => *optional,
-            Grammar::AnyNumberOf { optional, .. } => *optional,
+            Grammar::AnyNumberOf {
+                optional,
+                min_times,
+                ..
+            } => {
+                log::debug!(
+                    "is_grammar_optional: AnyNumberOf optional={}, min_times={}",
+                    optional,
+                    min_times
+                );
+                *optional || *min_times == 0
+            }
             Grammar::OneOf { optional, .. } => *optional,
             Grammar::Delimited { optional, .. } => *optional,
             Grammar::Bracketed { optional, .. } => *optional,
@@ -960,7 +971,9 @@ impl<'a> Parser<'_> {
             Grammar::TypedParser { optional, .. } => *optional,
             Grammar::RegexParser { optional, .. } => *optional,
             _ => false,
-        }
+        };
+        log::debug!("is_grammar_optional for {}: {}", grammar, result);
+        result
     }
 
     /// Fully iterative parser using explicit stack
@@ -1064,9 +1077,13 @@ impl<'a> Parser<'_> {
                                 _ => {
                                     if *optional {
                                         log::debug!("String parser optional, skipping");
-                                        results.insert(frame.frame_id, (Node::Empty, self.pos, None));
+                                        results
+                                            .insert(frame.frame_id, (Node::Empty, self.pos, None));
                                     } else {
-                                        return Err(ParseError::new(format!("Expected string '{}'", template)));
+                                        return Err(ParseError::new(format!(
+                                            "Expected string '{}'",
+                                            template
+                                        )));
                                     }
                                 }
                             }
@@ -1083,7 +1100,11 @@ impl<'a> Parser<'_> {
                             let token = self.peek().cloned();
 
                             match token {
-                                Some(tok) if templates.iter().any(|&temp| tok.raw().eq_ignore_ascii_case(temp)) => {
+                                Some(tok)
+                                    if templates
+                                        .iter()
+                                        .any(|&temp| tok.raw().eq_ignore_ascii_case(temp)) =>
+                                {
                                     let token_pos = self.pos;
                                     self.bump();
                                     log::debug!("MATCHED MultiString matched: {}", tok);
@@ -1098,9 +1119,13 @@ impl<'a> Parser<'_> {
                                 _ => {
                                     if *optional {
                                         log::debug!("MultiString parser optional, skipping");
-                                        results.insert(frame.frame_id, (Node::Empty, self.pos, None));
+                                        results
+                                            .insert(frame.frame_id, (Node::Empty, self.pos, None));
                                     } else {
-                                        return Err(ParseError::new(format!("Expected one of: {:?}", templates)));
+                                        return Err(ParseError::new(format!(
+                                            "Expected one of: {:?}",
+                                            templates
+                                        )));
                                     }
                                 }
                             }
@@ -1156,11 +1181,12 @@ impl<'a> Parser<'_> {
                             let token = self.peek().cloned();
 
                             match token {
-                                Some(tok) if regex::RegexBuilder::new(template)
-                                    .case_insensitive(true)
-                                    .build()
-                                    .unwrap()
-                                    .is_match(&tok.raw()) =>
+                                Some(tok)
+                                    if regex::RegexBuilder::new(template)
+                                        .case_insensitive(true)
+                                        .build()
+                                        .unwrap()
+                                        .is_match(&tok.raw()) =>
                                 {
                                     log::debug!("Regex matched: {}", tok);
 
@@ -1174,7 +1200,10 @@ impl<'a> Parser<'_> {
                                         {
                                             log::debug!("Regex anti-matched: {}", tok);
                                             if *optional {
-                                                results.insert(frame.frame_id, (Node::Empty, self.pos, None));
+                                                results.insert(
+                                                    frame.frame_id,
+                                                    (Node::Empty, self.pos, None),
+                                                );
                                             } else {
                                                 return Err(ParseError::new(format!(
                                                     "Token '{}' matches anti-template '{}'",
@@ -1185,7 +1214,10 @@ impl<'a> Parser<'_> {
                                         }
                                     }
 
-                                    log::debug!("MATCHED Regex matched and non anti-match: {}", tok);
+                                    log::debug!(
+                                        "MATCHED Regex matched and non anti-match: {}",
+                                        tok
+                                    );
                                     let token_pos = self.pos;
                                     self.bump();
                                     let node = Node::Code(tok.raw(), token_pos);
@@ -1193,7 +1225,8 @@ impl<'a> Parser<'_> {
                                 }
                                 _ => {
                                     if *optional {
-                                        results.insert(frame.frame_id, (Node::Empty, self.pos, None));
+                                        results
+                                            .insert(frame.frame_id, (Node::Empty, self.pos, None));
                                     } else {
                                         return Err(ParseError::new(format!(
                                             "Expected token matching regex '{}'",
@@ -1224,7 +1257,10 @@ impl<'a> Parser<'_> {
                                     results.insert(frame.frame_id, (node, self.pos, None));
                                 }
                                 _ => {
-                                    return Err(ParseError::new(format!("Expected symbol '{}'", sym)));
+                                    return Err(ParseError::new(format!(
+                                        "Expected symbol '{}'",
+                                        sym
+                                    )));
                                 }
                             }
                         }
@@ -1257,7 +1293,8 @@ impl<'a> Parser<'_> {
                                     break;
                                 }
                                 if let Some(tok) = self.peek() {
-                                    anything_tokens.push(Node::Code(tok.raw().to_string(), self.pos));
+                                    anything_tokens
+                                        .push(Node::Code(tok.raw().to_string(), self.pos));
                                     self.bump();
                                 }
                             }
@@ -1381,7 +1418,8 @@ impl<'a> Parser<'_> {
                                             } = &mut parent_frame.context
                                             {
                                                 *last_child_frame_id = Some(frame_id_counter);
-                                                *current_element_idx = child_idx; // Track which element we're processing
+                                                *current_element_idx = child_idx;
+                                                // Track which element we're processing
                                             }
                                         }
 
@@ -1507,7 +1545,7 @@ impl<'a> Parser<'_> {
                             frame_id_counter += 1;
                             stack.push(frame); // Push parent back to stack first
                             stack.push(child_frame); // Then push child
-                            // No break needed - match arm ends here
+                                                     // No break needed - match arm ends here
                         }
 
                         Grammar::Ref {
@@ -2199,19 +2237,53 @@ impl<'a> Parser<'_> {
                                     }
 
                                     // Check if we've run out of segments
+                                    // Note: child_index is the index of the child we just processed
+                                    // The next child to process is at child_index + 1
+                                    log::debug!(
+                                        "Sequence checking EOF: next_pos={}, current_max_idx={}, child_index={}, elements_clone.len()={}",
+                                        next_pos,
+                                        current_max_idx,
+                                        child_index,
+                                        elements_clone.len()
+                                    );
+                                    let next_child_index = child_index + 1;
                                     if next_pos >= current_max_idx
-                                        && child_index < elements_clone.len()
+                                        && next_child_index < elements_clone.len()
                                     {
+                                        log::debug!("  Entered EOF check block");
                                         // Check if next element is optional
                                         let next_element_optional = if let Some(next_elem) =
-                                            elements_clone.get(child_index)
+                                            elements_clone.get(next_child_index)
                                         {
                                             Self::is_grammar_optional(next_elem)
                                         } else {
                                             false
                                         };
+                                        log::debug!(
+                                            "  next_element_optional={}",
+                                            next_element_optional
+                                        );
 
-                                        if !next_element_optional {
+                                        if next_element_optional {
+                                            // Next element is optional and we're at EOF - complete the sequence
+                                            log::debug!(
+                                                "COMPLETE: ran out of segments but next element is optional"
+                                            );
+                                            for pos in tentatively_collected.iter() {
+                                                self.collected_transparent_positions.insert(*pos);
+                                            }
+                                            self.pos = current_matched_idx;
+                                            let result_node = if frame.accumulated.is_empty() {
+                                                Node::Empty
+                                            } else {
+                                                Node::Sequence(frame.accumulated.clone())
+                                            };
+                                            results.insert(
+                                                frame.frame_id,
+                                                (result_node, current_matched_idx, None),
+                                            );
+                                            continue;
+                                        } else {
                                             // Handle based on parse mode
                                             if current_parse_mode == ParseMode::Strict
                                                 || frame.accumulated.is_empty()
@@ -2261,7 +2333,11 @@ impl<'a> Parser<'_> {
                                     let mut next_elem_idx = current_elem_idx + 1;
                                     log::debug!("Looking for next child: next_elem_idx={}, elements_clone.len()={}", next_elem_idx, elements_clone.len());
                                     while next_elem_idx < elements_clone.len() {
-                                        log::debug!("Checking element {}: {:?}", next_elem_idx, &elements_clone[next_elem_idx]);
+                                        log::debug!(
+                                            "Checking element {}: {:?}",
+                                            next_elem_idx,
+                                            &elements_clone[next_elem_idx]
+                                        );
                                         if let Grammar::Meta(meta_type) =
                                             &elements_clone[next_elem_idx]
                                         {
@@ -2291,7 +2367,11 @@ impl<'a> Parser<'_> {
                                             next_elem_idx += 1;
                                         } else {
                                             // Non-Meta element - create frame for it
-                                            log::debug!("Creating child frame for element {}: frame_id={}", next_elem_idx, frame_id_counter);
+                                            log::debug!(
+                                                "Creating child frame for element {}: frame_id={}",
+                                                next_elem_idx,
+                                                frame_id_counter
+                                            );
                                             let child_frame = ParseFrame {
                                                 frame_id: frame_id_counter,
                                                 grammar: elements_clone[next_elem_idx].clone(),
@@ -2311,7 +2391,8 @@ impl<'a> Parser<'_> {
                                                 } = &mut parent_frame.context
                                                 {
                                                     *last_child_frame_id = Some(frame_id_counter);
-                                                    *current_element_idx = next_elem_idx; // Update to the element we're about to process
+                                                    *current_element_idx = next_elem_idx;
+                                                    // Update to the element we're about to process
                                                 }
                                             }
 
@@ -3167,9 +3248,6 @@ impl<'a> Parser<'_> {
                                             *matched_idx = *child_end_pos;
                                             *working_idx = *matched_idx;
 
-                                            // Transition to MatchingDelimiter state
-                                            *state = DelimitedState::MatchingDelimiter;
-
                                             // Skip whitespace before delimiter
                                             if *allow_gaps {
                                                 *working_idx = self
@@ -3179,30 +3257,58 @@ impl<'a> Parser<'_> {
                                                     );
                                             }
 
-                                            // Create child frame for delimiter
-                                            let child_frame = ParseFrame {
-                                                frame_id: frame_id_counter,
-                                                grammar: (**delimiter).clone(),
-                                                pos: *working_idx,
-                                                terminators: frame_terminators.clone(),
-                                                state: FrameState::Initial,
-                                                accumulated: vec![],
-                                                context: FrameContext::None,
-                                            };
+                                            // Check if we're at EOF or terminator
+                                            // If so, no delimiter is required (delimiters are only between elements)
+                                            self.pos = *working_idx;
+                                            if self.is_at_end()
+                                                || self.is_terminated(&frame_terminators)
+                                            {
+                                                log::debug!(
+                                                    "[ITERATIVE] Delimited: at EOF or terminator after element, completing at position {}",
+                                                    matched_idx
+                                                );
+                                                self.pos = *matched_idx;
+                                                results.insert(
+                                                    frame.frame_id,
+                                                    (
+                                                        Node::DelimitedList(
+                                                            frame.accumulated.clone(),
+                                                        ),
+                                                        *matched_idx,
+                                                        None,
+                                                    ),
+                                                );
+                                                // Don't push frame back - we're done
+                                            } else {
+                                                // Transition to MatchingDelimiter state
+                                                *state = DelimitedState::MatchingDelimiter;
 
-                                            // Update parent's last_child_frame_id
-                                            if let Some(parent_frame) = stack.last_mut() {
-                                                if let FrameContext::Delimited {
-                                                    last_child_frame_id,
-                                                    ..
-                                                } = &mut parent_frame.context
-                                                {
-                                                    *last_child_frame_id = Some(frame_id_counter);
+                                                // Create child frame for delimiter
+                                                let child_frame = ParseFrame {
+                                                    frame_id: frame_id_counter,
+                                                    grammar: (**delimiter).clone(),
+                                                    pos: *working_idx,
+                                                    terminators: frame_terminators.clone(),
+                                                    state: FrameState::Initial,
+                                                    accumulated: vec![],
+                                                    context: FrameContext::None,
+                                                };
+
+                                                // Update parent's last_child_frame_id
+                                                if let Some(parent_frame) = stack.last_mut() {
+                                                    if let FrameContext::Delimited {
+                                                        last_child_frame_id,
+                                                        ..
+                                                    } = &mut parent_frame.context
+                                                    {
+                                                        *last_child_frame_id =
+                                                            Some(frame_id_counter);
+                                                    }
                                                 }
-                                            }
 
-                                            frame_id_counter += 1;
-                                            stack.push(child_frame);
+                                                frame_id_counter += 1;
+                                                stack.push(child_frame);
+                                            }
                                         }
                                     }
                                     DelimitedState::MatchingDelimiter => {
@@ -3386,7 +3492,11 @@ impl<'a> Parser<'_> {
         }
 
         // Return the result from the initial frame
-        log::debug!("Main loop ended. Stack empty. Results has {} entries. Looking for frame_id={}", results.len(), initial_frame_id);
+        log::debug!(
+            "Main loop ended. Stack empty. Results has {} entries. Looking for frame_id={}",
+            results.len(),
+            initial_frame_id
+        );
         for (fid, (_node, _pos, _key)) in results.iter() {
             log::debug!("  Result frame_id={}", fid);
         }
@@ -4965,6 +5075,16 @@ impl<'a> Parser<'_> {
 
                     // Collect whitespace before delimiter
                     let ws_before_delim = self.collect_transparent(*allow_gaps);
+
+                    // Check if we're at EOF or a terminator BEFORE trying to match delimiter
+                    // If so, we don't need a delimiter (it's only required between elements)
+                    if self.is_at_end() || self.is_terminated(&all_terminators) {
+                        self.pos = saved_pos; // Restore position to before whitespace collection
+                        log::debug!(
+                            "Delimited: at EOF or terminator after element, no delimiter required"
+                        );
+                        break;
+                    }
 
                     if let Ok(delim_node) =
                         self.parse_with_grammar_cached(delimiter, &all_terminators)
