@@ -20,6 +20,8 @@ RESERVED_KEYWORDS = [
     "SEMI",
     "UNION",
     "USING",
+    "TAG",
+    "=",
 ]
 
 UNRESERVED_KEYWORDS = [

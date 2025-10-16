@@ -1,0 +1,197 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e0f6a5f26817b1ca4ca1dc280f67c4ec5063298a3b03c7388bba5727cf1ecf67
+file:
+- statement:
+    tag_statement:
+    - keyword: SET
+    - keyword: TAG
+    - keyword: 'ON'
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: catalog
+    - quoted_identifier: '`tag1`'
+    - keyword: '='
+    - quoted_identifier: '`value1`'
+- statement_terminator: ;
+- statement:
+    tag_statement:
+    - keyword: SET
+    - keyword: TAG
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: table
+      - dot: .
+      - naked_identifier: column
+    - quoted_identifier: '`tag1`'
+    - keyword: '='
+    - quoted_identifier: '`value1`'
+- statement_terminator: ;
+- statement:
+    tag_statement:
+    - keyword: SET
+    - keyword: TAG
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - database_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: schema
+    - naked_identifier: tag1
+    - keyword: '='
+    - quoted_identifier: '`value1`'
+- statement_terminator: ;
+- statement:
+    tag_statement:
+    - keyword: SET
+    - keyword: TAG
+    - keyword: 'ON'
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: database
+    - quoted_identifier: '`tag1`'
+    - keyword: '='
+    - naked_identifier: value1
+- statement_terminator: ;
+- statement:
+    tag_statement:
+    - keyword: SET
+    - keyword: TAG
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: table
+    - naked_identifier: tag1
+    - keyword: '='
+    - naked_identifier: value1
+- statement_terminator: ;
+- statement:
+    tag_statement:
+    - keyword: SET
+    - keyword: TAG
+    - keyword: 'ON'
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: view
+    - quoted_identifier: '`tag1`'
+    - keyword: '='
+    - quoted_identifier: '`value1`'
+- statement_terminator: ;
+- statement:
+    tag_statement:
+    - keyword: SET
+    - keyword: TAG
+    - keyword: 'ON'
+    - keyword: VOLUME
+    - volume_reference:
+        naked_identifier: volume
+    - quoted_identifier: '`tag1`'
+    - keyword: '='
+    - quoted_identifier: '`value1`'
+- statement_terminator: ;
+- statement:
+    tag_statement:
+    - keyword: UNSET
+    - keyword: TAG
+    - keyword: 'ON'
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: catalog
+    - quoted_identifier: '`tag1`'
+- statement_terminator: ;
+- statement:
+    tag_statement:
+    - keyword: UNSET
+    - keyword: TAG
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: table
+      - dot: .
+      - naked_identifier: column
+    - quoted_identifier: '`tag1`'
+- statement_terminator: ;
+- statement:
+    tag_statement:
+    - keyword: UNSET
+    - keyword: TAG
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - database_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: schema
+    - quoted_identifier: '`tag1`'
+- statement_terminator: ;
+- statement:
+    tag_statement:
+    - keyword: UNSET
+    - keyword: TAG
+    - keyword: 'ON'
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: database
+    - quoted_identifier: '`tag1`'
+- statement_terminator: ;
+- statement:
+    tag_statement:
+    - keyword: UNSET
+    - keyword: TAG
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: table
+    - quoted_identifier: '`tag1`'
+- statement_terminator: ;
+- statement:
+    tag_statement:
+    - keyword: UNSET
+    - keyword: TAG
+    - keyword: 'ON'
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: view
+    - quoted_identifier: '`tag1`'
+- statement_terminator: ;
+- statement:
+    tag_statement:
+    - keyword: UNSET
+    - keyword: TAG
+    - keyword: 'ON'
+    - keyword: VOLUME
+    - volume_reference:
+        naked_identifier: volume
+    - quoted_identifier: '`tag1`'
+- statement_terminator: ;
