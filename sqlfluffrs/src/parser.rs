@@ -758,7 +758,7 @@ impl<'a> Parser<'_> {
         // Check cache first
         if let Some(Ok((node, end_pos, collected_positions))) = self.parse_cache.get(&cache_key) {
             self.pos = end_pos; // Directly set to cached end position
-            // Restore collected transparent positions
+                                // Restore collected transparent positions
             let num_positions = collected_positions.len();
             for pos in collected_positions {
                 self.collected_transparent_positions.insert(pos);
@@ -1093,7 +1093,12 @@ impl<'a> Parser<'_> {
                 terminators,
                 reset_terminators,
             } => {
-                log::debug!("Trying Ref to segment: {}, optional: {}, allow_gaps: {}", name, optional, allow_gaps);
+                log::debug!(
+                    "Trying Ref to segment: {}, optional: {}, allow_gaps: {}",
+                    name,
+                    optional,
+                    allow_gaps
+                );
                 let saved = self.pos;
                 self.skip_transparent(*allow_gaps);
 
@@ -1134,7 +1139,12 @@ impl<'a> Parser<'_> {
                 parse_mode,
             } => {
                 let start_idx = self.pos; // Where did we start
-                log::debug!("Sequence starting at {}, allow_gaps={}, parse_mode={:?}", start_idx, allow_gaps, parse_mode);
+                log::debug!(
+                    "Sequence starting at {}, allow_gaps={}, parse_mode={:?}",
+                    start_idx,
+                    allow_gaps,
+                    parse_mode
+                );
                 let mut matched_idx = self.pos; // Where have we got to
                 let mut last_collected_idx = None::<usize>; // Track last position where we collected transparent tokens
                 let mut max_idx = self.tokens.len(); // What is the limit
@@ -1189,12 +1199,17 @@ impl<'a> Parser<'_> {
                     // 2. Skip whitespace/newlines if allow_gaps
                     self.pos = matched_idx;
                     let mut _idx = matched_idx;
-                    log::debug!("Before collection: matched_idx={}, allow_gaps={}", matched_idx, *allow_gaps);
+                    log::debug!(
+                        "Before collection: matched_idx={}, allow_gaps={}",
+                        matched_idx,
+                        *allow_gaps
+                    );
                     if *allow_gaps {
                         _idx = self.skip_start_index_forward_to_code(matched_idx, max_idx);
 
                         // Only collect if we haven't already collected from this position (globally!)
-                        let should_collect = last_collected_idx.map_or(true, |last| matched_idx > last)
+                        let should_collect = last_collected_idx
+                            .map_or(true, |last| matched_idx > last)
                             && !self.collected_transparent_positions.contains(&matched_idx);
 
                         log::debug!("Collection check: matched_idx={}, last_collected={:?}, in_global={}, should_collect={}",
@@ -1208,14 +1223,25 @@ impl<'a> Parser<'_> {
                                 if let Some(tok) = self.peek() {
                                     let tok_type = tok.get_type();
                                     if tok_type == "whitespace" {
-                                        log::debug!("COLLECTING whitespace at token pos {}: {:?}", self.pos, tok.raw());
-                                        children
-                                            .push(Node::Whitespace(tok.raw().to_string(), self.pos));
+                                        log::debug!(
+                                            "COLLECTING whitespace at token pos {}: {:?}",
+                                            self.pos,
+                                            tok.raw()
+                                        );
+                                        children.push(Node::Whitespace(
+                                            tok.raw().to_string(),
+                                            self.pos,
+                                        ));
                                         // Mark as tentatively collected (will commit on success)
                                         tentatively_collected_positions.push(current_pos);
                                     } else if tok_type == "newline" {
-                                        log::debug!("COLLECTING newline at token pos {}: {:?}", self.pos, tok.raw());
-                                        children.push(Node::Newline(tok.raw().to_string(), self.pos));
+                                        log::debug!(
+                                            "COLLECTING newline at token pos {}: {:?}",
+                                            self.pos,
+                                            tok.raw()
+                                        );
+                                        children
+                                            .push(Node::Newline(tok.raw().to_string(), self.pos));
                                         // Mark as tentatively collected (will commit on success)
                                         tentatively_collected_positions.push(current_pos);
                                     }
@@ -1225,7 +1251,10 @@ impl<'a> Parser<'_> {
                             // Update last collected position
                             last_collected_idx = Some(matched_idx);
                         } else {
-                            log::debug!("SKIPPING collection at matched_idx={} (already collected)", matched_idx);
+                            log::debug!(
+                                "SKIPPING collection at matched_idx={} (already collected)",
+                                matched_idx
+                            );
                             // Still need to advance self.pos even if not collecting
                             self.pos = _idx;
                         }
@@ -1293,47 +1322,79 @@ impl<'a> Parser<'_> {
                                 matched_idx
                             );
 
+                            // Add the matched node first
+                            children.push(node);
+
+                            // THEN handle retroactive collection of trailing transparent tokens
                             // If the Sequence has allow_gaps=false but the element skipped transparent tokens,
                             // we need to collect them retroactively!
                             if !*allow_gaps {
                                 // The element was parsed starting at element_start
-                                // But it might have consumed a code token and then skipped transparent tokens
-                                // We need to find where the last code token ended and collect everything after that
+                                // After matching, we're at matched_idx
+                                // We need to collect any transparent tokens between where the element
+                                // actually consumed code tokens and where we ended up
 
-                                // Find the last code token position that was consumed
-                                let mut last_code_pos = element_start;
+                                // Find where the element actually consumed its last code token
+                                // by working backwards from matched_idx
+                                let mut last_code_consumed = element_start;
                                 for check_pos in element_start..matched_idx {
-                                    if check_pos < self.tokens.len() && self.tokens[check_pos].is_code() {
-                                        last_code_pos = check_pos;
+                                    if check_pos < self.tokens.len()
+                                        && self.tokens[check_pos].is_code()
+                                    {
+                                        last_code_consumed = check_pos;
                                     }
                                 }
 
-                                // Now collect transparent tokens AFTER the last code token
-                                log::debug!("Checking for retroactive collection: last_code_pos={}, matched_idx={}", last_code_pos, matched_idx);
-                                for check_pos in (last_code_pos + 1)..matched_idx {
-                                    log::debug!("Checking position {}: is_code={}, in_global={}", check_pos,
+                                log::debug!(
+                                    "Retroactive collection: element_start={}, last_code_consumed={}, matched_idx={}",
+                                    element_start, last_code_consumed, matched_idx
+                                );
+
+                                // Collect transparent tokens from right after the last code token
+                                // up to (but not including) matched_idx
+                                // Actually, we need to check if matched_idx itself is a transparent token!
+                                let collect_end = if matched_idx < self.tokens.len()
+                                    && !self.tokens[matched_idx].is_code()
+                                {
+                                    matched_idx + 1 // Include matched_idx position if it's transparent
+                                } else {
+                                    matched_idx // Don't include if it's code
+                                };
+
+                                for check_pos in (last_code_consumed + 1)..collect_end {
+                                    log::debug!(
+                                        "Checking position {} for retroactive collection: is_code={}, in_global={}",
+                                        check_pos,
                                         if check_pos < self.tokens.len() { self.tokens[check_pos].is_code() } else { true },
-                                        self.collected_transparent_positions.contains(&check_pos));
-                                    if check_pos < self.tokens.len() && !self.tokens[check_pos].is_code() {
-                                        if !self.collected_transparent_positions.contains(&check_pos) {
-                                            let tok = &self.tokens[check_pos];
-                                            let tok_type = tok.get_type();
-                                            if tok_type == "whitespace" {
-                                                log::debug!("RETROACTIVELY collecting whitespace at token pos {}: {:?}", check_pos, tok.raw());
-                                                children.push(Node::Whitespace(tok.raw().to_string(), check_pos));
-                                                tentatively_collected_positions.push(check_pos);
-                                            } else if tok_type == "newline" {
-                                                log::debug!("RETROACTIVELY collecting newline at token pos {}: {:?}", check_pos, tok.raw());
-                                                children.push(Node::Newline(tok.raw().to_string(), check_pos));
-                                                tentatively_collected_positions.push(check_pos);
-                                            }
+                                        self.collected_transparent_positions.contains(&check_pos)
+                                    );
+                                    if check_pos < self.tokens.len()
+                                        && !self.tokens[check_pos].is_code()
+                                        && !self
+                                            .collected_transparent_positions
+                                            .contains(&check_pos)
+                                    {
+                                        let tok = &self.tokens[check_pos];
+                                        let tok_type = tok.get_type();
+                                        if tok_type == "whitespace" {
+                                            log::debug!("RETROACTIVELY collecting whitespace at token pos {}: {:?}", check_pos, tok.raw());
+                                            children.push(Node::Whitespace(
+                                                tok.raw().to_string(),
+                                                check_pos,
+                                            ));
+                                            tentatively_collected_positions.push(check_pos);
+                                        } else if tok_type == "newline" {
+                                            log::debug!("RETROACTIVELY collecting newline at token pos {}: {:?}", check_pos, tok.raw());
+                                            children.push(Node::Newline(
+                                                tok.raw().to_string(),
+                                                check_pos,
+                                            ));
+                                            tentatively_collected_positions.push(check_pos);
                                         }
                                     }
                                 }
                                 last_collected_idx = Some(matched_idx - 1);
                             }
-
-                            children.push(node);
 
                             // GREEDY_ONCE_STARTED: Trim to terminator after first match
                             if first_match && *parse_mode == ParseMode::GreedyOnceStarted {
@@ -1624,7 +1685,11 @@ impl<'a> Parser<'_> {
                     self.tokens.len()
                 };
 
-                log::debug!("AnyNumberOf max_idx: {} (tokens.len: {})", max_idx, self.tokens.len());
+                log::debug!(
+                    "AnyNumberOf max_idx: {} (tokens.len: {})",
+                    max_idx,
+                    self.tokens.len()
+                );
 
                 // Track matched_idx and working_idx like Python
                 let mut matched_idx = initial_pos;
@@ -1682,7 +1747,8 @@ impl<'a> Parser<'_> {
 
                                 // Check if this element has hit its per-element limit
                                 if let Some(max_per_elem) = max_times_per_element {
-                                    let elem_count = option_counter.get(&element_key).copied().unwrap_or(0);
+                                    let elem_count =
+                                        option_counter.get(&element_key).copied().unwrap_or(0);
                                     if elem_count >= *max_per_elem {
                                         log::debug!(
                                             "AnyNumberOf: element {:?} already matched {} times (max_times_per_element: {})",
@@ -1714,7 +1780,9 @@ impl<'a> Parser<'_> {
                         if count < *min_times {
                             if *optional {
                                 self.pos = initial_pos;
-                                log::debug!("AnyNumberOf returning Empty (no match, didn't meet min_times)");
+                                log::debug!(
+                                    "AnyNumberOf returning Empty (no match, didn't meet min_times)"
+                                );
                                 return Ok(Node::Empty);
                             } else {
                                 return Err(ParseError::new(format!(
@@ -1751,7 +1819,8 @@ impl<'a> Parser<'_> {
                             if let Some(tok) = self.tokens.get(matched_idx) {
                                 let tok_type = tok.get_type();
                                 if tok_type == "whitespace" {
-                                    items.push(Node::Whitespace(tok.raw().to_string(), matched_idx));
+                                    items
+                                        .push(Node::Whitespace(tok.raw().to_string(), matched_idx));
                                 } else if tok_type == "newline" {
                                     items.push(Node::Newline(tok.raw().to_string(), matched_idx));
                                 }
@@ -1768,7 +1837,8 @@ impl<'a> Parser<'_> {
 
                     log::debug!(
                         "AnyNumberOf: matched element #{}, matched_idx now: {}",
-                        count, matched_idx
+                        count,
+                        matched_idx
                     );
 
                     // Check max_times limit
@@ -1789,18 +1859,17 @@ impl<'a> Parser<'_> {
                     if matched_idx < max_idx {
                         // Check if all remaining is non-code
                         let all_non_code = (matched_idx..max_idx)
-                            .all(|i| {
-                                self.tokens.get(i)
-                                    .map_or(true, |t| !t.is_code())
-                            });
+                            .all(|i| self.tokens.get(i).map_or(true, |t| !t.is_code()));
 
                         if !all_non_code {
                             // There's code content we didn't match - create unparsable segment
-                            let _trim_idx = self.skip_start_index_forward_to_code(matched_idx, max_idx);
+                            let _trim_idx =
+                                self.skip_start_index_forward_to_code(matched_idx, max_idx);
 
                             log::debug!(
                                 "GREEDY mode: creating unparsable segment from {} to {}",
-                                _trim_idx, max_idx
+                                _trim_idx,
+                                max_idx
                             );
 
                             // TODO: Create proper UnparsableSegment with expected message
@@ -1809,7 +1878,10 @@ impl<'a> Parser<'_> {
                                 if let Some(tok) = self.peek() {
                                     let tok_type = tok.get_type();
                                     if tok_type == "whitespace" {
-                                        items.push(Node::Whitespace(tok.raw().to_string(), self.pos));
+                                        items.push(Node::Whitespace(
+                                            tok.raw().to_string(),
+                                            self.pos,
+                                        ));
                                     } else if tok_type == "newline" {
                                         items.push(Node::Newline(tok.raw().to_string(), self.pos));
                                     } else {
@@ -1873,7 +1945,11 @@ impl<'a> Parser<'_> {
                     self.tokens.len()
                 };
 
-                log::debug!("AnySetOf max_idx: {} (tokens.len: {})", max_idx, self.tokens.len());
+                log::debug!(
+                    "AnySetOf max_idx: {} (tokens.len: {})",
+                    max_idx,
+                    self.tokens.len()
+                );
 
                 // Track matched_idx and working_idx
                 let mut matched_idx = initial_pos;
@@ -1887,7 +1963,9 @@ impl<'a> Parser<'_> {
                     {
                         log::debug!(
                             "AnySetOf: reached limits at {} matches, matched_idx: {}, max_idx: {}",
-                            count, matched_idx, max_idx
+                            count,
+                            matched_idx,
+                            max_idx
                         );
                         break;
                     }
@@ -1923,9 +2001,7 @@ impl<'a> Parser<'_> {
 
                         // Skip if this element has already been matched (AnySetOf constraint)
                         if matched_elements.contains(&element_key) {
-                            log::debug!(
-                                "AnySetOf: element already matched, skipping"
-                            );
+                            log::debug!("AnySetOf: element already matched, skipping");
                             continue;
                         }
 
@@ -1985,7 +2061,8 @@ impl<'a> Parser<'_> {
 
                     log::debug!(
                         "AnySetOf: matched element #{}, matched_idx now: {}",
-                        count, matched_idx
+                        count,
+                        matched_idx
                     );
 
                     // Check max_times limit
@@ -2006,23 +2083,24 @@ impl<'a> Parser<'_> {
                     if matched_idx < max_idx {
                         // Check if all remaining is non-code
                         let all_non_code = (matched_idx..max_idx)
-                            .all(|i| {
-                                self.tokens.get(i)
-                                    .map_or(true, |t| !t.is_code())
-                            });
+                            .all(|i| self.tokens.get(i).map_or(true, |t| !t.is_code()));
 
                         if !all_non_code {
                             // There's code content we didn't match - consume as tokens
                             log::debug!(
                                 "AnySetOf GREEDY mode: consuming remaining tokens from {} to {}",
-                                matched_idx, max_idx
+                                matched_idx,
+                                max_idx
                             );
 
                             while self.pos < max_idx {
                                 if let Some(tok) = self.peek() {
                                     let tok_type = tok.get_type();
                                     if tok_type == "whitespace" {
-                                        items.push(Node::Whitespace(tok.raw().to_string(), self.pos));
+                                        items.push(Node::Whitespace(
+                                            tok.raw().to_string(),
+                                            self.pos,
+                                        ));
                                     } else if tok_type == "newline" {
                                         items.push(Node::Newline(tok.raw().to_string(), self.pos));
                                     } else {
@@ -3099,8 +3177,14 @@ LEFT JOIN t9 AS c_ph
         let ast2 = parser2.call_rule("TableConstraintSegment", &[]);
 
         // Both should parse successfully (regardless of order)
-        assert!(ast1.is_ok(), "First order (DELETE then UPDATE) should parse");
-        assert!(ast2.is_ok(), "Second order (UPDATE then DELETE) should parse");
+        assert!(
+            ast1.is_ok(),
+            "First order (DELETE then UPDATE) should parse"
+        );
+        assert!(
+            ast2.is_ok(),
+            "Second order (UPDATE then DELETE) should parse"
+        );
 
         println!("\nBoth orderings parsed successfully!");
         println!("DELETE->UPDATE: consumed {} tokens", parser1.pos);
