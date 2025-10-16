@@ -875,6 +875,7 @@ enum FrameContext {
         tried_elements: usize,
         max_idx: usize, // Limit for greedy matching
         parse_mode: ParseMode,
+        last_child_frame_id: Option<usize>, // Track child frame for WaitingForChild state
     },
     AnyNumberOf {
         min_times: usize,
@@ -1478,6 +1479,7 @@ impl<'a> Parser<'_> {
                                 tried_elements: 0,
                                 max_idx,
                                 parse_mode: *parse_mode,
+                                last_child_frame_id: Some(frame_id_counter), // Track the child we're about to create
                             };
 
                             // Create child frame for first element
@@ -1503,8 +1505,9 @@ impl<'a> Parser<'_> {
                             // Context already set above, just keep it
 
                             frame_id_counter += 1;
-                            stack.push(child_frame);
-                            break;
+                            stack.push(frame); // Push parent back to stack first
+                            stack.push(child_frame); // Then push child
+                            // No break needed - match arm ends here
                         }
 
                         Grammar::Ref {
@@ -1553,7 +1556,10 @@ impl<'a> Parser<'_> {
                                         log::debug!("Iterative Ref optional, skipping");
                                         results.insert(frame.frame_id, (Node::Empty, saved, None));
                                     } else {
-                                        return Err(e);
+                                        // In iterative mode, store Empty and let parent handle it
+                                        // This allows OneOf/AnyNumberOf to try other options
+                                        log::debug!("Iterative Ref failed (non-optional), storing Empty for parent to handle");
+                                        results.insert(frame.frame_id, (Node::Empty, saved, None));
                                     }
                                 }
                             }
@@ -1631,19 +1637,15 @@ impl<'a> Parser<'_> {
 
                             // Use OneOf wrapper to try all elements and find longest match
                             if !elements.is_empty() {
-                                // Optimization: if only one element, use it directly (avoid OneOf overhead)
-                                let child_grammar = if elements.len() == 1 {
-                                    elements[0].clone()
-                                } else {
-                                    // Multiple elements: wrap in OneOf for longest-match selection
-                                    Grammar::OneOf {
-                                        elements: elements.clone(),
-                                        optional: true, // Don't fail if no match (let AnyNumberOf handle it)
-                                        terminators: all_terminators.clone(),
-                                        reset_terminators: false,
-                                        allow_gaps: *allow_gaps,
-                                        parse_mode: *parse_mode,
-                                    }
+                                // Always wrap in OneOf to ensure optional behavior
+                                // This ensures that if a child fails, AnyNumberOf can handle it gracefully
+                                let child_grammar = Grammar::OneOf {
+                                    elements: elements.clone(),
+                                    optional: true, // Don't fail if no match (let AnyNumberOf handle it)
+                                    terminators: all_terminators.clone(),
+                                    reset_terminators: false,
+                                    allow_gaps: *allow_gaps,
+                                    parse_mode: *parse_mode,
                                 };
 
                                 let child_frame = ParseFrame {
@@ -1985,6 +1987,11 @@ impl<'a> Parser<'_> {
                         } => last_child_frame_id.expect(
                             "AnyNumberOf WaitingForChild should have last_child_frame_id set",
                         ),
+                        FrameContext::OneOf {
+                            last_child_frame_id,
+                            ..
+                        } => last_child_frame_id
+                            .expect("OneOf WaitingForChild should have last_child_frame_id set"),
                         FrameContext::Bracketed {
                             last_child_frame_id,
                             ..
@@ -2931,6 +2938,7 @@ impl<'a> Parser<'_> {
                                 tried_elements,
                                 max_idx,
                                 parse_mode,
+                                last_child_frame_id: _last_child_frame_id,
                             } => {
                                 log::debug!(
                                     "OneOf WaitingForChild: tried_elements={}, child_empty={}",
