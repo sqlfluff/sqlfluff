@@ -24,6 +24,7 @@ fn main() {
 
     // Parse the tokens
     let mut parser = Parser::new(&tokens, Dialect::Ansi);
+    parser.use_iterative_parser = true; // Enable iterative parsing
     let ast = parser.call_rule("FileSegment", &[])
         .expect("Failed to parse");
 
