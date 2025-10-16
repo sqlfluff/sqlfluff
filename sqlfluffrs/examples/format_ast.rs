@@ -8,7 +8,7 @@ use sqlfluffrs::{
 fn main() {
     env_logger::init();
 
-    let sql = "SELECT * FROM a\n";
+    let sql = "SELECT  \t*\n  FROM\n\ttable_name  ";
 
     // Lex the SQL
     let input = LexInput::String(sql.into());

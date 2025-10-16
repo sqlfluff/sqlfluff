@@ -1207,14 +1207,23 @@ impl<'a> Parser<'_> {
                     if *allow_gaps {
                         _idx = self.skip_start_index_forward_to_code(matched_idx, max_idx);
 
-                        // Only collect if we haven't already collected from this position (globally!)
-                        let should_collect = last_collected_idx
-                            .map_or(true, |last| matched_idx > last)
-                            && !self.collected_transparent_positions.contains(&matched_idx);
+                        // Check if any positions in the range matched_idx.._idx need to be collected
+                        // We should collect if we haven't already collected from this range
+                        let has_uncollected = (matched_idx.._idx).any(|pos| {
+                            pos < self.tokens.len()
+                                && !self.tokens[pos].is_code()
+                                && !self.collected_transparent_positions.contains(&pos)
+                        });
 
-                        log::debug!("Collection check: matched_idx={}, last_collected={:?}, in_global={}, should_collect={}",
-                            matched_idx, last_collected_idx,
-                            self.collected_transparent_positions.contains(&matched_idx), should_collect);
+                        let should_collect = has_uncollected;
+
+                        log::debug!(
+                            "Collection check: matched_idx={}, _idx={}, has_uncollected={}, should_collect={}",
+                            matched_idx,
+                            _idx,
+                            has_uncollected,
+                            should_collect
+                        );
 
                         if should_collect {
                             // Collect the transparent tokens we're skipping
@@ -1351,15 +1360,19 @@ impl<'a> Parser<'_> {
                                 );
 
                                 // Collect transparent tokens from right after the last code token
-                                // up to (but not including) matched_idx
-                                // Actually, we need to check if matched_idx itself is a transparent token!
-                                let collect_end = if matched_idx < self.tokens.len()
-                                    && !self.tokens[matched_idx].is_code()
+                                // Continue collecting ALL transparent tokens until we hit code
+                                let mut collect_end = matched_idx;
+                                while collect_end < self.tokens.len()
+                                    && !self.tokens[collect_end].is_code()
                                 {
-                                    matched_idx + 1 // Include matched_idx position if it's transparent
-                                } else {
-                                    matched_idx // Don't include if it's code
-                                };
+                                    collect_end += 1;
+                                }
+
+                                log::debug!(
+                                    "Retroactive collection will collect from {} to {}",
+                                    last_code_consumed + 1,
+                                    collect_end
+                                );
 
                                 for check_pos in (last_code_consumed + 1)..collect_end {
                                     log::debug!(
@@ -2371,7 +2384,7 @@ impl<'a> Parser<'_> {
 
                 // Check if we've run out of segments
                 if self.pos >= self.tokens.len()
-                    || self.peek().map_or(false, |t| t.get_type() == "end_of_file")
+                    || self.peek().is_some_and(|t| t.get_type() == "end_of_file")
                 {
                     // No end bracket found
                     if *parse_mode == ParseMode::Strict {
@@ -2686,6 +2699,19 @@ mod tests {
         Dialect,
     };
 
+    /// Macro to run a test with a larger stack size (16MB)
+    /// This prevents stack overflow on deeply nested or complex queries
+    macro_rules! with_larger_stack {
+        ($test_fn:expr) => {{
+            std::thread::Builder::new()
+                .stack_size(16 * 1024 * 1024) // 16MB stack
+                .spawn($test_fn)
+                .expect("Failed to spawn thread")
+                .join()
+                .expect("Thread panicked")
+        }};
+    }
+
     #[test]
     fn parse_select_statement() -> Result<(), ParseError> {
         let raw = "SELECT a, b FROM my_table";
@@ -2917,10 +2943,11 @@ mod tests {
         // Run with larger stack size to handle deeply nested queries
         std::thread::Builder::new()
             .stack_size(8 * 1024 * 1024) // 8 MB stack
-            .spawn(|| parse_many_join_impl())
+            .spawn(parse_many_join_impl)
             .unwrap()
             .join()
             .unwrap()
+        // parse_many_join_impl()
     }
 
     fn parse_many_join_impl() -> Result<(), ParseError> {
@@ -3191,5 +3218,411 @@ LEFT JOIN t9 AS c_ph
         println!("UPDATE->DELETE: consumed {} tokens", parser2.pos);
 
         Ok(())
+    }
+
+    /// Helper function to verify all tokens are present in the AST
+    fn verify_all_tokens_in_ast(raw: &str, ast: &Node, tokens: &[Token]) -> Result<(), String> {
+        // Collect all token positions from the AST
+        let mut ast_positions = std::collections::HashSet::new();
+        collect_token_positions(ast, &mut ast_positions);
+
+        // Check which tokens are missing
+        let mut missing = Vec::new();
+        for (idx, token) in tokens.iter().enumerate() {
+            if !ast_positions.contains(&idx) {
+                missing.push((idx, token.clone()));
+            }
+        }
+
+        if !missing.is_empty() {
+            let mut msg = format!("\nMissing {} tokens from AST:\n", missing.len());
+            msg.push_str(&format!("SQL: {}\n\n", raw));
+            for (idx, token) in missing {
+                msg.push_str(&format!(
+                    "  Position {}: {:?} (type: {})\n",
+                    idx,
+                    token.raw(),
+                    token.get_type()
+                ));
+            }
+            return Err(msg);
+        }
+
+        Ok(())
+    }
+
+    /// Recursively collect all token positions from a Node
+    fn collect_token_positions(node: &Node, positions: &mut std::collections::HashSet<usize>) {
+        match node {
+            Node::Keyword(_, pos)
+            | Node::Code(_, pos)
+            | Node::Whitespace(_, pos)
+            | Node::Newline(_, pos)
+            | Node::EndOfFile(_, pos) => {
+                positions.insert(*pos);
+            }
+            Node::Sequence(children) | Node::DelimitedList(children) => {
+                for child in children {
+                    collect_token_positions(child, positions);
+                }
+            }
+            Node::Ref { child, .. } => {
+                collect_token_positions(child, positions);
+            }
+            Node::Empty | Node::Meta(_) => {
+                // No tokens
+            }
+        }
+    }
+
+    #[test]
+    fn test_all_tokens_present_simple_select() -> Result<(), ParseError> {
+        with_larger_stack!(|| {
+            env_logger::try_init().ok();
+
+            let raw = "SELECT * FROM table_name";
+            let dialect = Dialect::Ansi;
+
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
+            let mut parser = Parser::new(&tokens, dialect);
+            let ast = parser.call_rule("SelectStatementSegment", &[])?;
+
+            verify_all_tokens_in_ast(raw, &ast, &tokens).map_err(ParseError::new)?;
+
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn test_all_tokens_present_with_whitespace() -> Result<(), ParseError> {
+        with_larger_stack!(|| {
+            env_logger::try_init().ok();
+
+            // Multiple spaces, tabs, newlines
+            let raw = "SELECT  \t*\n  FROM\n\ttable_name  ";
+            let dialect = Dialect::Ansi;
+
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
+            let mut parser = Parser::new(&tokens, dialect);
+            let ast = parser.call_rule("SelectStatementSegment", &[])?;
+
+            verify_all_tokens_in_ast(raw, &ast, &tokens).map_err(ParseError::new)?;
+
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn test_all_tokens_present_complex_query() -> Result<(), ParseError> {
+        with_larger_stack!(|| {
+            env_logger::try_init().ok();
+
+            let raw = r#"SELECT
+    t1.id,
+    t1.name AS user_name,
+    COUNT(*) as count
+FROM users t1
+LEFT JOIN orders t2 ON t1.id = t2.user_id
+WHERE t1.status = 'active'
+GROUP BY t1.id, t1.name
+HAVING COUNT(*) > 5
+ORDER BY count DESC
+LIMIT 10"#;
+
+            let dialect = Dialect::Ansi;
+
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
+            let mut parser = Parser::new(&tokens, dialect);
+            let ast = parser.call_rule("SelectStatementSegment", &[])?;
+
+            verify_all_tokens_in_ast(raw, &ast, &tokens).map_err(ParseError::new)?;
+
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn test_all_tokens_present_with_subquery() -> Result<(), ParseError> {
+        with_larger_stack!(|| {
+            env_logger::try_init().ok();
+
+            let raw = r#"SELECT * FROM (
+    SELECT id, name
+    FROM users
+    WHERE active = true
+) AS subquery
+WHERE subquery.id > 100"#;
+
+            let dialect = Dialect::Ansi;
+
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
+            let mut parser = Parser::new(&tokens, dialect);
+            let ast = parser.call_rule("FileSegment", &[])?;
+
+            println!("AST: {:#?}", ast);
+            println!("{}", ast.format_tree(&tokens));
+
+            verify_all_tokens_in_ast(raw, &ast, &tokens).map_err(ParseError::new)?;
+
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn test_all_tokens_present_case_expression() -> Result<(), ParseError> {
+        with_larger_stack!(|| {
+            env_logger::try_init().ok();
+
+            let raw = r#"SELECT
+    CASE
+        WHEN status = 'active' THEN 1
+        WHEN status = 'pending' THEN 0
+        ELSE -1
+    END AS status_code
+FROM users"#;
+
+            let dialect = Dialect::Ansi;
+
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
+            let mut parser = Parser::new(&tokens, dialect);
+            let ast = parser.call_rule("SelectStatementSegment", &[])?;
+
+            verify_all_tokens_in_ast(raw, &ast, &tokens).map_err(ParseError::new)?;
+
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn test_all_tokens_present_wildcards() -> Result<(), ParseError> {
+        with_larger_stack!(|| {
+            env_logger::try_init().ok();
+
+            // Test various wildcard patterns
+            let raw = "SELECT *, table1.*, schema.table2.* FROM table1, schema.table2";
+
+            let dialect = Dialect::Ansi;
+
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
+            let mut parser = Parser::new(&tokens, dialect);
+            let ast = parser.call_rule("SelectStatementSegment", &[])?;
+
+            verify_all_tokens_in_ast(raw, &ast, &tokens).map_err(ParseError::new)?;
+
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn test_all_tokens_present_with_backtracking() -> Result<(), ParseError> {
+        with_larger_stack!(|| {
+            env_logger::try_init().ok();
+
+            // This tests backtracking in OneOf - could match as function call or column ref
+            let raw = "SELECT COUNT(*) FROM table_name";
+
+            let dialect = Dialect::Ansi;
+
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
+            let mut parser = Parser::new(&tokens, dialect);
+            let ast = parser.call_rule("SelectStatementSegment", &[])?;
+
+            verify_all_tokens_in_ast(raw, &ast, &tokens).map_err(ParseError::new)?;
+
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn test_all_tokens_present_anysetof() -> Result<(), ParseError> {
+        with_larger_stack!(|| {
+            env_logger::try_init().ok();
+
+            // Test AnySetOf with multiple elements in different orders
+            let raw =
+                "FOREIGN KEY (col) REFERENCES other(col) ON UPDATE CASCADE ON DELETE SET NULL";
+
+            let dialect = Dialect::Ansi;
+
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
+            let mut parser = Parser::new(&tokens, dialect);
+            let ast = parser.call_rule("TableConstraintSegment", &[])?;
+
+            verify_all_tokens_in_ast(raw, &ast, &tokens).map_err(ParseError::new)?;
+
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn test_all_tokens_present_delimited() -> Result<(), ParseError> {
+        with_larger_stack!(|| {
+            env_logger::try_init().ok();
+
+            // Test Delimited with many elements and trailing commas
+            let raw = "SELECT col1, col2, col3, col4, col5 FROM table_name";
+
+            let dialect = Dialect::Ansi;
+
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
+            let mut parser = Parser::new(&tokens, dialect);
+            let ast = parser.call_rule("SelectStatementSegment", &[])?;
+
+            verify_all_tokens_in_ast(raw, &ast, &tokens).map_err(ParseError::new)?;
+
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn test_all_tokens_present_bracketed() -> Result<(), ParseError> {
+        with_larger_stack!(|| {
+            env_logger::try_init().ok();
+
+            // Test Bracketed expressions with nested content
+            let raw = "SELECT (a + b) * (c - d) FROM table_name";
+
+            let dialect = Dialect::Ansi;
+
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
+            let mut parser = Parser::new(&tokens, dialect);
+            let ast = parser.call_rule("SelectStatementSegment", &[])?;
+
+            verify_all_tokens_in_ast(raw, &ast, &tokens).map_err(ParseError::new)?;
+
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn test_all_tokens_present_sequence_allow_gaps_false() -> Result<(), ParseError> {
+        with_larger_stack!(|| {
+            env_logger::try_init().ok();
+
+            // Specifically test sequences with allow_gaps=false (like WildcardIdentifierSegment)
+            // This is the case that triggered our retroactive collection fix
+            let raw = "SELECT schema . table . * FROM table_name";
+
+            let dialect = Dialect::Ansi;
+
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
+            let mut parser = Parser::new(&tokens, dialect);
+            let ast = parser.call_rule("SelectStatementSegment", &[])?;
+
+            verify_all_tokens_in_ast(raw, &ast, &tokens).map_err(ParseError::new)?;
+
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn test_all_tokens_present_mixed_whitespace() -> Result<(), ParseError> {
+        with_larger_stack!(|| {
+            env_logger::try_init().ok();
+
+            // Mix of spaces, tabs, and multiple newlines
+            let raw = "SELECT\n\n  *  \t\n FROM  \t table_name\n\n";
+
+            let dialect = Dialect::Ansi;
+
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
+            let mut parser = Parser::new(&tokens, dialect);
+            let ast = parser.call_rule("SelectStatementSegment", &[])?;
+
+            verify_all_tokens_in_ast(raw, &ast, &tokens).map_err(ParseError::new)?;
+
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn test_all_tokens_present_insert_statement() -> Result<(), ParseError> {
+        with_larger_stack!(|| {
+            env_logger::try_init().ok();
+
+            let raw = "INSERT INTO users (id, name, email) VALUES (1, 'John', 'john@example.com')";
+
+            let dialect = Dialect::Ansi;
+
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
+            let mut parser = Parser::new(&tokens, dialect);
+            let ast = parser.call_rule("InsertStatementSegment", &[])?;
+
+            verify_all_tokens_in_ast(raw, &ast, &tokens).map_err(ParseError::new)?;
+
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn test_all_tokens_present_update_statement() -> Result<(), ParseError> {
+        with_larger_stack!(|| {
+            env_logger::try_init().ok();
+
+            let raw = "UPDATE users SET name = 'Jane', status = 'active' WHERE id = 1";
+
+            let dialect = Dialect::Ansi;
+
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
+            let mut parser = Parser::new(&tokens, dialect);
+            let ast = parser.call_rule("UpdateStatementSegment", &[])?;
+
+            verify_all_tokens_in_ast(raw, &ast, &tokens).map_err(ParseError::new)?;
+
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn test_all_tokens_present_create_table() -> Result<(), ParseError> {
+        with_larger_stack!(|| {
+            env_logger::try_init().ok();
+
+            let raw = r#"CREATE TABLE users (
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255)
+)"#;
+
+            let dialect = Dialect::Ansi;
+
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
+            let mut parser = Parser::new(&tokens, dialect);
+            let ast = parser.call_rule("CreateTableStatementSegment", &[])?;
+
+            verify_all_tokens_in_ast(raw, &ast, &tokens).map_err(ParseError::new)?;
+
+            Ok(())
+        })
     }
 }
