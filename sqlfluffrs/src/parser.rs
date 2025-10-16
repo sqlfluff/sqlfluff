@@ -44,6 +44,7 @@ pub enum Grammar {
         elements: Vec<Grammar>,
         min_times: usize,
         max_times: Option<usize>,
+        max_times_per_element: Option<usize>,
         optional: bool,
         terminators: Vec<Grammar>,
         reset_terminators: bool,
@@ -177,13 +178,11 @@ impl Hash for Grammar {
                 elements,
                 optional,
                 allow_gaps,
-                parse_mode,
                 ..
             } => {
                 elements.hash(state);
                 optional.hash(state);
                 allow_gaps.hash(state);
-                parse_mode.hash(state);
             }
             Grammar::AnyNumberOf {
                 elements,
@@ -195,7 +194,6 @@ impl Hash for Grammar {
                 elements.hash(state);
                 optional.hash(state);
                 allow_gaps.hash(state);
-                parse_mode.hash(state);
             }
             Grammar::OneOf {
                 elements,
@@ -207,7 +205,6 @@ impl Hash for Grammar {
                 elements.hash(state);
                 optional.hash(state);
                 allow_gaps.hash(state);
-                parse_mode.hash(state);
             }
             Grammar::Delimited {
                 elements,
@@ -217,7 +214,6 @@ impl Hash for Grammar {
                 allow_trailing,
                 terminators,
                 min_delimiters,
-                parse_mode,
                 ..
             } => {
                 elements.hash(state);
@@ -227,19 +223,16 @@ impl Hash for Grammar {
                 allow_trailing.hash(state);
                 terminators.hash(state);
                 min_delimiters.hash(state);
-                parse_mode.hash(state);
             }
             Grammar::Bracketed {
                 elements,
                 optional,
                 allow_gaps,
-                parse_mode,
                 ..
             } => {
                 elements.hash(state);
                 optional.hash(state);
                 allow_gaps.hash(state);
-                parse_mode.hash(state);
             }
             Grammar::Symbol(sym) => sym.hash(state),
             Grammar::Meta(s) => s.hash(state),
@@ -1465,16 +1458,26 @@ impl<'a> Parser<'_> {
                 elements,
                 min_times,
                 max_times,
+                max_times_per_element,
                 optional,
                 terminators,
                 reset_terminators,
                 allow_gaps,
                 parse_mode,
             } => {
-                log::debug!("Trying AnyNumberOf elements: {:?}", elements);
+                log::debug!(
+                    "Trying AnyNumberOf with {} elements, parse_mode: {:?}, max_times_per_element: {:?}",
+                    elements.len(),
+                    parse_mode,
+                    max_times_per_element
+                );
                 let mut items = vec![];
                 let mut count = 0;
                 let initial_pos = self.pos;
+
+                // Track how many times each option has been matched
+                let mut option_counter: std::collections::HashMap<u64, usize> =
+                    std::collections::HashMap::new();
 
                 // Combine parent and local terminators
                 let all_terminators: Vec<Grammar> = if *reset_terminators {
@@ -1487,51 +1490,85 @@ impl<'a> Parser<'_> {
                         .collect()
                 };
 
-                // Check for termination BEFORE starting
-                if self.is_terminated(&all_terminators) {
-                    if *optional || *min_times == 0 {
-                        log::debug!("AnyNumberOf: empty optional or min_times=0");
-                        return Ok(Node::DelimitedList(items));
-                    } else {
-                        return Err(ParseError::new(format!(
-                            "Expected at least {} occurrences, found 0",
-                            min_times
-                        )));
-                    }
-                }
+                // Determine max_idx based on parse_mode
+                let max_idx = if *parse_mode == ParseMode::Greedy {
+                    self.trim_to_terminator(initial_pos, &all_terminators)
+                } else {
+                    self.tokens.len()
+                };
+
+                log::debug!("AnyNumberOf max_idx: {} (tokens.len: {})", max_idx, self.tokens.len());
+
+                // Track matched_idx and working_idx like Python
+                let mut matched_idx = initial_pos;
+                let mut working_idx = initial_pos;
 
                 loop {
-                    let mut matched = false;
-
-                    // Save position BEFORE collecting whitespace
-                    let pre_ws_pos = self.pos;
-
-                    // Collect whitespace before trying to match
-                    let ws_nodes = self.collect_transparent(*allow_gaps);
-                    let post_skip_saved_pos = self.pos;
-
-                    // Prune options before trying
-                    let available_options = self.prune_options(elements);
-
-                    if available_options.is_empty() {
-                        // No options could match - restore to position BEFORE whitespace
-                        self.pos = pre_ws_pos;
+                    // Check if we've met min_times and reached limits
+                    if count >= *min_times
+                        && (matched_idx >= max_idx
+                            || (max_times.is_some() && count >= max_times.unwrap()))
+                    {
+                        log::debug!(
+                            "AnyNumberOf: reached limits at {} matches, matched_idx: {}, max_idx: {}",
+                            count, matched_idx, max_idx
+                        );
                         break;
                     }
 
-                    let mut longest_match: Option<(Node, usize)> = None;
-                    let mut best_pos = post_skip_saved_pos;
+                    // Is there nothing left to match?
+                    if matched_idx >= max_idx {
+                        // If we haven't met the hurdle rate, fail
+                        if count < *min_times {
+                            if *optional {
+                                self.pos = initial_pos;
+                                log::debug!("AnyNumberOf returning Empty (didn't meet min_times)");
+                                return Ok(Node::Empty);
+                            } else {
+                                return Err(ParseError::new(format!(
+                                    "Expected at least {} occurrences, found {}",
+                                    min_times, count
+                                )));
+                            }
+                        }
+                        break;
+                    }
+
+                    // Save position before attempting match
+                    let _pre_match_pos = working_idx;
+
+                    // Update working_idx to skip whitespace if allowed
+                    if *allow_gaps {
+                        working_idx = self.skip_start_index_forward_to_code(working_idx, max_idx);
+                    }
+
+                    // Try to find longest match among elements
+                    let mut longest_match: Option<(Node, usize, usize, u64)> = None;
 
                     for element in elements {
-                        self.pos = post_skip_saved_pos;
+                        self.pos = working_idx;
                         match self.parse_with_grammar_cached(element, &all_terminators) {
                             Ok(node) if !node.is_empty() => {
-                                let consumed = self.pos - post_skip_saved_pos;
+                                let end_pos = self.pos;
+                                let consumed = end_pos - working_idx;
+                                let element_key = element.cache_key();
+
+                                // Check if this element has hit its per-element limit
+                                if let Some(max_per_elem) = max_times_per_element {
+                                    let elem_count = option_counter.get(&element_key).copied().unwrap_or(0);
+                                    if elem_count >= *max_per_elem {
+                                        log::debug!(
+                                            "AnyNumberOf: element {:?} already matched {} times (max_times_per_element: {})",
+                                            element, elem_count, max_per_elem
+                                        );
+                                        continue;
+                                    }
+                                }
+
                                 if longest_match.is_none()
-                                    || consumed > longest_match.as_ref().unwrap().1
+                                    || consumed > longest_match.as_ref().unwrap().2
                                 {
-                                    longest_match = Some((node, consumed));
-                                    best_pos = self.pos;
+                                    longest_match = Some((node, end_pos, consumed, element_key));
                                 }
                             }
                             Ok(_) => {
@@ -1543,55 +1580,127 @@ impl<'a> Parser<'_> {
                         }
                     }
 
-                    if let Some((node, _)) = longest_match {
-                        self.pos = best_pos;
-
-                        // Add whitespace nodes before the matched element
-                        items.extend(ws_nodes);
-                        items.push(node);
-
-                        count += 1;
-                        matched = true;
-                    }
-
-                    if !matched {
-                        // If no elements matched, restore to position BEFORE collecting whitespace
-                        self.pos = pre_ws_pos;
+                    // Did we fail to match?
+                    if longest_match.is_none() {
+                        log::debug!("AnyNumberOf: no match found at position {}", working_idx);
+                        // If we haven't met the hurdle rate, fail
+                        if count < *min_times {
+                            if *optional {
+                                self.pos = initial_pos;
+                                log::debug!("AnyNumberOf returning Empty (no match, didn't meet min_times)");
+                                return Ok(Node::Empty);
+                            } else {
+                                return Err(ParseError::new(format!(
+                                    "Expected at least {} occurrences, found {}",
+                                    min_times, count
+                                )));
+                            }
+                        }
+                        // Otherwise we're done
                         break;
                     }
 
-                    // Check for termination AFTER a successful match
-                    if self.is_terminated(&all_terminators) {
-                        log::debug!("AnyNumberOf: terminated after {} matches", count);
-                        break;
+                    // We have a match!
+                    let (node, end_pos, _consumed, element_key) = longest_match.unwrap();
+
+                    // Update the counter for this element
+                    *option_counter.entry(element_key).or_insert(0) += 1;
+
+                    // Check if we've now exceeded max_times_per_element for this element
+                    if let Some(max_per_elem) = max_times_per_element {
+                        let elem_count = option_counter.get(&element_key).copied().unwrap_or(0);
+                        if elem_count > *max_per_elem {
+                            log::debug!(
+                                "AnyNumberOf: element exceeded max_times_per_element, stopping (without including this match)"
+                            );
+                            // Return the match so far, without the most recent match
+                            break;
+                        }
                     }
 
+                    // Collect whitespace/non-code between matched_idx and working_idx
+                    if *allow_gaps && matched_idx < working_idx {
+                        while matched_idx < working_idx {
+                            if let Some(tok) = self.tokens.get(matched_idx) {
+                                let tok_type = tok.get_type();
+                                if tok_type == "whitespace" {
+                                    items.push(Node::Whitespace(tok.raw().to_string(), matched_idx));
+                                } else if tok_type == "newline" {
+                                    items.push(Node::Newline(tok.raw().to_string(), matched_idx));
+                                }
+                            }
+                            matched_idx += 1;
+                        }
+                    }
+
+                    // Add the matched node
+                    items.push(node);
+                    matched_idx = end_pos;
+                    working_idx = matched_idx;
+                    count += 1;
+
+                    log::debug!(
+                        "AnyNumberOf: matched element #{}, matched_idx now: {}",
+                        count, matched_idx
+                    );
+
+                    // Check max_times limit
                     if let Some(max) = max_times {
                         if count >= *max {
+                            log::debug!("AnyNumberOf: reached max_times {}", max);
                             break;
                         }
                     }
                 }
 
-                if count < *min_times {
-                    if *optional {
-                        self.pos = initial_pos;
-                        log::debug!("AnyNumberOf returning Empty at position {}", self.pos);
-                        Ok(Node::Empty)
-                    } else {
-                        Err(ParseError::new(format!(
-                            "Expected at least {} occurrences, found {}",
-                            min_times, count
-                        )))
+                // Update parser position to matched_idx
+                self.pos = matched_idx;
+
+                // Apply parse_mode logic for remaining content
+                if *parse_mode == ParseMode::Greedy {
+                    // Check if there's unparsable content remaining
+                    if matched_idx < max_idx {
+                        // Check if all remaining is non-code
+                        let all_non_code = (matched_idx..max_idx)
+                            .all(|i| {
+                                self.tokens.get(i)
+                                    .map_or(true, |t| !t.is_code())
+                            });
+
+                        if !all_non_code {
+                            // There's code content we didn't match - create unparsable segment
+                            let _trim_idx = self.skip_start_index_forward_to_code(matched_idx, max_idx);
+
+                            log::debug!(
+                                "GREEDY mode: creating unparsable segment from {} to {}",
+                                _trim_idx, max_idx
+                            );
+
+                            // TODO: Create proper UnparsableSegment with expected message
+                            // For now, consume as Code nodes
+                            while self.pos < max_idx {
+                                if let Some(tok) = self.peek() {
+                                    let tok_type = tok.get_type();
+                                    if tok_type == "whitespace" {
+                                        items.push(Node::Whitespace(tok.raw().to_string(), self.pos));
+                                    } else if tok_type == "newline" {
+                                        items.push(Node::Newline(tok.raw().to_string(), self.pos));
+                                    } else {
+                                        items.push(Node::Code(tok.raw().to_string(), self.pos));
+                                    }
+                                }
+                                self.bump();
+                            }
+                        }
                     }
-                } else {
-                    log::debug!("MATCHED AnyNumberOf matched items: {:?}", items);
-                    log::debug!(
-                        "AnyNumberOf returning DelimitedList at position {}",
-                        self.pos
-                    );
-                    Ok(Node::DelimitedList(items))
                 }
+
+                log::debug!(
+                    "MATCHED AnyNumberOf with {} items at position {}",
+                    items.len(),
+                    self.pos
+                );
+                Ok(Node::DelimitedList(items))
             }
             Grammar::Delimited {
                 elements,

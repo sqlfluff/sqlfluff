@@ -314,6 +314,8 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print(f"    min_times: {match_grammar.min_times},")
         max_times = as_rust_option(match_grammar.max_times)
         print(f"    max_times: {max_times},")
+        max_times_per_element = as_rust_option(match_grammar.max_times_per_element)
+        print(f"    max_times_per_element: {max_times_per_element},")
         print(f"    optional: {str(match_grammar.is_optional()).lower()},")
         print("    terminators: vec![")
         for term_grammar in match_grammar.terminators:

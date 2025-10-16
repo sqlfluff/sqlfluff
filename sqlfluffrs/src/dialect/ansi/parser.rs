@@ -4223,6 +4223,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
     ],
@@ -4702,6 +4703,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
     ],
@@ -6572,6 +6574,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
 Grammar::Ref {
@@ -6672,6 +6675,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
 Grammar::Ref {
@@ -7615,6 +7619,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
     ],
@@ -9465,6 +9470,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
     ],
@@ -10382,6 +10388,7 @@ Grammar::StringParser {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
     ],
@@ -11221,6 +11228,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
     ],
@@ -13658,6 +13666,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
     ],
@@ -13813,6 +13822,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
     ],
@@ -13968,6 +13978,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
     ],
@@ -14816,6 +14827,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
     ],
@@ -14851,6 +14863,7 @@ Grammar::Ref {
     ],
     min_times: 1,
     max_times: None,
+    max_times_per_element: None,
     optional: false,
     terminators: vec![
     ],
@@ -14883,6 +14896,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
     ],
@@ -16219,6 +16233,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
     ],
@@ -16454,6 +16469,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
 Grammar::Sequence {
@@ -16732,6 +16748,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
 Grammar::Sequence {
@@ -17250,6 +17267,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
     ],
@@ -17429,6 +17447,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
 Grammar::Ref {
@@ -20005,6 +20024,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
     ],
@@ -21802,6 +21822,7 @@ Grammar::Ref {
     ],
     min_times: 1,
     max_times: None,
+    max_times_per_element: None,
     optional: false,
     terminators: vec![
     ],
@@ -22516,7 +22537,7 @@ Grammar::RegexParser {
     template: r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#,
     token_type: "naked_identifier",
     optional: false,
-    anti_template: Some(r#"^(ON|ROWS|ORDER|SELECT|PARTITION|CASE|OUTER|JOIN|RESPECT|INTERVAL|NATURAL|LEFT|NULL|CROSS|INNER|RIGHT|FULL|NOT|IGNORE|USING|UNION|SET)$"#),
+    anti_template: Some(r#"^(RIGHT|LEFT|INNER|USING|INTERVAL|UNION|OUTER|CROSS|ON|NATURAL|NOT|SELECT|FULL|ORDER|SET|IGNORE|ROWS|PARTITION|JOIN|RESPECT|CASE|NULL)$"#),
 }
 );
 
@@ -28052,6 +28073,7 @@ Grammar::Ref {
     ],
     min_times: 1,
     max_times: None,
+    max_times_per_element: None,
     optional: false,
     terminators: vec![
     ],
@@ -28361,6 +28383,7 @@ Grammar::Ref {
     ],
     min_times: 1,
     max_times: None,
+    max_times_per_element: None,
     optional: false,
     terminators: vec![
     ],
@@ -30178,6 +30201,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
 Grammar::Ref {
@@ -30232,6 +30256,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
     ],
@@ -30620,6 +30645,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
     ],
@@ -31782,6 +31808,7 @@ Grammar::Ref {
     ],
     min_times: 1,
     max_times: None,
+    max_times_per_element: None,
     optional: false,
     terminators: vec![
     ],
@@ -32897,6 +32924,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    max_times_per_element: None,
     optional: true,
     terminators: vec![
     ],
