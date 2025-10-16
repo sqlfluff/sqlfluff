@@ -580,7 +580,25 @@ impl Node {
     /// ```
     pub fn format_tree(&self, tokens: &[Token]) -> String {
         let mut output = String::new();
-        self.format_tree_impl(tokens, &mut output, 0, 0);
+        let mut eof_nodes = Vec::new();
+
+        // Format the tree, collecting EndOfFile nodes
+        self.format_tree_impl(tokens, &mut output, 0, 0, &mut eof_nodes);
+
+        // Print all EndOfFile nodes at the very end
+        for (depth, idx) in eof_nodes {
+            let indent = "    ".repeat(depth);
+            if let Some(token) = tokens.get(idx) {
+                if let Some(pos_marker) = &token.pos_marker {
+                    let (line, pos) = pos_marker.source_position();
+                    output.push_str(&format!(
+                        "[L:{:3}, P:{:3}]      |{}[META] end_of_file:\n",
+                        line, pos, indent,
+                    ));
+                }
+            }
+        }
+
         output
     }
 
@@ -590,6 +608,7 @@ impl Node {
         output: &mut String,
         depth: usize,
         token_idx: usize,
+        eof_nodes: &mut Vec<(usize, usize)>, // (depth, token_idx)
     ) -> usize {
         let indent = "    ".repeat(depth);
 
@@ -597,8 +616,7 @@ impl Node {
             Node::Keyword(_, idx)
             | Node::Code(_, idx)
             | Node::Whitespace(_, idx)
-            | Node::Newline(_, idx)
-            | Node::EndOfFile(_, idx) => {
+            | Node::Newline(_, idx) => {
                 // Get position from token
                 if let Some(token) = tokens.get(*idx) {
                     output.push_str(&token.stringify(depth, 4, false));
@@ -606,17 +624,44 @@ impl Node {
                 *idx + 1
             }
 
+            Node::EndOfFile(_, idx) => {
+                // Collect EndOfFile nodes instead of printing them immediately
+                eof_nodes.push((depth, *idx));
+                *idx + 1
+            }
+
             Node::Meta(name) => {
-                // META nodes like indent/dedent - use current position's token for location
-                if let Some(token) = tokens.get(token_idx) {
+                // META nodes like indent/dedent - these are synthetic nodes without tokens
+                // Try to use the current token's position if available, otherwise use a previous token
+                let (line, pos) = if let Some(token) = tokens.get(token_idx) {
+                    // Use current token position
                     if let Some(pos_marker) = &token.pos_marker {
-                        let (line, pos) = pos_marker.source_position();
-                        output.push_str(&format!(
-                            "[L:{:3}, P:{:3}]      |{}[META] {} :\n",
-                            line, pos, indent, name,
-                        ));
+                        pos_marker.source_position()
+                    } else {
+                        (0, 0) // Fallback if no pos_marker
                     }
-                }
+                } else if token_idx > 0 && token_idx <= tokens.len() {
+                    // token_idx is past the end or at end - use the last token's end position
+                    if let Some(token) = tokens.get(token_idx - 1) {
+                        if let Some(pos_marker) = &token.pos_marker {
+                            // Use the end position of the previous token
+                            let (start_line, start_pos) = pos_marker.source_position();
+                            let token_len = token.raw().len();
+                            (start_line, start_pos + token_len)
+                        } else {
+                            (0, 0)
+                        }
+                    } else {
+                        (0, 0)
+                    }
+                } else {
+                    (0, 0) // Fallback
+                };
+
+                output.push_str(&format!(
+                    "[L:{:3}, P:{:3}]      |{}[META] {} :\n",
+                    line, pos, indent, name,
+                ));
                 token_idx
             }
 
@@ -643,7 +688,7 @@ impl Node {
 
                 if is_transparent {
                     // Don't add depth for transparent wrappers - just pass through to child
-                    current_idx = child.format_tree_impl(tokens, output, depth, current_idx);
+                    current_idx = child.format_tree_impl(tokens, output, depth, current_idx, eof_nodes);
                 } else {
                     // This is a meaningful segment - print it and increase depth
                     // Use segment_type if available, otherwise fall back to converting the name
@@ -667,21 +712,34 @@ impl Node {
                     }
 
                     // Format child with increased depth
-                    current_idx = child.format_tree_impl(tokens, output, depth + 1, current_idx);
+                    current_idx = child.format_tree_impl(tokens, output, depth + 1, current_idx, eof_nodes);
                 }
                 current_idx
             }
 
             Node::Sequence(children) | Node::DelimitedList(children) => {
                 let mut current_idx = token_idx;
-                for child in children {
-                    if !child.is_empty() {
-                        current_idx = child.format_tree_impl(tokens, output, depth, current_idx);
+
+                // Separate EndOfFile nodes to print them last
+                // All other nodes (including Meta indent/dedent) are printed in order
+                let mut eof_indices = Vec::new();
+
+                // First pass: format all children except EndOfFile
+                for (i, child) in children.iter().enumerate() {
+                    if matches!(child, Node::EndOfFile(_, _)) {
+                        eof_indices.push(i);
+                    } else if !child.is_empty() {
+                        current_idx = child.format_tree_impl(tokens, output, depth, current_idx, eof_nodes);
                     }
                 }
+
+                // Second pass: format EndOfFile nodes last
+                for &i in &eof_indices {
+                    current_idx = children[i].format_tree_impl(tokens, output, depth, current_idx, eof_nodes);
+                }
+
                 current_idx
             }
-
             Node::Empty => token_idx,
         }
     }
@@ -4146,8 +4204,10 @@ impl<'a> Parser<'_> {
                                             tok.raw().to_string(),
                                             self.pos,
                                         ));
-                                        // Mark as tentatively collected (will commit on success)
+                                        // Mark as tentatively collected AND add to global set immediately
+                                        // This prevents nested Sequences from re-collecting the same token
                                         tentatively_collected_positions.push(current_pos);
+                                        self.collected_transparent_positions.insert(current_pos);
                                     } else if tok_type == "newline" {
                                         log::debug!(
                                             "COLLECTING newline at token pos {}: {:?}",
@@ -4156,8 +4216,9 @@ impl<'a> Parser<'_> {
                                         );
                                         children
                                             .push(Node::Newline(tok.raw().to_string(), self.pos));
-                                        // Mark as tentatively collected (will commit on success)
+                                        // Mark as tentatively collected AND add to global set immediately
                                         tentatively_collected_positions.push(current_pos);
+                                        self.collected_transparent_positions.insert(current_pos);
                                     }
                                 }
                                 self.bump();
@@ -4202,6 +4263,10 @@ impl<'a> Parser<'_> {
                                 "NOMATCH Ran out of segments in STRICT mode or nothing matched yet"
                             );
                             self.pos = start_idx;
+                            // Rollback: remove tentatively collected positions from global set
+                            for pos in &tentatively_collected_positions {
+                                self.collected_transparent_positions.remove(pos);
+                            }
                             return Ok(Node::Empty);
                         }
 
@@ -4281,16 +4346,18 @@ impl<'a> Parser<'_> {
 
                                 for check_pos in (last_code_consumed + 1)..collect_end {
                                     log::debug!(
-                                        "Checking position {} for retroactive collection: is_code={}, in_global={}",
+                                        "Checking position {} for retroactive collection: is_code={}, in_global={}, in_tentative={}",
                                         check_pos,
                                         if check_pos < self.tokens.len() { self.tokens[check_pos].is_code() } else { true },
-                                        self.collected_transparent_positions.contains(&check_pos)
+                                        self.collected_transparent_positions.contains(&check_pos),
+                                        tentatively_collected_positions.contains(&check_pos)
                                     );
                                     if check_pos < self.tokens.len()
                                         && !self.tokens[check_pos].is_code()
                                         && !self
                                             .collected_transparent_positions
                                             .contains(&check_pos)
+                                        && !tentatively_collected_positions.contains(&check_pos)
                                     {
                                         let tok = &self.tokens[check_pos];
                                         let tok_type = tok.get_type();
@@ -4301,6 +4368,7 @@ impl<'a> Parser<'_> {
                                                 check_pos,
                                             ));
                                             tentatively_collected_positions.push(check_pos);
+                                            self.collected_transparent_positions.insert(check_pos);
                                         } else if tok_type == "newline" {
                                             log::debug!("RETROACTIVELY collecting newline at token pos {}: {:?}", check_pos, tok.raw());
                                             children.push(Node::Newline(
@@ -4308,6 +4376,7 @@ impl<'a> Parser<'_> {
                                                 check_pos,
                                             ));
                                             tentatively_collected_positions.push(check_pos);
+                                            self.collected_transparent_positions.insert(check_pos);
                                         }
                                     }
                                 }
@@ -4352,6 +4421,10 @@ impl<'a> Parser<'_> {
                             if *parse_mode == ParseMode::Strict {
                                 log::debug!("NOMATCH Required element failed in STRICT mode");
                                 self.pos = start_idx;
+                                // Rollback: remove tentatively collected positions from global set
+                                for pos in &tentatively_collected_positions {
+                                    self.collected_transparent_positions.remove(pos);
+                                }
                                 return Ok(Node::Empty);
                             }
 
@@ -4362,6 +4435,10 @@ impl<'a> Parser<'_> {
                                     "NOMATCH Nothing matched yet in GREEDY_ONCE_STARTED mode"
                                 );
                                 self.pos = start_idx;
+                                // Rollback: remove tentatively collected positions from global set
+                                for pos in &tentatively_collected_positions {
+                                    self.collected_transparent_positions.remove(pos);
+                                }
                                 return Ok(Node::Empty);
                             }
 
@@ -4374,10 +4451,7 @@ impl<'a> Parser<'_> {
                                 _idx
                             );
                             self.pos = matched_idx;
-                            // Commit collected positions even on incomplete match
-                            for pos in tentatively_collected_positions {
-                                self.collected_transparent_positions.insert(pos);
-                            }
+                            // Already committed to global set, no need to commit again
                             return Ok(Node::Sequence(children));
                         }
                     }
@@ -4395,15 +4469,25 @@ impl<'a> Parser<'_> {
                         }
                         let tok_type = tok.get_type();
                         if tok_type == "whitespace" {
-                            if *allow_gaps {
+                            if *allow_gaps && !self.collected_transparent_positions.contains(&self.pos) {
                                 children.push(Node::Whitespace(tok.raw().to_string(), self.pos));
+                                tentatively_collected_positions.push(self.pos);
+                                self.collected_transparent_positions.insert(self.pos);
                             }
                         } else if tok_type == "newline" {
-                            if *allow_gaps {
+                            if *allow_gaps && !self.collected_transparent_positions.contains(&self.pos) {
                                 children.push(Node::Newline(tok.raw().to_string(), self.pos));
+                                tentatively_collected_positions.push(self.pos);
+                                self.collected_transparent_positions.insert(self.pos);
                             }
                         } else if tok_type == "end_of_file" {
+                            // Always collect end_of_file, even if it was already collected elsewhere
+                            // (though this should be rare/impossible)
                             children.push(Node::EndOfFile(tok.raw().to_string(), self.pos));
+                            if !self.collected_transparent_positions.contains(&self.pos) {
+                                tentatively_collected_positions.push(self.pos);
+                                self.collected_transparent_positions.insert(self.pos);
+                            }
                         }
                         self.bump();
                     } else {
@@ -4444,13 +4528,13 @@ impl<'a> Parser<'_> {
                 // If we have no children and the sequence itself is optional, return Empty
                 if children.is_empty() && *optional {
                     log::debug!("Sequence matched no children and is optional, returning Empty");
-                    // Don't commit collected positions since we're returning Empty
+                    // Rollback: remove tentatively collected positions from global set since we're returning Empty
+                    for pos in &tentatively_collected_positions {
+                        self.collected_transparent_positions.remove(pos);
+                    }
                     Ok(Node::Empty)
                 } else {
-                    // Commit tentatively collected transparent token positions to global set
-                    for pos in tentatively_collected_positions {
-                        self.collected_transparent_positions.insert(pos);
-                    }
+                    // Already committed to global set, positions were added immediately when collected
                     Ok(Node::Sequence(children))
                 }
             }
@@ -5304,6 +5388,13 @@ impl<'a> Parser<'_> {
             }
 
             let token_pos = self.pos;
+
+            // Skip if already collected
+            if self.collected_transparent_positions.contains(&token_pos) {
+                self.bump();
+                continue;
+            }
+
             let tok_type = tok.get_type();
             let node = if tok_type == "whitespace" {
                 Node::Whitespace(tok.raw(), token_pos)
@@ -5315,8 +5406,9 @@ impl<'a> Parser<'_> {
                 Node::Code(tok.raw(), token_pos) // Fallback for other non-code tokens
             };
 
-            log::debug!("TRANSPARENT collecting token: {:?}", tok);
+            log::debug!("TRANSPARENT collecting token at pos {}: {:?}", token_pos, tok);
             transparent_nodes.push(node);
+            self.collected_transparent_positions.insert(token_pos);
             self.bump();
         }
 
@@ -7208,5 +7300,91 @@ LIMIT 10"#;
         parser.print_cache_stats();
 
         Ok(())
+    }
+
+    #[test]
+    fn test_no_duplicate_whitespace_tokens() -> Result<(), ParseError> {
+        // Test that the same whitespace token doesn't appear multiple times in the AST
+        // This was a bug where tentatively_collected_positions would add the same position twice
+
+        with_larger_stack!(|| {
+            env_logger::try_init().ok();
+
+            let sql = "SELECT  \t*\n  FROM\n\ttable_name  ";
+
+            // Lex the SQL
+            let input = LexInput::String(sql.into());
+            let lexer = Lexer::new(None, Dialect::Ansi);
+            let (tokens, _errors) = lexer.lex(input, false);
+
+            // Parse the tokens
+            let mut parser = Parser::new(&tokens, Dialect::Ansi);
+            parser.use_iterative_parser = true;
+            let ast = parser.call_rule("FileSegment", &[])?;
+
+            // Collect all token positions used in the AST
+            let mut token_positions = Vec::new();
+            fn collect_positions(node: &Node, positions: &mut Vec<usize>) {
+                match node {
+                    Node::Keyword(_, pos)
+                    | Node::Code(_, pos)
+                    | Node::Whitespace(_, pos)
+                    | Node::Newline(_, pos)
+                    | Node::EndOfFile(_, pos) => {
+                        positions.push(*pos);
+                    }
+                    Node::Ref { child, .. } => {
+                        collect_positions(child, positions);
+                    }
+                    Node::Sequence(children) | Node::DelimitedList(children) => {
+                        for child in children {
+                            collect_positions(child, positions);
+                        }
+                    }
+                    Node::Empty | Node::Meta(_) => {}
+                }
+            }
+            collect_positions(&ast, &mut token_positions);
+
+            // Check for duplicates
+            let mut seen_positions = std::collections::HashSet::new();
+            let mut duplicates = Vec::new();
+
+            for pos in &token_positions {
+                if !seen_positions.insert(*pos) {
+                    duplicates.push(*pos);
+                }
+            }
+
+            if !duplicates.is_empty() {
+                println!("=== Tokens ===");
+                for (i, token) in tokens.iter().enumerate() {
+                    println!(
+                        "Token {}: '{}' | {}",
+                        i,
+                        token.raw().replace('\n', "\\n"),
+                        token.get_type()
+                    );
+                }
+                println!("\n=== AST ===");
+                println!("{:#?}", ast);
+                println!("\n=== Duplicate token positions ===");
+                for pos in &duplicates {
+                    println!(
+                        "Position {}: '{}' | {}",
+                        pos,
+                        tokens[*pos].raw().replace('\n', "\\n"),
+                        tokens[*pos].get_type()
+                    );
+                }
+                panic!(
+                    "Found {} duplicate token position(s) in AST: {:?}",
+                    duplicates.len(),
+                    duplicates
+                );
+            }
+
+            Ok(())
+        })
     }
 }
