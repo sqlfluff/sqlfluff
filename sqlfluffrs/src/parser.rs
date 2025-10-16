@@ -586,6 +586,7 @@ impl Node {
         self.format_tree_impl(tokens, &mut output, 0, 0, &mut eof_nodes);
 
         // Print all EndOfFile nodes at the very end
+        // Use the depth from where they were collected
         for (depth, idx) in eof_nodes {
             let indent = "    ".repeat(depth);
             if let Some(token) = tokens.get(idx) {
@@ -688,7 +689,8 @@ impl Node {
 
                 if is_transparent {
                     // Don't add depth for transparent wrappers - just pass through to child
-                    current_idx = child.format_tree_impl(tokens, output, depth, current_idx, eof_nodes);
+                    current_idx =
+                        child.format_tree_impl(tokens, output, depth, current_idx, eof_nodes);
                 } else {
                     // This is a meaningful segment - print it and increase depth
                     // Use segment_type if available, otherwise fall back to converting the name
@@ -712,7 +714,8 @@ impl Node {
                     }
 
                     // Format child with increased depth
-                    current_idx = child.format_tree_impl(tokens, output, depth + 1, current_idx, eof_nodes);
+                    current_idx =
+                        child.format_tree_impl(tokens, output, depth + 1, current_idx, eof_nodes);
                 }
                 current_idx
             }
@@ -729,13 +732,15 @@ impl Node {
                     if matches!(child, Node::EndOfFile(_, _)) {
                         eof_indices.push(i);
                     } else if !child.is_empty() {
-                        current_idx = child.format_tree_impl(tokens, output, depth, current_idx, eof_nodes);
+                        current_idx =
+                            child.format_tree_impl(tokens, output, depth, current_idx, eof_nodes);
                     }
                 }
 
                 // Second pass: format EndOfFile nodes last
                 for &i in &eof_indices {
-                    current_idx = children[i].format_tree_impl(tokens, output, depth, current_idx, eof_nodes);
+                    current_idx =
+                        children[i].format_tree_impl(tokens, output, depth, current_idx, eof_nodes);
                 }
 
                 current_idx
@@ -912,6 +917,13 @@ enum FrameState {
 #[derive(Debug, Clone)]
 enum FrameContext {
     None,
+    Ref {
+        name: String,
+        optional: bool,
+        allow_gaps: bool,
+        segment_type: Option<String>,
+        saved_pos: usize, // Position before skipping transparent tokens
+    },
     Sequence {
         elements: Vec<Grammar>,
         allow_gaps: bool,
@@ -1077,12 +1089,13 @@ impl<'a> Parser<'_> {
 
         while let Some(mut frame) = stack.pop() {
             log::debug!(
-                "Processing frame {}: grammar={}, pos={}, state={:?}, stack_size={}",
+                "Processing frame {}: grammar={}, pos={}, state={:?}, stack_size={} (BEFORE pop: {})",
                 frame.frame_id,
                 frame.grammar,
                 frame.pos,
                 frame.state,
-                stack.len()
+                stack.len(),
+                stack.len() + 1  // Add 1 because we just popped
             );
 
             match frame.state {
@@ -1112,7 +1125,7 @@ impl<'a> Parser<'_> {
                         Grammar::StringParser {
                             template,
                             token_type,
-                            optional,
+                            optional: _optional,
                         } => {
                             // Handle StringParser directly in iterative mode
                             self.pos = pos;
@@ -1133,16 +1146,13 @@ impl<'a> Parser<'_> {
                                     results.insert(frame.frame_id, (node, self.pos, None));
                                 }
                                 _ => {
-                                    if *optional {
-                                        log::debug!("String parser optional, skipping");
-                                        results
-                                            .insert(frame.frame_id, (Node::Empty, self.pos, None));
-                                    } else {
-                                        return Err(ParseError::new(format!(
-                                            "Expected string '{}'",
-                                            template
-                                        )));
-                                    }
+                                    // StringParser didn't match - return Empty (not error)
+                                    // This allows parent OneOf/AnyNumberOf/etc to try other options
+                                    log::debug!(
+                                        "String parser didn't match '{}', returning Empty",
+                                        template
+                                    );
+                                    results.insert(frame.frame_id, (Node::Empty, self.pos, None));
                                 }
                             }
                         }
@@ -1150,7 +1160,7 @@ impl<'a> Parser<'_> {
                         Grammar::MultiStringParser {
                             templates,
                             token_type,
-                            optional,
+                            optional: _optional,
                         } => {
                             // Handle MultiStringParser directly in iterative mode
                             self.pos = pos;
@@ -1175,24 +1185,17 @@ impl<'a> Parser<'_> {
                                     results.insert(frame.frame_id, (node, self.pos, None));
                                 }
                                 _ => {
-                                    if *optional {
-                                        log::debug!("MultiString parser optional, skipping");
-                                        results
-                                            .insert(frame.frame_id, (Node::Empty, self.pos, None));
-                                    } else {
-                                        return Err(ParseError::new(format!(
-                                            "Expected one of: {:?}",
-                                            templates
-                                        )));
-                                    }
+                                    // MultiStringParser didn't match - return Empty
+                                    log::debug!("MultiString parser didn't match any of {:?}, returning Empty", templates);
+                                    results.insert(frame.frame_id, (Node::Empty, self.pos, None));
                                 }
                             }
                         }
 
                         Grammar::TypedParser {
                             template,
-                            token_type,
-                            optional,
+                            token_type: _token_type,
+                            optional: _optional,
                         } => {
                             // Handle TypedParser directly in iterative mode
                             self.pos = pos;
@@ -1207,30 +1210,26 @@ impl<'a> Parser<'_> {
                                     log::debug!("MATCHED Typed matched: {}", tok.token_type);
                                     let node = Node::Code(raw, token_pos);
                                     results.insert(frame.frame_id, (node, self.pos, None));
-                                } else if *optional {
-                                    log::debug!("Typed parser optional, skipping");
-                                    results.insert(frame.frame_id, (Node::Empty, self.pos, None));
                                 } else {
-                                    return Err(ParseError::new(format!(
-                                        "Expected typed token '{}', found '{}'",
-                                        template, tok.token_type
-                                    )));
+                                    // No match - return Empty for parent to handle
+                                    log::debug!(
+                                        "Typed parser failed: expected '{}', found '{}'",
+                                        template,
+                                        tok.token_type
+                                    );
+                                    results.insert(frame.frame_id, (Node::Empty, pos, None));
                                 }
-                            } else if *optional {
-                                log::debug!("Typed parser optional, skipping at EOF");
-                                results.insert(frame.frame_id, (Node::Empty, self.pos, None));
                             } else {
-                                return Err(ParseError::new(format!(
-                                    "Expected typed token '{}', found EOF",
-                                    template
-                                )));
+                                // EOF - return Empty for parent to handle
+                                log::debug!("Typed parser at EOF");
+                                results.insert(frame.frame_id, (Node::Empty, pos, None));
                             }
                         }
 
                         Grammar::RegexParser {
                             template,
-                            token_type,
-                            optional,
+                            token_type: _token_type,
+                            optional: _optional,
                             anti_template,
                         } => {
                             // Handle RegexParser directly in iterative mode
@@ -1257,17 +1256,12 @@ impl<'a> Parser<'_> {
                                             .is_match(&tok.raw())
                                         {
                                             log::debug!("Regex anti-matched: {}", tok);
-                                            if *optional {
-                                                results.insert(
-                                                    frame.frame_id,
-                                                    (Node::Empty, self.pos, None),
-                                                );
-                                            } else {
-                                                return Err(ParseError::new(format!(
-                                                    "Token '{}' matches anti-template '{}'",
-                                                    tok, anti
-                                                )));
-                                            }
+                                            // Anti-template matched - no match, return Empty
+                                            log::debug!("RegexParser anti-match, returning Empty");
+                                            results.insert(
+                                                frame.frame_id,
+                                                (Node::Empty, self.pos, None),
+                                            );
                                             continue; // Skip to next frame
                                         }
                                     }
@@ -1282,15 +1276,12 @@ impl<'a> Parser<'_> {
                                     results.insert(frame.frame_id, (node, self.pos, None));
                                 }
                                 _ => {
-                                    if *optional {
-                                        results
-                                            .insert(frame.frame_id, (Node::Empty, self.pos, None));
-                                    } else {
-                                        return Err(ParseError::new(format!(
-                                            "Expected token matching regex '{}'",
-                                            template
-                                        )));
-                                    }
+                                    // RegexParser didn't match - return Empty
+                                    log::debug!(
+                                        "RegexParser didn't match '{}', returning Empty",
+                                        template
+                                    );
+                                    results.insert(frame.frame_id, (Node::Empty, self.pos, None));
                                 }
                             }
                         }
@@ -1315,18 +1306,19 @@ impl<'a> Parser<'_> {
                                     results.insert(frame.frame_id, (node, self.pos, None));
                                 }
                                 _ => {
-                                    return Err(ParseError::new(format!(
-                                        "Expected symbol '{}'",
-                                        sym
-                                    )));
+                                    // Symbol didn't match - return Empty
+                                    log::debug!("Symbol didn't match '{}', returning Empty", sym);
+                                    results.insert(frame.frame_id, (Node::Empty, self.pos, None));
                                 }
                             }
                         }
 
                         Grammar::Nothing() => {
-                            // Nothing never matches
-                            log::debug!("Expecting nothing grammar");
-                            return Err(ParseError::new("Nothing grammar won't match".into()));
+                            // Nothing never matches - but in iterative mode, we return Empty
+                            // to allow parent grammars to continue. The parent is responsible
+                            // for handling the Empty result appropriately.
+                            log::debug!("Nothing grammar encountered, returning Empty");
+                            results.insert(frame.frame_id, (Node::Empty, pos, None));
                         }
 
                         Grammar::Empty => {
@@ -1613,7 +1605,7 @@ impl<'a> Parser<'_> {
                             terminators: ref_terminators,
                             reset_terminators,
                         } => {
-                            // Handle Ref by resolving and calling the rule
+                            // Handle Ref by expanding into its grammar and pushing onto stack
                             log::debug!(
                                 "Iterative Ref to segment: {}, optional: {}, allow_gaps: {}",
                                 name,
@@ -1635,27 +1627,56 @@ impl<'a> Parser<'_> {
                                     .collect()
                             };
 
-                            // Call the rule - temporarily disable iterative to avoid nested frames
-                            let was_iterative = self.use_iterative_parser;
-                            self.use_iterative_parser = false;
-                            let attempt = self.call_rule(name, &all_terminators);
-                            self.use_iterative_parser = was_iterative;
+                            // Look up the grammar for this segment
+                            let grammar_opt = self.get_segment_grammar(name);
 
-                            match attempt {
-                                Ok(node) => {
-                                    log::debug!("MATCHED Iterative Ref matched segment: {}", name);
-                                    results.insert(frame.frame_id, (node, self.pos, None));
+                            match grammar_opt {
+                                Some(child_grammar) => {
+                                    // Get segment type for later wrapping
+                                    let segment_type =
+                                        self.dialect.get_segment_type(name).map(|s| s.to_string());
+
+                                    // Create child frame to parse the target grammar
+                                    let child_frame_id = frame_id_counter;
+                                    frame_id_counter += 1;
+
+                                    let child_frame = ParseFrame {
+                                        frame_id: child_frame_id,
+                                        grammar: child_grammar.clone(),
+                                        pos: self.pos,
+                                        terminators: all_terminators,
+                                        state: FrameState::Initial,
+                                        accumulated: vec![],
+                                        context: FrameContext::None,
+                                    };
+
+                                    // Update current frame to wait for child and store Ref metadata
+                                    frame.state = FrameState::WaitingForChild {
+                                        child_index: 0,
+                                        total_children: 1,
+                                    };
+                                    frame.context = FrameContext::Ref {
+                                        name: name.to_string(),
+                                        optional: *optional,
+                                        allow_gaps: *allow_gaps,
+                                        segment_type,
+                                        saved_pos: saved,
+                                    };
+
+                                    // Push parent back first, then child (LIFO - child will be processed next)
+                                    stack.push(frame);
+                                    stack.push(child_frame);
                                 }
-                                Err(e) => {
+                                None => {
                                     self.pos = saved;
                                     if *optional {
-                                        log::debug!("Iterative Ref optional, skipping");
+                                        log::debug!(
+                                            "Iterative Ref optional (grammar not found), skipping"
+                                        );
                                         results.insert(frame.frame_id, (Node::Empty, saved, None));
                                     } else {
-                                        // In iterative mode, store Empty and let parent handle it
-                                        // This allows OneOf/AnyNumberOf to try other options
-                                        log::debug!("Iterative Ref failed (non-optional), storing Empty for parent to handle");
-                                        results.insert(frame.frame_id, (Node::Empty, saved, None));
+                                        log::debug!("Iterative Ref failed (grammar not found), returning error");
+                                        return Err(ParseError::unknown_segment(name.to_string()));
                                     }
                                 }
                             }
@@ -2072,6 +2093,19 @@ impl<'a> Parser<'_> {
                     // A child parse just completed - get its result
                     // First get the child frame ID we're waiting for
                     let child_frame_id = match &frame.context {
+                        FrameContext::Ref { .. } => {
+                            // For Ref, we need to check the results for a completed child
+                            // Since we only have one child, we can look for the most recent frame
+                            // that's not the current frame
+                            let mut found_id = None;
+                            for (fid, _) in results.iter() {
+                                if *fid != frame.frame_id && *fid > frame.frame_id {
+                                    found_id = Some(*fid);
+                                    break;
+                                }
+                            }
+                            found_id.expect("Ref WaitingForChild should have child result")
+                        }
                         FrameContext::Sequence {
                             last_child_frame_id,
                             ..
@@ -2127,6 +2161,44 @@ impl<'a> Parser<'_> {
                         let frame_terminators = frame.terminators.clone();
 
                         match &mut frame.context {
+                            FrameContext::Ref {
+                                name,
+                                optional,
+                                segment_type,
+                                saved_pos,
+                                ..
+                            } => {
+                                // Wrap the child node in a Ref node
+                                let final_node = if child_node.is_empty() {
+                                    // Empty result
+                                    if *optional {
+                                        log::debug!(
+                                            "Ref {} returned empty (optional), accepting",
+                                            name
+                                        );
+                                        child_node.clone()
+                                    } else {
+                                        log::debug!(
+                                            "Ref {} returned empty (not optional), backtracking",
+                                            name
+                                        );
+                                        self.pos = *saved_pos;
+                                        child_node.clone()
+                                    }
+                                } else {
+                                    // Successful match - wrap in Ref node
+                                    log::debug!("MATCHED Ref {} successfully", name);
+                                    Node::Ref {
+                                        name: name.clone(),
+                                        segment_type: segment_type.clone(),
+                                        child: Box::new(child_node.clone()),
+                                    }
+                                };
+
+                                self.pos = *child_end_pos;
+                                results.insert(frame.frame_id, (final_node, self.pos, None));
+                                // Frame is complete, don't push back to stack
+                            }
                             FrameContext::Sequence {
                                 elements,
                                 allow_gaps,
@@ -2659,19 +2731,13 @@ impl<'a> Parser<'_> {
                                     BracketedState::MatchingOpen => {
                                         // Opening bracket result
                                         if child_node.is_empty() {
-                                            // No opening bracket found
-                                            if *optional {
-                                                self.pos = frame.pos;
-                                                log::debug!("Bracketed returning Empty (no opening bracket, optional)");
-                                                results.insert(
-                                                    frame.frame_id,
-                                                    (Node::Empty, frame.pos, None),
-                                                );
-                                            } else {
-                                                return Err(ParseError::new(
-                                                    "Expected opening bracket".to_string(),
-                                                ));
-                                            }
+                                            // No opening bracket found - return Empty to let parent try other options
+                                            self.pos = frame.pos;
+                                            log::debug!("Bracketed returning Empty (no opening bracket, optional={})", optional);
+                                            results.insert(
+                                                frame.frame_id,
+                                                (Node::Empty, frame.pos, None),
+                                            );
                                         } else {
                                             // Opening bracket matched!
                                             frame.accumulated.push(child_node.clone());
@@ -3077,7 +3143,7 @@ impl<'a> Parser<'_> {
                                 tried_elements,
                                 max_idx,
                                 parse_mode,
-                                last_child_frame_id: _last_child_frame_id,
+                                last_child_frame_id,
                             } => {
                                 log::debug!(
                                     "OneOf WaitingForChild: tried_elements={}, child_empty={}",
@@ -3131,8 +3197,11 @@ impl<'a> Parser<'_> {
                                         next_element_key
                                     );
 
+                                    let child_frame_id = frame_id_counter;
+                                    frame_id_counter += 1;
+
                                     let child_frame = ParseFrame {
-                                        frame_id: frame_id_counter,
+                                        frame_id: child_frame_id,
                                         grammar: next_element,
                                         pos: *post_skip_pos,
                                         terminators: frame.terminators.clone(), // Use parent's terminators
@@ -3146,9 +3215,24 @@ impl<'a> Parser<'_> {
                                         total_children: 1,
                                     };
 
-                                    frame_id_counter += 1;
+                                    // Update the last_child_frame_id so we know which child to look for
+                                    *last_child_frame_id = Some(child_frame_id);
+
+                                    log::debug!("OneOf: Pushing parent frame {} and child frame {} onto stack", frame.frame_id, child_frame_id);
+
+                                    // Push parent back first, then child (LIFO - child will be processed next)
+                                    stack.push(frame);
+                                    log::debug!(
+                                        "OneOf: Stack size after pushing parent: {}",
+                                        stack.len()
+                                    );
                                     stack.push(child_frame);
-                                    break;
+                                    log::debug!(
+                                        "OneOf: Stack size after pushing child: {}",
+                                        stack.len()
+                                    );
+                                    log::debug!("OneOf: Continuing to process child frame");
+                                    continue; // Skip the result check below - child hasn't been processed yet
                                 } else {
                                     // All elements tried - return longest match
                                     log::debug!(
@@ -3185,22 +3269,15 @@ impl<'a> Parser<'_> {
                                         continue; // Don't fall through to Complete state
                                     } else {
                                         // No matches found
+                                        // Return Empty to allow parent to try other options
+                                        // (even if this OneOf is not optional, parent might be)
                                         log::debug!(
-                                            "OneOf: No matches found, optional={}",
+                                            "OneOf: No matches found, optional={}, returning Empty",
                                             optional
                                         );
-
-                                        if *optional {
-                                            results.insert(
-                                                frame.frame_id,
-                                                (Node::Empty, self.pos, None),
-                                            );
-                                            continue;
-                                        } else {
-                                            return Err(ParseError::new(
-                                                "OneOf: No matching elements found".into(),
-                                            ));
-                                        }
+                                        results
+                                            .insert(frame.frame_id, (Node::Empty, self.pos, None));
+                                        continue;
                                     }
                                 }
                             }
@@ -4469,22 +4546,28 @@ impl<'a> Parser<'_> {
                         }
                         let tok_type = tok.get_type();
                         if tok_type == "whitespace" {
-                            if *allow_gaps && !self.collected_transparent_positions.contains(&self.pos) {
+                            if *allow_gaps
+                                && !self.collected_transparent_positions.contains(&self.pos)
+                            {
                                 children.push(Node::Whitespace(tok.raw().to_string(), self.pos));
                                 tentatively_collected_positions.push(self.pos);
                                 self.collected_transparent_positions.insert(self.pos);
                             }
                         } else if tok_type == "newline" {
-                            if *allow_gaps && !self.collected_transparent_positions.contains(&self.pos) {
+                            if *allow_gaps
+                                && !self.collected_transparent_positions.contains(&self.pos)
+                            {
                                 children.push(Node::Newline(tok.raw().to_string(), self.pos));
                                 tentatively_collected_positions.push(self.pos);
                                 self.collected_transparent_positions.insert(self.pos);
                             }
                         } else if tok_type == "end_of_file" {
-                            // Always collect end_of_file, even if it was already collected elsewhere
-                            // (though this should be rare/impossible)
-                            children.push(Node::EndOfFile(tok.raw().to_string(), self.pos));
+                            // Only collect end_of_file if it hasn't been collected yet
+                            // Since we only collect it once globally, whichever Sequence reaches it first will claim it
+                            // The format_tree function will always display it at file-level depth
                             if !self.collected_transparent_positions.contains(&self.pos) {
+                                log::debug!("COLLECTING end_of_file at position {}", self.pos);
+                                children.push(Node::EndOfFile(tok.raw().to_string(), self.pos));
                                 tentatively_collected_positions.push(self.pos);
                                 self.collected_transparent_positions.insert(self.pos);
                             }
@@ -5406,7 +5489,11 @@ impl<'a> Parser<'_> {
                 Node::Code(tok.raw(), token_pos) // Fallback for other non-code tokens
             };
 
-            log::debug!("TRANSPARENT collecting token at pos {}: {:?}", token_pos, tok);
+            log::debug!(
+                "TRANSPARENT collecting token at pos {}: {:?}",
+                token_pos,
+                tok
+            );
             transparent_nodes.push(node);
             self.collected_transparent_positions.insert(token_pos);
             self.bump();
@@ -5544,6 +5631,16 @@ impl<'a> Parser<'_> {
         false
     }
 
+    /// Get the grammar for a rule by name.
+    /// This is used by the iterative parser to expand Ref nodes into their grammars.
+    pub fn get_rule_grammar(&self, name: &str) -> Result<Grammar, ParseError> {
+        // Look up the grammar for the segment
+        match self.get_segment_grammar(name) {
+            Some(g) => Ok(g.clone()),
+            None => Err(ParseError::unknown_segment(name.to_string())),
+        }
+    }
+
     /// Call a grammar rule by name, producing a Node.
     pub fn call_rule(
         &mut self,
@@ -5588,7 +5685,7 @@ impl<'a> Parser<'_> {
             dialect,
             parse_cache: ParseCache::new(),
             collected_transparent_positions: std::collections::HashSet::new(),
-            use_iterative_parser: false, // Default to recursive parser (iterative still incomplete)
+            use_iterative_parser: true, // Default to iterative parser
         }
     }
 }
@@ -6208,8 +6305,14 @@ LEFT JOIN t9 AS c_ph
             Node::Keyword(_, pos)
             | Node::Code(_, pos)
             | Node::Whitespace(_, pos)
-            | Node::Newline(_, pos)
-            | Node::EndOfFile(_, pos) => {
+            | Node::Newline(_, pos) => {
+                positions.insert(*pos);
+            }
+            Node::EndOfFile(_, pos) => {
+                log::debug!(
+                    "collect_token_positions: Found EndOfFile at position {}",
+                    pos
+                );
                 positions.insert(*pos);
             }
             Node::Sequence(children) | Node::DelimitedList(children) => {
