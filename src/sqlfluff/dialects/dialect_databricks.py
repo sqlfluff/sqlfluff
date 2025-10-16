@@ -115,7 +115,6 @@ databricks_dialect.add(
         type="udf_body",
         trim_chars=("$",),
     ),
-    BackquotedBody=StringParser("`", SymbolSegment, type="end_bracket"),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
     # https://docs.databricks.com/en/sql/language-manual/sql-ref-principal.html
     PrincipalIdentifierSegment=OneOf(
@@ -901,7 +900,7 @@ class TagStatementSegment(BaseSegment):
             ),
         ),
         OneOf(Ref("BackQuotedIdentifierSegment"), Ref("NakedIdentifierSegment")),
-        "=",
+        Ref("EqualsSegment"),
         OneOf(Ref("BackQuotedIdentifierSegment"), Ref("NakedIdentifierSegment")),
     )
 
