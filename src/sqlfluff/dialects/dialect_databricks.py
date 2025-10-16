@@ -133,16 +133,8 @@ databricks_dialect.add(
         "TO",
         Ref("PrincipalIdentifierSegment"),
     ),
-    SetTagOnGrammar=Sequence(
-        "SET",
-        "TAG",
-        "ON"
-    ),
-    UnsetTagOnGrammar=Sequence(
-        "UNSET",
-        "TAG",
-        "ON"
-    ),
+    SetTagOnGrammar=Sequence("SET", "TAG", "ON"),
+    UnsetTagOnGrammar=Sequence("UNSET", "TAG", "ON"),
     SetTagsGrammar=Sequence(
         "SET",
         "TAGS",
@@ -708,7 +700,6 @@ class CreateDatabaseStatementSegment(sparksql.CreateDatabaseStatementSegment):
     )
 
 
-
 class CreateViewStatementSegment(sparksql.CreateViewStatementSegment):
     """A `CREATE VIEW` statement.
 
@@ -842,11 +833,13 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
         ),
     )
 
+
 class UnsetTagStatementSegment(BaseSegment):
     """An `UNSET TAG ON` statement.
-    
+
     https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-set-tag
     """
+
     type = "tag_statement"
     match_grammar = Sequence(
         Ref("UnsetTagOnGrammar"),
@@ -875,11 +868,13 @@ class UnsetTagStatementSegment(BaseSegment):
         OneOf(Ref("BackQuotedIdentifierSegment"), Ref("NakedIdentifierSegment")),
     )
 
+
 class TagStatementSegment(BaseSegment):
     """An `SET TAG ON` statement.
-    
+
     https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-set-tag
     """
+
     type = "tag_statement"
     match_grammar = Sequence(
         Ref("SetTagOnGrammar"),
@@ -909,6 +904,7 @@ class TagStatementSegment(BaseSegment):
         "=",
         OneOf(Ref("BackQuotedIdentifierSegment"), Ref("NakedIdentifierSegment")),
     )
+
 
 class AlterTableStatementSegment(sparksql.AlterTableStatementSegment):
     """An `ALTER TABLE` statement.
