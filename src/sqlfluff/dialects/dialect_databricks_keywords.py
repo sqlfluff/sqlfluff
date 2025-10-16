@@ -20,7 +20,6 @@ RESERVED_KEYWORDS = [
     "SEMI",
     "UNION",
     "USING",
-    "TAG",
 ]
 
 UNRESERVED_KEYWORDS = [
@@ -45,6 +44,7 @@ UNRESERVED_KEYWORDS = [
     "RELY",
     "SCHEDULE",
     "SQL",
+    "TAG",
     "TAGS",
     "TIMESERIES",
     "VOLUME",
