@@ -6212,663 +6212,691 @@ FROM users"#;
 
     #[test]
     fn test_iterative_sequence_simple() -> Result<(), ParseError> {
-        // Test iterative Sequence with a very simple grammar that doesn't recurse much
-        env_logger::try_init().ok();
+        with_larger_stack!(|| {
+            // Test iterative Sequence with a very simple grammar that doesn't recurse much
+            env_logger::try_init().ok();
 
-        let raw = "SELECT 123";
-        let dialect = Dialect::Ansi;
+            let raw = "SELECT 123";
+            let dialect = Dialect::Ansi;
 
-        let input = LexInput::String(raw.into());
-        let lexer = Lexer::new(None, dialect);
-        let (tokens, _) = lexer.lex(input, false);
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
 
-        // Test with iterative parser
-        let mut parser_iterative = Parser::new(&tokens, dialect);
-        parser_iterative.use_iterative_parser = true;
+            // Test with iterative parser
+            let mut parser_iterative = Parser::new(&tokens, dialect);
+            parser_iterative.use_iterative_parser = true;
 
-        let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
+            let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
 
-        // Test with recursive parser
-        let mut parser_recursive = Parser::new(&tokens, dialect);
-        parser_recursive.use_iterative_parser = false;
-        let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
+            // Test with recursive parser
+            let mut parser_recursive = Parser::new(&tokens, dialect);
+            parser_recursive.use_iterative_parser = false;
+            let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
 
-        // Both should succeed
-        assert!(
-            result_iterative.is_ok(),
-            "Iterative parser failed: {:?}",
-            result_iterative
-        );
-        assert!(
-            result_recursive.is_ok(),
-            "Recursive parser failed: {:?}",
-            result_recursive
-        );
-
-        // Compare results
-        if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
-            let it_debug = format!("{:?}", ast_it);
-            let rec_debug = format!("{:?}", ast_rec);
-
-            println!("Iterative AST length: {}", it_debug.len());
-            println!("Recursive AST length: {}", rec_debug.len());
-
-            assert_eq!(
-                it_debug, rec_debug,
-                "Iterative and recursive parsers should produce identical ASTs"
+            // Both should succeed
+            assert!(
+                result_iterative.is_ok(),
+                "Iterative parser failed: {:?}",
+                result_iterative
+            );
+            assert!(
+                result_recursive.is_ok(),
+                "Recursive parser failed: {:?}",
+                result_recursive
             );
 
-            println!("✓ Iterative Sequence produces correct results");
-        }
+            // Compare results
+            if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
+                let it_debug = format!("{:?}", ast_it);
+                let rec_debug = format!("{:?}", ast_rec);
 
-        Ok(())
+                println!("Iterative AST length: {}", it_debug.len());
+                println!("Recursive AST length: {}", rec_debug.len());
+
+                assert_eq!(
+                    it_debug, rec_debug,
+                    "Iterative and recursive parsers should produce identical ASTs"
+                );
+
+                println!("✓ Iterative Sequence produces correct results");
+            }
+
+            Ok(())
+        })
     }
 
     #[test]
     fn test_iterative_anynumberof_simple() -> Result<(), ParseError> {
-        // Test iterative AnyNumberOf with a simple column list
-        env_logger::try_init().ok();
+        with_larger_stack!(|| {
+            // Test iterative AnyNumberOf with a simple column list
+            env_logger::try_init().ok();
 
-        let raw = "SELECT a, b, c, d FROM users";
-        let dialect = Dialect::Ansi;
+            let raw = "SELECT a, b, c, d FROM users";
+            let dialect = Dialect::Ansi;
 
-        let input = LexInput::String(raw.into());
-        let lexer = Lexer::new(None, dialect);
-        let (tokens, _) = lexer.lex(input, false);
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
 
-        // Test with iterative parser
-        let mut parser_iterative = Parser::new(&tokens, dialect);
-        parser_iterative.use_iterative_parser = true;
+            // Test with iterative parser
+            let mut parser_iterative = Parser::new(&tokens, dialect);
+            parser_iterative.use_iterative_parser = true;
 
-        let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
+            let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
 
-        // Test with recursive parser
-        let mut parser_recursive = Parser::new(&tokens, dialect);
-        parser_recursive.use_iterative_parser = false;
-        let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
+            // Test with recursive parser
+            let mut parser_recursive = Parser::new(&tokens, dialect);
+            parser_recursive.use_iterative_parser = false;
+            let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
 
-        // Both should succeed
-        assert!(
-            result_iterative.is_ok(),
-            "Iterative parser failed: {:?}",
-            result_iterative
-        );
-        assert!(
-            result_recursive.is_ok(),
-            "Recursive parser failed: {:?}",
-            result_recursive
-        );
-
-        // Compare results
-        if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
-            let it_debug = format!("{:?}", ast_it);
-            let rec_debug = format!("{:?}", ast_rec);
-
-            println!("Iterative AST length: {}", it_debug.len());
-            println!("Recursive AST length: {}", rec_debug.len());
-
-            assert_eq!(
-                it_debug, rec_debug,
-                "Iterative and recursive parsers should produce identical ASTs"
+            // Both should succeed
+            assert!(
+                result_iterative.is_ok(),
+                "Iterative parser failed: {:?}",
+                result_iterative
+            );
+            assert!(
+                result_recursive.is_ok(),
+                "Recursive parser failed: {:?}",
+                result_recursive
             );
 
-            println!("✓ Iterative AnyNumberOf produces correct results");
-        }
+            // Compare results
+            if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
+                let it_debug = format!("{:?}", ast_it);
+                let rec_debug = format!("{:?}", ast_rec);
 
-        Ok(())
+                println!("Iterative AST length: {}", it_debug.len());
+                println!("Recursive AST length: {}", rec_debug.len());
+
+                assert_eq!(
+                    it_debug, rec_debug,
+                    "Iterative and recursive parsers should produce identical ASTs"
+                );
+
+                println!("✓ Iterative AnyNumberOf produces correct results");
+            }
+
+            Ok(())
+        })
     }
 
     #[test]
     fn test_iterative_bracketed_simple() -> Result<(), ParseError> {
-        // Test iterative Bracketed with a simple parenthesized expression
-        env_logger::try_init().ok();
+        with_larger_stack!(|| {
+            // Test iterative Bracketed with a simple parenthesized expression
+            env_logger::try_init().ok();
 
-        let raw = "SELECT (a + b) FROM users";
-        let dialect = Dialect::Ansi;
+            let raw = "SELECT (a + b) FROM users";
+            let dialect = Dialect::Ansi;
 
-        let input = LexInput::String(raw.into());
-        let lexer = Lexer::new(None, dialect);
-        let (tokens, _) = lexer.lex(input, false);
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
 
-        // Test with iterative parser
-        let mut parser_iterative = Parser::new(&tokens, dialect);
-        parser_iterative.use_iterative_parser = true;
+            // Test with iterative parser
+            let mut parser_iterative = Parser::new(&tokens, dialect);
+            parser_iterative.use_iterative_parser = true;
 
-        let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
+            let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
 
-        // Test with recursive parser
-        let mut parser_recursive = Parser::new(&tokens, dialect);
-        parser_recursive.use_iterative_parser = false;
-        let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
+            // Test with recursive parser
+            let mut parser_recursive = Parser::new(&tokens, dialect);
+            parser_recursive.use_iterative_parser = false;
+            let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
 
-        // Both should succeed
-        assert!(
-            result_iterative.is_ok(),
-            "Iterative parser failed: {:?}",
-            result_iterative
-        );
-        assert!(
-            result_recursive.is_ok(),
-            "Recursive parser failed: {:?}",
-            result_recursive
-        );
-
-        // Compare results
-        if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
-            let it_debug = format!("{:?}", ast_it);
-            let rec_debug = format!("{:?}", ast_rec);
-
-            println!("Iterative AST length: {}", it_debug.len());
-            println!("Recursive AST length: {}", rec_debug.len());
-
-            assert_eq!(
-                it_debug, rec_debug,
-                "Iterative and recursive parsers should produce identical ASTs"
+            // Both should succeed
+            assert!(
+                result_iterative.is_ok(),
+                "Iterative parser failed: {:?}",
+                result_iterative
+            );
+            assert!(
+                result_recursive.is_ok(),
+                "Recursive parser failed: {:?}",
+                result_recursive
             );
 
-            println!("✓ Iterative Bracketed produces correct results");
-        }
+            // Compare results
+            if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
+                let it_debug = format!("{:?}", ast_it);
+                let rec_debug = format!("{:?}", ast_rec);
 
-        Ok(())
+                println!("Iterative AST length: {}", it_debug.len());
+                println!("Recursive AST length: {}", rec_debug.len());
+
+                assert_eq!(
+                    it_debug, rec_debug,
+                    "Iterative and recursive parsers should produce identical ASTs"
+                );
+
+                println!("✓ Iterative Bracketed produces correct results");
+            }
+
+            Ok(())
+        })
     }
 
     #[test]
     fn test_iterative_anysetof_simple() -> Result<(), ParseError> {
-        // Test iterative AnySetOf implementation
-        // Now that Delimited is implemented, we can test AnySetOf properly with FK constraints
-        env_logger::try_init().ok();
+        with_larger_stack!(|| {
+            // Test iterative AnySetOf implementation
+            // Now that Delimited is implemented, we can test AnySetOf properly with FK constraints
+            env_logger::try_init().ok();
 
-        // For now, still using placeholder until we have full CREATE TABLE support
-        // The key issue is that CREATE TABLE requires many grammar types we haven't implemented
-        // But AnySetOf itself is complete and works with Delimited
+            // For now, still using placeholder until we have full CREATE TABLE support
+            // The key issue is that CREATE TABLE requires many grammar types we haven't implemented
+            // But AnySetOf itself is complete and works with Delimited
 
-        println!("✓ AnySetOf Initial and WaitingForChild handlers implemented");
-        println!("✓ Context includes all required fields: elements, min_times, max_times, matched_elements, etc.");
-        println!("✓ Delimited grammar now complete - full AnySetOf test can be added");
-        println!("✓ AnySetOf works correctly with Delimited for column lists");
+            println!("✓ AnySetOf Initial and WaitingForChild handlers implemented");
+            println!("✓ Context includes all required fields: elements, min_times, max_times, matched_elements, etc.");
+            println!("✓ Delimited grammar now complete - full AnySetOf test can be added");
+            println!("✓ AnySetOf works correctly with Delimited for column lists");
 
-        Ok(())
+            Ok(())
+        })
     }
 
     #[test]
     fn test_iterative_delimited_simple() -> Result<(), ParseError> {
-        // Test iterative Delimited with comma-separated column list
-        env_logger::try_init().ok();
+        with_larger_stack!(|| {
+            // Test iterative Delimited with comma-separated column list
+            env_logger::try_init().ok();
 
-        let raw = "SELECT a, b, c, d FROM users";
-        let dialect = Dialect::Ansi;
+            let raw = "SELECT a, b, c, d FROM users";
+            let dialect = Dialect::Ansi;
 
-        let input = LexInput::String(raw.into());
-        let lexer = Lexer::new(None, dialect);
-        let (tokens, _) = lexer.lex(input, false);
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
 
-        // Test with iterative parser
-        let mut parser_iterative = Parser::new(&tokens, dialect);
-        parser_iterative.use_iterative_parser = true;
+            // Test with iterative parser
+            let mut parser_iterative = Parser::new(&tokens, dialect);
+            parser_iterative.use_iterative_parser = true;
 
-        let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
+            let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
 
-        // Test with recursive parser
-        let mut parser_recursive = Parser::new(&tokens, dialect);
-        parser_recursive.use_iterative_parser = false;
-        let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
+            // Test with recursive parser
+            let mut parser_recursive = Parser::new(&tokens, dialect);
+            parser_recursive.use_iterative_parser = false;
+            let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
 
-        // Both should succeed
-        assert!(
-            result_iterative.is_ok(),
-            "Iterative parser failed: {:?}",
-            result_iterative
-        );
-        assert!(
-            result_recursive.is_ok(),
-            "Recursive parser failed: {:?}",
-            result_recursive
-        );
-
-        // Compare results
-        if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
-            let it_debug = format!("{:?}", ast_it);
-            let rec_debug = format!("{:?}", ast_rec);
-
-            println!("Iterative AST length: {}", it_debug.len());
-            println!("Recursive AST length: {}", rec_debug.len());
-
-            assert_eq!(
-                it_debug, rec_debug,
-                "Iterative and recursive parsers should produce identical ASTs"
+            // Both should succeed
+            assert!(
+                result_iterative.is_ok(),
+                "Iterative parser failed: {:?}",
+                result_iterative
+            );
+            assert!(
+                result_recursive.is_ok(),
+                "Recursive parser failed: {:?}",
+                result_recursive
             );
 
-            println!("✓ Iterative Delimited produces correct results");
-        }
+            // Compare results
+            if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
+                let it_debug = format!("{:?}", ast_it);
+                let rec_debug = format!("{:?}", ast_rec);
 
-        Ok(())
+                println!("Iterative AST length: {}", it_debug.len());
+                println!("Recursive AST length: {}", rec_debug.len());
+
+                assert_eq!(
+                    it_debug, rec_debug,
+                    "Iterative and recursive parsers should produce identical ASTs"
+                );
+
+                println!("✓ Iterative Delimited produces correct results");
+            }
+
+            Ok(())
+        })
     }
 
     #[test]
     fn test_iterative_delimited_single_element() -> Result<(), ParseError> {
-        // Test Delimited with single element (no delimiters)
-        env_logger::try_init().ok();
+        with_larger_stack!(|| {
+            // Test Delimited with single element (no delimiters)
+            env_logger::try_init().ok();
 
-        let raw = "SELECT a FROM users";
-        let dialect = Dialect::Ansi;
+            let raw = "SELECT a FROM users";
+            let dialect = Dialect::Ansi;
 
-        let input = LexInput::String(raw.into());
-        let lexer = Lexer::new(None, dialect);
-        let (tokens, _) = lexer.lex(input, false);
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
 
-        // Test with iterative parser
-        let mut parser_iterative = Parser::new(&tokens, dialect);
-        parser_iterative.use_iterative_parser = true;
-        let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
+            // Test with iterative parser
+            let mut parser_iterative = Parser::new(&tokens, dialect);
+            parser_iterative.use_iterative_parser = true;
+            let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
 
-        // Test with recursive parser
-        let mut parser_recursive = Parser::new(&tokens, dialect);
-        parser_recursive.use_iterative_parser = false;
-        let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
+            // Test with recursive parser
+            let mut parser_recursive = Parser::new(&tokens, dialect);
+            parser_recursive.use_iterative_parser = false;
+            let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
 
-        // Both should succeed
-        assert!(
-            result_iterative.is_ok(),
-            "Iterative parser failed: {:?}",
-            result_iterative
-        );
-        assert!(
-            result_recursive.is_ok(),
-            "Recursive parser failed: {:?}",
-            result_recursive
-        );
-
-        // Compare results
-        if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
-            assert_eq!(
-                format!("{:?}", ast_it),
-                format!("{:?}", ast_rec),
-                "Single element delimited lists should match"
+            // Both should succeed
+            assert!(
+                result_iterative.is_ok(),
+                "Iterative parser failed: {:?}",
+                result_iterative
             );
-            println!("✓ Single element delimited list works correctly");
-        }
+            assert!(
+                result_recursive.is_ok(),
+                "Recursive parser failed: {:?}",
+                result_recursive
+            );
 
-        Ok(())
+            // Compare results
+            if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
+                assert_eq!(
+                    format!("{:?}", ast_it),
+                    format!("{:?}", ast_rec),
+                    "Single element delimited lists should match"
+                );
+                println!("✓ Single element delimited list works correctly");
+            }
+
+            Ok(())
+        })
     }
 
     #[test]
     fn test_iterative_delimited_long_list() -> Result<(), ParseError> {
-        // Test Delimited with many elements (stress test)
-        env_logger::try_init().ok();
+        with_larger_stack!(|| {
+            // Test Delimited with many elements (stress test)
+            env_logger::try_init().ok();
 
-        let raw = "SELECT a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z FROM users";
-        let dialect = Dialect::Ansi;
+            let raw = "SELECT a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z FROM users";
+            let dialect = Dialect::Ansi;
 
-        let input = LexInput::String(raw.into());
-        let lexer = Lexer::new(None, dialect);
-        let (tokens, _) = lexer.lex(input, false);
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
 
-        // Test with iterative parser
-        let mut parser_iterative = Parser::new(&tokens, dialect);
-        parser_iterative.use_iterative_parser = true;
-        let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
+            // Test with iterative parser
+            let mut parser_iterative = Parser::new(&tokens, dialect);
+            parser_iterative.use_iterative_parser = true;
+            let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
 
-        // Test with recursive parser
-        let mut parser_recursive = Parser::new(&tokens, dialect);
-        parser_recursive.use_iterative_parser = false;
-        let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
+            // Test with recursive parser
+            let mut parser_recursive = Parser::new(&tokens, dialect);
+            parser_recursive.use_iterative_parser = false;
+            let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
 
-        // Both should succeed
-        assert!(
-            result_iterative.is_ok(),
-            "Iterative parser failed: {:?}",
-            result_iterative
-        );
-        assert!(
-            result_recursive.is_ok(),
-            "Recursive parser failed: {:?}",
-            result_recursive
-        );
-
-        // Compare results
-        if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
-            assert_eq!(
-                format!("{:?}", ast_it),
-                format!("{:?}", ast_rec),
-                "Long delimited lists should match"
+            // Both should succeed
+            assert!(
+                result_iterative.is_ok(),
+                "Iterative parser failed: {:?}",
+                result_iterative
             );
-            println!("✓ Long delimited list (26 elements) works correctly");
-        }
+            assert!(
+                result_recursive.is_ok(),
+                "Recursive parser failed: {:?}",
+                result_recursive
+            );
 
-        Ok(())
+            // Compare results
+            if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
+                assert_eq!(
+                    format!("{:?}", ast_it),
+                    format!("{:?}", ast_rec),
+                    "Long delimited lists should match"
+                );
+                println!("✓ Long delimited list (26 elements) works correctly");
+            }
+
+            Ok(())
+        })
     }
 
     #[test]
     fn test_iterative_delimited_with_whitespace() -> Result<(), ParseError> {
-        // Test Delimited with various whitespace patterns
-        env_logger::try_init().ok();
+        with_larger_stack!(|| {
+            // Test Delimited with various whitespace patterns
+            env_logger::try_init().ok();
 
-        let raw = "SELECT a  ,  b,c  ,d FROM users";
-        let dialect = Dialect::Ansi;
+            let raw = "SELECT a  ,  b,c  ,d FROM users";
+            let dialect = Dialect::Ansi;
 
-        let input = LexInput::String(raw.into());
-        let lexer = Lexer::new(None, dialect);
-        let (tokens, _) = lexer.lex(input, false);
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
 
-        // Test with iterative parser
-        let mut parser_iterative = Parser::new(&tokens, dialect);
-        parser_iterative.use_iterative_parser = true;
-        let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
+            // Test with iterative parser
+            let mut parser_iterative = Parser::new(&tokens, dialect);
+            parser_iterative.use_iterative_parser = true;
+            let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
 
-        // Test with recursive parser
-        let mut parser_recursive = Parser::new(&tokens, dialect);
-        parser_recursive.use_iterative_parser = false;
-        let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
+            // Test with recursive parser
+            let mut parser_recursive = Parser::new(&tokens, dialect);
+            parser_recursive.use_iterative_parser = false;
+            let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
 
-        // Both should succeed
-        assert!(
-            result_iterative.is_ok(),
-            "Iterative parser failed: {:?}",
-            result_iterative
-        );
-        assert!(
-            result_recursive.is_ok(),
-            "Recursive parser failed: {:?}",
-            result_recursive
-        );
-
-        // Compare results
-        if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
-            assert_eq!(
-                format!("{:?}", ast_it),
-                format!("{:?}", ast_rec),
-                "Whitespace handling should match"
+            // Both should succeed
+            assert!(
+                result_iterative.is_ok(),
+                "Iterative parser failed: {:?}",
+                result_iterative
             );
-            println!("✓ Delimited with varying whitespace works correctly");
-        }
+            assert!(
+                result_recursive.is_ok(),
+                "Recursive parser failed: {:?}",
+                result_recursive
+            );
 
-        Ok(())
+            // Compare results
+            if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
+                assert_eq!(
+                    format!("{:?}", ast_it),
+                    format!("{:?}", ast_rec),
+                    "Whitespace handling should match"
+                );
+                println!("✓ Delimited with varying whitespace works correctly");
+            }
+
+            Ok(())
+        })
     }
 
     #[test]
     fn test_iterative_delimited_with_newlines() -> Result<(), ParseError> {
-        // Test Delimited with newlines between elements
-        env_logger::try_init().ok();
+        with_larger_stack!(|| {
+            // Test Delimited with newlines between elements
+            env_logger::try_init().ok();
 
-        let raw = r#"SELECT
+            let raw = r#"SELECT
     a,
     b,
     c,
     d
 FROM users"#;
-        let dialect = Dialect::Ansi;
+            let dialect = Dialect::Ansi;
 
-        let input = LexInput::String(raw.into());
-        let lexer = Lexer::new(None, dialect);
-        let (tokens, _) = lexer.lex(input, false);
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
 
-        // Test with iterative parser
-        let mut parser_iterative = Parser::new(&tokens, dialect);
-        parser_iterative.use_iterative_parser = true;
-        let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
+            // Test with iterative parser
+            let mut parser_iterative = Parser::new(&tokens, dialect);
+            parser_iterative.use_iterative_parser = true;
+            let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
 
-        // Test with recursive parser
-        let mut parser_recursive = Parser::new(&tokens, dialect);
-        parser_recursive.use_iterative_parser = false;
-        let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
+            // Test with recursive parser
+            let mut parser_recursive = Parser::new(&tokens, dialect);
+            parser_recursive.use_iterative_parser = false;
+            let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
 
-        // Both should succeed
-        assert!(
-            result_iterative.is_ok(),
-            "Iterative parser failed: {:?}",
-            result_iterative
-        );
-        assert!(
-            result_recursive.is_ok(),
-            "Recursive parser failed: {:?}",
-            result_recursive
-        );
-
-        // Compare results
-        if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
-            assert_eq!(
-                format!("{:?}", ast_it),
-                format!("{:?}", ast_rec),
-                "Newline handling should match"
+            // Both should succeed
+            assert!(
+                result_iterative.is_ok(),
+                "Iterative parser failed: {:?}",
+                result_iterative
             );
-            println!("✓ Delimited with newlines works correctly");
-        }
+            assert!(
+                result_recursive.is_ok(),
+                "Recursive parser failed: {:?}",
+                result_recursive
+            );
 
-        Ok(())
+            // Compare results
+            if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
+                assert_eq!(
+                    format!("{:?}", ast_it),
+                    format!("{:?}", ast_rec),
+                    "Newline handling should match"
+                );
+                println!("✓ Delimited with newlines works correctly");
+            }
+
+            Ok(())
+        })
     }
 
     #[test]
     fn test_iterative_delimited_function_args() -> Result<(), ParseError> {
-        // Test Delimited in function arguments context
-        env_logger::try_init().ok();
+        with_larger_stack!(|| {
+            // Test Delimited in function arguments context
+            env_logger::try_init().ok();
 
-        let raw = "SELECT CONCAT(first_name, ' ', last_name) FROM users";
-        let dialect = Dialect::Ansi;
+            let raw = "SELECT CONCAT(first_name, ' ', last_name) FROM users";
+            let dialect = Dialect::Ansi;
 
-        let input = LexInput::String(raw.into());
-        let lexer = Lexer::new(None, dialect);
-        let (tokens, _) = lexer.lex(input, false);
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
 
-        // Test with iterative parser
-        let mut parser_iterative = Parser::new(&tokens, dialect);
-        parser_iterative.use_iterative_parser = true;
-        let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
+            // Test with iterative parser
+            let mut parser_iterative = Parser::new(&tokens, dialect);
+            parser_iterative.use_iterative_parser = true;
+            let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
 
-        // Test with recursive parser
-        let mut parser_recursive = Parser::new(&tokens, dialect);
-        parser_recursive.use_iterative_parser = false;
-        let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
+            // Test with recursive parser
+            let mut parser_recursive = Parser::new(&tokens, dialect);
+            parser_recursive.use_iterative_parser = false;
+            let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
 
-        // Both should succeed
-        assert!(
-            result_iterative.is_ok(),
-            "Iterative parser failed: {:?}",
-            result_iterative
-        );
-        assert!(
-            result_recursive.is_ok(),
-            "Recursive parser failed: {:?}",
-            result_recursive
-        );
-
-        // Compare results
-        if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
-            assert_eq!(
-                format!("{:?}", ast_it),
-                format!("{:?}", ast_rec),
-                "Function argument delimited lists should match"
+            // Both should succeed
+            assert!(
+                result_iterative.is_ok(),
+                "Iterative parser failed: {:?}",
+                result_iterative
             );
-            println!("✓ Delimited function arguments work correctly");
-        }
+            assert!(
+                result_recursive.is_ok(),
+                "Recursive parser failed: {:?}",
+                result_recursive
+            );
 
-        Ok(())
+            // Compare results
+            if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
+                assert_eq!(
+                    format!("{:?}", ast_it),
+                    format!("{:?}", ast_rec),
+                    "Function argument delimited lists should match"
+                );
+                println!("✓ Delimited function arguments work correctly");
+            }
+
+            Ok(())
+        })
     }
 
     #[test]
     fn test_iterative_delimited_nested() -> Result<(), ParseError> {
-        // Test nested Delimited (function arguments inside SELECT clause)
-        env_logger::try_init().ok();
+        with_larger_stack!(|| {
+            // Test nested Delimited (function arguments inside SELECT clause)
+            env_logger::try_init().ok();
 
-        let raw = "SELECT CONCAT(a, b), CONCAT(c, d), e FROM users";
-        let dialect = Dialect::Ansi;
+            let raw = "SELECT CONCAT(a, b), CONCAT(c, d), e FROM users";
+            let dialect = Dialect::Ansi;
 
-        let input = LexInput::String(raw.into());
-        let lexer = Lexer::new(None, dialect);
-        let (tokens, _) = lexer.lex(input, false);
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
 
-        // Test with iterative parser
-        let mut parser_iterative = Parser::new(&tokens, dialect);
-        parser_iterative.use_iterative_parser = true;
-        let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
+            // Test with iterative parser
+            let mut parser_iterative = Parser::new(&tokens, dialect);
+            parser_iterative.use_iterative_parser = true;
+            let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
 
-        // Test with recursive parser
-        let mut parser_recursive = Parser::new(&tokens, dialect);
-        parser_recursive.use_iterative_parser = false;
-        let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
+            // Test with recursive parser
+            let mut parser_recursive = Parser::new(&tokens, dialect);
+            parser_recursive.use_iterative_parser = false;
+            let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
 
-        // Both should succeed
-        assert!(
-            result_iterative.is_ok(),
-            "Iterative parser failed: {:?}",
-            result_iterative
-        );
-        assert!(
-            result_recursive.is_ok(),
-            "Recursive parser failed: {:?}",
-            result_recursive
-        );
-
-        // Compare results
-        if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
-            assert_eq!(
-                format!("{:?}", ast_it),
-                format!("{:?}", ast_rec),
-                "Nested delimited lists should match"
+            // Both should succeed
+            assert!(
+                result_iterative.is_ok(),
+                "Iterative parser failed: {:?}",
+                result_iterative
             );
-            println!("✓ Nested delimited lists work correctly");
-        }
+            assert!(
+                result_recursive.is_ok(),
+                "Recursive parser failed: {:?}",
+                result_recursive
+            );
 
-        Ok(())
+            // Compare results
+            if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
+                assert_eq!(
+                    format!("{:?}", ast_it),
+                    format!("{:?}", ast_rec),
+                    "Nested delimited lists should match"
+                );
+                println!("✓ Nested delimited lists work correctly");
+            }
+
+            Ok(())
+        })
     }
 
     #[test]
     fn test_iterative_delimited_order_by() -> Result<(), ParseError> {
-        // Test Delimited in ORDER BY clause
-        env_logger::try_init().ok();
+        with_larger_stack!(|| {
+            // Test Delimited in ORDER BY clause
+            env_logger::try_init().ok();
 
-        let raw = "SELECT * FROM users ORDER BY last_name, first_name, id";
-        let dialect = Dialect::Ansi;
+            let raw = "SELECT * FROM users ORDER BY last_name, first_name, id";
+            let dialect = Dialect::Ansi;
 
-        let input = LexInput::String(raw.into());
-        let lexer = Lexer::new(None, dialect);
-        let (tokens, _) = lexer.lex(input, false);
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
 
-        // Test with iterative parser
-        let mut parser_iterative = Parser::new(&tokens, dialect);
-        parser_iterative.use_iterative_parser = true;
-        let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
+            // Test with iterative parser
+            let mut parser_iterative = Parser::new(&tokens, dialect);
+            parser_iterative.use_iterative_parser = true;
+            let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
 
-        // Test with recursive parser
-        let mut parser_recursive = Parser::new(&tokens, dialect);
-        parser_recursive.use_iterative_parser = false;
-        let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
+            // Test with recursive parser
+            let mut parser_recursive = Parser::new(&tokens, dialect);
+            parser_recursive.use_iterative_parser = false;
+            let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
 
-        // Both should succeed
-        assert!(
-            result_iterative.is_ok(),
-            "Iterative parser failed: {:?}",
-            result_iterative
-        );
-        assert!(
-            result_recursive.is_ok(),
-            "Recursive parser failed: {:?}",
-            result_recursive
-        );
-
-        // Compare results
-        if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
-            assert_eq!(
-                format!("{:?}", ast_it),
-                format!("{:?}", ast_rec),
-                "ORDER BY delimited lists should match"
+            // Both should succeed
+            assert!(
+                result_iterative.is_ok(),
+                "Iterative parser failed: {:?}",
+                result_iterative
             );
-            println!("✓ ORDER BY delimited list works correctly");
-        }
+            assert!(
+                result_recursive.is_ok(),
+                "Recursive parser failed: {:?}",
+                result_recursive
+            );
 
-        Ok(())
+            // Compare results
+            if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
+                assert_eq!(
+                    format!("{:?}", ast_it),
+                    format!("{:?}", ast_rec),
+                    "ORDER BY delimited lists should match"
+                );
+                println!("✓ ORDER BY delimited list works correctly");
+            }
+
+            Ok(())
+        })
     }
 
     #[test]
     fn test_iterative_delimited_group_by() -> Result<(), ParseError> {
-        // Test Delimited in GROUP BY clause
-        env_logger::try_init().ok();
+        with_larger_stack!(|| {
+            // Test Delimited in GROUP BY clause
+            env_logger::try_init().ok();
 
-        let raw = "SELECT department, COUNT(*) FROM users GROUP BY department, status";
-        let dialect = Dialect::Ansi;
+            let raw = "SELECT department, COUNT(*) FROM users GROUP BY department, status";
+            let dialect = Dialect::Ansi;
 
-        let input = LexInput::String(raw.into());
-        let lexer = Lexer::new(None, dialect);
-        let (tokens, _) = lexer.lex(input, false);
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
 
-        // Test with iterative parser
-        let mut parser_iterative = Parser::new(&tokens, dialect);
-        parser_iterative.use_iterative_parser = true;
-        let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
+            // Test with iterative parser
+            let mut parser_iterative = Parser::new(&tokens, dialect);
+            parser_iterative.use_iterative_parser = true;
+            let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
 
-        // Test with recursive parser
-        let mut parser_recursive = Parser::new(&tokens, dialect);
-        parser_recursive.use_iterative_parser = false;
-        let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
+            // Test with recursive parser
+            let mut parser_recursive = Parser::new(&tokens, dialect);
+            parser_recursive.use_iterative_parser = false;
+            let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
 
-        // Both should succeed
-        assert!(
-            result_iterative.is_ok(),
-            "Iterative parser failed: {:?}",
-            result_iterative
-        );
-        assert!(
-            result_recursive.is_ok(),
-            "Recursive parser failed: {:?}",
-            result_recursive
-        );
-
-        // Compare results
-        if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
-            assert_eq!(
-                format!("{:?}", ast_it),
-                format!("{:?}", ast_rec),
-                "GROUP BY delimited lists should match"
+            // Both should succeed
+            assert!(
+                result_iterative.is_ok(),
+                "Iterative parser failed: {:?}",
+                result_iterative
             );
-            println!("✓ GROUP BY delimited list works correctly");
-        }
+            assert!(
+                result_recursive.is_ok(),
+                "Recursive parser failed: {:?}",
+                result_recursive
+            );
 
-        Ok(())
+            // Compare results
+            if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
+                assert_eq!(
+                    format!("{:?}", ast_it),
+                    format!("{:?}", ast_rec),
+                    "GROUP BY delimited lists should match"
+                );
+                println!("✓ GROUP BY delimited list works correctly");
+            }
+
+            Ok(())
+        })
     }
 
     #[test]
     fn test_fully_iterative_parser() -> Result<(), ParseError> {
-        // Test the full iterative parser implementation
-        env_logger::try_init().ok();
+        with_larger_stack!(|| {
+            // Test the full iterative parser implementation
+            env_logger::try_init().ok();
 
-        let raw = "SELECT id, name FROM users WHERE status = 'active'";
-        let dialect = Dialect::Ansi;
+            let raw = "SELECT id, name FROM users WHERE status = 'active'";
+            let dialect = Dialect::Ansi;
 
-        let input = LexInput::String(raw.into());
-        let lexer = Lexer::new(None, dialect);
-        let (tokens, _) = lexer.lex(input, false);
+            let input = LexInput::String(raw.into());
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _) = lexer.lex(input, false);
 
-        // Test with fully iterative parser
-        let mut parser_iterative = Parser::new(&tokens, dialect);
-        parser_iterative.use_iterative_parser = true;
+            // Test with fully iterative parser
+            let mut parser_iterative = Parser::new(&tokens, dialect);
+            parser_iterative.use_iterative_parser = true;
 
-        let result = parser_iterative.call_rule("SelectStatementSegment", &[]);
-        assert!(
-            result.is_ok(),
-            "Iterative parser should succeed: {:?}",
-            result
-        );
-
-        // Compare with recursive parser
-        let mut parser_recursive = Parser::new(&tokens, dialect);
-        parser_recursive.use_iterative_parser = false;
-        let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
-
-        if let (Ok(ast_iterative), Ok(ast_recursive)) = (result, result_recursive) {
-            // Both should produce identical ASTs
-            assert_eq!(
-                format!("{:?}", ast_iterative),
-                format!("{:?}", ast_recursive),
-                "Iterative and recursive parsers should produce identical ASTs"
+            let result = parser_iterative.call_rule("SelectStatementSegment", &[]);
+            assert!(
+                result.is_ok(),
+                "Iterative parser should succeed: {:?}",
+                result
             );
 
-            println!("✓ Fully iterative parser produces identical results");
-            println!("  Iterative cache stats:");
-            parser_iterative.print_cache_stats();
-            println!("  Recursive cache stats:");
-            parser_recursive.print_cache_stats();
-        }
+            // Compare with recursive parser
+            let mut parser_recursive = Parser::new(&tokens, dialect);
+            parser_recursive.use_iterative_parser = false;
+            let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
 
-        Ok(())
+            if let (Ok(ast_iterative), Ok(ast_recursive)) = (result, result_recursive) {
+                // Both should produce identical ASTs
+                assert_eq!(
+                    format!("{:?}", ast_iterative),
+                    format!("{:?}", ast_recursive),
+                    "Iterative and recursive parsers should produce identical ASTs"
+                );
+
+                println!("✓ Fully iterative parser produces identical results");
+                println!("  Iterative cache stats:");
+                parser_iterative.print_cache_stats();
+                println!("  Recursive cache stats:");
+                parser_recursive.print_cache_stats();
+            }
+
+            Ok(())
+        })
     }
 
     #[test]
