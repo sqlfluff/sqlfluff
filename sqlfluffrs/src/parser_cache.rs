@@ -203,7 +203,11 @@ impl CacheKey {
     }
 }
 
-type CacheValue = Result<(Node, usize), ParseError>;
+/// Cache value includes:
+/// - Node: The parsed result
+/// - usize: End position after parsing
+/// - Vec<usize>: Transparent token positions collected during this parse
+type CacheValue = Result<(Node, usize, Vec<usize>), ParseError>;
 
 /// Compute a stable hash for a grammar
 fn grammar_hash(grammar: &Grammar) -> u64 {

@@ -743,6 +743,7 @@ pub struct Parser<'a> {
     pub pos: usize, // current position in tokens
     pub dialect: Dialect,
     pub parse_cache: ParseCache,
+    pub collected_transparent_positions: std::collections::HashSet<usize>, // Track which token positions have had transparent tokens collected
 }
 
 impl<'a> Parser<'_> {
@@ -755,19 +756,33 @@ impl<'a> Parser<'_> {
         let cache_key = CacheKey::new(self.pos, grammar, self.tokens);
 
         // Check cache first
-        if let Some(Ok((node, end_pos))) = self.parse_cache.get(&cache_key) {
+        if let Some(Ok((node, end_pos, collected_positions))) = self.parse_cache.get(&cache_key) {
             self.pos = end_pos; // Directly set to cached end position
+            // Restore collected transparent positions
+            let num_positions = collected_positions.len();
+            for pos in collected_positions {
+                self.collected_transparent_positions.insert(pos);
+            }
+            log::debug!("Cache HIT restored {} collected positions", num_positions);
             return Ok(node);
         }
 
         // Cache miss - parse fresh
         let start_pos = self.pos;
+        let positions_before = self.collected_transparent_positions.clone();
         let result = self.parse_with_grammar(grammar, parent_terminators);
 
-        // Store in cache
+        // Store in cache with collected positions
         if let Ok(ref node) = result {
+            // Collect positions that were added during this parse
+            let new_positions: Vec<usize> = self
+                .collected_transparent_positions
+                .difference(&positions_before)
+                .copied()
+                .collect();
+
             self.parse_cache
-                .put(cache_key, Ok((node.clone(), self.pos)));
+                .put(cache_key, Ok((node.clone(), self.pos, new_positions)));
         }
 
         result
@@ -1078,7 +1093,7 @@ impl<'a> Parser<'_> {
                 terminators,
                 reset_terminators,
             } => {
-                log::debug!("Trying Ref to segment: {}, optional: {}", name, optional);
+                log::debug!("Trying Ref to segment: {}, optional: {}, allow_gaps: {}", name, optional, allow_gaps);
                 let saved = self.pos;
                 self.skip_transparent(*allow_gaps);
 
@@ -1118,17 +1133,14 @@ impl<'a> Parser<'_> {
                 allow_gaps,
                 parse_mode,
             } => {
-                log::debug!(
-                    "Trying Sequence with {} elements, parse_mode: {:?}",
-                    elements.len(),
-                    parse_mode
-                );
-
                 let start_idx = self.pos; // Where did we start
+                log::debug!("Sequence starting at {}, allow_gaps={}, parse_mode={:?}", start_idx, allow_gaps, parse_mode);
                 let mut matched_idx = self.pos; // Where have we got to
+                let mut last_collected_idx = None::<usize>; // Track last position where we collected transparent tokens
                 let mut max_idx = self.tokens.len(); // What is the limit
                 let mut children: Vec<Node> = Vec::new();
                 let mut first_match = true;
+                let mut tentatively_collected_positions: Vec<usize> = Vec::new(); // Track positions we collected but haven't committed yet
 
                 // Combine parent and local terminators
                 let all_terminators: Vec<Grammar> = if *reset_terminators {
@@ -1177,20 +1189,45 @@ impl<'a> Parser<'_> {
                     // 2. Skip whitespace/newlines if allow_gaps
                     self.pos = matched_idx;
                     let mut _idx = matched_idx;
+                    log::debug!("Before collection: matched_idx={}, allow_gaps={}", matched_idx, *allow_gaps);
                     if *allow_gaps {
                         _idx = self.skip_start_index_forward_to_code(matched_idx, max_idx);
-                        // Collect the transparent tokens we're skipping
-                        while self.pos < _idx {
-                            if let Some(tok) = self.peek() {
-                                let tok_type = tok.get_type();
-                                if tok_type == "whitespace" {
-                                    children
-                                        .push(Node::Whitespace(tok.raw().to_string(), self.pos));
-                                } else if tok_type == "newline" {
-                                    children.push(Node::Newline(tok.raw().to_string(), self.pos));
+
+                        // Only collect if we haven't already collected from this position (globally!)
+                        let should_collect = last_collected_idx.map_or(true, |last| matched_idx > last)
+                            && !self.collected_transparent_positions.contains(&matched_idx);
+
+                        log::debug!("Collection check: matched_idx={}, last_collected={:?}, in_global={}, should_collect={}",
+                            matched_idx, last_collected_idx,
+                            self.collected_transparent_positions.contains(&matched_idx), should_collect);
+
+                        if should_collect {
+                            // Collect the transparent tokens we're skipping
+                            while self.pos < _idx {
+                                let current_pos = self.pos;
+                                if let Some(tok) = self.peek() {
+                                    let tok_type = tok.get_type();
+                                    if tok_type == "whitespace" {
+                                        log::debug!("COLLECTING whitespace at token pos {}: {:?}", self.pos, tok.raw());
+                                        children
+                                            .push(Node::Whitespace(tok.raw().to_string(), self.pos));
+                                        // Mark as tentatively collected (will commit on success)
+                                        tentatively_collected_positions.push(current_pos);
+                                    } else if tok_type == "newline" {
+                                        log::debug!("COLLECTING newline at token pos {}: {:?}", self.pos, tok.raw());
+                                        children.push(Node::Newline(tok.raw().to_string(), self.pos));
+                                        // Mark as tentatively collected (will commit on success)
+                                        tentatively_collected_positions.push(current_pos);
+                                    }
                                 }
+                                self.bump();
                             }
-                            self.bump();
+                            // Update last collected position
+                            last_collected_idx = Some(matched_idx);
+                        } else {
+                            log::debug!("SKIPPING collection at matched_idx={} (already collected)", matched_idx);
+                            // Still need to advance self.pos even if not collecting
+                            self.pos = _idx;
                         }
                     }
 
@@ -1249,11 +1286,53 @@ impl<'a> Parser<'_> {
                             }
 
                             // Successfully matched
-                            matched_idx = self.pos;
+                            let element_start = _idx; // Where the element started parsing
+                            matched_idx = self.pos; // Where we ended up after parsing
                             log::debug!(
                                 "MATCHED Sequence element, now at position {}",
                                 matched_idx
                             );
+
+                            // If the Sequence has allow_gaps=false but the element skipped transparent tokens,
+                            // we need to collect them retroactively!
+                            if !*allow_gaps {
+                                // The element was parsed starting at element_start
+                                // But it might have consumed a code token and then skipped transparent tokens
+                                // We need to find where the last code token ended and collect everything after that
+
+                                // Find the last code token position that was consumed
+                                let mut last_code_pos = element_start;
+                                for check_pos in element_start..matched_idx {
+                                    if check_pos < self.tokens.len() && self.tokens[check_pos].is_code() {
+                                        last_code_pos = check_pos;
+                                    }
+                                }
+
+                                // Now collect transparent tokens AFTER the last code token
+                                log::debug!("Checking for retroactive collection: last_code_pos={}, matched_idx={}", last_code_pos, matched_idx);
+                                for check_pos in (last_code_pos + 1)..matched_idx {
+                                    log::debug!("Checking position {}: is_code={}, in_global={}", check_pos,
+                                        if check_pos < self.tokens.len() { self.tokens[check_pos].is_code() } else { true },
+                                        self.collected_transparent_positions.contains(&check_pos));
+                                    if check_pos < self.tokens.len() && !self.tokens[check_pos].is_code() {
+                                        if !self.collected_transparent_positions.contains(&check_pos) {
+                                            let tok = &self.tokens[check_pos];
+                                            let tok_type = tok.get_type();
+                                            if tok_type == "whitespace" {
+                                                log::debug!("RETROACTIVELY collecting whitespace at token pos {}: {:?}", check_pos, tok.raw());
+                                                children.push(Node::Whitespace(tok.raw().to_string(), check_pos));
+                                                tentatively_collected_positions.push(check_pos);
+                                            } else if tok_type == "newline" {
+                                                log::debug!("RETROACTIVELY collecting newline at token pos {}: {:?}", check_pos, tok.raw());
+                                                children.push(Node::Newline(tok.raw().to_string(), check_pos));
+                                                tentatively_collected_positions.push(check_pos);
+                                            }
+                                        }
+                                    }
+                                }
+                                last_collected_idx = Some(matched_idx - 1);
+                            }
+
                             children.push(node);
 
                             // GREEDY_ONCE_STARTED: Trim to terminator after first match
@@ -1316,6 +1395,10 @@ impl<'a> Parser<'_> {
                                 _idx
                             );
                             self.pos = matched_idx;
+                            // Commit collected positions even on incomplete match
+                            for pos in tentatively_collected_positions {
+                                self.collected_transparent_positions.insert(pos);
+                            }
                             return Ok(Node::Sequence(children));
                         }
                     }
@@ -1382,8 +1465,13 @@ impl<'a> Parser<'_> {
                 // If we have no children and the sequence itself is optional, return Empty
                 if children.is_empty() && *optional {
                     log::debug!("Sequence matched no children and is optional, returning Empty");
+                    // Don't commit collected positions since we're returning Empty
                     Ok(Node::Empty)
                 } else {
+                    // Commit tentatively collected transparent token positions to global set
+                    for pos in tentatively_collected_positions {
+                        self.collected_transparent_positions.insert(pos);
+                    }
                     Ok(Node::Sequence(children))
                 }
             }
@@ -2460,6 +2548,7 @@ impl<'a> Parser<'_> {
             pos: 0,
             dialect,
             parse_cache: ParseCache::new(),
+            collected_transparent_positions: std::collections::HashSet::new(),
         }
     }
 }
