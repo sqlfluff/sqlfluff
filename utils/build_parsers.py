@@ -31,7 +31,7 @@ class DummyParseContext:
 def generate_use():
     """Generates the `use` statements."""
     print("use once_cell::sync::Lazy;")
-    print("use crate::parser::Grammar;")
+    print("use crate::parser::{Grammar, ParseMode};")
 
 
 def matchable_to_const_name(s: str):
@@ -48,6 +48,7 @@ def generate_parser(dialect: str):
     loaded_dialect = dialect_selector(dialect)
     parse_context = DummyParseContext(loaded_dialect)
     segment_grammars = []
+    segment_types = []
 
     # TODO: remove this if
     if dialect == "ansi":
@@ -55,6 +56,15 @@ def generate_parser(dialect: str):
             segment_grammars.append(
                 f'"{name}" => Some(&{matchable_to_const_name(name)}),'
             )
+
+            # Check if this is a Segment class (has a 'type' attribute)
+            if isinstance(match_grammar, type) and issubclass(
+                match_grammar, BaseSegment
+            ):
+                segment_type = getattr(match_grammar, "type", None)
+                if segment_type:
+                    segment_types.append(f'"{name}" => Some("{segment_type}"),')
+
             print(f"// {name=}")
             print(
                 f"pub static {matchable_to_const_name(name)}: "
@@ -64,6 +74,7 @@ def generate_parser(dialect: str):
             print(");")
             print()
     segment_grammars.append("_ => None,")
+    segment_types.append("_ => None,")
 
     print(
         f"pub fn get_{dialect.lower()}_segment_grammar(name: &str) "
@@ -72,6 +83,18 @@ def generate_parser(dialect: str):
     print("    match name {")
     for match_arm in segment_grammars:
         print(f"            {match_arm}")
+    print("    }")
+    print("}")
+    print()
+
+    # Generate type mapping function
+    print(
+        f"pub fn get_{dialect.lower()}_segment_type(name: &str) "
+        "-> Option<&'static str> {"
+    )
+    print("    match name {")
+    for type_arm in segment_types:
+        print(f"            {type_arm}")
     print("    }")
     print("}")
 
@@ -172,6 +195,16 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print(f"    reset_terminators: {str(match_grammar.reset_terminators).lower()},")
         print(f"    allow_gaps: {str(match_grammar.allow_gaps).lower()},")
         print(f"    min_delimiters: {match_grammar.min_delimiters},")
+        # Map Python ParseMode to Rust ParseMode
+        parse_mode_map = {
+            "STRICT": "ParseMode::Strict",
+            "GREEDY": "ParseMode::Greedy",
+            "GREEDY_ONCE_STARTED": "ParseMode::GreedyOnceStarted",
+        }
+        rust_parse_mode = parse_mode_map.get(
+            match_grammar.parse_mode.name, "ParseMode::Strict"
+        )
+        print(f"    parse_mode: {rust_parse_mode},")
         print("}")
     elif (
         match_grammar.__class__ is OneOf
@@ -193,6 +226,16 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print("    ],")
         print(f"    reset_terminators: {str(match_grammar.reset_terminators).lower()},")
         print(f"    allow_gaps: {str(match_grammar.allow_gaps).lower()},")
+        # Map Python ParseMode to Rust ParseMode
+        parse_mode_map = {
+            "STRICT": "ParseMode::Strict",
+            "GREEDY": "ParseMode::Greedy",
+            "GREEDY_ONCE_STARTED": "ParseMode::GreedyOnceStarted",
+        }
+        rust_parse_mode = parse_mode_map.get(
+            match_grammar.parse_mode.name, "ParseMode::Strict"
+        )
+        print(f"    parse_mode: {rust_parse_mode},")
         print("}")
     elif match_grammar.__class__ is Bracketed and isinstance(match_grammar, Bracketed):
         print("Grammar::Bracketed {")
@@ -222,6 +265,16 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print("    ],")
         print(f"    reset_terminators: {str(match_grammar.reset_terminators).lower()},")
         print(f"    allow_gaps: {str(match_grammar.allow_gaps).lower()},")
+        # Map Python ParseMode to Rust ParseMode
+        parse_mode_map = {
+            "STRICT": "ParseMode::Strict",
+            "GREEDY": "ParseMode::Greedy",
+            "GREEDY_ONCE_STARTED": "ParseMode::GreedyOnceStarted",
+        }
+        rust_parse_mode = parse_mode_map.get(
+            match_grammar.parse_mode.name, "ParseMode::Strict"
+        )
+        print(f"    parse_mode: {rust_parse_mode},")
         print("}")
     elif match_grammar.__class__ is Sequence and isinstance(match_grammar, Sequence):
         print("Grammar::Sequence {")
@@ -238,6 +291,16 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print("    ],")
         print(f"    reset_terminators: {str(match_grammar.reset_terminators).lower()},")
         print(f"    allow_gaps: {str(match_grammar.allow_gaps).lower()},")
+        # Map Python ParseMode to Rust ParseMode
+        parse_mode_map = {
+            "STRICT": "ParseMode::Strict",
+            "GREEDY": "ParseMode::Greedy",
+            "GREEDY_ONCE_STARTED": "ParseMode::GreedyOnceStarted",
+        }
+        rust_parse_mode = parse_mode_map.get(
+            match_grammar.parse_mode.name, "ParseMode::Strict"
+        )
+        print(f"    parse_mode: {rust_parse_mode},")
         print("}")
     elif match_grammar.__class__ is AnyNumberOf and isinstance(
         match_grammar, AnyNumberOf
@@ -259,6 +322,16 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print("    ],")
         print(f"    reset_terminators: {str(match_grammar.reset_terminators).lower()},")
         print(f"    allow_gaps: {str(match_grammar.allow_gaps).lower()},")
+        # Map Python ParseMode to Rust ParseMode
+        parse_mode_map = {
+            "STRICT": "ParseMode::Strict",
+            "GREEDY": "ParseMode::Greedy",
+            "GREEDY_ONCE_STARTED": "ParseMode::GreedyOnceStarted",
+        }
+        rust_parse_mode = parse_mode_map.get(
+            match_grammar.parse_mode.name, "ParseMode::Strict"
+        )
+        print(f"    parse_mode: {rust_parse_mode},")
         print("}")
     elif isinstance(match_grammar, Anything):
         print("Grammar::Anything")

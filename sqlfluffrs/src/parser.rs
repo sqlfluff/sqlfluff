@@ -10,6 +10,26 @@ use crate::{
     token::Token,
 };
 
+/// Parse mode defines how greedy a grammar is in claiming unmatched segments.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub enum ParseMode {
+    /// Strict only returns a match if the full content matches.
+    /// If it's not a successful match, don't return any match and never raise unparsable sections.
+    /// This is the default for all grammars.
+    #[default]
+    Strict,
+    /// Greedy will always return a match, providing there is at least one code element before
+    /// a terminator. Terminators are not included in the match, but are searched for before
+    /// matching any content. Segments which are part of any terminator (or beyond) are not
+    /// available for matching by any content.
+    /// This replicates the `GreedyUntil` semantics.
+    Greedy,
+    /// A variant on "Greedy" that behaves like "Strict" if nothing matches, but behaves like
+    /// "Greedy" once something has matched.
+    /// This replicates the `StartsWith` semantics.
+    GreedyOnceStarted,
+}
+
 #[derive(Debug, Clone)]
 pub enum Grammar {
     Sequence {
@@ -18,6 +38,7 @@ pub enum Grammar {
         terminators: Vec<Grammar>,
         reset_terminators: bool,
         allow_gaps: bool,
+        parse_mode: ParseMode,
     },
     AnyNumberOf {
         elements: Vec<Grammar>,
@@ -27,6 +48,7 @@ pub enum Grammar {
         terminators: Vec<Grammar>,
         reset_terminators: bool,
         allow_gaps: bool,
+        parse_mode: ParseMode,
     },
     OneOf {
         elements: Vec<Grammar>,
@@ -34,6 +56,7 @@ pub enum Grammar {
         terminators: Vec<Grammar>,
         reset_terminators: bool,
         allow_gaps: bool,
+        parse_mode: ParseMode,
     },
     Delimited {
         elements: Vec<Grammar>,
@@ -44,6 +67,7 @@ pub enum Grammar {
         reset_terminators: bool,
         allow_gaps: bool,
         min_delimiters: usize,
+        parse_mode: ParseMode,
     },
     Bracketed {
         elements: Vec<Grammar>,
@@ -52,6 +76,7 @@ pub enum Grammar {
         terminators: Vec<Grammar>,
         reset_terminators: bool,
         allow_gaps: bool,
+        parse_mode: ParseMode,
     },
     Ref {
         name: &'static str,
@@ -120,9 +145,25 @@ impl Grammar {
         self.hash(&mut hasher);
         hasher.finish()
     }
+
+    /// Get the parse mode for this grammar.
+    /// Returns the parse_mode if the grammar supports it, otherwise returns the default (Strict).
+    pub fn parse_mode(&self) -> ParseMode {
+        match self {
+            Grammar::Sequence { parse_mode, .. } => *parse_mode,
+            Grammar::AnyNumberOf { parse_mode, .. } => *parse_mode,
+            Grammar::OneOf { parse_mode, .. } => *parse_mode,
+            Grammar::Delimited { parse_mode, .. } => *parse_mode,
+            Grammar::Bracketed { parse_mode, .. } => *parse_mode,
+            // All other grammar types default to Strict
+            _ => ParseMode::Strict,
+        }
+    }
 }
 
 // Implement Hash for Grammar (discriminant + key fields)
+// NOTE: parse_mode IS included in the hash to ensure different cache keys
+// for different parse modes, even though it's NOT included in PartialEq.
 impl Hash for Grammar {
     fn hash<H: Hasher>(&self, state: &mut H) {
         std::mem::discriminant(self).hash(state);
@@ -136,31 +177,37 @@ impl Hash for Grammar {
                 elements,
                 optional,
                 allow_gaps,
+                parse_mode,
                 ..
             } => {
                 elements.hash(state);
                 optional.hash(state);
                 allow_gaps.hash(state);
+                parse_mode.hash(state);
             }
             Grammar::AnyNumberOf {
                 elements,
                 optional,
                 allow_gaps,
+                parse_mode,
                 ..
             } => {
                 elements.hash(state);
                 optional.hash(state);
                 allow_gaps.hash(state);
+                parse_mode.hash(state);
             }
             Grammar::OneOf {
                 elements,
                 optional,
                 allow_gaps,
+                parse_mode,
                 ..
             } => {
                 elements.hash(state);
                 optional.hash(state);
                 allow_gaps.hash(state);
+                parse_mode.hash(state);
             }
             Grammar::Delimited {
                 elements,
@@ -170,6 +217,7 @@ impl Hash for Grammar {
                 allow_trailing,
                 terminators,
                 min_delimiters,
+                parse_mode,
                 ..
             } => {
                 elements.hash(state);
@@ -179,16 +227,19 @@ impl Hash for Grammar {
                 allow_trailing.hash(state);
                 terminators.hash(state);
                 min_delimiters.hash(state);
+                parse_mode.hash(state);
             }
             Grammar::Bracketed {
                 elements,
                 optional,
                 allow_gaps,
+                parse_mode,
                 ..
             } => {
                 elements.hash(state);
                 optional.hash(state);
                 allow_gaps.hash(state);
+                parse_mode.hash(state);
             }
             Grammar::Symbol(sym) => sym.hash(state),
             Grammar::Meta(s) => s.hash(state),
@@ -201,6 +252,12 @@ impl Hash for Grammar {
     }
 }
 
+// Implement PartialEq for Grammar
+// NOTE: parse_mode is NOT included in equality comparison, matching Python's
+// behavior where equality_kwargs = ("_elements", "optional", "allow_gaps").
+// This means grammars are equal if they have the same structure, regardless
+// of parse_mode. However, parse_mode IS included in Hash (above) to ensure
+// separate cache entries for different parse modes.
 impl PartialEq for Grammar {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
@@ -268,7 +325,13 @@ impl PartialEq for Grammar {
                     ..
                 },
             ) => {
-                e1 == e2 && o1 == o2 && g1 == g2 && d1 == d2 && at1 == at2 && t1 == t2 && md1 == md2
+                e1 == e2
+                    && o1 == o2
+                    && g1 == g2
+                    && d1 == d2
+                    && at1 == at2
+                    && t1 == t2
+                    && md1 == md2
             }
             (
                 Grammar::Bracketed {
@@ -422,6 +485,7 @@ impl Display for Grammar {
 
 pub struct SegmentDef {
     pub name: &'static str,
+    pub segment_type: Option<&'static str>,
     pub grammar: Grammar,
 }
 
@@ -450,6 +514,7 @@ pub enum Node {
     /// A reference to another segment (wraps its AST)
     Ref {
         name: String,
+        segment_type: Option<String>,
         child: Box<Node>,
     },
 
@@ -477,6 +542,174 @@ impl Node {
             _ => false,
         }
     }
+
+    /// Format the AST to mirror Python SQLFluff's parse output format.
+    ///
+    /// This produces output like:
+    /// ```
+    /// [L:  1, P:  1]      |file:
+    /// [L:  1, P:  1]      |    statement:
+    /// [L:  1, P:  1]      |        select_statement:
+    /// [L:  1, P:  1]      |            keyword:                                      'SELECT'
+    /// ```
+    pub fn format_tree(&self, tokens: &[Token]) -> String {
+        let mut output = String::new();
+        self.format_tree_impl(tokens, &mut output, 0, 0);
+        output
+    }
+
+    fn format_tree_impl(
+        &self,
+        tokens: &[Token],
+        output: &mut String,
+        depth: usize,
+        token_idx: usize,
+    ) -> usize {
+        let indent = "    ".repeat(depth);
+
+        match self {
+            Node::Keyword(_, idx)
+            | Node::Code(_, idx)
+            | Node::Whitespace(_, idx)
+            | Node::Newline(_, idx)
+            | Node::EndOfFile(_, idx) => {
+                // Get position from token
+                if let Some(token) = tokens.get(*idx) {
+                    output.push_str(&token.stringify(depth, 4, false));
+                }
+                *idx + 1
+            }
+
+            Node::Meta(name) => {
+                // META nodes like indent/dedent - use current position's token for location
+                if let Some(token) = tokens.get(token_idx) {
+                    if let Some(pos_marker) = &token.pos_marker {
+                        let (line, pos) = pos_marker.source_position();
+                        output.push_str(&format!(
+                            "[L:{:3}, P:{:3}]      |{}[META] {} :\n",
+                            line, pos, indent, name,
+                        ));
+                    }
+                }
+                token_idx
+            }
+
+            Node::Ref {
+                name,
+                segment_type,
+                child,
+            } => {
+                // Check if this Ref should be transparent (not add a layer):
+                // 1. Grammar rules (names ending in "Grammar") are just parsing constructs
+                // 2. Single-token wrappers are transparent
+                let is_grammar_rule = name.ends_with("Grammar");
+                let is_single_token = matches!(
+                    child.as_ref(),
+                    Node::Keyword(_, _)
+                        | Node::Code(_, _)
+                        | Node::Whitespace(_, _)
+                        | Node::Newline(_, _)
+                        | Node::EndOfFile(_, _)
+                );
+                let is_transparent = is_grammar_rule || is_single_token;
+
+                let mut current_idx = token_idx;
+
+                if is_transparent {
+                    // Don't add depth for transparent wrappers - just pass through to child
+                    current_idx = child.format_tree_impl(tokens, output, depth, current_idx);
+                } else {
+                    // This is a meaningful segment - print it and increase depth
+                    // Use segment_type if available, otherwise fall back to converting the name
+                    let display_name = if let Some(ref seg_type) = segment_type {
+                        seg_type.clone()
+                    } else {
+                        simplify_segment_name(name)
+                    };
+
+                    // Find first non-empty token to get position
+                    if let Some(first_token_idx) = self.find_first_token_idx() {
+                        if let Some(token) = tokens.get(first_token_idx) {
+                            if let Some(pos_marker) = &token.pos_marker {
+                                let (line, pos) = pos_marker.source_position();
+                                output.push_str(&format!(
+                                    "[L:{:3}, P:{:3}]      |{}{}:\n",
+                                    line, pos, indent, display_name
+                                ));
+                            }
+                        }
+                    }
+
+                    // Format child with increased depth
+                    current_idx = child.format_tree_impl(tokens, output, depth + 1, current_idx);
+                }
+                current_idx
+            }
+
+            Node::Sequence(children) | Node::DelimitedList(children) => {
+                let mut current_idx = token_idx;
+                for child in children {
+                    if !child.is_empty() {
+                        current_idx = child.format_tree_impl(tokens, output, depth, current_idx);
+                    }
+                }
+                current_idx
+            }
+
+            Node::Empty => token_idx,
+        }
+    }
+
+    /// Find the first token index in this node tree
+    fn find_first_token_idx(&self) -> Option<usize> {
+        match self {
+            Node::Keyword(_, idx)
+            | Node::Code(_, idx)
+            | Node::Whitespace(_, idx)
+            | Node::Newline(_, idx)
+            | Node::EndOfFile(_, idx) => Some(*idx),
+
+            Node::Ref { child, .. } => child.find_first_token_idx(),
+
+            Node::Sequence(children) | Node::DelimitedList(children) => {
+                children.iter().find_map(|c| c.find_first_token_idx())
+            }
+
+            Node::Meta(_) | Node::Empty => None,
+        }
+    }
+}
+
+/// Simplify segment names to match Python output:
+/// - Remove "Segment" suffix
+/// - Remove "Grammar" suffix
+/// - Convert CamelCase to snake_case
+fn simplify_segment_name(name: &str) -> String {
+    let name = name
+        .strip_suffix("Segment")
+        .or_else(|| name.strip_suffix("Grammar"))
+        .unwrap_or(name);
+
+    camel_to_snake(name)
+}
+
+/// Convert CamelCase or PascalCase to snake_case
+fn camel_to_snake(s: &str) -> String {
+    let mut result = String::new();
+    let mut chars = s.chars().peekable();
+
+    while let Some(c) = chars.next() {
+        if c.is_uppercase() {
+            if !result.is_empty() {
+                result.push('_');
+            }
+            result.push(c.to_lowercase().next().unwrap());
+        } else {
+            result.push(c);
+        }
+    }
+
+    result
 }
 
 pub struct Parser<'a> {
@@ -632,8 +865,9 @@ impl<'a> Parser<'_> {
                 }
             }
             Grammar::Meta(token_type) => {
-                log::debug!("Trying meta");
+                log::debug!("Doing nothing with meta {}", token_type);
                 Ok(Node::Meta(token_type))
+                // Ok(Node::Empty)
             }
             Grammar::StringParser {
                 template,
@@ -648,7 +882,12 @@ impl<'a> Parser<'_> {
                         let token_pos = self.pos; // Save position before bumping
                         self.bump();
                         log::debug!("MATCHED String matched: {}", tok);
-                        Ok(Node::Code(tok.raw(), token_pos))
+                        // Create Node::Keyword for keyword token_type, Node::Code otherwise
+                        if *token_type == "keyword" {
+                            Ok(Node::Keyword(tok.raw(), token_pos))
+                        } else {
+                            Ok(Node::Code(tok.raw(), token_pos))
+                        }
                     }
                     _ => {
                         if *optional {
@@ -681,7 +920,12 @@ impl<'a> Parser<'_> {
                         let token_pos = self.pos; // Save position before bumping
                         self.bump();
                         log::debug!("MATCHED Multi string matched: {}", tok);
-                        Ok(Node::Code(tok.raw(), token_pos))
+                        // Create Node::Keyword for keyword token_type, Node::Code otherwise
+                        if *token_type == "keyword" {
+                            Ok(Node::Keyword(tok.raw(), token_pos))
+                        } else {
+                            Ok(Node::Code(tok.raw(), token_pos))
+                        }
                     }
                     _ => {
                         if *optional {
@@ -846,11 +1090,12 @@ impl<'a> Parser<'_> {
                 terminators,
                 reset_terminators,
                 allow_gaps,
+                parse_mode,
             } => {
                 log::debug!("Trying Sequence with {} elements", elements.len());
 
                 // Save start position for backtracking if the whole sequence fails
-                let start_idx = self.pos;
+                let start_pos = self.pos;
 
                 // Combine parent and local terminators
                 let all_terminators: Vec<Grammar> = if *reset_terminators {
@@ -868,18 +1113,68 @@ impl<'a> Parser<'_> {
                 for element in elements {
                     log::debug!("Sequence-@{}: {:?}", self.pos, element);
 
+                    // If this element is a Meta grammar, insert it immediately
+                    // Positioning rules:
+                    // - "indent" (positive indent_val) goes BEFORE any following whitespace
+                    // - "dedent" (negative indent_val) goes AFTER any preceding whitespace
+                    if let Grammar::Meta(meta_type) = element {
+                        // if meta_type.contains("indent") && !meta_type.contains("dedent") {
+                        if *meta_type == "indent" {
+                            log::debug!("Inserting Meta: {}", meta_type);
+                            // let meta_token = Token::indent_token(
+                            //     self.tokens[self.pos].pos_marker.clone().unwrap(),
+                            //     false,
+                            //     None,
+                            //     HashSet::new(),
+                            // );
+                            // Indent goes before whitespace
+                            // If the last child is whitespace/newline, insert before it
+                            let mut insert_pos = children.len();
+                            while insert_pos > 0 {
+                                match &children[insert_pos - 1] {
+                                    Node::Whitespace(_, _) | Node::Newline(_, _) => {
+                                        insert_pos -= 1;
+                                    }
+                                    _ => break,
+                                }
+                            }
+                            children.insert(insert_pos, Node::Meta(meta_type));
+                        } else if *meta_type == "dedent" {
+                            // Dedent goes after whitespace (at current position)
+                            log::debug!("Inserting Meta: {}", meta_type);
+                            // let meta_token = Token::dedent_token(
+                            //     self.tokens[self.pos].pos_marker.clone().unwrap(),
+                            //     false,
+                            //     None,
+                            //     HashSet::new(),
+                            // );
+                            children.push(Node::Meta(meta_type));
+                        }
+                        continue;
+                    }
+
                     // Collect whitespace/newlines before each element
                     let ws_nodes = self.collect_transparent(*allow_gaps);
                     children.extend(ws_nodes);
 
+                    // Save position before checking termination
+                    let pre_term_pos = self.pos;
+
                     // Check if we hit a terminator
                     if self.is_terminated(&all_terminators) {
                         log::debug!("Sequence terminated!");
+                        // Restore position and collect transparent tokens that were skipped
+                        self.pos = pre_term_pos;
+                        let trailing_ws = self.collect_transparent(*allow_gaps);
+                        log::debug!(
+                            "Sequence: Collected {} trailing nodes after termination",
+                            trailing_ws.len()
+                        );
+                        children.extend(trailing_ws);
                         break;
                     }
 
                     let element_start = self.pos;
-
                     match self.parse_with_grammar_cached(element, &all_terminators) {
                         Ok(node) => {
                             let consumed = self.pos - element_start;
@@ -889,10 +1184,12 @@ impl<'a> Parser<'_> {
                                     node,
                                     consumed
                                 );
+                                log::debug!("Sequence now at position {} after element", self.pos);
                                 children.push(node);
                             } else {
                                 // Empty node (from optional element that didn't match)
                                 log::debug!("Sequence element returned Empty, continuing");
+                                log::debug!("Sequence still at position {} after Empty", self.pos);
                             }
                         }
                         Err(e) => {
@@ -920,8 +1217,10 @@ impl<'a> Parser<'_> {
                                 continue;
                             } else if *optional {
                                 // The whole sequence is optional, so we can return empty
+                                // IMPORTANT: Restore to the START of the sequence, not just before whitespace
+                                // This ensures proper backtracking when an optional sequence partially matches
                                 log::debug!("NOMATCH Sequence is optional, returning empty");
-                                self.pos = start_idx;
+                                self.pos = start_pos; // Restore to start of sequence
                                 return Ok(Node::Empty);
                             } else {
                                 // Required element failed, fail the whole sequence
@@ -933,7 +1232,13 @@ impl<'a> Parser<'_> {
                 }
 
                 // Collect any trailing whitespace after the sequence
+                log::debug!("Sequence@{}: Collecting trailing whitespace...", self.pos);
                 let trailing_ws = self.collect_transparent(*allow_gaps);
+                log::debug!(
+                    "Sequence@{}: Collected {} trailing nodes",
+                    self.pos,
+                    trailing_ws.len()
+                );
                 children.extend(trailing_ws);
 
                 log::debug!("MATCHED Sequence children: {:?}", &children);
@@ -953,6 +1258,7 @@ impl<'a> Parser<'_> {
                 terminators,
                 reset_terminators,
                 allow_gaps,
+                parse_mode,
             } => {
                 log::debug!("Trying OneOf elements: {:?}", elements);
                 let initial_pos = self.pos;
@@ -1060,6 +1366,7 @@ impl<'a> Parser<'_> {
                 terminators,
                 reset_terminators,
                 allow_gaps,
+                parse_mode,
             } => {
                 log::debug!("Trying AnyNumberOf elements: {:?}", elements);
                 let mut items = vec![];
@@ -1093,6 +1400,9 @@ impl<'a> Parser<'_> {
                 loop {
                     let mut matched = false;
 
+                    // Save position BEFORE collecting whitespace
+                    let pre_ws_pos = self.pos;
+
                     // Collect whitespace before trying to match
                     let ws_nodes = self.collect_transparent(*allow_gaps);
                     let post_skip_saved_pos = self.pos;
@@ -1101,8 +1411,8 @@ impl<'a> Parser<'_> {
                     let available_options = self.prune_options(elements);
 
                     if available_options.is_empty() {
-                        // No options could match - stop loop
-                        self.pos = post_skip_saved_pos;
+                        // No options could match - restore to position BEFORE whitespace
+                        self.pos = pre_ws_pos;
                         break;
                     }
 
@@ -1142,8 +1452,8 @@ impl<'a> Parser<'_> {
                     }
 
                     if !matched {
-                        // If no elements matched, restore to position BEFORE this iteration
-                        self.pos = post_skip_saved_pos;
+                        // If no elements matched, restore to position BEFORE collecting whitespace
+                        self.pos = pre_ws_pos;
                         break;
                     }
 
@@ -1163,6 +1473,7 @@ impl<'a> Parser<'_> {
                 if count < *min_times {
                     if *optional {
                         self.pos = initial_pos;
+                        log::debug!("AnyNumberOf returning Empty at position {}", self.pos);
                         Ok(Node::Empty)
                     } else {
                         Err(ParseError::new(format!(
@@ -1172,6 +1483,10 @@ impl<'a> Parser<'_> {
                     }
                 } else {
                     log::debug!("MATCHED AnyNumberOf matched items: {:?}", items);
+                    log::debug!(
+                        "AnyNumberOf returning DelimitedList at position {}",
+                        self.pos
+                    );
                     Ok(Node::DelimitedList(items))
                 }
             }
@@ -1184,8 +1499,15 @@ impl<'a> Parser<'_> {
                 reset_terminators,
                 allow_gaps,
                 min_delimiters,
+                parse_mode,
             } => {
-                log::debug!("Trying Delimited elements: {:?}", elements);
+                let delim_id = format!("{:p}", delimiter);
+                log::debug!(
+                    "Trying Delimited[{}] elements at position {}: {:?}",
+                    &delim_id[..std::cmp::min(8, delim_id.len())],
+                    self.pos,
+                    elements
+                );
                 let mut items = vec![];
 
                 // Combine parent and local terminators
@@ -1292,11 +1614,19 @@ impl<'a> Parser<'_> {
                         items.push(delim_node);
                     } else {
                         self.pos = saved_pos;
-                        log::debug!("Delimited: no delimiter found, ending");
+                        log::debug!(
+                            "Delimited: no delimiter found, ending at position {}",
+                            self.pos
+                        );
                         break;
                     }
                 }
 
+                log::debug!(
+                    "Delimited[{}] returning at position {}",
+                    &delim_id[..std::cmp::min(8, delim_id.len())],
+                    self.pos
+                );
                 Ok(Node::DelimitedList(items))
             }
             Grammar::Bracketed {
@@ -1306,6 +1636,7 @@ impl<'a> Parser<'_> {
                 terminators,
                 reset_terminators,
                 allow_gaps,
+                parse_mode,
             } => {
                 log::debug!("Trying Bracketed elements: {:?}", elements);
                 let saved_pos = self.pos;
@@ -1496,6 +1827,7 @@ impl<'a> Parser<'_> {
         // Check if we've reached end of file
         if self.is_at_end() {
             log::debug!("  TERMED Reached end of file");
+            self.pos = init_pos; // restore to position before skipping transparent
             return true;
         }
 
@@ -1503,6 +1835,7 @@ impl<'a> Parser<'_> {
         if let Some(tok) = self.peek() {
             if tok.get_type() == "end_of_file" {
                 log::debug!("  TERMED Found end_of_file token");
+                self.pos = init_pos; // restore to position before skipping transparent
                 return true;
             }
         }
@@ -1553,9 +1886,13 @@ impl<'a> Parser<'_> {
             return Ok(node);
         }
 
+        // Get the segment type from the dialect
+        let segment_type = self.dialect.get_segment_type(name).map(|s| s.to_string());
+
         // Wrap in a Ref node for type clarity
         Ok(Node::Ref {
             name: name.to_string(),
+            segment_type,
             child: Box::new(node),
         })
     }
@@ -1565,7 +1902,7 @@ impl<'a> Parser<'_> {
         self.dialect.get_segment_grammar(name)
     }
 
-    fn new(tokens: &'a [Token], dialect: Dialect) -> Parser<'a> {
+    pub fn new(tokens: &'a [Token], dialect: Dialect) -> Parser<'a> {
         Parser {
             tokens,
             pos: 0,
@@ -1804,7 +2141,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_column_def_segment() -> Result<(), ParseError> {
+    fn parse_column_def_with_not_null_segment() -> Result<(), ParseError> {
         let raw = "c1 INT NOT NULL";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
@@ -1822,8 +2159,8 @@ mod tests {
         let ast = parser.call_rule("ColumnDefinitionSegment", &[])?;
         println!("AST: {:#?}", ast);
 
-        assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
         assert_eq!(parser.pos, parser.tokens.len());
+        assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
 
         Ok(())
     }
@@ -1969,6 +2306,41 @@ LEFT JOIN t9 AS c_ph
 
         assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
         assert_eq!(parser.pos, parser.tokens.len());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_format_tree() -> Result<(), ParseError> {
+        env_logger::try_init().ok();
+
+        let raw = "SELECT * FROM a";
+        let input = LexInput::String(raw.into());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, dialect);
+        let (tokens, _errors) = lexer.lex(input, false);
+
+        println!("\nTokens lexed:");
+        for (i, tok) in tokens.iter().enumerate() {
+            println!(
+                "  Token {}: '{}' | type: {} | instance_types: {:?}",
+                i,
+                tok.raw(),
+                tok.get_type(),
+                tok.instance_types
+            );
+        }
+
+        let mut parser = Parser::new(&tokens, dialect);
+        let ast = parser.call_rule("FileSegment", &[])?;
+
+        println!("\nFormatted AST (Python SQLFluff style):");
+        let formatted = ast.format_tree(&tokens);
+        println!("{}", formatted);
+
+        // Also print debug format for comparison
+        println!("\nDebug AST:");
+        println!("{:#?}", ast);
 
         Ok(())
     }

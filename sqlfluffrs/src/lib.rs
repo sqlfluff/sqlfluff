@@ -15,4 +15,5 @@ pub mod slice;
 pub mod templater;
 pub mod token;
 
-use crate::dialect::Dialect;
+pub use crate::dialect::Dialect;
+pub use crate::parser::ParseMode;

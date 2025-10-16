@@ -1,6 +1,6 @@
 /* This is a generated file! */
 use once_cell::sync::Lazy;
-use crate::parser::Grammar;
+use crate::parser::{Grammar, ParseMode};
 
 // name='AbortKeywordSegment'
 pub static ABORT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
@@ -128,6 +128,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -136,6 +137,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -173,6 +175,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -201,6 +204,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -229,6 +233,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -268,6 +273,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -276,6 +282,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -284,6 +291,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -338,6 +346,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -458,6 +467,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -486,6 +496,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -514,6 +525,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -522,6 +534,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -530,6 +543,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -538,6 +552,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -566,6 +581,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -792,6 +808,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -800,6 +817,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -817,6 +835,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -825,6 +844,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -854,6 +874,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -906,6 +927,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -1037,6 +1059,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -1045,6 +1068,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -1053,6 +1077,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -1099,6 +1124,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -1145,6 +1171,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -1256,6 +1283,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -1284,6 +1312,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -1312,6 +1341,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -1320,6 +1350,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -1422,6 +1453,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -1448,6 +1480,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -1550,6 +1583,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -1587,6 +1621,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -1595,6 +1630,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -1603,6 +1639,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Delimited {
@@ -1642,6 +1679,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -1689,6 +1727,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -1697,6 +1736,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -1734,6 +1774,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -1742,6 +1783,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -1750,6 +1792,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -1778,6 +1821,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -1824,6 +1868,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -1841,6 +1886,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -1896,6 +1942,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Delimited {
@@ -1935,6 +1982,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -1955,6 +2003,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -1994,6 +2043,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -2031,6 +2081,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -2068,6 +2119,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -2076,6 +2128,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -2133,6 +2186,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -2141,6 +2195,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -2149,6 +2204,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -2197,6 +2253,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -2273,6 +2330,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -2281,6 +2339,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -2318,6 +2377,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -2346,6 +2406,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -2374,6 +2435,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -2413,6 +2475,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -2421,6 +2484,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -2429,6 +2493,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -2483,6 +2548,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -2603,6 +2669,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -2631,6 +2698,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -2659,6 +2727,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -2667,6 +2736,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -2675,6 +2745,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -2683,6 +2754,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -2711,6 +2783,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -2937,6 +3010,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -2945,6 +3019,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -2962,6 +3037,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -2970,6 +3046,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -2999,6 +3076,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -3051,6 +3129,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -3182,6 +3261,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -3190,6 +3270,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -3198,6 +3279,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -3244,6 +3326,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -3290,6 +3373,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -3401,6 +3485,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -3429,6 +3514,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -3457,6 +3543,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -3465,6 +3552,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -3567,6 +3655,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -3593,6 +3682,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -3695,6 +3785,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -3732,6 +3823,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -3740,6 +3832,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -3748,6 +3841,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Delimited {
@@ -3787,6 +3881,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -3834,6 +3929,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -3842,6 +3938,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -3879,6 +3976,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -3887,6 +3985,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -3895,6 +3994,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -3923,6 +4023,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -3969,6 +4070,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -3986,6 +4088,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -4041,6 +4144,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Delimited {
@@ -4072,6 +4176,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -4089,6 +4194,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -4097,6 +4203,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -4121,6 +4228,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -4271,6 +4379,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -4279,6 +4388,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -4296,6 +4406,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("dedent")
@@ -4306,6 +4417,7 @@ Grammar::Meta("dedent")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -4346,6 +4458,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -4425,6 +4538,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -4473,6 +4587,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -4490,6 +4605,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -4518,6 +4634,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -4535,6 +4652,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -4589,6 +4707,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -4597,6 +4716,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -4646,6 +4766,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -4699,6 +4820,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -4707,6 +4829,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -4737,6 +4860,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -4787,6 +4911,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -4804,6 +4929,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -4821,6 +4947,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -4829,6 +4956,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -4877,6 +5005,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -4894,6 +5023,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -4902,6 +5032,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -4966,6 +5097,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -4974,6 +5106,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -5158,6 +5291,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -5194,6 +5328,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -5214,6 +5349,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -5238,6 +5374,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Greedy,
 }
 );
 
@@ -5290,6 +5427,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -5314,6 +5452,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -5343,6 +5482,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -5473,6 +5613,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -5614,6 +5755,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -5640,6 +5782,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -5759,6 +5902,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -5848,6 +5992,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: false,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -5893,6 +6038,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: false,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -5951,6 +6097,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -5991,6 +6138,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -6037,6 +6185,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -6061,6 +6210,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -6097,6 +6247,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -6121,6 +6272,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -6167,6 +6319,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -6251,6 +6404,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -6319,6 +6473,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Greedy,
 }
 ,
     ],
@@ -6327,6 +6482,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -6439,6 +6595,7 @@ Grammar::Ref {
     ],
     reset_terminators: true,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -6476,6 +6633,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -6537,6 +6695,7 @@ Grammar::Ref {
     ],
     reset_terminators: true,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -6574,6 +6733,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -6609,6 +6769,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -6970,6 +7131,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -6978,6 +7140,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -7090,6 +7253,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -7124,6 +7288,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -7154,6 +7319,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -7200,6 +7366,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -7208,6 +7375,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -7236,6 +7404,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -7264,6 +7433,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -7310,6 +7480,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -7347,6 +7518,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -7364,6 +7536,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -7372,6 +7545,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -7424,6 +7598,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::AnyNumberOf {
@@ -7445,6 +7620,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -7453,6 +7629,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -7511,6 +7688,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -7617,6 +7795,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -7737,6 +7916,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -7820,6 +8000,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: false,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -7890,6 +8071,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -8147,6 +8329,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -8233,6 +8416,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -8250,6 +8434,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -8258,6 +8443,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -8304,6 +8490,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -8332,6 +8519,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -8340,6 +8528,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -8390,6 +8579,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -8487,6 +8677,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -8504,6 +8695,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -8617,6 +8809,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -8641,6 +8834,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -8649,6 +8843,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -8657,6 +8852,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -8796,6 +8992,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -8820,6 +9017,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -8828,6 +9026,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -8836,6 +9035,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -8856,6 +9056,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -8880,6 +9081,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -8888,6 +9090,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -8914,6 +9117,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -8964,6 +9168,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -9014,6 +9219,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -9057,6 +9263,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -9094,6 +9301,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -9142,6 +9350,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -9159,6 +9368,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -9187,6 +9397,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -9204,6 +9415,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -9258,6 +9470,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -9266,6 +9479,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -9362,6 +9576,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -9382,6 +9597,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -9406,6 +9622,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -9423,6 +9640,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -9471,6 +9689,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -9488,6 +9707,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -9496,6 +9716,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -9524,6 +9745,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -9532,6 +9754,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -9549,6 +9772,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -9630,6 +9854,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -9638,6 +9863,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Delimited {
@@ -9727,6 +9953,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -9735,6 +9962,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -9764,6 +9992,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -9875,6 +10104,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -9903,6 +10133,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -9933,6 +10164,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -9974,6 +10206,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -10002,6 +10235,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -10010,6 +10244,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -10018,6 +10253,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -10026,6 +10262,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -10074,6 +10311,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -10082,6 +10320,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -10128,6 +10367,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -10136,6 +10376,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -10146,6 +10387,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -10192,6 +10434,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -10200,6 +10443,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -10241,6 +10485,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -10347,6 +10592,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -10364,6 +10610,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -10381,6 +10628,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -10479,6 +10727,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Bracketed {
@@ -10514,6 +10763,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -10522,6 +10772,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -10701,6 +10952,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -10739,6 +10991,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -10782,6 +11035,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -10816,6 +11070,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -10855,6 +11110,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -10863,6 +11119,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -10871,6 +11128,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -10901,6 +11159,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: false,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -10918,6 +11177,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: false,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -10926,6 +11186,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -10965,6 +11226,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -10973,6 +11235,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -10990,6 +11253,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -11069,6 +11333,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -11093,6 +11358,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -11101,6 +11367,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -11152,6 +11419,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::TypedParser {
@@ -11166,6 +11434,7 @@ Grammar::TypedParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -11373,6 +11642,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -11495,6 +11765,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -11629,6 +11900,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -11831,6 +12103,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -11908,6 +12181,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -11925,6 +12199,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -11984,6 +12259,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -12034,6 +12310,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -12093,6 +12370,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -12152,6 +12430,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -12202,6 +12481,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -12261,6 +12541,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -12302,6 +12583,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -12375,6 +12657,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -12392,6 +12675,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -12442,6 +12726,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -12501,6 +12786,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -12551,6 +12837,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -12610,6 +12897,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -12709,6 +12997,7 @@ Grammar::Meta("dedent")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -12757,6 +13046,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -12789,6 +13079,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -13115,6 +13406,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -13123,6 +13415,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -13191,6 +13484,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -13237,6 +13531,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -13319,6 +13614,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -13347,6 +13643,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -13355,6 +13652,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -13365,6 +13663,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -13373,6 +13672,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -13422,6 +13722,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -13479,6 +13780,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -13496,6 +13798,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -13504,6 +13807,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -13514,6 +13818,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -13522,6 +13827,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -13553,6 +13859,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -13604,6 +13911,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -13612,6 +13920,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -13642,6 +13951,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::AnyNumberOf {
@@ -13663,6 +13973,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -13671,6 +13982,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -13697,6 +14009,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -13811,6 +14124,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -13819,6 +14133,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -13843,6 +14158,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Greedy,
 }
 ,
 Grammar::Ref {
@@ -13889,6 +14205,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -13919,6 +14236,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Bracketed {
@@ -13952,6 +14270,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -13976,6 +14295,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -13984,6 +14304,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -14050,6 +14371,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -14058,6 +14380,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -14093,6 +14416,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -14110,6 +14434,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -14186,6 +14511,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -14244,6 +14570,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -14323,6 +14650,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -14351,6 +14679,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -14379,6 +14708,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -14418,6 +14748,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -14426,6 +14757,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -14434,6 +14766,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -14488,6 +14821,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Delimited {
@@ -14522,6 +14856,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
     ),
     allow_trailing: true,
@@ -14531,6 +14866,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::AnyNumberOf {
@@ -14552,6 +14888,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -14560,6 +14897,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -14613,6 +14951,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -14637,6 +14976,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -14645,6 +14985,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -14775,6 +15116,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -14867,6 +15209,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -14915,6 +15258,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -14943,6 +15287,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -14951,6 +15296,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -14959,6 +15305,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -15000,6 +15347,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -15048,6 +15396,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -15076,6 +15425,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -15084,6 +15434,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -15092,6 +15443,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -15131,6 +15483,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -15179,6 +15532,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -15207,6 +15561,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -15215,6 +15570,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -15223,6 +15579,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -15231,6 +15588,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -15239,6 +15597,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -15247,6 +15606,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -15278,6 +15638,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -15360,6 +15721,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -15368,6 +15730,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -15419,6 +15782,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -15447,6 +15811,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -15527,6 +15892,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -15581,6 +15947,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -15598,6 +15965,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -15653,6 +16021,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -15679,6 +16048,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Bracketed {
@@ -15731,6 +16101,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -15748,6 +16119,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -15803,6 +16175,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -15829,6 +16202,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::AnyNumberOf {
@@ -15850,6 +16224,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -15858,6 +16233,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -15882,6 +16258,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -15890,6 +16267,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -15957,6 +16335,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -15988,6 +16367,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -16016,11 +16396,13 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("dedent")
@@ -16057,6 +16439,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -16065,6 +16448,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -16098,6 +16482,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -16126,11 +16511,13 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("conditional")
@@ -16141,6 +16528,7 @@ Grammar::Meta("conditional")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -16165,6 +16553,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -16224,6 +16613,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -16255,6 +16645,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -16283,11 +16674,13 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("dedent")
@@ -16324,6 +16717,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -16332,6 +16726,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -16365,6 +16760,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -16393,11 +16789,13 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("conditional")
@@ -16408,6 +16806,7 @@ Grammar::Meta("conditional")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -16416,6 +16815,7 @@ Grammar::Meta("conditional")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -16506,6 +16906,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -16552,6 +16953,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -16582,6 +16984,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -16608,6 +17011,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -16661,6 +17065,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -16669,6 +17074,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -16677,6 +17083,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -16714,6 +17121,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -16753,6 +17161,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -16799,6 +17208,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -16807,6 +17217,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -16844,6 +17255,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -16885,6 +17297,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -16893,6 +17306,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -16945,6 +17359,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -16953,6 +17368,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -17007,6 +17423,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -17026,6 +17443,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -17063,6 +17481,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -17071,6 +17490,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: false,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -17117,6 +17537,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -17134,6 +17555,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -17142,6 +17564,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -17172,6 +17595,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -17189,6 +17613,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -17197,6 +17622,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -17234,6 +17660,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -17258,6 +17685,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -17292,6 +17720,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -17331,6 +17760,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -17348,6 +17778,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -17356,6 +17787,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -17514,6 +17946,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: false,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -17632,6 +18065,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -17661,6 +18095,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -17669,6 +18104,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -17677,6 +18113,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("dedent")
@@ -17687,6 +18124,7 @@ Grammar::Meta("dedent")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -17720,6 +18158,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -17773,6 +18212,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -17845,6 +18285,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -17853,6 +18294,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -17882,6 +18324,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -17890,6 +18333,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -17965,6 +18409,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -17989,6 +18434,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -17997,6 +18443,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -18060,6 +18507,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -18077,6 +18525,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("dedent")
@@ -18087,6 +18536,7 @@ Grammar::Meta("dedent")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -18120,6 +18570,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -18164,6 +18615,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -18361,6 +18813,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -18410,6 +18863,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -18452,6 +18906,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -18469,6 +18924,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -18597,6 +19053,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -18614,6 +19071,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -18638,6 +19096,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Greedy,
 }
 ,
 Grammar::Ref {
@@ -18655,6 +19114,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -18663,6 +19123,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -18738,6 +19199,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -18746,6 +19208,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -18799,6 +19262,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -18997,6 +19461,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -19014,6 +19479,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -19022,6 +19488,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -19213,6 +19680,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -19221,6 +19689,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -19269,6 +19738,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -19277,6 +19747,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -19285,6 +19756,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -19293,6 +19765,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -19378,6 +19851,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -19427,6 +19901,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -19535,6 +20010,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("dedent")
@@ -19578,6 +20054,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("conditional")
@@ -19588,6 +20065,7 @@ Grammar::Meta("conditional")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -19596,6 +20074,7 @@ Grammar::Meta("conditional")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -19646,6 +20125,7 @@ Grammar::Meta("dedent")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -19678,6 +20158,7 @@ Grammar::Meta("dedent")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -19686,6 +20167,7 @@ Grammar::Meta("dedent")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -19717,6 +20199,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -19776,6 +20259,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -19793,6 +20277,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("conditional")
@@ -19803,6 +20288,7 @@ Grammar::Meta("conditional")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -19856,6 +20342,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -19873,6 +20360,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -19881,6 +20369,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -19930,6 +20419,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -19954,6 +20444,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Greedy,
 }
 ,
 Grammar::Meta("dedent")
@@ -19964,6 +20455,7 @@ Grammar::Meta("dedent")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -20175,6 +20667,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: false,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -20230,6 +20723,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -20267,6 +20761,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -20275,6 +20770,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -20315,6 +20811,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -20391,6 +20888,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -20415,6 +20913,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -20452,6 +20951,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -20460,6 +20960,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -20501,6 +21002,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -20509,6 +21011,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -20537,6 +21040,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -20545,6 +21049,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("dedent")
@@ -20555,6 +21060,7 @@ Grammar::Meta("dedent")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -20690,6 +21196,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -20937,6 +21444,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -20983,6 +21491,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -20991,6 +21500,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -21015,6 +21525,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -21023,6 +21534,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -21219,6 +21731,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -21250,6 +21763,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -21293,6 +21807,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -21345,6 +21860,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -21384,6 +21900,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("dedent")
@@ -21394,6 +21911,7 @@ Grammar::Meta("dedent")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -21455,6 +21973,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -21485,6 +22004,7 @@ Grammar::Meta("dedent")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -21530,6 +22050,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("dedent")
@@ -21600,6 +22121,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -21617,6 +22139,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -21625,6 +22148,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("dedent")
@@ -21657,6 +22181,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -21693,6 +22218,7 @@ Grammar::Meta("dedent")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -21990,7 +22516,7 @@ Grammar::RegexParser {
     template: r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#,
     token_type: "naked_identifier",
     optional: false,
-    anti_template: Some(r#"^(JOIN|IGNORE|RESPECT|LEFT|ORDER|SELECT|NATURAL|FULL|PARTITION|USING|NOT|CROSS|ROWS|RIGHT|INTERVAL|INNER|UNION|SET|ON|CASE|OUTER|NULL)$"#),
+    anti_template: Some(r#"^(ON|ROWS|ORDER|SELECT|PARTITION|CASE|OUTER|JOIN|RESPECT|INTERVAL|NATURAL|LEFT|NULL|CROSS|INNER|RIGHT|FULL|NOT|IGNORE|USING|UNION|SET)$"#),
 }
 );
 
@@ -22070,6 +22596,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Greedy,
 }
 ,
     ],
@@ -22078,6 +22605,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -22086,6 +22614,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -22134,6 +22663,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("dedent")
@@ -22144,6 +22674,7 @@ Grammar::Meta("dedent")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -22211,6 +22742,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -22453,6 +22985,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Bracketed {
@@ -22488,6 +23021,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Bracketed {
@@ -22523,6 +23057,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -22540,6 +23075,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -22594,6 +23130,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -22645,6 +23182,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -22662,6 +23200,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -22679,6 +23218,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -22777,6 +23317,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: false,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -22805,6 +23346,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: false,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -22813,6 +23355,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -22994,6 +23537,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -23031,6 +23575,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -23055,6 +23600,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -23097,6 +23643,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -23105,6 +23652,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -23149,6 +23697,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -23266,6 +23815,7 @@ Grammar::Token{
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -23363,6 +23913,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -23391,6 +23942,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -23399,6 +23951,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -23619,6 +24172,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -23686,6 +24240,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -23714,6 +24269,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -23753,6 +24309,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -23761,6 +24318,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -23778,6 +24336,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -23816,6 +24375,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("dedent")
@@ -23826,6 +24386,7 @@ Grammar::Meta("dedent")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -23902,6 +24463,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -23942,6 +24504,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -24077,6 +24640,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Greedy,
 }
 ,
     ],
@@ -24085,6 +24649,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("dedent")
@@ -24095,6 +24660,7 @@ Grammar::Meta("dedent")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -24176,6 +24742,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -24184,6 +24751,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -24201,6 +24769,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -24209,6 +24778,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -24442,6 +25012,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -24466,6 +25037,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Delimited {
@@ -24497,6 +25069,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -24505,6 +25078,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("dedent")
@@ -24515,6 +25089,7 @@ Grammar::Meta("dedent")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -24596,6 +25171,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -24604,6 +25180,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -24621,6 +25198,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -24783,6 +25361,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -24905,6 +25484,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -25045,6 +25625,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -25303,6 +25884,7 @@ Grammar::Missing
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -25354,6 +25936,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -25362,6 +25945,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -25440,6 +26024,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -25468,6 +26053,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -25496,6 +26082,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -25504,6 +26091,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -26065,6 +26653,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Bracketed {
@@ -26100,6 +26689,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -26121,6 +26711,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Bracketed {
@@ -26156,6 +26747,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -26164,6 +26756,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -26172,6 +26765,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -26252,6 +26846,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -26403,6 +26998,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -26411,6 +27007,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -26443,6 +27040,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -26500,6 +27098,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("dedent")
@@ -26519,6 +27118,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::GreedyOnceStarted,
 }
 );
 
@@ -26570,6 +27170,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -26614,6 +27215,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -26772,6 +27374,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::GreedyOnceStarted,
 }
 );
 
@@ -26814,6 +27417,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -26831,6 +27435,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -26868,6 +27473,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -26885,6 +27491,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -26929,6 +27536,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -26937,6 +27545,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -27015,6 +27624,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -27043,6 +27653,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -27051,6 +27662,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -27084,6 +27696,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -27112,6 +27725,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -27120,6 +27734,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -27164,6 +27779,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -27266,6 +27882,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("dedent")
@@ -27276,6 +27893,7 @@ Grammar::Meta("dedent")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -27373,6 +27991,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -27381,6 +28000,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -27426,6 +28046,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -27436,6 +28057,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -27471,6 +28093,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -27525,6 +28148,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -27542,6 +28166,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -27559,6 +28184,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -27609,6 +28235,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -27688,6 +28315,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::AnyNumberOf {
@@ -27727,6 +28355,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -27737,6 +28366,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -27745,6 +28375,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -27803,6 +28434,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -27861,6 +28493,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -27896,6 +28529,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -27946,6 +28580,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -28698,6 +29333,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -28819,6 +29455,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -28864,6 +29501,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -28884,6 +29522,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -28908,6 +29547,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -29091,6 +29731,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -29121,6 +29762,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -29149,6 +29791,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -29186,6 +29829,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -29194,6 +29838,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -29202,6 +29847,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -29285,6 +29931,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Bracketed {
@@ -29320,6 +29967,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -29328,6 +29976,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -29381,6 +30030,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -29461,6 +30111,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -29505,6 +30156,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -29540,6 +30192,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -29557,6 +30210,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -29583,6 +30237,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -29600,6 +30255,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -29673,6 +30329,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -29713,6 +30370,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -29827,6 +30485,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -29866,6 +30525,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -29892,6 +30552,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -29900,6 +30561,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -29952,6 +30614,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -29962,6 +30625,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -30140,6 +30804,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::OneOf {
@@ -30168,6 +30833,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -30196,6 +30862,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -30233,6 +30900,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -30241,6 +30909,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -30384,6 +31053,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -30460,6 +31130,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -30528,6 +31199,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -30583,6 +31255,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -30607,6 +31280,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -30648,6 +31322,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -30680,6 +31355,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -30761,6 +31437,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -30830,6 +31507,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -30838,6 +31516,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -30869,6 +31548,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -31050,6 +31730,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::GreedyOnceStarted,
 }
 );
 
@@ -31095,6 +31776,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -31105,6 +31787,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -31113,6 +31796,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -31212,6 +31896,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -31280,6 +31965,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -31458,6 +32144,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Delimited {
@@ -31522,6 +32209,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -31546,6 +32234,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Greedy,
 }
 ,
     ],
@@ -31554,6 +32243,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -31574,6 +32264,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -31582,6 +32273,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -31800,6 +32492,7 @@ Grammar::Meta("dedent")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("conditional")
@@ -31834,6 +32527,7 @@ Grammar::Meta("conditional")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -31906,6 +32600,7 @@ Grammar::StringParser {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -31923,6 +32618,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("dedent")
@@ -31933,6 +32629,7 @@ Grammar::Meta("dedent")
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -31975,6 +32672,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -32003,6 +32701,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -32056,6 +32755,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -32114,6 +32814,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -32152,6 +32853,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Sequence {
@@ -32180,6 +32882,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -32188,6 +32891,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
     ],
@@ -32198,6 +32902,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -32215,6 +32920,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: false,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -32274,6 +32980,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -32340,6 +33047,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("conditional")
@@ -32359,6 +33067,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -32425,6 +33134,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     min_delimiters: 0,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Meta("conditional")
@@ -32444,6 +33154,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -32478,6 +33189,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 ,
 Grammar::Ref {
@@ -32495,6 +33207,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -32560,6 +33273,7 @@ Grammar::Ref {
     ],
     reset_terminators: false,
     allow_gaps: true,
+    parse_mode: ParseMode::Strict,
 }
 );
 
@@ -33922,6 +34636,200 @@ pub fn get_ansi_segment_grammar(name: &str) -> Option<&'static Grammar> {
             "Year_monthKeywordSegment" => Some(&YEAR_MONTH_KEYWORD_SEGMENT),
             "ZerofillKeywordSegment" => Some(&ZEROFILL_KEYWORD_SEGMENT),
             "ZoneKeywordSegment" => Some(&ZONE_KEYWORD_SEGMENT),
+            _ => None,
+    }
+}
+
+pub fn get_ansi_segment_type(name: &str) -> Option<&'static str> {
+    match name {
+            "AccessStatementSegment" => Some("access_statement"),
+            "AggregateOrderByClause" => Some("aggregate_order_by"),
+            "AliasExpressionSegment" => Some("alias_expression"),
+            "AlterSequenceOptionsSegment" => Some("alter_sequence_options_segment"),
+            "AlterSequenceStatementSegment" => Some("alter_sequence_statement"),
+            "AlterTableStatementSegment" => Some("alter_table_statement"),
+            "ArrayAccessorSegment" => Some("array_accessor"),
+            "ArrayExpressionSegment" => Some("array_expression"),
+            "ArrayLiteralSegment" => Some("array_literal"),
+            "ArrayTypeSegment" => Some("array_type"),
+            "AsAliasOperatorSegment" => Some("alias_operator"),
+            "BaseFileSegment" => Some("file"),
+            "BaseSegment" => Some("base"),
+            "BinaryOperatorSegment" => Some("binary_operator"),
+            "BitwiseAndSegment" => Some("binary_operator"),
+            "BitwiseLShiftSegment" => Some("binary_operator"),
+            "BitwiseOrSegment" => Some("binary_operator"),
+            "BitwiseRShiftSegment" => Some("binary_operator"),
+            "BracketedArguments" => Some("bracketed_arguments"),
+            "BracketedSegment" => Some("bracketed"),
+            "CTEColumnList" => Some("cte_column_list"),
+            "CTEDefinitionSegment" => Some("common_table_expression"),
+            "CaseExpressionSegment" => Some("case_expression"),
+            "CodeSegment" => Some("raw"),
+            "CollationReferenceSegment" => Some("collation_reference"),
+            "ColumnConstraintSegment" => Some("column_constraint_segment"),
+            "ColumnDefinitionSegment" => Some("column_definition"),
+            "ColumnReferenceSegment" => Some("column_reference"),
+            "ColumnsExpressionFunctionContentsSegment" => Some("columns_expression"),
+            "ColumnsExpressionFunctionNameSegment" => Some("function_name"),
+            "CommentClauseSegment" => Some("comment_clause"),
+            "CommentSegment" => Some("comment"),
+            "ComparisonOperatorSegment" => Some("comparison_operator"),
+            "CompositeBinaryOperatorSegment" => Some("binary_operator"),
+            "CompositeComparisonOperatorSegment" => Some("comparison_operator"),
+            "ConcatSegment" => Some("binary_operator"),
+            "CreateCastStatementSegment" => Some("create_cast_statement"),
+            "CreateDatabaseStatementSegment" => Some("create_database_statement"),
+            "CreateFunctionStatementSegment" => Some("create_function_statement"),
+            "CreateIndexStatementSegment" => Some("create_index_statement"),
+            "CreateModelStatementSegment" => Some("create_model_statement"),
+            "CreateRoleStatementSegment" => Some("create_role_statement"),
+            "CreateSchemaStatementSegment" => Some("create_schema_statement"),
+            "CreateSequenceOptionsSegment" => Some("create_sequence_options_segment"),
+            "CreateSequenceStatementSegment" => Some("create_sequence_statement"),
+            "CreateTableStatementSegment" => Some("create_table_statement"),
+            "CreateTriggerStatementSegment" => Some("create_trigger"),
+            "CreateUserStatementSegment" => Some("create_user_statement"),
+            "CreateViewStatementSegment" => Some("create_view_statement"),
+            "CubeFunctionNameSegment" => Some("function_name"),
+            "CubeRollupClauseSegment" => Some("cube_rollup_clause"),
+            "DatabaseReferenceSegment" => Some("database_reference"),
+            "DatatypeSegment" => Some("data_type"),
+            "DatePartFunctionNameSegment" => Some("function_name"),
+            "DateTimeFunctionContentsSegment" => Some("function_contents"),
+            "Dedent" => Some("dedent"),
+            "DeleteStatementSegment" => Some("delete_statement"),
+            "DescribeStatementSegment" => Some("describe_statement"),
+            "DropCastStatementSegment" => Some("drop_cast_statement"),
+            "DropDatabaseStatementSegment" => Some("drop_database_statement"),
+            "DropFunctionStatementSegment" => Some("drop_function_statement"),
+            "DropIndexStatementSegment" => Some("drop_index_statement"),
+            "DropModelStatementSegment" => Some("drop_MODELstatement"),
+            "DropRoleStatementSegment" => Some("drop_role_statement"),
+            "DropSchemaStatementSegment" => Some("drop_schema_statement"),
+            "DropSequenceStatementSegment" => Some("drop_sequence_statement"),
+            "DropTableStatementSegment" => Some("drop_table_statement"),
+            "DropTriggerStatementSegment" => Some("drop_trigger"),
+            "DropTypeStatementSegment" => Some("drop_type_statement"),
+            "DropUserStatementSegment" => Some("drop_user_statement"),
+            "DropViewStatementSegment" => Some("drop_view_statement"),
+            "ElseClauseSegment" => Some("else_clause"),
+            "EmptyStructLiteralBracketsSegment" => Some("struct_literal"),
+            "EmptyStructLiteralSegment" => Some("typed_struct_literal"),
+            "EqualsSegment" => Some("comparison_operator"),
+            "ExplainStatementSegment" => Some("explain_statement"),
+            "ExpressionSegment" => Some("expression"),
+            "ExtensionReferenceSegment" => Some("extension_reference"),
+            "FetchClauseSegment" => Some("fetch_clause"),
+            "FileSegment" => Some("file"),
+            "FrameClauseSegment" => Some("frame_clause"),
+            "FromClauseSegment" => Some("from_clause"),
+            "FromExpressionElementSegment" => Some("from_expression_element"),
+            "FromExpressionSegment" => Some("from_expression"),
+            "FunctionContentsSegment" => Some("function_contents"),
+            "FunctionDefinitionGrammar" => Some("function_definition"),
+            "FunctionNameSegment" => Some("function_name"),
+            "FunctionParameterListGrammar" => Some("function_parameter_list"),
+            "FunctionSegment" => Some("function"),
+            "GreaterThanOrEqualToSegment" => Some("comparison_operator"),
+            "GreaterThanSegment" => Some("comparison_operator"),
+            "GroupByClauseSegment" => Some("groupby_clause"),
+            "GroupingExpressionList" => Some("grouping_expression_list"),
+            "GroupingSetsClauseSegment" => Some("grouping_sets_clause"),
+            "HavingClauseSegment" => Some("having_clause"),
+            "IdentifierSegment" => Some("identifier"),
+            "ImplicitIndent" => Some("indent"),
+            "Indent" => Some("indent"),
+            "IndexColumnDefinitionSegment" => Some("index_column_definition"),
+            "IndexReferenceSegment" => Some("index_reference"),
+            "InsertStatementSegment" => Some("insert_statement"),
+            "IntervalExpressionSegment" => Some("interval_expression"),
+            "JoinClauseSegment" => Some("join_clause"),
+            "JoinOnConditionSegment" => Some("join_on_condition"),
+            "KeywordSegment" => Some("keyword"),
+            "LessThanOrEqualToSegment" => Some("comparison_operator"),
+            "LessThanSegment" => Some("comparison_operator"),
+            "LimitClauseSegment" => Some("limit_clause"),
+            "LiteralKeywordSegment" => Some("literal"),
+            "LiteralSegment" => Some("literal"),
+            "LocalAliasSegment" => Some("local_alias_segment"),
+            "MLTableExpressionSegment" => Some("ml_table_expression"),
+            "MapTypeSegment" => Some("map_type"),
+            "MatchConditionSegment" => Some("match_condition"),
+            "MergeDeleteClauseSegment" => Some("merge_delete_clause"),
+            "MergeInsertClauseSegment" => Some("merge_insert_clause"),
+            "MergeMatchSegment" => Some("merge_match"),
+            "MergeMatchedClauseSegment" => Some("merge_when_matched_clause"),
+            "MergeNotMatchedClauseSegment" => Some("merge_when_not_matched_clause"),
+            "MergeStatementSegment" => Some("merge_statement"),
+            "MergeUpdateClauseSegment" => Some("merge_update_clause"),
+            "NamedWindowExpressionSegment" => Some("named_window_expression"),
+            "NamedWindowSegment" => Some("named_window"),
+            "NewlineSegment" => Some("newline"),
+            "NotEqualToSegment" => Some("comparison_operator"),
+            "ObjectLiteralElementSegment" => Some("object_literal_element"),
+            "ObjectLiteralSegment" => Some("object_literal"),
+            "ObjectReferenceSegment" => Some("object_reference"),
+            "OffsetClauseSegment" => Some("offset_clause"),
+            "OrderByClauseSegment" => Some("orderby_clause"),
+            "OverClauseSegment" => Some("over_clause"),
+            "OverlapsClauseSegment" => Some("overlaps_clause"),
+            "PartitionClauseSegment" => Some("partitionby_clause"),
+            "PathSegment" => Some("path_segment"),
+            "QualifiedNumericLiteralSegment" => Some("numeric_literal"),
+            "RawSegment" => Some("raw"),
+            "RoleReferenceSegment" => Some("role_reference"),
+            "RollupFunctionNameSegment" => Some("function_name"),
+            "SamplingExpressionSegment" => Some("sample_expression"),
+            "SchemaReferenceSegment" => Some("schema_reference"),
+            "SelectClauseElementSegment" => Some("select_clause_element"),
+            "SelectClauseModifierSegment" => Some("select_clause_modifier"),
+            "SelectClauseSegment" => Some("select_clause"),
+            "SelectStatementSegment" => Some("select_statement"),
+            "SequenceReferenceSegment" => Some("sequence_reference"),
+            "SetClauseListSegment" => Some("set_clause_list"),
+            "SetClauseSegment" => Some("set_clause"),
+            "SetExpressionSegment" => Some("set_expression"),
+            "SetOperatorSegment" => Some("set_operator"),
+            "SetSchemaStatementSegment" => Some("set_schema_statement"),
+            "ShorthandCastSegment" => Some("cast_expression"),
+            "SingleIdentifierListSegment" => Some("identifier_list"),
+            "SizedArrayTypeSegment" => Some("sized_array_type"),
+            "StatementSegment" => Some("statement"),
+            "StructLiteralSegment" => Some("struct_literal"),
+            "StructTypeSegment" => Some("struct_type"),
+            "SymbolSegment" => Some("symbol"),
+            "TableConstraintSegment" => Some("table_constraint"),
+            "TableEndClauseSegment" => Some("table_end_clause_segment"),
+            "TableExpressionSegment" => Some("table_expression"),
+            "TableReferenceSegment" => Some("table_reference"),
+            "TablespaceReferenceSegment" => Some("tablespace_reference"),
+            "TagReferenceSegment" => Some("tag_reference"),
+            "TemporalQuerySegment" => Some("temporal_query"),
+            "TimeZoneGrammar" => Some("time_zone_grammar"),
+            "TransactionStatementSegment" => Some("transaction_statement"),
+            "TriggerReferenceSegment" => Some("trigger_reference"),
+            "TruncateStatementSegment" => Some("truncate_table"),
+            "TupleSegment" => Some("tuple"),
+            "TypedArrayLiteralSegment" => Some("typed_array_literal"),
+            "TypedStructLiteralSegment" => Some("typed_struct_literal"),
+            "UnorderedSelectStatementSegment" => Some("select_statement"),
+            "UnorderedSetExpressionSegment" => Some("set_expression"),
+            "UpdateStatementSegment" => Some("update_statement"),
+            "UseStatementSegment" => Some("use_statement"),
+            "ValuesClauseSegment" => Some("values_clause"),
+            "WhenClauseSegment" => Some("when_clause"),
+            "WhereClauseSegment" => Some("where_clause"),
+            "WhitespaceSegment" => Some("whitespace"),
+            "WildcardExpressionSegment" => Some("wildcard_expression"),
+            "WildcardIdentifierSegment" => Some("wildcard_identifier"),
+            "WindowSpecificationSegment" => Some("window_specification"),
+            "WithCompoundNonSelectStatementSegment" => Some("with_compound_statement"),
+            "WithCompoundStatementSegment" => Some("with_compound_statement"),
+            "WithDataClauseSegment" => Some("with_data_clause"),
+            "WithFillSegment" => Some("with_fill"),
+            "WithNoSchemaBindingClauseSegment" => Some("with_no_schema_binding_clause"),
+            "WordSegment" => Some("word"),
             _ => None,
     }
 }
