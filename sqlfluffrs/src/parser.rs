@@ -59,6 +59,16 @@ pub enum Grammar {
         allow_gaps: bool,
         parse_mode: ParseMode,
     },
+    AnySetOf {
+        elements: Vec<Grammar>,
+        min_times: usize,
+        max_times: Option<usize>,
+        optional: bool,
+        terminators: Vec<Grammar>,
+        reset_terminators: bool,
+        allow_gaps: bool,
+        parse_mode: ParseMode,
+    },
     Delimited {
         elements: Vec<Grammar>,
         delimiter: Box<Grammar>,
@@ -154,6 +164,7 @@ impl Grammar {
             Grammar::Sequence { parse_mode, .. } => *parse_mode,
             Grammar::AnyNumberOf { parse_mode, .. } => *parse_mode,
             Grammar::OneOf { parse_mode, .. } => *parse_mode,
+            Grammar::AnySetOf { parse_mode, .. } => *parse_mode,
             Grammar::Delimited { parse_mode, .. } => *parse_mode,
             Grammar::Bracketed { parse_mode, .. } => *parse_mode,
             // All other grammar types default to Strict
@@ -200,6 +211,16 @@ impl Hash for Grammar {
                 optional,
                 allow_gaps,
                 parse_mode,
+                ..
+            } => {
+                elements.hash(state);
+                optional.hash(state);
+                allow_gaps.hash(state);
+            }
+            Grammar::AnySetOf {
+                elements,
+                optional,
+                allow_gaps,
                 ..
             } => {
                 elements.hash(state);
@@ -290,6 +311,20 @@ impl PartialEq for Grammar {
                     ..
                 },
                 Grammar::OneOf {
+                    elements: e2,
+                    optional: o2,
+                    allow_gaps: g2,
+                    ..
+                },
+            ) => e1 == e2 && o1 == o2 && g1 == g2,
+            (
+                Grammar::AnySetOf {
+                    elements: e1,
+                    optional: o1,
+                    allow_gaps: g1,
+                    ..
+                },
+                Grammar::AnySetOf {
                     elements: e2,
                     optional: o2,
                     allow_gaps: g2,
@@ -423,6 +458,10 @@ impl Display for Grammar {
             Grammar::OneOf { elements, .. } => {
                 let elems: Vec<String> = elements.iter().map(|e| format!("{}", e)).collect();
                 write!(f, "OneOf({})", elems.join(", "))
+            }
+            Grammar::AnySetOf { elements, .. } => {
+                let elems: Vec<String> = elements.iter().map(|e| format!("{}", e)).collect();
+                write!(f, "AnySetOf({})", elems.join(", "))
             }
             Grammar::Delimited {
                 elements,

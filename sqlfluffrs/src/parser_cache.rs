@@ -140,6 +140,7 @@ impl Grammar {
             }
             // Complex grammars that can't be simplified
             Grammar::AnyNumberOf { .. }
+            | Grammar::AnySetOf { .. }
             | Grammar::Delimited { .. }
             | Grammar::Bracketed { .. }
             | Grammar::Anything
@@ -157,6 +158,7 @@ fn is_optional(grammar: &Grammar) -> bool {
         Grammar::Sequence { optional, .. } => *optional,
         Grammar::AnyNumberOf { optional, .. } => *optional,
         Grammar::OneOf { optional, .. } => *optional,
+        Grammar::AnySetOf { optional, .. } => *optional,
         Grammar::Delimited { optional, .. } => *optional,
         Grammar::Bracketed { optional, .. } => *optional,
         Grammar::Ref { optional, .. } => *optional,
@@ -313,20 +315,21 @@ fn grammar_discriminant(grammar: &Grammar) -> usize {
         Grammar::Sequence { .. } => 0,
         Grammar::AnyNumberOf { .. } => 1,
         Grammar::OneOf { .. } => 2,
-        Grammar::Delimited { .. } => 3,
-        Grammar::Bracketed { .. } => 4,
-        Grammar::Ref { .. } => 5,
-        Grammar::Symbol(_) => 6,
-        Grammar::StringParser { .. } => 7,
-        Grammar::MultiStringParser { .. } => 8,
-        Grammar::TypedParser { .. } => 9,
-        Grammar::RegexParser { .. } => 10,
-        Grammar::Meta(_) => 11,
-        Grammar::Nothing() => 12,
-        Grammar::Anything => 13,
-        Grammar::Empty => 14,
-        Grammar::Missing => 15,
-        Grammar::Token { .. } => 16,
+        Grammar::AnySetOf { .. } => 3,
+        Grammar::Delimited { .. } => 4,
+        Grammar::Bracketed { .. } => 5,
+        Grammar::Ref { .. } => 6,
+        Grammar::Symbol(_) => 7,
+        Grammar::StringParser { .. } => 8,
+        Grammar::MultiStringParser { .. } => 9,
+        Grammar::TypedParser { .. } => 10,
+        Grammar::RegexParser { .. } => 11,
+        Grammar::Meta(_) => 12,
+        Grammar::Nothing() => 13,
+        Grammar::Anything => 14,
+        Grammar::Empty => 15,
+        Grammar::Missing => 16,
+        Grammar::Token { .. } => 17,
     }
 }
 

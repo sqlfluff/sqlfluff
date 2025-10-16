@@ -22537,7 +22537,7 @@ Grammar::RegexParser {
     template: r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#,
     token_type: "naked_identifier",
     optional: false,
-    anti_template: Some(r#"^(RIGHT|LEFT|INNER|USING|INTERVAL|UNION|OUTER|CROSS|ON|NATURAL|NOT|SELECT|FULL|ORDER|SET|IGNORE|ROWS|PARTITION|JOIN|RESPECT|CASE|NULL)$"#),
+    anti_template: Some(r#"^(JOIN|INNER|IGNORE|ORDER|LEFT|RIGHT|RESPECT|CASE|UNION|FULL|ROWS|SET|CROSS|OUTER|NULL|INTERVAL|NOT|PARTITION|SELECT|USING|NATURAL|ON)$"#),
 }
 );
 
@@ -25896,8 +25896,94 @@ Grammar::Ref {
     reset_terminators: false,
 }
 ,
-// got to an unimplemented base grammar called <class 'sqlfluff.core.parser.grammar.anyof.AnySetOf'>
-Grammar::Missing
+Grammar::AnySetOf {
+    elements: vec![
+Grammar::Sequence {
+    elements: vec![
+Grammar::Ref {
+    name: "OnKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "DeleteKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "ReferentialActionGrammar",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+}
+,
+Grammar::Sequence {
+    elements: vec![
+Grammar::Ref {
+    name: "OnKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "UpdateKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "ReferentialActionGrammar",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+}
+,
+    ],
+    min_times: 0,
+    max_times: None,
+    optional: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+}
 ,
     ],
     optional: false,

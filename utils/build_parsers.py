@@ -6,7 +6,12 @@ from dataclasses import dataclass
 
 from sqlfluff.core.dialects import dialect_selector
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.parser.grammar.anyof import AnyNumberOf, OneOf, OptionallyBracketed
+from sqlfluff.core.parser.grammar.anyof import (
+    AnyNumberOf,
+    AnySetOf,
+    OneOf,
+    OptionallyBracketed,
+)
 from sqlfluff.core.parser.grammar.base import Anything, BaseGrammar, Nothing, Ref
 from sqlfluff.core.parser.grammar.conditional import Conditional
 from sqlfluff.core.parser.grammar.delimited import Delimited
@@ -316,6 +321,36 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print(f"    max_times: {max_times},")
         max_times_per_element = as_rust_option(match_grammar.max_times_per_element)
         print(f"    max_times_per_element: {max_times_per_element},")
+        print(f"    optional: {str(match_grammar.is_optional()).lower()},")
+        print("    terminators: vec![")
+        for term_grammar in match_grammar.terminators:
+            _to_rust_parser_grammar(term_grammar, parse_context)
+            print(",")
+        print("    ],")
+        print(f"    reset_terminators: {str(match_grammar.reset_terminators).lower()},")
+        print(f"    allow_gaps: {str(match_grammar.allow_gaps).lower()},")
+        # Map Python ParseMode to Rust ParseMode
+        parse_mode_map = {
+            "STRICT": "ParseMode::Strict",
+            "GREEDY": "ParseMode::Greedy",
+            "GREEDY_ONCE_STARTED": "ParseMode::GreedyOnceStarted",
+        }
+        rust_parse_mode = parse_mode_map.get(
+            match_grammar.parse_mode.name, "ParseMode::Strict"
+        )
+        print(f"    parse_mode: {rust_parse_mode},")
+        print("}")
+    elif match_grammar.__class__ is AnySetOf and isinstance(match_grammar, AnySetOf):
+        # AnySetOf is AnyNumberOf with max_times_per_element=1
+        print("Grammar::AnySetOf {")
+        print("    elements: vec![")
+        for subgrammar in match_grammar._elements:
+            _to_rust_parser_grammar(subgrammar, parse_context)
+            print(",")
+        print("    ],")
+        print(f"    min_times: {match_grammar.min_times},")
+        max_times = as_rust_option(match_grammar.max_times)
+        print(f"    max_times: {max_times},")
         print(f"    optional: {str(match_grammar.is_optional()).lower()},")
         print("    terminators: vec![")
         for term_grammar in match_grammar.terminators:
