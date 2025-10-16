@@ -21,7 +21,6 @@ RESERVED_KEYWORDS = [
     "UNION",
     "USING",
     "TAG",
-    "=",
 ]
 
 UNRESERVED_KEYWORDS = [
