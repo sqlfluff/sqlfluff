@@ -1,0 +1,759 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 49405dfb91d09673e5e6d25c2b8d5c10a10547b706dae2e3de30f4d57121ecad
+file:
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Type
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Value
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Date
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Time
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Format
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Level
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Path
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Data
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Server
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Action
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Cache
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Edge
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Hash
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Filter
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Profile
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: TestTable
+          statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Class
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Array
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Alias
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: GameData
+          statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              quoted_identifier: '[SELECT]'
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              quoted_identifier: '[FROM]'
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              quoted_identifier: '[WHERE]'
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              quoted_identifier: '[ORDER]'
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: TestTable2
+          statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: MyTable
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: Type
+            data_type:
+              data_type_identifier: INT
+        - comma: ','
+        - column_definition:
+            naked_identifier: Value
+            data_type:
+              data_type_identifier: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '50'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: Format
+            data_type:
+              data_type_identifier: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '20'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: Class
+            data_type:
+              data_type_identifier: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '50'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: Array
+            data_type:
+              data_type_identifier: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            quoted_identifier: '[SELECT]'
+            data_type:
+              data_type_identifier: INT
+        - comma: ','
+        - column_definition:
+            quoted_identifier: '[UPDATE]'
+            data_type:
+              data_type_identifier: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '50'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: Name
+            data_type:
+              data_type_identifier: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
+        - end_bracket: )
+      - statement_terminator: ;
+  - statement:
+      update_statement:
+        keyword: UPDATE
+        table_reference:
+          naked_identifier: MyTable
+        set_clause_list:
+        - keyword: SET
+        - set_clause:
+            column_reference:
+              naked_identifier: Type
+            assignment_operator:
+              raw_comparison_operator: '='
+            expression:
+              integer_literal: '1'
+        - comma: ','
+        - set_clause:
+            column_reference:
+              naked_identifier: Value
+            assignment_operator:
+              raw_comparison_operator: '='
+            expression:
+              quoted_literal: "'test'"
+        - comma: ','
+        - set_clause:
+            column_reference:
+              naked_identifier: Class
+            assignment_operator:
+              raw_comparison_operator: '='
+            expression:
+              quoted_literal: "'warrior'"
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: Format
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'json'"
+        statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: MyTable
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: Type
+        - comma: ','
+        - column_reference:
+            naked_identifier: Value
+        - comma: ','
+        - column_reference:
+            naked_identifier: Class
+        - comma: ','
+        - column_reference:
+            naked_identifier: Name
+        - end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - integer_literal: '1'
+          - comma: ','
+          - quoted_literal: "'test'"
+          - comma: ','
+          - quoted_literal: "'wizard'"
+          - comma: ','
+          - quoted_literal: "'player1'"
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Type
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Value
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Class
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: MyTable
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: Type
+            keyword: IN
+            bracketed:
+            - start_bracket: (
+            - integer_literal: '1'
+            - comma: ','
+            - integer_literal: '2'
+            - comma: ','
+            - integer_literal: '3'
+            - end_bracket: )
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: Class
+        - comma: ','
+        - column_reference:
+            naked_identifier: Value
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: t1
+            - dot: .
+            - naked_identifier: Type
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: Type
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: t1
+            - dot: .
+            - naked_identifier: Value
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: Value
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: t2
+            - dot: .
+            - naked_identifier: Class
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: Class
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: MyTable
+              alias_expression:
+                naked_identifier: t1
+            join_clause:
+              keyword: JOIN
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: GameData
+                alias_expression:
+                  naked_identifier: t2
+              join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: Name
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: t2
+                  - dot: .
+                  - naked_identifier: Name
+          statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Nation
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Race
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Class
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: HairColor
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Hp
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Mp
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Sp
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Strong
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Sta
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Dex
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Intel
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Cha
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Authority
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Points
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Gold
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Bind
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: PX
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: PZ
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: PY
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: dwTime
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: strSkill
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: strItem
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: strSerial
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: USERDATA
+          statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Type
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Value
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Date
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Time
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Path
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Data
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Format
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Level
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Server
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: TestTable
+          statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: TestTable
+        where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              naked_identifier: Type
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'test'"
+          - binary_operator: AND
+          - column_reference:
+              naked_identifier: Value
+          - comparison_operator:
+              raw_comparison_operator: '>'
+          - integer_literal: '10'
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: t1
+            - dot: .
+            - naked_identifier: Type
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: t2
+            - dot: .
+            - naked_identifier: Value
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: Table1
+              alias_expression:
+                naked_identifier: t1
+            join_clause:
+              keyword: JOIN
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: Table2
+                alias_expression:
+                  naked_identifier: t2
+              join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: Name
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: t2
+                  - dot: .
+                  - naked_identifier: Name
+          statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: MyTable
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: Type
+            data_type:
+              data_type_identifier: INT
+        - comma: ','
+        - column_definition:
+            naked_identifier: Value
+            data_type:
+              data_type_identifier: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '50'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: Name
+            data_type:
+              data_type_identifier: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: Data
+            data_type:
+              data_type_identifier: VARBINARY
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  keyword: MAX
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: Format
+            data_type:
+              data_type_identifier: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '20'
+                  end_bracket: )
+        - end_bracket: )
+      - statement_terminator: ;
+  - statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: MyTable
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: Type
+        - comma: ','
+        - column_reference:
+            naked_identifier: Value
+        - comma: ','
+        - column_reference:
+            naked_identifier: Name
+        - comma: ','
+        - column_reference:
+            naked_identifier: Data
+        - comma: ','
+        - column_reference:
+            naked_identifier: Format
+        - end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - integer_literal: '1'
+          - comma: ','
+          - quoted_literal: "'test'"
+          - comma: ','
+          - quoted_literal: "'example'"
+          - comma: ','
+          - binary_literal: '0x123456'
+          - comma: ','
+          - quoted_literal: "'json'"
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      update_statement:
+        keyword: UPDATE
+        table_reference:
+          naked_identifier: MyTable
+        set_clause_list:
+        - keyword: SET
+        - set_clause:
+            column_reference:
+              naked_identifier: Value
+            assignment_operator:
+              raw_comparison_operator: '='
+            expression:
+              quoted_literal: "'updated'"
+        - comma: ','
+        - set_clause:
+            column_reference:
+              naked_identifier: Format
+            assignment_operator:
+              raw_comparison_operator: '='
+            expression:
+              quoted_literal: "'xml'"
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: Type
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '1'
+        statement_terminator: ;

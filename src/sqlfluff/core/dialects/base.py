@@ -82,6 +82,7 @@ class Dialect:
         for keyword_set in [
             "unreserved_keywords",
             "reserved_keywords",
+            "future_reserved_keywords",
         ]:  # e.g. reserved_keywords, (JOIN, ...)
             # Make sure the values are available as KeywordSegments
             keyword_sets = expanded_copy.sets(keyword_set)
@@ -212,9 +213,9 @@ class Dialect:
                 replacement,
                 Nothing,
             ):
-                assert isinstance(
-                    replacement, type
-                ), f"Cannot replace {n!r} with {replacement}"
+                assert isinstance(replacement, type), (
+                    f"Cannot replace {n!r} with {replacement}"
+                )
                 old_seg = cast(type["BaseSegment"], self._library[n])
                 new_seg = cast(type["BaseSegment"], replacement)
                 assert issubclass(old_seg, BaseSegment)
@@ -324,8 +325,9 @@ class Dialect:
             )
         else:  # pragma: no cover
             raise RuntimeError(
-                "Grammar refers to "
-                "{!r} which was not found in the {} dialect.".format(name, self.name)
+                "Grammar refers to {!r} which was not found in the {} dialect.".format(
+                    name, self.name
+                )
             )
 
     def set_lexer_matchers(self, lexer_matchers: list[LexerType]) -> None:
