@@ -171,6 +171,38 @@ impl Grammar {
             _ => ParseMode::Strict,
         }
     }
+
+    /// Check if this grammar is optional.
+    /// Matches Python's is_optional() logic: checks both the optional flag
+    /// and min_times for AnyNumberOf/OneOf/AnySetOf.
+    pub fn is_optional(&self) -> bool {
+        match self {
+            Grammar::AnyNumberOf {
+                optional,
+                min_times,
+                ..
+            } => *optional || *min_times == 0,
+            Grammar::OneOf { optional, .. } => {
+                // OneOf has implicit min_times=1, so only the flag matters
+                *optional
+            }
+            Grammar::AnySetOf {
+                optional,
+                min_times,
+                ..
+            } => *optional || *min_times == 0,
+            Grammar::Sequence { optional, .. } => *optional,
+            Grammar::Delimited { optional, .. } => *optional,
+            Grammar::Bracketed { optional, .. } => *optional,
+            Grammar::Ref { optional, .. } => *optional,
+            Grammar::StringParser { optional, .. } => *optional,
+            Grammar::MultiStringParser { optional, .. } => *optional,
+            Grammar::TypedParser { optional, .. } => *optional,
+            Grammar::RegexParser { optional, .. } => *optional,
+            // Other grammar types are not optional by default
+            _ => false,
+        }
+    }
 }
 
 // Implement Hash for Grammar (discriminant + key fields)
@@ -895,6 +927,9 @@ struct ParseFrame {
     accumulated: Vec<Node>,
     /// Additional context depending on grammar type
     context: FrameContext,
+    /// Parent's max_idx limit (simulates Python's segments[:max_idx] slicing)
+    /// If Some(n), this frame cannot match beyond position n
+    parent_max_idx: Option<usize>,
 }
 
 /// State machine for each frame
@@ -934,6 +969,7 @@ enum FrameContext {
         max_idx: usize,
         last_child_frame_id: Option<usize>,
         current_element_idx: usize, // Track which element we're currently processing
+        first_match: bool,          // For GREEDY_ONCE_STARTED: trim max_idx after first match
     },
     OneOf {
         elements: Vec<Grammar>, // Available elements to try
@@ -1085,9 +1121,46 @@ impl<'a> Parser<'_> {
             state: FrameState::Initial,
             accumulated: vec![],
             context: FrameContext::None,
+            parent_max_idx: None, // Top-level frame has no parent limit
         }];
 
+        let mut iteration_count = 0_usize;
+        let max_iterations = 50000_usize; // Higher limit for complex grammars
+
         while let Some(mut frame) = stack.pop() {
+            iteration_count += 1;
+
+            if iteration_count > max_iterations {
+                eprintln!("ERROR: Exceeded max iterations ({})", max_iterations);
+                eprintln!("Last frame: {:?}", frame.grammar);
+                eprintln!("Stack depth: {}", stack.len());
+                eprintln!("Results count: {}", results.len());
+
+                // Print last 20 frames on stack for diagnosis
+                eprintln!("\n=== Last 20 frames on stack ===");
+                for (i, f) in stack.iter().rev().take(20).enumerate() {
+                    eprintln!(
+                        "  [{}] state={:?}, pos={}, grammar={}",
+                        i,
+                        f.state,
+                        f.pos,
+                        match &f.grammar {
+                            Grammar::Ref { name, .. } => format!("Ref({})", name),
+                            Grammar::Bracketed { .. } => "Bracketed".to_string(),
+                            Grammar::Delimited { .. } => "Delimited".to_string(),
+                            Grammar::OneOf { elements, .. } =>
+                                format!("OneOf({} elements)", elements.len()),
+                            Grammar::Sequence { elements, .. } =>
+                                format!("Sequence({} elements)", elements.len()),
+                            Grammar::AnyNumberOf { .. } => "AnyNumberOf".to_string(),
+                            Grammar::AnySetOf { .. } => "AnySetOf".to_string(),
+                            _ => "Other".to_string(),
+                        }
+                    );
+                }
+
+                panic!("Infinite loop detected in iterative parser");
+            }
             log::debug!(
                 "Processing frame {}: grammar={}, pos={}, state={:?}, stack_size={} (BEFORE pop: {})",
                 frame.frame_id,
@@ -1385,6 +1458,13 @@ impl<'a> Parser<'_> {
                                 self.tokens.len()
                             };
 
+                            // Apply parent's max_idx limit (simulates Python's segments[:max_idx])
+                            let max_idx = if let Some(parent_limit) = frame.parent_max_idx {
+                                max_idx.min(parent_limit)
+                            } else {
+                                max_idx
+                            };
+
                             // Update frame with Sequence context
                             frame.state = FrameState::WaitingForChild {
                                 child_index: 0,
@@ -1400,8 +1480,10 @@ impl<'a> Parser<'_> {
                                 max_idx,
                                 last_child_frame_id: None,
                                 current_element_idx: 0, // Start at first element
+                                first_match: true,      // For GREEDY_ONCE_STARTED trimming
                             };
                             frame.terminators = all_terminators;
+                            // No parent_max_idx set here - this is a top-level Sequence
                             stack.push(frame);
 
                             // Push first child to parse
@@ -1445,6 +1527,20 @@ impl<'a> Parser<'_> {
                                         }
                                         child_idx += 1;
                                     } else {
+                                        // Get max_idx from parent Sequence to pass to child
+                                        let current_max_idx =
+                                            if let Some(parent_frame) = stack.last() {
+                                                if let FrameContext::Sequence { max_idx, .. } =
+                                                    &parent_frame.context
+                                                {
+                                                    Some(*max_idx)
+                                                } else {
+                                                    None
+                                                }
+                                            } else {
+                                                None
+                                            };
+
                                         // Non-meta element - needs actual parsing
                                         let child_frame = ParseFrame {
                                             frame_id: frame_id_counter,
@@ -1457,6 +1553,7 @@ impl<'a> Parser<'_> {
                                             state: FrameState::Initial,
                                             accumulated: vec![],
                                             context: FrameContext::None,
+                                            parent_max_idx: current_max_idx, // Pass Sequence's max_idx to child!
                                         };
 
                                         // Update parent's last_child_frame_id and current_element_idx
@@ -1523,6 +1620,13 @@ impl<'a> Parser<'_> {
                                 self.tokens.len()
                             };
 
+                            // Apply parent's max_idx limit (simulates Python's segments[:max_idx])
+                            let max_idx = if let Some(parent_limit) = frame.parent_max_idx {
+                                max_idx.min(parent_limit)
+                            } else {
+                                max_idx
+                            };
+
                             // Check if already terminated
                             if self.is_terminated(&all_terminators) {
                                 log::debug!("OneOf: Already at terminator");
@@ -1575,6 +1679,9 @@ impl<'a> Parser<'_> {
                             let element_key = first_element.cache_key();
                             log::debug!("OneOf: Trying first element (cache_key: {})", element_key);
 
+                            // Get parent_max_idx to propagate
+                            let parent_limit = frame.parent_max_idx;
+
                             let child_frame = ParseFrame {
                                 frame_id: frame_id_counter,
                                 grammar: first_element,
@@ -1583,6 +1690,7 @@ impl<'a> Parser<'_> {
                                 state: FrameState::Initial,
                                 accumulated: Vec::new(),
                                 context: FrameContext::None,
+                                parent_max_idx: parent_limit, // Propagate parent's limit!
                             };
 
                             frame.state = FrameState::WaitingForChild {
@@ -1648,6 +1756,7 @@ impl<'a> Parser<'_> {
                                         state: FrameState::Initial,
                                         accumulated: vec![],
                                         context: FrameContext::None,
+                                        parent_max_idx: None,
                                     };
 
                                     // Update current frame to wait for child and store Ref metadata
@@ -1723,6 +1832,13 @@ impl<'a> Parser<'_> {
                                 self.tokens.len()
                             };
 
+                            // Apply parent's max_idx limit (simulates Python's segments[:max_idx])
+                            let max_idx = if let Some(parent_limit) = frame.parent_max_idx {
+                                max_idx.min(parent_limit)
+                            } else {
+                                max_idx
+                            };
+
                             log::debug!(
                                 "AnyNumberOf max_idx: {} (tokens.len: {})",
                                 max_idx,
@@ -1750,6 +1866,9 @@ impl<'a> Parser<'_> {
                                 last_child_frame_id: None,
                             };
                             frame.terminators = all_terminators.clone();
+
+                            // Extract parent_max_idx before moving frame
+                            let parent_limit = frame.parent_max_idx;
                             stack.push(frame);
 
                             // Use OneOf wrapper to try all elements and find longest match
@@ -1773,6 +1892,7 @@ impl<'a> Parser<'_> {
                                     state: FrameState::Initial,
                                     accumulated: vec![],
                                     context: FrameContext::None,
+                                    parent_max_idx: parent_limit, // Propagate parent's limit!
                                 };
 
                                 // Update parent's last_child_frame_id
@@ -1846,6 +1966,7 @@ impl<'a> Parser<'_> {
                                 state: FrameState::Initial,
                                 accumulated: vec![],
                                 context: FrameContext::None,
+                                parent_max_idx: stack.last().unwrap().parent_max_idx, // Propagate parent's limit!
                             };
 
                             // Update parent's last_child_frame_id
@@ -1894,6 +2015,13 @@ impl<'a> Parser<'_> {
                                 self.tokens.len()
                             };
 
+                            // Apply parent's max_idx limit (simulates Python's segments[:max_idx])
+                            let max_idx = if let Some(parent_limit) = frame.parent_max_idx {
+                                max_idx.min(parent_limit)
+                            } else {
+                                max_idx
+                            };
+
                             log::debug!(
                                 "[ITERATIVE] AnySetOf max_idx: {} (tokens.len: {})",
                                 max_idx,
@@ -1920,6 +2048,9 @@ impl<'a> Parser<'_> {
                                 parse_mode: *parse_mode,
                             };
                             frame.terminators = all_terminators.clone();
+
+                            // Extract parent_max_idx before moving frame
+                            let parent_limit = frame.parent_max_idx;
                             stack.push(frame);
 
                             // Try first unmatched element
@@ -1941,6 +2072,7 @@ impl<'a> Parser<'_> {
                                 state: FrameState::Initial,
                                 accumulated: vec![],
                                 context: FrameContext::None,
+                                parent_max_idx: parent_limit, // Propagate parent's limit!
                             };
 
                             // Update parent's last_child_frame_id
@@ -1997,6 +2129,13 @@ impl<'a> Parser<'_> {
                                 self.tokens.len()
                             };
 
+                            // Apply parent's max_idx limit (simulates Python's segments[:max_idx])
+                            let max_idx = if let Some(parent_limit) = frame.parent_max_idx {
+                                max_idx.min(parent_limit)
+                            } else {
+                                max_idx
+                            };
+
                             log::debug!(
                                 "[ITERATIVE] Delimited max_idx: {} (tokens.len: {})",
                                 max_idx,
@@ -2036,12 +2175,15 @@ impl<'a> Parser<'_> {
                                 last_child_frame_id: None,
                             };
                             frame.terminators = all_terminators.clone();
+
+                            // Extract parent_max_idx before moving frame
+                            let parent_limit = frame.parent_max_idx;
                             stack.push(frame);
 
                             // Create first child to match element (try all elements via OneOf)
                             let child_grammar = Grammar::OneOf {
                                 elements: elements.clone(),
-                                optional: false,
+                                optional: true, // Elements in Delimited are implicitly optional
                                 terminators: vec![],
                                 reset_terminators: false,
                                 allow_gaps: *allow_gaps,
@@ -2056,6 +2198,7 @@ impl<'a> Parser<'_> {
                                 state: FrameState::Initial,
                                 accumulated: vec![],
                                 context: FrameContext::None,
+                                parent_max_idx: parent_limit, // Propagate parent's limit through!
                             };
 
                             // Update parent's last_child_frame_id
@@ -2197,7 +2340,7 @@ impl<'a> Parser<'_> {
 
                                 self.pos = *child_end_pos;
                                 results.insert(frame.frame_id, (final_node, self.pos, None));
-                                // Frame is complete, don't push back to stack
+                                continue; // Frame is complete, move to next frame
                             }
                             FrameContext::Sequence {
                                 elements,
@@ -2209,11 +2352,30 @@ impl<'a> Parser<'_> {
                                 max_idx,
                                 last_child_frame_id: _last_child_frame_id,
                                 current_element_idx,
+                                first_match,
                             } => {
                                 let element_start = *matched_idx;
 
                                 // Handle the child result
-                                if !child_node.is_empty() {
+                                if child_node.is_empty() {
+                                    // Child returned Empty - check if it's optional
+                                    let current_element = &elements[*current_element_idx];
+                                    if current_element.is_optional() {
+                                        log::debug!("Sequence: child returned Empty and is optional, continuing");
+                                        // Fall through to "move to next child" logic below
+                                    } else {
+                                        // Required element returned Empty - sequence fails
+                                        log::debug!("Sequence: required element returned Empty, returning Empty");
+                                        self.pos = frame.pos; // Reset position
+                                                              // Rollback tentatively collected positions
+                                        for pos in tentatively_collected.iter() {
+                                            self.collected_transparent_positions.remove(pos);
+                                        }
+                                        results
+                                            .insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                                        continue; // Skip to next frame
+                                    }
+                                } else {
                                     // Successfully matched
                                     *matched_idx = *child_end_pos;
 
@@ -2273,6 +2435,19 @@ impl<'a> Parser<'_> {
                                             }
                                         }
                                     }
+
+                                    // GREEDY_ONCE_STARTED: Trim max_idx after first match
+                                    // This matches Python's behavior (sequence.py lines 319-327)
+                                    if *first_match && *parse_mode == ParseMode::GreedyOnceStarted {
+                                        log::debug!(
+                                            "GREEDY_ONCE_STARTED: Trimming max_idx after first match from {} to terminator",
+                                            *max_idx
+                                        );
+                                        *max_idx = self
+                                            .trim_to_terminator(*matched_idx, &frame_terminators);
+                                        *first_match = false;
+                                        log::debug!("  New max_idx: {}", *max_idx);
+                                    }
                                 }
 
                                 let current_matched_idx = *matched_idx;
@@ -2303,6 +2478,7 @@ impl<'a> Parser<'_> {
                                         frame.frame_id,
                                         (result_node, current_matched_idx, None),
                                     );
+                                    continue; // Frame is complete, move to next frame
                                 } else {
                                     // Before processing next element, handle transparent token collection for allow_gaps=true
                                     let mut next_pos = current_matched_idx;
@@ -2498,9 +2674,10 @@ impl<'a> Parser<'_> {
                                         } else {
                                             // Non-Meta element - create frame for it
                                             log::debug!(
-                                                "Creating child frame for element {}: frame_id={}",
+                                                "Creating child frame for element {}: frame_id={}, parent_max_idx={}",
                                                 next_elem_idx,
-                                                frame_id_counter
+                                                frame_id_counter,
+                                                current_max_idx
                                             );
                                             let child_frame = ParseFrame {
                                                 frame_id: frame_id_counter,
@@ -2510,6 +2687,7 @@ impl<'a> Parser<'_> {
                                                 state: FrameState::Initial,
                                                 accumulated: vec![],
                                                 context: FrameContext::None,
+                                                parent_max_idx: Some(current_max_idx), // Pass down Sequence's max_idx limit!
                                             };
 
                                             // Update parent's last_child_frame_id and current_element_idx
@@ -2631,6 +2809,9 @@ impl<'a> Parser<'_> {
                                                 }
                                             };
 
+                                            // Get parent_max_idx to propagate
+                                            let parent_limit = frame.parent_max_idx;
+
                                             let child_frame = ParseFrame {
                                                 frame_id: frame_id_counter,
                                                 grammar: child_grammar,
@@ -2639,6 +2820,7 @@ impl<'a> Parser<'_> {
                                                 state: FrameState::Initial,
                                                 accumulated: vec![],
                                                 context: FrameContext::None,
+                                                parent_max_idx: parent_limit, // Propagate parent's limit!
                                             };
 
                                             // Update parent's last_child_frame_id
@@ -2669,6 +2851,7 @@ impl<'a> Parser<'_> {
                                             frame.frame_id,
                                             (result_node, *matched_idx, None),
                                         );
+                                        continue; // Frame is complete, move to next frame
                                     }
                                 } else {
                                     // Child failed to match
@@ -2688,6 +2871,7 @@ impl<'a> Parser<'_> {
                                                 frame.frame_id,
                                                 (Node::Empty, frame.pos, None),
                                             );
+                                            continue; // Frame is complete, move to next frame
                                         } else {
                                             return Err(ParseError::new(format!(
                                                 "Expected at least {} occurrences, found {}",
@@ -2708,6 +2892,7 @@ impl<'a> Parser<'_> {
                                             frame.frame_id,
                                             (result_node, *matched_idx, None),
                                         );
+                                        continue; // Frame is complete, move to next frame
                                     }
                                 }
                             }
@@ -2719,7 +2904,7 @@ impl<'a> Parser<'_> {
                                 optional,
                                 parse_mode,
                                 state,
-                                last_child_frame_id: _last_child_frame_id,
+                                last_child_frame_id,
                             } => {
                                 log::debug!(
                                     "Bracketed WaitingForChild: state={:?}, child_node empty={}",
@@ -2776,6 +2961,9 @@ impl<'a> Parser<'_> {
                                             // Transition to MatchingContent
                                             *state = BracketedState::MatchingContent;
 
+                                            // Get parent_max_idx to propagate
+                                            let parent_limit = frame.parent_max_idx;
+
                                             // Create content grammar (Sequence with closing bracket as terminator)
                                             let content_grammar = Grammar::Sequence {
                                                 elements: elements.clone(),
@@ -2794,21 +2982,18 @@ impl<'a> Parser<'_> {
                                                 state: FrameState::Initial,
                                                 accumulated: vec![],
                                                 context: FrameContext::None,
+                                                parent_max_idx: parent_limit, // Propagate parent's limit!
                                             };
 
-                                            // Update parent's last_child_frame_id
-                                            if let Some(parent_frame) = stack.last_mut() {
-                                                if let FrameContext::Bracketed {
-                                                    last_child_frame_id,
-                                                    ..
-                                                } = &mut parent_frame.context
-                                                {
-                                                    *last_child_frame_id = Some(frame_id_counter);
-                                                }
-                                            }
+                                            // Update this frame's last_child_frame_id
+                                            *last_child_frame_id = Some(frame_id_counter);
 
                                             frame_id_counter += 1;
+
+                                            // Push parent frame back first, then child (LIFO - child will be processed next)
+                                            stack.push(frame);
                                             stack.push(child_frame);
+                                            continue; // Skip the result check - child hasn't been processed yet
                                         }
                                     }
                                     BracketedState::MatchingContent => {
@@ -2863,6 +3048,7 @@ impl<'a> Parser<'_> {
                                                     frame.frame_id,
                                                     (Node::Empty, frame.pos, None),
                                                 );
+                                                continue; // Frame is complete (failed), move to next frame
                                             } else {
                                                 return Err(ParseError::new(
                                                     "Couldn't find closing bracket for opening bracket".to_string(),
@@ -2873,6 +3059,9 @@ impl<'a> Parser<'_> {
                                             *state = BracketedState::MatchingClose;
 
                                             // Create child frame for closing bracket
+                                            // Get parent_max_idx to propagate
+                                            let parent_limit = frame.parent_max_idx;
+
                                             let child_frame = ParseFrame {
                                                 frame_id: frame_id_counter,
                                                 grammar: (*bracket_pairs.1).clone(),
@@ -2881,21 +3070,18 @@ impl<'a> Parser<'_> {
                                                 state: FrameState::Initial,
                                                 accumulated: vec![],
                                                 context: FrameContext::None,
+                                                parent_max_idx: parent_limit, // Propagate parent's limit!
                                             };
 
-                                            // Update parent's last_child_frame_id
-                                            if let Some(parent_frame) = stack.last_mut() {
-                                                if let FrameContext::Bracketed {
-                                                    last_child_frame_id,
-                                                    ..
-                                                } = &mut parent_frame.context
-                                                {
-                                                    *last_child_frame_id = Some(frame_id_counter);
-                                                }
-                                            }
+                                            // Update this frame's last_child_frame_id
+                                            *last_child_frame_id = Some(frame_id_counter);
 
                                             frame_id_counter += 1;
+
+                                            // Push parent frame back first, then child (LIFO - child will be processed next)
+                                            stack.push(frame);
                                             stack.push(child_frame);
+                                            continue; // Skip the result check - child hasn't been processed yet
                                         }
                                     }
                                     BracketedState::MatchingClose => {
@@ -2908,6 +3094,7 @@ impl<'a> Parser<'_> {
                                                     frame.frame_id,
                                                     (Node::Empty, frame.pos, None),
                                                 );
+                                                continue; // Frame is complete (failed), move to next frame
                                             } else {
                                                 return Err(ParseError::new(
                                                     "Couldn't find closing bracket for opening bracket".to_string(),
@@ -2929,6 +3116,7 @@ impl<'a> Parser<'_> {
                                                 frame.frame_id,
                                                 (result_node, *child_end_pos, None),
                                             );
+                                            continue; // Frame is complete, move to next frame
                                         }
                                     }
                                 }
@@ -2969,6 +3157,7 @@ impl<'a> Parser<'_> {
                                                 frame.frame_id,
                                                 (Node::Empty, frame.pos, None),
                                             );
+                                            continue; // Frame is complete, move to next frame
                                         } else {
                                             return Err(ParseError::new(format!(
                                                 "Expected at least {} occurrences in AnySetOf, found {}",
@@ -2985,6 +3174,7 @@ impl<'a> Parser<'_> {
                                             frame.frame_id,
                                             (result_node, *matched_idx, None),
                                         );
+                                        continue; // Frame is complete, move to next frame
                                     }
                                 } else {
                                     // Child matched successfully!
@@ -3058,6 +3248,7 @@ impl<'a> Parser<'_> {
                                             frame.frame_id,
                                             (result_node, *matched_idx, None),
                                         );
+                                        continue; // Frame is complete, move to next frame
                                     } else {
                                         // Continue - create next child to try remaining elements
                                         *working_idx = if *allow_gaps {
@@ -3094,6 +3285,7 @@ impl<'a> Parser<'_> {
                                                 frame.frame_id,
                                                 (result_node, *matched_idx, None),
                                             );
+                                            continue; // Frame is complete, move to next frame
                                         } else {
                                             // Create OneOf with only unmatched elements
                                             let child_grammar = Grammar::OneOf {
@@ -3105,6 +3297,9 @@ impl<'a> Parser<'_> {
                                                 parse_mode: *parse_mode,
                                             };
 
+                                            // Get parent_max_idx to propagate
+                                            let parent_limit = frame.parent_max_idx;
+
                                             let child_frame = ParseFrame {
                                                 frame_id: frame_id_counter,
                                                 grammar: child_grammar,
@@ -3113,6 +3308,7 @@ impl<'a> Parser<'_> {
                                                 state: FrameState::Initial,
                                                 accumulated: vec![],
                                                 context: FrameContext::None,
+                                                parent_max_idx: parent_limit, // Propagate parent's limit!
                                             };
 
                                             // Update parent's last_child_frame_id
@@ -3200,6 +3396,9 @@ impl<'a> Parser<'_> {
                                     let child_frame_id = frame_id_counter;
                                     frame_id_counter += 1;
 
+                                    // Get parent_max_idx to propagate
+                                    let parent_limit = frame.parent_max_idx;
+
                                     let child_frame = ParseFrame {
                                         frame_id: child_frame_id,
                                         grammar: next_element,
@@ -3208,6 +3407,7 @@ impl<'a> Parser<'_> {
                                         state: FrameState::Initial,
                                         accumulated: Vec::new(),
                                         context: FrameContext::None,
+                                        parent_max_idx: parent_limit, // Propagate parent's limit!
                                     };
 
                                     frame.state = FrameState::WaitingForChild {
@@ -3275,6 +3475,7 @@ impl<'a> Parser<'_> {
                                             "OneOf: No matches found, optional={}, returning Empty",
                                             optional
                                         );
+                                        self.pos = frame.pos; // Reset to initial position
                                         results
                                             .insert(frame.frame_id, (Node::Empty, self.pos, None));
                                         continue;
@@ -3306,42 +3507,22 @@ impl<'a> Parser<'_> {
                                             // No element matched
                                             log::debug!("[ITERATIVE] Delimited: no element matched at position {}", frame.pos);
 
-                                            // Check if we have enough delimiters (elements = delimiters + 1)
-                                            if *delimiter_count < *min_delimiters {
-                                                if *optional {
-                                                    self.pos = frame.pos;
-                                                    log::debug!("[ITERATIVE] Delimited optional, returning Empty");
-                                                    results.insert(
-                                                        frame.frame_id,
-                                                        (
-                                                            Node::DelimitedList(
-                                                                frame.accumulated.clone(),
-                                                            ),
-                                                            frame.pos,
-                                                            None,
-                                                        ),
-                                                    );
-                                                } else {
-                                                    return Err(ParseError::new(format!(
-                                                        "Expected at least {} delimiters in Delimited, found {}",
-                                                        min_delimiters, delimiter_count
-                                                    )));
-                                                }
-                                            } else {
-                                                // Met minimum, complete with what we have
-                                                log::debug!("[ITERATIVE] Delimited met min_delimiters, completing with {} items", frame.accumulated.len());
-                                                self.pos = *matched_idx;
-                                                results.insert(
-                                                    frame.frame_id,
-                                                    (
-                                                        Node::DelimitedList(
-                                                            frame.accumulated.clone(),
-                                                        ),
-                                                        *matched_idx,
-                                                        None,
-                                                    ),
-                                                );
-                                            }
+                                            // Delimited always returns DelimitedList (possibly empty), not Empty
+                                            // This matches the recursive parser behavior
+                                            log::debug!(
+                                                "[ITERATIVE] Delimited completing with {} items",
+                                                frame.accumulated.len()
+                                            );
+                                            self.pos = *matched_idx;
+                                            results.insert(
+                                                frame.frame_id,
+                                                (
+                                                    Node::DelimitedList(frame.accumulated.clone()),
+                                                    *matched_idx,
+                                                    None,
+                                                ),
+                                            );
+                                            continue; // Frame is complete, move to next frame
                                         } else {
                                             // Element matched!
                                             log::debug!("[ITERATIVE] Delimited element matched: pos {} -> {}", frame.pos, child_end_pos);
@@ -3413,10 +3594,13 @@ impl<'a> Parser<'_> {
                                                         None,
                                                     ),
                                                 );
-                                                // Don't push frame back - we're done
+                                                continue; // Frame is complete, move to next frame
                                             } else {
                                                 // Transition to MatchingDelimiter state
                                                 *state = DelimitedState::MatchingDelimiter;
+
+                                                // Get parent_max_idx from current frame to propagate
+                                                let parent_limit = frame.parent_max_idx;
 
                                                 // Create child frame for delimiter
                                                 let child_frame = ParseFrame {
@@ -3427,7 +3611,11 @@ impl<'a> Parser<'_> {
                                                     state: FrameState::Initial,
                                                     accumulated: vec![],
                                                     context: FrameContext::None,
+                                                    parent_max_idx: parent_limit, // Propagate parent's limit!
                                                 };
+
+                                                // Push parent frame back to stack first
+                                                stack.push(frame);
 
                                                 // Update parent's last_child_frame_id
                                                 if let Some(parent_frame) = stack.last_mut() {
@@ -3443,6 +3631,7 @@ impl<'a> Parser<'_> {
 
                                                 frame_id_counter += 1;
                                                 stack.push(child_frame);
+                                                continue; // Skip to processing the child frame
                                             }
                                         }
                                     }
@@ -3561,10 +3750,34 @@ impl<'a> Parser<'_> {
                                                         );
                                                 }
 
+                                                // Check if we're at a terminator or EOF BEFORE creating child
+                                                // This matches Python's behavior of checking terminators before matching
+                                                self.pos = *working_idx;
+                                                if self.is_at_end()
+                                                    || self.is_terminated(&frame_terminators)
+                                                {
+                                                    log::debug!("[ITERATIVE] Delimited: at terminator/EOF before next element, completing");
+                                                    self.pos = *matched_idx;
+                                                    results.insert(
+                                                        frame.frame_id,
+                                                        (
+                                                            Node::DelimitedList(
+                                                                frame.accumulated.clone(),
+                                                            ),
+                                                            *matched_idx,
+                                                            None,
+                                                        ),
+                                                    );
+                                                    continue; // Frame complete
+                                                }
+
+                                                // Get parent_max_idx from current frame to propagate
+                                                let parent_limit = frame.parent_max_idx;
+
                                                 // Create child frame for next element
                                                 let child_grammar = Grammar::OneOf {
                                                     elements: elements.clone(),
-                                                    optional: false,
+                                                    optional: true, // Elements in Delimited are implicitly optional
                                                     terminators: vec![],
                                                     reset_terminators: false,
                                                     allow_gaps: *allow_gaps,
@@ -3579,7 +3792,11 @@ impl<'a> Parser<'_> {
                                                     state: FrameState::Initial,
                                                     accumulated: vec![],
                                                     context: FrameContext::None,
+                                                    parent_max_idx: parent_limit, // Propagate parent's limit!
                                                 };
+
+                                                // Push parent frame back to stack first
+                                                stack.push(frame);
 
                                                 // Update parent's last_child_frame_id
                                                 if let Some(parent_frame) = stack.last_mut() {
@@ -3595,6 +3812,7 @@ impl<'a> Parser<'_> {
 
                                                 frame_id_counter += 1;
                                                 stack.push(child_frame);
+                                                continue; // Skip to processing the child frame
                                             }
                                         }
                                     }
