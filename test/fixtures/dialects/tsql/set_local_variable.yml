@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5fc1f18065f3833fcf98078b3ed4a14e29e8f8ae8c18169d0b19c982769ca340
+_hash: 7621e192186e0b45b35e1d29e312874090ddef2d6e311883c5b893ce42b30777
 file:
 - batch:
   - statement:
@@ -11,7 +11,7 @@ file:
         keyword: DECLARE
         parameter: '@myVar'
         data_type:
-          data_type_identifier: CHAR
+          keyword: CHAR
           bracketed_arguments:
             bracketed:
               start_bracket: (
@@ -43,7 +43,7 @@ file:
         keyword: DECLARE
         parameter: '@state'
         data_type:
-          data_type_identifier: CHAR
+          keyword: CHAR
           bracketed_arguments:
             bracketed:
               start_bracket: (
@@ -120,7 +120,7 @@ file:
         keyword: DECLARE
         parameter: '@NewBalance'
         data_type:
-          data_type_identifier: INT
+          keyword: INT
         statement_terminator: ;
   - statement:
       set_local_variable_segment:
@@ -177,10 +177,11 @@ file:
                     - naked_identifier: SHIPMETHOD
   - statement:
       declare_segment:
-      - keyword: DECLARE
-      - parameter: '@my_variable'
-      - keyword: CURSOR
-      - statement_terminator: ;
+        keyword: DECLARE
+        parameter: '@my_variable'
+        data_type:
+          keyword: CURSOR
+        statement_terminator: ;
   - statement:
       set_local_variable_segment:
         keyword: SET
@@ -201,10 +202,11 @@ file:
 - batch:
   - statement:
       declare_segment:
-      - keyword: DECLARE
-      - parameter: '@CursorVar'
-      - keyword: CURSOR
-      - statement_terminator: ;
+        keyword: DECLARE
+        parameter: '@CursorVar'
+        data_type:
+          keyword: CURSOR
+        statement_terminator: ;
   - statement:
       set_local_variable_segment:
         keyword: SET
@@ -303,7 +305,7 @@ file:
         keyword: DECLARE
         parameter: '@rows'
         data_type:
-          data_type_identifier: INT
+          keyword: INT
         statement_terminator: ;
   - statement:
       set_local_variable_segment:

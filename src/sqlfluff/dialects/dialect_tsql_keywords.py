@@ -903,4 +903,51 @@ UNRESERVED_KEYWORDS = [
     "XMLSCHEMA",
     "XSINIL",
     "YEARS",
+    # Data type keywords
+    # https://learn.microsoft.com/en-us/sql/t-sql/data-types/data-types-transact-sql
+    # Exact numeric types
+    "TINYINT",
+    "SMALLINT",
+    "INT",
+    "BIGINT",
+    "BIT",
+    "DECIMAL",
+    "NUMERIC",
+    "DEC",
+    "MONEY",
+    "SMALLMONEY",
+    # Approximate numeric types
+    "FLOAT",
+    "REAL",
+    # Date and time types
+    "SMALLDATETIME",
+    "DATETIME",
+    "DATETIME2",
+    "DATETIMEOFFSET",
+    "TIME",
+    # Character string types
+    "CHAR",
+    "CHARACTER",
+    "VARCHAR",
+    "TEXT",
+    "VARYING",
+    # Unicode character string types
+    "NATIONAL",
+    "NCHAR",
+    "NVARCHAR",
+    "NTEXT",
+    # Binary string types
+    "BINARY",
+    "VARBINARY",
+    "IMAGE",
+    # Other data types
+    "SQL_VARIANT",
+    "TIMESTAMP",
+    "ROWVERSION",
+    "UNIQUEIDENTIFIER",
+    "JSON",
+    "GEOGRAPHY",
+    "GEOMETRY",
+    "HIERARCHYID",
+    "VECTOR",
 ]

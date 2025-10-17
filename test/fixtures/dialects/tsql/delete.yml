@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 743f4995ef2e3b9b65a96dbecb82cac5695ce1dba890a891962188d91de18961
+_hash: 7cba24cb2b873b0872a3867cc9785b7246360008a46599bc7e4d79ec39291624
 file:
 - batch:
     statement:
@@ -76,7 +76,7 @@ file:
                   system_variable: '@@ROWCOUNT'
                 keyword: as
                 data_type:
-                  data_type_identifier: char
+                  keyword: char
                   bracketed_arguments:
                     bracketed:
                       start_bracket: (
@@ -552,7 +552,7 @@ file:
         - column_definition:
             naked_identifier: ProductID
             data_type:
-              data_type_identifier: int
+              keyword: int
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -560,7 +560,7 @@ file:
         - column_definition:
             naked_identifier: ProductName
             data_type:
-              data_type_identifier: nvarchar
+              keyword: nvarchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -574,7 +574,7 @@ file:
         - column_definition:
             naked_identifier: ProductModelID
             data_type:
-              data_type_identifier: int
+              keyword: int
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -582,7 +582,7 @@ file:
         - column_definition:
             naked_identifier: PhotoID
             data_type:
-              data_type_identifier: int
+              keyword: int
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
