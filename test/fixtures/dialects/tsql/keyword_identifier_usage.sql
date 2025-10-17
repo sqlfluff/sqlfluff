@@ -45,15 +45,15 @@ CREATE TABLE MyTable (
     Type INT,
     Value VARCHAR(50),
     Format VARCHAR(20),
-    
+
     -- Future reserved keywords - no quotes needed
     Class VARCHAR(50),
     Array VARCHAR(100),
-    
+
     -- Reserved keywords - quotes/brackets required
     [SELECT] INT,
     [UPDATE] VARCHAR(50),
-    
+
     -- Regular identifiers
     Name VARCHAR(100)
 );
@@ -72,7 +72,7 @@ WHERE Type IN (1, 2, 3)
 ORDER BY Class, Value;
 
 -- 6. Aliases using unreserved keywords
-SELECT 
+SELECT
     t1.Type AS Type,
     t1.Value AS Value,
     t2.Class AS Class
