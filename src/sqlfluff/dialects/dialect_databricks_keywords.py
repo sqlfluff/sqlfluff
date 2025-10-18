@@ -44,6 +44,7 @@ UNRESERVED_KEYWORDS = [
     "RELY",
     "SCHEDULE",
     "SQL",
+    "TAG",
     "TAGS",
     "TIMESERIES",
     "VOLUME",

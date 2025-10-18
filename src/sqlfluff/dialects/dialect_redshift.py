@@ -2988,6 +2988,21 @@ class MergeStatementSegment(ansi.MergeStatementSegment):
     )
 
 
+class SetOperatorSegment(ansi.SetOperatorSegment):
+    """A set operator such as Union, Minus, Except or Intersect.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_UNION.html#r_UNION-parameters
+    """
+
+    type = "set_operator"
+    match_grammar: Matchable = OneOf(
+        Ref("UnionGrammar"),
+        "INTERSECT",
+        "EXCEPT",
+        "MINUS",
+    )
+
+
 class PrepareStatementSegment(postgres.PrepareStatementSegment):
     """A `PREPARE` statement.
 
