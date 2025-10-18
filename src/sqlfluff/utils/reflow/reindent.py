@@ -1034,10 +1034,12 @@ def _map_line_buffers(
         ).get_indent_impulse()
 
         if implicit_indents == "require" and indent_stats.implicit_indents:
-            # Only collapse if this is a line break point (immediate newline after implicit indent)
+            # Only collapse if this is a line break point
+            # (immediate newline after implicit indent)
             if indent_point.is_line_break:
                 reflow_logger.debug(
-                    "    Adding line break position %s for implicit indent collapse: %s",
+                    "    Adding line break position %s for implicit indent "
+                    "collapse: %s",
                     indent_point.idx,
                     indent_stats.implicit_indents,
                 )
@@ -1649,11 +1651,13 @@ def _convert_newlines_to_spaces(
 
             if elem.num_newlines() > 0:
                 reflow_logger.debug(
-                    "    Converting newline to space at position %s for implicit indent",
+                    "    Converting newline to space at position %s for "
+                    "implicit indent",
                     i,
                 )
 
-                # Generate fixes - keep ImplicitIndent for logical indentation, remove visual formatting
+                # Generate fixes - keep ImplicitIndent for logical indentation,
+                # remove visual formatting
                 fixes = []
                 if elem.segments:
                     replacement_segs = []
@@ -1670,7 +1674,8 @@ def _convert_newlines_to_spaces(
                     # Add a space for visual formatting
                     replacement_segs.append(WhitespaceSegment(" "))
 
-                    # Replace the first segment with ImplicitIndent + space, delete the rest
+                    # Replace the first segment with ImplicitIndent + space,
+                    # delete the rest
                     fixes.append(LintFix.replace(elem.segments[0], replacement_segs))
                     for seg in elem.segments[1:]:
                         fixes.append(LintFix.delete(seg))
@@ -1681,7 +1686,8 @@ def _convert_newlines_to_spaces(
                         LintResult(
                             elem.segments[0],
                             fixes,
-                            description="Removed line break in favor of implicit indentation.",
+                            description="Removed line break in favor of "
+                            "implicit indentation.",
                             source="reflow.indent.require_implicit",
                         )
                     )
@@ -1772,7 +1778,8 @@ def lint_indent_points(
                 reflow_logger.info("          %s", res.description)
         results += line_results
 
-    # Now handle require implicit_indents by converting newlines to spaces at tracked positions
+    # Now handle require implicit_indents by converting newlines to spaces at
+    # tracked positions
     if implicit_indents == "require" and implicit_indent_locs:
         implicit_results = _convert_newlines_to_spaces(
             elem_buffer, implicit_indent_locs
