@@ -609,8 +609,7 @@ class ReflowSequence:
             self.elements,
             single_indent=single_indent,
             skip_indentation_in=self.reflow_config.skip_indentation_in,
-            allow_implicit_indents=self.reflow_config.allow_implicit_indents,
-            require_implicit_indents=self.reflow_config.require_implicit_indents,
+            implicit_indents=self.reflow_config.implicit_indents,
             ignore_comment_lines=self.reflow_config.ignore_comment_lines,
         )
 
@@ -643,7 +642,7 @@ class ReflowSequence:
             self.root_segment,
             single_indent=single_indent,
             line_length_limit=self.reflow_config.max_line_length,
-            allow_implicit_indents=self.reflow_config.allow_implicit_indents,
+            implicit_indents=self.reflow_config.implicit_indents,
             trailing_comments=self.reflow_config.trailing_comments,
         )
 

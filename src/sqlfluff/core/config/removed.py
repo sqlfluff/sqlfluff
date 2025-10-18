@@ -158,6 +158,15 @@ REMOVED_CONFIGS = [
         ("rules", "references.quoting", "force_enable"),
         "No longer used. The dialects which used to block this rule, no longer do.",
     ),
+    _RemovedConfig(
+        ("indentation", "allow_implicit_indents"),
+        (
+            "The allow_implicit_indents config has been replaced by implicit_indents. "
+            "Use 'forbid' (was false), 'allow' (was true), or 'require' instead."
+        ),
+        ("indentation", "implicit_indents"),
+        lambda x: "allow" if x else "forbid",
+    ),
 ]
 
 # Actually make a dict which matches the structure.

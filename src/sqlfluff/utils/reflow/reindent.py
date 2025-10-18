@@ -803,8 +803,7 @@ def _update_crawl_balances(
 
 def _crawl_indent_points(
     elements: ReflowSequenceType,
-    allow_implicit_indents: bool = False,
-    require_implicit_indents: bool = False
+    implicit_indents: str = "forbid"
 ) -> Iterator[_IndentPoint]:
     """Crawl through a reflow sequence, mapping existing indents.
 
@@ -847,7 +846,7 @@ def _crawl_indent_points(
             if indent_stats.implicit_indents:
                 unclosed_bracket = False
                 if (
-                    allow_implicit_indents
+                    implicit_indents != "forbid"
                     and "start_bracket" in elements[idx + 1].class_types
                 ):
                     # Is it closed in the line? Iterate forward to find out.
@@ -867,7 +866,7 @@ def _crawl_indent_points(
                     else:  # pragma: no cover
                         unclosed_bracket = True
 
-                if unclosed_bracket or not (allow_implicit_indents or require_implicit_indents):
+                if unclosed_bracket or implicit_indents == "forbid":
                     # Blank indent stats if not using them
                     indent_stats = IndentStats(
                         indent_stats.impulse, indent_stats.trough, ()
@@ -987,8 +986,7 @@ def _crawl_indent_points(
 
 def _map_line_buffers(
     elements: ReflowSequenceType,
-    allow_implicit_indents: bool = False,
-    require_implicit_indents: bool = False
+    implicit_indents: str = "forbid"
 ) -> tuple[list[_IndentLine], list[int], set[int]]:
     """Map the existing elements, building up a list of _IndentLine.
 
@@ -1021,13 +1019,12 @@ def _map_line_buffers(
     imbalanced_locs = []
 
     #: set of ints: a set of element indices which have implicit indents
-    #: and should use them when require_implicit_indents=True
+    #: and should use them when implicit_indents="require"
     implicit_indent_locs: set[int] = set()
 
     for indent_point in _crawl_indent_points(
         elements,
-        allow_implicit_indents=allow_implicit_indents,
-        require_implicit_indents=require_implicit_indents
+        implicit_indents=implicit_indents
     ):
         # We evaluate all the points in a line at the same time, so
         # we first build up a buffer.
@@ -1039,7 +1036,7 @@ def _map_line_buffers(
             ReflowPoint, elements[indent_point.idx]
         ).get_indent_impulse()
 
-        if require_implicit_indents and indent_stats.implicit_indents:
+        if implicit_indents == "require" and indent_stats.implicit_indents:
             # Only collapse if this is a line break point (immediate newline after implicit indent)
             if indent_point.is_line_break:
                 reflow_logger.debug(
@@ -1056,7 +1053,7 @@ def _map_line_buffers(
                 ReflowPoint, elements[indent_point.idx]
             ).get_indent_impulse()
             if indent_point.indent_impulse > indent_point.indent_trough and not (
-                (allow_implicit_indents or require_implicit_indents) and indent_stats.implicit_indents
+                implicit_indents != "forbid" and indent_stats.implicit_indents
             ):
                 untaken_indent_locs[
                     indent_point.initial_indent_balance + indent_point.indent_impulse
@@ -1690,8 +1687,7 @@ def lint_indent_points(
     elements: ReflowSequenceType,
     single_indent: str,
     skip_indentation_in: frozenset[str] = frozenset(),
-    allow_implicit_indents: bool = False,
-    require_implicit_indents: bool = False,
+    implicit_indents: str = "forbid",
     ignore_comment_lines: bool = False,
 ) -> tuple[ReflowSequenceType, list[LintResult]]:
     """Lint the indent points to check we have line breaks where we should.
@@ -1720,8 +1716,7 @@ def lint_indent_points(
     implicit_indent_locs: set[int]
     lines, imbalanced_indent_locs, implicit_indent_locs = _map_line_buffers(
         elements,
-        allow_implicit_indents=allow_implicit_indents,
-        require_implicit_indents=require_implicit_indents
+        implicit_indents=implicit_indents
     )
 
     # Revise templated indents.
@@ -1767,8 +1762,8 @@ def lint_indent_points(
                 reflow_logger.info("          %s", res.description)
         results += line_results
 
-    # Now handle require_implicit_indents by converting newlines to spaces at tracked positions
-    if require_implicit_indents and implicit_indent_locs:
+    # Now handle require implicit_indents by converting newlines to spaces at tracked positions
+    if implicit_indents == "require" and implicit_indent_locs:
         implicit_results = _convert_newlines_to_spaces(elem_buffer, implicit_indent_locs)
         results = implicit_results + results
 
@@ -1950,7 +1945,7 @@ def _match_indents(
     line_elements: ReflowSequenceType,
     rebreak_priorities: dict[int, int],
     newline_idx: int,
-    allow_implicit_indents: bool = False,
+    implicit_indents: str = "forbid",
 ) -> MatchedIndentsType:
     """Identify indent points, taking into account rebreak_priorities.
 
@@ -1959,7 +1954,7 @@ def _match_indents(
     """
     balance = 0
     matched_indents: MatchedIndentsType = defaultdict(list)
-    implicit_indents: dict[int, tuple[int, ...]] = {}
+    implicit_indent_dict: dict[int, tuple[int, ...]] = {}
     for idx, e in enumerate(line_elements):
         # We only care about points, because only they contain indents.
         if not isinstance(e, ReflowPoint):
@@ -1974,7 +1969,7 @@ def _match_indents(
         e_idx = newline_idx - len(line_elements) + idx + 1
         # Save any implicit indents.
         if indent_stats.implicit_indents:
-            implicit_indents[e_idx] = indent_stats.implicit_indents
+            implicit_indent_dict[e_idx] = indent_stats.implicit_indents
         balance, nmi = _increment_balance(balance, indent_stats, e_idx)
         # Incorporate nmi into matched_indents
         for b, indices in nmi.items():
@@ -2014,10 +2009,10 @@ def _match_indents(
     # NOTE: This logic might be best suited to be sited elsewhere
     # when (and if) we introduce smarter choices on where to add
     # indents.
-    if allow_implicit_indents:
+    if implicit_indents != "forbid":
         for indent_level in list(matched_indents.keys()):
             major_points = set(matched_indents[indent_level]).difference(
-                [newline_idx], implicit_indents.keys()
+                [newline_idx], implicit_indent_dict.keys()
             )
             if not major_points:
                 matched_indents.pop(indent_level)
@@ -2243,7 +2238,7 @@ def lint_line_length(
     root_segment: BaseSegment,
     single_indent: str,
     line_length_limit: int,
-    allow_implicit_indents: bool = False,
+    implicit_indents: str = "forbid",
     trailing_comments: str = "before",
 ) -> tuple[ReflowSequenceType, list[LintResult]]:
     """Lint the sequence to lines over the configured length.
@@ -2361,7 +2356,7 @@ def lint_line_length(
                 line_elements,
                 rebreak_priorities,
                 i,
-                allow_implicit_indents=allow_implicit_indents,
+                implicit_indents=implicit_indents,
             )
             reflow_logger.debug("    matched_indents: %s", matched_indents)
 
