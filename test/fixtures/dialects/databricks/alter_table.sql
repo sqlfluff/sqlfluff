@@ -7,6 +7,22 @@ ALTER TABLE default.StudentInfo PARTITION (age='10') RENAME TO PARTITION (age='1
 
 ALTER TABLE StudentInfo ADD columns (LastName string, DOB timestamp);
 
+ALTER TABLE StudentInfo ADD COLUMN col_name string;
+
+ALTER TABLE StudentInfo ADD COLUMN col_name2 string AFTER col_name;
+
+ALTER TABLE StudentInfo ADD COLUMN col_name3 string COMMENT 'This is a comment';
+
+ALTER TABLE StudentInfo ADD COLUMN col_name4 string FIRST;
+
+ALTER TABLE StudentInfo ADD COLUMN col_name5 string COMMENT 'This is a comment' AFTER existing_col;
+
+ALTER TABLE StudentInfo ADD COLUMNS col1 string, col2 int;
+
+ALTER TABLE StudentInfo ADD COLUMN address.street string;
+
+ALTER TABLE StudentInfo ADD COLUMN complex_col STRUCT<name: STRING, age: INT>;
+
 ALTER TABLE StudentInfo DROP COLUMN (DOB);
 
 ALTER TABLE StudentInfo DROP COLUMNS IF EXISTS (LastName, DOB);
