@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 09c73f4f2093f8f99457db18b1467dc2238e0b2418d785a5ef253d32f4647c51
+_hash: 0a467fa4d21ed73eb2b9fe186c175e4fba9bf30c5df6f5fa0a30ca6f6f162c6c
 file:
   statement:
     select_statement:
@@ -27,32 +27,32 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: onetable
+            index_hint_clause:
+            - keyword: FORCE
+            - keyword: INDEX
+            - bracketed:
+                start_bracket: (
+                object_reference:
+                  naked_identifier: idx_index
+                end_bracket: )
           join_clause:
-          - keyword: left
+          - keyword: inner
           - keyword: join
           - from_expression_element:
               table_expression:
                 table_reference:
                   naked_identifier: twotable
-              index_hint_clause:
-              - keyword: FORCE
-              - keyword: INDEX
-              - bracketed:
-                  start_bracket: (
-                  object_reference:
-                    naked_identifier: idx_index
-                  end_bracket: )
-              - join_on_condition:
-                  keyword: 'on'
-                  expression:
-                  - column_reference:
-                    - naked_identifier: onetable
-                    - dot: .
-                    - naked_identifier: f1
-                  - comparison_operator:
-                      raw_comparison_operator: '='
-                  - column_reference:
-                    - naked_identifier: twotable
-                    - dot: .
-                    - naked_identifier: f1
+          - join_on_condition:
+              keyword: 'on'
+              expression:
+              - column_reference:
+                - naked_identifier: onetable
+                - dot: .
+                - naked_identifier: f1
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: twotable
+                - dot: .
+                - naked_identifier: f1
   statement_terminator: ;
