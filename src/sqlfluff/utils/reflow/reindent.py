@@ -802,8 +802,7 @@ def _update_crawl_balances(
 
 
 def _crawl_indent_points(
-    elements: ReflowSequenceType,
-    implicit_indents: str = "forbid"
+    elements: ReflowSequenceType, implicit_indents: str = "forbid"
 ) -> Iterator[_IndentPoint]:
     """Crawl through a reflow sequence, mapping existing indents.
 
@@ -985,8 +984,7 @@ def _crawl_indent_points(
 
 
 def _map_line_buffers(
-    elements: ReflowSequenceType,
-    implicit_indents: str = "forbid"
+    elements: ReflowSequenceType, implicit_indents: str = "forbid"
 ) -> tuple[list[_IndentLine], list[int], set[int]]:
     """Map the existing elements, building up a list of _IndentLine.
 
@@ -1023,8 +1021,7 @@ def _map_line_buffers(
     implicit_indent_locs: set[int] = set()
 
     for indent_point in _crawl_indent_points(
-        elements,
-        implicit_indents=implicit_indents
+        elements, implicit_indents=implicit_indents
     ):
         # We evaluate all the points in a line at the same time, so
         # we first build up a buffer.
@@ -1041,7 +1038,8 @@ def _map_line_buffers(
             if indent_point.is_line_break:
                 reflow_logger.debug(
                     "    Adding line break position %s for implicit indent collapse: %s",
-                    indent_point.idx, indent_stats.implicit_indents
+                    indent_point.idx,
+                    indent_stats.implicit_indents,
                 )
                 implicit_indent_locs.add(indent_point.idx)
 
@@ -1609,7 +1607,11 @@ def _lint_line_buffer_indents(
 
     # Second, handle potential missing positive indents.
     new_results, new_indents = _lint_line_untaken_positive_indents(
-        elements, indent_line, single_indent, imbalanced_indent_locs, implicit_indent_locs
+        elements,
+        indent_line,
+        single_indent,
+        imbalanced_indent_locs,
+        implicit_indent_locs,
     )
     # If we have any, bank them and return. We don't need to check for
     # negatives because we know we're on the way up.
@@ -1648,7 +1650,7 @@ def _convert_newlines_to_spaces(
             if elem.num_newlines() > 0:
                 reflow_logger.debug(
                     "    Converting newline to space at position %s for implicit indent",
-                    i
+                    i,
                 )
 
                 # Generate fixes - keep ImplicitIndent for logical indentation, remove visual formatting
@@ -1658,7 +1660,11 @@ def _convert_newlines_to_spaces(
 
                     # Keep any ImplicitIndent segments (for logical indentation)
                     for seg in elem.segments:
-                        if seg.is_type("indent") and hasattr(seg, 'is_implicit') and seg.is_implicit:
+                        if (
+                            seg.is_type("indent")
+                            and hasattr(seg, "is_implicit")
+                            and seg.is_implicit
+                        ):
                             replacement_segs.append(seg)
 
                     # Add a space for visual formatting
@@ -1715,8 +1721,7 @@ def lint_indent_points(
     imbalanced_indent_locs: list[int]
     implicit_indent_locs: set[int]
     lines, imbalanced_indent_locs, implicit_indent_locs = _map_line_buffers(
-        elements,
-        implicit_indents=implicit_indents
+        elements, implicit_indents=implicit_indents
     )
 
     # Revise templated indents.
@@ -1753,7 +1758,12 @@ def lint_indent_points(
     elem_buffer = elements.copy()  # Make a working copy to mutate.
     for line in lines:
         line_results = _lint_line_buffer_indents(
-            elem_buffer, line, single_indent, forced_indents, imbalanced_indent_locs, implicit_indent_locs
+            elem_buffer,
+            line,
+            single_indent,
+            forced_indents,
+            imbalanced_indent_locs,
+            implicit_indent_locs,
         )
         if line_results:
             reflow_logger.info("      PROBLEMS:")
@@ -1764,7 +1774,9 @@ def lint_indent_points(
 
     # Now handle require implicit_indents by converting newlines to spaces at tracked positions
     if implicit_indents == "require" and implicit_indent_locs:
-        implicit_results = _convert_newlines_to_spaces(elem_buffer, implicit_indent_locs)
+        implicit_results = _convert_newlines_to_spaces(
+            elem_buffer, implicit_indent_locs
+        )
         results = implicit_results + results
 
     return elem_buffer, results
