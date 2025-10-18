@@ -233,17 +233,17 @@ class Rule_RF01(BaseRule):
             targets.append((standalone_alias.raw_normalized(False),))
         distinct_targets = set(tuple(s.upper() for s in t) for t in targets)
 
-        if len(distinct_targets) == 1 and self._dialect_supports_dot_access(
-            query.dialect
-        ):
-            self.force_enable: bool
-            if self.force_enable:
-                # Backwards compatibility.
-                # Nowadays "force_enable" is more of "strict" mode,
-                # for dialects with dot access.
-                pass
-            else:
-                return None
+        if self._dialect_supports_dot_access(query.dialect):
+            # BigQuery supports having multiple aliases in the FROM statement
+            if len(distinct_targets) == 1 or query.dialect.name == "bigquery":
+                self.force_enable: bool
+                if self.force_enable:
+                    # Backwards compatibility.
+                    # Nowadays "force_enable" is more of "strict" mode,
+                    # for dialects with dot access.
+                    pass
+                else:
+                    return None
 
         targets += self._get_implicit_targets(query)
 
