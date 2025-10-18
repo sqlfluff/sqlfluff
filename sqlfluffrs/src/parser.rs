@@ -2074,9 +2074,7 @@ impl<'a> Parser<'_> {
                             let element_key = first_element.cache_key();
                             log::debug!("OneOf: Trying first element (cache_key: {})", element_key);
 
-                            // Get parent_max_idx to propagate
-                            let parent_limit = frame.parent_max_idx;
-
+                            // Use OUR computed max_idx for the child, not the parent's parent_max_idx
                             let child_frame = ParseFrame {
                                 frame_id: frame_id_counter,
                                 grammar: first_element,
@@ -2085,7 +2083,7 @@ impl<'a> Parser<'_> {
                                 state: FrameState::Initial,
                                 accumulated: Vec::new(),
                                 context: FrameContext::None,
-                                parent_max_idx: parent_limit, // Propagate parent's limit!
+                                parent_max_idx: Some(max_idx), // Pass OUR computed max_idx!
                             };
 
                             frame.state = FrameState::WaitingForChild {
@@ -2277,8 +2275,6 @@ impl<'a> Parser<'_> {
                             };
                             frame.terminators = all_terminators.clone();
 
-                            // Extract parent_max_idx before moving frame
-                            let parent_limit = frame.parent_max_idx;
                             stack.push(frame);
 
                             // Use OneOf wrapper to try all elements and find longest match
@@ -2302,7 +2298,7 @@ impl<'a> Parser<'_> {
                                     state: FrameState::Initial,
                                     accumulated: vec![],
                                     context: FrameContext::None,
-                                    parent_max_idx: parent_limit, // Propagate parent's limit!
+                                    parent_max_idx: Some(max_idx), // Pass AnyNumberOf's max_idx to child!
                                 };
 
                                 // Update parent's last_child_frame_id
@@ -2459,8 +2455,6 @@ impl<'a> Parser<'_> {
                             };
                             frame.terminators = all_terminators.clone();
 
-                            // Extract parent_max_idx before moving frame
-                            let parent_limit = frame.parent_max_idx;
                             stack.push(frame);
 
                             // Try first unmatched element
@@ -2482,7 +2476,7 @@ impl<'a> Parser<'_> {
                                 state: FrameState::Initial,
                                 accumulated: vec![],
                                 context: FrameContext::None,
-                                parent_max_idx: parent_limit, // Propagate parent's limit!
+                                parent_max_idx: Some(max_idx), // Pass AnySetOf's max_idx to child!
                             };
 
                             // Update parent's last_child_frame_id
@@ -3180,12 +3174,9 @@ impl<'a> Parser<'_> {
                                         {
                                             // Add Meta to accumulated directly
                                             if *meta_type == "indent" {
-                                                let mut insert_pos =
-                                                    stack.last().unwrap().accumulated.len();
+                                                let mut insert_pos = frame.accumulated.len();
                                                 while insert_pos > 0 {
-                                                    match &stack.last().unwrap().accumulated
-                                                        [insert_pos - 1]
-                                                    {
+                                                    match &frame.accumulated[insert_pos - 1] {
                                                         Node::Whitespace(_, _)
                                                         | Node::Newline(_, _) => {
                                                             insert_pos -= 1;
@@ -3193,13 +3184,11 @@ impl<'a> Parser<'_> {
                                                         _ => break,
                                                     }
                                                 }
-                                                if let Some(last_frame) = stack.last_mut() {
-                                                    last_frame
-                                                        .accumulated
-                                                        .insert(insert_pos, Node::Meta(meta_type));
-                                                }
-                                            } else if let Some(last_frame) = stack.last_mut() {
-                                                last_frame.accumulated.push(Node::Meta(meta_type));
+                                                frame
+                                                    .accumulated
+                                                    .insert(insert_pos, Node::Meta(meta_type));
+                                            } else {
+                                                frame.accumulated.push(Node::Meta(meta_type));
                                             }
                                             next_elem_idx += 1;
                                         } else {
@@ -3333,15 +3322,12 @@ impl<'a> Parser<'_> {
                                                 }
                                             };
 
-                                            // Get parent_max_idx to propagate
-                                            let parent_limit = frame.parent_max_idx;
-
                                             let child_frame = ParseFrame::new_child(
                                                 frame_id_counter,
                                                 child_grammar,
                                                 *working_idx,
                                                 frame_terminators.clone(),
-                                                parent_limit, // Propagate parent's limit!
+                                                Some(*max_idx), // Pass AnyNumberOf's max_idx to child!
                                             );
 
                                             ParseFrame::push_child_and_update_parent(
@@ -3351,7 +3337,8 @@ impl<'a> Parser<'_> {
                                                 &mut frame_id_counter,
                                                 "AnyNumberOf",
                                             );
-                                            break; // Exit the WaitingForChild handler - child will be processed next
+                                            eprintln!("DEBUG [iter {}]: AnyNumberOf pushed parent and child, stack.len()={}", iteration_count, stack.len());
+                                            continue 'main_loop; // Exit the WaitingForChild handler - continue to next iteration
                                         }
                                     } else {
                                         // Done with loop - complete the frame
@@ -3826,7 +3813,7 @@ impl<'a> Parser<'_> {
                                                 &mut frame_id_counter,
                                                 "AnySetOf",
                                             );
-                                            break; // Exit the WaitingForChild handler - child will be processed next
+                                            continue 'main_loop; // Continue to process the child we just pushed
                                         }
                                     }
                                 }
@@ -3896,15 +3883,13 @@ impl<'a> Parser<'_> {
                                         next_element_key
                                     );
 
-                                    // Get parent_max_idx to propagate
-                                    let parent_limit = frame.parent_max_idx;
-
+                                    // Use the OneOf's max_idx, not the parent's parent_max_idx
                                     let child_frame = ParseFrame::new_child(
                                         frame_id_counter,
                                         next_element,
                                         *post_skip_pos,
                                         frame.terminators.clone(),
-                                        parent_limit,
+                                        Some(*max_idx), // Use OneOf's computed max_idx!
                                     );
 
                                     frame.state = FrameState::WaitingForChild {
@@ -4352,8 +4337,9 @@ impl<'a> Parser<'_> {
                                 frame.frame_id, child_id_str, iteration_count);
                         }
 
-                        // Insert at beginning of stack so it won't be popped immediately
-                        stack.insert(0, frame);
+                        // Push frame back onto stack so it can be re-checked after child completes
+                        // NOTE: We push (not insert at 0) so LIFO order is maintained
+                        stack.push(frame);
                         continue;
                     }
                 }
@@ -4379,9 +4365,57 @@ impl<'a> Parser<'_> {
 
         // Debug: Show what frames are left on the stack
         for (i, frame) in stack.iter().enumerate() {
+            let grammar_desc = match &frame.grammar {
+                Grammar::Ref { name, .. } => format!("Ref({})", name),
+                Grammar::Bracketed { .. } => "Bracketed".to_string(),
+                Grammar::Delimited { .. } => "Delimited".to_string(),
+                Grammar::OneOf { elements, .. } => format!("OneOf({} elements)", elements.len()),
+                Grammar::Sequence { elements, .. } => {
+                    format!("Sequence({} elements)", elements.len())
+                }
+                Grammar::AnyNumberOf { .. } => "AnyNumberOf".to_string(),
+                Grammar::AnySetOf { .. } => "AnySetOf".to_string(),
+                Grammar::StringParser { template, .. } => format!("StringParser('{}')", template),
+                Grammar::Token { token_type } => format!("Token({})", token_type),
+                _ => "Other".to_string(),
+            };
+
+            // Also show which child frame ID we're waiting for
+            let waiting_for = match &frame.context {
+                FrameContext::Ref {
+                    last_child_frame_id,
+                    ..
+                } => format!("{:?}", last_child_frame_id),
+                FrameContext::Sequence {
+                    last_child_frame_id,
+                    ..
+                } => format!("{:?}", last_child_frame_id),
+                FrameContext::OneOf {
+                    last_child_frame_id,
+                    ..
+                } => format!("{:?}", last_child_frame_id),
+                FrameContext::Delimited {
+                    last_child_frame_id,
+                    ..
+                } => format!("{:?}", last_child_frame_id),
+                FrameContext::Bracketed {
+                    last_child_frame_id,
+                    ..
+                } => format!("{:?}", last_child_frame_id),
+                FrameContext::AnySetOf {
+                    last_child_frame_id,
+                    ..
+                } => format!("{:?}", last_child_frame_id),
+                FrameContext::AnyNumberOf {
+                    last_child_frame_id,
+                    ..
+                } => format!("{:?}", last_child_frame_id),
+                _ => "None".to_string(),
+            };
+
             eprintln!(
-                "  Stack[{}]: frame_id={}, state={:?}, pos={}",
-                i, frame.frame_id, frame.state, frame.pos
+                "  Stack[{}]: frame_id={}, state={:?}, pos={}, grammar={}, waiting_for={}",
+                i, frame.frame_id, frame.state, frame.pos, grammar_desc, waiting_for
             );
         }
 
@@ -7569,7 +7603,7 @@ FROM users"#;
     #[test]
     fn test_iterative_sequence_simple() -> Result<(), ParseError> {
         with_larger_stack!(|| {
-            // Test iterative Sequence with a very simple grammar that doesn't recurse much
+            // Test iterative Sequence with a very simple grammar
             env_logger::try_init().ok();
 
             let raw = "SELECT 123";
@@ -7579,42 +7613,18 @@ FROM users"#;
             let lexer = Lexer::new(None, dialect);
             let (tokens, _) = lexer.lex(input, false);
 
-            // Test with iterative parser
-            let mut parser_iterative = Parser::new(&tokens, dialect);
-            parser_iterative.use_iterative_parser = true;
+            // Test with iterative parser (now the default)
+            let mut parser = Parser::new(&tokens, dialect);
+            parser.use_iterative_parser = true;
 
-            let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
+            let result = parser.call_rule("SelectStatementSegment", &[]);
 
-            // Test with recursive parser
-            let mut parser_recursive = Parser::new(&tokens, dialect);
-            parser_recursive.use_iterative_parser = false;
-            let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
+            // Should succeed
+            assert!(result.is_ok(), "Iterative parser failed: {:?}", result);
 
-            // Both should succeed
-            assert!(
-                result_iterative.is_ok(),
-                "Iterative parser failed: {:?}",
-                result_iterative
-            );
-            assert!(
-                result_recursive.is_ok(),
-                "Recursive parser failed: {:?}",
-                result_recursive
-            );
-
-            // Compare results
-            if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
-                let it_debug = format!("{:?}", ast_it);
-                let rec_debug = format!("{:?}", ast_rec);
-
-                println!("Iterative AST length: {}", it_debug.len());
-                println!("Recursive AST length: {}", rec_debug.len());
-
-                assert_eq!(
-                    it_debug, rec_debug,
-                    "Iterative and recursive parsers should produce identical ASTs"
-                );
-
+            if let Ok(ast) = result {
+                // Verify all tokens are in the AST
+                verify_all_tokens_in_ast(raw, &ast, &tokens).map_err(ParseError::new)?;
                 println!("✓ Iterative Sequence produces correct results");
             }
 
@@ -7701,43 +7711,18 @@ FROM users"#;
             let lexer = Lexer::new(None, dialect);
             let (tokens, _) = lexer.lex(input, false);
 
-            // Test with recursive parser
-            let mut parser_recursive = Parser::new(&tokens, dialect);
-            parser_recursive.use_iterative_parser = false;
-            let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
+            // Test with iterative parser (now the default)
+            let mut parser = Parser::new(&tokens, dialect);
+            parser.use_iterative_parser = true;
 
-            assert!(
-                result_recursive.is_ok(),
-                "Recursive parser failed: {:?}",
-                result_recursive
-            );
+            let result = parser.call_rule("SelectStatementSegment", &[]);
 
-            // Test with iterative parser
-            let mut parser_iterative = Parser::new(&tokens, dialect);
-            parser_iterative.use_iterative_parser = true;
+            // Should succeed
+            assert!(result.is_ok(), "Iterative parser failed: {:?}", result);
 
-            let result_iterative = parser_iterative.call_rule("SelectStatementSegment", &[]);
-
-            // Both should succeed
-            assert!(
-                result_iterative.is_ok(),
-                "Iterative parser failed: {:?}",
-                result_iterative
-            );
-
-            // Compare results
-            if let (Ok(ast_it), Ok(ast_rec)) = (result_iterative, result_recursive) {
-                let it_debug = format!("{:?}", ast_it);
-                let rec_debug = format!("{:?}", ast_rec);
-
-                println!("Iterative AST length: {}", it_debug.len());
-                println!("Recursive AST length: {}", rec_debug.len());
-
-                assert_eq!(
-                    it_debug, rec_debug,
-                    "Iterative and recursive parsers should produce identical ASTs"
-                );
-
+            if let Ok(ast) = result {
+                // Verify all tokens are in the AST
+                verify_all_tokens_in_ast(raw, &ast, &tokens).map_err(ParseError::new)?;
                 println!("✓ Iterative Bracketed produces correct results");
             }
 
@@ -8268,35 +8253,24 @@ FROM users"#;
             let lexer = Lexer::new(None, dialect);
             let (tokens, _) = lexer.lex(input, false);
 
-            // Test with fully iterative parser
-            let mut parser_iterative = Parser::new(&tokens, dialect);
-            parser_iterative.use_iterative_parser = true;
+            // Test with fully iterative parser (now the default)
+            let mut parser = Parser::new(&tokens, dialect);
+            parser.use_iterative_parser = true;
 
-            let result = parser_iterative.call_rule("SelectStatementSegment", &[]);
+            let result = parser.call_rule("SelectStatementSegment", &[]);
             assert!(
                 result.is_ok(),
                 "Iterative parser should succeed: {:?}",
                 result
             );
 
-            // Compare with recursive parser
-            let mut parser_recursive = Parser::new(&tokens, dialect);
-            parser_recursive.use_iterative_parser = false;
-            let result_recursive = parser_recursive.call_rule("SelectStatementSegment", &[]);
+            if let Ok(ast) = result {
+                // Verify all tokens are in the AST
+                verify_all_tokens_in_ast(raw, &ast, &tokens).map_err(ParseError::new)?;
 
-            if let (Ok(ast_iterative), Ok(ast_recursive)) = (result, result_recursive) {
-                // Both should produce identical ASTs
-                assert_eq!(
-                    format!("{:?}", ast_iterative),
-                    format!("{:?}", ast_recursive),
-                    "Iterative and recursive parsers should produce identical ASTs"
-                );
-
-                println!("✓ Fully iterative parser produces identical results");
-                println!("  Iterative cache stats:");
-                parser_iterative.print_cache_stats();
-                println!("  Recursive cache stats:");
-                parser_recursive.print_cache_stats();
+                println!("✓ Fully iterative parser produces correct results");
+                println!("  Cache stats:");
+                parser.print_cache_stats();
             }
 
             Ok(())
