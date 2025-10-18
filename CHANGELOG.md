@@ -10,18 +10,34 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [3.5.0] - 2025-10-10
+## [3.5.0] - 2025-10-18
 
 ## Highlights
 
-## Highlights
+* Rule AM09: Handle ambiguous LIMIT/OFFSET without ORDER BY (non-deterministic results)
+* Rule ST12: Handle consecutive semicolons
+* Lots of dialect improvements
+* Lots of bugfixes
 
-> Maintainers: Copy and paste the commentary from the changelog here.
-> Check that the name and tag are correct before releasing.
-> Publishing a GitHub release will trigger the deploy to pypi and dockerhub.
+This release has *95* contributions in it!
+
+Also, welcome to the **twenty three** new contributors! Thanks for your contributions!
 
 ## What’s Changed
 
+* MySQL/MariaDB: Define Index Hints and Select Partitions as PostTableExpressionGrammar instead of FromClauseTerminatorGrammar [#7195](https://github.com/sqlfluff/sqlfluff/pull/7195) [@franloza](https://github.com/franloza)
+* Databricks: Add "use schema"/ "use catalog" permission for grants [#7186](https://github.com/sqlfluff/sqlfluff/pull/7186) [@VictorAtIfInsurance](https://github.com/VictorAtIfInsurance)
+* Databricks: Adds support for ALTER TABLE ADD COLUMN [#7187](https://github.com/sqlfluff/sqlfluff/pull/7187) [@franloza](https://github.com/franloza)
+* BigQuery: allow multiple aliases in FROM for RF01 [#7188](https://github.com/sqlfluff/sqlfluff/pull/7188) [@annebelleo](https://github.com/annebelleo)
+* [DATABRICKS] add 'UNSET/SET TAG ON' grammar sequence [#7190](https://github.com/sqlfluff/sqlfluff/pull/7190) [@VictorAtIfInsurance](https://github.com/VictorAtIfInsurance)
+* Redshift: Adds EXCEPT set operator support [#7184](https://github.com/sqlfluff/sqlfluff/pull/7184) [@franloza](https://github.com/franloza)
+* BigQuery: allow pipe syntax in CTEs [#7180](https://github.com/sqlfluff/sqlfluff/pull/7180) [@annebelleo](https://github.com/annebelleo)
+* MySQL/MariaDB: Support column list in derived table alias [#7179](https://github.com/sqlfluff/sqlfluff/pull/7179) [@keraion](https://github.com/keraion)
+* Logo Updates [#7181](https://github.com/sqlfluff/sqlfluff/pull/7181) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add support for FlinkSQL SET statements [#7175](https://github.com/sqlfluff/sqlfluff/pull/7175) [@SakuraSound](https://github.com/SakuraSound)
+* Correct comment name in BigQuery test [#7174](https://github.com/sqlfluff/sqlfluff/pull/7174) [@annebelleo](https://github.com/annebelleo)
+* Snowflake: add `ALTER DYNAMIC TABLE` support [#7176](https://github.com/sqlfluff/sqlfluff/pull/7176) [@keraion](https://github.com/keraion)
+* AL09: fix aliases without spaces after column name [#7173](https://github.com/sqlfluff/sqlfluff/pull/7173) [@keraion](https://github.com/keraion)
 * LT01: Fix alias alignment with templates [#7088](https://github.com/sqlfluff/sqlfluff/pull/7088) [@jorenby](https://github.com/jorenby)
 * Athena: Adds Athena-specific ALTER TABLE statement  [#7170](https://github.com/sqlfluff/sqlfluff/pull/7170) [@franloza](https://github.com/franloza)
 * bigquery: fix `escape_replacements` control character value [#7165](https://github.com/sqlfluff/sqlfluff/pull/7165) [@keraion](https://github.com/keraion)
@@ -105,8 +121,8 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * Snowflake: fix parsing `LIMIT` when not a limit clause [#7010](https://github.com/sqlfluff/sqlfluff/pull/7010) [@keraion](https://github.com/keraion)
 * Trino: support map data type [#7008](https://github.com/sqlfluff/sqlfluff/pull/7008) [@ykicisk](https://github.com/ykicisk)
 
-## New Contributors
 
+## New Contributors
 * [@Singletoned](https://github.com/Singletoned) made their first contribution in [#7025](https://github.com/sqlfluff/sqlfluff/pull/7025)
 * [@seigneur101](https://github.com/seigneur101) made their first contribution in [#7040](https://github.com/sqlfluff/sqlfluff/pull/7040)
 * [@saulotoledo](https://github.com/saulotoledo) made their first contribution in [#7045](https://github.com/sqlfluff/sqlfluff/pull/7045)
@@ -128,6 +144,8 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * [@vasiliyk](https://github.com/vasiliyk) made their first contribution in [#7161](https://github.com/sqlfluff/sqlfluff/pull/7161)
 * [@G26karthik](https://github.com/G26karthik) made their first contribution in [#7163](https://github.com/sqlfluff/sqlfluff/pull/7163)
 * [@jorenby](https://github.com/jorenby) made their first contribution in [#7088](https://github.com/sqlfluff/sqlfluff/pull/7088)
+* [@annebelleo](https://github.com/annebelleo) made their first contribution in [#7174](https://github.com/sqlfluff/sqlfluff/pull/7174)
+* [@SakuraSound](https://github.com/SakuraSound) made their first contribution in [#7175](https://github.com/sqlfluff/sqlfluff/pull/7175)
 
 ## [3.4.2] - 2025-07-11
 
