@@ -2,7 +2,7 @@
 //!
 //! Tests specifically for the iterative (frame-based) parser implementation
 
-use sqlfluffrs::parser_old::{ParseError, Parser};
+use sqlfluffrs::parser::{ParseError, Parser};
 use sqlfluffrs::{lexer::{LexInput, Lexer}, Dialect};
 
 macro_rules! with_larger_stack {

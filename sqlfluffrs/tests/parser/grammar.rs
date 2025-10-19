@@ -2,7 +2,7 @@
 //!
 //! Tests for specific grammar features like AnySetOf, Delimited, Bracketed, etc.
 
-use sqlfluffrs::parser_old::{Grammar, Node, ParseError, ParseMode, Parser};
+use sqlfluffrs::parser::{Grammar, Node, ParseError, ParseMode, Parser};
 use sqlfluffrs::{lexer::{LexInput, Lexer}, Dialect};
 
 macro_rules! with_larger_stack {

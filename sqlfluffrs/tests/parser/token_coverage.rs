@@ -3,7 +3,7 @@
 //! Tests that verify all tokens from the input are present in the AST
 
 use crate::parser::common::parse_and_verify_tokens;
-use sqlfluffrs::parser_old::ParseError;
+use sqlfluffrs::parser::ParseError;
 use sqlfluffrs::Dialect;
 
 macro_rules! with_larger_stack {

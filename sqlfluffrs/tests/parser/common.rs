@@ -1,6 +1,6 @@
 //! Common test helpers and utilities
 
-use sqlfluffrs::parser_old::{Node, ParseError, Parser};
+use sqlfluffrs::parser::{Node, ParseError, Parser};
 use sqlfluffrs::token::Token;
 use sqlfluffrs::{lexer::{LexInput, Lexer}, Dialect};
 

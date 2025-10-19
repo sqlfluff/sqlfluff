@@ -1,101 +1,13 @@
-use std::vec;
-use std::{
-    fmt::Display,
-    hash::{Hash, Hasher},
-};
+//! Helper methods for the Parser
+//!
+//! This module contains utility methods used by both iterative and recursive parsers
+//! including token navigation, whitespace handling, and terminator checking.
 
-use crate::{
-    dialect::Dialect,
-    parser_cache::{CacheKey, ParseCache},
-    token::Token,
-    parser::{ParseFrame, FrameState, FrameContext, BracketedState, DelimitedState},
-};
-
-// Re-export types from the new parser module for backward compatibility
-pub use crate::parser::{Grammar, ParseMode, Node, ParseError, SegmentDef, Parsed, ParseErrorType, ParseContext};
-
-// Import utility functions
-use crate::parser::utils::{
-    tag_keyword_if_word, is_grammar_optional, apply_parse_mode_to_result
-};
-
-// Import macros
-use crate::find_longest_match;
-
-pub struct Parser<'a> {
-    pub tokens: &'a [Token],
-    pub pos: usize, // current position in tokens
-    pub dialect: Dialect,
-    pub parse_cache: ParseCache,
-    pub collected_transparent_positions: std::collections::HashSet<usize>, // Track which token positions have had transparent tokens collected
-    pub use_iterative_parser: bool, // Full iterative parser (experimental)
-}
+use crate::token::Token;
+use super::{Grammar, Node, ParseError};
+use super::core::Parser;
 
 impl<'a> Parser<'a> {
-    pub fn parse_with_grammar_cached(
-        &mut self,
-        grammar: &Grammar,
-        parent_terminators: &[Grammar],
-    ) -> Result<Node, ParseError> {
-        if self.use_iterative_parser {
-            self.parse_with_grammar_cached_iterative(grammar, parent_terminators)
-        } else {
-            self.parse_with_grammar_cached_recursive(grammar, parent_terminators)
-        }
-    }
-
-    /// Iterative (frame-based) parser with caching.
-    /// Uses a stack-based approach to avoid deep recursion.
-    fn parse_with_grammar_cached_iterative(
-        &mut self,
-        grammar: &Grammar,
-        parent_terminators: &[Grammar],
-    ) -> Result<Node, ParseError> {
-        self.parse_iterative(grammar, parent_terminators)
-    }
-
-    /// Recursive parser with caching.
-    /// Uses traditional recursive descent with memoization for performance.
-    fn parse_with_grammar_cached_recursive(
-        &mut self,
-        grammar: &Grammar,
-        parent_terminators: &[Grammar],
-    ) -> Result<Node, ParseError> {
-        // Create cache key
-        let cache_key = CacheKey::new(self.pos, grammar, self.tokens);
-
-        // Check cache first
-        if let Some(Ok((node, end_pos, collected_positions))) = self.parse_cache.get(&cache_key) {
-            self.pos = end_pos; // Directly set to cached end position
-                                // Restore collected transparent positions
-            let num_positions = collected_positions.len();
-            for pos in collected_positions {
-                self.collected_transparent_positions.insert(pos);
-            }
-            log::debug!("Cache HIT restored {} collected positions", num_positions);
-            return Ok(node);
-        }
-
-        // Cache miss - parse fresh
-        let positions_before = self.collected_transparent_positions.clone();
-        let result = self.parse_with_grammar(grammar, parent_terminators);
-
-        // Store in cache with collected positions
-        if let Ok(ref node) = result {
-            // Collect positions that were added during this parse
-            let new_positions: Vec<usize> = self
-                .collected_transparent_positions
-                .difference(&positions_before)
-                .copied()
-                .collect();
-
-            self.parse_cache
-                .put(cache_key, Ok((node.clone(), self.pos, new_positions)));
-        }
-
-        result
-    }
-
     /// Prune options based on simple matchers before attempting full parse.
     ///
     /// This is the Rust equivalent of Python's `prune_options()` function.
@@ -163,14 +75,17 @@ impl<'a> Parser<'a> {
         eprintln!("  Hit Rate: {:.2}%", hit_rate * 100.0);
     }
 
+    /// Peek at the current token without consuming it
     pub fn peek(&self) -> Option<&Token> {
         self.tokens.get(self.pos)
     }
 
+    /// Consume the current token and advance position
     pub fn bump(&mut self) {
         self.pos += 1;
     }
 
+    /// Check if we've reached the end of the token stream
     pub fn is_at_end(&self) -> bool {
         self.pos >= self.tokens.len()
     }
@@ -249,7 +164,7 @@ impl<'a> Parser<'a> {
 
     /// Move an index backward through tokens until tokens[index - 1] is code.
     /// Returns the index after the last code token, or min_idx if none found.
-    fn skip_stop_index_backward_to_code(&self, stop_idx: usize, min_idx: usize) -> usize {
+    pub(crate) fn skip_stop_index_backward_to_code(&self, stop_idx: usize, min_idx: usize) -> usize {
         for _idx in (min_idx + 1..=stop_idx).rev() {
             if self.tokens[_idx - 1].is_code() {
                 return _idx;
@@ -294,6 +209,7 @@ impl<'a> Parser<'a> {
         self.skip_stop_index_backward_to_code(term_pos, start_idx)
     }
 
+    /// Check if the current position is at a terminator
     pub fn is_terminated(&mut self, terminators: &[Grammar]) -> bool {
         let init_pos = self.pos;
         self.skip_transparent(true);
@@ -348,72 +264,4 @@ impl<'a> Parser<'a> {
         self.pos = init_pos; // restore original position
         false
     }
-
-    /// Get the grammar for a rule by name.
-    /// This is used by the iterative parser to expand Ref nodes into their grammars.
-    pub fn get_rule_grammar(&self, name: &str) -> Result<Grammar, ParseError> {
-        // Look up the grammar for the segment
-        match self.get_segment_grammar(name) {
-            Some(g) => Ok(g.clone()),
-            None => Err(ParseError::unknown_segment(name.to_string())),
-        }
-    }
-
-    /// Call a grammar rule by name, producing a Node.
-    pub fn call_rule(
-        &mut self,
-        name: &str,
-        parent_terminators: &[Grammar],
-    ) -> Result<Node, ParseError> {
-        // Look up the grammar for the segment
-        let grammar = match self.get_segment_grammar(name) {
-            Some(g) => g,
-            None => return Err(ParseError::unknown_segment(name.to_string())),
-        };
-
-        // Parse using the grammar
-        let node = self.parse_with_grammar_cached(grammar, parent_terminators)?;
-
-        // If the node is empty, return it as-is without wrapping
-        // This prevents infinite loops when optional segments match nothing
-        if node.is_empty() {
-            return Ok(node);
-        }
-
-        // Get the segment type from the dialect
-        let segment_type = self.dialect.get_segment_type(name).map(|s| s.to_string());
-
-        // Check if this is a KeywordSegment and the child is a word token
-        // If so, convert Node::Code to Node::Keyword
-        let processed_node = if name.ends_with("KeywordSegment") {
-            tag_keyword_if_word(&node, &self.tokens)
-        } else {
-            node
-        };
-
-        // Wrap in a Ref node for type clarity
-        Ok(Node::Ref {
-            name: name.to_string(),
-            segment_type,
-            child: Box::new(processed_node),
-        })
-    }
-
-    /// Lookup SegmentDef by name
-    pub fn get_segment_grammar(&self, name: &str) -> Option<&'static Grammar> {
-        self.dialect.get_segment_grammar(name)
-    }
-
-    pub fn new(tokens: &'a [Token], dialect: Dialect) -> Parser<'a> {
-        Parser {
-            tokens,
-            pos: 0,
-            dialect,
-            parse_cache: ParseCache::new(),
-            collected_transparent_positions: std::collections::HashSet::new(),
-            use_iterative_parser: true, // Default to iterative parser
-        }
-    }
 }
-
-// ParseContext, ParseError, Parsed, and ParseErrorType have been moved to src/parser/types.rs
