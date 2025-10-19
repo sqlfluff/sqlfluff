@@ -1093,6 +1093,7 @@ impl ParseFrame {
         let child_id = child_frame.frame_id;
 
         // Push parent back onto stack first
+        let parent_id = parent_frame.frame_id;
         stack.push(parent_frame);
 
         // Update parent's last_child_frame_id AND current_element_idx
@@ -1103,6 +1104,8 @@ impl ParseFrame {
                 ..
             } = &mut parent_frame.context
             {
+                eprintln!("DEBUG: push_sequence_child_and_update_parent - parent {}, child {}, setting last_child_frame_id to {}",
+                    parent_id, child_id, child_id);
                 *last_child_frame_id = Some(child_id);
                 *current_element_idx = next_element_idx;
             }
@@ -1943,7 +1946,7 @@ impl<'a> Parser<'_> {
                                             &mut frame_id_counter,
                                             child_idx,
                                         );
-                                        break;
+                                        continue 'main_loop; // Continue to process the child we just pushed
                                     }
                                 }
                             }
@@ -2022,7 +2025,7 @@ impl<'a> Parser<'_> {
                                 };
                                 self.pos = final_pos;
                                 results.insert(frame.frame_id, (result, final_pos, None));
-                                continue;
+                                continue 'main_loop;
                             }
 
                             // Prune options based on simple matchers
@@ -2052,7 +2055,7 @@ impl<'a> Parser<'_> {
                                 };
                                 self.pos = final_pos;
                                 results.insert(frame.frame_id, (result, final_pos, None));
-                                continue;
+                                continue 'main_loop;
                             }
 
                             // Create context to track OneOf matching progress
@@ -2096,7 +2099,7 @@ impl<'a> Parser<'_> {
                             frame_id_counter += 1;
                             stack.push(frame); // Push parent back to stack first
                             stack.push(child_frame); // Then push child
-                                                     // No break needed - match arm ends here
+                            continue 'main_loop; // Process the child frame we just pushed
                         }
 
                         Grammar::Ref {
@@ -2169,9 +2172,10 @@ impl<'a> Parser<'_> {
                                     // Push parent back first, then child (LIFO - child will be processed next)
                                     stack.push(frame);
 
-                                    eprintln!("DEBUG [iter {}]: Ref({}) creating child frame_id={}, child grammar type: {}",
+                                    eprintln!("DEBUG [iter {}]: Ref({}) frame_id={} creating child frame_id={}, child grammar type: {}",
                                         iteration_count,
                                         name,
+                                        stack.last().unwrap().frame_id,
                                         child_frame_id,
                                         match &child_grammar {
                                             Grammar::Ref { name, .. } => format!("Ref({})", name),
@@ -2183,6 +2187,13 @@ impl<'a> Parser<'_> {
                                     );
 
                                     stack.push(child_frame);
+                                    eprintln!("DEBUG [iter {}]: ABOUT TO CONTINUE - Ref({}) pushed child {}, stack size now {}",
+                                        iteration_count, name, child_frame_id, stack.len());
+                                    eprintln!(
+                                        "DEBUG [iter {}]: ==> CONTINUING 'MAIN_LOOP NOW! <==",
+                                        iteration_count
+                                    );
+                                    continue 'main_loop; // Process the child frame we just pushed
                                 }
                                 None => {
                                     self.pos = saved;
@@ -2246,6 +2257,9 @@ impl<'a> Parser<'_> {
                             } else {
                                 max_idx
                             };
+
+                            eprintln!("DEBUG [iter {}]: AnyNumberOf Initial at pos={}, parent_max_idx={:?}, elements.len()={}",
+                                iteration_count, frame.pos, frame.parent_max_idx, elements.len());
 
                             log::debug!(
                                 "AnyNumberOf max_idx: {} (tokens.len: {})",
@@ -2313,7 +2327,11 @@ impl<'a> Parser<'_> {
                                 }
 
                                 frame_id_counter += 1;
+                                eprintln!("DEBUG [iter {}]: AnyNumberOf Initial pushing child frame_id={}, stack size before push={}",
+                                    iteration_count, child_frame.frame_id, stack.len());
                                 stack.push(child_frame);
+                                eprintln!("DEBUG [iter {}]: AnyNumberOf Initial ABOUT TO CONTINUE after pushing child", iteration_count);
+                                continue 'main_loop; // Process the child frame we just pushed
                             }
                         }
 
@@ -2388,6 +2406,7 @@ impl<'a> Parser<'_> {
 
                             frame_id_counter += 1;
                             stack.push(child_frame);
+                            continue 'main_loop; // Process the child frame we just pushed
                         }
 
                         Grammar::AnySetOf {
@@ -2492,6 +2511,7 @@ impl<'a> Parser<'_> {
 
                             frame_id_counter += 1;
                             stack.push(child_frame);
+                            continue 'main_loop; // Process the child frame we just pushed
                         }
 
                         Grammar::Delimited {
@@ -2618,6 +2638,7 @@ impl<'a> Parser<'_> {
                             );
                             frame_id_counter += 1;
                             stack.push(child_frame);
+                            continue 'main_loop; // Process the child frame we just pushed
                         }
 
                         // For other grammar types, use recursive for now
@@ -3162,6 +3183,9 @@ impl<'a> Parser<'_> {
                                     // child_index is the count of non-Meta children processed so far
                                     // current_element_idx tracks which element index we last processed
                                     let mut next_elem_idx = current_elem_idx + 1;
+                                    let mut created_child = false;
+                                    let frame_id_for_debug = frame.frame_id; // Save before potentially moving frame
+                                    let mut final_accumulated = frame.accumulated.clone(); // Save before potentially moving frame
                                     log::debug!("Looking for next child: next_elem_idx={}, elements_clone.len()={}", next_elem_idx, elements_clone.len());
                                     while next_elem_idx < elements_clone.len() {
                                         log::debug!(
@@ -3174,9 +3198,9 @@ impl<'a> Parser<'_> {
                                         {
                                             // Add Meta to accumulated directly
                                             if *meta_type == "indent" {
-                                                let mut insert_pos = frame.accumulated.len();
+                                                let mut insert_pos = final_accumulated.len();
                                                 while insert_pos > 0 {
-                                                    match &frame.accumulated[insert_pos - 1] {
+                                                    match &final_accumulated[insert_pos - 1] {
                                                         Node::Whitespace(_, _)
                                                         | Node::Newline(_, _) => {
                                                             insert_pos -= 1;
@@ -3184,10 +3208,13 @@ impl<'a> Parser<'_> {
                                                         _ => break,
                                                     }
                                                 }
+                                                final_accumulated
+                                                    .insert(insert_pos, Node::Meta(meta_type));
                                                 frame
                                                     .accumulated
                                                     .insert(insert_pos, Node::Meta(meta_type));
                                             } else {
+                                                final_accumulated.push(Node::Meta(meta_type));
                                                 frame.accumulated.push(Node::Meta(meta_type));
                                             }
                                             next_elem_idx += 1;
@@ -3208,6 +3235,9 @@ impl<'a> Parser<'_> {
                                                 Some(current_original_max_idx), // Use original max_idx before GREEDY_ONCE_STARTED trimming!
                                             );
 
+                                            eprintln!("DEBUG [iter {}]: Sequence WaitingForChild - parent {}, creating child {}, grammar: {:?}",
+                                                iteration_count, frame_id_for_debug, child_frame.frame_id, child_frame.grammar);
+
                                             // Use helper to push parent, update it, and push child
                                             ParseFrame::push_sequence_child_and_update_parent(
                                                 &mut stack,
@@ -3220,9 +3250,30 @@ impl<'a> Parser<'_> {
                                             log::debug!(
                                                 "Pushed child frame, continuing to process it"
                                             );
+                                            eprintln!("DEBUG [iter {}]: Sequence WaitingForChild ABOUT TO BREAK from while loop", iteration_count);
+                                            created_child = true;
                                             break; // Exit the while loop - we've created the next child
                                         }
                                     }
+                                    eprintln!("DEBUG [iter {}]: Sequence WaitingForChild AFTER while loop, created_child={}", iteration_count, created_child);
+                                    // Only continue to process child if we actually created one
+                                    if created_child {
+                                        eprintln!("DEBUG [iter {}]: Sequence WaitingForChild ABOUT TO CONTINUE 'main_loop", iteration_count);
+                                        continue 'main_loop;
+                                    }
+                                    // Otherwise, all remaining elements were Meta - complete the Sequence
+                                    eprintln!("DEBUG [iter {}]: Sequence WaitingForChild - all remaining elements were Meta, completing frame_id={}", iteration_count, frame_id_for_debug);
+                                    self.pos = current_matched_idx;
+                                    let result_node = if final_accumulated.is_empty() {
+                                        Node::Empty
+                                    } else {
+                                        Node::Sequence(final_accumulated)
+                                    };
+                                    results.insert(
+                                        frame_id_for_debug,
+                                        (result_node, current_matched_idx, None),
+                                    );
+                                    continue; // Frame is complete, move to next frame
                                 }
                             }
 
@@ -3491,7 +3542,7 @@ impl<'a> Parser<'_> {
                                             // Push parent frame back first, then child (LIFO - child will be processed next)
                                             stack.push(frame);
                                             stack.push(child_frame);
-                                            continue; // Skip the result check - child hasn't been processed yet
+                                            continue 'main_loop; // Skip the result check - child hasn't been processed yet
                                         }
                                     }
                                     BracketedState::MatchingContent => {
@@ -3579,7 +3630,7 @@ impl<'a> Parser<'_> {
                                             // Push parent frame back first, then child (LIFO - child will be processed next)
                                             stack.push(frame);
                                             stack.push(child_frame);
-                                            continue; // Skip the result check - child hasn't been processed yet
+                                            continue 'main_loop; // Skip the result check - child hasn't been processed yet
                                         }
                                     }
                                     BracketedState::MatchingClose => {
@@ -4335,6 +4386,19 @@ impl<'a> Parser<'_> {
                         if iteration_count > 100 && iteration_count % 100 == 0 {
                             eprintln!("WARNING: Frame {} waiting for child {} but result not found (iteration {})",
                                 frame.frame_id, child_id_str, iteration_count);
+
+                            // Check if child is on stack
+                            if let Ok(child_id) = child_id_str.parse::<usize>() {
+                                let child_on_stack = stack.iter().any(|f| f.frame_id == child_id);
+                                if child_on_stack {
+                                    eprintln!(
+                                        "  -> Child frame {} IS on stack (still being processed)",
+                                        child_id
+                                    );
+                                } else {
+                                    eprintln!("  -> Child frame {} NOT on stack (may have been lost or never created)", child_id);
+                                }
+                            }
                         }
 
                         // Push frame back onto stack so it can be re-checked after child completes
