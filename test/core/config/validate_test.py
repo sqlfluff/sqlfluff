@@ -6,7 +6,10 @@ from sqlfluff.core.config.removed import (
     REMOVED_CONFIGS,
     validate_config_dict_for_removed,
 )
-from sqlfluff.core.config.validate import _validate_layout_config, _validate_indentation_config
+from sqlfluff.core.config.validate import (
+    _validate_layout_config,
+    _validate_indentation_config,
+)
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import (
     iter_records_from_nested_dict,

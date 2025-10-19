@@ -86,15 +86,17 @@ def _validate_layout_config(config: ConfigMappingType, logging_reference: str) -
                     )
 
 
-def _validate_indentation_config(config: ConfigMappingType, logging_reference: str) -> None:
+def _validate_indentation_config(
+    config: ConfigMappingType, logging_reference: str
+) -> None:
     """Validate the indentation config section of the config.
-    
+
     We check for valid values for enum-like config options.
     """
     indentation_section = config.get("indentation", {})
     if not indentation_section:
         return None
-    
+
     # Validate implicit_indents enum value
     implicit_indents = indentation_section.get("implicit_indents")
     if implicit_indents is not None:
