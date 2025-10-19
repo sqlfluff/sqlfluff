@@ -99,8 +99,7 @@ def _validate_indentation_config(
 
     # Validate implicit_indents enum value
     # indentation_section should be a dict, but we need to type check
-    if not isinstance(indentation_section, dict):
-        return None
+    assert isinstance(indentation_section, dict)
     implicit_indents = indentation_section.get("implicit_indents")
     if implicit_indents is not None:
         if implicit_indents not in ALLOWABLE_IMPLICIT_INDENTS_VALUES:
