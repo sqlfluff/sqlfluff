@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fd2fbafead0b2bfab2d4d53a0a68ddd0e9e1be6c41456091707fcc20077dbcb1
+_hash: 07d4fe3480678462b502f76cca4c139e8990dd21b70cfc444680e8f76d0b3860
 file:
 - batch:
     statement:
@@ -31,7 +31,7 @@ file:
             - naked_identifier: rn
           - comparison_operator:
               raw_comparison_operator: '='
-          - numeric_literal: '1'
+          - integer_literal: '1'
           - binary_operator: and
           - column_reference:
             - naked_identifier: dst
@@ -84,8 +84,8 @@ file:
                     - naked_identifier: src
                     - dot: .
                     - naked_identifier: e_date_from
-- go_statement:
-    keyword: go
+    go_statement:
+      keyword: go
 - batch:
     statement:
       with_compound_statement:
@@ -240,8 +240,8 @@ file:
                       naked_identifier: cc_description
                 - end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: go
+    go_statement:
+      keyword: go
 - batch:
     statement:
       merge_statement:
@@ -414,7 +414,7 @@ file:
                 naked_identifier: s_id
               comparison_operator:
                 raw_comparison_operator: '='
-              numeric_literal: '1'
+              integer_literal: '1'
               keyword: in
               bracketed:
                 start_bracket: (
@@ -462,8 +462,8 @@ file:
                     column_reference:
                       naked_identifier: col2
     statement_terminator: ;
-- go_statement:
-    keyword: go
+    go_statement:
+      keyword: go
 - batch:
     statement:
       merge_statement:
@@ -473,7 +473,8 @@ file:
         - dot: .
         - naked_identifier: UnitMeasure
       - alias_expression:
-          keyword: AS
+          alias_operator:
+            keyword: AS
           naked_identifier: tgt
       - keyword: USING
       - bracketed:
@@ -488,7 +489,8 @@ file:
                 parameter: '@Name'
           end_bracket: )
       - alias_expression:
-          keyword: as
+          alias_operator:
+            keyword: as
           naked_identifier: src
           bracketed:
             start_bracket: (
@@ -582,8 +584,8 @@ file:
           - table_reference:
               hash_identifier: '#MyTempTable'
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       merge_statement:
@@ -593,7 +595,8 @@ file:
         - dot: .
         - naked_identifier: ProductInventory
       - alias_expression:
-          keyword: AS
+          alias_operator:
+            keyword: AS
           naked_identifier: tgt
       - keyword: USING
       - bracketed:
@@ -626,7 +629,8 @@ file:
                     - dot: .
                     - naked_identifier: SalesOrderDetail
                   alias_expression:
-                    keyword: AS
+                    alias_operator:
+                      keyword: AS
                     naked_identifier: sod
                 join_clause:
                   keyword: JOIN
@@ -637,7 +641,8 @@ file:
                       - dot: .
                       - naked_identifier: SalesOrderHeader
                     alias_expression:
-                      keyword: AS
+                      alias_operator:
+                        keyword: AS
                       naked_identifier: soh
                   join_on_condition:
                     keyword: 'ON'
@@ -667,7 +672,8 @@ file:
                 naked_identifier: ProductID
           end_bracket: )
       - alias_expression:
-          keyword: as
+          alias_operator:
+            keyword: as
           naked_identifier: src
           bracketed:
             start_bracket: (
@@ -710,7 +716,7 @@ file:
             - comparison_operator:
               - raw_comparison_operator: <
               - raw_comparison_operator: '='
-            - numeric_literal: '0'
+            - integer_literal: '0'
           - keyword: THEN
           - merge_delete_clause:
               keyword: DELETE
@@ -790,8 +796,8 @@ file:
             - dot: .
             - naked_identifier: ModifiedDate
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       merge_statement:
@@ -801,7 +807,8 @@ file:
         - dot: .
         - naked_identifier: ProductInventory
       - alias_expression:
-          keyword: AS
+          alias_operator:
+            keyword: AS
           naked_identifier: pi
       - keyword: USING
       - bracketed:
@@ -834,7 +841,8 @@ file:
                     - dot: .
                     - naked_identifier: SalesOrderDetail
                   alias_expression:
-                    keyword: AS
+                    alias_operator:
+                      keyword: AS
                     naked_identifier: sod
                 join_clause:
                   keyword: JOIN
@@ -845,7 +853,8 @@ file:
                       - dot: .
                       - naked_identifier: SalesOrderHeader
                     alias_expression:
-                      keyword: AS
+                      alias_operator:
+                        keyword: AS
                       naked_identifier: soh
                   join_on_condition:
                     keyword: 'ON'
@@ -876,7 +885,8 @@ file:
                 naked_identifier: ProductID
           end_bracket: )
       - alias_expression:
-          keyword: AS
+          alias_operator:
+            keyword: AS
           naked_identifier: src
           bracketed:
             start_bracket: (
@@ -916,7 +926,7 @@ file:
             - comparison_operator:
               - raw_comparison_operator: '>'
               - raw_comparison_operator: '='
-            - numeric_literal: '0'
+            - integer_literal: '0'
           - keyword: THEN
           - merge_update_clause:
               keyword: UPDATE
@@ -956,7 +966,7 @@ file:
             - comparison_operator:
               - raw_comparison_operator: <
               - raw_comparison_operator: '='
-            - numeric_literal: '0'
+            - integer_literal: '0'
           - keyword: THEN
           - merge_delete_clause:
               keyword: DELETE
@@ -980,7 +990,8 @@ file:
             - dot: .
             - naked_identifier: Quantity
           - alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: NewQty
           - comma: ','
           - column_reference:
@@ -988,11 +999,12 @@ file:
             - dot: .
             - naked_identifier: Quantity
           - alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: PreviousQty
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       insert_statement:
@@ -1051,7 +1063,8 @@ file:
                                   - dot: .
                                   - naked_identifier: table2
                                 alias_expression:
-                                  keyword: as
+                                  alias_operator:
+                                    keyword: as
                                   naked_identifier: gr
                         end_bracket: )
                     - alias_expression:
@@ -1096,11 +1109,12 @@ file:
                           - naked_identifier: columnC
                     end_bracket: )
                 alias_expression:
-                  keyword: as
+                  alias_operator:
+                    keyword: as
                   naked_identifier: upd
             statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       merge_statement:
@@ -1116,7 +1130,8 @@ file:
             keyword: PAGLOCK
           end_bracket: )
       - alias_expression:
-          keyword: AS
+          alias_operator:
+            keyword: AS
           naked_identifier: tgt
       - keyword: USING
       - bracketed:
@@ -1131,7 +1146,8 @@ file:
                 parameter: '@Name'
           end_bracket: )
       - alias_expression:
-          keyword: as
+          alias_operator:
+            keyword: as
           naked_identifier: src
           bracketed:
             start_bracket: (
@@ -1225,8 +1241,8 @@ file:
           - table_reference:
               hash_identifier: '#MyTempTable'
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       merge_statement:
@@ -1254,7 +1270,8 @@ file:
             - end_bracket: )
         - end_bracket: )
       - alias_expression:
-          keyword: AS
+          alias_operator:
+            keyword: AS
           naked_identifier: pi
       - keyword: USING
       - bracketed:
@@ -1287,7 +1304,8 @@ file:
                     - dot: .
                     - naked_identifier: SalesOrderDetail
                   alias_expression:
-                    keyword: AS
+                    alias_operator:
+                      keyword: AS
                     naked_identifier: sod
                 join_clause:
                   keyword: JOIN
@@ -1298,7 +1316,8 @@ file:
                       - dot: .
                       - naked_identifier: SalesOrderHeader
                     alias_expression:
-                      keyword: AS
+                      alias_operator:
+                        keyword: AS
                       naked_identifier: soh
                   join_on_condition:
                     keyword: 'ON'
@@ -1329,7 +1348,8 @@ file:
                 naked_identifier: ProductID
           end_bracket: )
       - alias_expression:
-          keyword: AS
+          alias_operator:
+            keyword: AS
           naked_identifier: src
           bracketed:
             start_bracket: (
@@ -1369,7 +1389,7 @@ file:
             - comparison_operator:
               - raw_comparison_operator: '>'
               - raw_comparison_operator: '='
-            - numeric_literal: '0'
+            - integer_literal: '0'
           - keyword: THEN
           - merge_update_clause:
               keyword: UPDATE
@@ -1409,7 +1429,7 @@ file:
             - comparison_operator:
               - raw_comparison_operator: <
               - raw_comparison_operator: '='
-            - numeric_literal: '0'
+            - integer_literal: '0'
           - keyword: THEN
           - merge_delete_clause:
               keyword: DELETE
@@ -1433,7 +1453,8 @@ file:
             - dot: .
             - naked_identifier: Quantity
           - alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: NewQty
           - comma: ','
           - column_reference:
@@ -1441,11 +1462,12 @@ file:
             - dot: .
             - naked_identifier: Quantity
           - alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: PreviousQty
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       merge_statement:
@@ -1462,13 +1484,15 @@ file:
             select_clause:
               keyword: SELECT
               select_clause_element:
-                numeric_literal: '1'
+                integer_literal: '1'
                 alias_expression:
-                  keyword: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: i
           end_bracket: )
       - alias_expression:
-          keyword: AS
+          alias_operator:
+            keyword: AS
           naked_identifier: source
       - join_on_condition:
           keyword: 'ON'

@@ -113,7 +113,7 @@ bigquery_dialect.patch_lexer_matchers(
                     r"|[^'])*(?<!\\)(?:\\{2})*)')",
                     "value",
                 ),
-                "escape_replacements": [(r"\\([\\`\"'?])", "\1")],
+                "escape_replacements": [(r"\\([\\`\"'?])", r"\1")],
             },
         ),
         RegexLexer(
@@ -130,7 +130,7 @@ bigquery_dialect.patch_lexer_matchers(
                     r'(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*)")',
                     "value",
                 ),
-                "escape_replacements": [(r"\\([\\`\"'?])", "\1")],
+                "escape_replacements": [(r"\\([\\`\"'?])", r"\1")],
             },
         ),
     ]
@@ -605,6 +605,7 @@ class FileSegment(BaseFileSegment):
     # NB: We don't need a match_grammar here because we're
     # going straight into instantiating it directly usually.
     match_grammar = Sequence(
+        AnyNumberOf(Ref("DelimiterGrammar")),
         Sequence(
             OneOf(
                 Ref("MultiStatementSegment"),
@@ -618,7 +619,7 @@ class FileSegment(BaseFileSegment):
                 Ref("StatementSegment"),
             ),
         ),
-        Ref("DelimiterGrammar", optional=True),
+        AnyNumberOf(Ref("DelimiterGrammar")),
     )
 
 
@@ -2522,7 +2523,7 @@ class UnpivotAliasExpressionSegment(BaseSegment):
     type = "alias_expression"
     match_grammar = Sequence(
         Indent,
-        Ref.keyword("AS", optional=True),
+        Ref("AsAliasOperatorSegment", optional=True),
         OneOf(
             Ref("QuotedLiteralSegment"),
             Ref("NumericLiteralSegment"),
@@ -3128,7 +3129,21 @@ class CreateVectorIndexStatementSegment(BaseSegment):
                 Ref("IndexColumnDefinitionSegment"),
             ),
         ),
+        Ref("StoringSegment", optional=True),
         Ref("OptionsSegment"),
+    )
+
+
+class StoringSegment(BaseSegment):
+    """The `STORING` clause for a `CREATE VECTOR INDEX` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_vector_index_statement
+    """
+
+    type = "storing_segment"
+    match_grammar: Matchable = Sequence(
+        "STORING",
+        Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
     )
 
 
@@ -3558,4 +3573,22 @@ class UnpivotOperatorSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         Ref("FromUnpivotExpressionSegment"),
         Ref("AliasExpressionSegment", optional=True),
+    )
+
+
+class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
+    """A CTE Definition from a WITH statement.
+
+    BigQuery allows FROM clauses directly in CTEs without requiring SELECT statements.
+    This extends the ANSI definition to support this pipe syntax.
+    """
+
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Ref("CTEColumnList", optional=True),
+        Ref.keyword("AS", optional=True),
+        Bracketed(
+            OneOf(Ref("SelectableGrammar"), Ref("PipeStatementSegment")),
+            parse_mode=ParseMode.GREEDY,
+        ),
     )

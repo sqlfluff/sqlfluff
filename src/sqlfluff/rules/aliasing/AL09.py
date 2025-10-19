@@ -141,22 +141,41 @@ class Rule_AL09(BaseRule):
                 "naked_identifier", "quoted_identifier"
             )
 
-            if not (whitespace and alias_identifier):  # pragma: no cover
-                # We *should* expect all of these to be non-null, but some bug
-                # reports suggest that that isn't always the case for some
-                # dialects. In those cases, log a warning here, but don't
-                # flag it as a linting issue. Hopefully this will help
-                # better bug reports in future.
-                self.logger.warning(
-                    "AL09 found an unexpected syntax in an alias expression. "
-                    "Unable to determine if this is a self-alias. Please "
-                    "report this as a bug on GitHub.\n\n"
-                    f"Debug details: dialect: {context.dialect.name}, "
-                    f"whitespace: {whitespace is not None}, "
-                    f"alias_identifier: {alias_identifier is not None}, "
-                    f"alias_expression: {clause_element.raw!r}."
-                )
+            # if we do not have an alias identifier we can continue
+            if not alias_identifier:  # pragma: no cover
                 continue
+
+            alias_keyword_raw = getattr(
+                alias_expression.get_child("alias_operator"), "raw", None
+            )
+
+            # If the column identifier is quoted, the whitespace between the column
+            # identifier and the `AS` keyword are optional. The `layout.spacing` rule
+            # should be the responsible rule for fixing this case, but we want to
+            # account for the situation here.
+            quoted_without_whitespace = (
+                column_identifier.is_type("quoted_identifier") and whitespace is None
+            )
+
+            # If the alias keyword is '=', then no whitespace have to be present
+            # between the alias_keyword and the alias_identifier
+            if alias_keyword_raw != "=" and not quoted_without_whitespace:
+                if not (whitespace and alias_identifier):  # pragma: no cover
+                    # We *should* expect all of these to be non-null, but some bug
+                    # reports suggest that that isn't always the case for some
+                    # dialects. In those cases, log a warning here, but don't
+                    # flag it as a linting issue. Hopefully this will help
+                    # better bug reports in future.
+                    self.logger.warning(
+                        "AL09 found an unexpected syntax in an alias expression. "
+                        "Unable to determine if this is a self-alias. Please "
+                        "report this as a bug on GitHub.\n\n"
+                        f"Debug details: dialect: {context.dialect.name}, "
+                        f"whitespace: {whitespace is not None}, "
+                        f"alias_identifier: {alias_identifier is not None}, "
+                        f"alias_expression: {clause_element.raw!r}."
+                    )
+                    continue
 
             case_sensitive_dialects = ["clickhouse"]
 
@@ -167,7 +186,8 @@ class Rule_AL09(BaseRule):
             if column_identifier.raw == alias_identifier.raw:
                 fixes: list[LintFix] = []
 
-                fixes.append(LintFix.delete(whitespace))
+                if whitespace is not None:
+                    fixes.append(LintFix.delete(whitespace))
                 fixes.append(LintFix.delete(alias_expression))
 
                 violations.append(
@@ -186,6 +206,7 @@ class Rule_AL09(BaseRule):
             elif (
                 context.dialect.name not in case_sensitive_dialects
                 and column_identifier.is_type("naked_identifier")
+                and alias_identifier is not None
                 and alias_identifier.is_type("naked_identifier")
                 and column_identifier.raw_upper == alias_identifier.raw_upper
             ):

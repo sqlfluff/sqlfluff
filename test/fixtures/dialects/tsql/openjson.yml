@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 77451f0250a920c7ef94e29e5b3cfe7a21dc5ca138d2c57b5388cca89bc11e77
+_hash: 53386a039d8feacad8152fe4e5054037b4918d9192976d44dced09dc9fbeaee5
 file:
   batch:
   - statement:
@@ -36,7 +36,8 @@ file:
                           quoted_literal: "N'[1,2,3,4]'"
                         end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: productTypes
             - join_on_condition:
                 keyword: 'ON'
@@ -84,7 +85,7 @@ file:
                           bracketed:
                             start_bracket: (
                             expression:
-                              numeric_literal: '3'
+                              integer_literal: '3'
                             end_bracket: )
                     - comma: ','
                     - column_reference:
@@ -99,7 +100,8 @@ file:
                     - quoted_literal: "'$.sql:identity()'"
                     - end_bracket: )
               alias_expression:
-                keyword: as
+                alias_operator:
+                  keyword: as
                 naked_identifier: months
           statement_terminator: ;
   - statement:
@@ -134,7 +136,7 @@ file:
                           bracketed:
                             start_bracket: (
                             expression:
-                              numeric_literal: '200'
+                              integer_literal: '200'
                             end_bracket: )
                     - quoted_literal: "'$.Order.Number'"
                     - comma: ','
@@ -152,7 +154,7 @@ file:
                           bracketed:
                             start_bracket: (
                             expression:
-                              numeric_literal: '200'
+                              integer_literal: '200'
                             end_bracket: )
                     - quoted_literal: "'$.AccountNumber'"
                     - comma: ','
@@ -191,7 +193,8 @@ file:
             column_reference:
               naked_identifier: value
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: Reason
         from_clause:
           keyword: FROM
@@ -226,7 +229,7 @@ file:
                             bracketed:
                               start_bracket: (
                               expression:
-                                numeric_literal: '100'
+                                integer_literal: '100'
                               end_bracket: )
                         quoted_literal: "'$'"
                         end_bracket: )
@@ -293,7 +296,7 @@ file:
                             bracketed:
                               start_bracket: (
                               expression:
-                                numeric_literal: '500'
+                                integer_literal: '500'
                               end_bracket: )
                       - comma: ','
                       - column_reference:
@@ -304,7 +307,7 @@ file:
                             bracketed:
                               start_bracket: (
                               expression:
-                                numeric_literal: '500'
+                                integer_literal: '500'
                               end_bracket: )
                       - quoted_literal: "'$.postcode'"
                       - comma: ','
@@ -321,7 +324,8 @@ file:
                       - quoted_literal: "'$.geo.latitude'"
                       - end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: location
           statement_terminator: ;
   - statement:
@@ -366,7 +370,7 @@ file:
                             bracketed:
                               start_bracket: (
                               expression:
-                                numeric_literal: '50'
+                                integer_literal: '50'
                               end_bracket: )
                       - comma: ','
                       - column_reference:
@@ -377,7 +381,7 @@ file:
                             bracketed:
                               start_bracket: (
                               expression:
-                                numeric_literal: '50'
+                                integer_literal: '50'
                               end_bracket: )
                       - comma: ','
                       - column_reference:
@@ -403,7 +407,7 @@ file:
                             bracketed:
                               start_bracket: (
                               expression:
-                                numeric_literal: '50'
+                                integer_literal: '50'
                               end_bracket: )
                       - end_bracket: )
             statement_terminator: ;
@@ -417,7 +421,8 @@ file:
               dot: .
               quoted_identifier: '[key]'
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               quoted_identifier: '[Order]'
         - comma: ','
         - select_clause_element:
@@ -446,7 +451,8 @@ file:
                         parameter: '@JSON'
                       end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: root
             join_clause:
             - keyword: CROSS
@@ -466,6 +472,7 @@ file:
                           - naked_identifier: value
                         end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: TheValues
           statement_terminator: ;

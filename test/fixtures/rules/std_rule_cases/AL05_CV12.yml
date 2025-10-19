@@ -1,0 +1,18 @@
+rule: AL05,CV12
+
+test_rule_fix_conflict_deleted_where_reference:
+  fail_str: |
+    select a.a
+    from table_a as a
+    left join table_b as b
+    where a.id = b.id
+  fix_str: |
+    select a.a
+    from table_a as a
+    left join table_b as b ON a.id = b.id
+
+test_rule_fix_conflict_modified_where_reference:
+  fail_str: |
+    SELECT foo.a, bar.b FROM foo JOIN bar WHERE foo.x = bar.y AND foo.x = 3
+  fix_str: |
+    SELECT foo.a, bar.b FROM foo JOIN bar ON foo.x = bar.y WHERE foo.x = 3

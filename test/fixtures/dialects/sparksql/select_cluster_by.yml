@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9acb10a80137cce8780a626ad91a566e31e34e6b1e06e152e3853a9659f46e1b
+_hash: 70a78dbff426ebbacd8b0f13d0d18f82f01f8880505a8d1319a2e8f9101e406e
 file:
 - statement:
     select_statement:
@@ -296,7 +296,8 @@ file:
                 start_bracket: (
                 end_bracket: )
           alias_expression:
-            keyword: AS
+            alias_operator:
+              keyword: AS
             naked_identifier: p_data_date
       cluster_by_clause:
       - keyword: CLUSTER

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e7f6b2f260ef6cb8e5e593fe6839ab2f24096a8f4450ce9fc71ba6799c95a6e4
+_hash: f588e314b64816b2b9568ffe9717ffe397064b543dcd4ec98bb70eabe10de2f7
 file:
   batch:
   - statement:
@@ -107,7 +107,8 @@ file:
                 table_reference:
                   naked_identifier: Departments
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: d
             join_clause:
             - keyword: CROSS
@@ -129,7 +130,8 @@ file:
                           - naked_identifier: DeptMgrID
                         end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: reps
         where_clause:
           keyword: WHERE
@@ -140,7 +142,7 @@ file:
             - naked_identifier: DeptMgrID
             comparison_operator:
               raw_comparison_operator: '='
-            numeric_literal: '10'
+            integer_literal: '10'
         statement_terminator: ;
   - statement:
       select_statement:
@@ -216,7 +218,8 @@ file:
                           - naked_identifier: DepartmentID
                         end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: AllEmp
         where_clause:
           keyword: WHERE
@@ -227,7 +230,7 @@ file:
             - naked_identifier: DepartmentId
             comparison_operator:
               raw_comparison_operator: '='
-            numeric_literal: '10'
+            integer_literal: '10'
         statement_terminator: ;
   - statement:
       select_statement:
@@ -252,7 +255,8 @@ file:
                 table_reference:
                   naked_identifier: table1
               alias_expression:
-                keyword: as
+                alias_operator:
+                  keyword: as
                 naked_identifier: s
             join_clause:
             - keyword: cross
@@ -289,6 +293,7 @@ file:
                           quoted_literal: "'{'"
                       - end_bracket: )
                 alias_expression:
-                  keyword: as
+                  alias_operator:
+                    keyword: as
                   naked_identifier: sp
           statement_terminator: ;

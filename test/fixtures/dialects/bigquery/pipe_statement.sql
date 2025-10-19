@@ -157,3 +157,9 @@ SELECT 1 AS x, 2 AS y, 3 AS z
   SELECT 'carrots' AS item, 8 AS sales
 )
 |> EXTEND item IN ('carrots', 'oranges') AS is_orange;
+
+WITH bar AS (
+    FROM foo
+)
+
+SELECT * FROM bar;

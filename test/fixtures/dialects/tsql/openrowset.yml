@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0c01460047154ca97dd28dff481052670d3734d2a565074b52391ca1b3d86196
+_hash: a20c572eef8c620d037c11bfbc0b8af93bb35f1ac20f8eeeda3f2ec6af60b7c5
 file:
 - batch:
     statement:
@@ -37,11 +37,12 @@ file:
                       naked_identifier: Customers
                   - end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: a
           statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -70,11 +71,12 @@ file:
                       naked_identifier: Department
                   - end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: d
           statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -107,11 +109,12 @@ file:
                     - naked_identifier: Department
                   - end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: d
           statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -139,11 +142,12 @@ file:
                   - quoted_literal: "'SELECT TOP 10 GroupName, Name\n     FROM AdventureWorks2012.HumanResources.Department'"
                   - end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: a
           statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -168,11 +172,12 @@ file:
                   - keyword: SINGLE_CLOB
                   - end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: DATA
           statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -197,11 +202,12 @@ file:
                   - keyword: SINGLE_NCLOB
                   - end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: Document
           statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -239,11 +245,12 @@ file:
                   - quoted_literal: "'CSV'"
                   - end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: cars
           statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -252,7 +259,7 @@ file:
           select_clause_modifier:
             keyword: TOP
             expression:
-              numeric_literal: '10'
+              integer_literal: '10'
           select_clause_element:
             wildcard_expression:
               wildcard_identifier:
@@ -275,10 +282,11 @@ file:
                   - quoted_literal: "'PARQUET'"
                   - end_bracket: )
               alias_expression:
-                keyword: as
+                alias_operator:
+                  keyword: as
                 naked_identifier: rows
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -287,7 +295,7 @@ file:
           select_clause_modifier:
             keyword: TOP
             expression:
-              numeric_literal: '10'
+              integer_literal: '10'
           select_clause_element:
             wildcard_expression:
               wildcard_identifier:
@@ -320,7 +328,7 @@ file:
                           bracketed:
                             start_bracket: (
                             expression:
-                              numeric_literal: '5'
+                              integer_literal: '5'
                             end_bracket: )
                     - keyword: COLLATE
                     - collation_reference:
@@ -333,7 +341,7 @@ file:
                           bracketed:
                             start_bracket: (
                             expression:
-                              numeric_literal: '100'
+                              integer_literal: '100'
                             end_bracket: )
                     - keyword: COLLATE
                     - collation_reference:
@@ -349,10 +357,11 @@ file:
                         data_type_identifier: bigint
                     - end_bracket: )
               alias_expression:
-                keyword: as
+                alias_operator:
+                  keyword: as
                 naked_identifier: rows
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -361,7 +370,7 @@ file:
           select_clause_modifier:
             keyword: TOP
             expression:
-              numeric_literal: '1'
+              integer_literal: '1'
           select_clause_element:
             wildcard_expression:
               wildcard_identifier:
@@ -394,7 +403,7 @@ file:
                           bracketed:
                             start_bracket: (
                             expression:
-                              numeric_literal: '50'
+                              integer_literal: '50'
                             end_bracket: )
                     - comma: ','
                     - quoted_identifier: '[stateName_explicit_path]'
@@ -404,7 +413,7 @@ file:
                           bracketed:
                             start_bracket: (
                             expression:
-                              numeric_literal: '50'
+                              integer_literal: '50'
                             end_bracket: )
                     - quoted_literal: "'$.stateName'"
                     - comma: ','
@@ -415,7 +424,7 @@ file:
                           bracketed:
                             start_bracket: (
                             expression:
-                              numeric_literal: '50'
+                              integer_literal: '50'
                             end_bracket: )
                     - comma: ','
                     - quoted_identifier: '[countyName_explicit_path]'
@@ -425,7 +434,7 @@ file:
                           bracketed:
                             start_bracket: (
                             expression:
-                              numeric_literal: '50'
+                              integer_literal: '50'
                             end_bracket: )
                     - quoted_literal: "'$.COUNTYNAME'"
                     - comma: ','
@@ -435,7 +444,8 @@ file:
                     - quoted_literal: "'strict $.population'"
                     - end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 quoted_identifier: '[r]'
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO

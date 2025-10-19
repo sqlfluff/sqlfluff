@@ -167,11 +167,62 @@ the least obvious. The following example illustrates the impact it has.
    --    align_scope = file
    --    align_within = statement
 
+Templating and alignment coordinate space
+-----------------------------------------
+
+When using templating (e.g. Jinja), alignment is for human readability and
+stable diffs. SQLFluff aligns based on the source (visible) positions whenever
+templated (non-literal) segments are involved in the alignment scope. This
+prevents excessive padding caused by the rendered output being longer than the
+source template. If all segments are literal (non-templated), alignment uses
+the regular templated working positions.
+
+Example (Jinja templating, align alias expressions within a select clause):
+
+.. code-block:: jinja
+
+    select
+        {{ "longtemplated" }} as test_key,
+        b                     as b_col
+
+The alignment above is computed against the source text so that both lines line
+up visually in the editor, regardless of the rendered length of
+``{{ "longtemplated" }}``.
+
+Advanced: coordinate space override
+-----------------------------------
+
+You can optionally force the coordinate space either:
+
+1) via the alignment constraint suffix (available for `spacing_before` and
+   `spacing_after`), or
+2) via the `alignment_coordinate_space` key in layout config for the target type.
+
+.. code-block:: ini
+
+   [sqlfluff:layout:type:alias_expression]
+   spacing_before = align:alias_expression:select_clause:bracketed:source
+
+Alternatively, the equivalent can be configured more declaratively:
+
+.. code-block:: ini
+
+   [sqlfluff:layout:type:alias_expression]
+   spacing_before = align
+   align_within = select_clause
+   align_scope = bracketed
+   alignment_coordinate_space = source
+
+Supported values are ``source`` and ``templated``. In most cases, ``source`` is
+the recommended choice for readability.
+
+.. code-block:: sql
+
    WITH foo as (
       SELECT
          a,
          b,
-         c        AS first_column
+         c        AS first_column,
          d + e    AS second_column
    )
 
@@ -625,7 +676,7 @@ subsections of an :code:`ON` block with each other. If set to :code:`False`
 
 These can also be combined, so if :code:`indented_using_on` config is set to
 :code:`False`, :code:`indented_on_contents` is also set to :code:`False`, and
-:code:`allow_implicit_indents` is set tot :code:`True` then the SQL would
+:code:`allow_implicit_indents` is set to :code:`True` then the SQL would
 become:
 
 .. code-block:: sql

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7f798e59792782b96c49cc32cef036be06ede9a4d141ae27b70da8cf030148bf
+_hash: 639812665560931147c217c7a079da17710e6dfcbfdb86b82023ee6f478fc4de
 file:
 - statement:
     begin_end_block:
@@ -144,9 +144,7 @@ file:
         assignment_segment_statement:
           object_reference:
             naked_identifier: highest_paid_emp
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             function:
               function_name:
@@ -162,9 +160,7 @@ file:
         assignment_segment_statement:
           object_reference:
             naked_identifier: next_highest_paid_emp
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             function:
               function_name:
@@ -852,9 +848,7 @@ file:
               start_bracket: (
               numeric_literal: '200'
               end_bracket: )
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           quoted_literal: "'SELECT * FROM employees\n    WHERE REGEXP_LIKE (job_id,\
             \ ''[ACADFIMKSA]_M[ANGR]'')\n    ORDER BY job_id'"
@@ -1402,9 +1396,7 @@ file:
         assignment_segment_statement:
           object_reference:
             naked_identifier: v_stmt_str
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             quoted_literal: "'SELECT * FROM employees WHERE job_id = :j'"
     - statement_terminator: ;
@@ -1542,9 +1534,7 @@ file:
       - naked_identifier: v_limit
       - data_type:
           data_type_identifier: PLS_INTEGER
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           numeric_literal: '10'
       - statement_terminator: ;

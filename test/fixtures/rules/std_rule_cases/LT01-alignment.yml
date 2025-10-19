@@ -122,6 +122,136 @@ test_align_alias_inline_fail:
   fix_str: SELECT a AS b, c AS d FROM tbl
   configs: *align_alias
 
+# Test the alignments also for the tsql = operator
+test_excess_space_without_align_alias_tsql:
+  fail_str: |
+        SELECT
+            first_column    = a,
+            second_column      = b,
+            third_column = (a + b) / 2
+        FROM foo
+  fix_str: |
+    SELECT
+        first_column = a,
+        second_column = b,
+        third_column = (a + b) / 2
+    FROM foo
+  configs:
+    # This is the default config but we're being explicit
+    # here for testing.
+    core:
+      dialect: tsql
+    layout:
+      type:
+        alias_operator:
+          spacing_before: single
+
+test_excess_space_with_align_alias_tsql:
+  # NOTE: The config here shouldn't move the table alias
+  fail_str: |
+        SELECT
+            first_column    = a,
+            second_column      = b,
+            third_column = (a + b) / 2
+        FROM foo   AS bar
+  fix_str: |
+    SELECT
+        first_column  = a,
+        second_column = b,
+        third_column  = (a + b) / 2
+    FROM foo AS bar
+  configs: &tsql_align_alias
+    core:
+      dialect: tsql
+    layout:
+      type:
+        alias_operator:
+          spacing_before: align
+          align_within: select_clause
+          align_scope: bracketed
+
+test_missing_keyword_with_align_alias_tsql:
+  fail_str: |
+        SELECT
+            first_column    a,
+            second_column      = b,
+            third_column = (a + b) / 2
+        FROM foo
+  fix_str: |
+    SELECT
+        first_column a,
+        second_column = b,
+        third_column  = (a + b) / 2
+    FROM foo
+  configs: *tsql_align_alias
+
+test_excess_space_with_align_alias_wider_tsql:
+  # NOTE: The config here SHOULD move the table alias
+  # NOTE: The combined LT01 also fixes the missing space
+  # between `USING` and `(a)`.
+  fail_str: |
+    SELECT
+        first_column    = a,
+        second_column      = b,
+        third_column = (a      +      b)      /      2
+    FROM foo   AS first_table
+    JOIN my_tbl AS second_table USING(a)
+  fix_str: |
+    SELECT
+        first_column  = a,
+        second_column = b,
+        third_column  = (a + b) / 2
+    FROM foo          AS first_table
+    JOIN my_tbl       AS second_table USING (a)
+  configs: &tsql_align_alias_wider
+    core:
+      dialect: tsql
+    layout:
+      type:
+        alias_operator:
+          spacing_before: align
+          align_within: select_statement
+          align_scope: bracketed
+
+test_align_alias_boundary_tsql:
+  # The alias inside the expression shouldn't move.
+  fail_str: |
+    SELECT
+        first_column    = a,
+        second_column      = (SELECT b AS c)
+  fix_str: |
+    SELECT
+        first_column  = a,
+        second_column = (SELECT b AS c)
+  configs: *tsql_align_alias
+
+test_align_alias_inline_pass_tsql:
+  # The aliases on the same line shouldn't panic.
+  pass_str: SELECT a = b, c = d FROM tbl
+  configs: *tsql_align_alias
+
+test_align_alias_inline_fail_tsql:
+  # The aliases on the same line shouldn't panic.
+  fail_str: SELECT a   =   b  ,   c   =   d    FROM tbl
+  fix_str: SELECT a = b, c = d FROM tbl
+  configs: *tsql_align_alias
+
+test_excess_space_with_align_alias_tsql_mixed:
+  # NOTE: The config here shouldn't move the table alias
+  fail_str: |
+        SELECT
+            a    AS first_column,
+            second_column    = b,
+            third_column_long_name    = (a + b) / 2
+        FROM foo
+  fix_str: |
+    SELECT
+        a                      AS first_column,
+        second_column          = b,
+        third_column_long_name = (a + b) / 2
+    FROM foo
+  configs: *tsql_align_alias
+
 test_align_multiple_a:
   # https://github.com/sqlfluff/sqlfluff/issues/4023
   fail_str: |
@@ -257,3 +387,90 @@ test_align_multiple_operators:
         binary_operator:
           spacing_before: align
           align_within: select_statement
+
+test_align_alias_with_jinja_source_positions:
+  # Alignment should respect source (visible) positions when templated content exists
+  # before the alias. The second line should align 'as' to the first, without
+  # padding to the length of the rendered template.
+  fail_str: |
+    select
+        {{ "longtemplated" }} as test_key,
+        b as b_col
+  fix_str: |
+    select
+        {{ "longtemplated" }} as test_key,
+        b                     as b_col
+  configs:
+    core:
+      templater: jinja
+    layout:
+      type:
+        alias_expression:
+          spacing_before: align
+          align_within: select_clause
+          align_scope: bracketed
+
+test_align_alias_with_jinja_both_lines_templated:
+  # Both lines have templated content before the alias. Alignment should
+  # still respect source (visible) positions.
+  fail_str: |
+    select
+        {{ "templ_1" }} as a,
+        {{ "t2" }} as bb
+  fix_str: |
+    select
+        {{ "templ_1" }} as a,
+        {{ "t2" }}      as bb
+  configs:
+    core:
+      templater: jinja
+    layout:
+      type:
+        alias_expression:
+          spacing_before: align
+          align_within: select_clause
+          align_scope: bracketed
+
+test_align_alias_with_jinja_statement_scope:
+  # Alignment across a wider scope (select_statement) still uses source positions.
+  fail_str: |
+    select
+        {{ "xxx" }} as a,
+        col as b,
+        {{ "yyyyy" }} as c
+    from t
+  fix_str: |
+    select
+        {{ "xxx" }}   as a,
+        col           as b,
+        {{ "yyyyy" }} as c
+    from t
+  configs:
+    core:
+      templater: jinja
+    layout:
+      type:
+        alias_expression:
+          spacing_before: align
+          align_within: select_statement
+          align_scope: bracketed
+
+test_align_alias_with_jinja_force_templated_space:
+  # Force templated coordinate space via config override to ensure it is respected.
+  fail_str: |
+    select
+        {{ "templ" }} as a,
+        b as bb
+  # If we force templated, alignment should pad based on rendered lengths.
+  fix_str: |
+    select
+        {{ "templ" }} as a,
+        b     as bb
+  configs:
+    core:
+      templater: jinja
+    layout:
+      type:
+        alias_expression:
+          # Force templated coordinate space via align suffix
+          spacing_before: align:alias_expression:select_clause:bracketed:templated

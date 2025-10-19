@@ -471,6 +471,17 @@ sparksql_dialect.replace(
     NonWithNonSelectableGrammar=ansi_dialect.get_grammar(
         "NonWithNonSelectableGrammar"
     ).copy(insert=[Ref("InsertOverwriteDirectorySegment")]),
+    ColumnGeneratedGrammar=Sequence(
+        "GENERATED",
+        "ALWAYS",
+        "AS",
+        Bracketed(
+            OneOf(
+                Ref("FunctionSegment"),
+                Ref("BareFunctionSegment"),
+            ),
+        ),
+    ),
 )
 
 sparksql_dialect.add(
@@ -672,6 +683,29 @@ sparksql_dialect.add(
         "OF",
         Ref("NumericLiteralSegment"),
     ),
+    InsertSourceGrammar=OneOf(
+        AnyNumberOf(
+            Ref("ValuesClauseSegment"),
+            min_times=1,
+        ),
+        Ref("SelectableGrammar"),
+        Sequence(
+            Ref.keyword("TABLE", optional=True),
+            Ref("TableReferenceSegment"),
+        ),
+        Sequence(
+            "FROM",
+            Ref("TableReferenceSegment"),
+            "SELECT",
+            Delimited(
+                Ref("ColumnReferenceSegment"),
+            ),
+            Ref("WhereClauseSegment", optional=True),
+            Ref("GroupByClauseSegment", optional=True),
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+        ),
+    ),
     # Adding Hint related segments so they are not treated as generic comments
     # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
     StartHintSegment=StringParser("/*+", SymbolSegment, type="start_hint"),
@@ -769,6 +803,18 @@ sparksql_dialect.add(
     TablePropertiesGrammar=Sequence(
         "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
     ),
+    CreateViewClausesGrammar=Sequence(
+        "WITH",
+        "SCHEMA",
+        OneOf(
+            "BINDING",
+            "COMPENSATION",
+            Sequence(
+                Ref.keyword("TYPE", optional=True),
+                "EVOLUTION",
+            ),
+        ),
+    ),
     RawQuotedLiteralSegment=OneOf(
         TypedParser(
             "raw_single_quote",
@@ -865,7 +911,6 @@ sparksql_dialect.add(
                     Sequence(
                         OneOf(
                             Ref("ColumnFieldDefinitionSegment"),
-                            Ref("GeneratedColumnDefinitionSegment"),
                             Ref("TableConstraintSegment", optional=True),
                         ),
                         Ref("CommentGrammar", optional=True),
@@ -894,7 +939,7 @@ sparksql_dialect.add(
             Ref("LocationGrammar"),
             Ref("CommentGrammar"),
             Ref("TablePropertiesGrammar"),
-            Sequence("CLUSTER", "BY", Ref("BracketedColumnReferenceListGrammar")),
+            Ref("TableClusterByClauseSegment"),
             optional=True,
         ),
         # Create AS syntax:
@@ -1519,6 +1564,25 @@ class ColumnFieldDefinitionSegment(ansi.ColumnDefinitionSegment):
     )
 
 
+class TableClusterByClauseSegment(BaseSegment):
+    """A `CLUSTER BY` clause in table definitions.
+
+    https://spark.apache.org/docs/4.0.0/sql-ref-syntax-ddl-alter-table.html#cluster-by
+    """
+
+    type = "table_cluster_by_clause"
+    match_grammar = Sequence(
+        "CLUSTER",
+        "BY",
+        Indent,
+        OneOf(
+            Ref("BracketedColumnReferenceListGrammar"),
+            "NONE",
+        ),
+        Dedent,
+    )
+
+
 class AlterViewStatementSegment(BaseSegment):
     """A `ALTER VIEW` statement to change the view schema or properties.
 
@@ -1621,7 +1685,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
 class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     """A `CREATE VIEW` statement.
 
-    https://spark.apache.org/docs/3.0.0/sql-ref-syntax-ddl-create-view.html#syntax
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-view.html#syntax
     """
 
     match_grammar = Sequence(
@@ -1650,8 +1714,14 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         ),
         Sequence("USING", Ref("DataSourceFormatSegment"), optional=True),
         Ref("OptionsGrammar", optional=True),
+        OneOf(
+            Ref("PartitionSpecGrammar"),
+            Ref("TableClusterByClauseSegment"),
+            optional=True,
+        ),
         Ref("CommentGrammar", optional=True),
         Ref("TablePropertiesGrammar", optional=True),
+        Ref("CreateViewClausesGrammar", optional=True),
         Sequence("AS", OptionallyBracketed(Ref("SelectableGrammar")), optional=True),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
@@ -1782,10 +1852,9 @@ class UseDatabaseStatementSegment(BaseSegment):
 
 # Data Manipulation Statements
 class InsertStatementSegment(BaseSegment):
-    """A `INSERT [TABLE]` statement to insert or overwrite new rows into a table.
+    """An `INSERT [TABLE]` statement to insert or overwrite new rows into a table.
 
-    https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-into.html
-    https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-overwrite-table.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-table.html#insert-table
     """
 
     type = "insert_statement"
@@ -1795,29 +1864,22 @@ class InsertStatementSegment(BaseSegment):
         OneOf("INTO", "OVERWRITE"),
         Ref.keyword("TABLE", optional=True),
         Ref("TableReferenceSegment"),
-        Ref("PartitionSpecGrammar", optional=True),
-        Ref("BracketedColumnReferenceListGrammar", optional=True),
         OneOf(
-            AnyNumberOf(
-                Ref("ValuesClauseSegment"),
-                min_times=1,
-            ),
-            Ref("SelectableGrammar"),
             Sequence(
-                Ref.keyword("TABLE", optional=True),
-                Ref("TableReferenceSegment"),
+                Ref("PartitionSpecGrammar", optional=True),
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Ref("InsertSourceGrammar"),
             ),
             Sequence(
-                "FROM",
-                Ref("TableReferenceSegment"),
-                "SELECT",
-                Delimited(
-                    Ref("ColumnReferenceSegment"),
-                ),
-                Ref("WhereClauseSegment", optional=True),
-                Ref("GroupByClauseSegment", optional=True),
-                Ref("OrderByClauseSegment", optional=True),
-                Ref("LimitClauseSegment", optional=True),
+                "REPLACE",
+                Ref("WhereClauseSegment"),
+                Ref("InsertSourceGrammar"),
+            ),
+            Sequence(
+                "REPLACE",
+                "USING",
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref("InsertSourceGrammar"),
             ),
         ),
     )
@@ -2911,7 +2973,8 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
     """
 
     match_grammar = Sequence(
-        Ref.keyword("AS", optional=True),
+        Indent,
+        Ref("AsAliasOperatorSegment", optional=True),
         OneOf(
             # maybe table alias and column aliases
             Sequence(
@@ -2929,6 +2992,7 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
                 "FROM",
             ),
         ),
+        Dedent,
     )
 
 
@@ -3066,35 +3130,6 @@ class PropertyNameSegment(BaseSegment):
                 allow_gaps=False,
             ),
             Ref("SingleIdentifierGrammar"),
-        ),
-    )
-
-
-class GeneratedColumnDefinitionSegment(BaseSegment):
-    """A generated column definition, e.g. for CREATE TABLE or ALTER TABLE.
-
-    https://docs.delta.io/latest/delta-batch.html#use-generated-columns
-    """
-
-    type = "generated_column_definition"
-
-    match_grammar: Matchable = Sequence(
-        Ref("SingleIdentifierGrammar"),  # Column name
-        Ref("DatatypeSegment"),  # Column type
-        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
-        Sequence(
-            "GENERATED",
-            "ALWAYS",
-            "AS",
-            Bracketed(
-                OneOf(
-                    Ref("FunctionSegment"),
-                    Ref("BareFunctionSegment"),
-                ),
-            ),
-        ),
-        AnyNumberOf(
-            Ref("ColumnConstraintSegment", optional=True),
         ),
     )
 

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1898315ec485bb535b9dc814687014fafefa6202aa12dacf92ae2e60fbb3f6aa
+_hash: 49f77834a7e7a55591bede19e32cf1e49a67c62ccdce80e1827f2afa30d52aad
 file:
   batch:
   - statement:
@@ -25,7 +25,7 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  numeric_literal: '100'
+                  integer_literal: '100'
                 end_bracket: )
           - select_clause_element:
               column_reference:
@@ -43,7 +43,8 @@ file:
                         naked_identifier: TotalDue
                     end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: TotalSales
           from_clause:
             keyword: FROM
@@ -100,7 +101,7 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  numeric_literal: '100'
+                  integer_literal: '100'
                 end_bracket: )
           - select_clause_element:
               column_reference:
@@ -118,7 +119,8 @@ file:
                         naked_identifier: TotalDue
                     end_bracket: )
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: TotalSales
           from_clause:
             keyword: FROM
@@ -190,7 +192,8 @@ file:
               - column_reference:
                   naked_identifier: ReceivedQty
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: RejectRatio
           - comma: ','
           - select_clause_element:
@@ -215,7 +218,7 @@ file:
                 naked_identifier: ReceivedQty
             - comparison_operator:
                 raw_comparison_operator: '>'
-            - numeric_literal: '0'
+            - integer_literal: '0'
             - binary_operator: AND
             - column_reference:
                 naked_identifier: DueDate

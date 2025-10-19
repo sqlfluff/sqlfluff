@@ -3,152 +3,156 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1e694ca030dbc35328dc187c223f490b6e11c5e06aea44932319117135d35f6d
+_hash: 5ca1f6514cbd5475004930865ed99cb510360651efcb034a34e63ce18f68fa9e
 file:
   batch:
-    create_procedure_statement:
-    - keyword: CREATE
-    - keyword: PROC
-    - object_reference:
-      - quoted_identifier: '[Reporting]'
-      - dot: .
-      - quoted_identifier: '[PowerPlan]'
-    - keyword: AS
-    - procedure_statement:
-      - statement:
-          declare_segment:
-            keyword: DECLARE
-            parameter: '@DATEFUNCTION'
-            data_type:
-              data_type_identifier: DATE
-            comparison_operator:
-              raw_comparison_operator: '='
-            expression:
-              function:
-                function_name:
-                  function_name_identifier: GETDATE
-                function_contents:
+    statement:
+      create_procedure_statement:
+      - keyword: CREATE
+      - keyword: PROC
+      - object_reference:
+        - quoted_identifier: '[Reporting]'
+        - dot: .
+        - quoted_identifier: '[PowerPlan]'
+      - keyword: AS
+      - procedure_statement:
+        - statement:
+            declare_segment:
+              keyword: DECLARE
+              parameter: '@DATEFUNCTION'
+              data_type:
+                data_type_identifier: DATE
+              comparison_operator:
+                raw_comparison_operator: '='
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: GETDATE
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+        - statement:
+            drop_table_statement:
+            - keyword: DROP
+            - keyword: TABLE
+            - table_reference:
+              - quoted_identifier: '[Reporting]'
+              - dot: .
+              - quoted_identifier: '[PowerPlan_BASE]'
+            - statement_terminator: ;
+        - statement:
+            declare_segment:
+              keyword: DECLARE
+              parameter: '@deadlock_var'
+              data_type:
+                data_type_identifier: NCHAR
+                bracketed_arguments:
                   bracketed:
                     start_bracket: (
+                    expression:
+                      integer_literal: '3'
                     end_bracket: )
-      - statement:
-          drop_table_statement:
-          - keyword: DROP
-          - keyword: TABLE
-          - table_reference:
-            - quoted_identifier: '[Reporting]'
-            - dot: .
-            - quoted_identifier: '[PowerPlan_BASE]'
-          - statement_terminator: ;
-      - statement:
-          declare_segment:
-            keyword: DECLARE
-            parameter: '@deadlock_var'
-            data_type:
-              data_type_identifier: NCHAR
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '3'
-                  end_bracket: )
-            statement_terminator: ;
-      - statement:
-          set_segment:
-            keyword: SET
-            parameter: '@deadlock_var'
-            assignment_operator:
-              raw_comparison_operator: '='
-            expression:
-              quoted_literal: "N'LOW'"
-            statement_terminator: ;
-      - statement:
-          begin_end_block:
-          - keyword: BEGIN
-          - statement:
-              set_segment:
-              - keyword: SET
-              - keyword: NOCOUNT
-              - keyword: 'ON'
-          - statement:
-              set_segment:
-              - keyword: SET
-              - keyword: DEADLOCK_PRIORITY
-              - keyword: LOW
-          - statement:
-              set_segment:
-              - keyword: SET
-              - keyword: DEADLOCK_PRIORITY
-              - keyword: NORMAL
-          - statement:
-              set_segment:
-              - keyword: SET
-              - keyword: DEADLOCK_PRIORITY
-              - keyword: HIGH
-          - statement:
-              set_segment:
-              - keyword: SET
-              - keyword: DEADLOCK_PRIORITY
-              - parameter: '@deadlock_var'
-          - statement:
-              set_segment:
-              - keyword: SET
-              - keyword: DEADLOCK_PRIORITY
-              - numeric_literal: '10'
-          - statement:
-              set_segment:
-              - keyword: SET
-              - keyword: DEADLOCK_PRIORITY
-              - numeric_literal:
-                  sign_indicator: '-'
-                  numeric_literal: '5'
-          - statement:
-              select_statement:
-                select_clause:
-                  keyword: SELECT
-                  select_clause_element:
-                    numeric_literal: '1'
-          - statement:
-              create_table_as_select_statement:
-              - keyword: CREATE
-              - keyword: TABLE
-              - table_reference:
-                  hash_identifier: '#TempTest'
-              - table_distribution_index_clause:
-                  keyword: WITH
-                  bracketed:
+              statement_terminator: ;
+        - statement:
+            set_local_variable_segment:
+              keyword: SET
+              parameter: '@deadlock_var'
+              assignment_operator:
+                raw_comparison_operator: '='
+              expression:
+                quoted_literal: "N'LOW'"
+        - statement_terminator: ;
+        - statement:
+            begin_end_block:
+            - keyword: BEGIN
+            - statement:
+                set_segment:
+                - keyword: SET
+                - keyword: NOCOUNT
+                - keyword: 'ON'
+            - statement:
+                set_segment:
+                - keyword: SET
+                - keyword: DEADLOCK_PRIORITY
+                - keyword: LOW
+            - statement:
+                set_segment:
+                - keyword: SET
+                - keyword: DEADLOCK_PRIORITY
+                - keyword: NORMAL
+            - statement:
+                set_segment:
+                - keyword: SET
+                - keyword: DEADLOCK_PRIORITY
+                - keyword: HIGH
+            - statement:
+                set_segment:
+                - keyword: SET
+                - keyword: DEADLOCK_PRIORITY
+                - parameter: '@deadlock_var'
+            - statement:
+                set_segment:
+                - keyword: SET
+                - keyword: DEADLOCK_PRIORITY
+                - numeric_literal: '10'
+            - statement:
+                set_segment:
+                - keyword: SET
+                - keyword: DEADLOCK_PRIORITY
+                - numeric_literal:
+                    sign_indicator: '-'
+                    numeric_literal: '5'
+            - statement:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      integer_literal: '1'
+            - statement:
+                create_table_as_select_statement:
+                - keyword: CREATE
+                - keyword: TABLE
+                - table_reference:
+                    hash_identifier: '#TempTest'
+                - table_distribution_index_clause:
+                    keyword: WITH
+                    bracketed:
+                      start_bracket: (
+                      table_distribution_clause:
+                      - keyword: DISTRIBUTION
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - keyword: ROUND_ROBIN
+                      comma: ','
+                      table_index_clause:
+                        keyword: HEAP
+                      end_bracket: )
+                - keyword: AS
+                - bracketed:
                     start_bracket: (
-                    table_distribution_clause:
-                    - keyword: DISTRIBUTION
-                    - comparison_operator:
-                        raw_comparison_operator: '='
-                    - keyword: ROUND_ROBIN
-                    comma: ','
-                    table_index_clause:
-                      keyword: HEAP
+                    select_statement:
+                      select_clause:
+                      - keyword: SELECT
+                      - select_clause_element:
+                          integer_literal: '2'
+                          alias_expression:
+                            alias_operator:
+                              keyword: AS
+                            naked_identifier: Two
+                      - comma: ','
+                      - select_clause_element:
+                          integer_literal: '3'
+                          alias_expression:
+                            alias_operator:
+                              keyword: AS
+                            naked_identifier: Three
+                      - comma: ','
+                      - select_clause_element:
+                          integer_literal: '4'
+                          alias_expression:
+                            alias_operator:
+                              keyword: AS
+                            naked_identifier: Four
                     end_bracket: )
-              - keyword: AS
-              - bracketed:
-                  start_bracket: (
-                  select_statement:
-                    select_clause:
-                    - keyword: SELECT
-                    - select_clause_element:
-                        numeric_literal: '2'
-                        alias_expression:
-                          keyword: AS
-                          naked_identifier: Two
-                    - comma: ','
-                    - select_clause_element:
-                        numeric_literal: '3'
-                        alias_expression:
-                          keyword: AS
-                          naked_identifier: Three
-                    - comma: ','
-                    - select_clause_element:
-                        numeric_literal: '4'
-                        alias_expression:
-                          keyword: AS
-                          naked_identifier: Four
-                  end_bracket: )
-          - keyword: END
+            - keyword: END

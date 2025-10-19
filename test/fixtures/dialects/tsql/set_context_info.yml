@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0ceaf083acfcd10c06e99d6627bc416a777a0a2ef84999efd8816105e1f68ce9
+_hash: d60326cc9197d8b98aa2e1d3659cd40cebca9963acdd921edb07f0f294e8dcfb
 file:
   batch:
   - statement:
@@ -22,11 +22,11 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '128'
+                integer_literal: '128'
               end_bracket: )
         statement_terminator: ;
   - statement:
-      set_segment:
+      set_local_variable_segment:
         keyword: SET
         parameter: '@BinVar'
         assignment_operator:
@@ -44,12 +44,13 @@ file:
                       keyword: REPLICATE
                     function_contents:
                       bracketed:
-                        start_bracket: (
-                        numeric_literal: '0x20'
-                        comma: ','
-                        expression:
-                          numeric_literal: '128'
-                        end_bracket: )
+                      - start_bracket: (
+                      - expression:
+                          binary_literal: '0x20'
+                      - comma: ','
+                      - expression:
+                          integer_literal: '128'
+                      - end_bracket: )
                 keyword: AS
                 data_type:
                   data_type_identifier: varbinary
@@ -57,10 +58,10 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        numeric_literal: '128'
+                        integer_literal: '128'
                       end_bracket: )
                 end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       set_context_info_statement:
       - keyword: SET
@@ -80,6 +81,7 @@ file:
                   start_bracket: (
                   end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: MyContextInfo
         statement_terminator: ;

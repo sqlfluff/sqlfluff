@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8348957a0b684d7322610f53bccb81505f49f52d66c15f6f725dcf6166bcae4c
+_hash: 4cddac3c5d9095ee30b99ec250033687fa91eb86532a921ccdbc967841a5fa2a
 file:
   batch:
     statement:
@@ -37,7 +37,8 @@ file:
                           end_bracket: )
                 - end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               quoted_identifier: '[test]'
         - comma: ','
         - select_clause_element:
@@ -63,7 +64,8 @@ file:
                           end_bracket: )
                 - end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               quoted_identifier: '[test2]'
         - comma: ','
         - select_clause_element:
@@ -268,7 +270,7 @@ file:
                 - date_part: year
                 - comma: ','
                 - expression:
-                    numeric_literal: '2147483647'
+                    integer_literal: '2147483647'
                 - comma: ','
                 - expression:
                     quoted_literal: "'20060731'"
@@ -374,7 +376,8 @@ file:
                           end_bracket: )
                   end_bracket: )
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: today
         from_clause:
           keyword: FROM

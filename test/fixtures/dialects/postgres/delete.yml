@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 72e34f783be4b6ae5fe56806f2e3e5dabd00a1b0de8017e1a4cd5c7df0ac99ad
+_hash: 22cb784e9c27d8bfa7926e3509a3f79e05b85abd94fcb69b6d4f4ef4f76e16f6
 file:
 - statement:
     delete_statement:
@@ -35,7 +35,8 @@ file:
     - table_reference:
         naked_identifier: films
     - alias_expression:
-        keyword: AS
+        alias_operator:
+          keyword: AS
         naked_identifier: f
 - statement_terminator: ;
 - statement:
@@ -84,14 +85,16 @@ file:
     - table_reference:
         naked_identifier: films
     - alias_expression:
-        keyword: AS
+        alias_operator:
+          keyword: AS
         naked_identifier: f
     - keyword: USING
     - table_expression:
         table_reference:
           naked_identifier: producers
     - alias_expression:
-        keyword: AS
+        alias_operator:
+          keyword: AS
         naked_identifier: p
     - where_clause:
         keyword: WHERE
@@ -122,21 +125,24 @@ file:
     - table_reference:
         naked_identifier: films
     - alias_expression:
-        keyword: AS
+        alias_operator:
+          keyword: AS
         naked_identifier: f
     - keyword: USING
     - table_expression:
         table_reference:
           naked_identifier: producers
     - alias_expression:
-        keyword: AS
+        alias_operator:
+          keyword: AS
         naked_identifier: p
     - comma: ','
     - table_expression:
         table_reference:
           naked_identifier: actors
     - alias_expression:
-        keyword: AS
+        alias_operator:
+          keyword: AS
         naked_identifier: a
     - where_clause:
         keyword: WHERE
@@ -359,7 +365,8 @@ file:
         column_reference:
           naked_identifier: actor_id
     - alias_expression:
-        keyword: as
+        alias_operator:
+          keyword: as
         naked_identifier: a_id
 - statement_terminator: ;
 - statement:
@@ -425,14 +432,16 @@ file:
         column_reference:
           naked_identifier: actor_id
     - alias_expression:
-        keyword: as
+        alias_operator:
+          keyword: as
         naked_identifier: a_id
     - comma: ','
     - expression:
         column_reference:
           naked_identifier: producer_id
     - alias_expression:
-        keyword: as
+        alias_operator:
+          keyword: as
         naked_identifier: p_id
 - statement_terminator: ;
 - statement:

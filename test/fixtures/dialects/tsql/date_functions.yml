@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2a4f739cede4bf7b05e7defc0d31711e13b92c9af7dac97e971ae7d9f292cba8
+_hash: 6ad333d1c2ec7a41ff35dc2c1320ccb47bc566cdc8935fe2bbd36aafc92ea349
 file:
   batch:
     statement:
@@ -39,7 +39,7 @@ file:
                                 - date_part: month
                                 - comma: ','
                                 - expression:
-                                    numeric_literal: '0'
+                                    integer_literal: '0'
                                 - comma: ','
                                 - expression:
                                     column_reference:
@@ -49,11 +49,12 @@ file:
                                 - end_bracket: )
                         - comma: ','
                         - expression:
-                            numeric_literal: '0'
+                            integer_literal: '0'
                         - end_bracket: )
                   end_bracket: )
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: valid_from_date
         from_clause:
           keyword: from
@@ -63,7 +64,8 @@ file:
                 table_reference:
                   naked_identifier: t
               alias_expression:
-                keyword: as
+                alias_operator:
+                  keyword: as
                 naked_identifier: t
         where_clause:
           keyword: where
@@ -103,7 +105,7 @@ file:
                                 - date_part: yy
                                 - comma: ','
                                 - expression:
-                                    numeric_literal: '0'
+                                    integer_literal: '0'
                                 - comma: ','
                                 - expression:
                                     function:
@@ -115,9 +117,9 @@ file:
                                           end_bracket: )
                                 - end_bracket: )
                             binary_operator: '-'
-                            numeric_literal: '1'
+                            integer_literal: '1'
                         - comma: ','
                         - expression:
-                            numeric_literal: '0'
+                            integer_literal: '0'
                         - end_bracket: )
                   end_bracket: )

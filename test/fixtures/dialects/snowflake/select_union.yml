@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c0de8d8aa9756ca2fc964d76a0fd7bda3b733e0c83020bafafc843249f959708
+_hash: e1ab69b4177cfa5b47b9f671f10058fa9845ed715ec16860b26973e9493bdf33
 file:
-  statement:
+- statement:
     set_expression:
     - select_statement:
         select_clause:
@@ -23,3 +23,55 @@ file:
       - keyword: ORDER
       - keyword: BY
       - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: foo
+    - set_operator:
+      - keyword: UNION
+      - keyword: ALL
+      - keyword: BY
+      - keyword: NAME
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '2'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: foo
+    - set_operator:
+      - keyword: UNION
+      - keyword: BY
+      - keyword: NAME
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '2'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: foo
+- statement_terminator: ;

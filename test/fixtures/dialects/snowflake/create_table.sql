@@ -60,6 +60,7 @@ create table collation_demo (
   spanish_phrase varchar collate 'sp'
   );
 
+create table t2 as select col1 collate 'fr' as col1 from t1;
 
 create table mytable
   using template (
@@ -350,3 +351,7 @@ CREATE OR REPLACE HYBRID TABLE application_log (
   col1 VARCHAR(20),
   col2 VARCHAR(20) NOT NULL
   );
+
+CREATE TABLE IF NOT EXISTS my_schema.my_table (
+  DELTA INT
+);

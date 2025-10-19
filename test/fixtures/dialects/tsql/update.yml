@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5dfb847cded3112443771392570f905479cdad72065beebef5cec38c45283ffd
+_hash: aa742b5130da21297720aedd63f0f8b6b40e9150e51736b27a1d4a5cf1bc9bd6
 file:
   batch:
   - statement:
@@ -21,7 +21,7 @@ file:
             assignment_operator:
               raw_comparison_operator: '='
             expression:
-              numeric_literal: '1'
+              integer_literal: '1'
         where_clause:
           keyword: where
           expression:
@@ -75,7 +75,7 @@ file:
               binary_operator: +
               raw_comparison_operator: '='
             expression:
-              numeric_literal: '1'
+              integer_literal: '1'
         from_clause:
           keyword: from
           from_expression:
@@ -84,7 +84,8 @@ file:
                 table_reference:
                   naked_identifier: table1
               alias_expression:
-                keyword: as
+                alias_operator:
+                  keyword: as
                 naked_identifier: tt
             join_clause:
               keyword: join
@@ -119,7 +120,7 @@ file:
             assignment_operator:
               raw_comparison_operator: '='
             expression:
-              numeric_literal: '1'
+              integer_literal: '1'
         output_clause:
         - keyword: OUTPUT
         - wildcard_expression:
@@ -135,4 +136,4 @@ file:
               naked_identifier: useless
             comparison_operator:
               raw_comparison_operator: '='
-            numeric_literal: '1'
+            integer_literal: '1'

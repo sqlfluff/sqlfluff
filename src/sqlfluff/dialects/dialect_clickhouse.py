@@ -735,7 +735,7 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
     type = "alias_expression"
     match_grammar: Matchable = Sequence(
         Indent,
-        Ref.keyword("AS", optional=True),
+        Ref("AsAliasOperatorSegment", optional=True),
         OneOf(
             Sequence(
                 Ref("SingleIdentifierGrammar"),
@@ -1418,6 +1418,38 @@ class DropUserStatementSegment(ansi.DropUserStatementSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
         Ref("OnClusterClauseSegment", optional=True),
+    )
+
+
+class CreateUserStatementSegment(BaseSegment):
+    """A `CREATE USER` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/create/user/
+    """
+
+    type = "create_user_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "USER",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        Ref("OnClusterClauseSegment", optional=True),
+        # IDENTIFIED BY 'password' or IDENTIFIED WITH ... BY ...
+        Sequence(
+            "IDENTIFIED",
+            Sequence(
+                "WITH",
+                Ref("SingleIdentifierGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "BY",
+                Ref("QuotedLiteralSegment"),
+            ),
+            optional=True,
+        ),
     )
 
 
@@ -2119,6 +2151,18 @@ class AlterTableStatementSegment(BaseSegment):
                     optional=True,
                 ),
             ),
+            # ALTER TABLE ... DROP PARTITION|PART partition_expr
+            Sequence(
+                "DROP", OneOf("PARTITION", "PART"), Ref("SingleIdentifierGrammar")
+            ),
+            # ALTER TABLE ... REPLACE PARTITION partition_expr FROM table1
+            Sequence(
+                "REPLACE",
+                "PARTITION",
+                Ref("SingleIdentifierGrammar"),
+                "FROM",
+                Ref("TableReferenceSegment"),
+            ),
         ),
     )
 
@@ -2128,6 +2172,7 @@ class StatementSegment(ansi.StatementSegment):
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
+            Ref("CreateUserStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
             Ref("DropDictionaryStatementSegment"),
             Ref("DropQuotaStatementSegment"),

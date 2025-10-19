@@ -233,17 +233,21 @@ class Rule_RF01(BaseRule):
             targets.append((standalone_alias.raw_normalized(False),))
         distinct_targets = set(tuple(s.upper() for s in t) for t in targets)
 
-        if len(distinct_targets) == 1 and self._dialect_supports_dot_access(
-            query.dialect
-        ):
-            self.force_enable: bool
-            if self.force_enable:
-                # Backwards compatibility.
-                # Nowadays "force_enable" is more of "strict" mode,
-                # for dialects with dot access.
-                pass
-            else:
-                return None
+        if self._dialect_supports_dot_access(query.dialect):
+            # BigQuery supports having multiple aliases in the FROM statement
+            # SparkSQL supports directly accessing values in nested array columns
+            if len(distinct_targets) == 1 or query.dialect.name in [
+                "bigquery",
+                "sparksql",
+            ]:
+                self.force_enable: bool
+                if self.force_enable:
+                    # Backwards compatibility.
+                    # Nowadays "force_enable" is more of "strict" mode,
+                    # for dialects with dot access.
+                    pass
+                else:
+                    return None
 
         targets += self._get_implicit_targets(query)
 
@@ -289,6 +293,17 @@ class Rule_RF01(BaseRule):
                     return [("old",)]
                 else:
                     pass  # pragma: no cover
+
+        if query.dialect.name == "postgres":
+            for seg in reversed(query.parent_stack):
+                if seg.is_type("create_policy_statement") or seg.is_type(
+                    "alter_policy_statement"
+                ):
+                    table_reference = next(seg.recursive_crawl("table_reference"), None)
+                    if table_reference:
+                        return self._table_ref_as_tuple(
+                            cast(ObjectReferenceSegment, table_reference)
+                        )
 
         return []
 

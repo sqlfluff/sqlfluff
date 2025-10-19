@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aa35dd0e9cb1196f731f80fd23ebc17531cc124d892a3c03ba0a7147c3d4cd35
+_hash: 20a079e8c2c658cced513e1214677d3729d549f0662c02625daf180e0ce7f1b0
 file:
   batch:
   - statement:
@@ -11,7 +11,7 @@ file:
       - if_clause:
           keyword: IF
           expression:
-            numeric_literal: '1'
+            integer_literal: '1'
             comparison_operator:
             - raw_comparison_operator: <
             - raw_comparison_operator: '='
@@ -38,7 +38,7 @@ file:
                         naked_identifier: ProductKey
                       comparison_operator:
                         raw_comparison_operator: '='
-                      numeric_literal: '1'
+                      integer_literal: '1'
               end_bracket: )
       - statement:
           select_statement:
@@ -60,7 +60,8 @@ file:
                 quoted_literal: "'This product is too heavy to ship and is only available\
                   \ for pickup.'"
                 alias_expression:
-                  keyword: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: ShippingStatus
             from_clause:
               keyword: FROM
@@ -76,7 +77,7 @@ file:
                   naked_identifier: ProductKey
                 comparison_operator:
                   raw_comparison_operator: '='
-                numeric_literal: '1'
+                integer_literal: '1'
       - keyword: ELSE
       - statement:
           select_statement:
@@ -97,7 +98,8 @@ file:
             - select_clause_element:
                 quoted_literal: "'This product is available for shipping or pickup.'"
                 alias_expression:
-                  keyword: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: ShippingStatus
             from_clause:
               keyword: FROM
@@ -113,7 +115,7 @@ file:
                   naked_identifier: ProductKey
                 comparison_operator:
                   raw_comparison_operator: '='
-                numeric_literal: '1'
+                integer_literal: '1'
   - statement:
       if_then_statement:
         if_clause:
@@ -156,11 +158,11 @@ file:
                             hash_identifier: '#b'
               end_bracket: )
         statement:
-          set_segment:
+          set_local_variable_segment:
             keyword: set
             parameter: '@var'
             assignment_operator:
               raw_comparison_operator: '='
             expression:
-              numeric_literal: '1'
-            statement_terminator: ;
+              integer_literal: '1'
+        statement_terminator: ;

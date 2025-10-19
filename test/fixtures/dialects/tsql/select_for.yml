@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 880fc582733e6ef21dfcbd6d3f666dc5528db9a3da73e7fc18781c7092d66cb1
+_hash: 47a072e8ebd4a29ab9931979bd82178bd5475e916339440d64592b82401343fb
 file:
 - batch:
     statement:
@@ -29,34 +29,36 @@ file:
         - keyword: JSON
         - keyword: AUTO
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            numeric_literal: '1'
+            integer_literal: '1'
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: a
         for_clause:
         - keyword: FOR
         - keyword: JSON
         - keyword: PATH
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            numeric_literal: '1'
+            integer_literal: '1'
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: a
         for_clause:
         - keyword: FOR
@@ -64,8 +66,8 @@ file:
         - keyword: PATH
         - comma: ','
         - keyword: WITHOUT_ARRAY_WRAPPER
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -90,7 +92,8 @@ file:
                 table_reference:
                   hash_identifier: '#tabClass'
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: c
             join_clause:
             - keyword: RIGHT
@@ -100,7 +103,8 @@ file:
                   table_reference:
                     hash_identifier: '#tabStudent'
                 alias_expression:
-                  keyword: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: s
             - join_on_condition:
                 keyword: 'ON'
@@ -132,17 +136,18 @@ file:
         - keyword: JSON
         - keyword: AUTO
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            numeric_literal: '1'
+            integer_literal: '1'
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: a
         for_clause:
         - keyword: FOR
@@ -159,8 +164,8 @@ file:
         - comma: ','
         - keyword: INCLUDE_NULL_VALUES
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
   - statement:
       select_statement:
@@ -189,13 +194,13 @@ file:
               naked_identifier: ProductModelID
           - comparison_operator:
               raw_comparison_operator: '='
-          - numeric_literal: '122'
+          - integer_literal: '122'
           - binary_operator: or
           - column_reference:
               naked_identifier: ProductModelID
           - comparison_operator:
               raw_comparison_operator: '='
-          - numeric_literal: '119'
+          - integer_literal: '119'
         for_clause:
         - keyword: FOR
         - keyword: XML
@@ -228,7 +233,7 @@ file:
               naked_identifier: ProductPhotoID
             comparison_operator:
               raw_comparison_operator: '='
-            numeric_literal: '70'
+            integer_literal: '70'
         for_clause:
         - keyword: FOR
         - keyword: XML
@@ -239,9 +244,10 @@ file:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            numeric_literal: '1'
+            integer_literal: '1'
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: Tag
         from_clause:
           keyword: FROM
@@ -253,7 +259,8 @@ file:
                 - dot: .
                 - naked_identifier: Employee
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: E
         for_clause:
         - keyword: FOR
@@ -287,13 +294,13 @@ file:
               naked_identifier: ProductModelID
           - comparison_operator:
               raw_comparison_operator: '='
-          - numeric_literal: '122'
+          - integer_literal: '122'
           - binary_operator: OR
           - column_reference:
               naked_identifier: ProductModelID
           - comparison_operator:
               raw_comparison_operator: '='
-          - numeric_literal: '119'
+          - integer_literal: '119'
         for_clause:
         - keyword: FOR
         - keyword: XML
@@ -308,12 +315,79 @@ file:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            numeric_literal: '1'
+            integer_literal: '0'
             alias_expression:
-              keyword: AS
+              naked_identifier: ErrorCode
+        for_clause:
+        - keyword: FOR
+        - keyword: XML
+        - keyword: PATH
+        - bracketed:
+            start_bracket: (
+            quoted_literal: "'Result'"
+            end_bracket: )
+        - comma: ','
+        - keyword: TYPE
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            integer_literal: '0'
+            alias_expression:
+              naked_identifier: ErrorCode
+        for_clause:
+        - keyword: FOR
+        - keyword: XML
+        - keyword: PATH
+        - bracketed:
+            start_bracket: (
+            quoted_literal: "'Result'"
+            end_bracket: )
+        - comma: ','
+        - keyword: ROOT
+        - bracketed:
+            start_bracket: (
+            quoted_literal: "'RootName'"
+            end_bracket: )
+        - comma: ','
+        - keyword: TYPE
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            integer_literal: '0'
+            alias_expression:
+              naked_identifier: ErrorCode
+        for_clause:
+        - keyword: FOR
+        - keyword: XML
+        - keyword: PATH
+        - bracketed:
+            start_bracket: (
+            quoted_literal: "'Result'"
+            end_bracket: )
+        - comma: ','
+        - keyword: TYPE
+        - comma: ','
+        - keyword: ROOT
+        - bracketed:
+            start_bracket: (
+            quoted_literal: "'RootName'"
+            end_bracket: )
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            integer_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
               naked_identifier: a
         for_clause:
         - keyword: FOR
         - keyword: BROWSE
-- go_statement:
-    keyword: GO
+  - go_statement:
+      keyword: GO

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e67ce96f8afb40f1f0d3294f475582134acf57bc2b9c31635c2c8095a9878978
+_hash: 80731e713fe589d548488105199e012c434011c05398b3965bc017938b8d7255
 file:
 - statement:
     begin_end_block:
@@ -33,9 +33,7 @@ file:
           - naked_identifier: bonus
           - data_type:
               data_type_identifier: NUMBER
-          - colon: ':'
-          - comparison_operator:
-              raw_comparison_operator: '='
+          - assignment_operator: :=
           - expression:
               numeric_literal: '0'
           - statement_terminator: ;
@@ -47,9 +45,7 @@ file:
                   start_bracket: (
                   numeric_literal: '3'
                   end_bracket: )
-          - colon: ':'
-          - comparison_operator:
-              raw_comparison_operator: '='
+          - assignment_operator: :=
           - expression:
               quoted_literal: "'No'"
           - statement_terminator: ;
@@ -77,9 +73,7 @@ file:
                   assignment_segment_statement:
                     object_reference:
                       naked_identifier: bonus
-                    colon: ':'
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    assignment_operator: :=
                     expression:
                       bracketed:
                         start_bracket: (
@@ -125,9 +119,7 @@ file:
                   assignment_segment_statement:
                     object_reference:
                       naked_identifier: updated
-                    colon: ':'
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    assignment_operator: :=
                     expression:
                       quoted_literal: "'Yes'"
               - statement_terminator: ;
@@ -239,9 +231,7 @@ file:
             naked_identifier: bonus
             data_type:
               data_type_identifier: NUMBER
-            colon: ':'
-            comparison_operator:
-              raw_comparison_operator: '='
+            assignment_operator: :=
             expression:
               numeric_literal: '0'
             statement_terminator: ;
@@ -269,9 +259,7 @@ file:
                   assignment_segment_statement:
                     object_reference:
                       naked_identifier: bonus
-                    colon: ':'
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    assignment_operator: :=
                     expression:
                       bracketed:
                         start_bracket: (
@@ -290,9 +278,7 @@ file:
                   assignment_segment_statement:
                     object_reference:
                       naked_identifier: bonus
-                    colon: ':'
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    assignment_operator: :=
                     expression:
                       numeric_literal: '50'
               - statement_terminator: ;
@@ -415,9 +401,7 @@ file:
             naked_identifier: bonus
             data_type:
               data_type_identifier: NUMBER
-            colon: ':'
-            comparison_operator:
-              raw_comparison_operator: '='
+            assignment_operator: :=
             expression:
               numeric_literal: '0'
             statement_terminator: ;
@@ -445,9 +429,7 @@ file:
                   assignment_segment_statement:
                     object_reference:
                       naked_identifier: bonus
-                    colon: ':'
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    assignment_operator: :=
                     expression:
                       bracketed:
                         start_bracket: (
@@ -478,9 +460,7 @@ file:
                       assignment_segment_statement:
                         object_reference:
                           naked_identifier: bonus
-                        colon: ':'
-                        comparison_operator:
-                          raw_comparison_operator: '='
+                        assignment_operator: :=
                         expression:
                           numeric_literal: '50'
                   - statement_terminator: ;
@@ -489,9 +469,7 @@ file:
                       assignment_segment_statement:
                         object_reference:
                           naked_identifier: bonus
-                        colon: ':'
-                        comparison_operator:
-                          raw_comparison_operator: '='
+                        assignment_operator: :=
                         expression:
                           numeric_literal: '0'
                   - statement_terminator: ;
@@ -626,9 +604,7 @@ file:
             naked_identifier: bonus
             data_type:
               data_type_identifier: NUMBER
-            colon: ':'
-            comparison_operator:
-              raw_comparison_operator: '='
+            assignment_operator: :=
             expression:
               numeric_literal: '0'
             statement_terminator: ;
@@ -649,9 +625,7 @@ file:
                   assignment_segment_statement:
                     object_reference:
                       naked_identifier: bonus
-                    colon: ':'
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    assignment_operator: :=
                     expression:
                       numeric_literal: '1500'
               - statement_terminator: ;
@@ -667,9 +641,7 @@ file:
                   assignment_segment_statement:
                     object_reference:
                       naked_identifier: bonus
-                    colon: ':'
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    assignment_operator: :=
                     expression:
                       numeric_literal: '500'
               - statement_terminator: ;
@@ -678,9 +650,7 @@ file:
                   assignment_segment_statement:
                     object_reference:
                       naked_identifier: bonus
-                    colon: ':'
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    assignment_operator: :=
                     expression:
                       numeric_literal: '100'
               - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bbbd3fb9b2aeff3242883c81316cbc76c73adfea9991094b10cd8a21795a1e6c
+_hash: 6ffa5a8e74bb9b7f048568b335d5f8d05e9b7ec2ae044ad88391c1c96d63f863
 file:
 - statement:
     create_task_statement:
@@ -237,7 +237,8 @@ file:
                             naked_identifier: datetime
                       end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: session_id
             from_clause:
               keyword: FROM
@@ -356,7 +357,8 @@ file:
                                       end_bracket: )
                               end_bracket: )
                           alias_expression:
-                            keyword: AS
+                            alias_operator:
+                              keyword: AS
                             naked_identifier: session_id
                       from_clause:
                         keyword: FROM
@@ -390,7 +392,8 @@ file:
                           naked_identifier: datetime
                     end_bracket: )
                 alias_expression:
-                  keyword: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: v
           where_clause:
             keyword: WHERE
@@ -636,4 +639,20 @@ file:
               bracketed:
                 start_bracket: (
                 end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: mytask
+    - keyword: AS
+    - statement:
+        alter_dynamic_table_statement:
+        - keyword: ALTER
+        - keyword: DYNAMIC
+        - keyword: TABLE
+        - table_reference:
+            naked_identifier: foo
+        - keyword: REFRESH
 - statement_terminator: ;

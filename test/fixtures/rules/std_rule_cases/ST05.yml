@@ -1141,3 +1141,76 @@ test_fail_mariadb_insert_cte_select:
   configs:
     core:
       dialect: mariadb
+
+test_fail_tsql_insert:
+  fail_str: |
+    INSERT INTO Table1 (Id,Name,Attribute)
+    SELECT
+    Main.Id
+    ,Main.Name
+    ,Subq.Attribute
+    FROM MainTable AS Main
+    LEFT JOIN
+    (SELECT
+    Id
+    ,Attribute
+    FROM Table2) Subq
+    ON Main.Id = Subq.Id
+  fix_str: |
+    WITH Subq AS (SELECT
+    Id
+    ,Attribute
+    FROM Table2)
+    INSERT INTO Table1 (Id,Name,Attribute)
+    SELECT
+    Main.Id
+    ,Main.Name
+    ,Subq.Attribute
+    FROM MainTable AS Main
+    LEFT JOIN
+    Subq
+    ON Main.Id = Subq.Id
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_existing_cte_with_insert:
+  fail_str: |
+    WITH MainTable as (
+        select *
+        from sales
+    )
+
+    INSERT INTO Table1 (Id,Name,Attribute)
+    SELECT
+    Main.Id
+    ,Main.Name
+    ,Subq.Attribute
+    FROM MainTable AS Main
+    LEFT JOIN
+    (SELECT
+    Id
+    ,Attribute
+    FROM Table2) Subq
+    ON Main.Id = Subq.Id
+  fix_str: |
+    WITH MainTable as (
+        select *
+        from sales
+    ),
+    Subq AS (SELECT
+    Id
+    ,Attribute
+    FROM Table2)
+    INSERT INTO Table1 (Id,Name,Attribute)
+    SELECT
+    Main.Id
+    ,Main.Name
+    ,Subq.Attribute
+    FROM MainTable AS Main
+    LEFT JOIN
+    Subq
+    ON Main.Id = Subq.Id
+  configs:
+    core:
+      dialect: tsql

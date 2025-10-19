@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f49b9b7af9353f7d07866b8964a00f9de08c3000e479e3d4a6349a5badd15bf9
+_hash: 69110a53371b8d7fb79e3e523200c61265e4d3c8a17ec9d371cf7480d98b7940
 file:
 - batch:
     statement:
@@ -21,8 +21,8 @@ file:
       - role_reference:
           naked_identifier: RosaQdM
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
   - statement:
       use_statement:
@@ -45,8 +45,8 @@ file:
       - role_reference:
           naked_identifier: Recruiting11
   - statement_terminator: ;
-- go_statement:
-    keyword: GO
+  - go_statement:
+      keyword: GO
 - batch:
     statement:
       access_statement:
@@ -71,8 +71,8 @@ file:
       - keyword: GRANT
       - keyword: OPTION
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       access_statement:
@@ -87,8 +87,8 @@ file:
       - role_reference:
           naked_identifier: RosaQdM
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       access_statement:
@@ -103,8 +103,8 @@ file:
       - role_reference:
           quoted_identifier: '[AdventureWorks2012\RosaQdM]'
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
   - statement:
       create_role_statement:
@@ -126,8 +126,8 @@ file:
       - role_reference:
           naked_identifier: newrole
   - statement_terminator: ;
-- go_statement:
-    keyword: GO
+  - go_statement:
+      keyword: GO
 - batch:
     statement:
       access_statement:
@@ -142,8 +142,8 @@ file:
       - role_reference:
           naked_identifier: Vendors
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       access_statement:
@@ -158,8 +158,8 @@ file:
       - role_reference:
           naked_identifier: Vendors
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       access_statement:
@@ -176,8 +176,8 @@ file:
       - role_reference:
           naked_identifier: RosaQdM
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       access_statement:
@@ -194,8 +194,8 @@ file:
       - role_reference:
           naked_identifier: Recruiting11
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       access_statement:
@@ -218,5 +218,5 @@ file:
           naked_identifier: Wanida
       - keyword: CASCADE
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO

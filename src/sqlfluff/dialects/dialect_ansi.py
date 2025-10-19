@@ -179,6 +179,7 @@ ansi_dialect.set_lexer_matchers(
             r"////\s*(CHANGE|BODY|METADATA)[^\n]*",
             CommentSegment,
         ),
+        StringLexer("glob_operator", r"~~~", ComparisonOperatorSegment),
         RegexLexer("like_operator", r"!?~~?\*?", ComparisonOperatorSegment),
         RegexLexer("newline", r"\r\n|\n", NewlineSegment),
         StringLexer("casting_operator", "::", CodeSegment),
@@ -275,6 +276,7 @@ ansi_dialect.add(
     # NOTE: The purpose of the colon_delimiter is that it has different layout rules.
     # It assumes no whitespace on either side.
     ColonDelimiterSegment=StringParser(":", SymbolSegment, type="colon_delimiter"),
+    ColonPrefixSegment=StringParser(":", SymbolSegment, type="colon_prefix"),
     StartBracketSegment=StringParser("(", SymbolSegment, type="start_bracket"),
     EndBracketSegment=StringParser(")", SymbolSegment, type="end_bracket"),
     StartSquareBracketSegment=StringParser(
@@ -302,6 +304,9 @@ ansi_dialect.add(
     AmpersandSegment=StringParser("&", SymbolSegment, type="ampersand"),
     PipeSegment=StringParser("|", SymbolSegment, type="pipe"),
     BitwiseXorSegment=StringParser("^", SymbolSegment, type="binary_operator"),
+    GlobOperatorSegment=TypedParser(
+        "glob_operator", ComparisonOperatorSegment, type="glob_operator"
+    ),
     LikeOperatorSegment=TypedParser(
         "like_operator", ComparisonOperatorSegment, type="like_operator"
     ),
@@ -473,6 +478,18 @@ ansi_dialect.add(
     IfExistsGrammar=Sequence("IF", "EXISTS"),
     IfNotExistsGrammar=Sequence("IF", "NOT", "EXISTS"),
     LikeGrammar=OneOf("LIKE", "RLIKE", "ILIKE"),
+    LikeExpressionGrammar=Sequence(
+        Sequence(
+            Ref.keyword("NOT", optional=True),
+            Ref("LikeGrammar"),
+        ),
+        Ref("Expression_A_Grammar"),
+        Sequence(
+            "ESCAPE",
+            Ref("Tail_Recurse_Expression_A_Grammar"),
+            optional=True,
+        ),
+    ),
     PatternMatchingGrammar=Nothing(),
     UnionGrammar=Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
     IsClauseGrammar=OneOf(
@@ -502,7 +519,7 @@ ansi_dialect.add(
         "FROM",
         "WHERE",
         Sequence("ORDER", "BY"),
-        "LIMIT",
+        Ref("LimitClauseSegment"),
         "OVERLAPS",
         Ref("SetOperatorSegment"),
         "FETCH",
@@ -514,7 +531,7 @@ ansi_dialect.add(
     CollateGrammar=Nothing(),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
-        "LIMIT",
+        Ref("LimitClauseSegment"),
         Sequence("GROUP", "BY"),
         Sequence("ORDER", "BY"),
         "HAVING",
@@ -527,7 +544,7 @@ ansi_dialect.add(
         "OFFSET",
     ),
     WhereClauseTerminatorGrammar=OneOf(
-        "LIMIT",
+        Ref("LimitClauseSegment"),
         Sequence("GROUP", "BY"),
         Sequence("ORDER", "BY"),
         "HAVING",
@@ -538,7 +555,7 @@ ansi_dialect.add(
     ),
     GroupByClauseTerminatorGrammar=OneOf(
         Sequence("ORDER", "BY"),
-        "LIMIT",
+        Ref("LimitClauseSegment"),
         "HAVING",
         "QUALIFY",
         "WINDOW",
@@ -546,13 +563,13 @@ ansi_dialect.add(
     ),
     HavingClauseTerminatorGrammar=OneOf(
         Sequence("ORDER", "BY"),
-        "LIMIT",
+        Ref("LimitClauseSegment"),
         "QUALIFY",
         "WINDOW",
         "FETCH",
     ),
     OrderByClauseTerminators=OneOf(
-        "LIMIT",
+        Ref("LimitClauseSegment"),
         "HAVING",
         "QUALIFY",
         # For window functions
@@ -776,6 +793,7 @@ ansi_dialect.add(
         Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
         Sequence("NO", "MAXVALUE"),
     ),
+    ColumnGeneratedGrammar=Nothing(),
 )
 
 
@@ -787,11 +805,16 @@ class FileSegment(BaseFileSegment):
     has no match_grammar.
     """
 
-    match_grammar = Delimited(
-        Ref("StatementSegment"),
-        delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
-        allow_gaps=True,
-        allow_trailing=True,
+    # Allow leading & trailing delimiters plus runs of delimited statements.
+    match_grammar = Sequence(
+        AnyNumberOf(Ref("DelimiterGrammar")),
+        Delimited(
+            Ref("StatementSegment"),
+            delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+            allow_gaps=True,
+            allow_trailing=True,
+        ),
+        AnyNumberOf(Ref("DelimiterGrammar")),
     )
 
     def get_table_references(self) -> set[str]:
@@ -1273,7 +1296,7 @@ class AliasExpressionSegment(BaseSegment):
     type = "alias_expression"
     match_grammar: Matchable = Sequence(
         Indent,
-        Ref.keyword("AS", optional=True),
+        Ref("AsAliasOperatorSegment", optional=True),
         OneOf(
             Sequence(
                 Ref("SingleIdentifierGrammar"),
@@ -1284,6 +1307,13 @@ class AliasExpressionSegment(BaseSegment):
         ),
         Dedent,
     )
+
+
+class AsAliasOperatorSegment(BaseSegment):
+    """The as alias expression operator."""
+
+    type = "alias_operator"
+    match_grammar: Matchable = Sequence("AS")
 
 
 class ShorthandCastSegment(BaseSegment):
@@ -1573,8 +1603,9 @@ class FrameClauseSegment(BaseSegment):
         Sequence(
             OneOf(
                 Ref("NumericLiteralSegment"),
-                Sequence("INTERVAL", Ref("QuotedLiteralSegment")),
+                Ref("IntervalExpressionSegment"),
                 "UNBOUNDED",
+                Ref("ColumnReferenceSegment"),
             ),
             OneOf("PRECEDING", "FOLLOWING"),
         ),
@@ -2198,18 +2229,7 @@ ansi_dialect.add(
                 # Expression_A_Grammar normally.
                 #
                 # We need to add a lot more here...
-                Sequence(
-                    Sequence(
-                        Ref.keyword("NOT", optional=True),
-                        Ref("LikeGrammar"),
-                    ),
-                    Ref("Expression_A_Grammar"),
-                    Sequence(
-                        Ref.keyword("ESCAPE"),
-                        Ref("Tail_Recurse_Expression_A_Grammar"),
-                        optional=True,
-                    ),
-                ),
+                Ref("LikeExpressionGrammar"),
                 Sequence(
                     Ref("BinaryOperatorGrammar"),
                     Ref("Tail_Recurse_Expression_A_Grammar"),
@@ -2509,7 +2529,7 @@ class OrderByClauseSegment(BaseSegment):
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
                 Ref("WithFillSegment", optional=True),
             ),
-            terminators=["LIMIT", Ref("FrameClauseUnitGrammar")],
+            terminators=[Ref("LimitClauseSegment"), Ref("FrameClauseUnitGrammar")],
         ),
         Dedent,
     )
@@ -2863,6 +2883,7 @@ ansi_dialect.add(
         Ref("UpdateStatementSegment"),
         Ref("InsertStatementSegment"),
         Ref("DeleteStatementSegment"),
+        Ref("MergeStatementSegment"),
     ),
     # Things that behave like select statements, which can form part of set expressions.
     NonSetSelectableGrammar=OneOf(
@@ -2945,7 +2966,7 @@ class WithCompoundStatementSegment(BaseSegment):
 
 
 class WithCompoundNonSelectStatementSegment(BaseSegment):
-    """A `UPDATE/INSERT/DELETE` statement preceded by a selection of `WITH` clauses.
+    """A `UPDATE/INSERT/DELETE/MERGE` statement preceded by `WITH` clauses.
 
     `WITH tab (col1,col2) AS (SELECT a,b FROM x)`
     """
@@ -3205,6 +3226,7 @@ class ColumnConstraintSegment(BaseSegment):
             Sequence(
                 "COLLATE", Ref("CollationReferenceSegment")
             ),  # https://www.sqlite.org/datatype3.html#collation
+            Ref("ColumnGeneratedGrammar"),
         ),
     )
 
@@ -3620,6 +3642,7 @@ class AccessStatementSegment(BaseSegment):
                     _schema_object_types,
                 ),
             ),
+            Sequence("USE", OneOf("SCHEMA", "CATALOG")),
             Sequence("IMPORTED", "PRIVILEGES"),
             "APPLY",
             "CONNECT",
@@ -3661,6 +3684,7 @@ class AccessStatementSegment(BaseSegment):
                 "INTEGRATION",
                 "LANGUAGE",
                 "SCHEMA",
+                "CATALOG",
                 "ROLE",
                 "TABLESPACE",
                 "TYPE",

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 239013b521b0192fd7c63b5eac97cbf964128a89fc638c20d9476df945dbed14
+_hash: e54ee2107f49b062d4e9da45478ccd9f1acd2fed5669cca8328f2e30bb2d7968
 file:
   batch:
   - statement:
@@ -37,13 +37,13 @@ file:
                     quoted_literal: "'a'"
                 - comma: ','
                 - expression:
-                    numeric_literal: '1'
+                    integer_literal: '1'
                 - comma: ','
                 - expression:
                     quoted_literal: "'b'"
                 - comma: ','
                 - expression:
-                    numeric_literal: '2'
+                    integer_literal: '2'
                 - end_bracket: )
         statement_terminator: ;
   - statement:
@@ -87,7 +87,7 @@ file:
                 - comma: ','
                 - quoted_literal: "'new'"
                 - colon: ':'
-                - numeric_literal: '1'
+                - integer_literal: '1'
                 - end_bracket: )
         statement_terminator: ;
   - statement:
@@ -136,10 +136,10 @@ file:
                       bracketed:
                       - start_bracket: (
                       - expression:
-                          numeric_literal: '1'
+                          integer_literal: '1'
                       - comma: ','
                       - expression:
-                          numeric_literal: '2'
+                          integer_literal: '2'
                       - end_bracket: )
                 - end_bracket: )
   - statement:
@@ -167,7 +167,7 @@ file:
                       - start_bracket: (
                       - quoted_literal: "'type_id'"
                       - colon: ':'
-                      - numeric_literal: '1'
+                      - integer_literal: '1'
                       - comma: ','
                       - quoted_literal: "'name'"
                       - colon: ':'
@@ -184,7 +184,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '10'
+                integer_literal: '10'
               end_bracket: )
       - comparison_operator:
           raw_comparison_operator: '='
@@ -198,7 +198,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '64'
+                integer_literal: '64'
               end_bracket: )
       - comparison_operator:
           raw_comparison_operator: '='
@@ -287,7 +287,8 @@ file:
                   - naked_identifier: status
                 - end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: info
         from_clause:
           keyword: FROM
@@ -299,7 +300,8 @@ file:
                 - dot: .
                 - naked_identifier: dm_exec_sessions
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: s
         where_clause:
           keyword: WHERE
@@ -310,7 +312,7 @@ file:
             - naked_identifier: is_user_process
             comparison_operator:
               raw_comparison_operator: '='
-            numeric_literal: '1'
+            integer_literal: '1'
         statement_terminator: ;
   - statement:
       select_statement:
@@ -339,7 +341,7 @@ file:
                         - comma: ','
                         - quoted_literal: "'type'"
                         - colon: ':'
-                        - numeric_literal: '1'
+                        - integer_literal: '1'
                         - end_bracket: )
                 - end_bracket: )
         statement_terminator: ;
@@ -370,7 +372,7 @@ file:
                         - comma: ','
                         - quoted_literal: "'type'"
                         - colon: ':'
-                        - numeric_literal: '1'
+                        - integer_literal: '1'
                         - end_bracket: )
                 - comma: ','
                 - expression:
@@ -401,7 +403,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '64'
+                integer_literal: '64'
               end_bracket: )
         comparison_operator:
           raw_comparison_operator: '='
@@ -426,7 +428,7 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '1'
+                    integer_literal: '1'
                 - comma: ','
                 - expression:
                     parameter: '@id_value'
@@ -488,7 +490,8 @@ file:
                 - dot: .
                 - naked_identifier: dm_exec_sessions
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: s
         where_clause:
           keyword: WHERE
@@ -499,5 +502,5 @@ file:
             - naked_identifier: is_user_process
             comparison_operator:
               raw_comparison_operator: '='
-            numeric_literal: '1'
+            integer_literal: '1'
         statement_terminator: ;

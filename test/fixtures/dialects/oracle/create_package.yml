@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e5cfe095e6f25f4428d881e2a8cc8946c2ef6919dd6505804987cfcbc2d4dfba
+_hash: 6ee752d3a5f76c7b13890c7ecd7d879e9d66af58a9191f4c57c5ea6304a29fd6
 file:
 - statement:
     create_package_statement:
@@ -271,9 +271,7 @@ file:
               assignment_segment_statement:
                 object_reference:
                   naked_identifier: tot_emps
-                colon: ':'
-                comparison_operator:
-                  raw_comparison_operator: '='
+                assignment_operator: :=
                 expression:
                   column_reference:
                     naked_identifier: tot_emps
@@ -365,9 +363,7 @@ file:
               assignment_segment_statement:
                 object_reference:
                   naked_identifier: tot_depts
-                colon: ':'
-                comparison_operator:
-                  raw_comparison_operator: '='
+                assignment_operator: :=
                 expression:
                   column_reference:
                     naked_identifier: tot_depts
@@ -430,9 +426,7 @@ file:
               assignment_segment_statement:
                 object_reference:
                   naked_identifier: tot_emps
-                colon: ':'
-                comparison_operator:
-                  raw_comparison_operator: '='
+                assignment_operator: :=
                 expression:
                   column_reference:
                     naked_identifier: tot_emps
@@ -483,9 +477,7 @@ file:
               assignment_segment_statement:
                 object_reference:
                   naked_identifier: tot_depts
-                colon: ':'
-                comparison_operator:
-                  raw_comparison_operator: '='
+                assignment_operator: :=
                 expression:
                   column_reference:
                     naked_identifier: tot_depts
@@ -718,5 +710,250 @@ file:
     - keyword: END
     - package_reference:
         naked_identifier: emp_mgmt
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    create_package_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PACKAGE
+    - package_reference:
+        naked_identifier: test_package
+    - keyword: IS
+    - declare_segment:
+        create_function_statement:
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: any_function_with_result_cache
+        - keyword: RETURN
+        - data_type:
+            data_type_identifier: VARCHAR2
+        - keyword: RESULT_CACHE
+        - statement_terminator: ;
+    - keyword: END
+    - package_reference:
+        naked_identifier: test_package
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    create_package_statement:
+    - keyword: CREATE
+    - keyword: PACKAGE
+    - package_reference:
+        naked_identifier: skip_col_pkg
+    - keyword: AS
+    - declare_segment:
+      - create_function_statement:
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: skip_col
+        - function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: tab
+            - data_type:
+                data_type_identifier: TABLE
+            - comma: ','
+            - parameter: col
+            - data_type:
+                data_type_identifier: COLUMNS
+            - end_bracket: )
+        - keyword: RETURN
+        - data_type:
+            data_type_identifier: TABLE
+        - keyword: PIPELINED
+        - keyword: ROW
+        - keyword: POLYMORPHIC
+        - keyword: USING
+        - object_reference:
+            naked_identifier: skip_col_pkg
+        - statement_terminator: ;
+      - create_function_statement:
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: describe
+        - function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: tab
+            - keyword: IN
+            - keyword: OUT
+            - data_type:
+                naked_identifier: DBMS_TF
+                dot: .
+                data_type_identifier: TABLE_T
+            - comma: ','
+            - parameter: col
+            - data_type:
+                naked_identifier: DBMS_TF
+                dot: .
+                data_type_identifier: COLUMNS_T
+            - end_bracket: )
+        - keyword: RETURN
+        - data_type:
+            naked_identifier: DBMS_TF
+            dot: .
+            data_type_identifier: DESCRIBE_T
+        - statement_terminator: ;
+      - create_function_statement:
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: skip_col
+        - function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: tab
+            - data_type:
+                data_type_identifier: TABLE
+            - comma: ','
+            - parameter: type_name
+            - data_type:
+                data_type_identifier: VARCHAR2
+            - comma: ','
+            - parameter: flip
+            - data_type:
+                data_type_identifier: VARCHAR2
+            - keyword: DEFAULT
+            - expression:
+                quoted_literal: "'False'"
+            - end_bracket: )
+        - keyword: RETURN
+        - data_type:
+            data_type_identifier: TABLE
+        - keyword: PIPELINED
+        - keyword: ROW
+        - keyword: POLYMORPHIC
+        - keyword: USING
+        - object_reference:
+            naked_identifier: skip_col_pkg
+        - statement_terminator: ;
+      - create_function_statement:
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: describe
+        - function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: tab
+            - keyword: IN
+            - keyword: OUT
+            - data_type:
+                naked_identifier: DBMS_TF
+                dot: .
+                data_type_identifier: TABLE_T
+            - comma: ','
+            - parameter: type_name
+            - data_type:
+                data_type_identifier: VARCHAR2
+            - comma: ','
+            - parameter: flip
+            - data_type:
+                data_type_identifier: VARCHAR2
+            - keyword: DEFAULT
+            - expression:
+                quoted_literal: "'False'"
+            - end_bracket: )
+        - keyword: RETURN
+        - data_type:
+            naked_identifier: DBMS_TF
+            dot: .
+            data_type_identifier: DESCRIBE_T
+        - statement_terminator: ;
+    - keyword: END
+    - package_reference:
+        naked_identifier: skip_col_pkg
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    create_package_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PACKAGE
+    - keyword: BODY
+    - package_reference:
+        naked_identifier: test_package
+    - keyword: IS
+    - declare_segment:
+        create_function_statement:
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: test_function
+        - keyword: RETURN
+        - data_type:
+            data_type_identifier: VARCHAR2
+        - keyword: IS
+        - declare_segment:
+            naked_identifier: var_1
+            data_type:
+              data_type_identifier: NUMBER
+            assignment_operator: :=
+            expression:
+              numeric_literal: '0'
+            statement_terminator: ;
+        - begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              begin_end_block:
+              - keyword: BEGIN
+              - statement:
+                  select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        numeric_literal: '1'
+                    into_clause:
+                      keyword: INTO
+                      naked_identifier: var_1
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              naked_identifier: DUAL
+              - statement_terminator: ;
+              - keyword: EXCEPTION
+              - keyword: WHEN
+              - naked_identifier: NO_DATA_FOUND
+              - keyword: THEN
+              - statement:
+                  assignment_segment_statement:
+                    object_reference:
+                      naked_identifier: var_1
+                    assignment_operator: :=
+                    expression:
+                      numeric_literal: '0'
+              - statement_terminator: ;
+              - keyword: WHEN
+              - keyword: OTHERS
+              - keyword: THEN
+              - statement:
+                  function:
+                    function_name:
+                      naked_identifier: logger
+                      dot: .
+                      function_name_identifier: log_error
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'Unhandled Exception'"
+                        end_bracket: )
+              - statement_terminator: ;
+              - statement:
+                  raise_statement:
+                    keyword: RAISE
+              - statement_terminator: ;
+              - keyword: END
+          - statement_terminator: ;
+          - keyword: END
+          - object_reference:
+              naked_identifier: test_function
+        - statement_terminator: ;
+    - keyword: END
+    - package_reference:
+        naked_identifier: test_package
 - statement_terminator: ;
 - statement_terminator: /

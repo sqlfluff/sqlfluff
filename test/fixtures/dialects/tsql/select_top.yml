@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dd5cab8477da6c6e8b56cb9f9d93ea42dff24632776a6b869e42485f2235e432
+_hash: 0e83e439d8537e3a217e2edb9a9ce855eb646bed22849f13436e830e9739a3aa
 file:
   batch:
   - statement:
@@ -13,14 +13,15 @@ file:
           select_clause_modifier:
             keyword: top
             expression:
-              numeric_literal: '1'
+              integer_literal: '1'
           select_clause_element:
             column_reference:
             - naked_identifier: t
             - dot: .
             - naked_identifier: date_column1
             alias_expression:
-              keyword: as
+              alias_operator:
+                keyword: as
               naked_identifier: last_date_column1
         from_clause:
           keyword: from
@@ -53,7 +54,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '10'
+                integer_literal: '10'
               end_bracket: )
         - select_clause_element:
             column_reference:
@@ -81,7 +82,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '10'
+                integer_literal: '10'
               end_bracket: )
         - select_clause_element:
             column_reference:
@@ -115,7 +116,7 @@ file:
           - bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '5'
+                integer_literal: '5'
               end_bracket: )
           - keyword: PERCENT
         - select_clause_element:
@@ -150,7 +151,7 @@ file:
           - bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '10'
+                integer_literal: '10'
               end_bracket: )
           - keyword: PERCENT
           - keyword: WITH
@@ -194,7 +195,8 @@ file:
                 - dot: .
                 - naked_identifier: Person
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: pp
           - join_clause:
             - keyword: INNER
@@ -206,7 +208,8 @@ file:
                   - dot: .
                   - naked_identifier: Employee
                 alias_expression:
-                  keyword: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: e
             - join_on_condition:
                 keyword: 'ON'
@@ -231,7 +234,8 @@ file:
                   - dot: .
                   - naked_identifier: EmployeePayHistory
                 alias_expression:
-                  keyword: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: r
             - join_on_condition:
                 keyword: 'ON'

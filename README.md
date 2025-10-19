@@ -46,8 +46,10 @@ currently supports the following SQL dialects (though perhaps not in full):
 - [Databricks](https://databricks.com/) (note: this extends the `sparksql` dialect with
   [Unity Catalog](https://docs.databricks.com/data-governance/unity-catalog/index.html) syntax).
 - [Db2](https://www.ibm.com/analytics/db2)
+- [Doris](https://doris.apache.org/)
 - [DuckDB](https://duckdb.org/)
 - [Exasol](https://www.exasol.com/)
+- [FlinkSQL](https://nightlies.apache.org/flink/flink-docs-master/)
 - [Greenplum](https://greenplum.org/)
 - [Hive](https://hive.apache.org/)
 - [Impala](https://impala.apache.org/)

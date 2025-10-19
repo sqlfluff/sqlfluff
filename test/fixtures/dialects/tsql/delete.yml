@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8644f64d875c1808df0e0795774001f4817490e86eb0f00974ca775f88ded213
+_hash: 2e331e3cca75d2ef01d27bc0bcff842a46d66f49250ead969821052c21a7c7fa
 file:
 - batch:
     statement:
@@ -15,8 +15,8 @@ file:
         - dot: .
         - naked_identifier: SalesPersonQuotaHistory
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       delete_statement:
@@ -35,8 +35,8 @@ file:
               raw_comparison_operator: '>'
             numeric_literal: '1000.00'
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
   - statement:
       delete_statement:
@@ -81,91 +81,94 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        numeric_literal: '3'
+                        integer_literal: '3'
                       end_bracket: )
                 end_bracket: )
         statement_terminator: ;
-- go_statement:
-    keyword: GO
+  - go_statement:
+      keyword: GO
 - batch:
   - statement:
       declare_segment:
-      - keyword: DECLARE
-      - naked_identifier: complex_cursor
-      - keyword: CURSOR
-      - keyword: FOR
-      - select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              column_reference:
-              - naked_identifier: a
-              - dot: .
-              - naked_identifier: BusinessEntityID
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                  - naked_identifier: HumanResources
-                  - dot: .
-                  - naked_identifier: EmployeePayHistory
-                alias_expression:
-                  keyword: AS
-                  naked_identifier: a
-          where_clause:
-            keyword: WHERE
-            expression:
-              column_reference:
-                naked_identifier: RateChangeDate
-              comparison_operator:
-              - raw_comparison_operator: <
-              - raw_comparison_operator: '>'
-              bracketed:
-                start_bracket: (
-                expression:
-                  select_statement:
-                    select_clause:
-                      keyword: SELECT
-                      select_clause_element:
-                        function:
-                          function_name:
-                            function_name_identifier: MAX
-                          function_contents:
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                column_reference:
-                                  naked_identifier: RateChangeDate
-                              end_bracket: )
-                    from_clause:
-                      keyword: FROM
-                      from_expression:
-                        from_expression_element:
-                          table_expression:
-                            table_reference:
-                            - naked_identifier: HumanResources
-                            - dot: .
-                            - naked_identifier: EmployeePayHistory
-                          alias_expression:
-                            keyword: AS
-                            naked_identifier: b
-                    where_clause:
-                      keyword: WHERE
-                      expression:
-                      - column_reference:
-                        - naked_identifier: a
-                        - dot: .
-                        - naked_identifier: BusinessEntityID
-                      - comparison_operator:
-                          raw_comparison_operator: '='
-                      - column_reference:
-                        - naked_identifier: b
-                        - dot: .
-                        - naked_identifier: BusinessEntityID
-                end_bracket: )
-          statement_terminator: ;
+        keyword: DECLARE
+        naked_identifier: complex_cursor
+        cursor_definition:
+        - keyword: CURSOR
+        - keyword: FOR
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                - naked_identifier: a
+                - dot: .
+                - naked_identifier: BusinessEntityID
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: HumanResources
+                    - dot: .
+                    - naked_identifier: EmployeePayHistory
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: a
+            where_clause:
+              keyword: WHERE
+              expression:
+                column_reference:
+                  naked_identifier: RateChangeDate
+                comparison_operator:
+                - raw_comparison_operator: <
+                - raw_comparison_operator: '>'
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    select_statement:
+                      select_clause:
+                        keyword: SELECT
+                        select_clause_element:
+                          function:
+                            function_name:
+                              function_name_identifier: MAX
+                            function_contents:
+                              bracketed:
+                                start_bracket: (
+                                expression:
+                                  column_reference:
+                                    naked_identifier: RateChangeDate
+                                end_bracket: )
+                      from_clause:
+                        keyword: FROM
+                        from_expression:
+                          from_expression_element:
+                            table_expression:
+                              table_reference:
+                              - naked_identifier: HumanResources
+                              - dot: .
+                              - naked_identifier: EmployeePayHistory
+                            alias_expression:
+                              alias_operator:
+                                keyword: AS
+                              naked_identifier: b
+                      where_clause:
+                        keyword: WHERE
+                        expression:
+                        - column_reference:
+                          - naked_identifier: a
+                          - dot: .
+                          - naked_identifier: BusinessEntityID
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - column_reference:
+                          - naked_identifier: b
+                          - dot: .
+                          - naked_identifier: BusinessEntityID
+                  end_bracket: )
+            statement_terminator: ;
   - statement:
       open_cursor_statement:
         keyword: OPEN
@@ -200,8 +203,8 @@ file:
         keyword: DEALLOCATE
         naked_identifier: complex_cursor
   - statement_terminator: ;
-- go_statement:
-    keyword: GO
+  - go_statement:
+      keyword: GO
 - batch:
     statement:
       delete_statement:
@@ -244,8 +247,8 @@ file:
                     numeric_literal: '2500000.00'
               end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       delete_statement:
@@ -265,7 +268,8 @@ file:
                 - dot: .
                 - naked_identifier: SalesPersonQuotaHistory
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: spqh
             join_clause:
             - keyword: INNER
@@ -277,7 +281,8 @@ file:
                   - dot: .
                   - naked_identifier: SalesPerson
                 alias_expression:
-                  keyword: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: sp
             - join_on_condition:
                 keyword: 'ON'
@@ -303,8 +308,8 @@ file:
               raw_comparison_operator: '>'
             numeric_literal: '2500000.00'
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
   - statement:
       delete_statement:
@@ -321,7 +326,8 @@ file:
                 - dot: .
                 - naked_identifier: SalesPersonQuotaHistory
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: spqh
             join_clause:
             - keyword: INNER
@@ -333,7 +339,8 @@ file:
                   - dot: .
                   - naked_identifier: SalesPerson
                 alias_expression:
-                  keyword: AS
+                  alias_operator:
+                    keyword: AS
                   naked_identifier: sp
             - join_on_condition:
                 keyword: 'ON'
@@ -366,7 +373,7 @@ file:
       - bracketed:
           start_bracket: (
           expression:
-            numeric_literal: '20'
+            integer_literal: '20'
           end_bracket: )
       - keyword: FROM
       - table_reference:
@@ -382,8 +389,8 @@ file:
               raw_comparison_operator: <
             quoted_literal: "'20020701'"
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+  - go_statement:
+      keyword: GO
 - batch:
     statement:
       delete_statement:
@@ -407,7 +414,7 @@ file:
                   select_clause_modifier:
                     keyword: TOP
                     expression:
-                      numeric_literal: '10'
+                      integer_literal: '10'
                   select_clause_element:
                     column_reference:
                       naked_identifier: PurchaseOrderDetailID
@@ -428,8 +435,8 @@ file:
                 - keyword: ASC
               end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       delete_statement:
@@ -449,10 +456,10 @@ file:
               naked_identifier: DepartmentID
             comparison_operator:
               raw_comparison_operator: '>'
-            numeric_literal: '16'
+            integer_literal: '16'
         statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       delete_statement:
@@ -466,8 +473,8 @@ file:
             WHERE DepartmentID = 18'"
           end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       delete_statement:
@@ -483,8 +490,8 @@ file:
           - table_reference:
               naked_identifier: Department
           - end_bracket: )
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
   - statement:
       delete_statement:
@@ -511,7 +518,7 @@ file:
               naked_identifier: DepartmentID
             comparison_operator:
               raw_comparison_operator: '='
-            numeric_literal: '17'
+            integer_literal: '17'
       - statement_terminator: ;
   - statement:
       delete_statement:
@@ -534,7 +541,7 @@ file:
               naked_identifier: ShoppingCartID
             comparison_operator:
               raw_comparison_operator: '='
-            numeric_literal: '20621'
+            integer_literal: '20621'
         statement_terminator: ;
   - statement:
       declare_segment:
@@ -559,7 +566,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '50'
+                    integer_literal: '50'
                   end_bracket: )
             column_constraint_segment:
             - keyword: NOT
@@ -623,7 +630,8 @@ file:
                 - dot: .
                 - naked_identifier: ProductProductPhoto
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: ph
             join_clause:
               keyword: JOIN
@@ -634,7 +642,8 @@ file:
                   - dot: .
                   - naked_identifier: Product
                 alias_expression:
-                  keyword: as
+                  alias_operator:
+                    keyword: as
                   naked_identifier: p
               join_on_condition:
                 keyword: 'ON'
@@ -657,7 +666,7 @@ file:
             - dot: .
             - naked_identifier: ProductModelID
           - keyword: BETWEEN
-          - numeric_literal: '120'
+          - integer_literal: '120'
           - keyword: and
-          - numeric_literal: '130'
+          - integer_literal: '130'
         statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 115fb17a47ee7e36807c40eb41f56f7d5d33914effb5d5d8cae3b002af83a1ac
+_hash: cf880015691415c32b2bab758c8fe20932b9b00e9a4cfec44b8a5d5aa16a8e88
 file:
 - statement:
     create_materialized_view_statement:
@@ -35,7 +35,8 @@ file:
           select_clause_element:
             numeric_literal: '1'
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               quoted_identifier: '"id"'
 - statement_terminator: ;
 - statement:
@@ -137,7 +138,8 @@ file:
                     - naked_identifier: amount
                   end_bracket: )
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: region_sum
         - comma: ','
         - select_clause_element:
@@ -146,7 +148,8 @@ file:
             - dot: .
             - naked_identifier: id
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               naked_identifier: region_id
         from_clause:
           keyword: FROM
@@ -218,7 +221,8 @@ file:
           select_clause_element:
             numeric_literal: '1'
             alias_expression:
-              keyword: AS
+              alias_operator:
+                keyword: AS
               quoted_identifier: '"id"'
 - statement_terminator: ;
 - statement:
@@ -230,17 +234,17 @@ file:
         naked_identifier: t
     - bracketed:
       - start_bracket: (
-      - column_reference:
+      - column_definition:
           naked_identifier: a
-      - data_type:
-          keyword: int
+          data_type:
+            keyword: int
       - comma: ','
-      - column_reference:
+      - column_definition:
           naked_identifier: b
-      - data_type:
-          keyword: text
-      - column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
+          data_type:
+            keyword: text
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
       - end_bracket: )
 - statement_terminator: ;

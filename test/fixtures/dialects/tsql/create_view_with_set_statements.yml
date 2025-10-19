@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 36403e664435e85a58a2f9863ed08a411bcedd0b733c7ca365176dd01d45eb4e
+_hash: e69a431caa7eb761584484a6faae8dda8ae1eee47a240651b7c90704a6876ead
 file:
 - batch:
     statement:
@@ -11,16 +11,16 @@ file:
       - keyword: SET
       - keyword: ANSI_NULLS
       - keyword: 'ON'
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       set_segment:
       - keyword: SET
       - keyword: QUOTED_IDENTIFIER
       - keyword: 'ON'
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_view_statement:
@@ -37,7 +37,7 @@ file:
             select_clause_modifier:
               keyword: TOP
               expression:
-                numeric_literal: '1'
+                integer_literal: '1'
             select_clause_element:
               column_reference:
                 naked_identifier: DATE_OF_REPORT
@@ -49,8 +49,8 @@ file:
                   table_reference:
                     naked_identifier: BASE_CTE
             statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_view_statement:
@@ -69,7 +69,7 @@ file:
             select_clause_modifier:
               keyword: TOP
               expression:
-                numeric_literal: '1'
+                integer_literal: '1'
             select_clause_element:
               column_reference:
                 naked_identifier: DATE_OF_REPORT
@@ -86,8 +86,8 @@ file:
           - column_reference:
               naked_identifier: DATE_OF_REPORT
           statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_view_statement:
@@ -109,14 +109,16 @@ file:
               column_reference:
                 naked_identifier: NEW_DATE_OF_REPORT_UNIX
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: NEW_DATE_UNIX
           - comma: ','
           - select_clause_element:
               column_reference:
                 naked_identifier: OLD_DATE_OF_REPORT_UNIX
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: OLD_DATE_UNIX
           - comma: ','
           - select_clause_element:
@@ -138,7 +140,7 @@ file:
                       null_literal: 'NULL'
                   - keyword: THEN
                   - expression:
-                      numeric_literal: '0'
+                      integer_literal: '0'
                 - else_clause:
                     keyword: ELSE
                     expression:
@@ -146,7 +148,8 @@ file:
                         naked_identifier: OLD_VALUE
                 - keyword: END
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 naked_identifier: OLD_VALUE
           - comma: ','
           - select_clause_element:
@@ -162,7 +165,7 @@ file:
                       null_literal: 'NULL'
                   - keyword: THEN
                   - expression:
-                      numeric_literal: '0'
+                      integer_literal: '0'
                 - else_clause:
                     keyword: ELSE
                     expression:
@@ -170,7 +173,8 @@ file:
                         quoted_identifier: '[DIFFERENCE]'
                 - keyword: END
               alias_expression:
-                keyword: AS
+                alias_operator:
+                  keyword: AS
                 quoted_identifier: '[DIFFERENCE]'
           from_clause:
             keyword: FROM
@@ -213,5 +217,5 @@ file:
             - column_reference:
                 naked_identifier: LAST_DATE_OF_REPORT
           statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO

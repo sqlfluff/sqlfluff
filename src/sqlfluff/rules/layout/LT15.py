@@ -63,16 +63,13 @@ class Rule_LT15(BaseRule):
         if len(context.raw_stack) < maximum_empty_lines:
             return None
 
-        if all(
-            raw_seg.is_type("newline")
-            for raw_seg in context.raw_stack[-maximum_empty_lines - 1 :]
-        ):
+        for raw_seg in context.raw_stack[-maximum_empty_lines - 1 :]:
+            if raw_seg.is_templated or not raw_seg.is_type("newline"):
+                return None
 
-            return [
-                LintResult(
-                    anchor=context_seg,
-                    fixes=[LintFix.delete(context_seg)],
-                )
-            ]
-
-        return None
+        return [
+            LintResult(
+                anchor=context_seg,
+                fixes=[LintFix.delete(context_seg)],
+            )
+        ]

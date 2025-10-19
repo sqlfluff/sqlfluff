@@ -1,0 +1,91 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 56ffba57ca4628322383297f15f461875df331a5201320a18e2367c75ea60994
+file:
+- statement:
+    access_statement:
+    - keyword: REVOKE
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: main
+      - dot: .
+      - naked_identifier: default
+    - keyword: FROM
+    - object_reference:
+        quoted_identifier: '`finance-team`'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: REVOKE
+    - keyword: USE
+    - keyword: SCHEMA
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: main
+      - dot: .
+      - naked_identifier: default
+    - keyword: FROM
+    - object_reference:
+        quoted_identifier: '`finance-team`'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: REVOKE
+    - keyword: USE
+    - keyword: CATALOG
+    - keyword: 'ON'
+    - keyword: CATALOG
+    - object_reference:
+        naked_identifier: main
+    - keyword: FROM
+    - object_reference:
+        quoted_identifier: '`finance-team`'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: REVOKE
+    - keyword: EXECUTE
+    - keyword: 'ON'
+    - keyword: FUNCTION
+    - object_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: ml_team
+      - dot: .
+      - naked_identifier: iris_model
+    - keyword: FROM
+    - object_reference:
+        quoted_identifier: '`ml-team-acme`'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: REVOKE
+    - keyword: READ
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: METASTORE
+    - keyword: FROM
+    - object_reference:
+        quoted_identifier: "'principal'"
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: REVOKE
+    - keyword: SELECT
+    - keyword: 'ON'
+    - keyword: VIEW
+    - object_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: view
+    - keyword: FROM
+    - object_reference:
+        quoted_identifier: '`the_view_accessors`'
+- statement_terminator: ;

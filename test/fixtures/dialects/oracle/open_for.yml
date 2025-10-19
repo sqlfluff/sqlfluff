@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ba630bd9468bf48d98f40ad379546cb4fa327007e81cdcdc708e49321538f6cc
+_hash: c2fc4bbc3f638b5e51fda0f3ef445194adbdad05ae81867bcfec6cca30bb9534
 file:
 - statement:
     begin_end_block:
@@ -39,9 +39,7 @@ file:
               start_bracket: (
               numeric_literal: '200'
               end_bracket: )
-      - colon: ':'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator: :=
       - expression:
           quoted_literal: "'SELECT * FROM employees\n    WHERE REGEXP_LIKE (job_id,\
             \ ''[ACADFIMKSA]_M[ANGR]'')\n    ORDER BY job_id'"
@@ -280,9 +278,7 @@ file:
           dot: .
           object_reference:
             naked_identifier: f1
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             numeric_literal: '1'
     - statement_terminator: ;
@@ -301,9 +297,7 @@ file:
           dot: .
           object_reference:
             naked_identifier: f2
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             quoted_literal: "'one'"
     - statement_terminator: ;
@@ -427,9 +421,7 @@ file:
         assignment_segment_statement:
           object_reference:
             naked_identifier: v_stmt_str
-          colon: ':'
-          comparison_operator:
-            raw_comparison_operator: '='
+          assignment_operator: :=
           expression:
             quoted_literal: "'SELECT * FROM employees WHERE job_id = :j'"
     - statement_terminator: ;

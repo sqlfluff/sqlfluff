@@ -26,6 +26,10 @@ on:
     # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#merge_group
     types: [checks_requested]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
 
   linting:

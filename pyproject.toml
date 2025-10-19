@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sqlfluff"
-version = "3.4.1"
+version = "3.5.0"
 description = "The SQL Linter for Humans"
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.9"
@@ -44,8 +44,10 @@ keywords = [
     "clickhouse",
     "databricks",
     "db2",
+    "doris",
     "duckdb",
     "exasol",
+    "flink",
     "greenplum",
     "hive",
     "impala",
@@ -92,7 +94,7 @@ dependencies = [
     # For returning exceptions from multiprocessing.Pool.map()
     "tblib",
     # For parsing pyproject.toml
-    "toml; python_version < '3.11'",
+    "tomli; python_version < '3.11'",
     # For handling progress bars
     "tqdm",
 ]
@@ -131,7 +133,7 @@ sqlfluff_rules_tsql = "sqlfluff.rules.tsql"
 
 [tool.sqlfluff_docs]
 # NOTE: Stable version is used by docs/conf.py
-stable_version = "3.4.1"
+stable_version = "3.5.0"
 
 
 [tool.setuptools.package-data]
@@ -238,6 +240,7 @@ extend-select = ["I", "D"]
 # D107: Missing docstring in __init__
 # D418: Function/ Method decorated with @overload shouldn’t contain a docstring
 ignore = ["D107", "D105", "D418"]
+
 
 [tool.ruff.lint.isort]
 # Mark sqlfluff, test and it's plugins as known first party

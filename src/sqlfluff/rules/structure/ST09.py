@@ -2,6 +2,7 @@
 
 from typing import Optional, cast
 
+from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser import BaseSegment, SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
@@ -109,22 +110,36 @@ class Rule_ST09(BaseRule):
             return None
 
         # the first alias comes from the from clause
-        from_expression_alias: str = next(
+        from_expression_alias_info = next(
             cast(
                 FromExpressionElementSegment,
                 children.recursive_crawl("from_expression_element")[0],
             ).get_eventual_alias()
-        ).ref_str
+        )
+        from_expression_alias: str = (
+            from_expression_alias_info.segment.raw_normalized(False)
+            if from_expression_alias_info.segment
+            else from_expression_alias_info.ref_str
+        )
 
         table_aliases.append(from_expression_alias)
 
         # the rest of the aliases come from the different join clauses
-        join_clause_aliases: list[str] = [
-            cast(JoinClauseSegment, join_clause).get_eventual_aliases()[0][1].ref_str
+        join_clause_alias_infos: list[AliasInfo] = [
+            cast(JoinClauseSegment, join_clause).get_eventual_aliases()[0][1]
             for join_clause in [clause for clause in join_clauses]
         ]
 
-        table_aliases = table_aliases + join_clause_aliases
+        join_clause_aliases = [
+            (
+                alias_info.segment.raw_normalized(False)
+                if alias_info.segment
+                else alias_info.ref_str
+            )
+            for alias_info in join_clause_alias_infos
+        ]
+
+        table_aliases += join_clause_aliases
 
         table_aliases = [alias.upper() for alias in table_aliases]
 
@@ -186,8 +201,8 @@ class Rule_ST09(BaseRule):
                 "naked_identifier", "quoted_identifier"
             )
             assert first_table_seg and second_table_seg
-            first_table = first_table_seg.raw_upper
-            second_table = second_table_seg.raw_upper
+            first_table = first_table_seg.raw_normalized(False).upper()
+            second_table = second_table_seg.raw_normalized(False).upper()
 
             # if we swap the two column references around the comparison operator
             # we might have to replace the comparison operator with a different one
