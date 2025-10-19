@@ -605,3 +605,17 @@ test_pass_explode_nested_field_sparksql:
   configs:
     core:
       dialect: sparksql
+
+test_fail_explode_nested_field_sparksql:
+# same rule as above but now it should fail on purpose
+  fail_str: |
+    SELECT
+      tbl.a AS a_new,
+      EXPLODE(tbl.b.c) AS a_b_new
+    FROM test AS tbl
+  configs:
+    core:
+      dialect: sparksql
+    rules:
+      references.from:
+        force_enable: true
