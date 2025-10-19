@@ -7,6 +7,7 @@ pub mod lexer;
 pub mod marker;
 pub mod matcher;
 pub mod parser;
+pub mod parser_old;  // Temporary during refactoring
 pub mod parser_cache;
 #[cfg(feature = "python")]
 pub mod python;
