@@ -2781,7 +2781,7 @@ impl<'a> Parser<'_> {
 
                                 self.pos = *child_end_pos;
                                 results.insert(frame.frame_id, (final_node, self.pos, None));
-                                continue; // Frame is complete, move to next frame
+                                continue 'main_loop; // Frame is complete, move to next frame
                             }
                             FrameContext::Sequence {
                                 elements,
@@ -2807,8 +2807,15 @@ impl<'a> Parser<'_> {
                                         // Fall through to "move to next child" logic below
                                     } else {
                                         // Required element returned Empty - sequence fails
-                                        eprintln!("WARNING: Sequence failing - required element returned Empty! frame_id={}, element_idx={}",
-                                                  frame.frame_id, *current_element_idx);
+                                        let element_desc = match current_element {
+                                            Grammar::Ref { name, .. } => format!("Ref({})", name),
+                                            Grammar::StringParser { template, .. } => {
+                                                format!("StringParser('{}')", template)
+                                            }
+                                            _ => format!("{:?}", current_element),
+                                        };
+                                        eprintln!("WARNING: Sequence failing - required element returned Empty! frame_id={}, element_idx={}, element={}",
+                                                  frame.frame_id, *current_element_idx, element_desc);
                                         log::debug!("Sequence: required element returned Empty, returning Empty");
                                         self.pos = frame.pos; // Reset position
                                                               // Rollback tentatively collected positions
@@ -2817,7 +2824,7 @@ impl<'a> Parser<'_> {
                                         }
                                         results
                                             .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                                        continue; // Skip to next frame
+                                        continue 'main_loop; // Skip to next frame
                                     }
                                 } else {
                                     // Successfully matched
@@ -3002,6 +3009,8 @@ impl<'a> Parser<'_> {
                                     }
                                     // Update matched_idx to current position after collecting trailing tokens
                                     let current_matched_idx = self.pos;
+                                    eprintln!("DEBUG: Sequence completing - frame_id={}, self.pos={}, current_matched_idx={}, elements.len={}, accumulated.len={}",
+                                        frame.frame_id, self.pos, current_matched_idx, elements_clone.len(), frame.accumulated.len());
 
                                     let result_node = if frame.accumulated.is_empty() {
                                         eprintln!("WARNING: Sequence completing with EMPTY accumulated! frame_id={}, current_elem_idx={}, elements.len={}",
@@ -3273,7 +3282,7 @@ impl<'a> Parser<'_> {
                                         frame_id_for_debug,
                                         (result_node, current_matched_idx, None),
                                     );
-                                    continue; // Frame is complete, move to next frame
+                                    continue 'main_loop; // Frame is complete, move to next frame
                                 }
                             }
 
@@ -3527,7 +3536,7 @@ impl<'a> Parser<'_> {
                                                 frame_id: frame_id_counter,
                                                 grammar: content_grammar,
                                                 pos: self.pos,
-                                                terminators: frame_terminators.clone(),
+                                                terminators: vec![(*bracket_pairs.1).clone()], // Use closing bracket as terminator, not parent's terminators!
                                                 state: FrameState::Initial,
                                                 accumulated: vec![],
                                                 context: FrameContext::None,
@@ -3546,6 +3555,7 @@ impl<'a> Parser<'_> {
                                         }
                                     }
                                     BracketedState::MatchingContent => {
+                                        eprintln!("DEBUG: Bracketed MatchingContent - frame_id={}, child_end_pos={}, is_empty={}", frame.frame_id, child_end_pos, child_node.is_empty());
                                         // Content result
                                         if !child_node.is_empty() {
                                             // Extract children from the sequence node
@@ -3558,6 +3568,10 @@ impl<'a> Parser<'_> {
 
                                         let gap_start = *child_end_pos;
                                         self.pos = gap_start;
+                                        eprintln!(
+                                            "DEBUG: After content, gap_start={}, current_pos={}",
+                                            gap_start, self.pos
+                                        );
 
                                         // Collect whitespace before closing bracket if allow_gaps
                                         if *allow_gaps {
@@ -3585,11 +3599,13 @@ impl<'a> Parser<'_> {
                                         }
 
                                         // Check if we've run out of segments
+                                        eprintln!("DEBUG: Checking for closing bracket - self.pos={}, tokens.len={}", self.pos, self.tokens.len());
                                         if self.pos >= self.tokens.len()
                                             || self
                                                 .peek()
                                                 .is_some_and(|t| t.get_type() == "end_of_file")
                                         {
+                                            eprintln!("DEBUG: No closing bracket found!");
                                             // No end bracket found
                                             if *parse_mode == ParseMode::Strict {
                                                 self.pos = frame.pos;
@@ -3597,13 +3613,14 @@ impl<'a> Parser<'_> {
                                                     frame.frame_id,
                                                     (Node::Empty, frame.pos, None),
                                                 );
-                                                continue; // Frame is complete (failed), move to next frame
+                                                continue 'main_loop; // Frame is complete (failed), move to next frame
                                             } else {
                                                 return Err(ParseError::new(
                                                     "Couldn't find closing bracket for opening bracket".to_string(),
                                                 ));
                                             }
                                         } else {
+                                            eprintln!("DEBUG: Transitioning to MatchingClose!");
                                             // Transition to MatchingClose
                                             *state = BracketedState::MatchingClose;
 
@@ -3611,6 +3628,7 @@ impl<'a> Parser<'_> {
                                             // Get parent_max_idx to propagate
                                             let parent_limit = frame.parent_max_idx;
 
+                                            eprintln!("DEBUG: Creating closing bracket child at pos={}, parent_limit={:?}", self.pos, parent_limit);
                                             let child_frame = ParseFrame {
                                                 frame_id: frame_id_counter,
                                                 grammar: (*bracket_pairs.1).clone(),
@@ -3634,6 +3652,7 @@ impl<'a> Parser<'_> {
                                         }
                                     }
                                     BracketedState::MatchingClose => {
+                                        eprintln!("DEBUG: Bracketed MatchingClose - child_node.is_empty={}, child_end_pos={}", child_node.is_empty(), child_end_pos);
                                         // Closing bracket result
                                         if child_node.is_empty() {
                                             // No closing bracket found
@@ -3643,7 +3662,7 @@ impl<'a> Parser<'_> {
                                                     frame.frame_id,
                                                     (Node::Empty, frame.pos, None),
                                                 );
-                                                continue; // Frame is complete (failed), move to next frame
+                                                continue 'main_loop; // Frame is complete (failed), move to next frame
                                             } else {
                                                 return Err(ParseError::new(
                                                     "Couldn't find closing bracket for opening bracket".to_string(),
@@ -3665,7 +3684,7 @@ impl<'a> Parser<'_> {
                                                 frame.frame_id,
                                                 (result_node, *child_end_pos, None),
                                             );
-                                            continue; // Frame is complete, move to next frame
+                                            continue 'main_loop; // Frame is complete, move to next frame
                                         }
                                     }
                                 }
@@ -4492,6 +4511,10 @@ impl<'a> Parser<'_> {
             log::debug!("  Result frame_id={}", fid);
         }
         if let Some((node, end_pos, _element_key)) = results.get(&initial_frame_id) {
+            eprintln!(
+                "DEBUG: Found result for frame_id={}, end_pos={}",
+                initial_frame_id, end_pos
+            );
             self.pos = *end_pos;
             Ok(node.clone())
         } else {
@@ -6703,6 +6726,8 @@ mod tests {
 
         let ast = parser.call_rule("SelectClauseSegment", &[])?;
         println!("AST: {:#?}", ast);
+        println!("Parser pos: {}", parser.pos);
+        println!("Tokens len: {}", parser.tokens.len());
 
         assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
         assert_eq!(parser.pos, parser.tokens.len());
@@ -7087,6 +7112,323 @@ LEFT JOIN t9 AS c_ph
         println!("\nAST contains whitespace nodes: {}", has_whitespace);
 
         assert!(has_whitespace, "AST should contain whitespace nodes");
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_anysetof_basic() -> Result<(), ParseError> {
+        env_logger::try_init().ok();
+
+        // Very simple test: create an AnySetOf grammar manually and test it
+        // AnySetOf should match "A" and "B" in any order, each at most once
+        let raw = "A B";
+        let input = LexInput::String(raw.into());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, dialect);
+        let (tokens, _errors) = lexer.lex(input, false);
+
+        println!("\nTokens lexed: {} tokens", tokens.len());
+        for (i, tok) in tokens.iter().enumerate() {
+            println!("  Token {}: '{}' | type: {}", i, tok.raw(), tok.get_type());
+        }
+
+        let mut parser = Parser::new(&tokens, dialect);
+
+        // Create a simple AnySetOf grammar manually
+        let grammar = Grammar::AnySetOf {
+            elements: vec![
+                Grammar::StringParser {
+                    template: "A",
+                    token_type: "word",
+                    optional: false,
+                },
+                Grammar::StringParser {
+                    template: "B",
+                    token_type: "word",
+                    optional: false,
+                },
+            ],
+            min_times: 2,       // Must match at least 2 times total
+            max_times: Some(2), // At most 2 times total (one for each element)
+            optional: false,
+            terminators: vec![],
+            reset_terminators: false,
+            allow_gaps: true,
+            parse_mode: ParseMode::Strict,
+        };
+
+        // Use the internal parse method directly
+        parser.use_iterative_parser = true;
+        let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+
+        println!("\nParsed successfully!");
+        println!("Result: {:#?}", result);
+        println!("Parser pos: {}", parser.pos);
+        println!("Total tokens: {}", parser.tokens.len());
+
+        // Should have consumed "A" and "B" tokens (and whitespace)
+        // Tokens: 0=A, 1=whitespace, 2=B, 3=end_of_file
+        // So parser.pos should be 3 (pointing to end_of_file)
+        assert_eq!(parser.pos, 3, "Should consume A, whitespace, and B");
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_anysetof_order_independent() -> Result<(), ParseError> {
+        env_logger::try_init().ok();
+
+        // Test that AnySetOf matches elements in any order
+        // First test: "A B"
+        let test_cases = vec!["A B", "B A"];
+
+        for (i, raw) in test_cases.iter().enumerate() {
+            println!("\n=== Test case {}: '{}' ===", i + 1, raw);
+
+            let input = LexInput::String((*raw).into());
+            let dialect = Dialect::Ansi;
+            let lexer = Lexer::new(None, dialect);
+            let (tokens, _errors) = lexer.lex(input, false);
+
+            let mut parser = Parser::new(&tokens, dialect);
+
+            let grammar = Grammar::AnySetOf {
+                elements: vec![
+                    Grammar::StringParser {
+                        template: "A",
+                        token_type: "word",
+                        optional: false,
+                    },
+                    Grammar::StringParser {
+                        template: "B",
+                        token_type: "word",
+                        optional: false,
+                    },
+                ],
+                min_times: 2,
+                max_times: Some(2),
+                optional: false,
+                terminators: vec![],
+                reset_terminators: false,
+                allow_gaps: true,
+                parse_mode: ParseMode::Strict,
+            };
+
+            parser.use_iterative_parser = true;
+            let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+
+            println!("Result: {:#?}", result);
+            println!("Parser pos: {}", parser.pos);
+
+            // Should consume both tokens regardless of order
+            assert_eq!(
+                parser.pos,
+                3,
+                "Should consume both A and B for test case {}",
+                i + 1
+            );
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_anysetof_with_sequences() -> Result<(), ParseError> {
+        env_logger::try_init().ok();
+
+        // Test AnySetOf with Sequence elements (like "ON DELETE CASCADE")
+        // This is closer to the real foreign key use case
+        let raw = "ON DELETE CASCADE ON UPDATE RESTRICT";
+        let input = LexInput::String(raw.into());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, dialect);
+        let (tokens, _errors) = lexer.lex(input, false);
+
+        println!("\nTokens lexed: {} tokens", tokens.len());
+        for (i, tok) in tokens.iter().enumerate() {
+            println!("  Token {}: '{}' | type: {}", i, tok.raw(), tok.get_type());
+        }
+
+        let mut parser = Parser::new(&tokens, dialect);
+
+        // Create AnySetOf with two Sequence elements:
+        // 1. "ON DELETE <action>"
+        // 2. "ON UPDATE <action>"
+        let grammar = Grammar::AnySetOf {
+            elements: vec![
+                Grammar::Sequence {
+                    elements: vec![
+                        Grammar::StringParser {
+                            template: "ON",
+                            token_type: "word",
+                            optional: false,
+                        },
+                        Grammar::StringParser {
+                            template: "DELETE",
+                            token_type: "word",
+                            optional: false,
+                        },
+                        Grammar::OneOf {
+                            elements: vec![
+                                Grammar::StringParser {
+                                    template: "CASCADE",
+                                    token_type: "word",
+                                    optional: false,
+                                },
+                                Grammar::StringParser {
+                                    template: "RESTRICT",
+                                    token_type: "word",
+                                    optional: false,
+                                },
+                            ],
+                            optional: false,
+                            terminators: vec![],
+                            reset_terminators: false,
+                            allow_gaps: true,
+                            parse_mode: ParseMode::Strict,
+                        },
+                    ],
+                    optional: false,
+                    terminators: vec![],
+                    reset_terminators: false,
+                    allow_gaps: true,
+                    parse_mode: ParseMode::Strict,
+                },
+                Grammar::Sequence {
+                    elements: vec![
+                        Grammar::StringParser {
+                            template: "ON",
+                            token_type: "word",
+                            optional: false,
+                        },
+                        Grammar::StringParser {
+                            template: "UPDATE",
+                            token_type: "word",
+                            optional: false,
+                        },
+                        Grammar::OneOf {
+                            elements: vec![
+                                Grammar::StringParser {
+                                    template: "CASCADE",
+                                    token_type: "word",
+                                    optional: false,
+                                },
+                                Grammar::StringParser {
+                                    template: "RESTRICT",
+                                    token_type: "word",
+                                    optional: false,
+                                },
+                            ],
+                            optional: false,
+                            terminators: vec![],
+                            reset_terminators: false,
+                            allow_gaps: true,
+                            parse_mode: ParseMode::Strict,
+                        },
+                    ],
+                    optional: false,
+                    terminators: vec![],
+                    reset_terminators: false,
+                    allow_gaps: true,
+                    parse_mode: ParseMode::Strict,
+                },
+            ],
+            min_times: 0,       // Both are optional
+            max_times: Some(2), // Can have both
+            optional: true,
+            terminators: vec![],
+            reset_terminators: false,
+            allow_gaps: true,
+            parse_mode: ParseMode::Strict,
+        };
+
+        parser.use_iterative_parser = true;
+        let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+
+        println!("\nParsed successfully!");
+        println!("Result: {:#?}", result);
+        println!("Parser pos: {}", parser.pos);
+        println!("Total tokens: {}", parser.tokens.len());
+
+        // Should consume all tokens except end_of_file
+        // Tokens: 0=ON, 1=ws, 2=DELETE, 3=ws, 4=CASCADE, 5=ws, 6=ON, 7=ws, 8=UPDATE, 9=ws, 10=RESTRICT, 11=end_of_file
+        assert!(
+            parser.pos >= 10,
+            "Should consume both ON DELETE and ON UPDATE clauses"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_create_table_simple() -> Result<(), ParseError> {
+        env_logger::try_init().ok();
+
+        // Very simple CREATE TABLE - just one column, no constraints
+        let raw = "CREATE TABLE t (id INT)";
+        let input = LexInput::String(raw.into());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, dialect);
+        let (tokens, _errors) = lexer.lex(input, false);
+
+        println!("\nTokens lexed: {} tokens", tokens.len());
+        for (i, tok) in tokens.iter().enumerate() {
+            println!("  Token {}: '{}' | type: {}", i, tok.raw(), tok.get_type());
+        }
+
+        let mut parser = Parser::new(&tokens, dialect);
+        let ast = parser.call_rule("CreateTableStatementSegment", &[])?;
+
+        println!("\nParsed successfully!");
+        println!("AST depth: {}", count_depth(&ast));
+        println!("Parser pos: {}", parser.pos);
+        println!("Total tokens: {}", parser.tokens.len());
+
+        // Helper function to count AST depth
+        fn count_depth(node: &Node) -> usize {
+            match node {
+                Node::Ref { child, .. } => 1 + count_depth(child),
+                Node::Sequence(children) | Node::DelimitedList(children) => {
+                    1 + children.iter().map(count_depth).max().unwrap_or(0)
+                }
+                _ => 1,
+            }
+        }
+
+        // Verify we consumed all tokens
+        assert_eq!(parser.pos, parser.tokens.len(), "Should consume all tokens");
+        assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_create_table_two_columns() -> Result<(), ParseError> {
+        env_logger::try_init().ok();
+
+        // CREATE TABLE with two columns - tests the Delimited structure
+        let raw = "CREATE TABLE t (id INT, name VARCHAR)";
+        let input = LexInput::String(raw.into());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, dialect);
+        let (tokens, _errors) = lexer.lex(input, false);
+
+        println!("\nTokens lexed: {} tokens", tokens.len());
+        for (i, tok) in tokens.iter().enumerate() {
+            println!("  Token {}: '{}' | type: {}", i, tok.raw(), tok.get_type());
+        }
+
+        let mut parser = Parser::new(&tokens, dialect);
+        let ast = parser.call_rule("CreateTableStatementSegment", &[])?;
+
+        println!("\nParsed successfully!");
+        println!("Parser pos: {}", parser.pos);
+        println!("Total tokens: {}", parser.tokens.len());
+
+        // Verify we consumed all tokens
+        assert_eq!(parser.pos, parser.tokens.len(), "Should consume all tokens");
+        assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
 
         Ok(())
     }
