@@ -236,22 +236,27 @@ def test__rules__unparsable_does_not_crash():
     crash with an AssertionError when trying to find a path to segments in
     unparsable sections. The fix should be gracefully skipped instead.
 
-    Specifically tests LT09 (layout.select_targets) which was triggering
-    this crash on T-SQL queries with reserved keywords used as identifiers.
+    Specifically tests LT02, LT05, and LT09 which have _adjust_anchors=True
+    and were triggering this crash on T-SQL queries with reserved keywords
+    used as identifiers when the line is also too long.
     """
-    # Set up a linter with LT09
-    linter = Linter(dialect="tsql", rules=["LT09"])
+    # Set up a linter with rules that have _adjust_anchors=True
+    linter = Linter(dialect="tsql", rules=["LT09", "LT02", "LT05"])
 
     # This SQL has 'cursor' which is a reserved keyword in T-SQL, causing
     # an unparsable section when used as a column name without quotes.
-    # LT09 will try to reformat the SELECT targets, and some of those
-    # targets will be in the unparsable section.
-    sql_with_unparsable = """SELECT
-  Race, cursor, Cha, Authority, Points, Gold, Bind, PX, PZ, PY, dwTime
-FROM USERDATA"""
+    # The line is also long to trigger LT05 which has _adjust_anchors=True.
+    sql_with_unparsable = (
+        "SELECT\n"
+        "  Race, cursor, Cha, Authority, Points, Gold, Bind, PX, PZ, PY, "
+        "col2, col3, col4, col5,col6\n"
+        "FROM USERDATA"
+    )
 
-    # This should NOT crash, even though LT09 tries to generate fixes on
-    # segments that end up in unparsable sections
+    # This should NOT crash, even though rules try to generate fixes on
+    # segments that end up in unparsable sections. Before the fix, this
+    # would crash with: AssertionError: No path found from <FileSegment>
+    # to <WordSegment: 'col6'>!
     res = linter.lint_string(sql_with_unparsable, fix=True)
 
     # We should get parsing errors (PRS violations) for the unparsable content
