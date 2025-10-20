@@ -95,7 +95,7 @@ class Rule_TQ02(BaseRule):
             first_child = statements[0].segments[0]
             if first_child.is_type("begin_end_block"):
                 # Already wrapped in BEGIN/END
-                return None
+                return None  # pragma: no cover
         else:
             # Defensive: statement with no segments shouldn't happen in valid parsed SQL
             return None  # pragma: no cover
