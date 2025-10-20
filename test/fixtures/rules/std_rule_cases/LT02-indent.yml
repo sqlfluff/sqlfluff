@@ -532,7 +532,7 @@ test_fail_consecutive_hangers_implicit:
         and f like 'f%'
   configs:
     indentation:
-      allow_implicit_indents: true
+      implicit_indents: allow
 
 test_fail_clean_reindent_fix:
   # A "clean" indent is where the previous line ends with an
@@ -1469,7 +1469,7 @@ test_pass_implicit_indent:
         AND b
   configs:
     indentation:
-      allow_implicit_indents: true
+      implicit_indents: allow
 
 test_fail_deny_implicit_indent:
   # Test for ImplicitIndent.
@@ -1487,7 +1487,7 @@ test_fail_deny_implicit_indent:
         AND b
   configs:
     indentation:
-      allow_implicit_indents: false
+      implicit_indents: forbid
 
 test_pass_templated_newlines:
   # NOTE: The macro has many newlines in it,
@@ -1739,7 +1739,7 @@ test_comment_effect_indents_implicit:
         AND TRUE
   configs:
     indentation:
-      allow_implicit_indents: true
+      implicit_indents: allow
 
 test_untaken_negative_1:
   # https://github.com/sqlfluff/sqlfluff/issues/4234
@@ -1795,7 +1795,7 @@ test_untaken_negative_implicit:
     GROUP BY a
   configs:
     indentation:
-      allow_implicit_indents: true
+      implicit_indents: allow
 
 test_fail_mixed_tabs_and_spaces:
   # NOTE: This used to be L002 (rather than L003)
@@ -1818,7 +1818,7 @@ test_fix_implicit_indents_4467_a:
             AND d.b = l.b
   configs:
     indentation:
-      allow_implicit_indents: true
+      implicit_indents: allow
 
 test_fix_implicit_indents_4467_b:
   # https://github.com/sqlfluff/sqlfluff/issues/4467
@@ -1830,7 +1830,7 @@ test_fix_implicit_indents_4467_b:
         AND d.b = l.b
   configs:
     indentation:
-      allow_implicit_indents: true
+      implicit_indents: allow
       tab_space_size: 2
 
 test_fix_macro_indents_4367:
@@ -1889,7 +1889,7 @@ test_implicit_case_4542:
     from my_table;
   configs:
     indentation:
-      allow_implicit_indents: true
+      implicit_indents: allow
 
 test_indented_joins_4484:
   # https://github.com/sqlfluff/sqlfluff/issues/4484
@@ -1914,7 +1914,81 @@ test_tsql_where_implicit_4559:
     core:
       dialect: tsql
     indentation:
-      allow_implicit_indents: true
+      implicit_indents: allow
+
+test_require_implicit_indents_where:
+  # Test that require_implicit_indents collapses WHERE line breaks
+  fail_str: |
+    SELECT t.col1
+    WHERE
+        t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  fix_str: |
+    SELECT t.col1
+    WHERE t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  configs:
+    indentation:
+      implicit_indents: require
+
+test_require_implicit_indents_having:
+  # Test that require_implicit_indents works with HAVING clauses
+  fail_str: |
+    SELECT t.col1, COUNT(*)
+    FROM table1 t
+    GROUP BY t.col1
+    HAVING
+        COUNT(*) > 5
+        AND t.col1 IS NOT NULL
+  fix_str: |
+    SELECT t.col1, COUNT(*)
+    FROM table1 t
+    GROUP BY t.col1
+    HAVING COUNT(*) > 5
+        AND t.col1 IS NOT NULL
+  configs:
+    indentation:
+      implicit_indents: require
+
+test_require_implicit_indents_join_on:
+  # Test that require_implicit_indents works with JOIN ON clauses
+  fail_str: |
+    SELECT *
+    FROM table1 t1
+    JOIN table2 t2
+        ON
+            t1.id = t2.id
+            AND t1.status = t2.status
+  fix_str: |
+    SELECT *
+    FROM table1 t1
+    JOIN table2 t2
+        ON t1.id = t2.id
+            AND t1.status = t2.status
+  configs:
+    indentation:
+      implicit_indents: require
+
+test_require_implicit_indents_case:
+  # Test that require_implicit_indents works with CASE expressions
+  fail_str: |
+    SELECT
+        CASE
+            WHEN t.col1 = 'A' THEN 'Alpha'
+            WHEN t.col1 = 'B' THEN 'Beta'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+  fix_str: |
+    SELECT
+        CASE WHEN t.col1 = 'A' THEN 'Alpha'
+            WHEN t.col1 = 'B' THEN 'Beta'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+  configs:
+    indentation:
+      implicit_indents: require
 
 test_jinja_nested_tracking:
   # This tests the caching features of BlockTracker
@@ -2024,7 +2098,7 @@ test_implicit_indent_when:
     FROM table1
   configs:
     indentation:
-      allow_implicit_indents: true
+      implicit_indents: allow
       indented_then: false
 
 test_implicit_indent_nested_when:
@@ -2048,7 +2122,7 @@ test_implicit_indent_nested_when:
     FROM table1
   configs:
     indentation:
-      allow_implicit_indents: true
+      implicit_indents: allow
       indented_then: false
       indented_then_contents: false
 
@@ -2153,7 +2227,7 @@ test_pass_closed_bracketed_implicit:
         and (c = d)
   configs:
     indentation:
-      allow_implicit_indents: true
+      implicit_indents: allow
 
 test_fix_unclosed_bracketed_implicit:
   fail_str: |
@@ -2170,7 +2244,7 @@ test_fix_unclosed_bracketed_implicit:
     )
   configs:
     indentation:
-      allow_implicit_indents: true
+      implicit_indents: allow
 
 test_pass_implicit_where:
   pass_str: |
@@ -2181,7 +2255,7 @@ test_pass_implicit_where:
     ;
   configs:
     indentation:
-      allow_implicit_indents: true
+      implicit_indents: allow
 
 test_pass_templated_join:
   # See: https://github.com/sqlfluff/sqlfluff/issues/5290
