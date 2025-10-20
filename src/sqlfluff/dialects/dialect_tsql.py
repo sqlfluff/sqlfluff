@@ -456,18 +456,14 @@ tsql_dialect.add(
 tsql_dialect.replace(
     # Overriding to cover TSQL allowed identifier name characters
     # https://docs.microsoft.com/en-us/sql/relational-databases/databases/database-identifiers
+    # T-SQL allows unreserved keywords as identifiers, so only block reserved keywords
     NakedIdentifierSegment=SegmentGenerator(
-        # Generate the anti template from the set of reserved keywords
+        # Generate the anti template from the set of reserved keywords only
         lambda dialect: RegexParser(
             r"[A-Z_\p{L}][A-Z0-9_@$#\p{L}]*",
             IdentifierSegment,
             type="naked_identifier",
-            anti_template=r"^("
-            + r"|".join(
-                dialect.sets("reserved_keywords")
-                | dialect.sets("future_reserved_keywords")
-            )
-            + r")$",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
             casefold=str.upper,
         )
     ),
@@ -528,21 +524,20 @@ tsql_dialect.replace(
     FunctionNameIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         # minus the function names that are reserved words.
+        # T-SQL allows unreserved keywords as function names
         lambda dialect: RegexParser(
             r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
             CodeSegment,
             type="function_name_identifier",
             anti_template=r"^("
-            + r"|".join(
-                dialect.sets("reserved_keywords").difference({"UPDATE"})
-                | dialect.sets("future_reserved_keywords")
-            )
+            + r"|".join(dialect.sets("reserved_keywords").difference({"UPDATE"}))
             + r")$",
         )
     ),
     NanLiteralSegment=Nothing(),
     DatatypeIdentifierSegment=SegmentGenerator(
         # Generate the anti template reserved keywords
+        # T-SQL allows unreserved keywords as data type identifiers
         lambda dialect: OneOf(
             RegexParser(
                 r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
@@ -550,10 +545,7 @@ tsql_dialect.replace(
                 type="data_type_identifier",
                 # anti_template=r"^(NOT)$",
                 anti_template=r"^("
-                + r"|".join(
-                    dialect.sets("reserved_keywords")
-                    | dialect.sets("future_reserved_keywords")
-                )
+                + r"|".join(dialect.sets("reserved_keywords"))
                 + r")$",
                 # TODO - this is a stopgap until we implement explicit data types
             ),

@@ -229,6 +229,41 @@ def test__rules__result_unparsable():
     assert res.tree.raw == raw_sql
 
 
+def test__rules__unparsable_does_not_crash():
+    """Test that rules don't crash when generating fixes on unparsable sections.
+
+    This is a regression test for a bug where _choose_anchor_segment would
+    crash with an AssertionError when trying to find a path to segments in
+    unparsable sections. The fix should be gracefully skipped instead.
+
+    Specifically tests LT02, LT05, and LT09 which have _adjust_anchors=True
+    and were triggering this crash on T-SQL queries with reserved keywords
+    used as identifiers when the line is also too long.
+    """
+    # Set up a linter with rules that have _adjust_anchors=True
+    linter = Linter(dialect="tsql", rules=["LT09", "LT02", "LT05"])
+
+    # This SQL has 'cursor' which is a reserved keyword in T-SQL, causing
+    # an unparsable section when used as a column name without quotes.
+    # The line is also long to trigger LT05 which has _adjust_anchors=True.
+    sql_with_unparsable = (
+        "SELECT\n"
+        "  Race, cursor, Cha, Authority, Points, Gold, Bind, PX, PZ, PY, "
+        "col2, col3, col4, col5,col6\n"
+        "FROM USERDATA"
+    )
+
+    # This should NOT crash, even though rules try to generate fixes on
+    # segments that end up in unparsable sections. Before the fix, this
+    # would crash with: AssertionError: No path found from <FileSegment>
+    # to <WordSegment: 'col6'>!
+    res = linter.lint_string(sql_with_unparsable, fix=True)
+
+    # We should get parsing errors (PRS violations) for the unparsable content
+    parsing_errors = [v for v in res.violations if v.rule_code() == "PRS"]
+    assert len(parsing_errors) > 0
+
+
 @pytest.mark.parametrize(
     "sql_query, check_tuples",
     [
