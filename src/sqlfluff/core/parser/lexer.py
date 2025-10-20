@@ -974,4 +974,4 @@ try:
 
     lexer_logger.info("Using sqlfluffrs lexer.")
 except ImportError:
-    ...
+    lexer_logger.info("sqlfluffrs lexer not present or failed to load.")
