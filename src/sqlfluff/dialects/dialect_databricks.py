@@ -132,6 +132,8 @@ databricks_dialect.add(
         "TO",
         Ref("PrincipalIdentifierSegment"),
     ),
+    SetTagOnGrammar=Sequence("SET", "TAG", "ON"),
+    UnsetTagOnGrammar=Sequence("UNSET", "TAG", "ON"),
     SetTagsGrammar=Sequence(
         "SET",
         "TAGS",
@@ -831,6 +833,78 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
     )
 
 
+class UnsetTagStatementSegment(BaseSegment):
+    """An `UNSET TAG ON` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-set-tag
+    """
+
+    type = "tag_statement"
+    match_grammar = Sequence(
+        Ref("UnsetTagOnGrammar"),
+        OneOf(
+            Sequence(
+                "CATALOG",
+                Ref("CatalogReferenceSegment"),
+            ),
+            Sequence(
+                OneOf("DATABASE", "SCHEMA"),
+                Ref("DatabaseReferenceSegment"),
+            ),
+            Sequence(
+                OneOf("TABLE", "VIEW"),
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "VOLUME",
+                Ref("VolumeReferenceSegment"),
+            ),
+            Sequence(
+                "COLUMN",
+                Ref("ColumnReferenceSegment"),
+            ),
+        ),
+        OneOf(Ref("BackQuotedIdentifierSegment"), Ref("NakedIdentifierSegment")),
+    )
+
+
+class TagStatementSegment(BaseSegment):
+    """An `SET TAG ON` statement.
+
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-set-tag
+    """
+
+    type = "tag_statement"
+    match_grammar = Sequence(
+        Ref("SetTagOnGrammar"),
+        OneOf(
+            Sequence(
+                "CATALOG",
+                Ref("CatalogReferenceSegment"),
+            ),
+            Sequence(
+                OneOf("DATABASE", "SCHEMA"),
+                Ref("DatabaseReferenceSegment"),
+            ),
+            Sequence(
+                OneOf("TABLE", "VIEW"),
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "VOLUME",
+                Ref("VolumeReferenceSegment"),
+            ),
+            Sequence(
+                "COLUMN",
+                Ref("ColumnReferenceSegment"),
+            ),
+        ),
+        OneOf(Ref("BackQuotedIdentifierSegment"), Ref("NakedIdentifierSegment")),
+        Ref("EqualsSegment"),
+        OneOf(Ref("BackQuotedIdentifierSegment"), Ref("NakedIdentifierSegment")),
+    )
+
+
 class AlterTableStatementSegment(sparksql.AlterTableStatementSegment):
     """An `ALTER TABLE` statement.
 
@@ -852,7 +926,7 @@ class AlterTableStatementSegment(sparksql.AlterTableStatementSegment):
                 "ADD",
                 OneOf("COLUMNS", "COLUMN"),
                 Indent,
-                Bracketed(
+                OptionallyBracketed(
                     Delimited(
                         Sequence(
                             Ref("ColumnFieldDefinitionSegment"),
@@ -1165,6 +1239,8 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("FunctionParameterListGrammarWithComments"),
             Ref("DeclareOrReplaceVariableStatementSegment"),
             Ref("CommentOnStatementSegment"),
+            Ref("TagStatementSegment"),
+            Ref("UnsetTagStatementSegment"),
             # Notebook grammar
             Ref("MagicCellStatementSegment"),
         ]
