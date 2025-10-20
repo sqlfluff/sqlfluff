@@ -577,6 +577,9 @@ pub enum Node {
     /// A list of elements separated by commas
     DelimitedList(Vec<Node>),
 
+    /// A bracketed section (content between brackets)
+    Bracketed(Vec<Node>),
+
     /// A reference to another segment (wraps its AST)
     Ref {
         name: String,
@@ -600,6 +603,12 @@ impl Node {
                         .all(|n| matches!(n, Node::Empty | Node::Meta(_)))
             }
             Node::Sequence(items) => {
+                items.is_empty()
+                    || items
+                        .iter()
+                        .all(|n| matches!(n, Node::Empty | Node::Meta(_)))
+            }
+            Node::Bracketed(items) => {
                 items.is_empty()
                     || items
                         .iter()
@@ -738,7 +747,9 @@ impl Node {
                 current_idx
             }
 
-            Node::Sequence(children) | Node::DelimitedList(children) => {
+            Node::Sequence(children)
+            | Node::DelimitedList(children)
+            | Node::Bracketed(children) => {
                 let mut current_idx = token_idx;
                 let mut eof_indices = Vec::new();
 
@@ -773,6 +784,7 @@ impl Node {
 
             Node::Sequence(children)
             | Node::DelimitedList(children)
+            | Node::Bracketed(children)
             | Node::Unparsable(_, children) => {
                 children.iter().find_map(|c| c.find_first_token_idx())
             }
@@ -802,9 +814,9 @@ impl Node {
             Node::Unparsable(_, _) => true,
 
             // Container nodes: check if they contain any code
-            Node::Sequence(children) | Node::DelimitedList(children) => {
-                children.iter().any(|child| child.is_code())
-            }
+            Node::Sequence(children)
+            | Node::DelimitedList(children)
+            | Node::Bracketed(children) => children.iter().any(|child| child.is_code()),
 
             // Ref nodes: delegate to child
             Node::Ref { child, .. } => child.is_code(),
@@ -845,6 +857,7 @@ impl Node {
             Node::Ref { segment_type, .. } => segment_type.clone(),
             Node::Sequence(_) => Some("sequence".to_string()),
             Node::DelimitedList(_) => Some("delimited_list".to_string()),
+            Node::Bracketed(_) => Some("bracketed".to_string()),
             Node::Meta(name) => Some(format!("meta_{}", name)),
             Node::Empty => None,
         }

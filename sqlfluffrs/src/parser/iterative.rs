@@ -2525,14 +2525,24 @@ impl<'a> Parser<'_> {
                                         }
                                     }
                                     BracketedState::MatchingContent => {
-                                        eprintln!("DEBUG: Bracketed MatchingContent - frame_id={}, child_end_pos={}, is_empty={}", frame.frame_id, child_end_pos, child_node.is_empty());
+                                        log::debug!("Bracketed MatchingContent - frame_id={}, child_end_pos={}, is_empty={}", frame.frame_id, child_end_pos, child_node.is_empty());
                                         // Content result
                                         if !child_node.is_empty() {
-                                            // Extract children from the sequence node
-                                            if let Node::Sequence(content_children) = child_node {
-                                                frame.accumulated.extend(content_children.clone());
-                                            } else {
-                                                frame.accumulated.push(child_node.clone());
+                                            // Recursively flatten sequence/delimited nodes to get a flat list of content
+                                            let mut to_process = vec![child_node.clone()];
+                                            while let Some(node) = to_process.pop() {
+                                                match node {
+                                                    Node::Sequence(children)
+                                                    | Node::DelimitedList(children) => {
+                                                        // Add children to processing queue in reverse order to maintain order
+                                                        to_process
+                                                            .extend(children.into_iter().rev());
+                                                    }
+                                                    _ => {
+                                                        // Leaf node or Ref - add directly to accumulated
+                                                        frame.accumulated.push(node);
+                                                    }
+                                                }
                                             }
                                         }
 
@@ -2644,7 +2654,7 @@ impl<'a> Parser<'_> {
                                             self.pos = *child_end_pos;
 
                                             let result_node =
-                                                Node::Sequence(frame.accumulated.clone());
+                                                Node::Bracketed(frame.accumulated.clone());
                                             log::debug!(
                                                 "Bracketed COMPLETE: {} children, storing result at frame_id={}",
                                                 frame.accumulated.len(),

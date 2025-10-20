@@ -293,6 +293,31 @@ fn node_to_yaml_value(
             Ok(Value::Mapping(map))
         }
 
+        Node::Bracketed(children) => {
+            // Bracketed nodes are already properly structured, just convert to YAML
+            let mut bracketed_children = Vec::new();
+
+            for child in children {
+                if !code_only || child.should_include_in_code_only() {
+                    let child_value = node_to_yaml_value(child, tokens, code_only)?;
+                    if !matches!(child_value, Value::Null) {
+                        bracketed_children.push(child_value);
+                    }
+                }
+            }
+
+            if bracketed_children.is_empty() {
+                return Ok(Value::Null);
+            }
+
+            let mut map = Mapping::new();
+            map.insert(
+                Value::String("bracketed".to_string()),
+                Value::Sequence(bracketed_children),
+            );
+            Ok(Value::Mapping(map))
+        }
+
         Node::Sequence(children) | Node::DelimitedList(children) => {
             // Collect all code-only children
             let filtered_children: Vec<&Node> = children
@@ -304,13 +329,19 @@ fn node_to_yaml_value(
                 return Ok(Value::Null);
             }
 
-            // Try to flatten the structure by collecting child mappings
+            // Try to flatten the structure by collecting child mappings and non-mapping values
             let mut all_keys = Vec::new();
-            let mut child_mappings = Vec::new();
+            let mut child_values = Vec::new();
 
             for child in &filtered_children {
-                if let Ok(Value::Mapping(child_map)) = node_to_yaml_value(child, tokens, code_only)
-                {
+                let child_value = node_to_yaml_value(child, tokens, code_only)?;
+
+                // Skip Null values
+                if matches!(child_value, Value::Null) {
+                    continue;
+                }
+
+                if let Value::Mapping(ref child_map) = child_value {
                     // Track keys to detect duplicates
                     let keys: Vec<String> = child_map
                         .keys()
@@ -324,32 +355,36 @@ fn node_to_yaml_value(
                         .collect();
 
                     all_keys.extend(keys);
-                    child_mappings.push(child_map);
                 }
+
+                child_values.push(child_value);
             }
 
-            // Check for duplicate keys
+            if child_values.is_empty() {
+                return Ok(Value::Null);
+            }
+
+            // Check for duplicate keys in mappings
             let unique_keys: std::collections::HashSet<_> = all_keys.iter().collect();
             let has_duplicates = unique_keys.len() != all_keys.len();
 
-            if has_duplicates {
-                // If there are duplicate keys, return as a list of mappings
-                let list: Vec<Value> = child_mappings.into_iter().map(Value::Mapping).collect();
-                Ok(Value::Sequence(list))
-            } else {
-                // Otherwise, merge all mappings into one
+            // If we have only mappings and no duplicates, try to merge them
+            let all_are_mappings = child_values.iter().all(|v| matches!(v, Value::Mapping(_)));
+
+            if all_are_mappings && !has_duplicates {
+                // Merge all mappings into one
                 let mut merged_map = Mapping::new();
-                for child_map in child_mappings {
-                    for (k, v) in child_map {
-                        merged_map.insert(k, v);
+                for child_value in child_values {
+                    if let Value::Mapping(child_map) = child_value {
+                        for (k, v) in child_map {
+                            merged_map.insert(k, v);
+                        }
                     }
                 }
-
-                if merged_map.is_empty() {
-                    Ok(Value::Null)
-                } else {
-                    Ok(Value::Mapping(merged_map))
-                }
+                Ok(Value::Mapping(merged_map))
+            } else {
+                // Return as a list (either because of duplicates or non-mapping values)
+                Ok(Value::Sequence(child_values))
             }
         }
     }
@@ -404,10 +439,10 @@ mod tests {
         assert!(!tests.is_empty(), "No ANSI fixtures found");
 
         // Check that we found select_simple_a.sql
-        let select_simple_a = tests.iter().find(|t| t.name == "select_simple_a");
+        let select_simple_a = tests.iter().find(|t| t.name == "create_table_a_c1_c2");
         assert!(
             select_simple_a.is_some(),
-            "Expected to find select_simple_a.sql"
+            "Expected to find create_table_a_c1_c2.sql"
         );
     }
 
@@ -421,8 +456,8 @@ mod tests {
         let tests = FixtureTest::discover("ansi", &fixtures_root);
         let select_simple_a = tests
             .iter()
-            .find(|t| t.name == "select_simple_a")
-            .expect("select_simple_a.sql not found");
+            .find(|t| t.name == "create_table_a_c1_c2")
+            .expect("create_table_a_c1_c2.sql not found");
 
         let result = select_simple_a.run();
 
