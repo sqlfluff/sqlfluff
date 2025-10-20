@@ -79,7 +79,7 @@ class Rule_TQ02(BaseRule):
                 break
 
         if not procedure_statement:
-            return None
+            return None  # pragma: no cover
 
         # Get direct statement children (excluding whitespace, newlines, meta, etc.)
         statements = [
@@ -96,6 +96,9 @@ class Rule_TQ02(BaseRule):
             if first_child.is_type("begin_end_block"):
                 # Already wrapped in BEGIN/END
                 return None
+        else:
+            # Defensive: statement with no segments shouldn't happen in valid parsed SQL
+            return None  # pragma: no cover
 
         # We have multiple statements without BEGIN/END - create a fix
         fixes = self._create_begin_end_fixes(procedure_statement, statements)
@@ -122,7 +125,7 @@ class Rule_TQ02(BaseRule):
                 break
 
         if first_statement_idx is None:
-            return []
+            return []  # pragma: no cover
 
         # Find last statement segment
         last_statement_idx = None
@@ -133,7 +136,7 @@ class Rule_TQ02(BaseRule):
                 break
 
         if last_statement_idx is None:
-            return []
+            return []  # pragma: no cover
 
         fixes = []
 
