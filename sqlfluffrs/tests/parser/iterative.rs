@@ -107,7 +107,9 @@ fn test_iterative_bracketed_simple() -> Result<(), ParseError> {
     let mut parser = Parser::new(&tokens, dialect);
     parser.use_iterative_parser = true;
 
-    let ast = parser.call_rule("BracketedSegment", &[])?;
+    // Use BracketedColumnReferenceListGrammar which actually parses brackets
+    // (BracketedSegment is just a Token marker, not a parser)
+    let ast = parser.call_rule("BracketedColumnReferenceListGrammar", &[])?;
     println!("AST: {:#?}", ast);
 
     Ok(())

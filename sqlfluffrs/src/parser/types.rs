@@ -178,7 +178,16 @@ impl Hash for Grammar {
     fn hash<H: Hasher>(&self, state: &mut H) {
         std::mem::discriminant(self).hash(state);
         match self {
-            Grammar::Ref { name, .. } => name.hash(state),
+            Grammar::Ref {
+                name,
+                optional,
+                allow_gaps,
+                ..
+            } => {
+                name.hash(state);
+                optional.hash(state);
+                allow_gaps.hash(state);
+            }
             Grammar::StringParser { template, .. } => template.hash(state),
             Grammar::MultiStringParser { templates, .. } => templates.hash(state),
             Grammar::TypedParser { template, .. } => template.hash(state),
@@ -187,41 +196,49 @@ impl Hash for Grammar {
                 elements,
                 optional,
                 allow_gaps,
+                parse_mode,
                 ..
             } => {
                 elements.hash(state);
                 optional.hash(state);
                 allow_gaps.hash(state);
+                parse_mode.hash(state);
             }
             Grammar::AnyNumberOf {
                 elements,
                 optional,
                 allow_gaps,
+                parse_mode,
                 ..
             } => {
                 elements.hash(state);
                 optional.hash(state);
                 allow_gaps.hash(state);
+                parse_mode.hash(state);
             }
             Grammar::OneOf {
                 elements,
                 optional,
                 allow_gaps,
+                parse_mode,
                 ..
             } => {
                 elements.hash(state);
                 optional.hash(state);
                 allow_gaps.hash(state);
+                parse_mode.hash(state);
             }
             Grammar::AnySetOf {
                 elements,
                 optional,
                 allow_gaps,
+                parse_mode,
                 ..
             } => {
                 elements.hash(state);
                 optional.hash(state);
                 allow_gaps.hash(state);
+                parse_mode.hash(state);
             }
             Grammar::Delimited {
                 elements,
@@ -231,6 +248,7 @@ impl Hash for Grammar {
                 allow_trailing,
                 terminators,
                 min_delimiters,
+                parse_mode,
                 ..
             } => {
                 elements.hash(state);
@@ -240,16 +258,19 @@ impl Hash for Grammar {
                 allow_trailing.hash(state);
                 terminators.hash(state);
                 min_delimiters.hash(state);
+                parse_mode.hash(state);
             }
             Grammar::Bracketed {
                 elements,
                 optional,
                 allow_gaps,
+                parse_mode,
                 ..
             } => {
                 elements.hash(state);
                 optional.hash(state);
                 allow_gaps.hash(state);
+                parse_mode.hash(state);
             }
             Grammar::Symbol(sym) => sym.hash(state),
             Grammar::Meta(s) => s.hash(state),
@@ -271,57 +292,65 @@ impl PartialEq for Grammar {
                     elements: e1,
                     optional: o1,
                     allow_gaps: g1,
+                    parse_mode: pm1,
                     ..
                 },
                 Grammar::Sequence {
                     elements: e2,
                     optional: o2,
                     allow_gaps: g2,
+                    parse_mode: pm2,
                     ..
                 },
-            ) => e1 == e2 && o1 == o2 && g1 == g2,
+            ) => e1 == e2 && o1 == o2 && g1 == g2 && pm1 == pm2,
             (
                 Grammar::AnyNumberOf {
                     elements: e1,
                     optional: o1,
                     allow_gaps: g1,
+                    parse_mode: pm1,
                     ..
                 },
                 Grammar::AnyNumberOf {
                     elements: e2,
                     optional: o2,
                     allow_gaps: g2,
+                    parse_mode: pm2,
                     ..
                 },
-            ) => e1 == e2 && o1 == o2 && g1 == g2,
+            ) => e1 == e2 && o1 == o2 && g1 == g2 && pm1 == pm2,
             (
                 Grammar::OneOf {
                     elements: e1,
                     optional: o1,
                     allow_gaps: g1,
+                    parse_mode: pm1,
                     ..
                 },
                 Grammar::OneOf {
                     elements: e2,
                     optional: o2,
                     allow_gaps: g2,
+                    parse_mode: pm2,
                     ..
                 },
-            ) => e1 == e2 && o1 == o2 && g1 == g2,
+            ) => e1 == e2 && o1 == o2 && g1 == g2 && pm1 == pm2,
             (
                 Grammar::AnySetOf {
                     elements: e1,
                     optional: o1,
                     allow_gaps: g1,
+                    parse_mode: pm1,
                     ..
                 },
                 Grammar::AnySetOf {
                     elements: e2,
                     optional: o2,
                     allow_gaps: g2,
+                    parse_mode: pm2,
                     ..
                 },
-            ) => e1 == e2 && o1 == o2 && g1 == g2,
+            ) => e1 == e2 && o1 == o2 && g1 == g2 && pm1 == pm2,
             (
                 Grammar::Delimited {
                     elements: e1,
@@ -331,6 +360,7 @@ impl PartialEq for Grammar {
                     allow_trailing: at1,
                     terminators: t1,
                     min_delimiters: md1,
+                    parse_mode: pm1,
                     ..
                 },
                 Grammar::Delimited {
@@ -341,25 +371,28 @@ impl PartialEq for Grammar {
                     allow_trailing: at2,
                     terminators: t2,
                     min_delimiters: md2,
+                    parse_mode: pm2,
                     ..
                 },
             ) => {
-                e1 == e2 && o1 == o2 && g1 == g2 && d1 == d2 && at1 == at2 && t1 == t2 && md1 == md2
+                e1 == e2 && o1 == o2 && g1 == g2 && d1 == d2 && at1 == at2 && t1 == t2 && md1 == md2 && pm1 == pm2
             }
             (
                 Grammar::Bracketed {
                     elements: e1,
                     optional: o1,
                     allow_gaps: g1,
+                    parse_mode: pm1,
                     ..
                 },
                 Grammar::Bracketed {
                     elements: e2,
                     optional: o2,
                     allow_gaps: g2,
+                    parse_mode: pm2,
                     ..
                 },
-            ) => e1 == e2 && o1 == o2 && g1 == g2,
+            ) => e1 == e2 && o1 == o2 && g1 == g2 && pm1 == pm2,
             (
                 Grammar::Ref {
                     name: n1,

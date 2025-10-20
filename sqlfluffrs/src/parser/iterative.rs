@@ -38,29 +38,38 @@ impl<'a> Parser<'_> {
         &mut self,
         token_type: &str,
         frame: &ParseFrame,
-        grammar: &Grammar,
-        terminators: &[Grammar],
         results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<(), ParseError> {
         eprintln!("DEBUG: Token grammar frame_id={}, pos={}, parent_max_idx={:?}, token_type={:?}, available_tokens={}",
             frame.frame_id, frame.pos, frame.parent_max_idx, token_type, self.tokens.len());
 
         self.pos = frame.pos;
-        let was_iterative = self.use_iterative_parser;
-        self.use_iterative_parser = false;
-        let result = self.parse_with_grammar_cached(grammar, terminators);
-        self.use_iterative_parser = was_iterative;
+        log::debug!("Trying token grammar, {}", token_type);
 
-        match result {
-            Ok(node) => {
+        if let Some(token) = self.peek() {
+            let tok = token.clone();
+            log::debug!("Current token: {:?}", tok.get_type());
+
+            if tok.get_type() == token_type {
+                let token_pos = self.pos;
+                self.bump();
+                log::debug!("MATCHED Token matched: {:?}", tok);
                 eprintln!("DEBUG: Token grammar frame_id={} matched, result end_pos={}", frame.frame_id, self.pos);
+
+                let node = Node::Code(tok.raw(), token_pos);
                 results.insert(frame.frame_id, (node, self.pos, None));
                 Ok(())
-            }
-            Err(e) => {
+            } else {
                 eprintln!("DEBUG: Token grammar frame_id={} failed with error", frame.frame_id);
-                Err(e)
+                Err(ParseError::new(format!(
+                    "Expected token type {}, found {}",
+                    token_type,
+                    tok.get_type()
+                )))
             }
+        } else {
+            eprintln!("DEBUG: Token grammar frame_id={} failed - at EOF", frame.frame_id);
+            Err(ParseError::new("Expected token, found EOF".into()))
         }
     }
 
@@ -1361,10 +1370,9 @@ impl<'a> Parser<'_> {
                     let pos = frame.pos;
 
                     match &grammar {
-                        // Simple leaf grammars - parse directly using recursive parser
-                        // We temporarily disable iterative flag to avoid infinite recursion
+                        // Simple leaf grammars - parse directly without recursion
                         Grammar::Token { token_type } => {
-                            self.handle_token_initial(token_type, &frame, &grammar, &terminators, &mut results)?;
+                            self.handle_token_initial(token_type, &frame, &mut results)?;
                         }
 
                         Grammar::StringParser {

@@ -210,6 +210,9 @@ impl<'a> Parser<'a> {
     }
 
     /// Check if the current position is at a terminator
+    ///
+    /// This uses fast simple matching where possible, falling back to full parsing
+    /// only when necessary for complex terminators.
     pub fn is_terminated(&mut self, terminators: &[Grammar]) -> bool {
         let init_pos = self.pos;
         self.skip_transparent(true);
@@ -237,29 +240,56 @@ impl<'a> Parser<'a> {
             self.pos
         );
 
-        // Temporarily disable iterative parser when checking terminators
-        // to avoid nested iterative parses with conflicting frame IDs
-        let was_iterative = self.use_iterative_parser;
-        self.use_iterative_parser = false;
+        // Get current token for simple matching
+        let current_token = self.peek();
+        if current_token.is_none() {
+            log::debug!("  NOTERM No current token");
+            self.pos = init_pos;
+            return false;
+        }
+        let current_token = current_token.unwrap();
 
-        for term in terminators {
-            if let Ok(node) = self.parse_with_grammar_cached(term, &[]) {
-                self.pos = saved_pos; // don't consume
+        // First pass: check all simple terminators (fast path)
+        for term in terminators.iter() {
+            let simple_opt = term.simple();
+            if let Some(simple) = simple_opt {
+                // Use fast simple matching
+                if simple.could_match(current_token) {
+                    log::debug!("  TERMED Simple terminator matched: {}", term);
+                    self.pos = init_pos; // restore original position
+                    return true;
+                }
+                log::debug!("  Simple terminator did not match: {}", term);
+            }
+        }
 
+        // Second pass: check complex terminators that need full parsing (slow path)
+        // Create a fresh parser for checking terminators independently
+        for term in terminators.iter() {
+            // Skip simple terminators (already checked)
+            if term.simple().is_some() {
+                continue;
+            }
+
+            // Complex terminator - need full parse
+            // Use a fresh parser instance to avoid any shared state or recursion issues
+            let mut terminator_parser = Parser::new(self.tokens, self.dialect);
+            terminator_parser.pos = saved_pos;
+            // Fresh parser uses iterative mode, but with its own frame stack - no conflicts
+
+            if let Ok(node) = terminator_parser.parse_with_grammar_cached(term, &[]) {
                 // Check if the node is "empty" in various ways
                 let is_empty = node.is_empty();
 
                 if !is_empty {
-                    log::debug!("  TERMED Terminator matched: {}", term);
+                    log::debug!("  TERMED Complex terminator matched: {}", term);
                     self.pos = init_pos; // restore original position
-                    self.use_iterative_parser = was_iterative; // restore flag
                     return true;
                 }
             }
-            self.pos = saved_pos;
+            log::debug!("  Complex terminator did not match: {}", term);
         }
 
-        self.use_iterative_parser = was_iterative; // restore flag
         log::debug!("  NOTERM No terminators matched");
         self.pos = init_pos; // restore original position
         false

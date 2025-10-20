@@ -9,8 +9,8 @@ use crate::{
     token::Token,
 };
 
-use super::{Grammar, Node, ParseError};
 use super::utils::tag_keyword_if_word;
+use super::{Grammar, Node, ParseError};
 
 /// The main parser struct that holds parsing state and provides parsing methods.
 pub struct Parser<'a> {
@@ -42,11 +42,7 @@ impl<'a> Parser<'a> {
         grammar: &Grammar,
         parent_terminators: &[Grammar],
     ) -> Result<Node, ParseError> {
-        if self.use_iterative_parser {
-            self.parse_with_grammar_cached_iterative(grammar, parent_terminators)
-        } else {
-            self.parse_with_grammar_cached_recursive(grammar, parent_terminators)
-        }
+        self.parse_with_grammar_cached_iterative(grammar, parent_terminators)
     }
 
     /// Iterative (frame-based) parser with caching.

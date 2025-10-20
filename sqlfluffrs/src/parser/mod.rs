@@ -9,8 +9,8 @@ mod types;
 mod frame;
 mod core;
 mod helpers;  // Utility methods for Parser
-pub mod iterative;  // Public so parser_old can access the impl methods
-pub mod recursive;  // Recursive parser implementation
+mod iterative;
+mod recursive;  // Recursive parser implementation
 pub(crate) mod utils;  // Make utils accessible to parser_old
 
 // Re-export public types
