@@ -455,8 +455,9 @@ some established style guides.
 They are however not recommended by many of the major style guides
 at time of writing (including the `dbt Labs SQL style guide`_
 and the `Mozilla SQL style guide`_), and so are disabled by default.
-To enable them, set the :code:`allow_implicit_indents` flag in
-:code:`sqluff.indentation` to :code:`True`.
+To enable them, set the :code:`implicit_indents` flag in
+:code:`sqluff.indentation` to :code:`allow`, or the more strict
+:code:`require`.
 
 .. _templatedindents:
 
@@ -645,7 +646,7 @@ break after :code:`ON` is unexpected, and this is a good example of an
 
    [sqlfluff:indentation]
    indented_using_on = False
-   allow_implicit_indents = True
+   implicit_indents = allow
 
 Then the expected indentation will be:
 
@@ -676,7 +677,7 @@ subsections of an :code:`ON` block with each other. If set to :code:`False`
 
 These can also be combined, so if :code:`indented_using_on` config is set to
 :code:`False`, :code:`indented_on_contents` is also set to :code:`False`, and
-:code:`allow_implicit_indents` is set to :code:`True` then the SQL would
+:code:`implicit_indents` is set to :code:`allow` then the SQL would
 become:
 
 .. code-block:: sql

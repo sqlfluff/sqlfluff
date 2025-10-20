@@ -113,7 +113,7 @@ source .venv/bin/activate
 ```
 (The `dbt180` environment is a good default choice.
 However any version can be installed by replacing `dbt180` with
-`py`, `py39` through `py313`, `dbt140` through `dbt190`, etc.
+`py`, `py39` through `py313`, `dbt170` through `dbt1100`, etc.
 `py` defaults to the python version that was used to install tox.
 To be able to run all tests including the dbt templater,
 choose one of the dbt environments.)
