@@ -62,9 +62,7 @@ pub fn verify_all_tokens_in_ast(raw: &str, ast: &Node, tokens: &[Token]) -> Resu
 /// Recursively collect all token positions from a Node
 pub fn collect_token_positions(node: &Node, positions: &mut std::collections::HashSet<usize>) {
     match node {
-        Node::Keyword(_, pos)
-        | Node::Code(_, pos)
-        | Node::Whitespace(_, pos)
+        Node::Whitespace(_, pos)
         | Node::Newline(_, pos)
         | Node::Token(_, _, pos) => {
             positions.insert(*pos);

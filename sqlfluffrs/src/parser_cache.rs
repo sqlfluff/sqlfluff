@@ -147,8 +147,7 @@ impl Grammar {
             | Grammar::Meta(_)
             | Grammar::Empty
             | Grammar::Nothing()
-            | Grammar::Missing => None,
-            Grammar::Symbol(s) => Some(SimpleMatch::from_raws(vec![s])),
+            | Grammar::Missing => None
         }
     }
 }
@@ -256,9 +255,6 @@ fn grammar_hash(grammar: &Grammar) -> u64 {
         Grammar::Token { token_type } => {
             token_type.hash(&mut hasher);
         }
-        Grammar::Symbol(s) => {
-            s.hash(&mut hasher);
-        }
         Grammar::Meta(m) => {
             m.hash(&mut hasher);
         }
@@ -323,7 +319,6 @@ fn grammar_discriminant(grammar: &Grammar) -> usize {
         Grammar::Delimited { .. } => 4,
         Grammar::Bracketed { .. } => 5,
         Grammar::Ref { .. } => 6,
-        Grammar::Symbol(_) => 7,
         Grammar::StringParser { .. } => 8,
         Grammar::MultiStringParser { .. } => 9,
         Grammar::TypedParser { .. } => 10,
@@ -411,6 +406,7 @@ mod tests {
     fn test_simple_match_string_parser() {
         let grammar = Grammar::StringParser {
             template: "SELECT",
+            raw_class: "KeywordSegment",
             token_type: "keyword",
             optional: false,
         };
@@ -424,6 +420,7 @@ mod tests {
     fn test_simple_match_typed_parser() {
         let grammar = Grammar::TypedParser {
             template: "word",
+            raw_class: "IdentifierSegment",
             token_type: "identifier",
             optional: false,
         };
@@ -437,6 +434,7 @@ mod tests {
     fn test_simple_match_multi_string() {
         let grammar = Grammar::MultiStringParser {
             templates: vec!["SELECT", "INSERT", "UPDATE"],
+            raw_class: "KeywordSegment",
             token_type: "keyword",
             optional: false,
         };

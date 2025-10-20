@@ -124,6 +124,7 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print("Grammar::StringParser {")
         print(f'    template: "{match_grammar.template}",')
         print(f'    token_type: "{match_grammar._instance_types[0]}",')
+        print(f'    raw_class: "{match_grammar.raw_class.__name__}",')
         print(f"    optional: {str(match_grammar.is_optional()).lower()},")
         print("}")
     elif match_grammar.__class__ is TypedParser and isinstance(
@@ -132,6 +133,7 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print("Grammar::TypedParser {")
         print(f'    template: "{match_grammar.template}",')
         print(f'    token_type: "{match_grammar._instance_types[0]}",')
+        print(f'    raw_class: "{match_grammar.raw_class.__name__}",')
         print(f"    optional: {str(match_grammar.is_optional()).lower()},")
         print("}")
     elif match_grammar.__class__ is MultiStringParser and isinstance(
@@ -143,6 +145,7 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         )
         print(f"    templates: vec![{multistring}],")
         print(f'    token_type: "{match_grammar._instance_types[0]}",')
+        print(f'    raw_class: "{match_grammar.raw_class.__name__}",')
         print(f"    optional: {str(match_grammar.is_optional()).lower()},")
         print("}")
     elif match_grammar.__class__ is RegexParser and isinstance(
@@ -151,6 +154,7 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print("Grammar::RegexParser {")
         print(f'    template: r#"{match_grammar.template}"#,')
         print(f'    token_type: "{match_grammar._instance_types[0]}",')
+        print(f'    raw_class: "{match_grammar.raw_class.__name__}",')
         print(f"    optional: {str(match_grammar.is_optional()).lower()},")
         print(
             f"    anti_template: {as_rust_option(match_grammar.anti_template, True)},"

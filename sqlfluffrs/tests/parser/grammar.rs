@@ -3,7 +3,10 @@
 //! Tests for specific grammar features like AnySetOf, Delimited, Bracketed, etc.
 
 use sqlfluffrs::parser::{Grammar, Node, ParseError, ParseMode, Parser};
-use sqlfluffrs::{lexer::{LexInput, Lexer}, Dialect};
+use sqlfluffrs::{
+    lexer::{LexInput, Lexer},
+    Dialect,
+};
 
 macro_rules! with_larger_stack {
     ($test_fn:expr) => {{
@@ -35,11 +38,13 @@ fn test_anysetof_basic() -> Result<(), ParseError> {
         elements: vec![
             Grammar::StringParser {
                 template: "A",
+                raw_class: "WordSegment",
                 token_type: "word",
                 optional: false,
             },
             Grammar::StringParser {
                 template: "B",
+                raw_class: "WordSegment",
                 token_type: "word",
                 optional: false,
             },
@@ -54,7 +59,6 @@ fn test_anysetof_basic() -> Result<(), ParseError> {
     };
 
     // Use the internal parse method directly
-    parser.use_iterative_parser = true;
     let result = parser.parse_with_grammar_cached(&grammar, &[])?;
 
     println!("\nParsed successfully!");
@@ -71,7 +75,7 @@ fn test_anysetof_order_independent() -> Result<(), ParseError> {
     env_logger::try_init().ok();
 
     // Test that AnySetOf matches elements in any order
-    let test_cases = vec!["A B", "B A"];
+    let test_cases = ["A B", "B A"];
 
     for (i, raw) in test_cases.iter().enumerate() {
         println!("\n=== Test case {}: '{}' ===", i + 1, raw);
@@ -87,11 +91,13 @@ fn test_anysetof_order_independent() -> Result<(), ParseError> {
             elements: vec![
                 Grammar::StringParser {
                     template: "A",
+                    raw_class: "WordSegment",
                     token_type: "word",
                     optional: false,
                 },
                 Grammar::StringParser {
                     template: "B",
+                    raw_class: "WordSegment",
                     token_type: "word",
                     optional: false,
                 },
@@ -105,7 +111,6 @@ fn test_anysetof_order_independent() -> Result<(), ParseError> {
             parse_mode: ParseMode::Strict,
         };
 
-        parser.use_iterative_parser = true;
         let result = parser.parse_with_grammar_cached(&grammar, &[])?;
 
         println!("Result: {:#?}", result);
@@ -248,7 +253,10 @@ fn test_whitespace_in_ast() -> Result<(), ParseError> {
 
     // Verify whitespace nodes are present
     let ast_str = format!("{:?}", ast);
-    assert!(ast_str.contains("Whitespace"), "AST should contain whitespace nodes");
+    assert!(
+        ast_str.contains("Whitespace"),
+        "AST should contain whitespace nodes"
+    );
 
     Ok(())
 }
@@ -269,7 +277,10 @@ fn test_keyword_tagging() -> Result<(), ParseError> {
 
     // Verify keywords are properly tagged
     let ast_str = format!("{:?}", ast);
-    assert!(ast_str.contains("Keyword"), "AST should contain Keyword nodes");
+    assert!(
+        ast_str.contains("Keyword"),
+        "AST should contain Keyword nodes"
+    );
     println!("AST with keywords: {:#?}", ast);
 
     Ok(())
@@ -292,13 +303,15 @@ fn test_no_duplicate_whitespace_tokens() -> Result<(), ParseError> {
     // Collect all token positions in AST
     fn collect_positions(node: &Node, positions: &mut Vec<usize>) {
         match node {
-            Node::Keyword(_, pos) | Node::Code(_, pos) |
-            Node::Whitespace(_, pos) | Node::Newline(_, pos) |
-            Node::Token(_, _, pos) | Node::EndOfFile(_, pos) => {
+            Node::Whitespace(_, pos)
+            | Node::Newline(_, pos)
+            | Node::Token(_, _, pos)
+            | Node::EndOfFile(_, pos) => {
                 positions.push(*pos);
             }
-            Node::Sequence(children) | Node::DelimitedList(children) |
-            Node::Unparsable(_, children) => {
+            Node::Sequence(children)
+            | Node::DelimitedList(children)
+            | Node::Unparsable(_, children) => {
                 for child in children {
                     collect_positions(child, positions);
                 }
@@ -316,11 +329,7 @@ fn test_no_duplicate_whitespace_tokens() -> Result<(), ParseError> {
     // Check for duplicates
     let mut seen = std::collections::HashSet::new();
     for pos in &positions {
-        assert!(
-            seen.insert(*pos),
-            "Duplicate token position {} in AST",
-            pos
-        );
+        assert!(seen.insert(*pos), "Duplicate token position {} in AST", pos);
     }
 
     println!("All {} positions are unique", positions.len());

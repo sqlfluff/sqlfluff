@@ -91,25 +91,28 @@ pub enum Grammar {
         reset_terminators: bool,
         allow_gaps: bool,
     },
-    Symbol(&'static str),
     StringParser {
         template: &'static str,
         token_type: &'static str,
+        raw_class: &'static str,
         optional: bool,
     },
     MultiStringParser {
         templates: Vec<&'static str>,
         token_type: &'static str,
+        raw_class: &'static str,
         optional: bool,
     },
     TypedParser {
         template: &'static str,
         token_type: &'static str,
+        raw_class: &'static str,
         optional: bool,
     },
     RegexParser {
         template: &'static str,
         token_type: &'static str,
+        raw_class: &'static str,
         optional: bool,
         anti_template: Option<&'static str>,
     },
@@ -272,7 +275,6 @@ impl Hash for Grammar {
                 allow_gaps.hash(state);
                 parse_mode.hash(state);
             }
-            Grammar::Symbol(sym) => sym.hash(state),
             Grammar::Meta(s) => s.hash(state),
             Grammar::Nothing() => {}
             Grammar::Anything => {}
@@ -375,7 +377,14 @@ impl PartialEq for Grammar {
                     ..
                 },
             ) => {
-                e1 == e2 && o1 == o2 && g1 == g2 && d1 == d2 && at1 == at2 && t1 == t2 && md1 == md2 && pm1 == pm2
+                e1 == e2
+                    && o1 == o2
+                    && g1 == g2
+                    && d1 == d2
+                    && at1 == at2
+                    && t1 == t2
+                    && md1 == md2
+                    && pm1 == pm2
             }
             (
                 Grammar::Bracketed {
@@ -412,11 +421,13 @@ impl PartialEq for Grammar {
                     template,
                     token_type,
                     optional,
+                    ..
                 },
                 Grammar::StringParser {
                     template: t2,
                     token_type: tt2,
                     optional: o2,
+                    ..
                 },
             ) => template == t2 && token_type == tt2 && optional == o2,
             (
@@ -424,11 +435,13 @@ impl PartialEq for Grammar {
                     templates,
                     token_type,
                     optional,
+                    ..
                 },
                 Grammar::MultiStringParser {
                     templates: t2,
                     token_type: tt2,
                     optional: o2,
+                    ..
                 },
             ) => templates == t2 && token_type == tt2 && optional == o2,
             (
@@ -436,11 +449,13 @@ impl PartialEq for Grammar {
                     template,
                     token_type,
                     optional,
+                    ..
                 },
                 Grammar::TypedParser {
                     template: t2,
                     token_type: tt2,
                     optional: o2,
+                    ..
                 },
             ) => template == t2 && token_type == tt2 && optional == o2,
             (
@@ -449,12 +464,14 @@ impl PartialEq for Grammar {
                     token_type,
                     optional,
                     anti_template,
+                    ..
                 },
                 Grammar::RegexParser {
                     template: t2,
                     token_type: tt2,
                     optional: o2,
                     anti_template: at2,
+                    ..
                 },
             ) => template == t2 && token_type == tt2 && optional == o2 && anti_template == at2,
             (Grammar::Meta(s1), Grammar::Meta(s2)) => s1 == s2,
@@ -463,7 +480,6 @@ impl PartialEq for Grammar {
             (Grammar::Empty, Grammar::Empty) => true,
             (Grammar::Missing, Grammar::Missing) => true,
             (Grammar::Token { token_type: tt1 }, Grammar::Token { token_type: tt2 }) => tt1 == tt2,
-            (Grammar::Symbol(s1), Grammar::Symbol(s2)) => s1 == s2,
             _ => false,
         }
     }
@@ -516,7 +532,6 @@ impl Display for Grammar {
                 )
             }
             Grammar::Ref { name, .. } => write!(f, "Ref({})", name),
-            Grammar::Symbol(sym) => write!(f, "Symbol({})", sym),
             Grammar::StringParser { template, .. } => write!(f, "StringParser({})", template),
             Grammar::MultiStringParser { templates, .. } => {
                 write!(f, "MultiStringParser({:?})", templates)
@@ -541,11 +556,6 @@ pub struct SegmentDef {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Node {
-    /// A plain SQL keyword like SELECT, FROM, INTO
-    Keyword(String, usize),
-
-    Code(String, usize),
-
     /// Whitespace tokens (spaces, tabs)
     Whitespace(String, usize),
 
@@ -555,7 +565,7 @@ pub enum Node {
     /// End of file marker
     EndOfFile(String, usize),
 
-    /// Generic token (for collecting tokens in unparsable segments)
+    /// Generic token
     Token(String, String, usize), // (type, raw, position)
 
     /// Unparsable segment (in GREEDY mode when tokens don't match)
@@ -634,11 +644,7 @@ impl Node {
         let indent = "    ".repeat(depth);
 
         match self {
-            Node::Keyword(_, idx)
-            | Node::Code(_, idx)
-            | Node::Whitespace(_, idx)
-            | Node::Newline(_, idx)
-            | Node::Token(_, _, idx) => {
+            Node::Whitespace(_, idx) | Node::Newline(_, idx) | Node::Token(_, _, idx) => {
                 if let Some(token) = tokens.get(*idx) {
                     output.push_str(&token.stringify(depth, 4, false));
                 }
@@ -698,11 +704,7 @@ impl Node {
                 let is_grammar_rule = name.ends_with("Grammar");
                 let is_single_token = matches!(
                     child.as_ref(),
-                    Node::Keyword(_, _)
-                        | Node::Code(_, _)
-                        | Node::Whitespace(_, _)
-                        | Node::Newline(_, _)
-                        | Node::EndOfFile(_, _)
+                    Node::Whitespace(_, _) | Node::Newline(_, _) | Node::EndOfFile(_, _)
                 );
                 let is_transparent = is_grammar_rule || is_single_token;
 
@@ -762,9 +764,7 @@ impl Node {
 
     fn find_first_token_idx(&self) -> Option<usize> {
         match self {
-            Node::Keyword(_, idx)
-            | Node::Code(_, idx)
-            | Node::Whitespace(_, idx)
+            Node::Whitespace(_, idx)
             | Node::Newline(_, idx)
             | Node::EndOfFile(_, idx)
             | Node::Token(_, _, idx) => Some(*idx),
@@ -779,6 +779,105 @@ impl Node {
 
             Node::Meta(_) | Node::Empty => None,
         }
+    }
+
+    /// Check if this node represents code (not whitespace or meta)
+    pub fn is_code(&self) -> bool {
+        match self {
+            // Whitespace and newlines are not code
+            Node::Whitespace(_, _) | Node::Newline(_, _) => false,
+
+            // EndOfFile and Meta are not code
+            Node::EndOfFile(_, _) | Node::Meta(_) => false,
+
+            // Empty is not code
+            Node::Empty => false,
+
+            // Token depends on its type
+            Node::Token(token_type, _, _) => {
+                !matches!(token_type.as_str(), "whitespace" | "newline")
+            }
+
+            // Unparsable segments contain code
+            Node::Unparsable(_, _) => true,
+
+            // Container nodes: check if they contain any code
+            Node::Sequence(children) | Node::DelimitedList(children) => {
+                children.iter().any(|child| child.is_code())
+            }
+
+            // Ref nodes: delegate to child
+            Node::Ref { child, .. } => child.is_code(),
+        }
+    }
+
+    /// Check if this node is whitespace (spaces, tabs, newlines)
+    pub fn is_whitespace(&self) -> bool {
+        match self {
+            Node::Whitespace(_, _) | Node::Newline(_, _) => true,
+            Node::Token(token_type, _, _) => {
+                matches!(token_type.as_str(), "whitespace" | "newline")
+            }
+            _ => false,
+        }
+    }
+
+    /// Check if this node is a meta node (indent, dedent, etc.)
+    pub fn is_meta(&self) -> bool {
+        matches!(self, Node::Meta(_))
+    }
+
+    /// Check if this node should be included in code-only serialization
+    /// This matches Python's behavior for `code_only=True`
+    pub fn should_include_in_code_only(&self) -> bool {
+        self.is_code() && !self.is_meta()
+    }
+
+    /// Get the type of this node based on its variant and token information
+    /// This helps determine what kind of segment it represents
+    pub fn get_type(&self, tokens: &[Token]) -> Option<String> {
+        match self {
+            Node::Whitespace(_, _) => Some("whitespace".to_string()),
+            Node::Newline(_, _) => Some("newline".to_string()),
+            Node::EndOfFile(_, _) => Some("end_of_file".to_string()),
+            Node::Token(token_type, _, _) => Some(token_type.clone()),
+            Node::Unparsable(_, _) => Some("unparsable".to_string()),
+            Node::Ref { segment_type, .. } => segment_type.clone(),
+            Node::Sequence(_) => Some("sequence".to_string()),
+            Node::DelimitedList(_) => Some("delimited_list".to_string()),
+            Node::Meta(name) => Some(format!("meta_{}", name)),
+            Node::Empty => None,
+        }
+    }
+
+    /// Get all class types from the token, if this node references a token
+    pub fn get_class_types(&self, tokens: &[Token]) -> Vec<String> {
+        match self {
+            Node::Token(token_type, _, idx) => {
+                if let Some(token) = tokens.get(*idx) {
+                    let mut v = vec![token_type.clone()];
+                    v.extend(token.class_types.iter().cloned());
+                    v
+                } else {
+                    Vec::new()
+                }
+            }
+            Node::Ref { child, .. } => child.get_class_types(tokens),
+            _ => Vec::new(),
+        }
+    }
+
+    /// Check if this node or its token has a specific type
+    pub fn has_type(&self, type_name: &str, tokens: &[Token]) -> bool {
+        if let Some(node_type) = self.get_type(tokens) {
+            if node_type == type_name {
+                return true;
+            }
+        }
+
+        // Also check class types
+        self.get_class_types(tokens)
+            .contains(&type_name.to_string())
     }
 }
 

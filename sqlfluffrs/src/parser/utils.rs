@@ -5,52 +5,6 @@
 use super::types::{Grammar, Node, ParseMode};
 use crate::token::Token;
 
-/// Tag Code nodes as Keyword if the underlying token is a word type.
-///
-/// This recursively processes a node tree, converting Code nodes to Keyword nodes
-/// when the token at that position has type "word".
-pub fn tag_keyword_if_word(node: &Node, tokens: &[Token]) -> Node {
-    match node {
-        Node::Code(raw, idx) => {
-            // Check if the token at this position is a word type
-            if let Some(token) = tokens.get(*idx) {
-                if token.is_type(&["word"]) {
-                    // Convert to Keyword node
-                    return Node::Keyword(raw.clone(), *idx);
-                }
-            }
-            // Not a word token, keep as Code
-            node.clone()
-        }
-        // For other node types, recursively check children
-        Node::Sequence(children) => {
-            let tagged_children: Vec<Node> = children
-                .iter()
-                .map(|child| tag_keyword_if_word(child, tokens))
-                .collect();
-            Node::Sequence(tagged_children)
-        }
-        Node::DelimitedList(children) => {
-            let tagged_children: Vec<Node> = children
-                .iter()
-                .map(|child| tag_keyword_if_word(child, tokens))
-                .collect();
-            Node::DelimitedList(tagged_children)
-        }
-        Node::Ref {
-            name,
-            segment_type,
-            child,
-        } => Node::Ref {
-            name: name.clone(),
-            segment_type: segment_type.clone(),
-            child: Box::new(tag_keyword_if_word(child, tokens)),
-        },
-        // Other node types pass through unchanged
-        _ => node.clone(),
-    }
-}
-
 /// Check if a grammar element is optional.
 ///
 /// Returns true if the grammar can match zero tokens successfully.
@@ -86,7 +40,11 @@ pub fn is_grammar_optional(grammar: &Grammar) -> bool {
 /// Skip forward from start_idx to the next code token.
 ///
 /// Returns the index of the next code token, or max_idx if none found.
-pub fn skip_start_index_forward_to_code(tokens: &[Token], start_idx: usize, max_idx: usize) -> usize {
+pub fn skip_start_index_forward_to_code(
+    tokens: &[Token],
+    start_idx: usize,
+    max_idx: usize,
+) -> usize {
     for i in start_idx..max_idx {
         if i < tokens.len() && tokens[i].is_code() {
             return i;
@@ -98,7 +56,11 @@ pub fn skip_start_index_forward_to_code(tokens: &[Token], start_idx: usize, max_
 /// Skip backward from stop_idx to the previous code token.
 ///
 /// Returns the index after the last code token, or min_idx if none found.
-pub fn skip_stop_index_backward_to_code(tokens: &[Token], stop_idx: usize, min_idx: usize) -> usize {
+pub fn skip_stop_index_backward_to_code(
+    tokens: &[Token],
+    stop_idx: usize,
+    min_idx: usize,
+) -> usize {
     if stop_idx <= min_idx {
         return min_idx;
     }
@@ -133,8 +95,7 @@ pub fn apply_parse_mode_to_result(
     }
 
     // Check if all remaining segments are non-code
-    let all_non_code =
-        (current_pos..max_idx).all(|i| i >= tokens.len() || !tokens[i].is_code());
+    let all_non_code = (current_pos..max_idx).all(|i| i >= tokens.len() || !tokens[i].is_code());
 
     if all_non_code {
         return current_node;

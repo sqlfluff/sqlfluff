@@ -3,7 +3,10 @@
 //! Tests specifically for the iterative (frame-based) parser implementation
 
 use sqlfluffrs::parser::{ParseError, Parser};
-use sqlfluffrs::{lexer::{LexInput, Lexer}, Dialect};
+use sqlfluffrs::{
+    lexer::{LexInput, Lexer},
+    Dialect,
+};
 
 macro_rules! with_larger_stack {
     ($test_fn:expr) => {{
@@ -28,7 +31,6 @@ fn test_fully_iterative_parser() -> Result<(), ParseError> {
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
-        parser.use_iterative_parser = true;
 
         let ast = parser.call_rule("SelectStatementSegment", &[])?;
         println!("AST: {:#?}", ast);
@@ -48,7 +50,6 @@ fn test_iterative_simple_literal() -> Result<(), ParseError> {
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
-    parser.use_iterative_parser = true;
 
     let ast = parser.call_rule("LiteralGrammar", &[])?;
     println!("AST: {:#?}", ast);
@@ -67,7 +68,6 @@ fn test_iterative_sequence_simple() -> Result<(), ParseError> {
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
-    parser.use_iterative_parser = true;
 
     let ast = parser.call_rule("SelectClauseSegment", &[])?;
     println!("AST: {:#?}", ast);
@@ -86,7 +86,6 @@ fn test_iterative_anynumberof_simple() -> Result<(), ParseError> {
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
-    parser.use_iterative_parser = true;
 
     let ast = parser.call_rule("SelectClauseElementSegment", &[])?;
     println!("AST: {:#?}", ast);
@@ -105,7 +104,6 @@ fn test_iterative_bracketed_simple() -> Result<(), ParseError> {
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
-    parser.use_iterative_parser = true;
 
     // Use BracketedColumnReferenceListGrammar which actually parses brackets
     // (BracketedSegment is just a Token marker, not a parser)
@@ -127,10 +125,12 @@ fn test_iterative_anysetof_simple() -> Result<(), ParseError> {
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
-    parser.use_iterative_parser = true;
 
     // This will use iterative parsing internally
-    println!("Tokens: {:?}", tokens.iter().map(|t| t.raw()).collect::<Vec<_>>());
+    println!(
+        "Tokens: {:?}",
+        tokens.iter().map(|t| t.raw()).collect::<Vec<_>>()
+    );
 
     Ok(())
 }
@@ -147,7 +147,6 @@ fn test_iterative_delimited_simple() -> Result<(), ParseError> {
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
-        parser.use_iterative_parser = true;
 
         // Parse as a delimited list of identifiers
         let ast = parser.call_rule("SelectClauseElementSegment", &[])?;
@@ -169,7 +168,6 @@ fn test_iterative_delimited_single_element() -> Result<(), ParseError> {
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
-        parser.use_iterative_parser = true;
 
         let ast = parser.call_rule("SelectClauseElementSegment", &[])?;
         println!("AST: {:#?}", ast);
@@ -191,7 +189,6 @@ fn test_iterative_delimited_long_list() -> Result<(), ParseError> {
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
-        parser.use_iterative_parser = true;
 
         let ast = parser.call_rule("SelectClauseElementSegment", &[])?;
         println!("Parsed {} element list", raw.split(',').count());
@@ -212,7 +209,6 @@ fn test_iterative_delimited_with_whitespace() -> Result<(), ParseError> {
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
-        parser.use_iterative_parser = true;
 
         let ast = parser.call_rule("SelectClauseElementSegment", &[])?;
         println!("AST: {:#?}", ast);
@@ -233,7 +229,6 @@ fn test_iterative_delimited_with_newlines() -> Result<(), ParseError> {
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
-        parser.use_iterative_parser = true;
 
         let ast = parser.call_rule("SelectClauseElementSegment", &[])?;
         println!("AST: {:#?}", ast);
@@ -254,7 +249,6 @@ fn test_iterative_delimited_function_args() -> Result<(), ParseError> {
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
-        parser.use_iterative_parser = true;
 
         let ast = parser.call_rule("FunctionSegment", &[])?;
         println!("AST: {:#?}", ast);
@@ -275,7 +269,6 @@ fn test_iterative_delimited_nested() -> Result<(), ParseError> {
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
-        parser.use_iterative_parser = true;
 
         let ast = parser.call_rule("FunctionSegment", &[])?;
         println!("AST: {:#?}", ast);
@@ -296,7 +289,6 @@ fn test_iterative_delimited_order_by() -> Result<(), ParseError> {
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
-        parser.use_iterative_parser = true;
 
         let ast = parser.call_rule("SelectStatementSegment", &[])?;
         println!("AST: {:#?}", ast);
@@ -317,7 +309,6 @@ fn test_iterative_delimited_group_by() -> Result<(), ParseError> {
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
-        parser.use_iterative_parser = true;
 
         let ast = parser.call_rule("SelectStatementSegment", &[])?;
         println!("AST: {:#?}", ast);
@@ -347,7 +338,6 @@ fn test_iterative_parser_no_stack_overflow() -> Result<(), ParseError> {
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
-        parser.use_iterative_parser = true;
 
         let ast = parser.call_rule("SelectStatementSegment", &[])?;
         println!("Successfully parsed deeply nested expression (200 levels)");

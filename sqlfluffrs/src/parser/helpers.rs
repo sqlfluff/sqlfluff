@@ -119,7 +119,7 @@ impl<'a> Parser<'a> {
             } else if tok_type == "end_of_file" {
                 Node::EndOfFile(tok.raw(), token_pos)
             } else {
-                Node::Code(tok.raw(), token_pos) // Fallback for other non-code tokens
+                Node::Token(tok.raw(), tok.token_type.clone(), token_pos) // Fallback for other non-code tokens
             };
 
             log::debug!(

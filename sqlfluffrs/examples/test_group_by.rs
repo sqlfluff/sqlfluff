@@ -33,7 +33,6 @@ fn test_sql(raw: &str) {
     }
 
     let mut parser = Parser::new(&tokens, dialect);
-    parser.use_iterative_parser = true;
 
     println!("\nParsing...");
     match parser.call_rule("SelectStatementSegment", &[]) {

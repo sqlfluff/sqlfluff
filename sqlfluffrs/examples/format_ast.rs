@@ -8,7 +8,8 @@ use sqlfluffrs::{
 fn main() {
     env_logger::init();
 
-    let sql = "SELECT  \t*\n  FROM\n\ttable_name  ";
+    let sql = "select 1
+";
 
     // Lex the SQL
     let input = LexInput::String(sql.into());
@@ -24,7 +25,6 @@ fn main() {
 
     // Parse the tokens
     let mut parser = Parser::new(&tokens, Dialect::Ansi);
-    parser.use_iterative_parser = true; // Enable iterative parsing
     let ast = parser.call_rule("FileSegment", &[])
         .expect("Failed to parse");
 

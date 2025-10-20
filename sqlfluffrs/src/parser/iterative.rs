@@ -9,17 +9,15 @@
 
 use std::collections::{HashMap, HashSet};
 
-use crate::{
-    dialect::Dialect,
-    token::Token,
-};
+use crate::token;
+use crate::{dialect::Dialect, token::Token};
 
 use super::{
-    Grammar, ParseMode, Node, ParseError,
-    ParseFrame, FrameState, FrameContext, BracketedState, DelimitedState,
+    BracketedState, DelimitedState, FrameContext, FrameState, Grammar, Node, ParseError,
+    ParseFrame, ParseMode,
 };
 
-use super::utils::{tag_keyword_if_word, is_grammar_optional, apply_parse_mode_to_result};
+use super::utils::{apply_parse_mode_to_result, is_grammar_optional};
 
 // Import Parser from core module
 use super::core::Parser;
@@ -54,13 +52,19 @@ impl<'a> Parser<'_> {
                 let token_pos = self.pos;
                 self.bump();
                 log::debug!("MATCHED Token matched: {:?}", tok);
-                eprintln!("DEBUG: Token grammar frame_id={} matched, result end_pos={}", frame.frame_id, self.pos);
+                eprintln!(
+                    "DEBUG: Token grammar frame_id={} matched, result end_pos={}",
+                    frame.frame_id, self.pos
+                );
 
-                let node = Node::Code(tok.raw(), token_pos);
+                let node = Node::Token(token_type.to_string(), tok.raw(), token_pos);
                 results.insert(frame.frame_id, (node, self.pos, None));
                 Ok(())
             } else {
-                eprintln!("DEBUG: Token grammar frame_id={} failed with error", frame.frame_id);
+                eprintln!(
+                    "DEBUG: Token grammar frame_id={} failed with error",
+                    frame.frame_id
+                );
                 Err(ParseError::new(format!(
                     "Expected token type {}, found {}",
                     token_type,
@@ -68,7 +72,10 @@ impl<'a> Parser<'_> {
                 )))
             }
         } else {
-            eprintln!("DEBUG: Token grammar frame_id={} failed - at EOF", frame.frame_id);
+            eprintln!(
+                "DEBUG: Token grammar frame_id={} failed - at EOF",
+                frame.frame_id
+            );
             Err(ParseError::new("Expected token, found EOF".into()))
         }
     }
@@ -92,17 +99,15 @@ impl<'a> Parser<'_> {
                 self.bump();
                 log::debug!("MATCHED String matched: {}", tok);
 
-                let node = if token_type == "keyword" {
-                    Node::Keyword(tok.raw(), token_pos)
-                } else {
-                    Node::Code(tok.raw(), token_pos)
-                };
+                let node = Node::Token(token_type.to_string(), tok.raw(), token_pos);
                 results.insert(frame.frame_id, (node, self.pos, None));
             }
             _ => {
                 log::debug!("String parser didn't match '{}', returning Empty", template);
-                eprintln!("DEBUG [iter {}]: StringParser('{}') frame_id={} storing Empty result",
-                    iteration_count, template, frame.frame_id);
+                eprintln!(
+                    "DEBUG [iter {}]: StringParser('{}') frame_id={} storing Empty result",
+                    iteration_count, template, frame.frame_id
+                );
                 results.insert(frame.frame_id, (Node::Empty, self.pos, None));
             }
         }
@@ -121,16 +126,16 @@ impl<'a> Parser<'_> {
         let token = self.peek().cloned();
 
         match token {
-            Some(tok) if templates.iter().any(|&temp| tok.raw().eq_ignore_ascii_case(temp)) => {
+            Some(tok)
+                if templates
+                    .iter()
+                    .any(|&temp| tok.raw().eq_ignore_ascii_case(temp)) =>
+            {
                 let token_pos = self.pos;
                 self.bump();
                 log::debug!("MATCHED MultiString matched: {}", tok);
 
-                let node = if token_type == "keyword" {
-                    Node::Keyword(tok.raw(), token_pos)
-                } else {
-                    Node::Code(tok.raw(), token_pos)
-                };
+                let node = Node::Token(token_type.to_string(), tok.raw(), token_pos);
                 results.insert(frame.frame_id, (node, self.pos, None));
             }
             _ => {
@@ -144,37 +149,55 @@ impl<'a> Parser<'_> {
     fn handle_typed_parser_initial(
         &mut self,
         template: &str,
+        token_type: &str,
         frame: &ParseFrame,
         results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
     ) {
-        eprintln!("DEBUG: TypedParser frame_id={}, pos={}, parent_max_idx={:?}, template={:?}",
-            frame.frame_id, frame.pos, frame.parent_max_idx, template);
+        eprintln!(
+            "DEBUG: TypedParser frame_id={}, pos={}, parent_max_idx={:?}, template={:?}",
+            frame.frame_id, frame.pos, frame.parent_max_idx, template
+        );
 
         self.pos = frame.pos;
         self.skip_transparent(true);
 
         if let Some(token) = self.peek() {
             let tok = token.clone();
-            eprintln!("DEBUG: TypedParser peeked token: type='{}', raw='{}', pos={}",
-                tok.token_type, tok.raw(), self.pos);
+            eprintln!(
+                "DEBUG: TypedParser peeked token: type='{}', raw='{}', pos={}",
+                tok.token_type,
+                tok.raw(),
+                self.pos
+            );
 
             if tok.is_type(&[template]) {
                 let raw = tok.raw().to_string();
                 let token_pos = self.pos;
                 self.bump();
-                eprintln!("DEBUG: TypedParser MATCHED! frame_id={}, consumed token at pos={}",
-                    frame.frame_id, token_pos);
+                eprintln!(
+                    "DEBUG: TypedParser MATCHED! frame_id={}, consumed token at pos={}",
+                    frame.frame_id, token_pos
+                );
                 log::debug!("MATCHED Typed matched: {}", tok.token_type);
-                let node = Node::Code(raw, token_pos);
+                let node = Node::Token(token_type.to_string(), raw, token_pos);
                 results.insert(frame.frame_id, (node, self.pos, None));
             } else {
-                eprintln!("DEBUG: TypedParser FAILED to match! frame_id={}, expected='{}', found='{}'",
-                    frame.frame_id, template, tok.token_type);
-                log::debug!("Typed parser failed: expected '{}', found '{}'", template, tok.token_type);
+                eprintln!(
+                    "DEBUG: TypedParser FAILED to match! frame_id={}, expected='{}', found='{}'",
+                    frame.frame_id, template, tok.token_type
+                );
+                log::debug!(
+                    "Typed parser failed: expected '{}', found '{}'",
+                    template,
+                    tok.token_type
+                );
                 results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
             }
         } else {
-            eprintln!("DEBUG: TypedParser at EOF! frame_id={}, pos={}", frame.frame_id, frame.pos);
+            eprintln!(
+                "DEBUG: TypedParser at EOF! frame_id={}, pos={}",
+                frame.frame_id, frame.pos
+            );
             log::debug!("Typed parser at EOF");
             results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
         }
@@ -186,6 +209,7 @@ impl<'a> Parser<'_> {
         &mut self,
         template: &str,
         anti_template: &Option<&'static str>,
+        token_type: &str,
         frame: &ParseFrame,
         results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> bool {
@@ -194,11 +218,12 @@ impl<'a> Parser<'_> {
         let token = self.peek().cloned();
 
         match token {
-            Some(tok) if regex::RegexBuilder::new(template)
-                .case_insensitive(true)
-                .build()
-                .unwrap()
-                .is_match(&tok.raw()) =>
+            Some(tok)
+                if regex::RegexBuilder::new(template)
+                    .case_insensitive(true)
+                    .build()
+                    .unwrap()
+                    .is_match(&tok.raw()) =>
             {
                 log::debug!("Regex matched: {}", tok);
 
@@ -220,7 +245,7 @@ impl<'a> Parser<'_> {
                 log::debug!("MATCHED Regex matched and non anti-match: {}", tok);
                 let token_pos = self.pos;
                 self.bump();
-                let node = Node::Code(tok.raw(), token_pos);
+                let node = Node::Token(token_type.to_string(), tok.raw(), token_pos);
                 results.insert(frame.frame_id, (node, self.pos, None));
                 false
             }
@@ -241,31 +266,6 @@ impl<'a> Parser<'_> {
     ) {
         log::debug!("Doing nothing with meta {}", token_type);
         results.insert(frame.frame_id, (Node::Meta(token_type), frame.pos, None));
-    }
-
-    /// Handle Symbol grammar in iterative parser
-    fn handle_symbol_initial(
-        &mut self,
-        sym: &str,
-        frame: &ParseFrame,
-        results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
-    ) {
-        self.pos = frame.pos;
-        let token = self.peek().cloned();
-
-        match token {
-            Some(tok) if tok.raw() == sym => {
-                let token_pos = self.pos;
-                self.bump();
-                log::debug!("MATCHED Symbol matched: {}", sym);
-                let node = Node::Code(tok.raw(), token_pos);
-                results.insert(frame.frame_id, (node, self.pos, None));
-            }
-            _ => {
-                log::debug!("Symbol didn't match '{}', returning Empty", sym);
-                results.insert(frame.frame_id, (Node::Empty, self.pos, None));
-            }
-        }
     }
 
     /// Handle Nothing grammar in iterative parser
@@ -308,13 +308,20 @@ impl<'a> Parser<'_> {
                 break;
             }
             if let Some(tok) = self.peek() {
-                anything_tokens.push(Node::Code(tok.raw().to_string(), self.pos));
+                anything_tokens.push(Node::Token(
+                    "anything".to_string(),
+                    tok.raw().to_string(),
+                    self.pos,
+                ));
                 self.bump();
             }
         }
 
         log::debug!("Anything matched tokens: {:?}", anything_tokens);
-        results.insert(frame.frame_id, (Node::DelimitedList(anything_tokens), self.pos, None));
+        results.insert(
+            frame.frame_id,
+            (Node::DelimitedList(anything_tokens), self.pos, None),
+        );
     }
 
     /// Handle Bracketed grammar Initial state in iterative parser
@@ -439,8 +446,7 @@ impl<'a> Parser<'_> {
         match grammar_opt {
             Some(child_grammar) => {
                 // Get segment type for later wrapping
-                let segment_type =
-                    self.dialect.get_segment_type(name).map(|s| s.to_string());
+                let segment_type = self.dialect.get_segment_type(name).map(|s| s.to_string());
 
                 // Create child frame to parse the target grammar
                 let child_frame_id = *frame_id_counter;
@@ -501,9 +507,7 @@ impl<'a> Parser<'_> {
             None => {
                 self.pos = saved;
                 if optional {
-                    log::debug!(
-                        "Iterative Ref optional (grammar not found), skipping"
-                    );
+                    log::debug!("Iterative Ref optional (grammar not found), skipping");
                     results.insert(frame.frame_id, (Node::Empty, saved, None));
                     Ok(false) // Don't continue, we stored a result
                 } else {
@@ -753,7 +757,10 @@ impl<'a> Parser<'_> {
             eprintln!("DEBUG [iter {}]: AnyNumberOf Initial pushing child frame_id={}, stack size before push={}",
                 iteration_count, child_frame.frame_id, stack.len());
             stack.push(child_frame);
-            eprintln!("DEBUG [iter {}]: AnyNumberOf Initial ABOUT TO CONTINUE after pushing child", iteration_count);
+            eprintln!(
+                "DEBUG [iter {}]: AnyNumberOf Initial ABOUT TO CONTINUE after pushing child",
+                iteration_count
+            );
         }
     }
 
@@ -823,13 +830,7 @@ impl<'a> Parser<'_> {
             let result = if optional {
                 Node::Empty
             } else {
-                apply_parse_mode_to_result(
-                    self.tokens,
-                    Node::Empty,
-                    pos,
-                    max_idx,
-                    parse_mode,
-                )
+                apply_parse_mode_to_result(self.tokens, Node::Empty, pos, max_idx, parse_mode)
             };
 
             let final_pos = if matches!(result, Node::Empty) {
@@ -854,13 +855,7 @@ impl<'a> Parser<'_> {
             let result = if optional {
                 Node::Empty
             } else {
-                apply_parse_mode_to_result(
-                    self.tokens,
-                    Node::Empty,
-                    pos,
-                    max_idx,
-                    parse_mode,
-                )
+                apply_parse_mode_to_result(self.tokens, Node::Empty, pos, max_idx, parse_mode)
             };
 
             let final_pos = if matches!(result, Node::Empty) {
@@ -1002,26 +997,17 @@ impl<'a> Parser<'_> {
                 // Haven't matched anything yet and already at limit
                 if parse_mode == ParseMode::Strict {
                     // In strict mode, return Empty
-                    results.insert(
-                        current_frame_id,
-                        (Node::Empty, start_idx, None),
-                    );
+                    results.insert(current_frame_id, (Node::Empty, start_idx, None));
                     return false; // Don't continue, we stored a result
                 }
                 // In greedy modes, check if first element is optional
                 if elements[0].is_optional() {
                     // First element is optional, can skip
-                    results.insert(
-                        current_frame_id,
-                        (Node::Empty, start_idx, None),
-                    );
+                    results.insert(current_frame_id, (Node::Empty, start_idx, None));
                     return false;
                 } else {
                     // Required element, no segments - this is unparsable in greedy mode
-                    results.insert(
-                        current_frame_id,
-                        (Node::Empty, start_idx, None),
-                    );
+                    results.insert(current_frame_id, (Node::Empty, start_idx, None));
                     return false;
                 }
             }
@@ -1036,10 +1022,8 @@ impl<'a> Parser<'_> {
                             // Indent goes before whitespace
                             let mut insert_pos = parent_frame.accumulated.len();
                             while insert_pos > 0 {
-                                match &parent_frame.accumulated[insert_pos - 1]
-                                {
-                                    Node::Whitespace(_, _)
-                                    | Node::Newline(_, _) => {
+                                match &parent_frame.accumulated[insert_pos - 1] {
+                                    Node::Whitespace(_, _) | Node::Newline(_, _) => {
                                         insert_pos -= 1;
                                     }
                                     _ => break,
@@ -1049,9 +1033,7 @@ impl<'a> Parser<'_> {
                                 .accumulated
                                 .insert(insert_pos, Node::Meta(meta_type));
                         } else {
-                            parent_frame
-                                .accumulated
-                                .push(Node::Meta(meta_type));
+                            parent_frame.accumulated.push(Node::Meta(meta_type));
                         }
 
                         // Update state to next child
@@ -1066,18 +1048,15 @@ impl<'a> Parser<'_> {
                     child_idx += 1;
                 } else {
                     // Get max_idx from parent Sequence to pass to child
-                    let current_max_idx =
-                        if let Some(parent_frame) = stack.last() {
-                            if let FrameContext::Sequence { max_idx, .. } =
-                                &parent_frame.context
-                            {
-                                Some(*max_idx)
-                            } else {
-                                None
-                            }
+                    let current_max_idx = if let Some(parent_frame) = stack.last() {
+                        if let FrameContext::Sequence { max_idx, .. } = &parent_frame.context {
+                            Some(*max_idx)
                         } else {
                             None
-                        };
+                        }
+                    } else {
+                        None
+                    };
 
                     // Non-meta element - needs actual parsing
                     eprintln!(
@@ -1182,14 +1161,9 @@ impl<'a> Parser<'_> {
         );
 
         // Check if optional and already terminated
-        if optional
-            && (self.is_at_end() || self.is_terminated(&all_terminators))
-        {
+        if optional && (self.is_at_end() || self.is_terminated(&all_terminators)) {
             log::debug!("[ITERATIVE] Delimited: empty optional");
-            results.insert(
-                frame.frame_id,
-                (Node::DelimitedList(vec![]), pos, None),
-            );
+            results.insert(frame.frame_id, (Node::DelimitedList(vec![]), pos, None));
             return false; // Don't continue, we stored a result
         }
 
@@ -1240,11 +1214,7 @@ impl<'a> Parser<'_> {
         );
 
         // Update parent's last_child_frame_id and push child
-        ParseFrame::update_parent_last_child_id(
-            stack,
-            "Delimited",
-            *frame_id_counter,
-        );
+        ParseFrame::update_parent_last_child_id(stack, "Delimited", *frame_id_counter);
         *frame_id_counter += 1;
         stack.push(child_frame);
         true // Continue to process the child frame we just pushed
@@ -1378,44 +1348,62 @@ impl<'a> Parser<'_> {
                         Grammar::StringParser {
                             template,
                             token_type,
-                            optional: _optional,
+                            ..
                         } => {
-                            self.handle_string_parser_initial(template, token_type, &frame, iteration_count, &mut results);
+                            self.handle_string_parser_initial(
+                                template,
+                                token_type,
+                                &frame,
+                                iteration_count,
+                                &mut results,
+                            );
                         }
 
                         Grammar::MultiStringParser {
                             templates,
                             token_type,
-                            optional: _optional,
+                            ..
                         } => {
-                            self.handle_multi_string_parser_initial(templates, token_type, &frame, &mut results);
+                            self.handle_multi_string_parser_initial(
+                                templates,
+                                token_type,
+                                &frame,
+                                &mut results,
+                            );
                         }
 
                         Grammar::TypedParser {
                             template,
-                            token_type: _token_type,
-                            optional: _optional,
+                            token_type,
+                            ..
                         } => {
-                            self.handle_typed_parser_initial(template, &frame, &mut results);
+                            self.handle_typed_parser_initial(
+                                template,
+                                token_type,
+                                &frame,
+                                &mut results,
+                            );
                         }
 
                         Grammar::RegexParser {
                             template,
-                            token_type: _token_type,
-                            optional: _optional,
+                            token_type,
                             anti_template,
+                            ..
                         } => {
-                            if self.handle_regex_parser_initial(template, anti_template, &frame, &mut results) {
+                            if self.handle_regex_parser_initial(
+                                template,
+                                anti_template,
+                                token_type,
+                                &frame,
+                                &mut results,
+                            ) {
                                 continue 'main_loop; // Anti-template matched, skip to next frame
                             }
                         }
 
                         Grammar::Meta(token_type) => {
                             self.handle_meta_initial(token_type, &frame, &mut results);
-                        }
-
-                        Grammar::Symbol(sym) => {
-                            self.handle_symbol_initial(sym, &frame, &mut results);
                         }
 
                         Grammar::Nothing() => {
@@ -1621,17 +1609,6 @@ impl<'a> Parser<'_> {
                                 continue 'main_loop;
                             }
                         }
-
-                        // For other grammar types, use recursive for now
-                        _ => {
-                            self.pos = pos;
-                            match self.parse_with_grammar_cached(&grammar, &terminators) {
-                                Ok(node) => {
-                                    results.insert(frame.frame_id, (node, self.pos, None));
-                                }
-                                Err(e) => return Err(e),
-                            }
-                        }
                     }
                 }
 
@@ -1745,18 +1722,11 @@ impl<'a> Parser<'_> {
                                     // Successful match
                                     log::debug!("MATCHED Ref {} successfully", name);
 
-                                    // Check if this is a KeywordSegment and tag accordingly
-                                    let processed_child = if name.ends_with("KeywordSegment") {
-                                        tag_keyword_if_word(&child_node, self.tokens)
-                                    } else {
-                                        child_node.clone()
-                                    };
-
                                     // Wrap in Ref node
                                     Node::Ref {
                                         name: name.clone(),
                                         segment_type: segment_type.clone(),
-                                        child: Box::new(processed_child),
+                                        child: Box::new(child_node.clone()),
                                     }
                                 };
 
@@ -1805,9 +1775,17 @@ impl<'a> Parser<'_> {
                                         };
 
                                         eprintln!("WARNING: Sequence failing - required element returned Empty!");
-                                        eprintln!("  frame_id={}, element_idx={}/{}", frame.frame_id, *current_element_idx, elements.len());
+                                        eprintln!(
+                                            "  frame_id={}, element_idx={}/{}",
+                                            frame.frame_id,
+                                            *current_element_idx,
+                                            elements.len()
+                                        );
                                         eprintln!("  Expected: {}", element_desc);
-                                        eprintln!("  At position: {} (found: {})", element_start, found_token);
+                                        eprintln!(
+                                            "  At position: {} (found: {})",
+                                            element_start, found_token
+                                        );
 
                                         log::debug!("Sequence: required element returned Empty, returning Empty");
                                         self.pos = frame.pos; // Reset position
@@ -2109,9 +2087,8 @@ impl<'a> Parser<'_> {
                                                 check_idx += 1;
                                             } else {
                                                 // Found a non-Meta element - check if it's optional
-                                                next_element_optional = is_grammar_optional(
-                                                    &elements_clone[check_idx],
-                                                );
+                                                next_element_optional =
+                                                    is_grammar_optional(&elements_clone[check_idx]);
                                                 break;
                                             }
                                         }
@@ -3524,7 +3501,13 @@ impl<'a> Parser<'_> {
                     for i in start..end {
                         let marker = if i == *end_pos { " <<< HERE" } else { "" };
                         if let Some(tok) = self.tokens.get(i) {
-                            eprintln!("  [{}]: '{}' (type: {}){}", i, tok.raw(), tok.get_type(), marker);
+                            eprintln!(
+                                "  [{}]: '{}' (type: {}){}",
+                                i,
+                                tok.raw(),
+                                tok.get_type(),
+                                marker
+                            );
                         }
                     }
                 }

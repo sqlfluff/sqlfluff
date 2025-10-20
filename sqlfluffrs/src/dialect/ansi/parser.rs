@@ -7,6 +7,7 @@ pub static ABORT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ABORT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -16,6 +17,7 @@ pub static ABS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ABS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25,6 +27,7 @@ pub static ABSOLUTE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ABSOLUTE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -34,6 +37,7 @@ pub static ACCESS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ACCESS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -4238,6 +4242,7 @@ pub static ACCOUNT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ACCOUNT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -4247,6 +4252,7 @@ pub static ACCOUNTS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ACCOUNTS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -4256,6 +4262,7 @@ pub static ACTION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ACTION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -4265,6 +4272,7 @@ pub static ADA_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ADA",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -4274,6 +4282,7 @@ pub static ADD_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ADD",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -4283,6 +4292,7 @@ pub static ADMIN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ADMIN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -4292,6 +4302,7 @@ pub static AFTER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "AFTER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -4301,6 +4312,7 @@ pub static AGGREGATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "AGGREGATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -4364,6 +4376,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -4371,6 +4384,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -4427,6 +4441,7 @@ pub static ALIAS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ALIAS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -4468,6 +4483,7 @@ pub static ALL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ALL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -4477,6 +4493,7 @@ pub static ALLOCATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ALLOCATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -4486,6 +4503,7 @@ pub static ALSO_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ALSO",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -4495,6 +4513,7 @@ pub static ALTER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ALTER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5117,6 +5136,7 @@ pub static ALWAYS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ALWAYS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5126,6 +5146,7 @@ pub static AMPERSAND_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "&",
     token_type: "ampersand",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -5135,6 +5156,7 @@ pub static ANALYSE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ANALYSE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5144,6 +5166,7 @@ pub static ANALYZE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ANALYZE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5153,6 +5176,7 @@ pub static AND_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "AND",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5162,6 +5186,7 @@ pub static AND_OPERATOR_GRAMMAR: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "AND",
     token_type: "binary_operator",
+    raw_class: "BinaryOperatorSegment",
     optional: false,
 }
 );
@@ -5171,6 +5196,7 @@ pub static ANY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ANY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5180,6 +5206,7 @@ pub static APPLY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "APPLY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5189,6 +5216,7 @@ pub static ARE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ARE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5360,6 +5388,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "[",
     token_type: "start_square_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -5367,6 +5396,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: "]",
     token_type: "end_square_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -5391,6 +5421,7 @@ pub static ARRAY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ARRAY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5438,6 +5469,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "[",
     token_type: "start_square_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -5445,6 +5477,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: "]",
     token_type: "end_square_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -5493,6 +5526,7 @@ pub static AS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "AS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5502,6 +5536,7 @@ pub static ASC_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ASC",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5511,6 +5546,7 @@ pub static ASENSITIVE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ASENSITIVE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5520,6 +5556,7 @@ pub static ASSERTION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ASSERTION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5529,6 +5566,7 @@ pub static ASSIGNMENT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ASSIGNMENT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5538,6 +5576,7 @@ pub static ASYMMETRIC_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ASYMMETRIC",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5547,6 +5586,7 @@ pub static AT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "AT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5556,6 +5596,7 @@ pub static ATOMIC_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ATOMIC",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5565,6 +5606,7 @@ pub static ATTRIBUTE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ATTRIBUTE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5574,6 +5616,7 @@ pub static ATTRIBUTES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ATTRIBUTES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5583,6 +5626,7 @@ pub static AUDIT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "AUDIT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5592,6 +5636,7 @@ pub static AUTHORIZATION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "AUTHORIZATION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5624,6 +5669,7 @@ pub static AUTO_INCREMENT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "AUTO_INCREMENT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5633,6 +5679,7 @@ pub static AVG_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "AVG",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5642,6 +5689,7 @@ pub static AVG_ROW_LENGTH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "AVG_ROW_LENGTH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5651,6 +5699,7 @@ pub static BACKUP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BACKUP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5660,6 +5709,7 @@ pub static BACKWARD_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BACKWARD",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5669,6 +5719,7 @@ pub static BARE_FUNCTION_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::MultiStringParser {
     templates: vec!["CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP"],
     token_type: "bare_function",
+    raw_class: "CodeSegment",
     optional: false,
 }
 );
@@ -5809,6 +5860,7 @@ pub static BEFORE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BEFORE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5818,6 +5870,7 @@ pub static BEGIN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BEGIN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5827,6 +5880,7 @@ pub static BERNOULLI_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BERNOULLI",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5836,6 +5890,7 @@ pub static BETWEEN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BETWEEN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5845,6 +5900,7 @@ pub static BIGINT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BIGINT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5854,6 +5910,7 @@ pub static BINARY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BINARY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5921,6 +5978,7 @@ pub static BINDING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BINDING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5930,6 +5988,7 @@ pub static BIT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BIT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5939,6 +5998,7 @@ pub static BIT_LENGTH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BIT_LENGTH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -5948,6 +6008,7 @@ pub static BITVAR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BITVAR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6049,6 +6110,7 @@ pub static BITWISE_XOR_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "^",
     token_type: "binary_operator",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -6058,6 +6120,7 @@ pub static BLOB_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BLOB",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6067,6 +6130,7 @@ pub static BOOL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BOOL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6108,6 +6172,7 @@ pub static BOOLEAN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BOOLEAN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6149,6 +6214,7 @@ pub static BOTH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BOTH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6196,6 +6262,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -6203,6 +6270,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -6258,6 +6326,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -6265,6 +6334,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -6305,6 +6375,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -6312,6 +6383,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -6330,6 +6402,7 @@ pub static BREADTH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BREADTH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6339,6 +6412,7 @@ pub static BREAK_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BREAK",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6348,6 +6422,7 @@ pub static BROWSE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BROWSE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6357,6 +6432,7 @@ pub static BULK_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BULK",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6366,6 +6442,7 @@ pub static BY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "BY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6390,6 +6467,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -6397,6 +6475,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -6459,6 +6538,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -6466,6 +6546,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -6493,6 +6574,7 @@ pub static CACHE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CACHE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6502,6 +6584,7 @@ pub static CALL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CALL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6511,6 +6594,7 @@ pub static CALLED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CALLED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6520,6 +6604,7 @@ pub static CARDINALITY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CARDINALITY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6529,6 +6614,7 @@ pub static CASCADE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CASCADE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6538,6 +6624,7 @@ pub static CASCADED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CASCADED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6782,6 +6869,7 @@ pub static CASE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CASE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6791,6 +6879,7 @@ pub static CAST_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CAST",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6800,6 +6889,7 @@ pub static CAST_OPERATOR_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "::",
     token_type: "casting_operator",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -6809,6 +6899,7 @@ pub static CATALOG_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CATALOG",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6818,6 +6909,7 @@ pub static CATALOG_NAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CATALOG_NAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6827,6 +6919,7 @@ pub static CEIL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CEIL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6836,6 +6929,7 @@ pub static CEILING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CEILING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6845,6 +6939,7 @@ pub static CHAIN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CHAIN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6854,6 +6949,7 @@ pub static CHANGE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CHANGE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6868,6 +6964,7 @@ pub static CHAR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CHAR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6877,6 +6974,7 @@ pub static CHAR_LENGTH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CHAR_LENGTH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6886,6 +6984,7 @@ pub static CHARACTER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CHARACTER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6895,6 +6994,7 @@ pub static CHARACTER_LENGTH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CHARACTER_LENGTH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6904,6 +7004,7 @@ pub static CHARACTER_SET_CATALOG_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CHARACTER_SET_CATALOG",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6913,6 +7014,7 @@ pub static CHARACTER_SET_NAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CHARACTER_SET_NAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6922,6 +7024,7 @@ pub static CHARACTER_SET_SCHEMA_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CHARACTER_SET_SCHEMA",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6931,6 +7034,7 @@ pub static CHARACTERISTICS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CHARACTERISTICS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6940,6 +7044,7 @@ pub static CHARACTERS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CHARACTERS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6949,6 +7054,7 @@ pub static CHECK_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CHECK",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6958,6 +7064,7 @@ pub static CHECKED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CHECKED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6967,6 +7074,7 @@ pub static CHECKPOINT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CHECKPOINT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6976,6 +7084,7 @@ pub static CHECKSUM_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CHECKSUM",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6985,6 +7094,7 @@ pub static CLASS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CLASS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -6994,6 +7104,7 @@ pub static CLASS_ORIGIN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CLASS_ORIGIN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7003,6 +7114,7 @@ pub static CLOB_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CLOB",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7012,6 +7124,7 @@ pub static CLOSE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CLOSE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7021,6 +7134,7 @@ pub static CLUSTER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CLUSTER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7030,6 +7144,7 @@ pub static CLUSTERED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CLUSTERED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7039,6 +7154,7 @@ pub static COALESCE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COALESCE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7048,6 +7164,7 @@ pub static COBOL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COBOL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7070,6 +7187,7 @@ pub static COLLATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COLLATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7079,6 +7197,7 @@ pub static COLLATION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COLLATION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7153,6 +7272,7 @@ pub static COLLATION_CATALOG_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COLLATION_CATALOG",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7162,6 +7282,7 @@ pub static COLLATION_NAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COLLATION_NAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7171,6 +7292,7 @@ pub static COLLATION_SCHEMA_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COLLATION_SCHEMA",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7180,6 +7302,7 @@ pub static COLLECT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COLLECT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7189,6 +7312,7 @@ pub static COLON_DELIMITER_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: ":",
     token_type: "colon_delimiter",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -7198,6 +7322,7 @@ pub static COLON_PREFIX_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: ":",
     token_type: "colon_prefix",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -7207,6 +7332,7 @@ pub static COLON_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: ":",
     token_type: "colon",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -7354,6 +7480,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -7361,6 +7488,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -7586,6 +7714,7 @@ Grammar::Anything
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -7593,6 +7722,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -7648,6 +7778,7 @@ pub static COLUMN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COLUMN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7702,6 +7833,7 @@ pub static COLUMN_NAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COLUMN_NAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7740,6 +7872,7 @@ pub static COLUMNS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COLUMNS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7749,6 +7882,7 @@ pub static COMMA_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: ",",
     token_type: "comma",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -7758,6 +7892,7 @@ pub static COMMAND_FUNCTION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COMMAND_FUNCTION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7767,6 +7902,7 @@ pub static COMMAND_FUNCTION_CODE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COMMAND_FUNCTION_CODE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7809,6 +7945,7 @@ pub static COMMENT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COMMENT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7826,6 +7963,7 @@ pub static COMMIT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COMMIT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7835,6 +7973,7 @@ pub static COMMITTED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COMMITTED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7938,6 +8077,7 @@ pub static COMPLETION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COMPLETION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7963,6 +8103,7 @@ pub static COMPRESS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COMPRESS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -7972,6 +8113,7 @@ pub static COMPUTE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COMPUTE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8014,6 +8156,7 @@ pub static CONDITION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CONDITION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8023,6 +8166,7 @@ pub static CONDITION_NUMBER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CONDITION_NUMBER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8085,6 +8229,7 @@ pub static CONNECT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CONNECT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8094,6 +8239,7 @@ pub static CONNECTION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CONNECTION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8103,6 +8249,7 @@ pub static CONNECTION_NAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CONNECTION_NAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8112,6 +8259,7 @@ pub static CONSTRAINT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CONSTRAINT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8121,6 +8269,7 @@ pub static CONSTRAINT_CATALOG_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CONSTRAINT_CATALOG",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8130,6 +8279,7 @@ pub static CONSTRAINT_NAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CONSTRAINT_NAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8139,6 +8289,7 @@ pub static CONSTRAINT_SCHEMA_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CONSTRAINT_SCHEMA",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8148,6 +8299,7 @@ pub static CONSTRAINTS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CONSTRAINTS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8157,6 +8309,7 @@ pub static CONSTRUCTOR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CONSTRUCTOR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8166,6 +8319,7 @@ pub static CONTAINS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CONTAINS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8175,6 +8329,7 @@ pub static CONTAINSTABLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CONTAINSTABLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8184,6 +8339,7 @@ pub static CONTINUE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CONTINUE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8193,6 +8349,7 @@ pub static CONVERSION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CONVERSION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8202,6 +8359,7 @@ pub static CONVERT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CONVERT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8211,6 +8369,7 @@ pub static COPY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COPY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8220,6 +8379,7 @@ pub static CORR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CORR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8229,6 +8389,7 @@ pub static CORRESPONDING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CORRESPONDING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8238,6 +8399,7 @@ pub static COUNT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COUNT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8247,6 +8409,7 @@ pub static COVAR_POP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COVAR_POP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8256,6 +8419,7 @@ pub static COVAR_SAMP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "COVAR_SAMP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -8318,6 +8482,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -8325,6 +8490,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -8823,6 +8989,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -8830,6 +8997,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -8866,6 +9034,7 @@ pub static CREATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CREATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -9006,6 +9175,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "[",
     token_type: "start_square_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -9013,6 +9183,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: "]",
     token_type: "end_square_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -9070,6 +9241,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -9077,6 +9249,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -9612,6 +9785,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -9619,6 +9793,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -9679,6 +9854,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -9686,6 +9862,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -10357,6 +10534,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -10364,6 +10542,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -10583,6 +10762,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -10590,6 +10770,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -10644,6 +10825,7 @@ pub static CREATEDB_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CREATEDB",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10653,6 +10835,7 @@ pub static CREATEROLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CREATEROLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10662,6 +10845,7 @@ pub static CREATEUSER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CREATEUSER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10671,6 +10855,7 @@ pub static CROSS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CROSS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10680,6 +10865,7 @@ pub static CSV_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CSV",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10690,6 +10876,7 @@ pub static CUBE_FUNCTION_NAME_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CUBE",
     token_type: "function_name_identifier",
+    raw_class: "CodeSegment",
     optional: false,
 }
 );
@@ -10699,6 +10886,7 @@ pub static CUBE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CUBE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10754,6 +10942,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -10761,6 +10950,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -10788,6 +10978,7 @@ pub static CUME_DIST_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CUME_DIST",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10797,6 +10988,7 @@ pub static CURRENT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CURRENT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10806,6 +10998,7 @@ pub static CURRENT_DATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CURRENT_DATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10815,6 +11008,7 @@ pub static CURRENT_DEFAULT_TRANSFORM_GROUP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy
 Grammar::StringParser {
     template: "CURRENT_DEFAULT_TRANSFORM_GROUP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10824,6 +11018,7 @@ pub static CURRENT_PATH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CURRENT_PATH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10833,6 +11028,7 @@ pub static CURRENT_ROLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CURRENT_ROLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10842,6 +11038,7 @@ pub static CURRENT_TIME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CURRENT_TIME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10851,6 +11048,7 @@ pub static CURRENT_TIMESTAMP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CURRENT_TIMESTAMP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10860,6 +11058,7 @@ pub static CURRENT_TRANSFORM_GROUP_FOR_TYPE_KEYWORD_SEGMENT: Lazy<Grammar> = Laz
 Grammar::StringParser {
     template: "CURRENT_TRANSFORM_GROUP_FOR_TYPE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10869,6 +11068,7 @@ pub static CURRENT_USER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CURRENT_USER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10878,6 +11078,7 @@ pub static CURSOR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CURSOR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10887,6 +11088,7 @@ pub static CURSOR_NAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CURSOR_NAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10896,6 +11098,7 @@ pub static CYCLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "CYCLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10905,6 +11108,7 @@ pub static DATA_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DATA",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10914,6 +11118,7 @@ pub static DATABASE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DATABASE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10968,6 +11173,7 @@ pub static DATABASES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DATABASES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -10979,6 +11185,7 @@ Grammar::OneOf {
 Grammar::RegexParser {
     template: r#"[A-Z_][A-Z0-9_]*"#,
     token_type: "data_type_identifier",
+    raw_class: "CodeSegment",
     optional: false,
     anti_template: Some(r#"^(NOT)$"#),
 }
@@ -11270,6 +11477,7 @@ pub static DATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11279,6 +11487,7 @@ pub static DATE_PART_FUNCTION_NAME: Lazy<Grammar> = Lazy::new(||
 Grammar::MultiStringParser {
     templates: vec!["DATEADD"],
     token_type: "function_name_identifier",
+    raw_class: "CodeSegment",
     optional: false,
 }
 );
@@ -11350,6 +11559,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -11357,6 +11567,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -11433,6 +11644,7 @@ Grammar::Ref {
 Grammar::TypedParser {
     template: "single_quote",
     token_type: "date_constructor_literal",
+    raw_class: "LiteralSegment",
     optional: false,
 }
 ,
@@ -11451,6 +11663,7 @@ pub static DATETIME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DATETIME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11460,6 +11673,7 @@ pub static DATETIME_UNIT_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::MultiStringParser {
     templates: vec!["DAY", "DAYOFYEAR", "HOUR", "MILLISECOND", "MINUTE", "MONTH", "QUARTER", "SECOND", "WEEK", "WEEKDAY", "YEAR"],
     token_type: "date_part",
+    raw_class: "CodeSegment",
     optional: false,
 }
 );
@@ -11469,6 +11683,7 @@ pub static DATETIME_INTERVAL_CODE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DATETIME_INTERVAL_CODE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11478,6 +11693,7 @@ pub static DATETIME_INTERVAL_PRECISION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::ne
 Grammar::StringParser {
     template: "DATETIME_INTERVAL_PRECISION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11487,6 +11703,7 @@ pub static DAY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DAY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11496,6 +11713,7 @@ pub static DAY_HOUR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DAY_HOUR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11505,6 +11723,7 @@ pub static DAY_MICROSECOND_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DAY_MICROSECOND",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11514,6 +11733,7 @@ pub static DAY_MINUTE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DAY_MINUTE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11523,6 +11743,7 @@ pub static DAY_SECOND_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DAY_SECOND",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11532,6 +11753,7 @@ pub static DAYOFMONTH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DAYOFMONTH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11541,6 +11763,7 @@ pub static DAYOFWEEK_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DAYOFWEEK",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11550,6 +11773,7 @@ pub static DAYOFYEAR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DAYOFYEAR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11559,6 +11783,7 @@ pub static DAYS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DAYS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11568,6 +11793,7 @@ pub static DBCC_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DBCC",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11577,6 +11803,7 @@ pub static DEALLOCATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DEALLOCATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11586,6 +11813,7 @@ pub static DEC_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DEC",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11595,6 +11823,7 @@ pub static DECIMAL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DECIMAL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11604,6 +11833,7 @@ pub static DECLARE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DECLARE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11618,6 +11848,7 @@ pub static DEFAULT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DEFAULT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11659,6 +11890,7 @@ pub static DEFAULTS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DEFAULTS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11668,6 +11900,7 @@ pub static DEFERRABLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DEFERRABLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11677,6 +11910,7 @@ pub static DEFERRED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DEFERRED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11686,6 +11920,7 @@ pub static DEFINED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DEFINED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11695,6 +11930,7 @@ pub static DEFINER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DEFINER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11704,6 +11940,7 @@ pub static DEGREE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DEGREE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11713,6 +11950,7 @@ pub static DELAY_KEY_WRITE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DELAY_KEY_WRITE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11722,6 +11960,7 @@ pub static DELAYED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DELAYED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11731,6 +11970,7 @@ pub static DELETE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DELETE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11794,6 +12034,7 @@ pub static DELIMITER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DELIMITER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11803,6 +12044,7 @@ pub static DELIMITERS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DELIMITERS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11812,6 +12054,7 @@ pub static DENSE_RANK_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DENSE_RANK",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11821,6 +12064,7 @@ pub static DENY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DENY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11830,6 +12074,7 @@ pub static DEPTH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DEPTH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11839,6 +12084,7 @@ pub static DEREF_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DEREF",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11848,6 +12094,7 @@ pub static DERIVED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DERIVED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11857,6 +12104,7 @@ pub static DESC_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DESC",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11866,6 +12114,7 @@ pub static DESCRIBE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DESCRIBE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11917,6 +12166,7 @@ pub static DESCRIPTOR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DESCRIPTOR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11926,6 +12176,7 @@ pub static DESTROY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DESTROY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11935,6 +12186,7 @@ pub static DESTRUCTOR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DESTRUCTOR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11944,6 +12196,7 @@ pub static DETERMINISTIC_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DETERMINISTIC",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11953,6 +12206,7 @@ pub static DIAGNOSTICS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DIAGNOSTICS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11962,6 +12216,7 @@ pub static DICTIONARY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DICTIONARY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11971,6 +12226,7 @@ pub static DISABLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DISABLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11980,6 +12236,7 @@ pub static DISCONNECT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DISCONNECT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11989,6 +12246,7 @@ pub static DISK_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DISK",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -11998,6 +12256,7 @@ pub static DISPATCH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DISPATCH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -12007,6 +12266,7 @@ pub static DISTINCT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DISTINCT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -12016,6 +12276,7 @@ pub static DISTINCTROW_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DISTINCTROW",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -12025,6 +12286,7 @@ pub static DISTRIBUTED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DISTRIBUTED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -12034,6 +12296,7 @@ pub static DIV_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DIV",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -12043,6 +12306,7 @@ pub static DIVIDE_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "/",
     token_type: "binary_operator",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -12052,6 +12316,7 @@ pub static DO_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DO",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -12061,6 +12326,7 @@ pub static DOMAIN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DOMAIN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -12070,6 +12336,7 @@ pub static DOT_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: ".",
     token_type: "dot",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -12079,6 +12346,7 @@ pub static DOUBLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DOUBLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -12173,6 +12441,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -12180,6 +12449,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -12387,6 +12657,7 @@ pub static DROP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DROP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -12914,6 +13185,7 @@ pub static DUMMY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DUMMY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -12923,6 +13195,7 @@ pub static DUMP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DUMP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -12932,6 +13205,7 @@ pub static DYNAMIC_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DYNAMIC",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -12941,6 +13215,7 @@ pub static DYNAMIC_FUNCTION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DYNAMIC_FUNCTION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -12950,6 +13225,7 @@ pub static DYNAMIC_FUNCTION_CODE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "DYNAMIC_FUNCTION_CODE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -12959,6 +13235,7 @@ pub static EACH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "EACH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -12968,6 +13245,7 @@ pub static ELEMENT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ELEMENT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13014,6 +13292,7 @@ pub static ELSE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ELSE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13023,6 +13302,7 @@ pub static ELSEIF_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ELSEIF",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13038,6 +13318,7 @@ Grammar::Bracketed {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -13045,6 +13326,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -13096,6 +13378,7 @@ pub static ENABLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ENABLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13105,6 +13388,7 @@ pub static ENCLOSED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ENCLOSED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13114,6 +13398,7 @@ pub static ENCODING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ENCODING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13123,6 +13408,7 @@ pub static ENCRYPTED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ENCRYPTED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13132,6 +13418,7 @@ pub static END_EXEC_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "END-EXEC",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13141,6 +13428,7 @@ pub static END_BRACKET_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -13150,6 +13438,7 @@ pub static END_CURLY_BRACKET_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "}",
     token_type: "end_curly_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -13159,6 +13448,7 @@ pub static END_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "END",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13168,6 +13458,7 @@ pub static END_SQUARE_BRACKET_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "]",
     token_type: "end_square_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -13177,6 +13468,7 @@ pub static ENUM_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ENUM",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13186,6 +13478,7 @@ pub static EQUALS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "EQUALS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13208,6 +13501,7 @@ pub static ERRLVL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ERRLVL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13217,6 +13511,7 @@ pub static ESCAPE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ESCAPE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13226,6 +13521,7 @@ pub static ESCAPED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ESCAPED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13235,6 +13531,7 @@ pub static EVERY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "EVERY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13244,6 +13541,7 @@ pub static EXCEPT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "EXCEPT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13253,6 +13551,7 @@ pub static EXCEPTION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "EXCEPTION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13262,6 +13561,7 @@ pub static EXCLUDE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "EXCLUDE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13271,6 +13571,7 @@ pub static EXCLUDING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "EXCLUDING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13280,6 +13581,7 @@ pub static EXCLUSIVE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "EXCLUSIVE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13289,6 +13591,7 @@ pub static EXEC_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "EXEC",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13298,6 +13601,7 @@ pub static EXECUTE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "EXECUTE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13307,6 +13611,7 @@ pub static EXECUTION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "EXECUTION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13316,6 +13621,7 @@ pub static EXISTING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "EXISTING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13325,6 +13631,7 @@ pub static EXISTS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "EXISTS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13334,6 +13641,7 @@ pub static EXIT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "EXIT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13343,6 +13651,7 @@ pub static EXP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "EXP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13352,6 +13661,7 @@ pub static EXPLAIN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "EXPLAIN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -13905,6 +14215,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -13912,6 +14223,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -14153,6 +14465,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -14160,6 +14473,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -14290,6 +14604,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -14297,6 +14612,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -14536,6 +14852,7 @@ pub static EXTENSION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "EXTENSION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -14590,6 +14907,7 @@ pub static EXTERNAL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "EXTERNAL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -14599,6 +14917,7 @@ pub static EXTRACT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "EXTRACT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -14608,6 +14927,7 @@ pub static FALSE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FALSE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -14617,6 +14937,7 @@ pub static FALSE_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FALSE",
     token_type: "boolean_literal",
+    raw_class: "LiteralKeywordSegment",
     optional: false,
 }
 );
@@ -14786,6 +15107,7 @@ pub static FETCH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FETCH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -14795,6 +15117,7 @@ pub static FIELDS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FIELDS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -14804,6 +15127,7 @@ pub static FILE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FILE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -14920,6 +15244,7 @@ pub static FILLFACTOR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FILLFACTOR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -14974,6 +15299,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -14981,6 +15307,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -15008,6 +15335,7 @@ pub static FILTER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FILTER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15017,6 +15345,7 @@ pub static FINAL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FINAL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15026,6 +15355,7 @@ pub static FIRST_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FIRST",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15035,6 +15365,7 @@ pub static FLOAT4_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FLOAT4",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15044,6 +15375,7 @@ pub static FLOAT8_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FLOAT8",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15053,6 +15385,7 @@ pub static FLOAT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FLOAT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15062,6 +15395,7 @@ pub static FLOOR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FLOOR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15071,6 +15405,7 @@ pub static FLUSH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FLUSH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15080,6 +15415,7 @@ pub static FOLLOWING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FOLLOWING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15089,6 +15425,7 @@ pub static FOR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FOR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15098,6 +15435,7 @@ pub static FORCE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FORCE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15139,6 +15477,7 @@ pub static FOREIGN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FOREIGN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15148,6 +15487,7 @@ pub static FORMAT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FORMAT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15157,6 +15497,7 @@ pub static FORTRAN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FORTRAN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15166,6 +15507,7 @@ pub static FORWARD_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FORWARD",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15175,6 +15517,7 @@ pub static FOUND_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FOUND",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15661,6 +16004,7 @@ pub static FREE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FREE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15670,6 +16014,7 @@ pub static FREETEXT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FREETEXT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15679,6 +16024,7 @@ pub static FREETEXTTABLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FREETEXTTABLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15688,6 +16034,7 @@ pub static FREEZE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FREEZE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -15945,6 +16292,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -15952,6 +16300,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -16099,6 +16448,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -16106,6 +16456,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -16257,6 +16608,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -16264,6 +16616,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -16334,6 +16687,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -16341,6 +16695,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -16553,6 +16908,7 @@ Grammar::Meta("conditional")
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -16560,6 +16916,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -16613,6 +16970,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -16620,6 +16978,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -16841,6 +17200,7 @@ pub static FROM_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FROM",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -16850,6 +17210,7 @@ pub static FULL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FULL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -16859,6 +17220,7 @@ pub static FULLTEXT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FULLTEXT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -17299,6 +17661,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -17306,6 +17669,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -17395,6 +17759,7 @@ pub static FUNCTION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FUNCTION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -17404,6 +17769,7 @@ pub static FUNCTION_NAME_IDENTIFIER_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::TypedParser {
     template: "word",
     token_type: "function_name_identifier",
+    raw_class: "WordSegment",
     optional: false,
 }
 );
@@ -17688,6 +18054,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -17695,6 +18062,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -17815,6 +18183,7 @@ pub static FUNCTIONS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FUNCTIONS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -17824,6 +18193,7 @@ pub static FUSION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FUSION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -17833,6 +18203,7 @@ pub static FUTURE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "FUTURE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -17842,6 +18213,7 @@ pub static G_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "G",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -17851,6 +18223,7 @@ pub static GENERAL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "GENERAL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -17860,6 +18233,7 @@ pub static GENERATED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "GENERATED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -17869,6 +18243,7 @@ pub static GET_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "GET",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -17878,6 +18253,7 @@ pub static GLOB_OPERATOR_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::TypedParser {
     template: "glob_operator",
     token_type: "glob_operator",
+    raw_class: "ComparisonOperatorSegment",
     optional: false,
 }
 );
@@ -17887,6 +18263,7 @@ pub static GLOBAL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "GLOBAL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -17896,6 +18273,7 @@ pub static GO_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "GO",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -17905,6 +18283,7 @@ pub static GOTO_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "GOTO",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -17914,6 +18293,7 @@ pub static GRANT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "GRANT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -17923,6 +18303,7 @@ pub static GRANTED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "GRANTED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -17932,6 +18313,7 @@ pub static GRANTS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "GRANTS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -17987,6 +18369,7 @@ pub static GREATEST_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "GREATEST",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18240,6 +18623,7 @@ pub static GROUP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "GROUP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18288,6 +18672,7 @@ Grammar::Bracketed {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -18295,6 +18680,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -18361,6 +18747,7 @@ pub static GROUPING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "GROUPING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18437,6 +18824,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -18444,6 +18832,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -18471,6 +18860,7 @@ pub static HANDLER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "HANDLER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18510,6 +18900,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -18517,6 +18908,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -18643,6 +19035,7 @@ pub static HAVING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "HAVING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18652,6 +19045,7 @@ pub static HEADER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "HEADER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18661,6 +19055,7 @@ pub static HEAP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "HEAP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18670,6 +19065,7 @@ pub static HIERARCHY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "HIERARCHY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18679,6 +19075,7 @@ pub static HIGH_PRIORITY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "HIGH_PRIORITY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18688,6 +19085,7 @@ pub static HOLD_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "HOLD",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18697,6 +19095,7 @@ pub static HOLDLOCK_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "HOLDLOCK",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18711,6 +19110,7 @@ pub static HOST_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "HOST",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18720,6 +19120,7 @@ pub static HOSTS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "HOSTS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18729,6 +19130,7 @@ pub static HOUR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "HOUR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18738,6 +19140,7 @@ pub static HOUR_MICROSECOND_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "HOUR_MICROSECOND",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18747,6 +19150,7 @@ pub static HOUR_MINUTE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "HOUR_MINUTE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18756,6 +19160,7 @@ pub static HOUR_SECOND_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "HOUR_SECOND",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18765,6 +19170,7 @@ pub static IDENTIFIED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "IDENTIFIED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18782,6 +19188,7 @@ pub static IDENTITY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "IDENTITY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18791,6 +19198,7 @@ pub static IDENTITY_INSERT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "IDENTITY_INSERT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18800,6 +19208,7 @@ pub static IDENTITYCOL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "IDENTITYCOL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18841,6 +19250,7 @@ pub static IF_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "IF",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18891,6 +19301,7 @@ pub static IGNORE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "IGNORE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18952,6 +19363,7 @@ pub static ILIKE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ILIKE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18961,6 +19373,7 @@ pub static IMMEDIATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "IMMEDIATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18970,6 +19383,7 @@ pub static IMMUTABLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "IMMUTABLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18979,6 +19393,7 @@ pub static IMPLEMENTATION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "IMPLEMENTATION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -18993,6 +19408,7 @@ pub static IMPLICIT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "IMPLICIT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19002,6 +19418,7 @@ pub static IMPORTED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "IMPORTED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19011,6 +19428,7 @@ pub static IN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "IN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19099,6 +19517,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -19106,6 +19525,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -19151,6 +19571,7 @@ pub static INCLUDE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INCLUDE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19160,6 +19581,7 @@ pub static INCLUDING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INCLUDING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19169,6 +19591,7 @@ pub static INCREMENT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INCREMENT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19236,6 +19659,7 @@ pub static INDEX_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INDEX",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19290,6 +19714,7 @@ pub static INDICATOR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INDICATOR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19299,6 +19724,7 @@ pub static INFILE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INFILE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19308,6 +19734,7 @@ pub static INFIX_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INFIX",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19317,6 +19744,7 @@ pub static INHERIT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INHERIT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19326,6 +19754,7 @@ pub static INHERITS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INHERITS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19335,6 +19764,7 @@ pub static INITIAL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INITIAL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19344,6 +19774,7 @@ pub static INITIALIZE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INITIALIZE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19353,6 +19784,7 @@ pub static INITIALLY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INITIALLY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19362,6 +19794,7 @@ pub static INNER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INNER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19371,6 +19804,7 @@ pub static INOUT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INOUT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19380,6 +19814,7 @@ pub static INPUT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INPUT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19389,6 +19824,7 @@ pub static INSENSITIVE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INSENSITIVE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19398,6 +19834,7 @@ pub static INSERT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INSERT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19516,6 +19953,7 @@ pub static INSERT_ID_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INSERT_ID",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19525,6 +19963,7 @@ pub static INSTANCE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INSTANCE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19534,6 +19973,7 @@ pub static INSTANTIABLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INSTANTIABLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19543,6 +19983,7 @@ pub static INSTEAD_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INSTEAD",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19552,6 +19993,7 @@ pub static INT1_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INT1",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19561,6 +20003,7 @@ pub static INT2_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INT2",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19570,6 +20013,7 @@ pub static INT3_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INT3",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19579,6 +20023,7 @@ pub static INT4_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INT4",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19588,6 +20033,7 @@ pub static INT8_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INT8",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19597,6 +20043,7 @@ pub static INT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19606,6 +20053,7 @@ pub static INTEGER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INTEGER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19615,6 +20063,7 @@ pub static INTEGRATION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INTEGRATION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19624,6 +20073,7 @@ pub static INTEGRATIONS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INTEGRATIONS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19633,6 +20083,7 @@ pub static INTERSECT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INTERSECT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19642,6 +20093,7 @@ pub static INTERSECTION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INTERSECTION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19793,6 +20245,7 @@ pub static INTERVAL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INTERVAL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19802,6 +20255,7 @@ pub static INTO_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INTO",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19811,6 +20265,7 @@ pub static INVOKER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "INVOKER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19929,6 +20384,7 @@ pub static IS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "IS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19943,6 +20399,7 @@ pub static ISAM_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ISAM",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19952,6 +20409,7 @@ pub static ISNULL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ISNULL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19961,6 +20419,7 @@ pub static ISOLATION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ISOLATION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -19970,6 +20429,7 @@ pub static ITERATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ITERATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20196,6 +20656,7 @@ pub static JOIN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "JOIN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20263,6 +20724,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -20270,6 +20732,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -20448,6 +20911,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -20455,6 +20919,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -20484,6 +20949,7 @@ pub static JSON_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "JSON",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20493,6 +20959,7 @@ pub static K_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "K",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20502,6 +20969,7 @@ pub static KEY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "KEY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20511,6 +20979,7 @@ pub static KEY_MEMBER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "KEY_MEMBER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20520,6 +20989,7 @@ pub static KEY_TYPE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "KEY_TYPE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20529,6 +20999,7 @@ pub static KEYS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "KEYS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20546,6 +21017,7 @@ pub static KILL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "KILL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20555,6 +21027,7 @@ pub static LANCOMPILER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LANCOMPILER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20564,6 +21037,7 @@ pub static LANGUAGE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LANGUAGE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20573,6 +21047,7 @@ pub static LARGE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LARGE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20582,6 +21057,7 @@ pub static LAST_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LAST",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20591,6 +21067,7 @@ pub static LAST_INSERT_ID_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LAST_INSERT_ID",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20600,6 +21077,7 @@ pub static LATERAL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LATERAL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20609,6 +21087,7 @@ pub static LEADING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LEADING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20618,6 +21097,7 @@ pub static LEAST_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LEAST",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20627,6 +21107,7 @@ pub static LEAVE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LEAVE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20636,6 +21117,7 @@ pub static LEFT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LEFT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20645,6 +21127,7 @@ pub static LENGTH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LENGTH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20654,6 +21137,7 @@ pub static LESS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LESS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20709,6 +21193,7 @@ pub static LEVEL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LEVEL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20840,6 +21325,7 @@ pub static LIKE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LIKE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -20849,6 +21335,7 @@ pub static LIKE_OPERATOR_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::TypedParser {
     template: "like_operator",
     token_type: "like_operator",
+    raw_class: "ComparisonOperatorSegment",
     optional: false,
 }
 );
@@ -20917,6 +21404,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -20924,6 +21412,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -21089,6 +21578,7 @@ pub static LIMIT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LIMIT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21098,6 +21588,7 @@ pub static LINENO_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LINENO",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21107,6 +21598,7 @@ pub static LINES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LINES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21121,6 +21613,7 @@ pub static LISTEN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LISTEN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21241,6 +21734,7 @@ pub static LN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21250,6 +21744,7 @@ pub static LOAD_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LOAD",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21265,6 +21760,7 @@ pub static LOCAL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LOCAL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21274,6 +21770,7 @@ pub static LOCALTIME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LOCALTIME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21283,6 +21780,7 @@ pub static LOCALTIMESTAMP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LOCALTIMESTAMP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21292,6 +21790,7 @@ pub static LOCATION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LOCATION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21301,6 +21800,7 @@ pub static LOCATOR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LOCATOR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21310,6 +21810,7 @@ pub static LOCK_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LOCK",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21319,6 +21820,7 @@ pub static LOCKS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LOCKS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21328,6 +21830,7 @@ pub static LOGIN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LOGIN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21337,6 +21840,7 @@ pub static LOGS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LOGS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21346,6 +21850,7 @@ pub static LONG_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LONG",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21355,6 +21860,7 @@ pub static LONGBLOB_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LONGBLOB",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21364,6 +21870,7 @@ pub static LONGTEXT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LONGTEXT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21373,6 +21880,7 @@ pub static LOOP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LOOP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21382,6 +21890,7 @@ pub static LOW_PRIORITY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LOW_PRIORITY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21391,6 +21900,7 @@ pub static LOWER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "LOWER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21400,6 +21910,7 @@ pub static M_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "M",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21495,6 +22006,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -21502,6 +22014,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -21529,6 +22042,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -21536,6 +22050,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -21563,6 +22078,7 @@ pub static MANAGE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MANAGE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21572,6 +22088,7 @@ pub static MAP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MAP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21587,6 +22104,7 @@ pub static MASKING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MASKING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21602,6 +22120,7 @@ pub static MATCH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MATCH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21611,6 +22130,7 @@ pub static MATCHED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MATCHED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21620,6 +22140,7 @@ pub static MATERIALIZED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MATERIALIZED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21629,6 +22150,7 @@ pub static MAX_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MAX",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21638,6 +22160,7 @@ pub static MAX_ROWS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MAX_ROWS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21647,6 +22170,7 @@ pub static MAXEXTENTS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MAXEXTENTS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21656,6 +22180,7 @@ pub static MAXVALUE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MAXVALUE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21665,6 +22190,7 @@ pub static MEDIUMBLOB_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MEDIUMBLOB",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21674,6 +22200,7 @@ pub static MEDIUMINT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MEDIUMINT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21683,6 +22210,7 @@ pub static MEDIUMTEXT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MEDIUMTEXT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21692,6 +22220,7 @@ pub static MEMBER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MEMBER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -21792,6 +22321,7 @@ pub static MERGE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MERGE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22126,6 +22656,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -22133,6 +22664,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -22248,6 +22780,7 @@ pub static MESSAGE_LENGTH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MESSAGE_LENGTH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22257,6 +22790,7 @@ pub static MESSAGE_OCTET_LENGTH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MESSAGE_OCTET_LENGTH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22266,6 +22800,7 @@ pub static MESSAGE_TEXT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MESSAGE_TEXT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22275,6 +22810,7 @@ pub static METHOD_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "METHOD",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22284,6 +22820,7 @@ pub static MIDDLEINT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MIDDLEINT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22293,6 +22830,7 @@ pub static MILLISECOND_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MILLISECOND",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22302,6 +22840,7 @@ pub static MIN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MIN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22311,6 +22850,7 @@ pub static MIN_ROWS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MIN_ROWS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22320,6 +22860,7 @@ pub static MINUS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MINUS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22329,6 +22870,7 @@ pub static MINUS_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "-",
     token_type: "binary_operator",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -22338,6 +22880,7 @@ pub static MINUTE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MINUTE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22347,6 +22890,7 @@ pub static MINUTE_MICROSECOND_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MINUTE_MICROSECOND",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22356,6 +22900,7 @@ pub static MINUTE_SECOND_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MINUTE_SECOND",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22365,6 +22910,7 @@ pub static MINVALUE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MINVALUE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22374,6 +22920,7 @@ pub static ML_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ML",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22383,6 +22930,7 @@ pub static MLSLABEL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MLSLABEL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22392,6 +22940,7 @@ pub static MOD_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MOD",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22401,6 +22950,7 @@ pub static MODE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MODE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22410,6 +22960,7 @@ pub static MODEL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MODEL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22419,6 +22970,7 @@ pub static MODIFIES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MODIFIES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22428,6 +22980,7 @@ pub static MODIFY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MODIFY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22437,6 +22990,7 @@ pub static MODULE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MODULE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22446,6 +23000,7 @@ pub static MODULO_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "%",
     token_type: "binary_operator",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -22455,6 +23010,7 @@ pub static MONITOR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MONITOR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22464,6 +23020,7 @@ pub static MONTH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MONTH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22473,6 +23030,7 @@ pub static MONTHNAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MONTHNAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22482,6 +23040,7 @@ pub static MORE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MORE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22491,6 +23050,7 @@ pub static MOVE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MOVE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22500,6 +23060,7 @@ pub static MULTIPLY_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "*",
     token_type: "binary_operator",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -22509,6 +23070,7 @@ pub static MULTISET_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MULTISET",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22518,6 +23080,7 @@ pub static MUMPS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MUMPS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22527,6 +23090,7 @@ pub static MYISAM_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "MYISAM",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22536,8 +23100,9 @@ pub static NAKED_IDENTIFIER_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::RegexParser {
     template: r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#,
     token_type: "naked_identifier",
+    raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(r#"^(JOIN|INNER|IGNORE|ORDER|LEFT|RIGHT|RESPECT|CASE|UNION|FULL|ROWS|SET|CROSS|OUTER|NULL|INTERVAL|NOT|PARTITION|SELECT|USING|NATURAL|ON)$"#),
+    anti_template: Some(r#"^(RIGHT|JOIN|CROSS|CASE|NATURAL|RESPECT|NOT|LEFT|ON|USING|SELECT|IGNORE|INNER|INTERVAL|ORDER|SET|FULL|PARTITION|UNION|ROWS|NULL|OUTER)$"#),
 }
 );
 
@@ -22546,6 +23111,7 @@ pub static NAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22601,6 +23167,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -22608,6 +23175,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -22704,6 +23272,7 @@ pub static NAMES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NAMES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22713,6 +23282,7 @@ pub static NAN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NAN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22722,6 +23292,7 @@ pub static NAN_LITERAL_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NAN",
     token_type: "null_literal",
+    raw_class: "LiteralKeywordSegment",
     optional: false,
 }
 );
@@ -22731,6 +23302,7 @@ pub static NATIONAL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NATIONAL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22772,6 +23344,7 @@ pub static NATURAL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NATURAL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22781,6 +23354,7 @@ pub static NCHAR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NCHAR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22790,6 +23364,7 @@ pub static NCLOB_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NCLOB",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22799,6 +23374,7 @@ pub static NEGATIVE_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "-",
     token_type: "sign_indicator",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -22813,6 +23389,7 @@ pub static NESTING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NESTING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22822,6 +23399,7 @@ pub static NEW_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NEW",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22839,6 +23417,7 @@ pub static NEXT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NEXT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22848,6 +23427,7 @@ pub static NO_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NO",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22857,6 +23437,7 @@ pub static NO_WRITE_TO_BINLOG_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NO_WRITE_TO_BINLOG",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22866,6 +23447,7 @@ pub static NOAUDIT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NOAUDIT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22875,6 +23457,7 @@ pub static NOCACHE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NOCACHE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22884,6 +23467,7 @@ pub static NOCHECK_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NOCHECK",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22893,6 +23477,7 @@ pub static NOCOMPRESS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NOCOMPRESS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22902,6 +23487,7 @@ pub static NOCREATEDB_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NOCREATEDB",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22911,6 +23497,7 @@ pub static NOCREATEROLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NOCREATEROLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22920,6 +23507,7 @@ pub static NOCREATEUSER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NOCREATEUSER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22929,6 +23517,7 @@ pub static NOCYCLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NOCYCLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22938,6 +23527,7 @@ pub static NOINHERIT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NOINHERIT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22947,6 +23537,7 @@ pub static NOLOGIN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NOLOGIN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -22990,6 +23581,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -22997,6 +23589,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -23026,6 +23619,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -23033,6 +23627,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -23062,6 +23657,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -23069,6 +23665,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -23187,6 +23784,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -23194,6 +23792,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -23248,6 +23847,7 @@ pub static NONCLUSTERED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NONCLUSTERED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23257,6 +23857,7 @@ pub static NONE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NONE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23266,6 +23867,7 @@ pub static NOORDER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NOORDER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23275,6 +23877,7 @@ pub static NORMALIZE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NORMALIZE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23289,6 +23892,7 @@ pub static NORMALIZED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NORMALIZED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23298,6 +23902,7 @@ pub static NOSUPERUSER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NOSUPERUSER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23385,6 +23990,7 @@ pub static NOT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NOT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23399,6 +24005,7 @@ pub static NOT_OPERATOR_GRAMMAR: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NOT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23408,6 +24015,7 @@ pub static NOTHING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NOTHING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23417,6 +24025,7 @@ pub static NOTIFY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NOTIFY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23426,6 +24035,7 @@ pub static NOTNULL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NOTNULL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23435,6 +24045,7 @@ pub static NOWAIT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NOWAIT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23444,6 +24055,7 @@ pub static NULL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NULL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23453,6 +24065,7 @@ pub static NULL_LITERAL_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NULL",
     token_type: "null_literal",
+    raw_class: "LiteralKeywordSegment",
     optional: false,
 }
 );
@@ -23462,6 +24075,7 @@ pub static NULLABLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NULLABLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23471,6 +24085,7 @@ pub static NULLIF_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NULLIF",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23480,6 +24095,7 @@ pub static NULLS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NULLS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23489,6 +24105,7 @@ pub static NUMBER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NUMBER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23498,6 +24115,7 @@ pub static NUMERIC_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "NUMERIC",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23507,6 +24125,7 @@ pub static NUMERIC_LITERAL_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::TypedParser {
     template: "numeric_literal",
     token_type: "numeric_literal",
+    raw_class: "LiteralSegment",
     optional: false,
 }
 );
@@ -23516,6 +24135,7 @@ pub static OBJECT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OBJECT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23605,6 +24225,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "{",
     token_type: "start_curly_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -23612,6 +24233,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: "}",
     token_type: "end_curly_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -23845,6 +24467,7 @@ pub static OBJECTS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OBJECTS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23854,6 +24477,7 @@ pub static OCTET_LENGTH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OCTET_LENGTH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23863,6 +24487,7 @@ pub static OCTETS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OCTETS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23872,6 +24497,7 @@ pub static OF_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OF",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23881,6 +24507,7 @@ pub static OFF_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OFF",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23890,6 +24517,7 @@ pub static OFFLINE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OFFLINE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23981,6 +24609,7 @@ pub static OFFSET_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OFFSET",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23990,6 +24619,7 @@ pub static OFFSETS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OFFSETS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -23999,6 +24629,7 @@ pub static OIDS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OIDS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24008,6 +24639,7 @@ pub static OLD_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OLD",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24017,6 +24649,7 @@ pub static ON_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ON",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24026,6 +24659,7 @@ pub static ONLINE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ONLINE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24035,6 +24669,7 @@ pub static ONLY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ONLY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24044,6 +24679,7 @@ pub static OPEN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OPEN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24053,6 +24689,7 @@ pub static OPENDATASOURCE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OPENDATASOURCE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24062,6 +24699,7 @@ pub static OPENQUERY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OPENQUERY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24071,6 +24709,7 @@ pub static OPENROWSET_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OPENROWSET",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24080,6 +24719,7 @@ pub static OPENXML_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OPENXML",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24089,6 +24729,7 @@ pub static OPERATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OPERATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24098,6 +24739,7 @@ pub static OPERATION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OPERATION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24107,6 +24749,7 @@ pub static OPERATOR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OPERATOR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24116,6 +24759,7 @@ pub static OPTIMIZE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OPTIMIZE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24125,6 +24769,7 @@ pub static OPTION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OPTION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24134,6 +24779,7 @@ pub static OPTIONALLY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OPTIONALLY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24143,6 +24789,7 @@ pub static OPTIONS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OPTIONS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24152,6 +24799,7 @@ pub static OR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24161,6 +24809,7 @@ pub static OR_OPERATOR_GRAMMAR: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OR",
     token_type: "binary_operator",
+    raw_class: "BinaryOperatorSegment",
     optional: false,
 }
 );
@@ -24493,6 +25142,7 @@ pub static ORDER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ORDER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24534,6 +25184,7 @@ pub static ORDERING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ORDERING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24543,6 +25194,7 @@ pub static ORDINALITY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ORDINALITY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24552,6 +25204,7 @@ pub static OTHERS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OTHERS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24561,6 +25214,7 @@ pub static OUT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OUT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24570,6 +25224,7 @@ pub static OUTER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OUTER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24579,6 +25234,7 @@ pub static OUTFILE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OUTFILE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24588,6 +25244,7 @@ pub static OUTPUT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OUTPUT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24645,6 +25302,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -24652,6 +25310,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -24690,6 +25349,7 @@ pub static OVER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OVER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24747,6 +25407,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -24754,6 +25415,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -24808,6 +25470,7 @@ pub static OVERLAPS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OVERLAPS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24817,6 +25480,7 @@ pub static OVERLAY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OVERLAY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24826,6 +25490,7 @@ pub static OVERRIDING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OVERRIDING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24835,6 +25500,7 @@ pub static OVERWRITE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OVERWRITE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24844,6 +25510,7 @@ pub static OWNER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OWNER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24853,6 +25520,7 @@ pub static OWNERSHIP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "OWNERSHIP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24862,6 +25530,7 @@ pub static PACK_KEYS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PACK_KEYS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24871,6 +25540,7 @@ pub static PAD_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PAD",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24880,6 +25550,7 @@ pub static PARAMETER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PARAMETER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24889,6 +25560,7 @@ pub static PARAMETER_NAME_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::RegexParser {
     template: r#"\"?[A-Z][A-Z0-9_]*\"?"#,
     token_type: "parameter",
+    raw_class: "CodeSegment",
     optional: false,
     anti_template: None,
 }
@@ -24899,6 +25571,7 @@ pub static PARAMETER_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "?",
     token_type: "parameter",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -24908,6 +25581,7 @@ pub static PARAMETER_MODE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PARAMETER_MODE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24917,6 +25591,7 @@ pub static PARAMETER_NAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PARAMETER_NAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24926,6 +25601,7 @@ pub static PARAMETER_ORDINAL_POSITION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new
 Grammar::StringParser {
     template: "PARAMETER_ORDINAL_POSITION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24935,6 +25611,7 @@ pub static PARAMETER_SPECIFIC_CATALOG_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new
 Grammar::StringParser {
     template: "PARAMETER_SPECIFIC_CATALOG",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24944,6 +25621,7 @@ pub static PARAMETER_SPECIFIC_NAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PARAMETER_SPECIFIC_NAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24953,6 +25631,7 @@ pub static PARAMETER_SPECIFIC_SCHEMA_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(
 Grammar::StringParser {
     template: "PARAMETER_SPECIFIC_SCHEMA",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24962,6 +25641,7 @@ pub static PARAMETERS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PARAMETERS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -24971,6 +25651,7 @@ pub static PARTIAL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PARTIAL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25042,6 +25723,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -25049,6 +25731,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -25119,6 +25802,7 @@ pub static PARTITION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PARTITION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25128,6 +25812,7 @@ pub static PASCAL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PASCAL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25137,6 +25822,7 @@ pub static PASSWORD_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PASSWORD",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25146,6 +25832,7 @@ pub static PATH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PATH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25171,6 +25858,7 @@ Grammar::Delimited {
 Grammar::TypedParser {
     template: "word",
     token_type: "path_segment",
+    raw_class: "WordSegment",
     optional: false,
 }
 ,
@@ -25233,6 +25921,7 @@ pub static PCTFREE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PCTFREE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25242,6 +25931,7 @@ pub static PERCENT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PERCENT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25251,6 +25941,7 @@ pub static PERCENT_RANK_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PERCENT_RANK",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25260,6 +25951,7 @@ pub static PERCENTILE_CONT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PERCENTILE_CONT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25269,6 +25961,7 @@ pub static PERCENTILE_DISC_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PERCENTILE_DISC",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25278,6 +25971,7 @@ pub static PIPE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PIPE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25287,6 +25981,7 @@ pub static PIPE_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "|",
     token_type: "pipe",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -25296,6 +25991,7 @@ pub static PLACING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PLACING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25305,6 +26001,7 @@ pub static PLAN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PLAN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25314,6 +26011,7 @@ pub static PLI_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PLI",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25323,6 +26021,7 @@ pub static PLUS_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "+",
     token_type: "binary_operator",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -25332,6 +26031,7 @@ pub static POLICY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "POLICY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25341,6 +26041,7 @@ pub static POSITION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "POSITION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25350,6 +26051,7 @@ pub static POSITIVE_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "+",
     token_type: "sign_indicator",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -25396,6 +26098,7 @@ pub static POSTFIX_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "POSTFIX",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25405,6 +26108,7 @@ pub static POWER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "POWER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25419,6 +26123,7 @@ pub static PRECEDING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PRECEDING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25428,6 +26133,7 @@ pub static PRECISION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PRECISION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25437,6 +26143,7 @@ pub static PREFIX_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PREFIX",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25446,6 +26153,7 @@ pub static PREORDER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PREORDER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25455,6 +26163,7 @@ pub static PREPARE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PREPARE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25464,6 +26173,7 @@ pub static PREPARED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PREPARED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25473,6 +26183,7 @@ pub static PRESERVE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PRESERVE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25514,6 +26225,7 @@ pub static PRIMARY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PRIMARY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25523,6 +26235,7 @@ pub static PRINT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PRINT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25532,6 +26245,7 @@ pub static PRIOR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PRIOR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25541,6 +26255,7 @@ pub static PRIVILEGES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PRIVILEGES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25550,6 +26265,7 @@ pub static PROC_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PROC",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25559,6 +26275,7 @@ pub static PROCEDURAL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PROCEDURAL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25568,6 +26285,7 @@ pub static PROCEDURE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PROCEDURE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25577,6 +26295,7 @@ pub static PROCEDURES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PROCEDURES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25586,6 +26305,7 @@ pub static PROCESS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PROCESS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25595,6 +26315,7 @@ pub static PROCESSLIST_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PROCESSLIST",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25604,6 +26325,7 @@ pub static PUBLIC_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PUBLIC",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25613,6 +26335,7 @@ pub static PURGE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "PURGE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25655,6 +26378,7 @@ pub static QUALIFY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "QUALIFY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25664,6 +26388,7 @@ pub static QUARTER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "QUARTER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25673,6 +26398,7 @@ pub static QUOTE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "QUOTE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25682,6 +26408,7 @@ pub static QUOTED_IDENTIFIER_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::TypedParser {
     template: "double_quote",
     token_type: "quoted_identifier",
+    raw_class: "IdentifierSegment",
     optional: false,
 }
 );
@@ -25691,6 +26418,7 @@ pub static QUOTED_LITERAL_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::TypedParser {
     template: "single_quote",
     token_type: "quoted_literal",
+    raw_class: "LiteralSegment",
     optional: false,
 }
 );
@@ -25700,6 +26428,7 @@ pub static RAID0_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RAID0",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25709,6 +26438,7 @@ pub static RAISERROR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RAISERROR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25718,6 +26448,7 @@ pub static RANGE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RANGE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25727,6 +26458,7 @@ pub static RANK_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RANK",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25736,6 +26468,7 @@ pub static RAW_EQUALS_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "=",
     token_type: "raw_comparison_operator",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -25745,6 +26478,7 @@ pub static RAW_GREATER_THAN_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: ">",
     token_type: "raw_comparison_operator",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -25754,6 +26488,7 @@ pub static RAW_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RAW",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25763,6 +26498,7 @@ pub static RAW_LESS_THAN_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "<",
     token_type: "raw_comparison_operator",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -25772,6 +26508,7 @@ pub static RAW_NOT_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "!",
     token_type: "raw_comparison_operator",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -25789,6 +26526,7 @@ pub static READ_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "READ",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25798,6 +26536,7 @@ pub static READS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "READS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25807,6 +26546,7 @@ pub static READTEXT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "READTEXT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25816,6 +26556,7 @@ pub static REAL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REAL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25825,6 +26566,7 @@ pub static RECHECK_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RECHECK",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25834,6 +26576,7 @@ pub static RECONFIGURE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RECONFIGURE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25843,6 +26586,7 @@ pub static RECURSIVE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RECURSIVE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -25852,6 +26596,7 @@ pub static REF_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REF",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26061,6 +26806,7 @@ pub static REFERENCE_USAGE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REFERENCE_USAGE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26070,6 +26816,7 @@ pub static REFERENCES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REFERENCES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26079,6 +26826,7 @@ pub static REFERENCING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REFERENCING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26207,6 +26955,7 @@ pub static REGEXP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REGEXP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26216,6 +26965,7 @@ pub static REGR_AVGX_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REGR_AVGX",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26225,6 +26975,7 @@ pub static REGR_AVGY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REGR_AVGY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26234,6 +26985,7 @@ pub static REGR_COUNT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REGR_COUNT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26243,6 +26995,7 @@ pub static REGR_INTERCEPT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REGR_INTERCEPT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26252,6 +27005,7 @@ pub static REGR_R2_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REGR_R2",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26261,6 +27015,7 @@ pub static REGR_SLOPE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REGR_SLOPE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26270,6 +27025,7 @@ pub static REGR_SXX_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REGR_SXX",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26279,6 +27035,7 @@ pub static REGR_SXY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REGR_SXY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26288,6 +27045,7 @@ pub static REGR_SYY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REGR_SYY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26297,6 +27055,7 @@ pub static REINDEX_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REINDEX",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26306,6 +27065,7 @@ pub static RELATIVE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RELATIVE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26315,6 +27075,7 @@ pub static RELEASE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RELEASE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26324,6 +27085,7 @@ pub static RELOAD_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RELOAD",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26333,6 +27095,7 @@ pub static RENAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RENAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26342,6 +27105,7 @@ pub static REPEAT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REPEAT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26351,6 +27115,7 @@ pub static REPEATABLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REPEATABLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26360,6 +27125,7 @@ pub static REPLACE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REPLACE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26369,6 +27135,7 @@ pub static REPLICATION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REPLICATION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26378,6 +27145,7 @@ pub static REQUIRE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REQUIRE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26387,6 +27155,7 @@ pub static RESET_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RESET",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26396,6 +27165,7 @@ pub static RESIGNAL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RESIGNAL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26405,6 +27175,7 @@ pub static RESOURCE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RESOURCE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26414,6 +27185,7 @@ pub static RESPECT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RESPECT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26423,6 +27195,7 @@ pub static RESTART_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RESTART",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26432,6 +27205,7 @@ pub static RESTORE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RESTORE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26441,6 +27215,7 @@ pub static RESTRICT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RESTRICT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26450,6 +27225,7 @@ pub static RESULT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RESULT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26459,6 +27235,7 @@ pub static RETURN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RETURN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26468,6 +27245,7 @@ pub static RETURNED_CARDINALITY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RETURNED_CARDINALITY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26477,6 +27255,7 @@ pub static RETURNED_LENGTH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RETURNED_LENGTH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26486,6 +27265,7 @@ pub static RETURNED_OCTET_LENGTH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RETURNED_OCTET_LENGTH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26495,6 +27275,7 @@ pub static RETURNED_SQLSTATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RETURNED_SQLSTATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26504,6 +27285,7 @@ pub static RETURNS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RETURNS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26513,6 +27295,7 @@ pub static REVOKE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "REVOKE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26522,6 +27305,7 @@ pub static RIGHT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RIGHT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26531,6 +27315,7 @@ pub static RLIKE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RLIKE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26540,6 +27325,7 @@ pub static ROLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ROLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26562,6 +27348,7 @@ pub static ROLES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ROLES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26571,6 +27358,7 @@ pub static ROLLBACK_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ROLLBACK",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26581,6 +27369,7 @@ pub static ROLLUP_FUNCTION_NAME_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ROLLUP",
     token_type: "function_name_identifier",
+    raw_class: "CodeSegment",
     optional: false,
 }
 );
@@ -26590,6 +27379,7 @@ pub static ROLLUP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ROLLUP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26599,6 +27389,7 @@ pub static ROUTINE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ROUTINE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26608,6 +27399,7 @@ pub static ROUTINE_CATALOG_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ROUTINE_CATALOG",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26617,6 +27409,7 @@ pub static ROUTINE_NAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ROUTINE_NAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26626,6 +27419,7 @@ pub static ROUTINE_SCHEMA_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ROUTINE_SCHEMA",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26635,6 +27429,7 @@ pub static ROUTINES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ROUTINES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26644,6 +27439,7 @@ pub static ROW_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ROW",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26653,6 +27449,7 @@ pub static ROW_COUNT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ROW_COUNT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26662,6 +27459,7 @@ pub static ROW_NUMBER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ROW_NUMBER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26671,6 +27469,7 @@ pub static ROWCOUNT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ROWCOUNT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26680,6 +27479,7 @@ pub static ROWGUIDCOL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ROWGUIDCOL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26689,6 +27489,7 @@ pub static ROWID_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ROWID",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26698,6 +27499,7 @@ pub static ROWNUM_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ROWNUM",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26707,6 +27509,7 @@ pub static ROWS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ROWS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26716,6 +27519,7 @@ pub static RULE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "RULE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26780,6 +27584,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -26787,6 +27592,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -26838,6 +27644,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -26845,6 +27652,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -26881,6 +27689,7 @@ pub static SAVE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SAVE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26890,6 +27699,7 @@ pub static SAVEPOINT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SAVEPOINT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26899,6 +27709,7 @@ pub static SCALE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SCALE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26908,6 +27719,7 @@ pub static SCHEMA_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SCHEMA",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26962,6 +27774,7 @@ pub static SCHEMA_NAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SCHEMA_NAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26971,6 +27784,7 @@ pub static SCHEMAS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SCHEMAS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26980,6 +27794,7 @@ pub static SCOPE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SCOPE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26989,6 +27804,7 @@ pub static SCOPE_CATALOG_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SCOPE_CATALOG",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -26998,6 +27814,7 @@ pub static SCOPE_NAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SCOPE_NAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -27007,6 +27824,7 @@ pub static SCOPE_SCHEMA_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SCOPE_SCHEMA",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -27016,6 +27834,7 @@ pub static SCROLL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SCROLL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -27025,6 +27844,7 @@ pub static SEARCH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SEARCH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -27034,6 +27854,7 @@ pub static SECOND_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SECOND",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -27043,6 +27864,7 @@ pub static SECOND_MICROSECOND_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SECOND_MICROSECOND",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -27052,6 +27874,7 @@ pub static SECTION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SECTION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -27061,6 +27884,7 @@ pub static SECURITY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SECURITY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -27331,6 +28155,7 @@ pub static SELECT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SELECT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -27508,6 +28333,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -27515,6 +28341,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -27564,6 +28391,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -27571,6 +28399,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -27627,6 +28456,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -27634,6 +28464,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -27661,6 +28492,7 @@ pub static SELF_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SELF",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -27670,6 +28502,7 @@ pub static SEMICOLON_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: ";",
     token_type: "statement_terminator",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -27679,6 +28512,7 @@ pub static SENSITIVE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SENSITIVE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -27688,6 +28522,7 @@ pub static SEPARATOR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SEPARATOR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -27697,6 +28532,7 @@ pub static SEQUENCE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SEQUENCE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -27895,6 +28731,7 @@ pub static SEQUENCES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SEQUENCES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -27904,6 +28741,7 @@ pub static SERIALIZABLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SERIALIZABLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -27913,6 +28751,7 @@ pub static SERVER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SERVER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -27922,6 +28761,7 @@ pub static SERVER_NAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SERVER_NAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -27931,6 +28771,7 @@ pub static SESSION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SESSION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -27940,6 +28781,7 @@ pub static SESSION_USER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SESSION_USER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28210,6 +29052,7 @@ pub static SET_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SET",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28352,6 +29195,7 @@ pub static SETOF_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SETOF",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28361,6 +29205,7 @@ pub static SETS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SETS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28370,6 +29215,7 @@ pub static SETUSER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SETUSER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28379,6 +29225,7 @@ pub static SHARE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SHARE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28388,6 +29235,7 @@ pub static SHARES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SHARES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28493,6 +29341,7 @@ pub static SHOW_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SHOW",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28502,6 +29351,7 @@ pub static SHUTDOWN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SHUTDOWN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28511,6 +29361,7 @@ pub static SIGNAL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SIGNAL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28552,6 +29403,7 @@ pub static SIMILAR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SIMILAR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28561,6 +29413,7 @@ pub static SIMPLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SIMPLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28647,6 +29500,7 @@ pub static SINGLE_QUOTED_IDENTIFIER_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::TypedParser {
     template: "single_quote",
     token_type: "quoted_identifier",
+    raw_class: "IdentifierSegment",
     optional: false,
 }
 );
@@ -28656,6 +29510,7 @@ pub static SIZE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SIZE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28698,6 +29553,7 @@ pub static SLASH_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "/",
     token_type: "slash",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -28707,6 +29563,7 @@ pub static SLICE_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: ":",
     token_type: "slice",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -28716,6 +29573,7 @@ pub static SMALLINT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SMALLINT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28725,6 +29583,7 @@ pub static SOME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SOME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28734,6 +29593,7 @@ pub static SONAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SONAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28743,6 +29603,7 @@ pub static SOURCE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SOURCE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28752,6 +29613,7 @@ pub static SPACE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SPACE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28761,6 +29623,7 @@ pub static SPATIAL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SPATIAL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28770,6 +29633,7 @@ pub static SPECIFIC_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SPECIFIC",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28779,6 +29643,7 @@ pub static SPECIFIC_NAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SPECIFIC_NAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28788,6 +29653,7 @@ pub static SPECIFICTYPE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SPECIFICTYPE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28797,6 +29663,7 @@ pub static SQL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SQL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28806,6 +29673,7 @@ pub static SQL_BIG_RESULT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SQL_BIG_RESULT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28815,6 +29683,7 @@ pub static SQL_BIG_SELECTS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SQL_BIG_SELECTS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28824,6 +29693,7 @@ pub static SQL_BIG_TABLES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SQL_BIG_TABLES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28833,6 +29703,7 @@ pub static SQL_CALC_FOUND_ROWS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SQL_CALC_FOUND_ROWS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28842,6 +29713,7 @@ pub static SQL_LOG_OFF_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SQL_LOG_OFF",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28851,6 +29723,7 @@ pub static SQL_LOG_UPDATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SQL_LOG_UPDATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28860,6 +29733,7 @@ pub static SQL_LOW_PRIORITY_UPDATES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(|
 Grammar::StringParser {
     template: "SQL_LOW_PRIORITY_UPDATES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28869,6 +29743,7 @@ pub static SQL_SELECT_LIMIT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SQL_SELECT_LIMIT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28878,6 +29753,7 @@ pub static SQL_SMALL_RESULT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SQL_SMALL_RESULT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28887,6 +29763,7 @@ pub static SQL_WARNINGS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SQL_WARNINGS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28896,6 +29773,7 @@ pub static SQLCA_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SQLCA",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28905,6 +29783,7 @@ pub static SQLCODE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SQLCODE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28914,6 +29793,7 @@ pub static SQLERROR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SQLERROR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28923,6 +29803,7 @@ pub static SQLEXCEPTION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SQLEXCEPTION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28932,6 +29813,7 @@ pub static SQLSTATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SQLSTATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28941,6 +29823,7 @@ pub static SQLWARNING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SQLWARNING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28950,6 +29833,7 @@ pub static SQRT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SQRT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28959,6 +29843,7 @@ pub static SSL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SSL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28968,6 +29853,7 @@ pub static STABLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STABLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28977,6 +29863,7 @@ pub static STAGE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STAGE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28986,6 +29873,7 @@ pub static STAGES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STAGES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -28995,6 +29883,7 @@ pub static STAR_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "*",
     token_type: "star",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -29004,6 +29893,7 @@ pub static START_BRACKET_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -29013,6 +29903,7 @@ pub static START_CURLY_BRACKET_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "{",
     token_type: "start_curly_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -29022,6 +29913,7 @@ pub static START_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "START",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29031,6 +29923,7 @@ pub static START_SQUARE_BRACKET_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "[",
     token_type: "start_square_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -29040,6 +29933,7 @@ pub static STARTING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STARTING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29049,6 +29943,7 @@ pub static STARTS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STARTS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29058,6 +29953,7 @@ pub static STATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29067,6 +29963,7 @@ pub static STATEMENT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STATEMENT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29451,6 +30348,7 @@ pub static STATIC_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STATIC",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29460,6 +30358,7 @@ pub static STATISTICS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STATISTICS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29469,6 +30368,7 @@ pub static STDDEV_POP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STDDEV_POP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29478,6 +30378,7 @@ pub static STDDEV_SAMP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STDDEV_SAMP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29487,6 +30388,7 @@ pub static STDIN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STDIN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29496,6 +30398,7 @@ pub static STDOUT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STDOUT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29505,6 +30408,7 @@ pub static STORAGE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STORAGE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29514,6 +30418,7 @@ pub static STRAIGHT_JOIN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STRAIGHT_JOIN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29523,6 +30428,7 @@ pub static STREAM_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STREAM",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29532,6 +30438,7 @@ pub static STREAMS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STREAMS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29541,6 +30448,7 @@ pub static STRICT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STRICT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29573,6 +30481,7 @@ pub static STRING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STRING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29640,6 +30549,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -29647,6 +30557,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -29671,6 +30582,7 @@ pub static STRUCTURE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STRUCTURE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29680,6 +30592,7 @@ pub static STYLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "STYLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29689,6 +30602,7 @@ pub static SUBCLASS_ORIGIN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SUBCLASS_ORIGIN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29698,6 +30612,7 @@ pub static SUBLIST_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SUBLIST",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29707,6 +30622,7 @@ pub static SUBMULTISET_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SUBMULTISET",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29716,6 +30632,7 @@ pub static SUBSTRING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SUBSTRING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29725,6 +30642,7 @@ pub static SUCCESSFUL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SUCCESSFUL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29734,6 +30652,7 @@ pub static SUM_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SUM",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29743,6 +30662,7 @@ pub static SUPERUSER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SUPERUSER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29760,6 +30680,7 @@ pub static SYMMETRIC_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SYMMETRIC",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29769,6 +30690,7 @@ pub static SYNONYM_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SYNONYM",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29778,6 +30700,7 @@ pub static SYSDATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SYSDATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29787,6 +30710,7 @@ pub static SYSID_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SYSID",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29796,6 +30720,7 @@ pub static SYSTEM_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SYSTEM",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -29805,6 +30730,7 @@ pub static SYSTEM_USER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "SYSTEM_USER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30024,6 +30950,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -30031,6 +30958,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -30060,6 +30988,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -30067,6 +30996,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -30094,6 +31024,7 @@ pub static TABLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TABLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30148,6 +31079,7 @@ pub static TABLE_NAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TABLE_NAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30157,6 +31089,7 @@ pub static TABLES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TABLES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30166,6 +31099,7 @@ pub static TABLESAMPLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TABLESAMPLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30175,6 +31109,7 @@ pub static TABLESPACE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TABLESPACE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30375,6 +31310,7 @@ pub static TASK_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TASK",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30384,6 +31320,7 @@ pub static TASKS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TASKS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30393,6 +31330,7 @@ pub static TEMP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TEMP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30402,6 +31340,7 @@ pub static TEMPLATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TEMPLATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30449,6 +31388,7 @@ pub static TEMPORARY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TEMPORARY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30490,6 +31430,7 @@ pub static TERMINATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TERMINATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30499,6 +31440,7 @@ pub static TERMINATED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TERMINATED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30508,6 +31450,7 @@ pub static TEXT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TEXT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30517,6 +31460,7 @@ pub static TEXTSIZE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TEXTSIZE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30526,6 +31470,7 @@ pub static THAN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "THAN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30535,6 +31480,7 @@ pub static THEN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "THEN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30544,6 +31490,7 @@ pub static TIES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TIES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30553,6 +31500,7 @@ pub static TILDE_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "~",
     token_type: "tilde",
+    raw_class: "SymbolSegment",
     optional: false,
 }
 );
@@ -30562,6 +31510,7 @@ pub static TIME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TIME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30746,6 +31695,7 @@ pub static TIMESTAMP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TIMESTAMP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30755,6 +31705,7 @@ pub static TIMEZONE_HOUR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TIMEZONE_HOUR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30764,6 +31715,7 @@ pub static TIMEZONE_MINUTE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TIMEZONE_MINUTE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30773,6 +31725,7 @@ pub static TINYBLOB_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TINYBLOB",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30782,6 +31735,7 @@ pub static TINYINT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TINYINT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30791,6 +31745,7 @@ pub static TINYTEXT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TINYTEXT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30800,6 +31755,7 @@ pub static TO_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TO",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30809,6 +31765,7 @@ pub static TOAST_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TOAST",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30818,6 +31775,7 @@ pub static TOP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TOP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30827,6 +31785,7 @@ pub static TOP_LEVEL_COUNT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TOP_LEVEL_COUNT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30836,6 +31795,7 @@ pub static TRAILING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRAILING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30845,6 +31805,7 @@ pub static TRAN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRAN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -30854,6 +31815,7 @@ pub static TRANSACTION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRANSACTION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31030,6 +31992,7 @@ pub static TRANSACTION_ACTIVE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRANSACTION_ACTIVE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31039,6 +32002,7 @@ pub static TRANSACTIONS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRANSACTIONS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31048,6 +32012,7 @@ pub static TRANSACTIONS_COMMITTED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRANSACTIONS_COMMITTED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31057,6 +32022,7 @@ pub static TRANSACTIONS_ROLLED_BACK_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(|
 Grammar::StringParser {
     template: "TRANSACTIONS_ROLLED_BACK",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31066,6 +32032,7 @@ pub static TRANSFORM_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRANSFORM",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31075,6 +32042,7 @@ pub static TRANSFORMS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRANSFORMS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31084,6 +32052,7 @@ pub static TRANSIENT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRANSIENT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31093,6 +32062,7 @@ pub static TRANSLATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRANSLATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31102,6 +32072,7 @@ pub static TRANSLATION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRANSLATION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31111,6 +32082,7 @@ pub static TREAT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TREAT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31120,6 +32092,7 @@ pub static TRIGGER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRIGGER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31174,6 +32147,7 @@ pub static TRIGGER_CATALOG_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRIGGER_CATALOG",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31183,6 +32157,7 @@ pub static TRIGGER_NAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRIGGER_NAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31192,6 +32167,7 @@ pub static TRIGGER_SCHEMA_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRIGGER_SCHEMA",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31201,6 +32177,7 @@ pub static TRIM_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRIM",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31251,6 +32228,7 @@ pub static TRUE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRUE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31260,6 +32238,7 @@ pub static TRUE_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRUE",
     token_type: "boolean_literal",
+    raw_class: "LiteralKeywordSegment",
     optional: false,
 }
 );
@@ -31269,6 +32248,7 @@ pub static TRUNCATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRUNCATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31320,6 +32300,7 @@ pub static TRUSTED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TRUSTED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31329,6 +32310,7 @@ pub static TSEQUAL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TSEQUAL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31376,6 +32358,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -31383,6 +32366,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -31401,6 +32385,7 @@ pub static TYPE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "TYPE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31476,6 +32461,7 @@ pub static UESCAPE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UESCAPE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31485,6 +32471,7 @@ pub static UID_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UID",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31494,6 +32481,7 @@ pub static UNBOUNDED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UNBOUNDED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31503,6 +32491,7 @@ pub static UNCOMMITTED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UNCOMMITTED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31558,6 +32547,7 @@ pub static UNDER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UNDER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31567,6 +32557,7 @@ pub static UNDO_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UNDO",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31576,6 +32567,7 @@ pub static UNENCRYPTED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UNENCRYPTED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31637,6 +32629,7 @@ pub static UNION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UNION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31669,6 +32662,7 @@ pub static UNIQUE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UNIQUE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31678,6 +32672,7 @@ pub static UNKNOWN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UNKNOWN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31692,6 +32687,7 @@ pub static UNLISTEN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UNLISTEN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31701,6 +32697,7 @@ pub static UNLOCK_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UNLOCK",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31710,6 +32707,7 @@ pub static UNNAMED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UNNAMED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31719,6 +32717,7 @@ pub static UNNEST_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UNNEST",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31918,6 +32917,7 @@ pub static UNSIGNED_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UNSIGNED",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31927,6 +32927,7 @@ pub static UNTIL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UNTIL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -31936,6 +32937,7 @@ pub static UPDATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UPDATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32018,6 +33020,7 @@ pub static UPDATETEXT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UPDATETEXT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32027,6 +33030,7 @@ pub static UPPER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UPPER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32036,6 +33040,7 @@ pub static USAGE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "USAGE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32045,6 +33050,7 @@ pub static USE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "USE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32087,6 +33093,7 @@ pub static USE_ANY_ROLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "USE_ANY_ROLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32096,6 +33103,7 @@ pub static USER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "USER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32105,6 +33113,7 @@ pub static USER_DEFINED_TYPE_CATALOG_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(
 Grammar::StringParser {
     template: "USER_DEFINED_TYPE_CATALOG",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32114,6 +33123,7 @@ pub static USER_DEFINED_TYPE_CODE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "USER_DEFINED_TYPE_CODE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32123,6 +33133,7 @@ pub static USER_DEFINED_TYPE_NAME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "USER_DEFINED_TYPE_NAME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32132,6 +33143,7 @@ pub static USER_DEFINED_TYPE_SCHEMA_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(|
 Grammar::StringParser {
     template: "USER_DEFINED_TYPE_SCHEMA",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32141,6 +33153,7 @@ pub static USERS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "USERS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32150,6 +33163,7 @@ pub static USING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "USING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32159,6 +33173,7 @@ pub static UTC_DATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UTC_DATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32168,6 +33183,7 @@ pub static UTC_TIME_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UTC_TIME",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32177,6 +33193,7 @@ pub static UTC_TIMESTAMP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "UTC_TIMESTAMP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32186,6 +33203,7 @@ pub static VACUUM_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VACUUM",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32195,6 +33213,7 @@ pub static VALID_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VALID",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32204,6 +33223,7 @@ pub static VALIDATE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VALIDATE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32213,6 +33233,7 @@ pub static VALIDATOR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VALIDATOR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32222,6 +33243,7 @@ pub static VALUE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VALUE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32331,6 +33353,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -32338,6 +33361,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -32395,6 +33419,7 @@ pub static VALUES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VALUES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32404,6 +33429,7 @@ pub static VAR_POP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VAR_POP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32413,6 +33439,7 @@ pub static VAR_SAMP_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VAR_SAMP",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32422,6 +33449,7 @@ pub static VARBINARY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VARBINARY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32431,6 +33459,7 @@ pub static VARCHAR2_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VARCHAR2",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32440,6 +33469,7 @@ pub static VARCHAR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VARCHAR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32449,6 +33479,7 @@ pub static VARCHARACTER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VARCHARACTER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32458,6 +33489,7 @@ pub static VARIABLE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VARIABLE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32467,6 +33499,7 @@ pub static VARIABLES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VARIABLES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32476,6 +33509,7 @@ pub static VARYING_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VARYING",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32485,6 +33519,7 @@ pub static VERBOSE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VERBOSE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32494,6 +33529,7 @@ pub static VERSION_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VERSION",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32503,6 +33539,7 @@ pub static VIEW_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VIEW",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32512,6 +33549,7 @@ pub static VIEWS_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VIEWS",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32521,6 +33559,7 @@ pub static VOLATILE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "VOLATILE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32530,6 +33569,7 @@ pub static WAITFOR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "WAITFOR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32539,6 +33579,7 @@ pub static WAREHOUSE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "WAREHOUSE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32548,6 +33589,7 @@ pub static WAREHOUSES_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "WAREHOUSES",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32557,6 +33599,7 @@ pub static WEEK_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "WEEK",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32566,6 +33609,7 @@ pub static WEEKDAY_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "WEEKDAY",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32649,6 +33693,7 @@ pub static WHEN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "WHEN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32658,6 +33703,7 @@ pub static WHENEVER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "WHENEVER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32697,6 +33743,7 @@ Grammar::Ref {
 Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         ),
@@ -32704,6 +33751,7 @@ Grammar::StringParser {
 Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
+    raw_class: "SymbolSegment",
     optional: false,
 }
         )
@@ -32877,6 +33925,7 @@ pub static WHERE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "WHERE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32886,6 +33935,7 @@ pub static WHILE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "WHILE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -32903,6 +33953,7 @@ pub static WIDTH_BUCKET_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "WIDTH_BUCKET",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -33043,6 +34094,7 @@ pub static WINDOW_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "WINDOW",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -33336,6 +34388,7 @@ pub static WITH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "WITH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -33396,6 +34449,7 @@ pub static WITHIN_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "WITHIN",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -33405,6 +34459,7 @@ pub static WITHOUT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "WITHOUT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -33422,6 +34477,7 @@ pub static WORK_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "WORK",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -33431,6 +34487,7 @@ pub static WRAPPER_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "WRAPPER",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -33440,6 +34497,7 @@ pub static WRITE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "WRITE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -33449,6 +34507,7 @@ pub static WRITETEXT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "WRITETEXT",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -33458,6 +34517,7 @@ pub static X509_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "X509",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -33467,6 +34527,7 @@ pub static XML_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "XML",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -33476,6 +34537,7 @@ pub static XOR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "XOR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -33485,6 +34547,7 @@ pub static YAML_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "YAML",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -33494,6 +34557,7 @@ pub static YEAR_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "YEAR",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -33503,6 +34567,7 @@ pub static YEAR_MONTH_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "YEAR_MONTH",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -33512,6 +34577,7 @@ pub static ZEROFILL_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ZEROFILL",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );
@@ -33521,6 +34587,7 @@ pub static ZONE_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::StringParser {
     template: "ZONE",
     token_type: "keyword",
+    raw_class: "KeywordSegment",
     optional: false,
 }
 );

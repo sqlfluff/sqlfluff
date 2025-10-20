@@ -14,6 +14,7 @@ pub mod regex;
 pub mod slice;
 pub mod templater;
 pub mod token;
+pub mod test_harness;
 
 pub use crate::dialect::Dialect;
 pub use crate::parser::ParseMode;

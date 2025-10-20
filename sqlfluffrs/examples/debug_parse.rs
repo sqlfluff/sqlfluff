@@ -13,7 +13,6 @@ fn main() {
     let (tokens, _) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
-    parser.use_iterative_parser = true;
 
     match parser.call_rule("SelectStatementSegment", &[]) {
         Ok(ast) => {

@@ -10,8 +10,7 @@ mod frame;
 mod core;
 mod helpers;  // Utility methods for Parser
 mod iterative;
-mod recursive;  // Recursive parser implementation
-pub(crate) mod utils;  // Make utils accessible to parser_old
+mod utils;
 
 // Re-export public types
 pub use types::{Grammar, ParseMode, Node, ParseError, SegmentDef, Parsed, ParseErrorType, ParseContext};
