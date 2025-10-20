@@ -231,24 +231,15 @@ jobs:
       fail-fast: false
       matrix:
         dbt-version:
-          - dbt140
-          - dbt150
-          - dbt160
           - dbt170
           - dbt180
           - dbt190
+          - dbt1100
         include:
           # Default to python 3.12 for dbt tests.
           # * Python 3.13 not supported yet.
           # * Looks like it's due to psycopg2 support as of 2024-10-10
           - python-version: "3.12"
-          # For dbt 1.4 - 1.6 override to python 3.11
-          - dbt-version: dbt140
-            python-version: "3.11"
-          - dbt-version: dbt150
-            python-version: "3.11"
-          - dbt-version: dbt160
-            python-version: "3.11"
     permissions:
       contents: read
       pull-requests: write

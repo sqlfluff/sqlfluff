@@ -130,6 +130,7 @@ class Indent(MetaSegment):
 
     type = "indent"
     indent_val = 1
+    is_implicit = False
 
     def _suffix(self) -> str:
         """If present, output the block uuid."""

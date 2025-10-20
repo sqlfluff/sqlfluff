@@ -14,7 +14,7 @@ from sqlfluff.core.parser.matchable import Matchable
 def lex(raw, config):
     """Basic parsing for the tests below."""
     # Set up the lexer
-    lex = Lexer.build(config=config)
+    lex = Lexer(config=config)
     # Lex the string for matching. For a good test, this would
     # arguably happen as a fixture, but it's easier to pass strings
     # as parameters than pre-lexed segment strings.

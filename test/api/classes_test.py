@@ -7,7 +7,7 @@ test_query = "SELECt 1"
 
 def test__api__lexer():
     """Basic checking of lexing functionality."""
-    tokens, violations = Lexer.build(dialect="ansi").lex(test_query)
+    tokens, violations = Lexer(dialect="ansi").lex(test_query)
     assert violations == []
     assert isinstance(tokens, tuple)
     # The last element is the file end marker.
@@ -16,14 +16,14 @@ def test__api__lexer():
 
 def test__api__parser():
     """Basic checking of parsing functionality."""
-    tokens, _ = Lexer.build(dialect="ansi").lex(test_query)
+    tokens, _ = Lexer(dialect="ansi").lex(test_query)
     parsed = Parser(dialect="ansi").parse(tokens)
     assert parsed.raw == test_query
 
 
 def test__api__linter_lint():
     """Basic checking of parsing functionality."""
-    tokens, _ = Lexer.build(dialect="ansi").lex(test_query)
+    tokens, _ = Lexer(dialect="ansi").lex(test_query)
     parsed = Parser(dialect="ansi").parse(tokens)
     violations = Linter(dialect="ansi").lint(parsed)
     assert [v.rule.code for v in violations] == ["CP01", "LT12"]
@@ -31,7 +31,7 @@ def test__api__linter_lint():
 
 def test__api__linter_fix():
     """Basic checking of parsing functionality."""
-    tokens, _ = Lexer.build(dialect="ansi").lex(test_query)
+    tokens, _ = Lexer(dialect="ansi").lex(test_query)
     parsed = Parser(dialect="ansi").parse(tokens)
     fixed, _ = Linter(dialect="ansi").fix(parsed)
     assert fixed.raw == "SELECT 1\n"

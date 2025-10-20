@@ -48,10 +48,10 @@ class ParsedVariant(NamedTuple):
         tree (:obj:`BaseSegment`): The segment structure representing the
             parsed file. If parsing fails due to an unrecoverable
             violation then we will be None.
-        lexing_violations (:obj:`list` of :obj:`SQLLexErrorType`): Any violations
+        lexing_violations (:obj:`list` of :obj:`SQLLexError`): Any violations
             raised during the lexing phase.
         parsing_violations (:obj:`list` of :obj:`SQLParseError`): Any violations
-            raised during the lexing phase.
+            raised during the parsing phase.
     """
 
     templated_file: TemplatedFile

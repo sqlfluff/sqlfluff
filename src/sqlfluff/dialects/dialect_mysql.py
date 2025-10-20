@@ -177,12 +177,14 @@ mysql_dialect.replace(
             Ref("SystemVariableSegment"),
         ]
     ),
+    PostTableExpressionGrammar=OneOf(
+        Ref("IndexHintClauseSegment"),
+        Ref("SelectPartitionClauseSegment"),
+    ),
     FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "FromClauseTerminatorGrammar"
     ).copy(
         insert=[
-            Ref("IndexHintClauseSegment"),
-            Ref("SelectPartitionClauseSegment"),
             Ref("ForClauseSegment"),
             Ref("SetOperatorSegment"),
             Ref("WithNoSchemaBindingClauseSegment"),

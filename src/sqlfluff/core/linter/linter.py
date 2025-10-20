@@ -177,7 +177,7 @@ class Linter:
         violations = []
         linter_logger.info("LEXING RAW (%s)", templated_file.fname)
         # Get the lexer
-        lexer = Lexer.build(config=config)
+        lexer = Lexer(config=config)
         # Lex the file and log any problems
         try:
             segments, lex_vs = lexer.lex(templated_file)

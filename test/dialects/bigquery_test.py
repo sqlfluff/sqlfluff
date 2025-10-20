@@ -37,7 +37,7 @@ def test_bigquery_relational_operator_parsing(data):
     note(f"query: {raw}")
     # Load the right dialect
     config = FluffConfig(overrides=dict(dialect="bigquery"))
-    tokens, lex_vs = Lexer.build(config=config).lex(raw)
+    tokens, lex_vs = Lexer(config=config).lex(raw)
     # From just the initial parse, check we're all there
     assert "".join(token.raw for token in tokens) == raw
     # Check we don't have lexing issues
@@ -83,7 +83,7 @@ def test_bigquery_table_reference_segment_iter_raw_references(
     """
     query = f"SELECT bar.user_id FROM {table_reference}"
     config = FluffConfig(overrides=dict(dialect="bigquery"))
-    tokens, lex_vs = Lexer.build(config=config).lex(query)
+    tokens, lex_vs = Lexer(config=config).lex(query)
     parsed = Parser(config=config).parse(tokens)
     for table_reference in parsed.recursive_crawl("table_reference"):
         actual_reference_parts = [

@@ -892,22 +892,9 @@ class PyLexer:
                 )
         return templated_buff
 
-    @classmethod
-    def build(
-        cls,
-        config: Optional[FluffConfig] = None,
-        last_resort_lexer: Optional[StringLexer] = None,
-        dialect: Optional[str] = None,
-    ) -> "PyLexer":
-        """Builder for the Lexer.
-
-        This should be used to correctly select the appropriate lexer.
-        """
-        return cls(config, last_resort_lexer, dialect)
-
 
 try:
-    from sqlfluffrs import RsLexer
+    from sqlfluffrs import RsLexer, RsToken
 
     def get_segment_type_map(base_class: type) -> dict[str, type[RawSegment]]:
         """Dynamically create a map of segment types to their subclasses."""
@@ -929,6 +916,18 @@ try:
     class PyRsLexer(RsLexer):
         """A wrapper around the sqlfluffrs lexer."""
 
+        @staticmethod
+        def _tokens_to_segments(
+            tokens: list["RsToken"], py_template: TemplatedFile
+        ) -> tuple[BaseSegment, ...]:
+            """Convert tokens to segments."""
+            return tuple(
+                segment_types.get(token.type, RawSegment).from_rstoken(
+                    token, py_template
+                )
+                for token in tokens
+            )
+
         def lex(
             self, raw: Union[str, TemplatedFile]
         ) -> tuple[tuple[BaseSegment, ...], list[SQLLexError]]:
@@ -946,32 +945,33 @@ try:
             )
 
             return (
-                tuple(
-                    segment_types.get(token.type, RawSegment).from_rstoken(
-                        token, py_template
-                    )
-                    for token in tokens
-                ),
+                self._tokens_to_segments(tokens, py_template),
                 [SQLLexError.from_rs_error(error) for error in errors],
             )
 
-        @classmethod
-        def build(
-            cls,
-            config: Optional[FluffConfig] = None,
-            last_resort_lexer: Optional[StringLexer] = None,
-            dialect: Optional[str] = None,
-        ) -> "PyRsLexer":
-            """Builder for the Lexer.
-
-            This should be used to correctly select the appropriate lexer.
-            """
-            return cls(
-                config=config,
-                last_resort_lexer=last_resort_lexer,
-                dialect=dialect,
-            )
-
+    _HAS_RUST_LEXER = True
     lexer_logger.info("Using sqlfluffrs lexer.")
 except ImportError:
-    ...
+    PyRsLexer = None  # type: ignore[assignment, misc]
+    _HAS_RUST_LEXER = False
+    lexer_logger.info("sqlfluffrs lexer not present or failed to load.")
+
+
+def get_lexer_class() -> type[Union[PyLexer, "PyRsLexer"]]:
+    """Get the appropriate lexer class based on availability.
+
+    Returns PyRsLexer if the Rust extension is available,
+    otherwise returns PyLexer.
+
+    This function provides a single point of lexer selection,
+    making it easy to instantiate the correct lexer:
+
+        Lexer = get_lexer_class()
+        lexer = Lexer(config=config)
+
+    Returns:
+        The lexer class to use (PyRsLexer or PyLexer).
+    """
+    if _HAS_RUST_LEXER:
+        return PyRsLexer
+    return PyLexer
