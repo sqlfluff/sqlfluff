@@ -26,8 +26,6 @@ if TYPE_CHECKING:  # pragma: no cover
 CheckTuple = tuple[str, int, int]
 SerializedObject = dict[str, Union[str, int, bool, list["SerializedObject"]]]
 
-SQLLexErrorType = Union["SQLLexError", "RsSQLLexerError"]
-
 
 def _extract_position(segment: Optional["BaseSegment"]) -> dict[str, int]:
     """If a segment is present and is a literal, return it's source length."""
