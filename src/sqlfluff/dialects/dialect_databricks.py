@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
     Delimited,
     IdentifierSegment,
     Indent,
+    LiteralSegment,
     Matchable,
     OneOf,
     OptionallyBracketed,
@@ -53,6 +54,21 @@ databricks_dialect.sets("reserved_keywords").clear()
 databricks_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
 databricks_dialect.sets("date_part_function_name").update(["TIMEDIFF"])
+
+
+databricks_dialect.insert_lexer_matchers(
+    # Named Parameters:
+    # https://docs.databricks.com/sql/language-manual/sql-ref-parameters.html
+    [
+        RegexLexer(
+            "colon_literal",
+            r":[a-zA-Z_][a-zA-Z0-9_]*",
+            LiteralSegment,
+            segment_kwargs={"type": "colon_literal"},
+        ),
+    ],
+    before="colon",
+)
 
 
 databricks_dialect.insert_lexer_matchers(
@@ -116,6 +132,11 @@ databricks_dialect.add(
         trim_chars=("$",),
     ),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    ColonLiteralSegment=TypedParser(
+        "colon_literal",
+        LiteralSegment,
+        type="colon_literal",
+    ),
     # https://docs.databricks.com/en/sql/language-manual/sql-ref-principal.html
     PrincipalIdentifierSegment=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -265,6 +286,12 @@ databricks_dialect.replace(
             ),
         ],
         at=0,
+    ),
+    # Add ParameterizedSegment to the LiteralGrammar to support named parameters
+    LiteralGrammar=sparksql_dialect.get_grammar("LiteralGrammar").copy(
+        insert=[
+            Ref("ParameterizedSegment"),
+        ]
     ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),
@@ -495,6 +522,17 @@ class CatalogReferenceSegment(ansi.ObjectReferenceSegment):
     """
 
     type = "catalog_reference"
+    
+    # Allow catalog names to be identifiers or parameters
+    match_grammar: Matchable = OneOf(
+        Delimited(
+            OneOf(Ref("SingleIdentifierGrammar"), Ref("IdentifierClauseSegment")),
+            delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+            terminators=[Ref("ObjectReferenceTerminatorGrammar")],
+            allow_gaps=False,
+        ),
+        Ref("ParameterizedSegment"),
+    )
 
 
 class VolumeReferenceSegment(ansi.ObjectReferenceSegment):
@@ -1218,6 +1256,25 @@ class OptimizeTableStatementSegment(BaseSegment):
     )
 
 
+class LimitClauseSegment(sparksql.LimitClauseSegment):
+    """A `LIMIT` clause like in `SELECT`.
+
+    Enhanced from SparkSQL to support parameterized values.
+    """
+
+    match_grammar = Sequence(
+        "LIMIT",
+        Indent,
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            "ALL",
+            Ref("FunctionSegment"),
+            Ref("ParameterizedSegment"),  # Add support for parameters
+        ),
+        Dedent,
+    )
+
+
 class StatementSegment(sparksql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -1704,6 +1761,16 @@ class MagicCellStatementSegment(BaseSegment):
         terminators=[Ref("CommandCellSegment", optional=True)],
         reset_terminators=True,
     )
+
+
+class ParameterizedSegment(BaseSegment):
+    """Databricks named parameters to prevent SQL Injection.
+
+    https://docs.databricks.com/sql/language-manual/sql-ref-parameters.html
+    """
+
+    type = "parameterized_expression"
+    match_grammar = Ref("ColonLiteralSegment")
 
 
 class SetVariableStatementSegment(BaseSegment):
