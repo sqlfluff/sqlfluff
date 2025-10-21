@@ -54,7 +54,8 @@ impl<'a> Parser<'_> {
                 log::debug!("MATCHED Token matched: {:?}", tok);
                 log::debug!(
                     "DEBUG: Token grammar frame_id={} matched, result end_pos={}",
-                    frame.frame_id, self.pos
+                    frame.frame_id,
+                    self.pos
                 );
 
                 let node = Node::Token(token_type.to_string(), tok.raw(), token_pos);
@@ -106,7 +107,9 @@ impl<'a> Parser<'_> {
                 log::debug!("String parser didn't match '{}', returning Empty", template);
                 log::debug!(
                     "DEBUG [iter {}]: StringParser('{}') frame_id={} storing Empty result",
-                    iteration_count, template, frame.frame_id
+                    iteration_count,
+                    template,
+                    frame.frame_id
                 );
                 results.insert(frame.frame_id, (Node::Empty, self.pos, None));
             }
@@ -155,7 +158,10 @@ impl<'a> Parser<'_> {
     ) {
         log::debug!(
             "DEBUG: TypedParser frame_id={}, pos={}, parent_max_idx={:?}, template={:?}",
-            frame.frame_id, frame.pos, frame.parent_max_idx, template
+            frame.frame_id,
+            frame.pos,
+            frame.parent_max_idx,
+            template
         );
 
         self.pos = frame.pos;
@@ -176,7 +182,8 @@ impl<'a> Parser<'_> {
                 self.bump();
                 log::debug!(
                     "DEBUG: TypedParser MATCHED! frame_id={}, consumed token at pos={}",
-                    frame.frame_id, token_pos
+                    frame.frame_id,
+                    token_pos
                 );
                 log::debug!("MATCHED Typed matched: {}", tok.token_type);
                 let node = Node::Token(token_type.to_string(), raw, token_pos);
@@ -184,7 +191,9 @@ impl<'a> Parser<'_> {
             } else {
                 log::debug!(
                     "DEBUG: TypedParser FAILED to match! frame_id={}, expected='{}', found='{}'",
-                    frame.frame_id, template, tok.token_type
+                    frame.frame_id,
+                    template,
+                    tok.token_type
                 );
                 log::debug!(
                     "Typed parser failed: expected '{}', found '{}'",
@@ -196,7 +205,8 @@ impl<'a> Parser<'_> {
         } else {
             log::debug!(
                 "DEBUG: TypedParser at EOF! frame_id={}, pos={}",
-                frame.frame_id, frame.pos
+                frame.frame_id,
+                frame.pos
             );
             log::debug!("Typed parser at EOF");
             results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
@@ -588,7 +598,10 @@ impl<'a> Parser<'_> {
             let test_result = self.try_match_grammar(exclude_grammar, pos, parent_terminators);
             if test_result.is_some() {
                 // Exclude matched, so AnySetOf should return empty
-                log::debug!("AnySetOf: exclude grammar matched at pos {}, returning empty", pos);
+                log::debug!(
+                    "AnySetOf: exclude grammar matched at pos {}, returning empty",
+                    pos
+                );
                 // Don't push frame, just return
                 return;
             }
@@ -720,10 +733,14 @@ impl<'a> Parser<'_> {
         // Check exclude grammar first
         if let Some(exclude_grammar) = exclude {
             // Try to match the exclude grammar at current position
-            let test_result = self.try_match_grammar(exclude_grammar, start_idx, parent_terminators);
+            let test_result =
+                self.try_match_grammar(exclude_grammar, start_idx, parent_terminators);
             if test_result.is_some() {
                 // Exclude matched, so AnyNumberOf should return empty
-                log::debug!("AnyNumberOf: exclude grammar matched at pos {}, returning empty", start_idx);
+                log::debug!(
+                    "AnyNumberOf: exclude grammar matched at pos {}, returning empty",
+                    start_idx
+                );
                 // Pop the frame we would have pushed
                 // Actually, we haven't pushed yet at this point, so just return
                 return;
@@ -868,7 +885,10 @@ impl<'a> Parser<'_> {
             let test_result = self.try_match_grammar(exclude_grammar, pos, parent_terminators);
             if test_result.is_some() {
                 // Exclude matched, so OneOf should return empty
-                log::debug!("OneOf: exclude grammar matched at pos {}, returning empty", pos);
+                log::debug!(
+                    "OneOf: exclude grammar matched at pos {}, returning empty",
+                    pos
+                );
                 results.insert(frame.frame_id, (Node::Empty, pos, None));
                 return false; // Don't continue
             }
@@ -1150,7 +1170,8 @@ impl<'a> Parser<'_> {
                     // Non-meta element - needs actual parsing
                     log::debug!(
                         "DEBUG: Creating FIRST child at pos={}, max_idx={}",
-                        first_child_pos, max_idx
+                        first_child_pos,
+                        max_idx
                     );
                     let child_frame = ParseFrame {
                         frame_id: *frame_id_counter,
@@ -1323,11 +1344,46 @@ impl<'a> Parser<'_> {
         grammar: &Grammar,
         parent_terminators: &[Grammar],
     ) -> Result<Node, ParseError> {
+        use super::cache::CacheKey;
+
         log::debug!(
             "Starting iterative parse for grammar: {} at pos {}",
             grammar,
             self.pos
         );
+
+        // Check cache first
+        let start_pos = self.pos;
+        let cache_key = CacheKey::new(start_pos, grammar, self.tokens);
+
+        if let Some(cached_result) = self.parse_cache.get(&cache_key) {
+            match cached_result {
+                Ok((node, end_pos, transparent_positions)) => {
+                    log::debug!(
+                        "Cache HIT for grammar {} at pos {} -> end_pos {}",
+                        grammar,
+                        start_pos,
+                        end_pos
+                    );
+
+                    // Restore parser position and transparent positions
+                    self.pos = end_pos;
+                    for &pos in &transparent_positions {
+                        self.collected_transparent_positions.insert(pos);
+                    }
+
+                    return Ok(node);
+                }
+                Err(e) => {
+                    log::debug!(
+                        "Cache HIT (error) for grammar {} at pos {}",
+                        grammar,
+                        start_pos
+                    );
+                    return Err(e);
+                }
+            }
+        }
 
         // NOTE: We do NOT disable use_iterative_parser here anymore.
         // All grammars should use frame-based implementation inside the loop below.
@@ -1357,7 +1413,7 @@ impl<'a> Parser<'_> {
         }];
 
         let mut iteration_count = 0_usize;
-        let max_iterations = 50000_usize; // Higher limit for complex grammars
+        let max_iterations = 1500000_usize; // Higher limit for complex grammars
 
         'main_loop: while let Some(mut frame) = stack.pop() {
             iteration_count += 1;
@@ -1391,6 +1447,8 @@ impl<'a> Parser<'_> {
                     );
                 }
 
+                self.print_cache_stats();
+
                 panic!("Infinite loop detected in iterative parser");
             }
 
@@ -1398,7 +1456,9 @@ impl<'a> Parser<'_> {
             if iteration_count % 5000 == 0 {
                 log::debug!(
                     "\nDEBUG [iter {}]: Processing frame_id={}, state={:?}",
-                    iteration_count, frame.frame_id, frame.state
+                    iteration_count,
+                    frame.frame_id,
+                    frame.state
                 );
                 log::debug!(
                     "  Stack size: {}, Results size: {}",
@@ -1407,7 +1467,9 @@ impl<'a> Parser<'_> {
                 );
                 match &frame.grammar {
                     Grammar::Ref { name, .. } => log::debug!("  Grammar: Ref({})", name),
-                    Grammar::Token { token_type } => log::debug!("  Grammar: Token({})", token_type),
+                    Grammar::Token { token_type } => {
+                        log::debug!("  Grammar: Token({})", token_type)
+                    }
                     g => log::debug!("  Grammar: {:?}", g),
                 }
             }
@@ -1880,7 +1942,8 @@ impl<'a> Parser<'_> {
                                         log::debug!("  Expected: {}", element_desc);
                                         log::debug!(
                                             "  At position: {} (found: {})",
-                                            element_start, found_token
+                                            element_start,
+                                            found_token
                                         );
 
                                         log::debug!("Sequence: required element returned Empty, returning Empty");
@@ -2658,7 +2721,8 @@ impl<'a> Parser<'_> {
                                         self.pos = gap_start;
                                         log::debug!(
                                             "DEBUG: After content, gap_start={}, current_pos={}",
-                                            gap_start, self.pos
+                                            gap_start,
+                                            self.pos
                                         );
 
                                         // Collect whitespace before closing bracket if allow_gaps
@@ -3611,7 +3675,12 @@ impl<'a> Parser<'_> {
 
             log::debug!(
                 "  Stack[{}]: frame_id={}, state={:?}, pos={}, grammar={}, waiting_for={}",
-                i, frame.frame_id, frame.state, frame.pos, grammar_desc, waiting_for
+                i,
+                frame.frame_id,
+                frame.state,
+                frame.pos,
+                grammar_desc,
+                waiting_for
             );
         }
 
@@ -3626,7 +3695,8 @@ impl<'a> Parser<'_> {
         if let Some((node, end_pos, _element_key)) = results.get(&initial_frame_id) {
             log::debug!(
                 "DEBUG: Found result for frame_id={}, end_pos={}",
-                initial_frame_id, end_pos
+                initial_frame_id,
+                end_pos
             );
             self.pos = *end_pos;
 
@@ -3659,13 +3729,28 @@ impl<'a> Parser<'_> {
                 log::debug!("===================\n");
             }
 
+            // Collect transparent positions that were touched during this parse
+            let transparent_positions: Vec<usize> = self
+                .collected_transparent_positions
+                .iter()
+                .filter(|&&pos| pos >= start_pos && pos < *end_pos)
+                .copied()
+                .collect();
+
+            // Store successful parse in cache
+            let cache_value = Ok((node.clone(), *end_pos, transparent_positions));
+            self.parse_cache.put(cache_key, cache_value);
+
             Ok(node.clone())
         } else {
-            Err(ParseError::new(format!(
+            // Store parse error in cache
+            let error = ParseError::new(format!(
                 "Iterative parse produced no result (initial_frame_id={}, results has {} entries)",
                 initial_frame_id,
                 results.len()
-            )))
+            ));
+            self.parse_cache.put(cache_key, Err(error.clone()));
+            Err(error)
         }
     }
 }

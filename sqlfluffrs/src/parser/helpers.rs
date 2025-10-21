@@ -69,10 +69,10 @@ impl<'a> Parser<'a> {
     /// Print cache statistics
     pub fn print_cache_stats(&self) {
         let (hits, misses, hit_rate) = self.parse_cache.stats();
-        log::debug!("Parse Cache Statistics:");
-        log::debug!("  Hits: {}", hits);
-        log::debug!("  Misses: {}", misses);
-        log::debug!("  Hit Rate: {:.2}%", hit_rate * 100.0);
+        println!("Parse Cache Statistics:");
+        println!("  Hits: {}", hits);
+        println!("  Misses: {}", misses);
+        println!("  Hit Rate: {:.2}%", hit_rate * 100.0);
     }
 
     /// Peek at the current token without consuming it
@@ -264,7 +264,6 @@ impl<'a> Parser<'a> {
         }
 
         // Second pass: check complex terminators that need full parsing (slow path)
-        // Create a fresh parser for checking terminators independently
         for term in terminators.iter() {
             // Skip simple terminators (already checked)
             if term.simple().is_some() {
@@ -272,20 +271,25 @@ impl<'a> Parser<'a> {
             }
 
             // Complex terminator - need full parse
-            // Use a fresh parser instance to avoid any shared state or recursion issues
-            let mut terminator_parser = Parser::new(self.tokens, self.dialect);
-            terminator_parser.pos = saved_pos;
-            // Fresh parser uses iterative mode, but with its own frame stack - no conflicts
+            // Use the same parser to share the cache, but save/restore position
+            let check_pos = self.pos;
+            self.pos = saved_pos;
 
-            if let Ok(node) = terminator_parser.parse_with_grammar_cached(term, &[]) {
+            if let Ok(node) = self.parse_with_grammar_cached(term, &[]) {
                 // Check if the node is "empty" in various ways
                 let is_empty = node.is_empty();
+
+                // Restore position before returning
+                self.pos = check_pos;
 
                 if !is_empty {
                     log::debug!("  TERMED Complex terminator matched: {}", term);
                     self.pos = init_pos; // restore original position
                     return true;
                 }
+            } else {
+                // Restore position after failed parse
+                self.pos = check_pos;
             }
             log::debug!("  Complex terminator did not match: {}", term);
         }

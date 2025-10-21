@@ -147,7 +147,7 @@ impl Grammar {
             | Grammar::Meta(_)
             | Grammar::Empty
             | Grammar::Nothing()
-            | Grammar::Missing => None
+            | Grammar::Missing => None,
         }
     }
 }
@@ -401,6 +401,9 @@ impl Default for ParseCache {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::lexer::{LexInput, Lexer};
+    use crate::parser::Parser;
+    use crate::Dialect;
 
     #[test]
     fn test_simple_match_string_parser() {
@@ -464,4 +467,47 @@ mod tests {
     //     assert_eq!(key.raw, "SELECT");
     //     assert_eq!(key.max_idx, 2);
     // }
+
+    #[test]
+    fn test_cache_functionality() {
+        // Initialize logger for test runs (safe to call multiple times).
+        let _ = env_logger::builder().is_test(true).try_init();
+
+        // Parse a simple SELECT statement twice
+        let sql = "SELECT a FROM b";
+        let input = LexInput::String(sql.to_string());
+        let dialect = Dialect::Ansi;
+
+        let lexer = Lexer::new(None, dialect);
+        let (tokens, _errors) = lexer.lex(input, false);
+
+        let mut parser = Parser::new(&tokens, dialect);
+
+        // First parse - should populate cache
+        println!("\n=== First Parse (should populate cache) ===");
+        match parser.call_rule("SelectStatementSegment", &[]) {
+            Ok(_ast) => {
+                println!("✓ Parse successful");
+                parser.print_cache_stats();
+            }
+            Err(e) => {
+                panic!("✗ Parse failed: {:?}", e);
+            }
+        }
+
+        // Reset position
+        parser.pos = 0;
+
+        // Second parse - should hit cache heavily
+        println!("\n=== Second Parse (should hit cache) ===");
+        match parser.call_rule("SelectStatementSegment", &[]) {
+            Ok(_ast) => {
+                println!("✓ Parse successful");
+                parser.print_cache_stats();
+            }
+            Err(e) => {
+                panic!("✗ Parse failed: {:?}", e);
+            }
+        }
+    }
 }
