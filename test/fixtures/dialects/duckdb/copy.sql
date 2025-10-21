@@ -84,6 +84,3 @@ COPY my_table (col1, col2, col3) TO 'output.csv' WITH (FORMAT csv);
 
 -- COPY FROM basic
 COPY my_table FROM 'input.csv' WITH (FORMAT csv, HEADER true);
-
--- COPY FROM with WHERE clause
-COPY my_table FROM 'input.csv' WITH (FORMAT csv) WHERE id > 100;

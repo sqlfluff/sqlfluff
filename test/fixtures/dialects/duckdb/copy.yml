@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a3d8225a1e2f177ef43fa2faf381a8d477583f24cfe7fbfe1f5c9854aa5f1953
+_hash: c8993b24f7be39ce1cab2f7ccaa6837a5c1091a99df9c9f5d3df1aecb5c9b03f
 file:
 - statement:
     copy_statement:
@@ -525,25 +525,4 @@ file:
       - keyword: HEADER
       - boolean_literal: 'true'
       - end_bracket: )
-- statement_terminator: ;
-- statement:
-    copy_statement:
-    - keyword: COPY
-    - table_reference:
-        naked_identifier: my_table
-    - keyword: FROM
-    - quoted_literal: "'input.csv'"
-    - keyword: WITH
-    - bracketed:
-        start_bracket: (
-        keyword: FORMAT
-        naked_identifier: csv
-        end_bracket: )
-    - keyword: WHERE
-    - expression:
-        column_reference:
-          naked_identifier: id
-        comparison_operator:
-          raw_comparison_operator: '>'
-        numeric_literal: '100'
 - statement_terminator: ;

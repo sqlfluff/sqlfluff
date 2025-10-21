@@ -1034,7 +1034,6 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
                 "FROM",
                 Ref("QuotedLiteralSegment"),
                 _copy_from_option,
-                Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
             ),
         ),
     )
