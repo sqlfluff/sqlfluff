@@ -4,6 +4,100 @@ use std::fmt::Display;
 use std::hash::{Hash, Hasher};
 
 use crate::token::Token;
+use hashbrown::HashSet;
+
+/// SimpleHint is used for fast pruning of OneOf alternatives.
+/// It represents what raw values and token types a grammar can start with.
+/// Based on Python SQLFluff's SimpleHintType.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SimpleHint {
+    /// Uppercase raw strings that this grammar can start with (e.g., {"SELECT", "INSERT"})
+    pub raw_values: HashSet<String>,
+    /// Token types that this grammar can start with (e.g., {"naked_identifier", "keyword"})
+    pub token_types: HashSet<String>,
+}
+
+impl SimpleHint {
+    /// Create an empty hint (means "complex - can't determine")
+    pub fn empty() -> Self {
+        Self {
+            raw_values: HashSet::new(),
+            token_types: HashSet::new(),
+        }
+    }
+
+    /// Create a hint from a raw string value
+    pub fn from_raw(raw: &str) -> Self {
+        let mut set = HashSet::new();
+        set.insert(raw.to_uppercase());
+        Self {
+            raw_values: set,
+            token_types: HashSet::new(),
+        }
+    }
+
+    /// Create a hint from multiple raw string values
+    pub fn from_raws(raws: &[&str]) -> Self {
+        let raw_values = raws.iter().map(|s| s.to_uppercase()).collect();
+        Self {
+            raw_values,
+            token_types: HashSet::new(),
+        }
+    }
+
+    /// Create a hint from a token type
+    pub fn from_type(type_name: &str) -> Self {
+        let mut set = HashSet::new();
+        set.insert(type_name.to_string());
+        Self {
+            raw_values: HashSet::new(),
+            token_types: set,
+        }
+    }
+
+    /// Create a hint from multiple token types
+    pub fn from_types(types: &[&str]) -> Self {
+        let token_types = types.iter().map(|s| s.to_string()).collect();
+        Self {
+            raw_values: HashSet::new(),
+            token_types,
+        }
+    }
+
+    /// Union two hints together
+    pub fn union(&self, other: &SimpleHint) -> Self {
+        Self {
+            raw_values: self.raw_values.union(&other.raw_values).cloned().collect(),
+            token_types: self.token_types.union(&other.token_types).cloned().collect(),
+        }
+    }
+
+    /// Check if this hint can match the given token
+    /// Returns true if the token's raw value OR type matches, or if hint is empty (can't determine)
+    pub fn can_match_token(&self, raw_upper: &str, token_type: &str) -> bool {
+        // Empty hint means "complex - can't determine", so return true (must try it)
+        if self.raw_values.is_empty() && self.token_types.is_empty() {
+            return true;
+        }
+
+        // Check raw value match
+        if !self.raw_values.is_empty() && self.raw_values.contains(raw_upper) {
+            return true;
+        }
+
+        // Check type match
+        if !self.token_types.is_empty() && self.token_types.contains(token_type) {
+            return true;
+        }
+
+        false
+    }
+
+    /// Check if this hint is empty (meaning grammar is too complex to analyze)
+    pub fn is_empty(&self) -> bool {
+        self.raw_values.is_empty() && self.token_types.is_empty()
+    }
+}
 
 /// Parse mode defines how greedy a grammar is in claiming unmatched segments.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
@@ -175,6 +269,120 @@ impl Grammar {
             Grammar::TypedParser { optional, .. } => *optional,
             Grammar::RegexParser { optional, .. } => *optional,
             _ => false,
+        }
+    }
+
+    /// Get a SimpleHint for this grammar to enable fast pruning of OneOf alternatives.
+    /// Returns None if the grammar is too complex to analyze.
+    /// Based on Python SQLFluff's simple() method.
+    pub fn simple_hint(&self) -> Option<SimpleHint> {
+        match self {
+            // Direct token matchers - can hint by type
+            Grammar::Token { token_type } => Some(SimpleHint::from_type(token_type)),
+
+            Grammar::TypedParser { template, .. } => Some(SimpleHint::from_type(template)),
+
+            Grammar::RegexParser { token_type, .. } => Some(SimpleHint::from_type(token_type)),
+
+            // String matchers - can hint by raw value
+            Grammar::StringParser { template, .. } => Some(SimpleHint::from_raw(template)),
+
+            Grammar::MultiStringParser { templates, .. } => {
+                let raws: Vec<&str> = templates.iter().map(|s| s.as_ref()).collect();
+                Some(SimpleHint::from_raws(&raws))
+            }
+
+            // Sequence: return first non-optional element's hint
+            Grammar::Sequence { elements, .. } => {
+                for elem in elements {
+                    if let Some(hint) = elem.simple_hint() {
+                        if !elem.is_optional() {
+                            return Some(hint);
+                        }
+                    }
+                }
+                None // All elements optional or too complex
+            }
+
+            // OneOf: union of all alternatives' hints
+            Grammar::OneOf { elements, .. } => {
+                let mut combined = SimpleHint::empty();
+                for elem in elements {
+                    match elem.simple_hint() {
+                        Some(hint) => combined = combined.union(&hint),
+                        None => return None, // One complex element = whole OneOf is complex
+                    }
+                }
+                Some(combined)
+            }
+
+            // AnyNumberOf: same as first element (if min_times > 0)
+            Grammar::AnyNumberOf {
+                elements,
+                min_times,
+                ..
+            } => {
+                if *min_times == 0 {
+                    return None; // Optional - can't determine what it starts with
+                }
+                // Try first element
+                if let Some(first) = elements.first() {
+                    first.simple_hint()
+                } else {
+                    None
+                }
+            }
+
+            // AnySetOf: union of all elements (if min_times > 0)
+            Grammar::AnySetOf {
+                elements,
+                min_times,
+                ..
+            } => {
+                if *min_times == 0 {
+                    return None; // Optional - can't determine
+                }
+                let mut combined = SimpleHint::empty();
+                for elem in elements {
+                    match elem.simple_hint() {
+                        Some(hint) => combined = combined.union(&hint),
+                        None => return None,
+                    }
+                }
+                Some(combined)
+            }
+
+            // Delimited: starts with first element or delimiter
+            Grammar::Delimited {
+                elements, delimiter, ..
+            } => {
+                // Can start with any element or the delimiter
+                let mut combined = SimpleHint::empty();
+                for elem in elements {
+                    match elem.simple_hint() {
+                        Some(hint) => combined = combined.union(&hint),
+                        None => return None,
+                    }
+                }
+                // Also add delimiter
+                if let Some(delim_hint) = delimiter.simple_hint() {
+                    combined = combined.union(&delim_hint);
+                }
+                Some(combined)
+            }
+
+            // Bracketed: starts with opening bracket
+            Grammar::Bracketed { bracket_pairs, .. } => bracket_pairs.0.simple_hint(),
+
+            // Nothing/Empty: always empty (but we can represent this)
+            Grammar::Nothing() | Grammar::Empty => Some(SimpleHint::empty()),
+
+            // Ref: Can't determine without resolving - return None for now
+            // TODO: Could build a lazy_static cache of common Ref hints
+            Grammar::Ref { .. } => None,
+
+            // Meta, Anything, Missing, Indent, Dedent: Can't determine
+            _ => None,
         }
     }
 }

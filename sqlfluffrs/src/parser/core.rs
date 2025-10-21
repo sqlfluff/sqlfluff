@@ -14,6 +14,9 @@ pub struct Parser<'a> {
     pub dialect: Dialect,
     pub parse_cache: ParseCache,
     pub collected_transparent_positions: std::collections::HashSet<usize>, // Track which token positions have had transparent tokens collected
+    pub pruning_calls: std::cell::Cell<usize>,  // Track number of prune_options calls
+    pub pruning_total: std::cell::Cell<usize>,  // Total options considered
+    pub pruning_kept: std::cell::Cell<usize>,   // Options kept after pruning
 }
 
 impl<'a> Parser<'a> {
@@ -25,6 +28,9 @@ impl<'a> Parser<'a> {
             dialect,
             parse_cache: ParseCache::new(),
             collected_transparent_positions: std::collections::HashSet::new(),
+            pruning_calls: std::cell::Cell::new(0),
+            pruning_total: std::cell::Cell::new(0),
+            pruning_kept: std::cell::Cell::new(0),
         }
     }
 

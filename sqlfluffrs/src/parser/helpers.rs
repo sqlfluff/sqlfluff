@@ -14,16 +14,21 @@ impl<'a> Parser<'a> {
     /// It filters the list of grammar options to only those that could possibly
     /// match the current token, based on quick checks of raw strings and types.
     pub(crate) fn prune_options<'g>(&self, options: &'g [Grammar]) -> Vec<&'g Grammar> {
+        // Track stats
+        self.pruning_calls.set(self.pruning_calls.get() + 1);
+        self.pruning_total.set(self.pruning_total.get() + options.len());
+
         // Find first code (non-whitespace) token from current position
         let first_code_token = self.tokens.iter().skip(self.pos).find(|t| t.is_code());
 
         // If no code token found, can't prune - return all options
         let Some(first_token) = first_code_token else {
+            self.pruning_kept.set(self.pruning_kept.get() + options.len());
             return options.iter().collect();
         };
 
         // Get token properties for matching
-        let first_raw = first_token.raw().to_uppercase();
+        let first_raw = first_token.raw_upper();
         let first_type = first_token.get_type();
 
         log::debug!(
@@ -35,34 +40,52 @@ impl<'a> Parser<'a> {
         );
 
         let mut pruned = Vec::new();
+        let mut pruned_count = 0;
 
         for opt in options {
-            // Try to get simple representation
-            match opt.simple() {
+            // Try to get simple hint for this grammar
+            match opt.simple_hint() {
                 None => {
                     // Complex grammar - must try full match
                     log::debug!("  Keeping complex grammar: {}", opt);
                     pruned.push(opt);
                 }
-                Some(simple) => {
-                    // Check if simple matches current token
-                    if simple.could_match(first_token) {
+                Some(hint) => {
+                    // Check if hint matches current token
+                    if hint.can_match_token(&first_raw, &first_type) {
                         log::debug!("  Keeping matched grammar: {}", opt);
                         pruned.push(opt);
                     } else {
                         log::debug!("  PRUNED grammar: {}", opt);
+                        pruned_count += 1;
                     }
                 }
             }
         }
 
-        log::debug!(
-            "Pruned from {} to {} options ({:.1}% reduction)",
-            options.len(),
-            pruned.len(),
-            100.0 * (1.0 - pruned.len() as f64 / options.len() as f64)
-        );
+        // Safety: if we pruned everything, return all options
+        if pruned.is_empty() {
+            log::warn!(
+                "Pruning removed ALL options at pos {}, token='{}' type='{}'. Keeping all.",
+                self.pos,
+                first_raw,
+                first_type
+            );
+            self.pruning_kept.set(self.pruning_kept.get() + options.len());
+            return options.iter().collect();
+        }
 
+        if pruned_count > 0 {
+            log::debug!(
+                "Pruned from {} to {} options ({} pruned, {:.1}% reduction)",
+                options.len(),
+                pruned.len(),
+                pruned_count,
+                100.0 * (pruned_count as f64 / options.len() as f64)
+            );
+        }
+
+        self.pruning_kept.set(self.pruning_kept.get() + pruned.len());
         pruned
     }
 
@@ -73,6 +96,23 @@ impl<'a> Parser<'a> {
         println!("  Hits: {}", hits);
         println!("  Misses: {}", misses);
         println!("  Hit Rate: {:.2}%", hit_rate * 100.0);
+        println!();
+
+        // Print pruning stats
+        let calls = self.pruning_calls.get();
+        let total = self.pruning_total.get();
+        let kept = self.pruning_kept.get();
+        let pruned = total.saturating_sub(kept);
+
+        if calls > 0 {
+            println!("SimpleHint Pruning Statistics:");
+            println!("  Pruning calls: {}", calls);
+            println!("  Total options: {}", total);
+            println!("  Options kept: {} ({:.1}%)", kept, 100.0 * kept as f64 / total as f64);
+            println!("  Options pruned: {} ({:.1}%)", pruned, 100.0 * pruned as f64 / total as f64);
+            println!("  Avg options per call: {:.1}", total as f64 / calls as f64);
+            println!("  Avg kept per call: {:.1}", kept as f64 / calls as f64);
+        }
     }
 
     /// Peek at the current token without consuming it
