@@ -1,0 +1,858 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 52224fa44fd65bc8661b3e3c1212a2e3e571f50f61ad8f4643b9fb4f4f34421f
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: histogram
+            function_contents:
+            - bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '5'
+                end_bracket: )
+            - bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: number
+                  binary_operator: +
+                  numeric_literal: '1'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: system
+              - dot: .
+              - naked_identifier: numbers
+      limit_clause:
+        keyword: LIMIT
+        limit_clause_component:
+          numeric_literal: '20'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: histogram
+            function_contents:
+            - bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '10'
+                end_bracket: )
+            - bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: value
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: data
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: median
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: value
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: data
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: medianBFloat16
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: value
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: data
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: quantile
+            function_contents:
+            - bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '0.95'
+                end_bracket: )
+            - bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: response_time
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: metrics
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: quantile
+            function_contents:
+            - bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '0.5'
+                end_bracket: )
+            - bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: price
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: sales
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: quantile
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: price
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: sales
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: quantiles
+            function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '0.25'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0.5'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0.75'
+              - end_bracket: )
+            - bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: value
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: data
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: quantiles
+            function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '0.01'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0.05'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0.1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0.25'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0.5'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0.75'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0.9'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0.95'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0.99'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0.999'
+              - end_bracket: )
+            - bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: click
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: quantiles_click_size
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: clickhouse_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: quantiles
+            function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '0.25'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0.5'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0.75'
+              - end_bracket: )
+            - bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: q1
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: quantiles
+            function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '0.1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0.9'
+              - end_bracket: )
+            - bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col2
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: q2
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: quantileBFloat16
+            function_contents:
+            - bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '0.75'
+                end_bracket: )
+            - bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: a
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: quantileBFloat16
+            function_contents:
+            - bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '0.75'
+                end_bracket: )
+            - bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: b
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: example_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: quantileDD
+            function_contents:
+            - bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '0.5'
+                end_bracket: )
+            - bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: value
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: data
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: quantileDeterministic
+            function_contents:
+            - bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '0.5'
+                end_bracket: )
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: value
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: id
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: quantileDeterministic
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: value
+              - comma: ','
+              - expression:
+                  numeric_literal: '1'
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: quantilesDeterministic
+            function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '0.25'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0.5'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0.75'
+              - end_bracket: )
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: id
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: quantileExact
+            function_contents:
+            - bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '0.95'
+                end_bracket: )
+            - bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: value
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: data
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: quantilesExact
+            function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '0.25'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0.5'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0.75'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0.9'
+              - end_bracket: )
+            - bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: value
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: data
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: retention
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: date
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  quoted_literal: "'2020-01-01'"
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: date
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  quoted_literal: "'2020-01-02'"
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: date
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  quoted_literal: "'2020-01-03'"
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: r
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: events
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sequenceCount
+            function_contents:
+            - bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'(?1)(?2)'"
+                end_bracket: )
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: timestamp
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: event_type
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: event_type
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '2'
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: user_events
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sequenceMatch
+            function_contents:
+            - bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'(?1)(?2)'"
+                end_bracket: )
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: timestamp
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: event_type
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: event_type
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '2'
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: user_events
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: studentTTest
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: sample_data
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: sample_index
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: student_ttest
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: studentTTest
+            function_contents:
+            - bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '0.95'
+                end_bracket: )
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: sample_data
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: sample_index
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: student_ttest
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: studentTTestOneSample
+            function_contents:
+            - bracketed:
+                start_bracket: (
+                end_bracket: )
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: value
+              - comma: ','
+              - expression:
+                  numeric_literal: '20.0'
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: student_ttest
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: studentTTestOneSample
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: value
+              - comma: ','
+              - expression:
+                  numeric_literal: '20.0'
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: student_ttest
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: studentTTestOneSample
+            function_contents:
+            - bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '0.95'
+                end_bracket: )
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: value
+              - comma: ','
+              - expression:
+                  numeric_literal: '20.0'
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: student_ttest
+- statement_terminator: ;

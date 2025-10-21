@@ -2237,6 +2237,29 @@ class LimitClauseSegment(ansi.LimitClauseSegment):
     )
 
 
+class FunctionContentsSegment(BaseSegment):
+    """A function contents segment that supports parametric aggregate functions.
+
+    https://clickhouse.com/docs/sql-reference/aggregate-functions/parametric-functions
+    """
+
+    type = "function_contents"
+
+    match_grammar: Matchable = OneOf(
+        # Double parentheses pattern: func(params)(args)
+        Sequence(
+            Bracketed(
+                Ref("FunctionContentsGrammar"),
+            ),
+            Bracketed(
+                Ref("FunctionContentsGrammar"),
+            ),
+        ),
+        # Standard ANSI single parentheses
+        ansi.FunctionContentsSegment.match_grammar,
+    )
+
+
 class IntervalExpressionSegment(BaseSegment):
     """An interval expression segment.
 
