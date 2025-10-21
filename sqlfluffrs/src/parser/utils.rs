@@ -28,7 +28,7 @@ pub fn is_grammar_optional(grammar: &Grammar) -> bool {
         Grammar::Bracketed { optional, .. } => *optional,
         Grammar::Ref { optional, .. } => *optional,
         Grammar::StringParser { optional, .. } => *optional,
-        Grammar::MultiStringParser { optional, .. } => *optional,
+        Grammar::MultiStringParser { optional, ..} => *optional,
         Grammar::TypedParser { optional, .. } => *optional,
         Grammar::RegexParser { optional, .. } => *optional,
         _ => false,

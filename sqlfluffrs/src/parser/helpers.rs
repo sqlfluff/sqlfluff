@@ -144,7 +144,7 @@ impl<'a> Parser<'a> {
             match tok {
                 tok if !tok.is_code() => {
                     log::debug!("NOCODE skipping token: {:?}", tok);
-                    self.bump()
+                    self.bump() // bump() handles bracket depth tracking
                 }
                 _ => break,
             }
@@ -173,19 +173,61 @@ impl<'a> Parser<'a> {
         min_idx
     }
 
-    /// Trim forward segments based on terminators.
+    /// Find the matching closing bracket for an opening bracket.
+    /// Returns the index of the closing bracket, or None if not found.
+    fn find_matching_bracket(&self, open_idx: usize) -> Option<usize> {
+        if open_idx >= self.tokens.len() {
+            return None;
+        }
+
+        let open_tok = self.tokens.get(open_idx)?;
+        let open_raw = open_tok.raw();
+
+        // Determine which closing bracket we're looking for based on the opening bracket
+        let (is_matching_open, is_matching_close): (fn(&str) -> bool, fn(&str) -> bool) = match open_raw.as_str() {
+            "(" => (|s| s == "(", |s| s == ")"),
+            "[" => (|s| s == "[", |s| s == "]"),
+            "{" => (|s| s == "{", |s| s == "}"),
+            _ => return None, // Not an opening bracket
+        };
+
+        let mut depth = 1; // We've already seen the opening bracket
+        for idx in (open_idx + 1)..self.tokens.len() {
+            if let Some(tok) = self.tokens.get(idx) {
+                let tok_raw = tok.raw();
+
+                // Check for matching bracket type
+                if is_matching_open(&tok_raw) {
+                    depth += 1;
+                } else if is_matching_close(&tok_raw) {
+                    depth -= 1;
+                    if depth == 0 {
+                        return Some(idx);
+                    }
+                }
+            }
+        }
+
+        None // No matching closing bracket found
+    }
+
+    /// Trim forward segments based on terminators, excluding bracketed content.
     ///
-    /// Given a forward set of segments, find the first terminator and return
-    /// the index to use as max_idx (trimmed to last code segment before terminator).
+    /// This implements Python's `next_ex_bracket_match` behavior:
+    /// When searching for terminators, if we encounter an opening bracket,
+    /// we skip the entire bracketed section (by finding its matching closing
+    /// bracket) and continue searching after it.
     ///
-    /// If no terminators are found, returns the original tokens.len().
+    /// This prevents matching terminators that are inside nested brackets,
+    /// e.g., finding the wrong ")" when parsing DATEADD(DAY, ABS(5), '2024-01-01').
+    ///
+    /// Returns the index to use as max_idx (trimmed to last code segment before terminator).
     pub(crate) fn trim_to_terminator(&mut self, start_idx: usize, terminators: &[Grammar]) -> usize {
         if start_idx >= self.tokens.len() {
             return self.tokens.len();
         }
 
         let saved_pos = self.pos;
-        self.pos = start_idx;
 
         // Check if already at a terminator immediately
         if self.is_terminated(terminators) {
@@ -193,16 +235,52 @@ impl<'a> Parser<'a> {
             return start_idx;
         }
 
-        // Find first terminator position
+        log::debug!("[TRIM_TO_TERM] Starting scan from idx={}, checking {} terminators",
+                    start_idx, terminators.len());
+
+        // Scan forward looking for terminators, but skip over bracketed sections
+        let mut idx = start_idx;
         let mut term_pos = self.tokens.len();
-        for idx in start_idx..self.tokens.len() {
+
+        while idx < self.tokens.len() {
             self.pos = idx;
+
+            // Check if current position is a terminator
             if self.is_terminated(terminators) {
+                log::debug!("[TRIM_TO_TERM] Found terminator at idx={}", idx);
                 term_pos = idx;
                 break;
             }
+
+            // Check if current token is an opening bracket
+            if let Some(tok) = self.tokens.get(idx) {
+                let tok_raw = tok.raw();
+                if tok_raw == "(" || tok_raw == "[" || tok_raw == "{" {
+                    // Found opening bracket - skip the entire bracketed section
+                    log::debug!("[TRIM_TO_TERM] idx={} found opening bracket '{}', finding matching close", idx, tok_raw);
+
+                    if let Some(close_idx) = self.find_matching_bracket(idx) {
+                        // Skip past the closing bracket
+                        log::debug!("[TRIM_TO_TERM] Found matching close at idx={}, continuing from idx={}", close_idx, close_idx + 1);
+                        idx = close_idx + 1;
+                        continue;
+                    } else {
+                        // No matching bracket found - this is malformed SQL
+                        // Just continue scanning (will likely fail parsing later)
+                        log::debug!("[TRIM_TO_TERM] No matching close bracket found for idx={}", idx);
+                        idx += 1;
+                        continue;
+                    }
+                }
+            }
+
+            // Not a terminator, not an opening bracket - move to next token
+            idx += 1;
         }
 
+        log::debug!("[TRIM_TO_TERM] Scan complete, term_pos={}", term_pos);
+
+        // Restore parser state
         self.pos = saved_pos;
 
         // Skip backward from terminator to last code

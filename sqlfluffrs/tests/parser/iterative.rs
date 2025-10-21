@@ -345,3 +345,97 @@ fn test_iterative_parser_no_stack_overflow() -> Result<(), ParseError> {
         Ok(())
     })
 }
+
+#[test]
+fn test_dateadd_function() -> Result<(), ParseError> {
+    with_larger_stack!(|| {
+        env_logger::try_init().ok();
+
+        let raw = "SELECT DATEADD(DAY, 1, '2024-01-01')";
+        let input = LexInput::String(raw.into());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, dialect);
+        let (tokens, _errors) = lexer.lex(input, false);
+
+        let mut parser = Parser::new(&tokens, dialect);
+
+        let ast = parser.call_rule("SelectStatementSegment", &[])?;
+        println!("AST: {:#?}", ast);
+
+        // Verify that we got a function segment, not just a column reference
+        let ast_str = format!("{:?}", ast);
+        assert!(ast_str.contains("function"), "Expected function segment but got: {}", ast_str);
+
+        Ok(())
+    })
+}
+
+#[test]
+fn test_dateadd_with_window_function() -> Result<(), ParseError> {
+    with_larger_stack!(|| {
+        env_logger::try_init().ok();
+
+        let raw = "SELECT DATEADD(DAY, ROW_NUMBER() OVER (ORDER BY DateCD ASC), '2014-01-01')";
+        let input = LexInput::String(raw.into());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, dialect);
+        let (tokens, _errors) = lexer.lex(input, false);
+
+        println!("\n=== TOKENS ===");
+        for (i, token) in tokens.iter().enumerate() {
+            println!("{}: {} = '{}'", i, token.token_type, token.raw());
+        }
+
+        let mut parser = Parser::new(&tokens, dialect);
+
+        let ast = parser.call_rule("SelectStatementSegment", &[])?;
+
+        let ast_str = format!("{:?}", ast);
+
+        // Print a more readable version
+        if ast_str.contains("function") {
+            println!("\n✓ Successfully parsed as function");
+        } else if ast_str.contains("column_reference") {
+            println!("\n✗ Incorrectly parsed as column_reference");
+            println!("DATEADD token is at position 2");
+
+            // Verify that we got a function segment, not just a column reference
+            panic!("Expected function segment but got column_reference");
+        }
+
+        Ok(())
+    })
+}
+
+#[test]
+fn test_dateadd_with_nested_function() -> Result<(), ParseError> {
+    with_larger_stack!(|| {
+        env_logger::try_init().ok();
+
+        // Test with a simple nested function (no window function)
+        let raw = "SELECT DATEADD(DAY, ABS(5), '2024-01-01')";
+        let input = LexInput::String(raw.into());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, dialect);
+        let (tokens, _errors) = lexer.lex(input, false);
+
+        println!("\n=== TOKENS ===");
+        for (i, token) in tokens.iter().enumerate() {
+            println!("{}: {} = '{}'", i, token.token_type, token.raw());
+        }
+
+        let mut parser = Parser::new(&tokens, dialect);
+        let ast = parser.call_rule("SelectStatementSegment", &[])?;
+
+        let ast_str = format!("{:?}", ast);
+
+        if ast_str.contains("function") {
+            println!("\n✓ Nested function: Successfully parsed as function");
+        } else {
+            println!("\n✗ Nested function: Incorrectly parsed as column_reference");
+            panic!("Expected function segment");
+        }
+
+        Ok(())
+    })
+}

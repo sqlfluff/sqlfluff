@@ -1265,10 +1265,32 @@ impl<'a> Parser<'_> {
         };
 
         log::debug!(
-            "[ITERATIVE] Delimited max_idx: {} (tokens.len: {})",
+            "[ITERATIVE] Delimited max_idx: {} (tokens.len: {}), parse_mode={:?}, terminators.len={}",
             max_idx,
-            self.tokens.len()
+            self.tokens.len(),
+            parse_mode,
+            all_terminators.len()
         );
+
+        // Debug terminators for function-related Delimited
+        if elements.iter().any(|e| {
+            matches!(e, Grammar::Ref { name, .. } if name.contains("FunctionContents") || name.contains("DatetimeUnit"))
+        }) {
+            log::debug!("[DELIMITED-DEBUG] Active terminators (count={}):", all_terminators.len());
+            for (i, term) in all_terminators.iter().enumerate() {
+                match term {
+                    Grammar::StringParser { template, .. } => {
+                        log::debug!("  [{}] StringParser('{}')", i, template);
+                    }
+                    Grammar::Ref { name, .. } => {
+                        log::debug!("  [{}] Ref({})", i, name);
+                    }
+                    _ => {
+                        log::debug!("  [{}] {:?}", i, format!("{:?}", term).chars().take(80).collect::<String>());
+                    }
+                }
+            }
+        }
 
         // Check if optional and already terminated
         if optional && (self.is_at_end() || self.is_terminated(&all_terminators)) {
@@ -1315,6 +1337,23 @@ impl<'a> Parser<'_> {
             allow_gaps,
             parse_mode,
         };
+
+        // Debug logging for specific grammars
+        if elements.iter().any(|e| {
+            matches!(e, Grammar::Ref { name, .. } if name.contains("FunctionContents") || name.contains("DatetimeUnit"))
+        }) {
+            log::debug!("[DELIMITED-DEBUG] Creating Delimited OneOf with {} elements at pos {}, max_idx={}", elements.len(), pos, child_max_idx);
+            for (i, elem) in elements.iter().enumerate() {
+                match elem {
+                    Grammar::Ref { name, optional, .. } => {
+                        log::debug!("  [{}] Ref({}) optional={}", i, name, optional);
+                    }
+                    _ => {
+                        log::debug!("  [{}] {:?}", i, elem);
+                    }
+                }
+            }
+        }
 
         let child_frame = ParseFrame::new_child(
             *frame_id_counter,
@@ -1889,6 +1928,34 @@ impl<'a> Parser<'_> {
                                 };
 
                                 self.pos = *child_end_pos;
+
+                                // Store Ref result in cache for future reuse
+                                // This enables nested function calls to be cached separately
+                                let cache_key = super::cache::CacheKey::new(
+                                    *saved_pos,
+                                    &frame.grammar,
+                                    self.tokens,
+                                    &frame.terminators,
+                                );
+                                let transparent_positions: Vec<usize> = self
+                                    .collected_transparent_positions
+                                    .iter()
+                                    .filter(|&&pos| pos >= *saved_pos && pos < *child_end_pos)
+                                    .copied()
+                                    .collect();
+
+                                log::debug!(
+                                    "Storing Ref({}) result in cache: pos {} -> {}",
+                                    name,
+                                    *saved_pos,
+                                    *child_end_pos
+                                );
+
+                                self.parse_cache.put(
+                                    cache_key,
+                                    Ok((final_node.clone(), self.pos, transparent_positions)),
+                                );
+
                                 results.insert(frame.frame_id, (final_node, self.pos, None));
                                 continue 'main_loop; // Frame is complete, move to next frame
                             }
@@ -2222,27 +2289,27 @@ impl<'a> Parser<'_> {
                                     }
 
                                     // Check if we've run out of segments
-                                    // Note: child_index is the index of the child we just processed
-                                    // The next child to process is at child_index + 1
+                                    // Note: current_elem_idx is the element index we just processed
+                                    // The next element to process is at current_elem_idx + 1
                                     log::debug!(
-                                        "Sequence checking EOF: next_pos={}, current_max_idx={}, child_index={}, elements_clone.len()={}",
+                                        "Sequence checking EOF: next_pos={}, current_max_idx={}, current_elem_idx={}, elements_clone.len()={}",
                                         next_pos,
                                         current_max_idx,
-                                        child_index,
+                                        current_elem_idx,
                                         elements_clone.len()
                                     );
-                                    let next_child_index = child_index + 1;
+                                    let next_elem_idx = current_elem_idx + 1;
                                     if next_pos >= current_max_idx
-                                        && next_child_index < elements_clone.len()
+                                        && next_elem_idx < elements_clone.len()
                                     {
                                         log::debug!("  Entered EOF check block");
-                                        // Check if next NON-META element is optional
-                                        // Meta elements don't consume input, so we should skip them
-                                        let mut check_idx = next_child_index;
+                                        // Check if remaining elements (starting from next_elem_idx) are all optional
+                                        // We skip Meta elements since they don't consume input
+                                        let mut check_idx = next_elem_idx;
                                         let mut next_element_optional = true; // Default to true if all remaining are Meta
                                         while check_idx < elements_clone.len() {
                                             if let Grammar::Meta(_) = &elements_clone[check_idx] {
-                                                // Skip Meta elements
+                                                // Skip Meta elements - they don't consume input
                                                 check_idx += 1;
                                             } else {
                                                 // Found a non-Meta element - check if it's optional
@@ -2252,9 +2319,9 @@ impl<'a> Parser<'_> {
                                             }
                                         }
                                         log::debug!(
-                                            "  next_element_optional={} (checked from idx {} to {})",
+                                            "  next_element_optional={} (checked from elem_idx {} to {})",
                                             next_element_optional,
-                                            next_child_index,
+                                            next_elem_idx,
                                             check_idx
                                         );
 
@@ -2665,7 +2732,7 @@ impl<'a> Parser<'_> {
                                                 elements: elements.clone(),
                                                 optional: false,
                                                 terminators: vec![(*bracket_pairs.1).clone()],
-                                                reset_terminators: true,  // Clear parent terminators!
+                                                reset_terminators: true, // Clear parent terminators!
                                                 allow_gaps: *allow_gaps,
                                                 parse_mode: *parse_mode,
                                             };
@@ -2682,7 +2749,7 @@ impl<'a> Parser<'_> {
                                                 state: FrameState::Initial,
                                                 accumulated: vec![],
                                                 context: FrameContext::None,
-                                                parent_max_idx: None,  // Don't constrain! Let terminator limit it.
+                                                parent_max_idx: None, // Don't constrain! Let terminator limit it.
                                             };
 
                                             // Update this frame's last_child_frame_id
@@ -3094,13 +3161,17 @@ impl<'a> Parser<'_> {
                                             Some((child_node.clone(), consumed, element_key));
                                     }
 
-                                    // Python behavior: Early termination for "complete" matches
-                                    // A match is complete if it consumed all available segments up to max_idx
+                                    // OPTIMIZATION: Early termination for "complete" matches
+                                    // A match is complete if it consumed all available segments up to max_idx.
+                                    // Once we've consumed to max_idx, no later alternative can consume MORE,
+                                    // so we can stop trying alternatives early (in ANY parse mode).
+                                    // This significantly reduces operations for nested functions.
                                     if child_end_pos >= *max_idx {
                                         log::debug!(
-                                            "OneOf: Complete match at element {} (consumed all to max_idx={}), returning early",
+                                            "OneOf: Complete match at element {} (consumed all to max_idx={}), early termination (parse_mode={:?})",
                                             *tried_elements,
-                                            *max_idx
+                                            *max_idx,
+                                            *parse_mode
                                         );
                                         // Force loop exit by setting tried_elements to end
                                         *tried_elements = elements.len();
@@ -3236,7 +3307,23 @@ impl<'a> Parser<'_> {
                                 state,
                                 last_child_frame_id: _last_child_frame_id,
                             } => {
-                                log::debug!("[ITERATIVE] Delimited WaitingForChild: state={:?}, delimiter_count={}", state, delimiter_count);
+                                log::debug!("[ITERATIVE] Delimited WaitingForChild: state={:?}, delimiter_count={}, child_node is_empty={}",
+                                    state, delimiter_count, child_node.is_empty());
+
+                                // Debug: Show element types for function-related Delimited
+                                if elements.iter().any(|e| {
+                                    matches!(e, Grammar::Ref { name, .. } if name.contains("FunctionContents") || name.contains("DatetimeUnit"))
+                                }) {
+                                    log::debug!("[DELIMITED-DEBUG] Processing child result at pos {}, child_end_pos={}, state={:?}",
+                                        frame.pos, child_end_pos, state);
+                                    log::debug!("[DELIMITED-DEBUG] Child node: {:?}",
+                                        match child_node {
+                                            Node::Empty => "Empty".to_string(),
+                                            Node::Ref { name, .. } => format!("Ref({})", name),
+                                            Node::Sequence(items) => format!("Sequence({} items)", items.len()),
+                                            _ => format!("{:?}", child_node).chars().take(100).collect(),
+                                        });
+                                }
 
                                 match state {
                                     DelimitedState::MatchingElement => {
