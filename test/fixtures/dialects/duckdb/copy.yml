@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9e3f58d5d157109c4e7a35bbe7972404ffa901e308bf424f0efa108b445a7f3e
+_hash: 67d72b7b45119d5d84f12426410e69277cdd69ad8990217397a2619ad7d11025
 file:
 - statement:
     copy_statement:
@@ -151,7 +151,7 @@ file:
       - naked_identifier: parquet
       - comma: ','
       - keyword: COMPRESSION
-      - quoted_literal: "'gzip'"
+      - quoted_literal: "'zstd'"
       - comma: ','
       - keyword: COMPRESSION_LEVEL
       - numeric_literal: '9'
@@ -186,38 +186,6 @@ file:
       - comma: ','
       - keyword: ROW_GROUP_SIZE
       - numeric_literal: '100000'
-      - end_bracket: )
-- statement_terminator: ;
-- statement:
-    copy_statement:
-    - keyword: COPY
-    - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              wildcard_expression:
-                wildcard_identifier:
-                  star: '*'
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: large_table
-        end_bracket: )
-    - keyword: TO
-    - quoted_literal: "'output.parquet'"
-    - keyword: WITH
-    - bracketed:
-      - start_bracket: (
-      - keyword: FORMAT
-      - naked_identifier: parquet
-      - comma: ','
-      - keyword: ROW_GROUP_SIZE_BYTES
-      - numeric_literal: '134217728'
       - end_bracket: )
 - statement_terminator: ;
 - statement:

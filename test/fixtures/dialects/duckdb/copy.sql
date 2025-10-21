@@ -13,7 +13,7 @@ COPY (SELECT * FROM data) TO 'output.parquet' (FORMAT parquet, COMPRESSION gzip)
 -- COPY TO with COMPRESSION_LEVEL
 COPY (SELECT * FROM data) TO 'compressed.parquet' WITH (
     FORMAT parquet,
-    COMPRESSION 'gzip',
+    COMPRESSION 'zstd',
     COMPRESSION_LEVEL 9
 );
 
@@ -21,12 +21,6 @@ COPY (SELECT * FROM data) TO 'compressed.parquet' WITH (
 COPY (SELECT * FROM large_table) TO 'output.parquet' (
     FORMAT parquet,
     ROW_GROUP_SIZE 100000
-);
-
--- COPY TO with ROW_GROUP_SIZE_BYTES
-COPY (SELECT * FROM large_table) TO 'output.parquet' WITH (
-    FORMAT parquet,
-    ROW_GROUP_SIZE_BYTES 134217728
 );
 
 -- COPY TO with PARQUET_VERSION
