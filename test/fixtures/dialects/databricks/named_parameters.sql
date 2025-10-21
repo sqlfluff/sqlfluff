@@ -48,3 +48,14 @@ USE CATALOG :catalog_name;
 -- Parameter with IDENTIFIER clause in USE SCHEMA
 USE SCHEMA IDENTIFIER(:schema_name);
 
+-- Original error case: CREATE WIDGET with named parameter and IDENTIFIER
+CREATE WIDGET DROPDOWN target_catalog DEFAULT "catalog_a" CHOICES
+SELECT *
+FROM (
+    VALUES (
+        "catalog_a"
+    )
+);
+
+SHOW SCHEMAS
+FROM IDENTIFIER (:target_catalog);

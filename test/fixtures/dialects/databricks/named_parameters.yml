@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9f552281b39a21b9d71321a7c0ffbad8eb9e24046f84ca6d98b2f2f4016e5d68
+_hash: 4fcea042c0aab31d97af266a58ff36e6a8dafff5d47b1bffb60ba4fac85b373c
 file:
 - statement:
     select_statement:
@@ -15,7 +15,7 @@ file:
               star: '*'
       from_clause:
         keyword: FROM
-      from_expression:
+        from_expression:
           from_expression_element:
             table_expression:
               table_reference:
@@ -28,7 +28,8 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           parameterized_expression:
-            colon_literal: :param_id
+            colon: ':'
+            naked_identifier: param_id
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -53,14 +54,16 @@ file:
         - comparison_operator:
             raw_comparison_operator: '='
         - parameterized_expression:
-            colon_literal: :user_name
+            colon: ':'
+            naked_identifier: user_name
         - binary_operator: AND
         - column_reference:
             naked_identifier: age
         - comparison_operator:
             raw_comparison_operator: '>'
         - parameterized_expression:
-            colon_literal: :min_age
+            colon: ':'
+            naked_identifier: min_age
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -68,7 +71,8 @@ file:
         keyword: SELECT
         select_clause_element:
           parameterized_expression:
-            colon_literal: :column_name
+            colon: ':'
+            naked_identifier: column_name
       from_clause:
         keyword: FROM
         from_expression:
@@ -93,7 +97,8 @@ file:
               - comma: ','
               - expression:
                   parameterized_expression:
-                    colon_literal: :name
+                    colon: ':'
+                    naked_identifier: name
               - end_bracket: )
       from_clause:
         keyword: FROM
@@ -158,7 +163,8 @@ file:
               - comparison_operator:
                   raw_comparison_operator: '='
               - parameterized_expression:
-                  colon_literal: :status
+                  colon: ':'
+                  naked_identifier: status
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -196,7 +202,8 @@ file:
           comparison_operator:
             raw_comparison_operator: '>'
           parameterized_expression:
-            colon_literal: :min_price
+            colon: ':'
+            naked_identifier: min_price
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -216,7 +223,8 @@ file:
           comparison_operator:
             raw_comparison_operator: '>'
           parameterized_expression:
-            colon_literal: :min_count
+            colon: ':'
+            naked_identifier: min_count
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -238,7 +246,8 @@ file:
       - keyword: BY
       - expression:
           parameterized_expression:
-            colon_literal: :sort_column
+            colon: ':'
+            naked_identifier: sort_column
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -258,7 +267,8 @@ file:
       limit_clause:
         keyword: LIMIT
         parameterized_expression:
-          colon_literal: :max_rows
+          colon: ':'
+          naked_identifier: max_rows
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -283,7 +293,8 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           parameterized_expression:
-            colon_literal: :param_id_123
+            colon: ':'
+            naked_identifier: param_id_123
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -305,11 +316,13 @@ file:
         - start_bracket: (
         - expression:
             parameterized_expression:
-              colon_literal: :name
+              colon: ':'
+              naked_identifier: name
         - comma: ','
         - expression:
             parameterized_expression:
-              colon_literal: :age
+              colon: ':'
+              naked_identifier: age
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -325,7 +338,8 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           parameterized_expression:
-            colon_literal: :new_status
+            colon: ':'
+            naked_identifier: new_status
       where_clause:
         keyword: WHERE
         expression:
@@ -334,7 +348,8 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           parameterized_expression:
-            colon_literal: :target_id
+            colon: ':'
+            naked_identifier: target_id
 - statement_terminator: ;
 - statement:
     delete_statement:
@@ -354,7 +369,8 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           parameterized_expression:
-            colon_literal: :delete_id
+            colon: ':'
+            naked_identifier: delete_id
 - statement_terminator: ;
 - statement:
     use_catalog_statement:
@@ -362,7 +378,8 @@ file:
     - keyword: CATALOG
     - catalog_reference:
         parameterized_expression:
-          colon_literal: :catalog_name
+          colon: ':'
+          naked_identifier: catalog_name
 - statement_terminator: ;
 - statement:
     use_database_statement:
@@ -375,6 +392,55 @@ file:
             start_bracket: (
             expression:
               parameterized_expression:
-                colon_literal: :schema_name
+                colon: ':'
+                naked_identifier: schema_name
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_widget_statement:
+    - keyword: CREATE
+    - keyword: WIDGET
+    - keyword: DROPDOWN
+    - widget_name_identifier: target_catalog
+    - keyword: DEFAULT
+    - quoted_literal: '"catalog_a"'
+    - keyword: CHOICES
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            bracketed:
+              start_bracket: (
+              from_expression_element:
+                table_expression:
+                  values_clause:
+                    keyword: VALUES
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: '"catalog_a"'
+                      end_bracket: )
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SCHEMAS
+    - keyword: FROM
+    - database_reference:
+        identifier_clause_segment:
+          keyword: IDENTIFIER
+          bracketed:
+            start_bracket: (
+            expression:
+              parameterized_expression:
+                colon: ':'
+                naked_identifier: target_catalog
             end_bracket: )
 - statement_terminator: ;

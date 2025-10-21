@@ -57,21 +57,6 @@ databricks_dialect.sets("date_part_function_name").update(["TIMEDIFF"])
 
 
 databricks_dialect.insert_lexer_matchers(
-    # Named Parameters:
-    # https://docs.databricks.com/sql/language-manual/sql-ref-parameters.html
-    [
-        RegexLexer(
-            "colon_literal",
-            r":[a-zA-Z_][a-zA-Z0-9_]*",
-            LiteralSegment,
-            segment_kwargs={"type": "colon_literal"},
-        ),
-    ],
-    before="colon",
-)
-
-
-databricks_dialect.insert_lexer_matchers(
     # Named Function Parameters:
     # https://docs.databricks.com/en/sql/language-manual/sql-ref-function-invocation.html#named-parameter-invocation
     [
@@ -132,11 +117,6 @@ databricks_dialect.add(
         trim_chars=("$",),
     ),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
-    ColonLiteralSegment=TypedParser(
-        "colon_literal",
-        LiteralSegment,
-        type="colon_literal",
-    ),
     # https://docs.databricks.com/en/sql/language-manual/sql-ref-principal.html
     PrincipalIdentifierSegment=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -1766,11 +1746,15 @@ class MagicCellStatementSegment(BaseSegment):
 class ParameterizedSegment(BaseSegment):
     """Databricks named parameters to prevent SQL Injection.
 
-    https://docs.databricks.com/sql/language-manual/sql-ref-parameters.html
+    https://docs.databricks.com/aws/en/jobs/parameter-use#use-named-parameters-in-a-sql-notebook
     """
 
     type = "parameterized_expression"
-    match_grammar = Ref("ColonLiteralSegment")
+    match_grammar = Sequence(
+        Ref("ColonSegment"),
+        Ref("NakedIdentifierSegment"),
+        allow_gaps=False,
+    )
 
 
 class SetVariableStatementSegment(BaseSegment):
