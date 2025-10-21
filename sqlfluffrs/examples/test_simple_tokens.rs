@@ -69,15 +69,14 @@ fn collect_positions(
 ) {
     use sqlfluffrs::parser::Node;
     match node {
-        Node::Keyword(_, pos)
-        | Node::Code(_, pos)
-        | Node::Whitespace(_, pos)
+        Node::Whitespace(_, pos)
         | Node::Newline(_, pos)
         | Node::Token(_, _, pos)
         | Node::EndOfFile(_, pos) => {
             positions.insert(*pos);
         }
         Node::Sequence(children)
+        | Node::Bracketed(children)
         | Node::DelimitedList(children)
         | Node::Unparsable(_, children) => {
             for child in children {

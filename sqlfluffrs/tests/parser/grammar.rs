@@ -311,7 +311,8 @@ fn test_no_duplicate_whitespace_tokens() -> Result<(), ParseError> {
             }
             Node::Sequence(children)
             | Node::DelimitedList(children)
-            | Node::Unparsable(_, children) => {
+            | Node::Unparsable(_, children)
+            | Node::Bracketed(children) => {
                 for child in children {
                     collect_positions(child, positions);
                 }
