@@ -17,6 +17,8 @@ pub struct Parser<'a> {
     pub pruning_calls: std::cell::Cell<usize>,  // Track number of prune_options calls
     pub pruning_total: std::cell::Cell<usize>,  // Total options considered
     pub pruning_kept: std::cell::Cell<usize>,   // Options kept after pruning
+    pub pruning_hinted: std::cell::Cell<usize>, // Options that had hints
+    pub pruning_complex: std::cell::Cell<usize>, // Options that returned None (complex)
 }
 
 impl<'a> Parser<'a> {
@@ -31,6 +33,8 @@ impl<'a> Parser<'a> {
             pruning_calls: std::cell::Cell::new(0),
             pruning_total: std::cell::Cell::new(0),
             pruning_kept: std::cell::Cell::new(0),
+            pruning_hinted: std::cell::Cell::new(0),
+            pruning_complex: std::cell::Cell::new(0),
         }
     }
 

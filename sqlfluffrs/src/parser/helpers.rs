@@ -47,10 +47,13 @@ impl<'a> Parser<'a> {
             match opt.simple_hint() {
                 None => {
                     // Complex grammar - must try full match
+                    self.pruning_complex.set(self.pruning_complex.get() + 1);
                     log::debug!("  Keeping complex grammar: {}", opt);
                     pruned.push(opt);
                 }
                 Some(hint) => {
+                    // Track that this had a hint
+                    self.pruning_hinted.set(self.pruning_hinted.get() + 1);
                     // Check if hint matches current token
                     if hint.can_match_token(&first_raw, &first_type) {
                         log::debug!("  Keeping matched grammar: {}", opt);
@@ -103,19 +106,22 @@ impl<'a> Parser<'a> {
         let total = self.pruning_total.get();
         let kept = self.pruning_kept.get();
         let pruned = total.saturating_sub(kept);
+        let hinted = self.pruning_hinted.get();
+        let complex = self.pruning_complex.get();
 
         if calls > 0 {
             println!("SimpleHint Pruning Statistics:");
             println!("  Pruning calls: {}", calls);
             println!("  Total options: {}", total);
+            println!("  Options with hints: {} ({:.1}%)", hinted, 100.0 * hinted as f64 / total as f64);
+            println!("  Complex options (no hint): {} ({:.1}%)", complex, 100.0 * complex as f64 / total as f64);
             println!("  Options kept: {} ({:.1}%)", kept, 100.0 * kept as f64 / total as f64);
             println!("  Options pruned: {} ({:.1}%)", pruned, 100.0 * pruned as f64 / total as f64);
+            println!("  Pruning effectiveness: {:.1}% of hinted options pruned",
+                     if hinted > 0 { 100.0 * pruned as f64 / hinted as f64 } else { 0.0 });
             println!("  Avg options per call: {:.1}", total as f64 / calls as f64);
-            println!("  Avg kept per call: {:.1}", kept as f64 / calls as f64);
         }
-    }
-
-    /// Peek at the current token without consuming it
+    }    /// Peek at the current token without consuming it
     pub fn peek(&self) -> Option<&Token> {
         self.tokens.get(self.pos)
     }

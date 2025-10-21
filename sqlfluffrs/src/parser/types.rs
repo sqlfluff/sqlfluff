@@ -292,19 +292,28 @@ impl Grammar {
                 Some(SimpleHint::from_raws(&raws))
             }
 
-            // Sequence: return first non-optional element's hint
+            // Sequence: accumulate hints from optional elements until first non-optional
+            // Python logic: union all optional elements, then return when hitting first required
             Grammar::Sequence { elements, .. } => {
+                let mut combined = SimpleHint::empty();
                 for elem in elements {
-                    if let Some(hint) = elem.simple_hint() {
-                        if !elem.is_optional() {
-                            return Some(hint);
+                    match elem.simple_hint() {
+                        None => return None, // Complex element = whole sequence is complex
+                        Some(hint) => {
+                            combined = combined.union(&hint);
+                            if !elem.is_optional() {
+                                // Found first required element, return accumulated hints
+                                return Some(combined);
+                            }
                         }
                     }
                 }
-                None // All elements optional or too complex
+                // All elements are optional (or no elements)
+                Some(combined)
             }
 
             // OneOf: union of all alternatives' hints
+            // Python logic: if ANY element returns None, the whole OneOf returns None
             Grammar::OneOf { elements, .. } => {
                 let mut combined = SimpleHint::empty();
                 for elem in elements {
@@ -316,32 +325,21 @@ impl Grammar {
                 Some(combined)
             }
 
-            // AnyNumberOf: same as first element (if min_times > 0)
-            Grammar::AnyNumberOf {
-                elements,
-                min_times,
-                ..
-            } => {
-                if *min_times == 0 {
-                    return None; // Optional - can't determine what it starts with
+            // AnyNumberOf: union of all elements (like OneOf)
+            // Python logic: ALL elements must be simple, or return None
+            Grammar::AnyNumberOf { elements, .. } => {
+                let mut combined = SimpleHint::empty();
+                for elem in elements {
+                    match elem.simple_hint() {
+                        Some(hint) => combined = combined.union(&hint),
+                        None => return None, // One complex element = whole AnyNumberOf is complex
+                    }
                 }
-                // Try first element
-                if let Some(first) = elements.first() {
-                    first.simple_hint()
-                } else {
-                    None
-                }
+                Some(combined)
             }
 
-            // AnySetOf: union of all elements (if min_times > 0)
-            Grammar::AnySetOf {
-                elements,
-                min_times,
-                ..
-            } => {
-                if *min_times == 0 {
-                    return None; // Optional - can't determine
-                }
+            // AnySetOf: union of all elements (same as AnyNumberOf)
+            Grammar::AnySetOf { elements, .. } => {
                 let mut combined = SimpleHint::empty();
                 for elem in elements {
                     match elem.simple_hint() {
@@ -352,21 +350,15 @@ impl Grammar {
                 Some(combined)
             }
 
-            // Delimited: starts with first element or delimiter
-            Grammar::Delimited {
-                elements, delimiter, ..
-            } => {
-                // Can start with any element or the delimiter
+            // Delimited: union of all element alternatives
+            // Note: Delimiter is NOT part of the simple hint (it terminates, doesn't start)
+            Grammar::Delimited { elements, .. } => {
                 let mut combined = SimpleHint::empty();
                 for elem in elements {
                     match elem.simple_hint() {
                         Some(hint) => combined = combined.union(&hint),
                         None => return None,
                     }
-                }
-                // Also add delimiter
-                if let Some(delim_hint) = delimiter.simple_hint() {
-                    combined = combined.union(&delim_hint);
                 }
                 Some(combined)
             }
@@ -374,11 +366,12 @@ impl Grammar {
             // Bracketed: starts with opening bracket
             Grammar::Bracketed { bracket_pairs, .. } => bracket_pairs.0.simple_hint(),
 
-            // Nothing/Empty: always empty (but we can represent this)
+            // Nothing/Empty: matches nothing, so empty hint is correct
             Grammar::Nothing() | Grammar::Empty => Some(SimpleHint::empty()),
 
-            // Ref: Can't determine without resolving - return None for now
-            // TODO: Could build a lazy_static cache of common Ref hints
+            // Ref: Can't determine without dialect context - return None for now
+            // In Python, Ref delegates to the referenced grammar, but we'd need
+            // the dialect to resolve it. For now, being conservative and returning None.
             Grammar::Ref { .. } => None,
 
             // Meta, Anything, Missing, Indent, Dedent: Can't determine
