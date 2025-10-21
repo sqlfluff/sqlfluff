@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 67d72b7b45119d5d84f12426410e69277cdd69ad8990217397a2619ad7d11025
+_hash: a3d8225a1e2f177ef43fa2faf381a8d477583f24cfe7fbfe1f5c9854aa5f1953
 file:
 - statement:
     copy_statement:
@@ -216,7 +216,7 @@ file:
       - naked_identifier: parquet
       - comma: ','
       - keyword: PARQUET_VERSION
-      - quoted_literal: "'2.0'"
+      - quoted_literal: "'V2'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:

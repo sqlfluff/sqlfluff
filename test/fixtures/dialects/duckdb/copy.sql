@@ -26,7 +26,7 @@ COPY (SELECT * FROM large_table) TO 'output.parquet' (
 -- COPY TO with PARQUET_VERSION
 COPY (SELECT * FROM data) TO 'output.parquet' (
     FORMAT parquet,
-    PARQUET_VERSION '2.0'
+    PARQUET_VERSION 'V2'
 );
 
 -- COPY TO with PARTITION_BY single column
