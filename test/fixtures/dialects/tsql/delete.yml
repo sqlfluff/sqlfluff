@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2e331e3cca75d2ef01d27bc0bcff842a46d66f49250ead969821052c21a7c7fa
+_hash: 743f4995ef2e3b9b65a96dbecb82cac5695ce1dba890a891962188d91de18961
 file:
 - batch:
     statement:
@@ -528,12 +528,11 @@ file:
         - dot: .
         - naked_identifier: ShoppingCartItem
         output_clause:
-          keyword: OUTPUT
-          wildcard_expression:
-            wildcard_identifier:
-              naked_identifier: DELETED
-              dot: .
-              star: '*'
+        - keyword: OUTPUT
+        - keyword: DELETED
+        - dot: .
+        - wildcard_identifier:
+            star: '*'
         where_clause:
           keyword: WHERE
           expression:
@@ -598,28 +597,23 @@ file:
         - naked_identifier: ProductProductPhoto
         output_clause:
         - keyword: OUTPUT
-        - column_reference:
-          - naked_identifier: DELETED
-          - dot: .
-          - naked_identifier: ProductID
+        - keyword: DELETED
+        - dot: .
+        - naked_identifier: ProductID
         - comma: ','
-        - column_reference:
-          - naked_identifier: p
-          - dot: .
-          - naked_identifier: Name
+        - naked_identifier: p
+        - dot: .
+        - naked_identifier: Name
         - comma: ','
-        - column_reference:
-          - naked_identifier: p
-          - dot: .
-          - naked_identifier: ProductModelID
+        - naked_identifier: p
+        - dot: .
+        - naked_identifier: ProductModelID
         - comma: ','
-        - column_reference:
-          - naked_identifier: DELETED
-          - dot: .
-          - naked_identifier: ProductPhotoID
+        - keyword: DELETED
+        - dot: .
+        - naked_identifier: ProductPhotoID
         - keyword: INTO
-        - table_reference:
-            parameter: '@MyTableVar'
+        - parameter: '@MyTableVar'
         from_clause:
           keyword: FROM
           from_expression:
