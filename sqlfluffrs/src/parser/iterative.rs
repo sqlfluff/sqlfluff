@@ -1354,7 +1354,7 @@ impl<'a> Parser<'_> {
 
         // Check cache first
         let start_pos = self.pos;
-        let cache_key = CacheKey::new(start_pos, grammar, self.tokens);
+        let cache_key = CacheKey::new(start_pos, grammar, self.tokens, parent_terminators);
 
         if let Some(cached_result) = self.parse_cache.get(&cache_key) {
             match cached_result {
@@ -2660,28 +2660,29 @@ impl<'a> Parser<'_> {
                                             // Transition to MatchingContent
                                             *state = BracketedState::MatchingContent;
 
-                                            // Get parent_max_idx to propagate
-                                            let parent_limit = frame.parent_max_idx;
-
                                             // Create content grammar (Sequence with closing bracket as terminator)
                                             let content_grammar = Grammar::Sequence {
                                                 elements: elements.clone(),
                                                 optional: false,
                                                 terminators: vec![(*bracket_pairs.1).clone()],
-                                                reset_terminators: true,
+                                                reset_terminators: true,  // Clear parent terminators!
                                                 allow_gaps: *allow_gaps,
                                                 parse_mode: *parse_mode,
                                             };
 
+                                            // CRITICAL: Don't pass parent_max_idx to bracketed content!
+                                            // The content should be limited by the terminator (closing bracket),
+                                            // not by any parent constraint. This matches Python's behavior where
+                                            // clear_terminators=True isolates the content parsing.
                                             let child_frame = ParseFrame {
                                                 frame_id: frame_id_counter,
                                                 grammar: content_grammar,
                                                 pos: self.pos,
-                                                terminators: vec![(*bracket_pairs.1).clone()], // Use closing bracket as terminator, not parent's terminators!
+                                                terminators: vec![(*bracket_pairs.1).clone()],
                                                 state: FrameState::Initial,
                                                 accumulated: vec![],
                                                 context: FrameContext::None,
-                                                parent_max_idx: parent_limit, // Propagate parent's limit!
+                                                parent_max_idx: None,  // Don't constrain! Let terminator limit it.
                                             };
 
                                             // Update this frame's last_child_frame_id

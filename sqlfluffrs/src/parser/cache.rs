@@ -176,16 +176,18 @@ fn is_optional(grammar: &Grammar) -> bool {
 /// - grammar_hash: Hash of the grammar being matched
 /// - raw: Raw string of token at position (for disambiguation)
 /// - max_idx: Length of token stream (accounts for trimming)
+/// - terminators_hash: Hash of the terminators (critical for correct caching!)
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct CacheKey {
     pos: usize,
     grammar_hash: u64,
     raw: String,
     max_idx: usize,
+    terminators_hash: u64,
 }
 
 impl CacheKey {
-    pub fn new(pos: usize, grammar: &Grammar, tokens: &[Token]) -> Self {
+    pub fn new(pos: usize, grammar: &Grammar, tokens: &[Token], terminators: &[Grammar]) -> Self {
         let grammar_hash = grammar_hash(grammar);
         let raw = tokens
             .get(pos)
@@ -193,13 +195,31 @@ impl CacheKey {
             .unwrap_or_default();
         let max_idx = tokens.len();
 
+        // Hash the terminators - critical for cache correctness!
+        // Same grammar at same position with different terminators should be different cache entries
+        let terminators_hash = hash_terminators(terminators);
+
         CacheKey {
             pos,
             grammar_hash,
             raw,
             max_idx,
+            terminators_hash,
         }
     }
+}
+
+/// Hash terminators for cache key
+fn hash_terminators(terminators: &[Grammar]) -> u64 {
+    use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
+
+    let mut hasher = DefaultHasher::new();
+    terminators.len().hash(&mut hasher);
+    for term in terminators {
+        grammar_hash(term).hash(&mut hasher);
+    }
+    hasher.finish()
 }
 
 /// Cache value includes:

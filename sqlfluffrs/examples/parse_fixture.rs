@@ -94,6 +94,9 @@ fn main() {
     println!("=== PARSE SUCCESS ===");
     println!();
 
+    parser.print_cache_stats();
+    println!();
+
     // Print match tree
     println!("=== MATCH TREE ===");
     print_match_tree(&ast, &tokens, 0);
