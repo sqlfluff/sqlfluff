@@ -113,13 +113,13 @@ class ReflowSequence:
         EvenType = ReflowPoint if OddType is ReflowBlock else ReflowBlock
         try:
             # Check odds are all points
-            assert all(
-                isinstance(elem, OddType) for elem in elements[::2]
-            ), f"Not all odd elements are {OddType.__name__}"
+            assert all(isinstance(elem, OddType) for elem in elements[::2]), (
+                f"Not all odd elements are {OddType.__name__}"
+            )
             # Check evens are all blocks
-            assert all(
-                isinstance(elem, EvenType) for elem in elements[1::2]
-            ), f"Not all even elements are {EvenType.__name__}"
+            assert all(isinstance(elem, EvenType) for elem in elements[1::2]), (
+                f"Not all even elements are {EvenType.__name__}"
+            )
             return None
         except AssertionError as err:  # pragma: no cover
             for elem in elements:
@@ -617,12 +617,9 @@ class ReflowSequence:
                 elif block_config.spacing_after == "touch":
                     spaces_after = 0
                 else:
-                    reflow_logger.warning(
-                        "Unexpected `spacing_after` value for calculating "
-                        "indentation compensation: %s",
-                        block_config.spacing_after,
+                    raise NotImplementedError(
+                        f"spacing after type of `{block_config.spacing_after}` is not supported."
                     )
-                    spaces_after = 1
 
                 indentation_align_following[t] = spaces_after
 
