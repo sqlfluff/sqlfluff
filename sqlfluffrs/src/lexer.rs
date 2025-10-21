@@ -368,10 +368,51 @@ impl Lexer {
 
         let lexed_elements = self.lex_string(&str_buff);
         let templated_buffer = self.map_template_slices(&lexed_elements, &template);
-        let tokens = self.elements_to_tokens(&templated_buffer, &template, template_blocks_indent);
+        let mut tokens = self.elements_to_tokens(&templated_buffer, &template, template_blocks_indent);
+
+        // OPTIMIZATION: Pre-compute bracket pairs for O(1) lookup during parsing
+        Self::compute_bracket_pairs(&mut tokens);
 
         let violations = Lexer::violations_from_tokens(&tokens);
         (tokens, violations)
+    }
+
+    /// Pre-compute matching bracket indices for all bracket tokens.
+    /// This allows O(1) bracket lookup during parsing instead of O(n) scanning.
+    fn compute_bracket_pairs(tokens: &mut [Token]) {
+        // Stack to track opening brackets: (index, bracket_char)
+        let mut bracket_stack: Vec<(usize, char)> = Vec::new();
+
+        for idx in 0..tokens.len() {
+            let raw = tokens[idx].raw();
+
+            // Check if this is an opening bracket
+            if let Some(open_char) = match raw.as_str() {
+                "(" => Some('('),
+                "[" => Some('['),
+                "{" => Some('{'),
+                _ => None,
+            } {
+                bracket_stack.push((idx, open_char));
+            }
+            // Check if this is a closing bracket
+            else if let Some(expected_open) = match raw.as_str() {
+                ")" => Some('('),
+                "]" => Some('['),
+                "}" => Some('{'),
+                _ => None,
+            } {
+                // Try to match with the most recent opening bracket of the same type
+                if let Some(pos) = bracket_stack.iter().rposition(|(_, c)| *c == expected_open) {
+                    let (open_idx, _) = bracket_stack.remove(pos);
+                    // Set bidirectional pointers
+                    tokens[open_idx].matching_bracket_idx = Some(idx);
+                    tokens[idx].matching_bracket_idx = Some(open_idx);
+                }
+                // If no matching opening bracket, leave as None (syntax error)
+            }
+        }
+        // Any remaining opening brackets on the stack are unmatched - leave as None
     }
 
     fn violations_from_tokens(tokens: &[Token]) -> Vec<SQLLexError> {

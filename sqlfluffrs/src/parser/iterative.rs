@@ -2694,6 +2694,19 @@ impl<'a> Parser<'_> {
                                             frame.accumulated.push(child_node.clone());
                                             let content_start_idx = *child_end_pos;
 
+                                            // OPTIMIZATION: Use pre-computed matching bracket to set tight max_idx
+                                            // This prevents exploring beyond the closing bracket
+                                            let bracket_max_idx = child_node
+                                                .get_token_idx()
+                                                .and_then(|open_idx| self.get_matching_bracket_idx(open_idx));
+
+                                            if let Some(close_idx) = bracket_max_idx {
+                                                log::debug!(
+                                                    "Bracketed: Using pre-computed closing bracket at idx={} as max_idx",
+                                                    close_idx
+                                                );
+                                            }
+
                                             // Collect whitespace after opening bracket if allow_gaps
                                             if *allow_gaps {
                                                 let code_idx = self
@@ -2737,10 +2750,10 @@ impl<'a> Parser<'_> {
                                                 parse_mode: *parse_mode,
                                             };
 
-                                            // CRITICAL: Don't pass parent_max_idx to bracketed content!
-                                            // The content should be limited by the terminator (closing bracket),
-                                            // not by any parent constraint. This matches Python's behavior where
-                                            // clear_terminators=True isolates the content parsing.
+                                            // OPTIMIZATION: Use pre-computed closing bracket as max_idx!
+                                            // This prevents the parser from exploring tokens beyond the closing bracket,
+                                            // significantly reducing unnecessary grammar matching for nested brackets.
+                                            // The content must end before the closing bracket, so we can safely limit it.
                                             let child_frame = ParseFrame {
                                                 frame_id: frame_id_counter,
                                                 grammar: content_grammar,
@@ -2749,7 +2762,7 @@ impl<'a> Parser<'_> {
                                                 state: FrameState::Initial,
                                                 accumulated: vec![],
                                                 context: FrameContext::None,
-                                                parent_max_idx: None, // Don't constrain! Let terminator limit it.
+                                                parent_max_idx: bracket_max_idx, // Tight boundary from pre-computed bracket!
                                             };
 
                                             // Update this frame's last_child_frame_id

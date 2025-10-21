@@ -175,12 +175,32 @@ impl<'a> Parser<'a> {
 
     /// Find the matching closing bracket for an opening bracket.
     /// Returns the index of the closing bracket, or None if not found.
+    ///
+    /// OPTIMIZATION: Uses pre-computed bracket pairs from lexer for O(1) lookup.
+    /// Falls back to O(n) scanning if pre-computation failed or wasn't run.
     fn find_matching_bracket(&self, open_idx: usize) -> Option<usize> {
         if open_idx >= self.tokens.len() {
             return None;
         }
 
         let open_tok = self.tokens.get(open_idx)?;
+
+        // FAST PATH: Use pre-computed bracket pair if available (O(1))
+        if let Some(matching_idx) = open_tok.matching_bracket_idx {
+            log::debug!(
+                "find_matching_bracket: Using pre-computed match {} -> {}",
+                open_idx,
+                matching_idx
+            );
+            return Some(matching_idx);
+        }
+
+        // SLOW PATH: Fallback to scanning (for tokens created without lexer)
+        log::debug!(
+            "find_matching_bracket: Pre-computed match not available for index {}, falling back to scan",
+            open_idx
+        );
+
         let open_raw = open_tok.raw();
 
         // Determine which closing bracket we're looking for based on the opening bracket
@@ -209,6 +229,13 @@ impl<'a> Parser<'a> {
         }
 
         None // No matching closing bracket found
+    }
+
+    /// Get the pre-computed matching bracket index for a token.
+    /// This is a public wrapper for accessing pre-computed bracket pairs.
+    /// Returns None if not a bracket or if matching bracket wasn't found during lexing.
+    pub(crate) fn get_matching_bracket_idx(&self, token_idx: usize) -> Option<usize> {
+        self.tokens.get(token_idx)?.matching_bracket_idx
     }
 
     /// Trim forward segments based on terminators, excluding bracketed content.

@@ -621,6 +621,18 @@ impl Node {
         }
     }
 
+    /// Get the token index from this node if it's a Token/Whitespace/Newline/EndOfFile.
+    /// Returns None for complex nodes like Sequence, Ref, etc.
+    pub fn get_token_idx(&self) -> Option<usize> {
+        match self {
+            Node::Token(_, _, idx)
+            | Node::Whitespace(_, idx)
+            | Node::Newline(_, idx)
+            | Node::EndOfFile(_, idx) => Some(*idx),
+            _ => None,
+        }
+    }
+
     /// Format the AST to mirror Python SQLFluff's parse output format.
     pub fn format_tree(&self, tokens: &[Token]) -> String {
         let mut output = String::new();

@@ -61,6 +61,11 @@ pub struct Token {
     escape_replacement: Option<(String, String)>,
     casefold: Option<fn(&str) -> str>,
     raw_value: String,
+    /// Pre-computed index of matching bracket for O(1) lookup during parsing.
+    /// For opening brackets like '(', '[', '{', this points to the matching closing bracket.
+    /// For closing brackets like ')', ']', '}', this points back to the matching opening bracket.
+    /// None for non-bracket tokens or unmatched brackets.
+    pub matching_bracket_idx: Option<usize>,
 }
 
 impl Token {

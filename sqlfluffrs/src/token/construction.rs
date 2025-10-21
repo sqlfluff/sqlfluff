@@ -56,6 +56,7 @@ impl Token {
             escape_replacement,
             casefold,
             raw_value,
+            matching_bracket_idx: None, // Will be computed after all tokens are created
         }
     }
 
