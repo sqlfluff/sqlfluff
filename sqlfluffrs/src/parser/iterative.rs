@@ -658,6 +658,8 @@ impl<'a> Parser<'_> {
             parse_mode
         );
 
+        // TODO: Add exclude logic here
+
         // Combine parent and local terminators
         let all_terminators: Vec<Grammar> = if reset_terminators {
             any_terminators.to_vec()
@@ -2319,10 +2321,21 @@ impl<'a> Parser<'_> {
                                         count, element_key, matched_idx
                                     );
 
+                                    // Python behavior: Check for complete match (consumed all to max_idx)
+                                    // If we've consumed all available segments, stop trying more matches
+                                    let reached_max = *matched_idx >= *max_idx;
+
+                                    if reached_max {
+                                        log::debug!(
+                                            "AnyNumberOf: Complete match (reached max_idx={}), stopping iteration",
+                                            max_idx
+                                        );
+                                    }
+
                                     // Check if we've reached limits
-                                    let should_continue = *count < *min_times
-                                        || (*matched_idx < *max_idx
-                                            && (max_times.is_none()
+                                    let should_continue = !reached_max
+                                        && (*count < *min_times
+                                            || (max_times.is_none()
                                                 || *count < max_times.unwrap()));
 
                                     if should_continue {
@@ -2777,12 +2790,22 @@ impl<'a> Parser<'_> {
                                         count, element_key, matched_idx, matched_elements
                                     );
 
+                                    // Python behavior: Check for complete match (consumed all to max_idx)
+                                    let reached_max = *matched_idx >= *max_idx;
+
+                                    if reached_max {
+                                        log::debug!(
+                                            "[ITERATIVE] AnySetOf: Complete match (reached max_idx={}), stopping iteration",
+                                            max_idx
+                                        );
+                                    }
+
                                     // Check termination conditions
-                                    let should_terminate = *count >= *min_times
-                                        && (*matched_idx >= *max_idx
-                                            || (max_times.is_some()
+                                    let should_terminate = reached_max
+                                        || (*count >= *min_times
+                                            && ((max_times.is_some()
                                                 && *count >= max_times.unwrap())
-                                            || matched_elements.len() >= elements.len()); // All unique elements matched
+                                                || matched_elements.len() >= elements.len())); // All unique elements matched
 
                                     if should_terminate {
                                         log::debug!(
@@ -2908,6 +2931,18 @@ impl<'a> Parser<'_> {
                                                    consumed, element_key);
                                         *longest_match =
                                             Some((child_node.clone(), consumed, element_key));
+                                    }
+
+                                    // Python behavior: Early termination for "complete" matches
+                                    // A match is complete if it consumed all available segments up to max_idx
+                                    if child_end_pos >= *max_idx {
+                                        log::debug!(
+                                            "OneOf: Complete match at element {} (consumed all to max_idx={}), returning early",
+                                            *tried_elements,
+                                            *max_idx
+                                        );
+                                        // Force loop exit by setting tried_elements to end
+                                        *tried_elements = elements.len();
                                     }
                                 }
 
