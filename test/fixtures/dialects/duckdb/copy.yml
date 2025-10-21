@@ -1,0 +1,581 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9e3f58d5d157109c4e7a35bbe7972404ffa901e308bf424f0efa108b445a7f3e
+file:
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: tbl
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'output.parquet'"
+    - bracketed:
+        start_bracket: (
+        keyword: FORMAT
+        naked_identifier: parquet
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: tbl
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'output.csv'"
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        keyword: FORMAT
+        naked_identifier: csv
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: NOW
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'test.parquet'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: COMPRESSION
+      - quoted_literal: "'snappy'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: data
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'output.parquet'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: COMPRESSION
+      - naked_identifier: gzip
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: data
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'compressed.parquet'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: COMPRESSION
+      - quoted_literal: "'gzip'"
+      - comma: ','
+      - keyword: COMPRESSION_LEVEL
+      - numeric_literal: '9'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: large_table
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'output.parquet'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: ROW_GROUP_SIZE
+      - numeric_literal: '100000'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: large_table
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'output.parquet'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: ROW_GROUP_SIZE_BYTES
+      - numeric_literal: '134217728'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: data
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'output.parquet'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: PARQUET_VERSION
+      - quoted_literal: "'2.0'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: sales
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'partitioned'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: PARTITION_BY
+      - column_reference:
+          naked_identifier: year
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: sales
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'partitioned'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: PARTITION_BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: year
+        - comma: ','
+        - column_reference:
+            naked_identifier: month
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: sales
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'partitioned'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: PARTITION_BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: year
+        - comma: ','
+        - column_reference:
+            naked_identifier: month
+        - end_bracket: )
+      - comma: ','
+      - keyword: WRITE_PARTITION_COLUMNS
+      - boolean_literal: 'true'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: data
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'output.parquet'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: OVERWRITE
+      - boolean_literal: 'true'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: data
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'output.parquet'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: OVERWRITE_OR_IGNORE
+      - boolean_literal: 'true'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: new_data
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'existing.parquet'"
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: APPEND
+      - boolean_literal: 'true'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: sales
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'export.parquet'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: parquet
+      - comma: ','
+      - keyword: COMPRESSION
+      - quoted_literal: "'zstd'"
+      - comma: ','
+      - keyword: COMPRESSION_LEVEL
+      - numeric_literal: '3'
+      - comma: ','
+      - keyword: ROW_GROUP_SIZE
+      - numeric_literal: '50000'
+      - comma: ','
+      - keyword: PARTITION_BY
+      - column_reference:
+          naked_identifier: region
+      - comma: ','
+      - keyword: OVERWRITE
+      - boolean_literal: 'true'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TO
+    - quoted_literal: "'output.parquet'"
+    - bracketed:
+        start_bracket: (
+        keyword: FORMAT
+        naked_identifier: parquet
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - comma: ','
+      - column_reference:
+          naked_identifier: col3
+      - end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'output.csv'"
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        keyword: FORMAT
+        naked_identifier: csv
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - quoted_literal: "'input.csv'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: HEADER
+      - boolean_literal: 'true'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - quoted_literal: "'input.csv'"
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        keyword: FORMAT
+        naked_identifier: csv
+        end_bracket: )
+    - keyword: WHERE
+    - expression:
+        column_reference:
+          naked_identifier: id
+        comparison_operator:
+          raw_comparison_operator: '>'
+        numeric_literal: '100'
+- statement_terminator: ;
