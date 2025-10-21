@@ -51,6 +51,7 @@ fn test_anysetof_basic() -> Result<(), ParseError> {
         ],
         min_times: 2,       // Must match at least 2 times total
         max_times: Some(2), // At most 2 times total (one for each element)
+        exclude: None,
         optional: false,
         terminators: vec![],
         reset_terminators: false,
@@ -104,6 +105,7 @@ fn test_anysetof_order_independent() -> Result<(), ParseError> {
             ],
             min_times: 2,
             max_times: Some(2),
+            exclude: None,
             optional: false,
             terminators: vec![],
             reset_terminators: false,

@@ -227,6 +227,13 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
             _to_rust_parser_grammar(subgrammar, parse_context)
             print(",")
         print("    ],")
+        # Add exclude field
+        if hasattr(match_grammar, "exclude") and match_grammar.exclude is not None:
+            print("    exclude: Some(Box::new(")
+            _to_rust_parser_grammar(match_grammar.exclude, parse_context)
+            print("    )),")
+        else:
+            print("    exclude: None,")
         print(f"    optional: {str(match_grammar.is_optional()).lower()},")
         print("    terminators: vec![")
         for term_grammar in match_grammar.terminators:
@@ -325,6 +332,13 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print(f"    max_times: {max_times},")
         max_times_per_element = as_rust_option(match_grammar.max_times_per_element)
         print(f"    max_times_per_element: {max_times_per_element},")
+        # Add exclude field
+        if hasattr(match_grammar, "exclude") and match_grammar.exclude is not None:
+            print("    exclude: Some(Box::new(")
+            _to_rust_parser_grammar(match_grammar.exclude, parse_context)
+            print("    )),")
+        else:
+            print("    exclude: None,")
         print(f"    optional: {str(match_grammar.is_optional()).lower()},")
         print("    terminators: vec![")
         for term_grammar in match_grammar.terminators:
@@ -355,6 +369,13 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print(f"    min_times: {match_grammar.min_times},")
         max_times = as_rust_option(match_grammar.max_times)
         print(f"    max_times: {max_times},")
+        # Add exclude field
+        if hasattr(match_grammar, "exclude") and match_grammar.exclude is not None:
+            print("    exclude: Some(Box::new(")
+            _to_rust_parser_grammar(match_grammar.exclude, parse_context)
+            print("    )),")
+        else:
+            print("    exclude: None,")
         print(f"    optional: {str(match_grammar.is_optional()).lower()},")
         print("    terminators: vec![")
         for term_grammar in match_grammar.terminators:

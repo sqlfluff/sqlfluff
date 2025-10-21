@@ -127,6 +127,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -272,6 +273,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -290,6 +292,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -533,6 +536,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -542,6 +546,57 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+}
+,
+Grammar::Sequence {
+    elements: vec![
+Grammar::Ref {
+    name: "UseKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::OneOf {
+    elements: vec![
+Grammar::Ref {
+    name: "SchemaKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "CatalogKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -816,6 +871,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -843,6 +899,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -989,6 +1046,15 @@ Grammar::Ref {
 }
 ,
 Grammar::Ref {
+    name: "CatalogKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
     name: "RoleKeywordSegment",
     optional: false,
     allow_gaps: true,
@@ -1067,6 +1133,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -1349,6 +1416,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -1452,6 +1520,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -1582,6 +1651,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -1620,6 +1690,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -1638,6 +1709,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -1782,6 +1854,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -1885,6 +1958,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -1941,6 +2015,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -1981,6 +2056,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -2127,6 +2203,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -2185,6 +2262,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -2329,6 +2407,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -2474,6 +2553,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -2492,6 +2572,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -2735,6 +2816,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -2744,6 +2826,57 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+}
+,
+Grammar::Sequence {
+    elements: vec![
+Grammar::Ref {
+    name: "UseKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::OneOf {
+    elements: vec![
+Grammar::Ref {
+    name: "SchemaKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
+    name: "CatalogKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+    ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -3018,6 +3151,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -3045,6 +3179,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -3191,6 +3326,15 @@ Grammar::Ref {
 }
 ,
 Grammar::Ref {
+    name: "CatalogKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Ref {
     name: "RoleKeywordSegment",
     optional: false,
     allow_gaps: true,
@@ -3269,6 +3413,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -3551,6 +3696,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -3654,6 +3800,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -3784,6 +3931,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -3822,6 +3970,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -3840,6 +3989,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -3984,6 +4134,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -4087,6 +4238,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -4143,6 +4295,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -4202,6 +4355,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -4228,6 +4382,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -4416,6 +4571,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -4620,6 +4776,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -4649,6 +4806,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -4667,6 +4825,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -4723,6 +4882,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -4836,6 +4996,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -4876,6 +5037,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -4927,6 +5089,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -4963,6 +5126,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -5021,6 +5185,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -5048,6 +5213,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -5316,6 +5482,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -5353,6 +5520,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -5812,6 +5980,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
 Grammar::Ref {
@@ -5956,6 +6125,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -6158,6 +6328,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -6200,6 +6371,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -6662,6 +6834,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
 Grammar::Ref {
@@ -6763,6 +6936,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
 Grammar::Ref {
@@ -6828,6 +7002,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
 Grammar::Ref {
@@ -7258,6 +7433,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -7378,6 +7554,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -7663,6 +7840,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -7750,6 +7928,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -8055,6 +8234,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -8215,6 +8395,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -8582,6 +8763,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -8609,6 +8791,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -9197,6 +9380,7 @@ Grammar::StringParser {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -9541,6 +9725,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -9570,6 +9755,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -9588,6 +9774,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -9644,6 +9831,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -9750,6 +9938,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -9885,6 +10074,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -9932,6 +10122,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -10041,6 +10232,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -10422,6 +10614,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -10440,6 +10633,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -10489,6 +10683,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -10568,6 +10763,7 @@ Grammar::StringParser {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -10793,6 +10989,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -10917,6 +11114,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -11200,6 +11398,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -11279,6 +11478,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -11328,6 +11528,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -11395,6 +11596,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -11436,6 +11638,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -11463,6 +11666,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -11633,6 +11837,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -12374,6 +12579,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -13719,6 +13925,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -13965,6 +14172,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -13977,6 +14185,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -14036,6 +14245,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -14094,6 +14304,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -14121,6 +14332,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -14133,6 +14345,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -14174,6 +14387,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -14268,6 +14482,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -14291,6 +14506,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -14318,6 +14534,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
 Grammar::Ref {
@@ -14451,6 +14668,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -14556,6 +14774,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -14693,6 +14912,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -14729,6 +14949,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
 Grammar::Ref {
@@ -14833,6 +15054,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -14977,6 +15199,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -15006,6 +15229,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -15035,6 +15259,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -15084,6 +15309,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -15152,6 +15378,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -15188,6 +15415,7 @@ Grammar::Ref {
     min_times: 1,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -15221,6 +15449,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -15610,6 +15839,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -15639,6 +15869,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -15657,6 +15888,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -15748,6 +15980,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -15777,6 +16010,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -15795,6 +16029,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -15884,6 +16119,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -15913,6 +16149,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -15931,6 +16168,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -15949,6 +16187,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -15990,6 +16229,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -16248,6 +16488,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -16323,6 +16564,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -16479,6 +16721,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -16585,6 +16828,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -16630,6 +16874,7 @@ Grammar::StringParser {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -16709,6 +16954,7 @@ Grammar::StringParser {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
 Grammar::Sequence {
@@ -16804,6 +17050,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -16825,6 +17072,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
 Grammar::Sequence {
@@ -16992,6 +17240,7 @@ Grammar::StringParser {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
 Grammar::Sequence {
@@ -17087,6 +17336,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -17108,6 +17358,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
 Grammar::Sequence {
@@ -17186,6 +17437,7 @@ Grammar::Meta("conditional")
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -17358,6 +17610,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -17448,6 +17701,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -17535,6 +17789,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -17582,6 +17837,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -17630,6 +17886,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -17814,6 +18071,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
 Grammar::Ref {
@@ -17852,6 +18110,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
 Grammar::Ref {
@@ -17935,6 +18194,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -17993,6 +18253,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -18002,6 +18263,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -18169,6 +18431,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -18462,6 +18725,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -18510,6 +18774,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -18609,6 +18874,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -18694,6 +18960,7 @@ Grammar::StringParser {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -18931,6 +19198,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -19021,6 +19289,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -19331,6 +19600,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -19503,6 +19773,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -19548,6 +19819,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -19636,6 +19908,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -19930,6 +20203,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -20146,6 +20420,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -20204,6 +20479,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -20222,6 +20498,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -20320,6 +20597,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -20485,6 +20763,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -20529,6 +20808,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -20642,6 +20922,7 @@ Grammar::Meta("dedent")
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -20755,6 +21036,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -20820,6 +21102,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -20847,6 +21130,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -21311,6 +21595,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -21390,6 +21675,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -21455,6 +21741,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -21464,6 +21751,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -21506,6 +21794,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -21553,6 +21842,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -21704,6 +21994,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -22353,6 +22644,7 @@ Grammar::Ref {
     min_times: 1,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -22446,6 +22738,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -22596,6 +22889,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -22696,6 +22990,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -23102,7 +23397,7 @@ Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(r#"^(RIGHT|JOIN|CROSS|CASE|NATURAL|RESPECT|NOT|LEFT|ON|USING|SELECT|IGNORE|INNER|INTERVAL|ORDER|SET|FULL|PARTITION|UNION|ROWS|NULL|OUTER)$"#),
+    anti_template: Some(r#"^(INNER|INTERVAL|JOIN|ON|NOT|PARTITION|CASE|CROSS|RESPECT|OUTER|ROWS|IGNORE|ORDER|RIGHT|SET|FULL|NATURAL|SELECT|LEFT|UNION|USING|NULL)$"#),
 }
 );
 
@@ -23189,6 +23484,7 @@ Grammar::StringParser {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -23688,6 +23984,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -23743,6 +24040,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -23815,6 +24113,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -23833,6 +24132,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -23976,6 +24276,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -24290,6 +24591,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -24453,6 +24755,7 @@ Grammar::Token{
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -24557,6 +24860,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -24586,6 +24890,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -24905,6 +25210,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -24934,6 +25240,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -24974,6 +25281,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -25128,6 +25436,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -25170,6 +25479,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -25324,6 +25634,7 @@ Grammar::StringParser {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -25447,6 +25758,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -25777,6 +26089,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -25902,6 +26215,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -26079,6 +26393,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -26722,6 +27037,7 @@ Grammar::Ref {
     ],
     min_times: 0,
     max_times: None,
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -26783,6 +27099,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -26941,6 +27258,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -27559,6 +27877,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -27619,6 +27938,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -27933,6 +28253,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -27966,6 +28287,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -28141,6 +28463,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -28364,6 +28687,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -28422,6 +28746,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -28478,6 +28803,7 @@ Grammar::StringParser {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -28600,6 +28926,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -28672,6 +28999,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -28935,6 +29263,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -29002,6 +29331,7 @@ Grammar::Ref {
     min_times: 1,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -29094,6 +29424,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -29130,6 +29461,58 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: Some(Box::new(
+Grammar::Sequence {
+    elements: vec![
+Grammar::Ref {
+    name: "ExceptKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+}
+,
+Grammar::Bracketed {
+    elements: vec![
+Grammar::Anything
+,
+    ],
+    bracket_pairs: (
+        Box::new(
+Grammar::StringParser {
+    template: "(",
+    token_type: "start_bracket",
+    raw_class: "SymbolSegment",
+    optional: false,
+}
+        ),
+        Box::new(
+Grammar::StringParser {
+    template: ")",
+    token_type: "end_bracket",
+    raw_class: "SymbolSegment",
+    optional: false,
+}
+        )
+    ),
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+}
+    )),
     optional: false,
     terminators: vec![
     ],
@@ -29266,6 +29649,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -29318,6 +29702,7 @@ Grammar::Ref {
     min_times: 1,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -29389,6 +29774,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -29441,6 +29827,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
 Grammar::Ref {
@@ -30325,6 +30712,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
 Grammar::Ref {
@@ -30467,6 +30855,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -30868,6 +31257,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -31010,6 +31400,7 @@ Grammar::StringParser {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -31223,6 +31614,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
 Grammar::Ref {
@@ -31278,6 +31670,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -31374,6 +31767,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -31416,6 +31810,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -31540,6 +31935,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -31580,6 +31976,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -31681,6 +32078,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -31873,6 +32271,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -31902,6 +32301,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -32214,6 +32614,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -32533,6 +32934,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -32606,6 +33008,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: true,
     terminators: vec![
     ],
@@ -32894,6 +33297,7 @@ Grammar::Ref {
     min_times: 1,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -33274,6 +33678,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -33774,6 +34179,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -33911,6 +34317,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -34050,6 +34457,7 @@ Grammar::Ref {
 }
 ,
     ],
+    exclude: None,
     optional: false,
     terminators: vec![
     ],
@@ -34062,6 +34470,7 @@ Grammar::Ref {
     min_times: 0,
     max_times: None,
     max_times_per_element: None,
+    exclude: None,
     optional: true,
     terminators: vec![
     ],

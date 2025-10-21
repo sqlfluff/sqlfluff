@@ -3,9 +3,9 @@
 //! This module contains the Parser struct definition and its core methods
 //! including the main entry point for parsing with grammar.
 
-use crate::{dialect::Dialect, parser_cache::ParseCache, token::Token};
+use crate::{dialect::Dialect, token::Token};
 
-use super::{Grammar, Node, ParseError};
+use super::{cache::ParseCache, Grammar, Node, ParseError};
 
 /// The main parser struct that holds parsing state and provides parsing methods.
 pub struct Parser<'a> {

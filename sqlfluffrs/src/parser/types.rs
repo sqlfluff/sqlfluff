@@ -40,6 +40,7 @@ pub enum Grammar {
         min_times: usize,
         max_times: Option<usize>,
         max_times_per_element: Option<usize>,
+        exclude: Option<Box<Grammar>>,
         optional: bool,
         terminators: Vec<Grammar>,
         reset_terminators: bool,
@@ -48,6 +49,7 @@ pub enum Grammar {
     },
     OneOf {
         elements: Vec<Grammar>,
+        exclude: Option<Box<Grammar>>,
         optional: bool,
         terminators: Vec<Grammar>,
         reset_terminators: bool,
@@ -58,6 +60,7 @@ pub enum Grammar {
         elements: Vec<Grammar>,
         min_times: usize,
         max_times: Option<usize>,
+        exclude: Option<Box<Grammar>>,
         optional: bool,
         terminators: Vec<Grammar>,
         reset_terminators: bool,

@@ -518,12 +518,57 @@ impl<'a> Parser<'_> {
         }
     }
 
+    /// Try to match a grammar at a specific position without consuming tokens
+    /// Returns Some(end_pos) if the grammar matches, None otherwise
+    ///
+    /// This uses the same parsing logic as the main parser but in a non-destructive way,
+    /// similar to how terminators are checked.
+    fn try_match_grammar(
+        &mut self,
+        grammar: &Grammar,
+        pos: usize,
+        terminators: &[Grammar],
+    ) -> Option<usize> {
+        // Save current state
+        let saved_pos = self.pos;
+
+        // Try to parse the grammar using parse_with_grammar_cached
+        // This will temporarily move the parser position but we'll restore it
+        self.pos = pos;
+
+        let result = self.parse_with_grammar_cached(grammar, terminators);
+
+        // Get the end position before restoring
+        let end_pos = self.pos;
+
+        // Restore position regardless of match success
+        self.pos = saved_pos;
+
+        // If the grammar matched, return the end position
+        match result {
+            Ok(node) => {
+                // Only consider it a match if we actually consumed something
+                // or if it's an empty match at the exact position
+                if end_pos > pos {
+                    Some(end_pos)
+                } else if matches!(node, Node::Empty) {
+                    // Empty nodes might still be valid matches (like optional elements)
+                    None
+                } else {
+                    Some(end_pos)
+                }
+            }
+            Err(_) => None,
+        }
+    }
+
     /// Handle AnySetOf grammar Initial state in iterative parser
     fn handle_anysetof_initial(
         &mut self,
         elements: &[Grammar],
         min_times: usize,
         max_times: Option<usize>,
+        exclude: &Option<Box<Grammar>>,
         optional: bool,
         local_terminators: &[Grammar],
         reset_terminators: bool,
@@ -536,6 +581,18 @@ impl<'a> Parser<'_> {
     ) {
         let pos = frame.pos;
         log::debug!("[ITERATIVE] AnySetOf Initial state at pos {}", pos);
+
+        // Check exclude grammar first
+        if let Some(exclude_grammar) = exclude {
+            // Try to match the exclude grammar at current position
+            let test_result = self.try_match_grammar(exclude_grammar, pos, parent_terminators);
+            if test_result.is_some() {
+                // Exclude matched, so AnySetOf should return empty
+                log::debug!("AnySetOf: exclude grammar matched at pos {}, returning empty", pos);
+                // Don't push frame, just return
+                return;
+            }
+        }
 
         // Combine terminators
         let all_terminators: Vec<Grammar> = if reset_terminators {
@@ -597,6 +654,7 @@ impl<'a> Parser<'_> {
         // For AnySetOf, we try all elements (not just first) via OneOf pattern
         let child_grammar = Grammar::OneOf {
             elements: elements.to_vec(),
+            exclude: None,
             optional: false,
             terminators: vec![],
             reset_terminators: false,
@@ -637,6 +695,7 @@ impl<'a> Parser<'_> {
         min_times: usize,
         max_times: Option<usize>,
         max_times_per_element: Option<usize>,
+        exclude: &Option<Box<Grammar>>,
         optional: bool,
         any_terminators: &[Grammar],
         reset_terminators: bool,
@@ -658,7 +717,18 @@ impl<'a> Parser<'_> {
             parse_mode
         );
 
-        // TODO: Add exclude logic here
+        // Check exclude grammar first
+        if let Some(exclude_grammar) = exclude {
+            // Try to match the exclude grammar at current position
+            let test_result = self.try_match_grammar(exclude_grammar, start_idx, parent_terminators);
+            if test_result.is_some() {
+                // Exclude matched, so AnyNumberOf should return empty
+                log::debug!("AnyNumberOf: exclude grammar matched at pos {}, returning empty", start_idx);
+                // Pop the frame we would have pushed
+                // Actually, we haven't pushed yet at this point, so just return
+                return;
+            }
+        }
 
         // Combine parent and local terminators
         let all_terminators: Vec<Grammar> = if reset_terminators {
@@ -726,6 +796,7 @@ impl<'a> Parser<'_> {
             // This ensures that if a child fails, AnyNumberOf can handle it gracefully
             let child_grammar = Grammar::OneOf {
                 elements: elements.to_vec(),
+                exclude: None,
                 optional: true, // Don't fail if no match (let AnyNumberOf handle it)
                 terminators: all_terminators.clone(),
                 reset_terminators: false,
@@ -771,6 +842,7 @@ impl<'a> Parser<'_> {
     fn handle_oneof_initial(
         &mut self,
         elements: &[Grammar],
+        exclude: &Option<Box<Grammar>>,
         optional: bool,
         local_terminators: &[Grammar],
         reset_terminators: bool,
@@ -789,6 +861,18 @@ impl<'a> Parser<'_> {
             elements.len(),
             parse_mode
         );
+
+        // Check exclude grammar first
+        if let Some(exclude_grammar) = exclude {
+            // Try to match the exclude grammar at current position
+            let test_result = self.try_match_grammar(exclude_grammar, pos, parent_terminators);
+            if test_result.is_some() {
+                // Exclude matched, so OneOf should return empty
+                log::debug!("OneOf: exclude grammar matched at pos {}, returning empty", pos);
+                results.insert(frame.frame_id, (Node::Empty, pos, None));
+                return false; // Don't continue
+            }
+        }
 
         // Collect leading whitespace
         let leading_ws = if allow_gaps {
@@ -1203,6 +1287,7 @@ impl<'a> Parser<'_> {
         // Create first child to match element (try all elements via OneOf)
         let child_grammar = Grammar::OneOf {
             elements: elements.to_vec(),
+            exclude: None,
             optional: true, // Elements in Delimited are implicitly optional
             terminators: vec![],
             reset_terminators: false,
@@ -1455,6 +1540,7 @@ impl<'a> Parser<'_> {
 
                         Grammar::OneOf {
                             elements,
+                            exclude,
                             optional,
                             terminators: local_terminators,
                             reset_terminators,
@@ -1463,6 +1549,7 @@ impl<'a> Parser<'_> {
                         } => {
                             if self.handle_oneof_initial(
                                 elements,
+                                exclude,
                                 *optional,
                                 local_terminators,
                                 *reset_terminators,
@@ -1507,6 +1594,7 @@ impl<'a> Parser<'_> {
                             min_times,
                             max_times,
                             max_times_per_element,
+                            exclude,
                             optional,
                             terminators: any_terminators,
                             reset_terminators,
@@ -1518,6 +1606,7 @@ impl<'a> Parser<'_> {
                                 *min_times,
                                 *max_times,
                                 *max_times_per_element,
+                                exclude,
                                 *optional,
                                 any_terminators,
                                 *reset_terminators,
@@ -1561,6 +1650,7 @@ impl<'a> Parser<'_> {
                             elements,
                             min_times,
                             max_times,
+                            exclude,
                             optional,
                             terminators: local_terminators,
                             reset_terminators,
@@ -1571,6 +1661,7 @@ impl<'a> Parser<'_> {
                                 elements,
                                 *min_times,
                                 *max_times,
+                                exclude,
                                 *optional,
                                 local_terminators,
                                 *reset_terminators,
@@ -2360,6 +2451,7 @@ impl<'a> Parser<'_> {
                                                 // Multiple elements: wrap in OneOf for longest-match selection
                                                 Grammar::OneOf {
                                                     elements: elements.clone(),
+                                                    exclude: None,
                                                     optional: true, // Let AnyNumberOf handle empty
                                                     terminators: frame_terminators.clone(),
                                                     reset_terminators: false,
@@ -2864,6 +2956,7 @@ impl<'a> Parser<'_> {
                                             // Create OneOf with only unmatched elements
                                             let child_grammar = Grammar::OneOf {
                                                 elements: unmatched_elements,
+                                                exclude: None,
                                                 optional: false,
                                                 terminators: vec![],
                                                 reset_terminators: false,
@@ -3344,6 +3437,7 @@ impl<'a> Parser<'_> {
                                                 // Create child frame for next element
                                                 let child_grammar = Grammar::OneOf {
                                                     elements: elements.clone(),
+                                                    exclude: None,
                                                     optional: true, // Elements in Delimited are implicitly optional
                                                     terminators: vec![],
                                                     reset_terminators: false,
