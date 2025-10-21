@@ -38,7 +38,7 @@ impl<'a> Parser<'_> {
         frame: &ParseFrame,
         results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<(), ParseError> {
-        eprintln!("DEBUG: Token grammar frame_id={}, pos={}, parent_max_idx={:?}, token_type={:?}, available_tokens={}",
+        log::debug!("DEBUG: Token grammar frame_id={}, pos={}, parent_max_idx={:?}, token_type={:?}, available_tokens={}",
             frame.frame_id, frame.pos, frame.parent_max_idx, token_type, self.tokens.len());
 
         self.pos = frame.pos;
@@ -52,7 +52,7 @@ impl<'a> Parser<'_> {
                 let token_pos = self.pos;
                 self.bump();
                 log::debug!("MATCHED Token matched: {:?}", tok);
-                eprintln!(
+                log::debug!(
                     "DEBUG: Token grammar frame_id={} matched, result end_pos={}",
                     frame.frame_id, self.pos
                 );
@@ -61,7 +61,7 @@ impl<'a> Parser<'_> {
                 results.insert(frame.frame_id, (node, self.pos, None));
                 Ok(())
             } else {
-                eprintln!(
+                log::debug!(
                     "DEBUG: Token grammar frame_id={} failed with error",
                     frame.frame_id
                 );
@@ -72,7 +72,7 @@ impl<'a> Parser<'_> {
                 )))
             }
         } else {
-            eprintln!(
+            log::debug!(
                 "DEBUG: Token grammar frame_id={} failed - at EOF",
                 frame.frame_id
             );
@@ -104,7 +104,7 @@ impl<'a> Parser<'_> {
             }
             _ => {
                 log::debug!("String parser didn't match '{}', returning Empty", template);
-                eprintln!(
+                log::debug!(
                     "DEBUG [iter {}]: StringParser('{}') frame_id={} storing Empty result",
                     iteration_count, template, frame.frame_id
                 );
@@ -153,7 +153,7 @@ impl<'a> Parser<'_> {
         frame: &ParseFrame,
         results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
     ) {
-        eprintln!(
+        log::debug!(
             "DEBUG: TypedParser frame_id={}, pos={}, parent_max_idx={:?}, template={:?}",
             frame.frame_id, frame.pos, frame.parent_max_idx, template
         );
@@ -163,7 +163,7 @@ impl<'a> Parser<'_> {
 
         if let Some(token) = self.peek() {
             let tok = token.clone();
-            eprintln!(
+            log::debug!(
                 "DEBUG: TypedParser peeked token: type='{}', raw='{}', pos={}",
                 tok.token_type,
                 tok.raw(),
@@ -174,7 +174,7 @@ impl<'a> Parser<'_> {
                 let raw = tok.raw().to_string();
                 let token_pos = self.pos;
                 self.bump();
-                eprintln!(
+                log::debug!(
                     "DEBUG: TypedParser MATCHED! frame_id={}, consumed token at pos={}",
                     frame.frame_id, token_pos
                 );
@@ -182,7 +182,7 @@ impl<'a> Parser<'_> {
                 let node = Node::Token(token_type.to_string(), raw, token_pos);
                 results.insert(frame.frame_id, (node, self.pos, None));
             } else {
-                eprintln!(
+                log::debug!(
                     "DEBUG: TypedParser FAILED to match! frame_id={}, expected='{}', found='{}'",
                     frame.frame_id, template, tok.token_type
                 );
@@ -194,7 +194,7 @@ impl<'a> Parser<'_> {
                 results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
             }
         } else {
-            eprintln!(
+            log::debug!(
                 "DEBUG: TypedParser at EOF! frame_id={}, pos={}",
                 frame.frame_id, frame.pos
             );
@@ -481,7 +481,7 @@ impl<'a> Parser<'_> {
                 // Push parent back first, then child (LIFO - child will be processed next)
                 stack.push(frame);
 
-                eprintln!("DEBUG [iter {}]: Ref({}) frame_id={} creating child frame_id={}, child grammar type: {}",
+                log::debug!("DEBUG [iter {}]: Ref({}) frame_id={} creating child frame_id={}, child grammar type: {}",
                     iteration_count,
                     name,
                     stack.last().unwrap().frame_id,
@@ -496,9 +496,9 @@ impl<'a> Parser<'_> {
                 );
 
                 stack.push(child_frame);
-                eprintln!("DEBUG [iter {}]: ABOUT TO CONTINUE - Ref({}) pushed child {}, stack size now {}",
+                log::debug!("DEBUG [iter {}]: ABOUT TO CONTINUE - Ref({}) pushed child {}, stack size now {}",
                     iteration_count, name, child_frame_id, stack.len());
-                eprintln!(
+                log::debug!(
                     "DEBUG [iter {}]: ==> CONTINUING 'MAIN_LOOP NOW! <==",
                     iteration_count
                 );
@@ -686,7 +686,7 @@ impl<'a> Parser<'_> {
             max_idx
         };
 
-        eprintln!("DEBUG [iter {}]: AnyNumberOf Initial at pos={}, parent_max_idx={:?}, elements.len()={}",
+        log::debug!("DEBUG [iter {}]: AnyNumberOf Initial at pos={}, parent_max_idx={:?}, elements.len()={}",
             iteration_count, frame.pos, frame.parent_max_idx, elements.len());
 
         log::debug!(
@@ -756,10 +756,10 @@ impl<'a> Parser<'_> {
             }
 
             *frame_id_counter += 1;
-            eprintln!("DEBUG [iter {}]: AnyNumberOf Initial pushing child frame_id={}, stack size before push={}",
+            log::debug!("DEBUG [iter {}]: AnyNumberOf Initial pushing child frame_id={}, stack size before push={}",
                 iteration_count, child_frame.frame_id, stack.len());
             stack.push(child_frame);
-            eprintln!(
+            log::debug!(
                 "DEBUG [iter {}]: AnyNumberOf Initial ABOUT TO CONTINUE after pushing child",
                 iteration_count
             );
@@ -932,7 +932,7 @@ impl<'a> Parser<'_> {
         results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> bool {
         let pos = frame.pos;
-        eprintln!("DEBUG: Sequence Initial at pos={}, parent_max_idx={:?}, allow_gaps={}, elements.len()={}",
+        log::debug!("DEBUG: Sequence Initial at pos={}, parent_max_idx={:?}, allow_gaps={}, elements.len()={}",
                   pos, frame.parent_max_idx, allow_gaps, elements.len());
         let start_idx = pos;
 
@@ -997,6 +997,9 @@ impl<'a> Parser<'_> {
             // Check if we've run out of segments before first element
             if first_child_pos >= max_idx {
                 // Haven't matched anything yet and already at limit
+                // Pop the frame we just pushed since we're returning early
+                stack.pop();
+
                 if parse_mode == ParseMode::Strict {
                     // In strict mode, return Empty
                     results.insert(current_frame_id, (Node::Empty, start_idx, None));
@@ -1061,7 +1064,7 @@ impl<'a> Parser<'_> {
                     };
 
                     // Non-meta element - needs actual parsing
-                    eprintln!(
+                    log::debug!(
                         "DEBUG: Creating FIRST child at pos={}, max_idx={}",
                         first_child_pos, max_idx
                     );
@@ -1308,19 +1311,19 @@ impl<'a> Parser<'_> {
 
             // Debug: Show what frame we're processing periodically
             if iteration_count % 5000 == 0 {
-                eprintln!(
+                log::debug!(
                     "\nDEBUG [iter {}]: Processing frame_id={}, state={:?}",
                     iteration_count, frame.frame_id, frame.state
                 );
-                eprintln!(
+                log::debug!(
                     "  Stack size: {}, Results size: {}",
                     stack.len(),
                     results.len()
                 );
                 match &frame.grammar {
-                    Grammar::Ref { name, .. } => eprintln!("  Grammar: Ref({})", name),
-                    Grammar::Token { token_type } => eprintln!("  Grammar: Token({})", token_type),
-                    g => eprintln!("  Grammar: {:?}", g),
+                    Grammar::Ref { name, .. } => log::debug!("  Grammar: Ref({})", name),
+                    Grammar::Token { token_type } => log::debug!("  Grammar: Token({})", token_type),
+                    g => log::debug!("  Grammar: {:?}", g),
                 }
             }
 
@@ -1679,7 +1682,7 @@ impl<'a> Parser<'_> {
 
                         // Debug: Show when we find a child result
                         if iteration_count % 100 == 0 || iteration_count < 200 {
-                            eprintln!(
+                            log::debug!(
                                 "DEBUG [iter {}]: Frame {} found child {} result, grammar: {:?}",
                                 iteration_count,
                                 frame.frame_id,
@@ -1776,15 +1779,15 @@ impl<'a> Parser<'_> {
                                             "EOF".to_string()
                                         };
 
-                                        eprintln!("WARNING: Sequence failing - required element returned Empty!");
-                                        eprintln!(
+                                        log::debug!("WARNING: Sequence failing - required element returned Empty!");
+                                        log::debug!(
                                             "  frame_id={}, element_idx={}/{}",
                                             frame.frame_id,
                                             *current_element_idx,
                                             elements.len()
                                         );
-                                        eprintln!("  Expected: {}", element_desc);
-                                        eprintln!(
+                                        log::debug!("  Expected: {}", element_desc);
+                                        log::debug!(
                                             "  At position: {} (found: {})",
                                             element_start, found_token
                                         );
@@ -1982,11 +1985,11 @@ impl<'a> Parser<'_> {
                                     }
                                     // Update matched_idx to current position after collecting trailing tokens
                                     let current_matched_idx = self.pos;
-                                    eprintln!("DEBUG: Sequence completing - frame_id={}, self.pos={}, current_matched_idx={}, elements.len={}, accumulated.len={}",
+                                    log::debug!("DEBUG: Sequence completing - frame_id={}, self.pos={}, current_matched_idx={}, elements.len={}, accumulated.len={}",
                                         frame.frame_id, self.pos, current_matched_idx, elements_clone.len(), frame.accumulated.len());
 
                                     let result_node = if frame.accumulated.is_empty() {
-                                        eprintln!("WARNING: Sequence completing with EMPTY accumulated! frame_id={}, current_elem_idx={}, elements.len={}",
+                                        log::debug!("WARNING: Sequence completing with EMPTY accumulated! frame_id={}, current_elem_idx={}, elements.len={}",
                                                   frame.frame_id, current_elem_idx, elements_clone.len());
                                         Node::Empty
                                     } else {
@@ -2216,7 +2219,7 @@ impl<'a> Parser<'_> {
                                                 Some(current_original_max_idx), // Use original max_idx before GREEDY_ONCE_STARTED trimming!
                                             );
 
-                                            eprintln!("DEBUG [iter {}]: Sequence WaitingForChild - parent {}, creating child {}, grammar: {:?}",
+                                            log::debug!("DEBUG [iter {}]: Sequence WaitingForChild - parent {}, creating child {}, grammar: {:?}",
                                                 iteration_count, frame_id_for_debug, child_frame.frame_id, child_frame.grammar);
 
                                             // Use helper to push parent, update it, and push child
@@ -2231,19 +2234,19 @@ impl<'a> Parser<'_> {
                                             log::debug!(
                                                 "Pushed child frame, continuing to process it"
                                             );
-                                            eprintln!("DEBUG [iter {}]: Sequence WaitingForChild ABOUT TO BREAK from while loop", iteration_count);
+                                            log::debug!("DEBUG [iter {}]: Sequence WaitingForChild ABOUT TO BREAK from while loop", iteration_count);
                                             created_child = true;
                                             break; // Exit the while loop - we've created the next child
                                         }
                                     }
-                                    eprintln!("DEBUG [iter {}]: Sequence WaitingForChild AFTER while loop, created_child={}", iteration_count, created_child);
+                                    log::debug!("DEBUG [iter {}]: Sequence WaitingForChild AFTER while loop, created_child={}", iteration_count, created_child);
                                     // Only continue to process child if we actually created one
                                     if created_child {
-                                        eprintln!("DEBUG [iter {}]: Sequence WaitingForChild ABOUT TO CONTINUE 'main_loop", iteration_count);
+                                        log::debug!("DEBUG [iter {}]: Sequence WaitingForChild ABOUT TO CONTINUE 'main_loop", iteration_count);
                                         continue 'main_loop;
                                     }
                                     // Otherwise, all remaining elements were Meta - complete the Sequence
-                                    eprintln!("DEBUG [iter {}]: Sequence WaitingForChild - all remaining elements were Meta, completing frame_id={}", iteration_count, frame_id_for_debug);
+                                    log::debug!("DEBUG [iter {}]: Sequence WaitingForChild - all remaining elements were Meta, completing frame_id={}", iteration_count, frame_id_for_debug);
                                     self.pos = current_matched_idx;
                                     let result_node = if final_accumulated.is_empty() {
                                         Node::Empty
@@ -2380,7 +2383,7 @@ impl<'a> Parser<'_> {
                                                 &mut frame_id_counter,
                                                 "AnyNumberOf",
                                             );
-                                            eprintln!("DEBUG [iter {}]: AnyNumberOf pushed parent and child, stack.len()={}", iteration_count, stack.len());
+                                            log::debug!("DEBUG [iter {}]: AnyNumberOf pushed parent and child, stack.len()={}", iteration_count, stack.len());
                                             continue 'main_loop; // Exit the WaitingForChild handler - continue to next iteration
                                         }
                                     } else {
@@ -2561,7 +2564,7 @@ impl<'a> Parser<'_> {
 
                                         let gap_start = *child_end_pos;
                                         self.pos = gap_start;
-                                        eprintln!(
+                                        log::debug!(
                                             "DEBUG: After content, gap_start={}, current_pos={}",
                                             gap_start, self.pos
                                         );
@@ -2592,13 +2595,13 @@ impl<'a> Parser<'_> {
                                         }
 
                                         // Check if we've run out of segments
-                                        eprintln!("DEBUG: Checking for closing bracket - self.pos={}, tokens.len={}", self.pos, self.tokens.len());
+                                        log::debug!("DEBUG: Checking for closing bracket - self.pos={}, tokens.len={}", self.pos, self.tokens.len());
                                         if self.pos >= self.tokens.len()
                                             || self
                                                 .peek()
                                                 .is_some_and(|t| t.get_type() == "end_of_file")
                                         {
-                                            eprintln!("DEBUG: No closing bracket found!");
+                                            log::debug!("DEBUG: No closing bracket found!");
                                             // No end bracket found
                                             if *parse_mode == ParseMode::Strict {
                                                 self.pos = frame.pos;
@@ -2613,7 +2616,7 @@ impl<'a> Parser<'_> {
                                                 ));
                                             }
                                         } else {
-                                            eprintln!("DEBUG: Transitioning to MatchingClose!");
+                                            log::debug!("DEBUG: Transitioning to MatchingClose!");
                                             // Transition to MatchingClose
                                             *state = BracketedState::MatchingClose;
 
@@ -2621,7 +2624,7 @@ impl<'a> Parser<'_> {
                                             // Get parent_max_idx to propagate
                                             let parent_limit = frame.parent_max_idx;
 
-                                            eprintln!("DEBUG: Creating closing bracket child at pos={}, parent_limit={:?}", self.pos, parent_limit);
+                                            log::debug!("DEBUG: Creating closing bracket child at pos={}, parent_limit={:?}", self.pos, parent_limit);
                                             let child_frame = ParseFrame {
                                                 frame_id: frame_id_counter,
                                                 grammar: (*bracket_pairs.1).clone(),
@@ -2645,7 +2648,7 @@ impl<'a> Parser<'_> {
                                         }
                                     }
                                     BracketedState::MatchingClose => {
-                                        eprintln!("DEBUG: Bracketed MatchingClose - child_node.is_empty={}, child_end_pos={}", child_node.is_empty(), child_end_pos);
+                                        log::debug!("DEBUG: Bracketed MatchingClose - child_node.is_empty={}, child_end_pos={}", child_node.is_empty(), child_end_pos);
                                         // Closing bracket result
                                         if child_node.is_empty() {
                                             // No closing bracket found
@@ -3419,19 +3422,19 @@ impl<'a> Parser<'_> {
 
                         // Check if we're in an infinite loop - frame waiting for child that doesn't exist
                         if iteration_count > 100 && iteration_count % 100 == 0 {
-                            eprintln!("WARNING: Frame {} waiting for child {} but result not found (iteration {})",
+                            log::debug!("WARNING: Frame {} waiting for child {} but result not found (iteration {})",
                                 frame.frame_id, child_id_str, iteration_count);
 
                             // Check if child is on stack
                             if let Ok(child_id) = child_id_str.parse::<usize>() {
                                 let child_on_stack = stack.iter().any(|f| f.frame_id == child_id);
                                 if child_on_stack {
-                                    eprintln!(
+                                    log::debug!(
                                         "  -> Child frame {} IS on stack (still being processed)",
                                         child_id
                                     );
                                 } else {
-                                    eprintln!("  -> Child frame {} NOT on stack (may have been lost or never created)", child_id);
+                                    log::debug!("  -> Child frame {} NOT on stack (may have been lost or never created)", child_id);
                                 }
                             }
                         }
@@ -3456,7 +3459,7 @@ impl<'a> Parser<'_> {
         }
 
         // Return the result from the initial frame
-        eprintln!("DEBUG: Main loop ended. Stack has {} frames left. Results has {} entries. Looking for frame_id={}",
+        log::debug!("DEBUG: Main loop ended. Stack has {} frames left. Results has {} entries. Looking for frame_id={}",
             stack.len(),
             results.len(),
             initial_frame_id
@@ -3512,7 +3515,7 @@ impl<'a> Parser<'_> {
                 _ => "None".to_string(),
             };
 
-            eprintln!(
+            log::debug!(
                 "  Stack[{}]: frame_id={}, state={:?}, pos={}, grammar={}, waiting_for={}",
                 i, frame.frame_id, frame.state, frame.pos, grammar_desc, waiting_for
             );
@@ -3527,7 +3530,7 @@ impl<'a> Parser<'_> {
             log::debug!("  Result frame_id={}", fid);
         }
         if let Some((node, end_pos, _element_key)) = results.get(&initial_frame_id) {
-            eprintln!(
+            log::debug!(
                 "DEBUG: Found result for frame_id={}, end_pos={}",
                 initial_frame_id, end_pos
             );
@@ -3535,18 +3538,18 @@ impl<'a> Parser<'_> {
 
             // If the parse failed (returned Empty), provide diagnostic information
             if node.is_empty() {
-                eprintln!("\n=== PARSE FAILED ===");
-                eprintln!("Parser stopped at position: {}", end_pos);
-                eprintln!("Total tokens: {}", self.tokens.len());
+                log::debug!("\n=== PARSE FAILED ===");
+                log::debug!("Parser stopped at position: {}", end_pos);
+                log::debug!("Total tokens: {}", self.tokens.len());
 
                 if *end_pos < self.tokens.len() {
-                    eprintln!("\nTokens around failure point:");
+                    log::debug!("\nTokens around failure point:");
                     let start = end_pos.saturating_sub(3);
                     let end = (*end_pos + 4).min(self.tokens.len());
                     for i in start..end {
                         let marker = if i == *end_pos { " <<< HERE" } else { "" };
                         if let Some(tok) = self.tokens.get(i) {
-                            eprintln!(
+                            log::debug!(
                                 "  [{}]: '{}' (type: {}){}",
                                 i,
                                 tok.raw(),
@@ -3557,9 +3560,9 @@ impl<'a> Parser<'_> {
                     }
                 }
 
-                eprintln!("\nGrammar that failed to match:");
-                eprintln!("  {}", grammar);
-                eprintln!("===================\n");
+                log::debug!("\nGrammar that failed to match:");
+                log::debug!("  {}", grammar);
+                log::debug!("===================\n");
             }
 
             Ok(node.clone())

@@ -19,14 +19,14 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
-        eprintln!("Usage: {} <sql_file> [--compare]", args[0]);
-        eprintln!();
-        eprintln!("Examples:");
-        eprintln!(
+        log::debug!("Usage: {} <sql_file> [--compare]", args[0]);
+        log::debug!("");
+        log::debug!("Examples:");
+        log::debug!(
             "  {} test/fixtures/dialects/ansi/select_simple_a.sql",
             args[0]
         );
-        eprintln!(
+        log::debug!(
             "  {} test/fixtures/dialects/ansi/create_table.sql --compare",
             args[0]
         );
@@ -37,7 +37,7 @@ fn main() {
     let compare_mode = args.len() > 2 && args[2] == "--compare";
 
     if !sql_path.exists() {
-        eprintln!("Error: File not found: {}", sql_path.display());
+        log::debug!("Error: File not found: {}", sql_path.display());
         process::exit(1);
     }
 
@@ -45,7 +45,7 @@ fn main() {
     let sql_content = match fs::read_to_string(&sql_path) {
         Ok(content) => content,
         Err(e) => {
-            eprintln!("Error reading SQL file: {}", e);
+            log::debug!("Error reading SQL file: {}", e);
             process::exit(1);
         }
     };
@@ -65,9 +65,9 @@ fn main() {
     let (tokens, lex_errors) = lexer.lex(input, false);
 
     if !lex_errors.is_empty() {
-        eprintln!("=== LEXER ERRORS ===");
+        log::debug!("=== LEXER ERRORS ===");
         for error in lex_errors {
-            eprintln!("  {:?}", error);
+            log::debug!("  {:?}", error);
         }
         process::exit(1);
     }
@@ -83,11 +83,13 @@ fn main() {
     let ast = match parser.call_rule_with_type("FileSegment", &[], Some("file")) {
         Ok(node) => node,
         Err(e) => {
-            eprintln!("=== PARSE ERROR ===");
-            eprintln!("{:?}", e);
+            log::debug!("=== PARSE ERROR ===");
+            log::debug!("{:?}", e);
             process::exit(1);
         }
     };
+
+    eprintln!("DEBUG: AST node type: {:?}", ast);
 
     println!("=== PARSE SUCCESS ===");
     println!();
@@ -101,8 +103,8 @@ fn main() {
     let generated_yaml = match node_to_yaml(&ast, &tokens) {
         Ok(yaml) => yaml,
         Err(e) => {
-            eprintln!("=== YAML CONVERSION ERROR ===");
-            eprintln!("{}", e);
+            log::debug!("=== YAML CONVERSION ERROR ===");
+            log::debug!("{}", e);
             process::exit(1);
         }
     };
@@ -115,16 +117,16 @@ fn main() {
         let yml_path = sql_path.with_extension("yml");
 
         if !yml_path.exists() {
-            eprintln!();
-            eprintln!("=== COMPARE MODE: Expected YAML not found ===");
-            eprintln!("Expected file: {}", yml_path.display());
+            log::debug!("");
+            log::debug!("=== COMPARE MODE: Expected YAML not found ===");
+            log::debug!("Expected file: {}", yml_path.display());
             process::exit(1);
         }
 
         let expected_yaml = match fs::read_to_string(&yml_path) {
             Ok(content) => content,
             Err(e) => {
-                eprintln!("Error reading expected YAML: {}", e);
+                log::debug!("Error reading expected YAML: {}", e);
                 process::exit(1);
             }
         };
@@ -331,10 +333,18 @@ fn node_to_yaml(
         Value::String("PLACEHOLDER_HASH".to_string()),
     );
 
-    // Merge the node's YAML into the root
-    if let Value::Mapping(node_map) = yaml_value {
-        for (k, v) in node_map {
-            root_map.insert(k, v);
+    // Special case: if node is Empty, represent as "file: null"
+    if matches!(node, sqlfluffrs::parser::Node::Empty) {
+        root_map.insert(
+            Value::String("file".to_string()),
+            Value::Null,
+        );
+    } else {
+        // Merge the node's YAML into the root
+        if let Value::Mapping(node_map) = yaml_value {
+            for (k, v) in node_map {
+                root_map.insert(k, v);
+            }
         }
     }
 

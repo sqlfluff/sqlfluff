@@ -2,7 +2,6 @@
 ///
 /// This test suite parses SQL files from test/fixtures/dialects/ and compares
 /// the output against expected YAML files.
-
 use sqlfluffrs::{
     lexer::{LexInput, Lexer},
     parser::{Node, Parser},
@@ -109,6 +108,7 @@ fn test_ansi_fixtures_simple() {
     let mut failed_tests = Vec::new();
 
     for test in &simple_tests {
+        println!("Running test: {}", test.name);
         match test.run() {
             Ok(_ast) => {
                 passed += 1;
@@ -131,7 +131,10 @@ fn test_ansi_fixtures_simple() {
 
     println!("\n========================================");
     println!("Results: {} passed, {} failed", passed, failed);
-    println!("Pass rate: {:.1}%", (passed as f64 / simple_tests.len() as f64) * 100.0);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / simple_tests.len() as f64) * 100.0
+    );
     println!("========================================\n");
 
     if !failed_tests.is_empty() {
@@ -163,6 +166,7 @@ fn test_ansi_fixtures() {
     let mut failed_tests = Vec::new();
 
     for test in &tests {
+        println!("Running test: {}", test.name);
         match test.run() {
             Ok(_ast) => {
                 passed += 1;
@@ -185,7 +189,10 @@ fn test_ansi_fixtures() {
 
     println!("\n========================================");
     println!("Results: {} passed, {} failed", passed, failed);
-    println!("Pass rate: {:.1}%", (passed as f64 / tests.len() as f64) * 100.0);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
     println!("========================================\n");
 
     if !failed_tests.is_empty() {
