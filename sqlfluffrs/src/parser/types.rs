@@ -93,6 +93,32 @@ impl SimpleHint {
         false
     }
 
+    /// Check if this hint can match the given token (using a set of types)
+    /// This matches Python's behavior where it checks intersection of hint types with token's class_types
+    /// Returns true if the token's raw value OR any type matches, or if hint is empty (can't determine)
+    pub fn can_match_token_types(&self, raw_upper: &str, token_types: &std::collections::HashSet<String>) -> bool {
+        // Empty hint means "complex - can't determine", so return true (must try it)
+        if self.raw_values.is_empty() && self.token_types.is_empty() {
+            return true;
+        }
+
+        // Check raw value match
+        if !self.raw_values.is_empty() && self.raw_values.contains(raw_upper) {
+            return true;
+        }
+
+        // Check type intersection (Python: first_types.intersection(simple_types))
+        if !self.token_types.is_empty() {
+            for hint_type in &self.token_types {
+                if token_types.contains(hint_type) {
+                    return true;
+                }
+            }
+        }
+
+        false
+    }
+
     /// Check if this hint is empty (meaning grammar is too complex to analyze)
     pub fn is_empty(&self) -> bool {
         self.raw_values.is_empty() && self.token_types.is_empty()
@@ -275,14 +301,23 @@ impl Grammar {
     /// Get a SimpleHint for this grammar to enable fast pruning of OneOf alternatives.
     /// Returns None if the grammar is too complex to analyze.
     /// Based on Python SQLFluff's simple() method.
-    pub fn simple_hint(&self) -> Option<SimpleHint> {
+    ///
+    /// The dialect parameter is needed to resolve Ref grammars.
+    /// The crumbs parameter tracks visited Refs to prevent infinite recursion.
+    pub fn simple_hint_with_dialect(
+        &self,
+        dialect: Option<&crate::dialect::Dialect>,
+        crumbs: &std::collections::HashSet<String>,
+    ) -> Option<SimpleHint> {
         match self {
             // Direct token matchers - can hint by type
             Grammar::Token { token_type } => Some(SimpleHint::from_type(token_type)),
 
             Grammar::TypedParser { template, .. } => Some(SimpleHint::from_type(template)),
 
-            Grammar::RegexParser { token_type, .. } => Some(SimpleHint::from_type(token_type)),
+            // RegexParser: Python returns None (doesn't support simple hints)
+            // This is because regex matching is too complex to represent as simple raw/type hints
+            Grammar::RegexParser { .. } => None,
 
             // String matchers - can hint by raw value
             Grammar::StringParser { template, .. } => Some(SimpleHint::from_raw(template)),
@@ -292,12 +327,42 @@ impl Grammar {
                 Some(SimpleHint::from_raws(&raws))
             }
 
+            // Ref: Resolve to referenced grammar (with recursion protection)
+            Grammar::Ref { name, .. } => {
+                // Check for self-reference
+                if crumbs.contains(*name) {
+                    log::debug!("Self-referential Ref detected: {}", name);
+                    return None;
+                }
+
+                // Try to resolve using dialect
+                if let Some(d) = dialect {
+                    if let Some(grammar) = d.get_segment_grammar(name) {
+                        // Add this ref to crumbs and recurse
+                        let mut new_crumbs = crumbs.clone();
+                        new_crumbs.insert(name.to_string());
+                        return grammar.simple_hint_with_dialect(Some(d), &new_crumbs);
+                    }
+                }
+
+                // No dialect or couldn't resolve
+                None
+            }
+
+            // Meta: Invisible to matching - return empty hint so it doesn't block pruning
+            // Grammar::Meta(_) => Some(SimpleHint::empty()),
+
             // Sequence: accumulate hints from optional elements until first non-optional
             // Python logic: union all optional elements, then return when hitting first required
             Grammar::Sequence { elements, .. } => {
                 let mut combined = SimpleHint::empty();
                 for elem in elements {
-                    match elem.simple_hint() {
+                    // Skip Meta elements - they're invisible
+                    if matches!(elem, Grammar::Meta(_)) {
+                        continue;
+                    }
+
+                    match elem.simple_hint_with_dialect(dialect, crumbs) {
                         None => return None, // Complex element = whole sequence is complex
                         Some(hint) => {
                             combined = combined.union(&hint);
@@ -317,7 +382,7 @@ impl Grammar {
             Grammar::OneOf { elements, .. } => {
                 let mut combined = SimpleHint::empty();
                 for elem in elements {
-                    match elem.simple_hint() {
+                    match elem.simple_hint_with_dialect(dialect, crumbs) {
                         Some(hint) => combined = combined.union(&hint),
                         None => return None, // One complex element = whole OneOf is complex
                     }
@@ -330,7 +395,7 @@ impl Grammar {
             Grammar::AnyNumberOf { elements, .. } => {
                 let mut combined = SimpleHint::empty();
                 for elem in elements {
-                    match elem.simple_hint() {
+                    match elem.simple_hint_with_dialect(dialect, crumbs) {
                         Some(hint) => combined = combined.union(&hint),
                         None => return None, // One complex element = whole AnyNumberOf is complex
                     }
@@ -342,7 +407,7 @@ impl Grammar {
             Grammar::AnySetOf { elements, .. } => {
                 let mut combined = SimpleHint::empty();
                 for elem in elements {
-                    match elem.simple_hint() {
+                    match elem.simple_hint_with_dialect(dialect, crumbs) {
                         Some(hint) => combined = combined.union(&hint),
                         None => return None,
                     }
@@ -355,7 +420,7 @@ impl Grammar {
             Grammar::Delimited { elements, .. } => {
                 let mut combined = SimpleHint::empty();
                 for elem in elements {
-                    match elem.simple_hint() {
+                    match elem.simple_hint_with_dialect(dialect, crumbs) {
                         Some(hint) => combined = combined.union(&hint),
                         None => return None,
                     }
@@ -364,19 +429,21 @@ impl Grammar {
             }
 
             // Bracketed: starts with opening bracket
-            Grammar::Bracketed { bracket_pairs, .. } => bracket_pairs.0.simple_hint(),
+            Grammar::Bracketed { bracket_pairs, .. } => {
+                bracket_pairs.0.simple_hint_with_dialect(dialect, crumbs)
+            }
 
             // Nothing/Empty: matches nothing, so empty hint is correct
             Grammar::Nothing() | Grammar::Empty => Some(SimpleHint::empty()),
 
-            // Ref: Can't determine without dialect context - return None for now
-            // In Python, Ref delegates to the referenced grammar, but we'd need
-            // the dialect to resolve it. For now, being conservative and returning None.
-            Grammar::Ref { .. } => None,
-
-            // Meta, Anything, Missing, Indent, Dedent: Can't determine
+            // Anything, Missing, Indent, Dedent: Can't determine
             _ => None,
         }
+    }
+
+    /// Convenience method that calls simple_hint_with_dialect with empty crumbs
+    pub fn simple_hint(&self) -> Option<SimpleHint> {
+        self.simple_hint_with_dialect(None, &std::collections::HashSet::new())
     }
 }
 

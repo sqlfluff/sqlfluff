@@ -4,7 +4,7 @@
 //! including token navigation, whitespace handling, and terminator checking.
 
 use crate::token::Token;
-use super::{Grammar, Node, ParseError};
+use super::{Grammar, Node};
 use super::core::Parser;
 
 impl<'a> Parser<'a> {
@@ -28,23 +28,27 @@ impl<'a> Parser<'a> {
         };
 
         // Get token properties for matching
+        // Use ALL types (instance_types + class_types) to match Python's behavior
         let first_raw = first_token.raw_upper();
-        let first_type = first_token.get_type();
+        let first_types: std::collections::HashSet<String> = first_token.get_all_types().into_iter().collect();
 
         log::debug!(
-            "Pruning {} options at pos {} (token: '{}', type: {})",
+            "Pruning {} options at pos {} (token: '{}', types: {:?})",
             options.len(),
             self.pos,
             first_raw,
-            first_type
+            first_types
         );
 
         let mut pruned = Vec::new();
         let mut pruned_count = 0;
 
+        // Create empty crumbs set for recursion protection
+        let crumbs = std::collections::HashSet::new();
+
         for opt in options {
-            // Try to get simple hint for this grammar
-            match opt.simple_hint() {
+            // Try to get simple hint for this grammar (with dialect for Ref resolution)
+            match opt.simple_hint_with_dialect(Some(&self.dialect), &crumbs) {
                 None => {
                     // Complex grammar - must try full match
                     self.pruning_complex.set(self.pruning_complex.get() + 1);
@@ -54,8 +58,8 @@ impl<'a> Parser<'a> {
                 Some(hint) => {
                     // Track that this had a hint
                     self.pruning_hinted.set(self.pruning_hinted.get() + 1);
-                    // Check if hint matches current token
-                    if hint.can_match_token(&first_raw, &first_type) {
+                    // Check if hint matches current token (using ALL types for intersection)
+                    if hint.can_match_token_types(&first_raw, &first_types) {
                         log::debug!("  Keeping matched grammar: {}", opt);
                         pruned.push(opt);
                     } else {
@@ -66,15 +70,11 @@ impl<'a> Parser<'a> {
             }
         }
 
-        // Safety: if we pruned everything, return all options
+                // Safety fallback: if we pruned everything, keep everything
+        // This prevents breaking the parse when hints are too aggressive
         if pruned.is_empty() {
-            log::warn!(
-                "Pruning removed ALL options at pos {}, token='{}' type='{}'. Keeping all.",
-                self.pos,
-                first_raw,
-                first_type
-            );
-            self.pruning_kept.set(self.pruning_kept.get() + options.len());
+            self.pruning_kept
+                .set(self.pruning_kept.get() + options.len());
             return options.iter().collect();
         }
 

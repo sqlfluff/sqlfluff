@@ -216,6 +216,15 @@ impl Token {
         self.token_type.clone()
     }
 
+    /// Get all types for this token (instance_types + class_types)
+    /// This is equivalent to Python's class_types property
+    pub fn get_all_types(&self) -> Vec<String> {
+        let mut types = Vec::new();
+        types.extend(self.instance_types.clone());
+        types.extend(self.class_types.clone());
+        types
+    }
+
     pub fn is_type(&self, seg_types: &[&str]) -> bool {
         if self
             .instance_types
