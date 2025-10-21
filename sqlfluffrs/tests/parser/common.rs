@@ -27,7 +27,7 @@ pub fn verify_all_tokens_in_ast(raw: &str, ast: &Node, tokens: &[Token]) -> Resu
     let mut ast_positions = std::collections::HashSet::new();
     collect_token_positions(ast, &mut ast_positions);
 
-    eprintln!(
+    log::debug!(
         "DEBUG: Total tokens: {}, Positions in AST: {:?}",
         tokens.len(),
         {

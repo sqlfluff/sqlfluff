@@ -20,7 +20,7 @@ fn main() {
             println!("{:#?}", ast);
         }
         Err(e) => {
-            eprintln!("Parse failed: {:?}", e);
+            log::debug!("Parse failed: {:?}", e);
         }
     }
 }

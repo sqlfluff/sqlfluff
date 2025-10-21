@@ -183,7 +183,7 @@ impl ParseFrame {
                 ..
             } = &mut parent_frame.context
             {
-                eprintln!("DEBUG: push_sequence_child_and_update_parent - parent {}, child {}, setting last_child_frame_id to {}",
+                log::debug!("DEBUG: push_sequence_child_and_update_parent - parent {}, child {}, setting last_child_frame_id to {}",
                     parent_id, child_id, child_id);
                 *last_child_frame_id = Some(child_id);
                 *current_element_idx = next_element_idx;

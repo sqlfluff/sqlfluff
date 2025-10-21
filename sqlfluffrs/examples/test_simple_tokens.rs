@@ -58,7 +58,7 @@ fn main() {
             }
         }
         Err(e) => {
-            eprintln!("Parse error: {:?}", e);
+            log::debug!("Parse error: {:?}", e);
         }
     }
 }

@@ -69,10 +69,10 @@ impl<'a> Parser<'a> {
     /// Print cache statistics
     pub fn print_cache_stats(&self) {
         let (hits, misses, hit_rate) = self.parse_cache.stats();
-        eprintln!("Parse Cache Statistics:");
-        eprintln!("  Hits: {}", hits);
-        eprintln!("  Misses: {}", misses);
-        eprintln!("  Hit Rate: {:.2}%", hit_rate * 100.0);
+        log::debug!("Parse Cache Statistics:");
+        log::debug!("  Hits: {}", hits);
+        log::debug!("  Misses: {}", misses);
+        log::debug!("  Hit Rate: {:.2}%", hit_rate * 100.0);
     }
 
     /// Peek at the current token without consuming it
