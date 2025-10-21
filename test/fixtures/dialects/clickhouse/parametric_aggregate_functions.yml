@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 52224fa44fd65bc8661b3e3c1212a2e3e571f50f61ad8f4643b9fb4f4f34421f
+_hash: dfd843297541db851b191b736ea938fad270c9990ca14dfa2a43f55e1f08fd7d
 file:
 - statement:
     select_statement:
@@ -855,4 +855,63 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: student_ttest
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sumMapFilteredWithOverflow
+            function_contents:
+            - bracketed:
+                start_bracket: (
+                expression:
+                  array_literal:
+                  - start_square_bracket: '['
+                  - numeric_literal: '1'
+                  - comma: ','
+                  - numeric_literal: '4'
+                  - comma: ','
+                  - numeric_literal: '8'
+                  - end_square_bracket: ']'
+                end_bracket: )
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: statusMap
+                  - dot: .
+                  - naked_identifier: status
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: statusMap
+                  - dot: .
+                  - naked_identifier: requests
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: summap_overflow
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toTypeName
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: summap_overflow
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: sum_map
 - statement_terminator: ;
