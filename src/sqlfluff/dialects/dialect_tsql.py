@@ -5193,6 +5193,9 @@ class TableExpressionSegment(BaseSegment):
 
     In SQL standard, as well as T-SQL, table expressions (`table reference` in SQL
     standard) can also be join tables, optionally bracketed, allowing for nested joins.
+
+    T-SQL also allows DML statements (DELETE, INSERT, UPDATE) with OUTPUT clauses
+    to be used as derived tables when bracketed.
     """
 
     type = "table_expression"
@@ -5208,7 +5211,11 @@ class TableExpressionSegment(BaseSegment):
         Ref("StorageLocationSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
+        # DML statements with OUTPUT clauses can be used as derived tables
         Bracketed(Ref("MergeStatementSegment")),
+        Bracketed(Ref("DeleteStatementSegment")),
+        Bracketed(Ref("InsertStatementSegment")),
+        Bracketed(Ref("UpdateStatementSegment")),
         Bracketed(
             Sequence(
                 Ref("TableExpressionSegment"),
