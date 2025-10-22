@@ -9,147 +9,147 @@ use std::hash::{Hash, Hasher};
 use crate::parser::{Grammar, Node, ParseError};
 use crate::token::Token;
 
-/// A simple match hint that allows quick filtering of grammar options
-/// without performing a full parse. This is the Rust equivalent of the
-/// Python parser's `simple()` method.
-#[derive(Debug, Clone, Default)]
-pub struct SimpleMatch {
-    /// Raw uppercase strings this grammar could match (e.g., "SELECT", "FROM")
-    pub raw_strings: Vec<&'static str>,
-    /// Token types this grammar could match (e.g., "word", "number")
-    pub token_types: Vec<&'static str>,
-}
+// /// A simple match hint that allows quick filtering of grammar options
+// /// without performing a full parse. This is the Rust equivalent of the
+// /// Python parser's `simple()` method.
+// #[derive(Debug, Clone, Default)]
+// pub struct SimpleMatch {
+//     /// Raw uppercase strings this grammar could match (e.g., "SELECT", "FROM")
+//     pub raw_strings: Vec<&'static str>,
+//     /// Token types this grammar could match (e.g., "word", "number")
+//     pub token_types: Vec<&'static str>,
+// }
 
-impl SimpleMatch {
-    pub fn new(raw_strings: Vec<&'static str>, token_types: Vec<&'static str>) -> Self {
-        SimpleMatch {
-            raw_strings,
-            token_types,
-        }
-    }
+// impl SimpleMatch {
+//     pub fn new(raw_strings: Vec<&'static str>, token_types: Vec<&'static str>) -> Self {
+//         SimpleMatch {
+//             raw_strings,
+//             token_types,
+//         }
+//     }
 
-    pub fn from_raws(raws: Vec<&'static str>) -> Self {
-        SimpleMatch {
-            raw_strings: raws,
-            token_types: vec![],
-        }
-    }
+//     pub fn from_raws(raws: Vec<&'static str>) -> Self {
+//         SimpleMatch {
+//             raw_strings: raws,
+//             token_types: vec![],
+//         }
+//     }
 
-    pub fn from_types(types: Vec<&'static str>) -> Self {
-        SimpleMatch {
-            raw_strings: vec![],
-            token_types: types,
-        }
-    }
+//     pub fn from_types(types: Vec<&'static str>) -> Self {
+//         SimpleMatch {
+//             raw_strings: vec![],
+//             token_types: types,
+//         }
+//     }
 
-    /// Check if this simple match could match the given token
-    pub fn could_match(&self, token: &Token) -> bool {
-        let raw_upper = token.raw().to_uppercase();
+//     /// Check if this simple match could match the given token
+//     pub fn could_match(&self, token: &Token) -> bool {
+//         let raw_upper = token.raw().to_uppercase();
 
-        // Check raw strings
-        if !self.raw_strings.is_empty()
-            && self
-                .raw_strings
-                .iter()
-                .any(|r| r.eq_ignore_ascii_case(&raw_upper))
-        {
-            return true;
-        }
+//         // Check raw strings
+//         if !self.raw_strings.is_empty()
+//             && self
+//                 .raw_strings
+//                 .iter()
+//                 .any(|r| r.eq_ignore_ascii_case(&raw_upper))
+//         {
+//             return true;
+//         }
 
-        // Check token types
-        if !self.token_types.is_empty() {
-            let token_type = token.get_type();
-            if self.token_types.iter().any(|t| *t == token_type) {
-                return true;
-            }
-        }
+//         // Check token types
+//         if !self.token_types.is_empty() {
+//             let token_type = token.get_type();
+//             if self.token_types.iter().any(|t| *t == token_type) {
+//                 return true;
+//             }
+//         }
 
-        // If both are empty, it's a complex matcher - assume it could match
-        self.raw_strings.is_empty() && self.token_types.is_empty()
-    }
+//         // If both are empty, it's a complex matcher - assume it could match
+//         self.raw_strings.is_empty() && self.token_types.is_empty()
+//     }
 
-    /// Combine multiple simple matches (used for OneOf)
-    pub fn combine(matches: Vec<SimpleMatch>) -> SimpleMatch {
-        let mut raw_strings = Vec::new();
-        let mut token_types = Vec::new();
+//     /// Combine multiple simple matches (used for OneOf)
+//     pub fn combine(matches: Vec<SimpleMatch>) -> SimpleMatch {
+//         let mut raw_strings = Vec::new();
+//         let mut token_types = Vec::new();
 
-        for m in matches {
-            raw_strings.extend(m.raw_strings);
-            token_types.extend(m.token_types);
-        }
+//         for m in matches {
+//             raw_strings.extend(m.raw_strings);
+//             token_types.extend(m.token_types);
+//         }
 
-        // Deduplicate
-        raw_strings.sort_unstable();
-        raw_strings.dedup();
-        token_types.sort_unstable();
-        token_types.dedup();
+//         // Deduplicate
+//         raw_strings.sort_unstable();
+//         raw_strings.dedup();
+//         token_types.sort_unstable();
+//         token_types.dedup();
 
-        SimpleMatch {
-            raw_strings,
-            token_types,
-        }
-    }
-}
+//         SimpleMatch {
+//             raw_strings,
+//             token_types,
+//         }
+//     }
+// }
 
 impl Grammar {
-    /// Extract a simple representation of this grammar for fast pruning.
-    ///
-    /// Returns None if the grammar is too complex to simplify.
-    /// Returns Some(SimpleMatch) with the possible raw strings and token types.
-    pub fn simple(&self) -> Option<SimpleMatch> {
-        match self {
-            Grammar::StringParser { template, .. } => Some(SimpleMatch::from_raws(vec![template])),
-            Grammar::MultiStringParser { templates, .. } => {
-                Some(SimpleMatch::from_raws(templates.to_vec()))
-            }
-            Grammar::TypedParser { template, .. } => Some(SimpleMatch::from_types(vec![template])),
-            Grammar::RegexParser {
-                template,
-                token_type,
-                ..
-            } => {
-                // Regex is complex, but we can hint with the token type
-                Some(SimpleMatch::from_types(vec![token_type]))
-            }
-            Grammar::Token { token_type } => Some(SimpleMatch::from_types(vec![token_type])),
-            Grammar::Sequence { elements, .. } => {
-                // Return the simple of the first non-optional element
-                for elem in elements {
-                    if !is_optional(elem) {
-                        return elem.simple();
-                    }
-                }
-                // All elements are optional - too complex
-                None
-            }
-            Grammar::OneOf { elements, .. } => {
-                // Try to combine all element simples
-                let mut simples = Vec::new();
-                for elem in elements {
-                    match elem.simple() {
-                        Some(s) => simples.push(s),
-                        None => return None, // If any element is complex, give up
-                    }
-                }
-                Some(SimpleMatch::combine(simples))
-            }
-            Grammar::Ref { .. } => {
-                // References are tricky - would need dialect lookup
-                // For now, mark as complex
-                None
-            }
-            // Complex grammars that can't be simplified
-            Grammar::AnyNumberOf { .. }
-            | Grammar::AnySetOf { .. }
-            | Grammar::Delimited { .. }
-            | Grammar::Bracketed { .. }
-            | Grammar::Anything
-            | Grammar::Meta(_)
-            | Grammar::Empty
-            | Grammar::Nothing()
-            | Grammar::Missing => None,
-        }
-    }
+    // /// Extract a simple representation of this grammar for fast pruning.
+    // ///
+    // /// Returns None if the grammar is too complex to simplify.
+    // /// Returns Some(SimpleMatch) with the possible raw strings and token types.
+    // pub fn simple(&self) -> Option<SimpleMatch> {
+    //     match self {
+    //         Grammar::StringParser { template, .. } => Some(SimpleMatch::from_raws(vec![template])),
+    //         Grammar::MultiStringParser { templates, .. } => {
+    //             Some(SimpleMatch::from_raws(templates.to_vec()))
+    //         }
+    //         Grammar::TypedParser { template, .. } => Some(SimpleMatch::from_types(vec![template])),
+    //         Grammar::RegexParser {
+    //             template,
+    //             token_type,
+    //             ..
+    //         } => {
+    //             // Regex is complex, but we can hint with the token type
+    //             Some(SimpleMatch::from_types(vec![token_type]))
+    //         }
+    //         Grammar::Token { token_type } => Some(SimpleMatch::from_types(vec![token_type])),
+    //         Grammar::Sequence { elements, .. } => {
+    //             // Return the simple of the first non-optional element
+    //             for elem in elements {
+    //                 if !is_optional(elem) {
+    //                     return elem.simple();
+    //                 }
+    //             }
+    //             // All elements are optional - too complex
+    //             None
+    //         }
+    //         Grammar::OneOf { elements, .. } => {
+    //             // Try to combine all element simples
+    //             let mut simples = Vec::new();
+    //             for elem in elements {
+    //                 match elem.simple() {
+    //                     Some(s) => simples.push(s),
+    //                     None => return None, // If any element is complex, give up
+    //                 }
+    //             }
+    //             Some(SimpleMatch::combine(simples))
+    //         }
+    //         Grammar::Ref { .. } => {
+    //             // References are tricky - would need dialect lookup
+    //             // For now, mark as complex
+    //             None
+    //         }
+    //         // Complex grammars that can't be simplified
+    //         Grammar::AnyNumberOf { .. }
+    //         | Grammar::AnySetOf { .. }
+    //         | Grammar::Delimited { .. }
+    //         | Grammar::Bracketed { .. }
+    //         | Grammar::Anything
+    //         | Grammar::Meta(_)
+    //         | Grammar::Empty
+    //         | Grammar::Nothing()
+    //         | Grammar::Missing => None,
+    //     }
+    // }
 }
 
 fn is_optional(grammar: &Grammar) -> bool {
@@ -420,6 +420,8 @@ impl Default for ParseCache {
 
 #[cfg(test)]
 mod tests {
+    use hashbrown::HashSet;
+
     use super::*;
     use crate::lexer::{LexInput, Lexer};
     use crate::parser::Parser;
@@ -434,9 +436,11 @@ mod tests {
             optional: false,
         };
 
-        let simple = grammar.simple().unwrap();
-        assert_eq!(simple.raw_strings, vec!["SELECT"]);
-        assert!(simple.token_types.is_empty());
+        let simple_hint = grammar
+            .simple_hint_with_dialect(Some(&Dialect::Ansi), &HashSet::new())
+            .unwrap();
+        assert!(simple_hint.raw_values.contains("SELECT"));
+        assert!(simple_hint.token_types.is_empty());
     }
 
     #[test]
@@ -448,9 +452,11 @@ mod tests {
             optional: false,
         };
 
-        let simple = grammar.simple().unwrap();
-        assert!(simple.raw_strings.is_empty());
-        assert_eq!(simple.token_types, vec!["word"]);
+        let simple = grammar
+            .simple_hint_with_dialect(Some(&Dialect::Ansi), &HashSet::new())
+            .unwrap();
+        assert!(simple.raw_values.is_empty());
+        assert!(simple.token_types.contains("word"));
     }
 
     #[test]
@@ -462,9 +468,11 @@ mod tests {
             optional: false,
         };
 
-        let simple = grammar.simple().unwrap();
-        assert_eq!(simple.raw_strings.len(), 3);
-        assert!(simple.raw_strings.contains(&"SELECT"));
+        let simple_hint = grammar
+            .simple_hint_with_dialect(Some(&Dialect::Ansi), &HashSet::new())
+            .unwrap();
+        assert_eq!(simple_hint.raw_values.len(), 3);
+        assert!(simple_hint.raw_values.contains("SELECT"));
     }
 
     // #[test]

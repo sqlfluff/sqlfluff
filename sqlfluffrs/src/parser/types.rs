@@ -84,31 +84,10 @@ impl SimpleHint {
         }
     }
 
-    /// Check if this hint can match the given token
-    /// Returns true if the token's raw value OR type matches, or if hint is empty (can't determine)
-    pub fn can_match_token(&self, raw_upper: &str, token_type: &str) -> bool {
-        // Empty hint means "complex - can't determine", so return true (must try it)
-        if self.raw_values.is_empty() && self.token_types.is_empty() {
-            return true;
-        }
-
-        // Check raw value match
-        if !self.raw_values.is_empty() && self.raw_values.contains(raw_upper) {
-            return true;
-        }
-
-        // Check type match
-        if !self.token_types.is_empty() && self.token_types.contains(token_type) {
-            return true;
-        }
-
-        false
-    }
-
     /// Check if this hint can match the given token (using a set of types)
     /// This matches Python's behavior where it checks intersection of hint types with token's class_types
     /// Returns true if the token's raw value OR any type matches, or if hint is empty (can't determine)
-    pub fn can_match_token_types(
+    pub fn can_match_token(
         &self,
         raw_upper: &str,
         token_types: &std::collections::HashSet<String>,
@@ -323,7 +302,7 @@ impl Grammar {
     pub fn simple_hint_with_dialect(
         &self,
         dialect: Option<&crate::dialect::Dialect>,
-        crumbs: &std::collections::HashSet<String>,
+        crumbs: &HashSet<String>,
     ) -> Option<SimpleHint> {
         match self {
             // Direct token matchers - can hint by type
@@ -462,7 +441,7 @@ impl Grammar {
 
     /// Convenience method that calls simple_hint_with_dialect with empty crumbs
     pub fn simple_hint(&self) -> Option<SimpleHint> {
-        self.simple_hint_with_dialect(None, &std::collections::HashSet::new())
+        self.simple_hint_with_dialect(None, &HashSet::new())
     }
 }
 

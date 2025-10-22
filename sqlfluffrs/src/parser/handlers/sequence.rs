@@ -1,5 +1,8 @@
 use crate::{
-    parser::{FrameContext, FrameState, Grammar, Node, ParseFrame, Parser},
+    parser::{
+        iterative::{NextStep, ParseFrameStack},
+        FrameContext, FrameState, Grammar, Node, ParseError, ParseFrame, Parser,
+    },
     ParseMode,
 };
 
@@ -14,12 +17,10 @@ impl<'a> Parser<'_> {
         reset_terminators: bool,
         allow_gaps: bool,
         parse_mode: ParseMode,
-        frame: ParseFrame,
+        frame: &mut ParseFrame,
         parent_terminators: &[Grammar],
-        stack: &mut Vec<ParseFrame>,
-        frame_id_counter: &mut usize,
-        results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
-    ) -> bool {
+        stack: &mut ParseFrameStack,
+    ) -> Result<NextStep, ParseError> {
         let pos = frame.pos;
         log::debug!("DEBUG: Sequence Initial at pos={}, parent_max_idx={:?}, allow_gaps={}, elements.len()={}",
                   pos, frame.parent_max_idx, allow_gaps, elements.len());
@@ -53,7 +54,6 @@ impl<'a> Parser<'_> {
         };
 
         // Update frame with Sequence context
-        let mut frame = frame;
         frame.state = FrameState::WaitingForChild {
             child_index: 0,
             total_children: elements.len(),
@@ -92,18 +92,24 @@ impl<'a> Parser<'_> {
 
                 if parse_mode == ParseMode::Strict {
                     // In strict mode, return Empty
-                    results.insert(current_frame_id, (Node::Empty, start_idx, None));
-                    return false; // Don't continue, we stored a result
+                    stack
+                        .results
+                        .insert(current_frame_id, (Node::Empty, start_idx, None));
+                    return Ok(NextStep::Fallthrough); // Don't continue, we stored a result
                 }
                 // In greedy modes, check if first element is optional
                 if elements[0].is_optional() {
                     // First element is optional, can skip
-                    results.insert(current_frame_id, (Node::Empty, start_idx, None));
-                    return false;
+                    stack
+                        .results
+                        .insert(current_frame_id, (Node::Empty, start_idx, None));
+                    return Ok(NextStep::Fallthrough);
                 } else {
                     // Required element, no segments - this is unparsable in greedy mode
-                    results.insert(current_frame_id, (Node::Empty, start_idx, None));
-                    return false;
+                    stack
+                        .results
+                        .insert(current_frame_id, (Node::Empty, start_idx, None));
+                    return Ok(NextStep::Fallthrough);
                 }
             }
 
@@ -143,7 +149,7 @@ impl<'a> Parser<'_> {
                     child_idx += 1;
                 } else {
                     // Get max_idx from parent Sequence to pass to child
-                    let current_max_idx = if let Some(parent_frame) = stack.last() {
+                    let current_max_idx = if let Some(parent_frame) = stack.last_mut() {
                         if let FrameContext::Sequence { max_idx, .. } = &parent_frame.context {
                             Some(*max_idx)
                         } else {
@@ -189,18 +195,20 @@ impl<'a> Parser<'_> {
                             if let Some(mut parent_frame) = stack.pop() {
                                 let seq_node =
                                     Node::Sequence(std::mem::take(&mut parent_frame.accumulated));
-                                results.insert(current_frame_id, (seq_node, first_child_pos, None));
+                                stack
+                                    .results
+                                    .insert(current_frame_id, (seq_node, first_child_pos, None));
                             }
-                            return false;
+                            return Ok(NextStep::Fallthrough);
                         }
                     }
 
                     let child_frame = ParseFrame {
-                        frame_id: *frame_id_counter,
+                        frame_id: stack.frame_id_counter,
                         grammar: elements[child_idx].clone(),
                         pos: first_child_pos, // Use position after skipping to code!
                         terminators: stack
-                            .last()
+                            .last_mut()
                             .map(|f| f.terminators.clone())
                             .unwrap_or_default(),
                         state: FrameState::Initial,
@@ -213,14 +221,13 @@ impl<'a> Parser<'_> {
                     ParseFrame::update_sequence_parent_and_push_child(
                         stack,
                         child_frame,
-                        frame_id_counter,
                         child_idx,
                     );
-                    return true; // Continue to process the child we just pushed
+                    return Ok(NextStep::Continue); // Continue to process the child we just pushed
                 }
             }
         }
 
-        false // No child pushed, don't continue
+        Ok(NextStep::Fallthrough) // No child pushed, don't continue
     }
 }

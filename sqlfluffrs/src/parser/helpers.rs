@@ -3,9 +3,12 @@
 //! This module contains utility methods used by both iterative and recursive parsers
 //! including token navigation, whitespace handling, and terminator checking.
 
-use crate::token::Token;
-use super::{Grammar, Node};
+use hashbrown::HashSet;
+
 use super::core::Parser;
+use super::{Grammar, Node};
+use crate::parser::utils::skip_start_index_forward_to_code;
+use crate::token::Token;
 
 impl<'a> Parser<'a> {
     /// Prune options based on simple matchers before attempting full parse.
@@ -16,21 +19,24 @@ impl<'a> Parser<'a> {
     pub(crate) fn prune_options<'g>(&self, options: &'g [Grammar]) -> Vec<&'g Grammar> {
         // Track stats
         self.pruning_calls.set(self.pruning_calls.get() + 1);
-        self.pruning_total.set(self.pruning_total.get() + options.len());
+        self.pruning_total
+            .set(self.pruning_total.get() + options.len());
 
         // Find first code (non-whitespace) token from current position
         let first_code_token = self.tokens.iter().skip(self.pos).find(|t| t.is_code());
 
         // If no code token found, can't prune - return all options
         let Some(first_token) = first_code_token else {
-            self.pruning_kept.set(self.pruning_kept.get() + options.len());
+            self.pruning_kept
+                .set(self.pruning_kept.get() + options.len());
             return options.iter().collect();
         };
 
         // Get token properties for matching
         // Use ALL types (instance_types + class_types) to match Python's behavior
         let first_raw = first_token.raw_upper();
-        let first_types: std::collections::HashSet<String> = first_token.get_all_types().into_iter().collect();
+        let first_types: std::collections::HashSet<String> =
+            first_token.get_all_types().into_iter().collect();
 
         log::debug!(
             "Pruning {} options at pos {} (token: '{}', types: {:?})",
@@ -40,11 +46,11 @@ impl<'a> Parser<'a> {
             first_types
         );
 
-        let mut pruned = Vec::new();
+        let mut available_options = Vec::new();
         let mut pruned_count = 0;
 
         // Create empty crumbs set for recursion protection
-        let crumbs = std::collections::HashSet::new();
+        let crumbs = HashSet::new();
 
         for opt in options {
             // Try to get simple hint for this grammar (with dialect for Ref resolution)
@@ -53,15 +59,15 @@ impl<'a> Parser<'a> {
                     // Complex grammar - must try full match
                     self.pruning_complex.set(self.pruning_complex.get() + 1);
                     log::debug!("  Keeping complex grammar: {}", opt);
-                    pruned.push(opt);
+                    available_options.push(opt);
                 }
                 Some(hint) => {
                     // Track that this had a hint
                     self.pruning_hinted.set(self.pruning_hinted.get() + 1);
                     // Check if hint matches current token (using ALL types for intersection)
-                    if hint.can_match_token_types(&first_raw, &first_types) {
+                    if hint.can_match_token(&first_raw, &first_types) {
                         log::debug!("  Keeping matched grammar: {}", opt);
-                        pruned.push(opt);
+                        available_options.push(opt);
                     } else {
                         log::debug!("  PRUNED grammar: {}", opt);
                         pruned_count += 1;
@@ -70,26 +76,96 @@ impl<'a> Parser<'a> {
             }
         }
 
-                // Safety fallback: if we pruned everything, keep everything
-        // This prevents breaking the parse when hints are too aggressive
-        if pruned.is_empty() {
-            self.pruning_kept
-                .set(self.pruning_kept.get() + options.len());
-            return options.iter().collect();
-        }
-
         if pruned_count > 0 {
             log::debug!(
                 "Pruned from {} to {} options ({} pruned, {:.1}% reduction)",
                 options.len(),
-                pruned.len(),
+                available_options.len(),
                 pruned_count,
                 100.0 * (pruned_count as f64 / options.len() as f64)
             );
         }
 
-        self.pruning_kept.set(self.pruning_kept.get() + pruned.len());
-        pruned
+        self.pruning_kept
+            .set(self.pruning_kept.get() + available_options.len());
+        available_options
+    }
+
+    pub(crate) fn longest_match(
+        &mut self,
+        options: &[Grammar],
+        max_idx: usize,
+        terminators: &[Grammar],
+    ) -> Node {
+        if options.is_empty() || self.pos == max_idx {
+            return Node::Empty;
+        }
+
+        let available_options = self.prune_options(options);
+
+        if available_options.is_empty() {
+            log::debug!("No options left after pruning, returning Empty");
+            return Node::Empty;
+        }
+
+        let mut terminated = false;
+        let mut best_option = Node::Empty;
+        let mut best_grammar: Option<&Grammar> = None;
+        let mut best_length = 0;
+
+        for (match_idx, opt) in available_options.iter().enumerate() {
+            let saved_pos = self.pos;
+            match self.parse_with_grammar_cached(opt, terminators) {
+                Ok(node) => {
+                    let length = self.pos - saved_pos;
+                    log::debug!("Option {} matched with length {}: {:#?}", opt, length, node);
+                    if self.pos == max_idx {
+                        log::debug!("Reached max_idx {}, stopping search", max_idx);
+                        return node;
+                    }
+
+                    if length >= best_length {
+                        best_length = length;
+                        best_option = node;
+                        best_grammar = Some(opt);
+
+                        if match_idx == available_options.len() - 1 {
+                            log::debug!(
+                                "Last option matched with length {}, returning best match",
+                                length
+                            );
+                            terminated = true;
+                            break;
+                        } else if !terminators.is_empty() {
+                            let next_code_idx =
+                                skip_start_index_forward_to_code(self.tokens, self.pos, max_idx);
+                            if next_code_idx == max_idx {
+                                log::debug!(
+                                    "Next code index reached max_idx {}, stopping search",
+                                    max_idx
+                                );
+                                terminated = true;
+                                break;
+                            }
+                        }
+                        if self.is_terminated(terminators) {
+                            terminated = true;
+                            log::debug!("Terminator reached after option {}, stopping search", opt);
+                            break;
+                        }
+                    }
+                }
+                Err(err) => {
+                    log::debug!("Option {} failed to parse: {:?}", opt, err);
+                }
+            }
+            if terminated {
+                break;
+            }
+            self.pos = saved_pos; // Restore position for next option
+        }
+
+        return best_option;
     }
 
     /// Print cache statistics
@@ -113,15 +189,38 @@ impl<'a> Parser<'a> {
             println!("SimpleHint Pruning Statistics:");
             println!("  Pruning calls: {}", calls);
             println!("  Total options: {}", total);
-            println!("  Options with hints: {} ({:.1}%)", hinted, 100.0 * hinted as f64 / total as f64);
-            println!("  Complex options (no hint): {} ({:.1}%)", complex, 100.0 * complex as f64 / total as f64);
-            println!("  Options kept: {} ({:.1}%)", kept, 100.0 * kept as f64 / total as f64);
-            println!("  Options pruned: {} ({:.1}%)", pruned, 100.0 * pruned as f64 / total as f64);
-            println!("  Pruning effectiveness: {:.1}% of hinted options pruned",
-                     if hinted > 0 { 100.0 * pruned as f64 / hinted as f64 } else { 0.0 });
+            println!(
+                "  Options with hints: {} ({:.1}%)",
+                hinted,
+                100.0 * hinted as f64 / total as f64
+            );
+            println!(
+                "  Complex options (no hint): {} ({:.1}%)",
+                complex,
+                100.0 * complex as f64 / total as f64
+            );
+            println!(
+                "  Options kept: {} ({:.1}%)",
+                kept,
+                100.0 * kept as f64 / total as f64
+            );
+            println!(
+                "  Options pruned: {} ({:.1}%)",
+                pruned,
+                100.0 * pruned as f64 / total as f64
+            );
+            println!(
+                "  Pruning effectiveness: {:.1}% of hinted options pruned",
+                if hinted > 0 {
+                    100.0 * pruned as f64 / hinted as f64
+                } else {
+                    0.0
+                }
+            );
             println!("  Avg options per call: {:.1}", total as f64 / calls as f64);
         }
-    }    /// Peek at the current token without consuming it
+    }
+    /// Peek at the current token without consuming it
     pub fn peek(&self) -> Option<&Token> {
         self.tokens.get(self.pos)
     }
@@ -199,7 +298,11 @@ impl<'a> Parser<'a> {
 
     /// Move an index forward through tokens until tokens[index] is code.
     /// Returns the index of the first code token, or max_idx if none found.
-    pub(crate) fn skip_start_index_forward_to_code(&self, start_idx: usize, max_idx: usize) -> usize {
+    pub(crate) fn skip_start_index_forward_to_code(
+        &self,
+        start_idx: usize,
+        max_idx: usize,
+    ) -> usize {
         for _idx in start_idx..max_idx {
             if self.tokens[_idx].is_code() {
                 return _idx;
@@ -210,7 +313,11 @@ impl<'a> Parser<'a> {
 
     /// Move an index backward through tokens until tokens[index - 1] is code.
     /// Returns the index after the last code token, or min_idx if none found.
-    pub(crate) fn skip_stop_index_backward_to_code(&self, stop_idx: usize, min_idx: usize) -> usize {
+    pub(crate) fn skip_stop_index_backward_to_code(
+        &self,
+        stop_idx: usize,
+        min_idx: usize,
+    ) -> usize {
         for _idx in (min_idx + 1..=stop_idx).rev() {
             if self.tokens[_idx - 1].is_code() {
                 return _idx;
@@ -250,12 +357,13 @@ impl<'a> Parser<'a> {
         let open_raw = open_tok.raw();
 
         // Determine which closing bracket we're looking for based on the opening bracket
-        let (is_matching_open, is_matching_close): (fn(&str) -> bool, fn(&str) -> bool) = match open_raw.as_str() {
-            "(" => (|s| s == "(", |s| s == ")"),
-            "[" => (|s| s == "[", |s| s == "]"),
-            "{" => (|s| s == "{", |s| s == "}"),
-            _ => return None, // Not an opening bracket
-        };
+        let (is_matching_open, is_matching_close): (fn(&str) -> bool, fn(&str) -> bool) =
+            match open_raw.as_str() {
+                "(" => (|s| s == "(", |s| s == ")"),
+                "[" => (|s| s == "[", |s| s == "]"),
+                "{" => (|s| s == "{", |s| s == "}"),
+                _ => return None, // Not an opening bracket
+            };
 
         let mut depth = 1; // We've already seen the opening bracket
         for idx in (open_idx + 1)..self.tokens.len() {
@@ -295,7 +403,11 @@ impl<'a> Parser<'a> {
     /// e.g., finding the wrong ")" when parsing DATEADD(DAY, ABS(5), '2024-01-01').
     ///
     /// Returns the index to use as max_idx (trimmed to last code segment before terminator).
-    pub(crate) fn trim_to_terminator(&mut self, start_idx: usize, terminators: &[Grammar]) -> usize {
+    pub(crate) fn trim_to_terminator(
+        &mut self,
+        start_idx: usize,
+        terminators: &[Grammar],
+    ) -> usize {
         if start_idx >= self.tokens.len() {
             return self.tokens.len();
         }
@@ -308,8 +420,11 @@ impl<'a> Parser<'a> {
             return start_idx;
         }
 
-        log::debug!("[TRIM_TO_TERM] Starting scan from idx={}, checking {} terminators",
-                    start_idx, terminators.len());
+        log::debug!(
+            "[TRIM_TO_TERM] Starting scan from idx={}, checking {} terminators",
+            start_idx,
+            terminators.len()
+        );
 
         // Scan forward looking for terminators, but skip over bracketed sections
         let mut idx = start_idx;
@@ -330,17 +445,28 @@ impl<'a> Parser<'a> {
                 let tok_raw = tok.raw();
                 if tok_raw == "(" || tok_raw == "[" || tok_raw == "{" {
                     // Found opening bracket - skip the entire bracketed section
-                    log::debug!("[TRIM_TO_TERM] idx={} found opening bracket '{}', finding matching close", idx, tok_raw);
+                    log::debug!(
+                        "[TRIM_TO_TERM] idx={} found opening bracket '{}', finding matching close",
+                        idx,
+                        tok_raw
+                    );
 
                     if let Some(close_idx) = self.find_matching_bracket(idx) {
                         // Skip past the closing bracket
-                        log::debug!("[TRIM_TO_TERM] Found matching close at idx={}, continuing from idx={}", close_idx, close_idx + 1);
+                        log::debug!(
+                            "[TRIM_TO_TERM] Found matching close at idx={}, continuing from idx={}",
+                            close_idx,
+                            close_idx + 1
+                        );
                         idx = close_idx + 1;
                         continue;
                     } else {
                         // No matching bracket found - this is malformed SQL
                         // Just continue scanning (will likely fail parsing later)
-                        log::debug!("[TRIM_TO_TERM] No matching close bracket found for idx={}", idx);
+                        log::debug!(
+                            "[TRIM_TO_TERM] No matching close bracket found for idx={}",
+                            idx
+                        );
                         idx += 1;
                         continue;
                     }
@@ -402,10 +528,13 @@ impl<'a> Parser<'a> {
 
         // First pass: check all simple terminators (fast path)
         for term in terminators.iter() {
-            let simple_opt = term.simple();
+            let simple_opt = term.simple_hint();
             if let Some(simple) = simple_opt {
                 // Use fast simple matching
-                if simple.could_match(current_token) {
+                if simple.can_match_token(
+                    &current_token.raw_upper(),
+                    &current_token.get_all_types().into_iter().collect(),
+                ) {
                     log::debug!("  TERMED Simple terminator matched: {}", term);
                     self.pos = init_pos; // restore original position
                     return true;
@@ -417,7 +546,7 @@ impl<'a> Parser<'a> {
         // Second pass: check complex terminators that need full parsing (slow path)
         for term in terminators.iter() {
             // Skip simple terminators (already checked)
-            if term.simple().is_some() {
+            if term.simple_hint().is_some() {
                 continue;
             }
 

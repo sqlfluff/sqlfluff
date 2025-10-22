@@ -3,6 +3,10 @@
 //! This module contains the core types used by the iterative parser to track
 //! parsing state without recursion.
 
+use hashbrown::{HashMap, HashSet};
+
+use crate::parser::iterative::ParseFrameStack;
+
 use super::types::{Grammar, Node, ParseMode};
 
 /// A parse frame represents a single parsing task in the iterative parser.
@@ -55,7 +59,7 @@ impl ParseFrame {
     /// Update the last_child_frame_id for the parent frame on the stack
     /// Returns true if the update succeeded, false if parent wasn't found or had wrong context type
     pub fn update_parent_last_child_id(
-        stack: &mut Vec<ParseFrame>,
+        stack: &mut ParseFrameStack,
         context_type: &str,
         child_frame_id: usize,
     ) -> bool {
@@ -142,38 +146,36 @@ impl ParseFrame {
     /// Also pushes the parent frame back onto the stack first (for use in WaitingForChild handlers)
     /// Returns the new frame_id_counter value
     pub fn push_child_and_update_parent(
-        stack: &mut Vec<ParseFrame>,
-        parent_frame: ParseFrame,
-        child_frame: ParseFrame,
-        frame_id_counter: &mut usize,
+        stack: &mut ParseFrameStack,
+        mut parent_frame: ParseFrame,
+        mut child_frame: ParseFrame,
         parent_context_type: &str,
     ) {
         let child_id = child_frame.frame_id;
 
         // Push parent back onto stack first
-        stack.push(parent_frame);
+        stack.push(&mut parent_frame);
 
         // Update parent's last_child_frame_id
         Self::update_parent_last_child_id(stack, parent_context_type, child_id);
 
         // Increment counter and push child
-        *frame_id_counter += 1;
-        stack.push(child_frame);
+        stack.increment_frame_id_counter();
+        stack.push(&mut child_frame);
     }
 
     /// Specialized version for Sequence that also updates current_element_idx
     pub fn push_sequence_child_and_update_parent(
-        stack: &mut Vec<ParseFrame>,
-        parent_frame: ParseFrame,
-        child_frame: ParseFrame,
-        frame_id_counter: &mut usize,
+        stack: &mut ParseFrameStack,
+        mut parent_frame: ParseFrame,
+        mut child_frame: ParseFrame,
         next_element_idx: usize,
     ) {
         let child_id = child_frame.frame_id;
 
         // Push parent back onto stack first
         let parent_id = parent_frame.frame_id;
-        stack.push(parent_frame);
+        stack.push(&mut parent_frame);
 
         // Update parent's last_child_frame_id AND current_element_idx
         if let Some(parent_frame) = stack.last_mut() {
@@ -191,16 +193,15 @@ impl ParseFrame {
         }
 
         // Increment counter and push child
-        *frame_id_counter += 1;
-        stack.push(child_frame);
+        stack.increment_frame_id_counter();
+        stack.push(&mut child_frame);
     }
 
     /// Update Sequence parent on stack and push child (for Initial state)
     /// Assumes parent is already on the stack
     pub fn update_sequence_parent_and_push_child(
-        stack: &mut Vec<ParseFrame>,
-        child_frame: ParseFrame,
-        frame_id_counter: &mut usize,
+        stack: &mut ParseFrameStack,
+        mut child_frame: ParseFrame,
         element_idx: usize,
     ) {
         let child_id = child_frame.frame_id;
@@ -219,8 +220,8 @@ impl ParseFrame {
         }
 
         // Increment counter and push child
-        *frame_id_counter += 1;
-        stack.push(child_frame);
+        stack.increment_frame_id_counter();
+        stack.push(&mut child_frame);
     }
 }
 
@@ -286,7 +287,7 @@ pub enum FrameContext {
         count: usize,
         matched_idx: usize,
         working_idx: usize,
-        option_counter: std::collections::HashMap<u64, usize>,
+        option_counter: HashMap<u64, usize>,
         max_idx: usize,
         last_child_frame_id: Option<usize>,
         elements: Vec<Grammar>,
@@ -300,7 +301,7 @@ pub enum FrameContext {
         count: usize,
         matched_idx: usize,
         working_idx: usize,
-        matched_elements: std::collections::HashSet<u64>,
+        matched_elements: HashSet<u64>,
         max_idx: usize,
         last_child_frame_id: Option<usize>,
         elements: Vec<Grammar>,

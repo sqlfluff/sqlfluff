@@ -6,8 +6,60 @@
 //! The iterative parser processes grammars by maintaining a stack of ParseFrames,
 //! each representing a parsing state. This approach prevents stack overflow on
 //! deeply nested or complex SQL grammars.
+use hashbrown::{HashMap, HashSet};
 
-use std::collections::{HashMap, HashSet};
+pub(crate) enum NextStep {
+    Continue,
+    Break,
+    Fallthrough,
+}
+/// Stack structure for managing ParseFrames and related state
+pub struct ParseFrameStack {
+    stack: Vec<ParseFrame>,
+    pub results: hashbrown::HashMap<usize, (Node, usize, Option<u64>)>,
+    pub frame_id_counter: usize,
+    // Add any additional state fields here as needed
+}
+
+impl ParseFrameStack {
+    pub fn new() -> Self {
+        ParseFrameStack {
+            stack: Vec::new(),
+            results: hashbrown::HashMap::new(),
+            frame_id_counter: 0,
+        }
+    }
+
+    pub fn push(&mut self, frame: &mut ParseFrame) {
+        self.stack.push(frame.clone());
+    }
+
+    pub fn pop(&mut self) -> Option<ParseFrame> {
+        self.stack.pop()
+    }
+
+    pub fn len(&self) -> usize {
+        self.stack.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.stack.is_empty()
+    }
+
+    pub fn last_mut(&mut self) -> Option<&mut ParseFrame> {
+        self.stack.last_mut()
+    }
+
+    pub fn iter(&self) -> std::slice::Iter<ParseFrame> {
+        self.stack.iter()
+    }
+
+    pub fn increment_frame_id_counter(&mut self) {
+        self.frame_id_counter += 1;
+    }
+
+    // Add more helper methods as needed for dispatch or state management
+}
 
 use crate::token;
 use crate::{dialect::Dialect, token::Token};
@@ -31,13 +83,247 @@ impl<'a> Parser<'_> {
     // Each function processes Initial state for a specific grammar type,
     // inserting results or pushing new frames as needed.
 
+    // Handler for FrameState::Initial
+    fn handle_frame_initial(
+        &mut self,
+        frame: &mut ParseFrame,
+        stack: &mut ParseFrameStack,
+        iteration_count: usize,
+    ) -> Result<NextStep, ParseError> {
+        let grammar = frame.grammar.clone();
+        let terminators = frame.terminators.clone();
+        // let pos = frame.pos;
+
+        match &grammar {
+            // Simple leaf grammars - parse directly without recursion
+            Grammar::Token { token_type } => {
+                self.handle_token_initial(token_type, &frame, &mut stack.results)?;
+                Ok(NextStep::Fallthrough)
+            }
+
+            Grammar::StringParser {
+                template,
+                token_type,
+                ..
+            } => self.handle_string_parser_initial(
+                template,
+                token_type,
+                &frame,
+                iteration_count,
+                &mut stack.results,
+            ),
+
+            Grammar::MultiStringParser {
+                templates,
+                token_type,
+                ..
+            } => self.handle_multi_string_parser_initial(
+                templates,
+                token_type,
+                &frame,
+                &mut stack.results,
+            ),
+
+            Grammar::TypedParser {
+                template,
+                token_type,
+                ..
+            } => self.handle_typed_parser_initial(template, token_type, &frame, &mut stack.results),
+
+            Grammar::RegexParser {
+                template,
+                token_type,
+                anti_template,
+                ..
+            } => self.handle_regex_parser_initial(
+                template,
+                anti_template,
+                token_type,
+                &frame,
+                &mut stack.results,
+            ),
+
+            Grammar::Meta(token_type) => {
+                self.handle_meta_initial(token_type, &frame, &mut stack.results)
+            }
+
+            Grammar::Nothing() => self.handle_nothing_initial(&frame, &mut stack.results),
+
+            Grammar::Empty => self.handle_empty_initial(&frame, &mut stack.results),
+
+            Grammar::Missing => self.handle_missing_initial(),
+
+            Grammar::Anything => {
+                self.handle_anything_initial(&frame, &terminators, &mut stack.results)
+            }
+
+            // Complex grammars - need special handling
+            Grammar::Sequence {
+                elements,
+                optional,
+                terminators: seq_terminators,
+                reset_terminators,
+                allow_gaps,
+                parse_mode,
+            } => self.handle_sequence_initial(
+                elements,
+                *optional,
+                seq_terminators,
+                *reset_terminators,
+                *allow_gaps,
+                *parse_mode,
+                frame,
+                &terminators,
+                &mut *stack,
+            ),
+
+            Grammar::OneOf {
+                elements,
+                exclude,
+                optional,
+                terminators: local_terminators,
+                reset_terminators,
+                allow_gaps,
+                parse_mode,
+            } => self.handle_oneof_initial(
+                elements,
+                exclude,
+                *optional,
+                local_terminators,
+                *reset_terminators,
+                *allow_gaps,
+                *parse_mode,
+                frame,
+                &terminators,
+                stack,
+            ),
+
+            Grammar::Ref {
+                name,
+                optional,
+                allow_gaps,
+                terminators: ref_terminators,
+                reset_terminators,
+            } => self.handle_ref_initial(
+                name,
+                *optional,
+                *allow_gaps,
+                ref_terminators,
+                *reset_terminators,
+                frame,
+                &terminators,
+                stack,
+                iteration_count,
+            ),
+
+            Grammar::AnyNumberOf {
+                elements,
+                min_times,
+                max_times,
+                max_times_per_element,
+                exclude,
+                optional,
+                terminators: any_terminators,
+                reset_terminators,
+                allow_gaps,
+                parse_mode,
+            } => self.handle_anynumberof_initial(
+                elements,
+                *min_times,
+                *max_times,
+                *max_times_per_element,
+                exclude,
+                *optional,
+                any_terminators,
+                *reset_terminators,
+                *allow_gaps,
+                *parse_mode,
+                frame,
+                &terminators,
+                stack,
+                iteration_count,
+            ),
+
+            Grammar::Bracketed {
+                elements,
+                bracket_pairs,
+                optional,
+                terminators: bracket_terminators,
+                reset_terminators,
+                allow_gaps,
+                parse_mode,
+            } => self.handle_bracketed_initial(
+                bracket_pairs,
+                elements,
+                *optional,
+                bracket_terminators,
+                *reset_terminators,
+                *allow_gaps,
+                *parse_mode,
+                frame,
+                &terminators,
+                stack,
+            ),
+
+            Grammar::AnySetOf {
+                elements,
+                min_times,
+                max_times,
+                exclude,
+                optional,
+                terminators: local_terminators,
+                reset_terminators,
+                allow_gaps,
+                parse_mode,
+            } => self.handle_anysetof_initial(
+                elements,
+                *min_times,
+                *max_times,
+                exclude,
+                *optional,
+                local_terminators,
+                *reset_terminators,
+                *allow_gaps,
+                *parse_mode,
+                frame,
+                &terminators,
+                stack,
+            ),
+
+            Grammar::Delimited {
+                elements,
+                delimiter,
+                allow_trailing,
+                optional,
+                terminators: local_terminators,
+                reset_terminators,
+                allow_gaps,
+                min_delimiters,
+                parse_mode,
+            } => self.handle_delimited_initial(
+                elements,
+                delimiter,
+                *allow_trailing,
+                *optional,
+                local_terminators,
+                *reset_terminators,
+                *allow_gaps,
+                *min_delimiters,
+                *parse_mode,
+                frame,
+                &terminators,
+                stack,
+            ),
+        }
+    }
+
     /// Handle Token grammar in iterative parser
     fn handle_token_initial(
         &mut self,
         token_type: &str,
         frame: &ParseFrame,
-        results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
-    ) -> Result<(), ParseError> {
+        results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
+    ) -> Result<NextStep, ParseError> {
         log::debug!("DEBUG: Token grammar frame_id={}, pos={}, parent_max_idx={:?}, token_type={:?}, available_tokens={}",
             frame.frame_id, frame.pos, frame.parent_max_idx, token_type, self.tokens.len());
 
@@ -60,7 +346,7 @@ impl<'a> Parser<'_> {
 
                 let node = Node::Token(token_type.to_string(), tok.raw(), token_pos);
                 results.insert(frame.frame_id, (node, self.pos, None));
-                Ok(())
+                Ok(NextStep::Fallthrough)
             } else {
                 log::debug!(
                     "DEBUG: Token grammar frame_id={} failed with error",
@@ -88,8 +374,8 @@ impl<'a> Parser<'_> {
         token_type: &str,
         frame: &ParseFrame,
         iteration_count: usize,
-        results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
-    ) {
+        results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
+    ) -> Result<NextStep, ParseError> {
         self.pos = frame.pos;
         self.skip_transparent(true);
         let tok_raw = self.peek().cloned();
@@ -114,6 +400,7 @@ impl<'a> Parser<'_> {
                 results.insert(frame.frame_id, (Node::Empty, self.pos, None));
             }
         }
+        Ok(NextStep::Fallthrough)
     }
 
     /// Handle MultiStringParser grammar in iterative parser
@@ -122,8 +409,8 @@ impl<'a> Parser<'_> {
         templates: &[&str],
         token_type: &str,
         frame: &ParseFrame,
-        results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
-    ) {
+        results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
+    ) -> Result<NextStep, ParseError> {
         self.pos = frame.pos;
         self.skip_transparent(true);
         let token = self.peek().cloned();
@@ -146,6 +433,7 @@ impl<'a> Parser<'_> {
                 results.insert(frame.frame_id, (Node::Empty, self.pos, None));
             }
         }
+        Ok(NextStep::Fallthrough)
     }
 
     /// Handle TypedParser grammar in iterative parser
@@ -154,8 +442,8 @@ impl<'a> Parser<'_> {
         template: &str,
         token_type: &str,
         frame: &ParseFrame,
-        results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
-    ) {
+        results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
+    ) -> Result<NextStep, ParseError> {
         log::debug!(
             "DEBUG: TypedParser frame_id={}, pos={}, parent_max_idx={:?}, template={:?}",
             frame.frame_id,
@@ -211,6 +499,7 @@ impl<'a> Parser<'_> {
             log::debug!("Typed parser at EOF");
             results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
         }
+        Ok(NextStep::Fallthrough)
     }
 
     /// Handle RegexParser grammar in iterative parser
@@ -221,8 +510,8 @@ impl<'a> Parser<'_> {
         anti_template: &Option<&'static str>,
         token_type: &str,
         frame: &ParseFrame,
-        results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
-    ) -> bool {
+        results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
+    ) -> Result<NextStep, ParseError> {
         self.pos = frame.pos;
         self.skip_transparent(true);
         let token = self.peek().cloned();
@@ -248,7 +537,7 @@ impl<'a> Parser<'_> {
                         log::debug!("Regex anti-matched: {}", tok);
                         log::debug!("RegexParser anti-match, returning Empty");
                         results.insert(frame.frame_id, (Node::Empty, self.pos, None));
-                        return true; // Signal caller to continue to next frame
+                        return Ok(NextStep::Continue); // Signal caller to continue to next frame
                     }
                 }
 
@@ -257,12 +546,12 @@ impl<'a> Parser<'_> {
                 self.bump();
                 let node = Node::Token(token_type.to_string(), tok.raw(), token_pos);
                 results.insert(frame.frame_id, (node, self.pos, None));
-                false
+                Ok(NextStep::Fallthrough)
             }
             _ => {
                 log::debug!("RegexParser didn't match '{}', returning Empty", template);
                 results.insert(frame.frame_id, (Node::Empty, self.pos, None));
-                false
+                Ok(NextStep::Fallthrough)
             }
         }
     }
@@ -272,33 +561,36 @@ impl<'a> Parser<'_> {
         &mut self,
         token_type: &'static str,
         frame: &ParseFrame,
-        results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
-    ) {
+        results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
+    ) -> Result<NextStep, ParseError> {
         log::debug!("Doing nothing with meta {}", token_type);
         results.insert(frame.frame_id, (Node::Meta(token_type), frame.pos, None));
+        Ok(NextStep::Fallthrough)
     }
 
     /// Handle Nothing grammar in iterative parser
     fn handle_nothing_initial(
         &mut self,
         frame: &ParseFrame,
-        results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
-    ) {
+        results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
+    ) -> Result<NextStep, ParseError> {
         log::debug!("Nothing grammar encountered, returning Empty");
         results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
+        Ok(NextStep::Fallthrough)
     }
 
     /// Handle Empty grammar in iterative parser
     fn handle_empty_initial(
         &mut self,
         frame: &ParseFrame,
-        results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
-    ) {
+        results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
+    ) -> Result<NextStep, ParseError> {
         results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
+        Ok(NextStep::Fallthrough)
     }
 
     /// Handle Missing grammar in iterative parser
-    fn handle_missing_initial(&mut self) -> Result<Node, ParseError> {
+    fn handle_missing_initial(&mut self) -> Result<NextStep, ParseError> {
         log::debug!("Trying missing grammar");
         Err(ParseError::new("Encountered Missing grammar".into()))
     }
@@ -308,8 +600,8 @@ impl<'a> Parser<'_> {
         &mut self,
         frame: &ParseFrame,
         parent_terminators: &[Grammar],
-        results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
-    ) {
+        results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
+    ) -> Result<NextStep, ParseError> {
         self.pos = frame.pos;
         let mut anything_tokens = vec![];
 
@@ -332,6 +624,7 @@ impl<'a> Parser<'_> {
             frame.frame_id,
             (Node::DelimitedList(anything_tokens), self.pos, None),
         );
+        Ok(NextStep::Fallthrough)
     }
 
     /// Handle Bracketed grammar Initial state in iterative parser
@@ -344,11 +637,10 @@ impl<'a> Parser<'_> {
         reset_terminators: bool,
         allow_gaps: bool,
         parse_mode: ParseMode,
-        frame: ParseFrame,
+        frame: &mut ParseFrame,
         parent_terminators: &[Grammar],
-        stack: &mut Vec<ParseFrame>,
-        frame_id_counter: &mut usize,
-    ) {
+        stack: &mut ParseFrameStack,
+    ) -> Result<NextStep, ParseError> {
         let start_idx = frame.pos;
         log::debug!(
             "Bracketed starting at {}, allow_gaps={}, parse_mode={:?}",
@@ -369,7 +661,6 @@ impl<'a> Parser<'_> {
         };
 
         // Update frame with Bracketed context
-        let mut frame = frame;
         frame.state = FrameState::WaitingForChild {
             child_index: 0,
             total_children: 3, // open, content, close
@@ -387,30 +678,34 @@ impl<'a> Parser<'_> {
         stack.push(frame);
 
         // Start by trying to match the opening bracket
-        let child_frame = ParseFrame {
-            frame_id: *frame_id_counter,
+        let mut child_frame = ParseFrame {
+            frame_id: stack.frame_id_counter,
             grammar: (*bracket_pairs.0).clone(),
             pos: start_idx,
             terminators: all_terminators,
             state: FrameState::Initial,
             accumulated: vec![],
             context: FrameContext::None,
-            parent_max_idx: stack.last().unwrap().parent_max_idx, // Propagate parent's limit!
+            parent_max_idx: stack.last_mut().unwrap().parent_max_idx, // Propagate parent's limit!
         };
 
         // Update parent's last_child_frame_id
-        if let Some(parent_frame) = stack.last_mut() {
-            if let FrameContext::Bracketed {
-                last_child_frame_id,
-                ..
-            } = &mut parent_frame.context
-            {
-                *last_child_frame_id = Some(*frame_id_counter);
+        {
+            let next_child_id = stack.frame_id_counter;
+            if let Some(parent_frame) = stack.last_mut() {
+                if let FrameContext::Bracketed {
+                    last_child_frame_id,
+                    ..
+                } = &mut parent_frame.context
+                {
+                    *last_child_frame_id = Some(next_child_id);
+                }
             }
         }
 
-        *frame_id_counter += 1;
-        stack.push(child_frame);
+        stack.increment_frame_id_counter();
+        stack.push(&mut child_frame);
+        Ok(NextStep::Continue)
     }
 
     /// Handle Ref grammar Initial state in iterative parser
@@ -422,13 +717,11 @@ impl<'a> Parser<'_> {
         allow_gaps: bool,
         ref_terminators: &[Grammar],
         reset_terminators: bool,
-        frame: ParseFrame,
+        frame: &mut ParseFrame,
         parent_terminators: &[Grammar],
-        stack: &mut Vec<ParseFrame>,
-        frame_id_counter: &mut usize,
+        stack: &mut ParseFrameStack,
         iteration_count: usize,
-        results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
-    ) -> Result<bool, ParseError> {
+    ) -> Result<NextStep, ParseError> {
         log::debug!(
             "Iterative Ref to segment: {}, optional: {}, allow_gaps: {}",
             name,
@@ -459,10 +752,10 @@ impl<'a> Parser<'_> {
                 let segment_type = self.dialect.get_segment_type(name).map(|s| s.to_string());
 
                 // Create child frame to parse the target grammar
-                let child_frame_id = *frame_id_counter;
-                *frame_id_counter += 1;
+                let child_frame_id = stack.frame_id_counter;
+                stack.increment_frame_id_counter();
 
-                let child_frame = ParseFrame {
+                let mut child_frame = ParseFrame {
                     frame_id: child_frame_id,
                     grammar: child_grammar.clone(),
                     pos: self.pos,
@@ -474,7 +767,6 @@ impl<'a> Parser<'_> {
                 };
 
                 // Update current frame to wait for child and store Ref metadata
-                let mut frame = frame;
                 frame.state = FrameState::WaitingForChild {
                     child_index: 0,
                     total_children: 1,
@@ -494,7 +786,7 @@ impl<'a> Parser<'_> {
                 log::debug!("DEBUG [iter {}]: Ref({}) frame_id={} creating child frame_id={}, child grammar type: {}",
                     iteration_count,
                     name,
-                    stack.last().unwrap().frame_id,
+                    stack.last_mut().unwrap().frame_id,
                     child_frame_id,
                     match &child_grammar {
                         Grammar::Ref { name, .. } => format!("Ref({})", name),
@@ -505,21 +797,23 @@ impl<'a> Parser<'_> {
                     }
                 );
 
-                stack.push(child_frame);
+                stack.push(&mut child_frame);
                 log::debug!("DEBUG [iter {}]: ABOUT TO CONTINUE - Ref({}) pushed child {}, stack size now {}",
                     iteration_count, name, child_frame_id, stack.len());
                 log::debug!(
                     "DEBUG [iter {}]: ==> CONTINUING 'MAIN_LOOP NOW! <==",
                     iteration_count
                 );
-                Ok(true) // Signal caller to continue main loop
+                Ok(NextStep::Continue) // Signal caller to continue main loop
             }
             None => {
                 self.pos = saved;
                 if optional {
                     log::debug!("Iterative Ref optional (grammar not found), skipping");
-                    results.insert(frame.frame_id, (Node::Empty, saved, None));
-                    Ok(false) // Don't continue, we stored a result
+                    stack
+                        .results
+                        .insert(frame.frame_id, (Node::Empty, saved, None));
+                    Ok(NextStep::Fallthrough) // Don't continue, we stored a result
                 } else {
                     log::debug!("Iterative Ref failed (grammar not found), returning error");
                     Err(ParseError::unknown_segment(name.to_string()))
@@ -584,11 +878,10 @@ impl<'a> Parser<'_> {
         reset_terminators: bool,
         allow_gaps: bool,
         parse_mode: ParseMode,
-        frame: ParseFrame,
+        frame: &mut ParseFrame,
         parent_terminators: &[Grammar],
-        stack: &mut Vec<ParseFrame>,
-        frame_id_counter: &mut usize,
-    ) {
+        stack: &mut ParseFrameStack,
+    ) -> Result<NextStep, ParseError> {
         let pos = frame.pos;
         log::debug!("[ITERATIVE] AnySetOf Initial state at pos {}", pos);
 
@@ -603,7 +896,7 @@ impl<'a> Parser<'_> {
                     pos
                 );
                 // Don't push frame, just return
-                return;
+                return Ok(NextStep::Continue);
             }
         }
 
@@ -640,7 +933,6 @@ impl<'a> Parser<'_> {
         );
 
         // Create AnySetOf context
-        let mut frame = frame;
         frame.state = FrameState::WaitingForChild {
             child_index: 0,
             total_children: max_times.unwrap_or(usize::MAX).min(elements.len()),
@@ -653,7 +945,7 @@ impl<'a> Parser<'_> {
             count: 0,
             matched_idx: pos,
             working_idx: pos,
-            matched_elements: std::collections::HashSet::new(),
+            matched_elements: HashSet::new(),
             max_idx,
             last_child_frame_id: None,
             elements: elements.to_vec(),
@@ -675,8 +967,8 @@ impl<'a> Parser<'_> {
             parse_mode,
         };
 
-        let child_frame = ParseFrame {
-            frame_id: *frame_id_counter,
+        let mut child_frame = ParseFrame {
+            frame_id: stack.frame_id_counter,
             grammar: child_grammar,
             pos,
             terminators: all_terminators,
@@ -687,18 +979,20 @@ impl<'a> Parser<'_> {
         };
 
         // Update parent's last_child_frame_id
+        let next_child_id = stack.frame_id_counter;
         if let Some(parent_frame) = stack.last_mut() {
             if let FrameContext::AnySetOf {
                 last_child_frame_id,
                 ..
             } = &mut parent_frame.context
             {
-                *last_child_frame_id = Some(*frame_id_counter);
+                *last_child_frame_id = Some(next_child_id);
             }
         }
 
-        *frame_id_counter += 1;
-        stack.push(child_frame);
+        stack.increment_frame_id_counter();
+        stack.push(&mut child_frame);
+        Ok(NextStep::Continue)
     }
 
     /// Handle AnyNumberOf grammar Initial state in iterative parser
@@ -714,12 +1008,11 @@ impl<'a> Parser<'_> {
         reset_terminators: bool,
         allow_gaps: bool,
         parse_mode: ParseMode,
-        frame: ParseFrame,
+        frame: &mut ParseFrame,
         parent_terminators: &[Grammar],
-        stack: &mut Vec<ParseFrame>,
-        frame_id_counter: &mut usize,
+        stack: &mut ParseFrameStack,
         iteration_count: usize,
-    ) {
+    ) -> Result<NextStep, ParseError> {
         let start_idx = frame.pos;
         log::debug!(
             "AnyNumberOf starting at {}, min_times={}, max_times={:?}, allow_gaps={}, parse_mode={:?}",
@@ -743,7 +1036,7 @@ impl<'a> Parser<'_> {
                 );
                 // Pop the frame we would have pushed
                 // Actually, we haven't pushed yet at this point, so just return
-                return;
+                return Ok(NextStep::Continue);
             }
         }
 
@@ -783,7 +1076,6 @@ impl<'a> Parser<'_> {
         );
 
         // Update frame with AnyNumberOf context
-        let mut frame = frame;
         frame.state = FrameState::WaitingForChild {
             child_index: 0,
             total_children: elements.len(), // We'll loop through elements
@@ -799,7 +1091,7 @@ impl<'a> Parser<'_> {
             count: 0,
             matched_idx: start_idx,
             working_idx: start_idx,
-            option_counter: std::collections::HashMap::new(),
+            option_counter: HashMap::new(),
             max_idx,
             last_child_frame_id: None,
         };
@@ -821,8 +1113,8 @@ impl<'a> Parser<'_> {
                 parse_mode,
             };
 
-            let child_frame = ParseFrame {
-                frame_id: *frame_id_counter,
+            let mut child_frame = ParseFrame {
+                frame_id: stack.frame_id_counter,
                 grammar: child_grammar,
                 pos: start_idx,
                 terminators: all_terminators,
@@ -833,25 +1125,27 @@ impl<'a> Parser<'_> {
             };
 
             // Update parent's last_child_frame_id
+            let next_child_id = stack.frame_id_counter;
             if let Some(parent_frame) = stack.last_mut() {
                 if let FrameContext::AnyNumberOf {
                     last_child_frame_id,
                     ..
                 } = &mut parent_frame.context
                 {
-                    *last_child_frame_id = Some(*frame_id_counter);
+                    *last_child_frame_id = Some(next_child_id);
                 }
             }
 
-            *frame_id_counter += 1;
+            stack.increment_frame_id_counter();
             log::debug!("DEBUG [iter {}]: AnyNumberOf Initial pushing child frame_id={}, stack size before push={}",
                 iteration_count, child_frame.frame_id, stack.len());
-            stack.push(child_frame);
+            stack.push(&mut child_frame);
             log::debug!(
                 "DEBUG [iter {}]: AnyNumberOf Initial ABOUT TO CONTINUE after pushing child",
                 iteration_count
             );
         }
+        Ok(NextStep::Continue)
     }
 
     /// Handle OneOf grammar Initial state in iterative parser
@@ -865,12 +1159,10 @@ impl<'a> Parser<'_> {
         reset_terminators: bool,
         allow_gaps: bool,
         parse_mode: ParseMode,
-        frame: ParseFrame,
+        frame: &mut ParseFrame,
         parent_terminators: &[Grammar],
-        stack: &mut Vec<ParseFrame>,
-        frame_id_counter: &mut usize,
-        results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
-    ) -> bool {
+        stack: &mut ParseFrameStack,
+    ) -> Result<NextStep, ParseError> {
         let pos = frame.pos;
         log::debug!(
             "OneOf Initial state at pos {}, {} elements, parse_mode={:?}",
@@ -889,8 +1181,10 @@ impl<'a> Parser<'_> {
                     "OneOf: exclude grammar matched at pos {}, returning empty",
                     pos
                 );
-                results.insert(frame.frame_id, (Node::Empty, pos, None));
-                return false; // Don't continue
+                stack
+                    .results
+                    .insert(frame.frame_id, (Node::Empty, pos, None));
+                return Ok(NextStep::Fallthrough); // Don't continue
             }
         }
 
@@ -945,8 +1239,10 @@ impl<'a> Parser<'_> {
                 max_idx
             };
             self.pos = final_pos;
-            results.insert(frame.frame_id, (result, final_pos, None));
-            return false; // Don't continue, we stored a result
+            stack
+                .results
+                .insert(frame.frame_id, (result, final_pos, None));
+            return Ok(NextStep::Fallthrough); // Don't continue, we stored a result
         }
 
         // Prune options based on simple matchers
@@ -970,12 +1266,13 @@ impl<'a> Parser<'_> {
                 max_idx
             };
             self.pos = final_pos;
-            results.insert(frame.frame_id, (result, final_pos, None));
-            return false; // Don't continue, we stored a result
+            stack
+                .results
+                .insert(frame.frame_id, (result, final_pos, None));
+            return Ok(NextStep::Fallthrough); // Don't continue, we stored a result
         }
 
         // Create context to track OneOf matching progress
-        let mut frame = frame;
         frame.context = FrameContext::OneOf {
             elements: available_options.clone(),
             allow_gaps,
@@ -986,7 +1283,7 @@ impl<'a> Parser<'_> {
             tried_elements: 0,
             max_idx,
             parse_mode,
-            last_child_frame_id: Some(*frame_id_counter), // Track the child we're about to create
+            last_child_frame_id: Some(stack.frame_id_counter), // Track the child we're about to create
         };
 
         // Create child frame for first element
@@ -1000,44 +1297,46 @@ impl<'a> Parser<'_> {
                 element_key
             );
             // Nothing always returns Empty at current position with zero consumed tokens
-            frame.context = match frame.context {
+            frame.context = if let FrameContext::OneOf {
+                elements,
+                allow_gaps,
+                optional,
+                leading_ws,
+                post_skip_pos,
+                longest_match: _,
+                tried_elements,
+                max_idx,
+                parse_mode,
+                last_child_frame_id: _,
+            } = &frame.context
+            {
                 FrameContext::OneOf {
-                    elements,
-                    allow_gaps,
-                    optional,
-                    leading_ws,
-                    post_skip_pos,
-                    longest_match: _,
-                    tried_elements,
-                    max_idx,
-                    parse_mode,
-                    last_child_frame_id: _,
-                } => FrameContext::OneOf {
-                    elements,
-                    allow_gaps,
-                    optional,
-                    leading_ws,
-                    post_skip_pos,
+                    elements: elements.clone(),
+                    allow_gaps: *allow_gaps,
+                    optional: *optional,
+                    leading_ws: leading_ws.clone(),
+                    post_skip_pos: *post_skip_pos,
                     longest_match: Some((Node::Empty, 0, element_key)), // Empty with 0 consumed
-                    tried_elements: tried_elements + 1,
-                    max_idx,
-                    parse_mode,
+                    tried_elements: *tried_elements + 1,
+                    max_idx: *max_idx,
+                    parse_mode: *parse_mode,
                     last_child_frame_id: None,
-                },
-                _ => unreachable!(),
+                }
+            } else {
+                unreachable!()
             };
             frame.state = FrameState::WaitingForChild {
                 child_index: 0,
                 total_children: 1,
             };
             stack.push(frame);
-            return true; // Continue to process next element in OneOf
+            return Ok(NextStep::Continue); // Continue to process next element in OneOf
         }
         log::debug!("OneOf: Trying first element (cache_key: {})", element_key);
 
         // Use OUR computed max_idx for the child, not the parent's parent_max_idx
-        let child_frame = ParseFrame {
-            frame_id: *frame_id_counter,
+        let mut child_frame = ParseFrame {
+            frame_id: stack.frame_id_counter,
             grammar: first_element,
             pos: post_skip_pos,
             terminators: all_terminators.clone(),
@@ -1054,10 +1353,10 @@ impl<'a> Parser<'_> {
 
         // Context already set above, just keep it
 
-        *frame_id_counter += 1;
+        stack.increment_frame_id_counter();
         stack.push(frame); // Push parent back to stack first
-        stack.push(child_frame); // Then push child
-        true // Continue main loop
+        stack.push(&mut child_frame); // Then push child
+        Ok(NextStep::Continue) // Continue main loop
     }
 
     /// Handle Delimited grammar Initial state in iterative parser
@@ -1073,12 +1372,10 @@ impl<'a> Parser<'_> {
         allow_gaps: bool,
         min_delimiters: usize,
         parse_mode: ParseMode,
-        frame: ParseFrame,
+        frame: &mut ParseFrame,
         parent_terminators: &[Grammar],
-        stack: &mut Vec<ParseFrame>,
-        frame_id_counter: &mut usize,
-        results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
-    ) -> bool {
+        stack: &mut ParseFrameStack,
+    ) -> Result<NextStep, ParseError> {
         let pos = frame.pos;
         log::debug!("[ITERATIVE] Delimited Initial state at pos {}", pos);
 
@@ -1096,7 +1393,7 @@ impl<'a> Parser<'_> {
             local_terminators
                 .iter()
                 .cloned()
-                .chain(filtered_parent.into_iter())
+                .chain(filtered_parent)
                 .collect()
         };
 
@@ -1153,12 +1450,13 @@ impl<'a> Parser<'_> {
         // Check if optional and already terminated
         if optional && (self.is_at_end() || self.is_terminated(&all_terminators)) {
             log::debug!("[ITERATIVE] Delimited: empty optional");
-            results.insert(frame.frame_id, (Node::DelimitedList(vec![]), pos, None));
-            return false; // Don't continue, we stored a result
+            stack
+                .results
+                .insert(frame.frame_id, (Node::DelimitedList(vec![]), pos, None));
+            return Ok(NextStep::Fallthrough); // Don't continue, we stored a result
         }
 
         // Create Delimited context
-        let mut frame = frame;
         frame.state = FrameState::WaitingForChild {
             child_index: 0,
             total_children: usize::MAX, // Unknown number of children
@@ -1213,8 +1511,8 @@ impl<'a> Parser<'_> {
             }
         }
 
-        let child_frame = ParseFrame::new_child(
-            *frame_id_counter,
+        let mut child_frame = ParseFrame::new_child(
+            stack.frame_id_counter,
             child_grammar,
             pos,
             all_terminators,
@@ -1222,10 +1520,10 @@ impl<'a> Parser<'_> {
         );
 
         // Update parent's last_child_frame_id and push child
-        ParseFrame::update_parent_last_child_id(stack, "Delimited", *frame_id_counter);
-        *frame_id_counter += 1;
-        stack.push(child_frame);
-        true // Continue to process the child frame we just pushed
+        ParseFrame::update_parent_last_child_id(stack, "Delimited", stack.frame_id_counter);
+        stack.increment_frame_id_counter();
+        stack.push(&mut child_frame);
+        Ok(NextStep::Continue) // Continue to process the child frame we just pushed
     }
 
     // ========================================================================
@@ -1282,23 +1580,11 @@ impl<'a> Parser<'_> {
             }
         }
 
-        // NOTE: We do NOT disable use_iterative_parser here anymore.
-        // All grammars should use frame-based implementation inside the loop below.
-        // If a grammar calls parse_with_grammar_cached(), it will check the flag
-        // and come back here, maintaining the iterative approach.
-
-        // Track results for completed parses
-        // HashMap: frame_id -> (node, pos, element_key)
-        // element_key is Some(key) for OneOf matches, None for other grammars
-        let mut results: std::collections::HashMap<usize, (Node, usize, Option<u64>)> =
-            std::collections::HashMap::new();
-        let mut frame_id_counter = 0_usize;
-
-        // Stack of parse frames
-        let initial_frame_id = frame_id_counter;
-        frame_id_counter += 1;
-
-        let mut stack: Vec<ParseFrame> = vec![ParseFrame {
+        // Stack of parse frames and state
+        let mut stack = ParseFrameStack::new();
+        let initial_frame_id = stack.frame_id_counter;
+        stack.frame_id_counter += 1;
+        stack.push(&mut ParseFrame {
             frame_id: initial_frame_id,
             grammar: grammar.clone(),
             pos: self.pos,
@@ -1307,7 +1593,7 @@ impl<'a> Parser<'_> {
             accumulated: vec![],
             context: FrameContext::None,
             parent_max_idx: None, // Top-level frame has no parent limit
-        }];
+        });
 
         let mut iteration_count = 0_usize;
         let max_iterations = 1500000_usize; // Higher limit for complex grammars
@@ -1319,7 +1605,7 @@ impl<'a> Parser<'_> {
                 eprintln!("ERROR: Exceeded max iterations ({})", max_iterations);
                 eprintln!("Last frame: {:?}", frame.grammar);
                 eprintln!("Stack depth: {}", stack.len());
-                eprintln!("Results count: {}", results.len());
+                eprintln!("Results count: {}", stack.results.len());
 
                 // Print last 20 frames on stack for diagnosis
                 eprintln!("\n=== Last 20 frames on stack ===");
@@ -1360,7 +1646,7 @@ impl<'a> Parser<'_> {
                 log::debug!(
                     "  Stack size: {}, Results size: {}",
                     stack.len(),
-                    results.len()
+                    stack.results.len()
                 );
                 match &frame.grammar {
                     Grammar::Ref { name, .. } => log::debug!("  Grammar: Ref({})", name),
@@ -1383,290 +1669,12 @@ impl<'a> Parser<'_> {
 
             match frame.state {
                 FrameState::Initial => {
-                    // Start parsing this grammar - clone the grammar to avoid borrow issues
-                    let grammar = frame.grammar.clone();
-                    let terminators = frame.terminators.clone();
-                    let pos = frame.pos;
-
-                    match &grammar {
-                        // Simple leaf grammars - parse directly without recursion
-                        Grammar::Token { token_type } => {
-                            self.handle_token_initial(token_type, &frame, &mut results)?;
-                        }
-
-                        Grammar::StringParser {
-                            template,
-                            token_type,
-                            ..
-                        } => {
-                            self.handle_string_parser_initial(
-                                template,
-                                token_type,
-                                &frame,
-                                iteration_count,
-                                &mut results,
-                            );
-                        }
-
-                        Grammar::MultiStringParser {
-                            templates,
-                            token_type,
-                            ..
-                        } => {
-                            self.handle_multi_string_parser_initial(
-                                templates,
-                                token_type,
-                                &frame,
-                                &mut results,
-                            );
-                        }
-
-                        Grammar::TypedParser {
-                            template,
-                            token_type,
-                            ..
-                        } => {
-                            self.handle_typed_parser_initial(
-                                template,
-                                token_type,
-                                &frame,
-                                &mut results,
-                            );
-                        }
-
-                        Grammar::RegexParser {
-                            template,
-                            token_type,
-                            anti_template,
-                            ..
-                        } => {
-                            if self.handle_regex_parser_initial(
-                                template,
-                                anti_template,
-                                token_type,
-                                &frame,
-                                &mut results,
-                            ) {
-                                continue 'main_loop; // Anti-template matched, skip to next frame
-                            }
-                        }
-
-                        Grammar::Meta(token_type) => {
-                            self.handle_meta_initial(token_type, &frame, &mut results);
-                        }
-
-                        Grammar::Nothing() => {
-                            self.handle_nothing_initial(&frame, &mut results);
-                        }
-
-                        Grammar::Empty => {
-                            self.handle_empty_initial(&frame, &mut results);
-                        }
-
-                        Grammar::Missing => {
-                            return self.handle_missing_initial();
-                        }
-
-                        Grammar::Anything => {
-                            self.handle_anything_initial(&frame, &terminators, &mut results);
-                        }
-
-                        // Complex grammars - need special handling
-                        Grammar::Sequence {
-                            elements,
-                            optional,
-                            terminators: seq_terminators,
-                            reset_terminators,
-                            allow_gaps,
-                            parse_mode,
-                        } => {
-                            if self.handle_sequence_initial(
-                                elements,
-                                *optional,
-                                seq_terminators,
-                                *reset_terminators,
-                                *allow_gaps,
-                                *parse_mode,
-                                frame,
-                                &terminators,
-                                &mut stack,
-                                &mut frame_id_counter,
-                                &mut results,
-                            ) {
-                                continue 'main_loop;
-                            }
-                        }
-
-                        Grammar::OneOf {
-                            elements,
-                            exclude,
-                            optional,
-                            terminators: local_terminators,
-                            reset_terminators,
-                            allow_gaps,
-                            parse_mode,
-                        } => {
-                            if self.handle_oneof_initial(
-                                elements,
-                                exclude,
-                                *optional,
-                                local_terminators,
-                                *reset_terminators,
-                                *allow_gaps,
-                                *parse_mode,
-                                frame,
-                                &terminators,
-                                &mut stack,
-                                &mut frame_id_counter,
-                                &mut results,
-                            ) {
-                                continue 'main_loop;
-                            }
-                        }
-
-                        Grammar::Ref {
-                            name,
-                            optional,
-                            allow_gaps,
-                            terminators: ref_terminators,
-                            reset_terminators,
-                        } => {
-                            if self.handle_ref_initial(
-                                name,
-                                *optional,
-                                *allow_gaps,
-                                ref_terminators,
-                                *reset_terminators,
-                                frame,
-                                &terminators,
-                                &mut stack,
-                                &mut frame_id_counter,
-                                iteration_count,
-                                &mut results,
-                            )? {
-                                continue 'main_loop;
-                            }
-                        }
-
-                        Grammar::AnyNumberOf {
-                            elements,
-                            min_times,
-                            max_times,
-                            max_times_per_element,
-                            exclude,
-                            optional,
-                            terminators: any_terminators,
-                            reset_terminators,
-                            allow_gaps,
-                            parse_mode,
-                        } => {
-                            self.handle_anynumberof_initial(
-                                elements,
-                                *min_times,
-                                *max_times,
-                                *max_times_per_element,
-                                exclude,
-                                *optional,
-                                any_terminators,
-                                *reset_terminators,
-                                *allow_gaps,
-                                *parse_mode,
-                                frame,
-                                &terminators,
-                                &mut stack,
-                                &mut frame_id_counter,
-                                iteration_count,
-                            );
-                            continue 'main_loop;
-                        }
-
-                        Grammar::Bracketed {
-                            elements,
-                            bracket_pairs,
-                            optional,
-                            terminators: bracket_terminators,
-                            reset_terminators,
-                            allow_gaps,
-                            parse_mode,
-                        } => {
-                            self.handle_bracketed_initial(
-                                bracket_pairs,
-                                elements,
-                                *optional,
-                                bracket_terminators,
-                                *reset_terminators,
-                                *allow_gaps,
-                                *parse_mode,
-                                frame,
-                                &terminators,
-                                &mut stack,
-                                &mut frame_id_counter,
-                            );
-                            continue 'main_loop;
-                        }
-
-                        Grammar::AnySetOf {
-                            elements,
-                            min_times,
-                            max_times,
-                            exclude,
-                            optional,
-                            terminators: local_terminators,
-                            reset_terminators,
-                            allow_gaps,
-                            parse_mode,
-                        } => {
-                            self.handle_anysetof_initial(
-                                elements,
-                                *min_times,
-                                *max_times,
-                                exclude,
-                                *optional,
-                                local_terminators,
-                                *reset_terminators,
-                                *allow_gaps,
-                                *parse_mode,
-                                frame,
-                                &terminators,
-                                &mut stack,
-                                &mut frame_id_counter,
-                            );
-                            continue 'main_loop;
-                        }
-
-                        Grammar::Delimited {
-                            elements,
-                            delimiter,
-                            allow_trailing,
-                            optional,
-                            terminators: local_terminators,
-                            reset_terminators,
-                            allow_gaps,
-                            min_delimiters,
-                            parse_mode,
-                        } => {
-                            if self.handle_delimited_initial(
-                                elements,
-                                delimiter,
-                                *allow_trailing,
-                                *optional,
-                                local_terminators,
-                                *reset_terminators,
-                                *allow_gaps,
-                                *min_delimiters,
-                                *parse_mode,
-                                frame,
-                                &terminators,
-                                &mut stack,
-                                &mut frame_id_counter,
-                                &mut results,
-                            ) {
-                                continue 'main_loop;
-                            }
-                        }
+                    match self.handle_frame_initial(&mut frame, &mut stack, iteration_count)? {
+                        NextStep::Continue => continue 'main_loop,
+                        NextStep::Break => break 'main_loop,
+                        _ => (),
                     }
                 }
-
                 FrameState::WaitingForChild {
                     child_index,
                     total_children,
@@ -1719,7 +1727,7 @@ impl<'a> Parser<'_> {
                     };
 
                     if let Some((child_node, child_end_pos, child_element_key)) =
-                        results.get(&child_frame_id)
+                        stack.results.get(&child_frame_id)
                     {
                         log::debug!(
                             "Child {} of {} completed (frame_id={}): pos {} -> {}",
@@ -1814,7 +1822,7 @@ impl<'a> Parser<'_> {
                                     Ok((final_node.clone(), self.pos, transparent_positions)),
                                 );
 
-                                results.insert(frame.frame_id, (final_node, self.pos, None));
+                                stack.results.insert(frame.frame_id, (final_node, self.pos, None));
                                 continue 'main_loop; // Frame is complete, move to next frame
                             }
                             FrameContext::Sequence {
@@ -1877,7 +1885,7 @@ impl<'a> Parser<'_> {
                                         for pos in tentatively_collected.iter() {
                                             self.collected_transparent_positions.remove(pos);
                                         }
-                                        results
+                                        stack.results
                                             .insert(frame.frame_id, (Node::Empty, frame.pos, None));
                                         continue 'main_loop; // Skip to next frame
                                     }
@@ -2078,7 +2086,7 @@ impl<'a> Parser<'_> {
                                         "Sequence COMPLETE: Storing result at frame_id={}",
                                         frame.frame_id
                                     );
-                                    results.insert(
+                                    stack.results.insert(
                                         frame.frame_id,
                                         (result_node, current_matched_idx, None),
                                     );
@@ -2118,12 +2126,16 @@ impl<'a> Parser<'_> {
                                                     let tok = &self.tokens[collect_pos];
                                                     let tok_type = tok.get_type();
                                                     // Only collect if not already present in frame.accumulated
-                                                    let already_collected = frame.accumulated.iter().any(|node| {
-                                                        match node {
-                                                            Node::Whitespace(_, pos) | Node::Newline(_, pos) => *pos == collect_pos,
+                                                    let already_collected = frame
+                                                        .accumulated
+                                                        .iter()
+                                                        .any(|node| match node {
+                                                            Node::Whitespace(_, pos)
+                                                            | Node::Newline(_, pos) => {
+                                                                *pos == collect_pos
+                                                            }
                                                             _ => false,
-                                                        }
-                                                    });
+                                                        });
                                                     if !already_collected {
                                                         if tok_type == "whitespace" {
                                                             log::debug!(
@@ -2131,10 +2143,12 @@ impl<'a> Parser<'_> {
                                                                 collect_pos,
                                                                 tok.raw()
                                                             );
-                                                            frame.accumulated.push(Node::Whitespace(
-                                                                tok.raw().to_string(),
-                                                                collect_pos,
-                                                            ));
+                                                            frame.accumulated.push(
+                                                                Node::Whitespace(
+                                                                    tok.raw().to_string(),
+                                                                    collect_pos,
+                                                                ),
+                                                            );
                                                             tentatively_collected.push(collect_pos);
                                                         } else if tok_type == "newline" {
                                                             log::debug!(
@@ -2206,7 +2220,7 @@ impl<'a> Parser<'_> {
                                             } else {
                                                 Node::Sequence(frame.accumulated.clone())
                                             };
-                                            results.insert(
+                                            stack.results.insert(
                                                 frame.frame_id,
                                                 (result_node, current_matched_idx, None),
                                             );
@@ -2219,7 +2233,7 @@ impl<'a> Parser<'_> {
                                                 log::debug!(
                                                     "NOMATCH Ran out of segments in STRICT mode"
                                                 );
-                                                results.insert(
+                                                stack.results.insert(
                                                     frame.frame_id,
                                                     (Node::Empty, element_start, None),
                                                 );
@@ -2236,7 +2250,7 @@ impl<'a> Parser<'_> {
                                                 self.pos = current_matched_idx;
                                                 let result_node =
                                                     Node::Sequence(frame.accumulated.clone());
-                                                results.insert(
+                                                stack.results.insert(
                                                     frame.frame_id,
                                                     (result_node, current_matched_idx, None),
                                                 );
@@ -2295,12 +2309,12 @@ impl<'a> Parser<'_> {
                                             log::debug!(
                                                 "Creating child frame for element {}: frame_id={}, parent_max_idx={}",
                                                 next_elem_idx,
-                                                frame_id_counter,
+                                                stack.frame_id_counter,
                                                 current_original_max_idx
                                             );
 
                                             let child_frame = ParseFrame::new_child(
-                                                frame_id_counter,
+                                                stack.frame_id_counter,
                                                 elements_clone[next_elem_idx].clone(),
                                                 next_pos,
                                                 frame_terminators.clone(),
@@ -2315,7 +2329,6 @@ impl<'a> Parser<'_> {
                                                 &mut stack,
                                                 frame,
                                                 child_frame,
-                                                &mut frame_id_counter,
                                                 next_elem_idx,
                                             );
 
@@ -2341,7 +2354,7 @@ impl<'a> Parser<'_> {
                                     } else {
                                         Node::Sequence(final_accumulated)
                                     };
-                                    results.insert(
+                                    stack.results.insert(
                                         frame_id_for_debug,
                                         (result_node, current_matched_idx, None),
                                     );
@@ -2458,7 +2471,7 @@ impl<'a> Parser<'_> {
                                             };
 
                                             let child_frame = ParseFrame::new_child(
-                                                frame_id_counter,
+                                                stack.frame_id_counter,
                                                 child_grammar,
                                                 *working_idx,
                                                 frame_terminators.clone(),
@@ -2469,7 +2482,6 @@ impl<'a> Parser<'_> {
                                                 &mut stack,
                                                 frame,
                                                 child_frame,
-                                                &mut frame_id_counter,
                                                 "AnyNumberOf",
                                             );
                                             log::debug!("DEBUG [iter {}]: AnyNumberOf pushed parent and child, stack.len()={}", iteration_count, stack.len());
@@ -2485,7 +2497,7 @@ impl<'a> Parser<'_> {
                                             count,
                                             frame.frame_id
                                         );
-                                        results.insert(
+                                        stack.results.insert(
                                             frame.frame_id,
                                             (result_node, *matched_idx, None),
                                         );
@@ -2508,7 +2520,7 @@ impl<'a> Parser<'_> {
                                             count,
                                             min_times
                                         );
-                                        results
+                                        stack.results
                                             .insert(frame.frame_id, (Node::Empty, frame.pos, None));
                                         continue; // Frame is complete, move to next frame
                                     } else {
@@ -2521,7 +2533,7 @@ impl<'a> Parser<'_> {
                                             count,
                                             frame.frame_id
                                         );
-                                        results.insert(
+                                        stack.results.insert(
                                             frame.frame_id,
                                             (result_node, *matched_idx, None),
                                         );
@@ -2552,7 +2564,7 @@ impl<'a> Parser<'_> {
                                             // No opening bracket found - return Empty to let parent try other options
                                             self.pos = frame.pos;
                                             log::debug!("Bracketed returning Empty (no opening bracket, optional={})", optional);
-                                            results.insert(
+                                            stack.results.insert(
                                                 frame.frame_id,
                                                 (Node::Empty, frame.pos, None),
                                             );
@@ -2622,8 +2634,8 @@ impl<'a> Parser<'_> {
                                             // This prevents the parser from exploring tokens beyond the closing bracket,
                                             // significantly reducing unnecessary grammar matching for nested brackets.
                                             // The content must end before the closing bracket, so we can safely limit it.
-                                            let child_frame = ParseFrame {
-                                                frame_id: frame_id_counter,
+                                            let mut child_frame = ParseFrame {
+                                                frame_id: stack.frame_id_counter,
                                                 grammar: content_grammar,
                                                 pos: self.pos,
                                                 terminators: vec![(*bracket_pairs.1).clone()],
@@ -2634,13 +2646,13 @@ impl<'a> Parser<'_> {
                                             };
 
                                             // Update this frame's last_child_frame_id
-                                            *last_child_frame_id = Some(frame_id_counter);
+                                            *last_child_frame_id = Some(stack.frame_id_counter);
 
-                                            frame_id_counter += 1;
+                                            stack.frame_id_counter += 1;
 
                                             // Push parent frame back first, then child (LIFO - child will be processed next)
-                                            stack.push(frame);
-                                            stack.push(child_frame);
+                                            stack.push(&mut frame);
+                                            stack.push(&mut child_frame);
                                             continue 'main_loop; // Skip the result check - child hasn't been processed yet
                                         }
                                     }
@@ -2710,7 +2722,7 @@ impl<'a> Parser<'_> {
                                             // No end bracket found
                                             if *parse_mode == ParseMode::Strict {
                                                 self.pos = frame.pos;
-                                                results.insert(
+                                                stack.results.insert(
                                                     frame.frame_id,
                                                     (Node::Empty, frame.pos, None),
                                                 );
@@ -2730,8 +2742,8 @@ impl<'a> Parser<'_> {
                                             let parent_limit = frame.parent_max_idx;
 
                                             log::debug!("DEBUG: Creating closing bracket child at pos={}, parent_limit={:?}", self.pos, parent_limit);
-                                            let child_frame = ParseFrame {
-                                                frame_id: frame_id_counter,
+                                            let mut child_frame = ParseFrame {
+                                                frame_id: stack.frame_id_counter,
                                                 grammar: (*bracket_pairs.1).clone(),
                                                 pos: self.pos,
                                                 terminators: vec![(*bracket_pairs.1).clone()],
@@ -2742,13 +2754,13 @@ impl<'a> Parser<'_> {
                                             };
 
                                             // Update this frame's last_child_frame_id
-                                            *last_child_frame_id = Some(frame_id_counter);
+                                            *last_child_frame_id = Some(stack.frame_id_counter);
 
-                                            frame_id_counter += 1;
+                                            stack.frame_id_counter += 1;
 
                                             // Push parent frame back first, then child (LIFO - child will be processed next)
-                                            stack.push(frame);
-                                            stack.push(child_frame);
+                                            stack.push(&mut frame);
+                                            stack.push(&mut child_frame);
                                             continue 'main_loop; // Skip the result check - child hasn't been processed yet
                                         }
                                     }
@@ -2759,7 +2771,7 @@ impl<'a> Parser<'_> {
                                             // No closing bracket found
                                             if *parse_mode == ParseMode::Strict {
                                                 self.pos = frame.pos;
-                                                results.insert(
+                                                stack.results.insert(
                                                     frame.frame_id,
                                                     (Node::Empty, frame.pos, None),
                                                 );
@@ -2781,7 +2793,7 @@ impl<'a> Parser<'_> {
                                                 frame.accumulated.len(),
                                                 frame.frame_id
                                             );
-                                            results.insert(
+                                            stack.results.insert(
                                                 frame.frame_id,
                                                 (result_node, *child_end_pos, None),
                                             );
@@ -2822,7 +2834,7 @@ impl<'a> Parser<'_> {
                                             log::debug!(
                                                 "[ITERATIVE] AnySetOf optional, returning Empty"
                                             );
-                                            results.insert(
+                                            stack.results.insert(
                                                 frame.frame_id,
                                                 (Node::Empty, frame.pos, None),
                                             );
@@ -2839,7 +2851,7 @@ impl<'a> Parser<'_> {
                                         self.pos = *matched_idx;
                                         let result_node =
                                             Node::DelimitedList(frame.accumulated.clone());
-                                        results.insert(
+                                        stack.results.insert(
                                             frame.frame_id,
                                             (result_node, *matched_idx, None),
                                         );
@@ -2923,7 +2935,7 @@ impl<'a> Parser<'_> {
                                         self.pos = *matched_idx;
                                         let result_node =
                                             Node::DelimitedList(frame.accumulated.clone());
-                                        results.insert(
+                                        stack.results.insert(
                                             frame.frame_id,
                                             (result_node, *matched_idx, None),
                                         );
@@ -2960,7 +2972,7 @@ impl<'a> Parser<'_> {
                                             self.pos = *matched_idx;
                                             let result_node =
                                                 Node::DelimitedList(frame.accumulated.clone());
-                                            results.insert(
+                                            stack.results.insert(
                                                 frame.frame_id,
                                                 (result_node, *matched_idx, None),
                                             );
@@ -2981,7 +2993,7 @@ impl<'a> Parser<'_> {
                                             let parent_limit = frame.parent_max_idx;
 
                                             let child_frame = ParseFrame::new_child(
-                                                frame_id_counter,
+                                                stack.frame_id_counter,
                                                 child_grammar,
                                                 *working_idx,
                                                 frame_terminators.clone(),
@@ -2992,7 +3004,6 @@ impl<'a> Parser<'_> {
                                                 &mut stack,
                                                 frame,
                                                 child_frame,
-                                                &mut frame_id_counter,
                                                 "AnySetOf",
                                             );
                                             continue 'main_loop; // Continue to process the child we just pushed
@@ -3083,7 +3094,7 @@ impl<'a> Parser<'_> {
 
                                     // Use the OneOf's max_idx, not the parent's parent_max_idx
                                     let child_frame = ParseFrame::new_child(
-                                        frame_id_counter,
+                                        stack.frame_id_counter,
                                         next_element,
                                         *post_skip_pos,
                                         frame.terminators.clone(),
@@ -3101,7 +3112,6 @@ impl<'a> Parser<'_> {
                                         &mut stack,
                                         frame,
                                         child_frame,
-                                        &mut frame_id_counter,
                                         "OneOf",
                                     );
 
@@ -3137,7 +3147,7 @@ impl<'a> Parser<'_> {
                                             best_element_key
                                         );
                                         // Store result WITH element_key so parent grammars can use it
-                                        results.insert(
+                                        stack.results.insert(
                                             frame.frame_id,
                                             (result, self.pos, Some(*best_element_key)),
                                         );
@@ -3166,7 +3176,7 @@ impl<'a> Parser<'_> {
                                         };
 
                                         self.pos = final_pos;
-                                        results
+                                        stack.results
                                             .insert(frame.frame_id, (result_node, final_pos, None));
                                         continue;
                                     }
@@ -3220,7 +3230,7 @@ impl<'a> Parser<'_> {
                                                 frame.accumulated.len()
                                             );
                                             self.pos = *matched_idx;
-                                            results.insert(
+                                            stack.results.insert(
                                                 frame.frame_id,
                                                 (
                                                     Node::DelimitedList(frame.accumulated.clone()),
@@ -3290,7 +3300,7 @@ impl<'a> Parser<'_> {
                                                     matched_idx
                                                 );
                                                 self.pos = *matched_idx;
-                                                results.insert(
+                                                stack.results.insert(
                                                     frame.frame_id,
                                                     (
                                                         Node::DelimitedList(
@@ -3310,7 +3320,7 @@ impl<'a> Parser<'_> {
 
                                                 // Create child frame for delimiter
                                                 let child_frame = ParseFrame::new_child(
-                                                    frame_id_counter,
+                                                    stack.frame_id_counter,
                                                     (**delimiter).clone(),
                                                     *working_idx,
                                                     frame_terminators.clone(),
@@ -3321,7 +3331,6 @@ impl<'a> Parser<'_> {
                                                     &mut stack,
                                                     frame,
                                                     child_frame,
-                                                    &mut frame_id_counter,
                                                     "Delimited",
                                                 );
                                                 continue 'main_loop; // Skip to processing the child frame
@@ -3338,7 +3347,7 @@ impl<'a> Parser<'_> {
                                             if *delimiter_count < *min_delimiters {
                                                 if *optional {
                                                     self.pos = frame.pos;
-                                                    results.insert(
+                                                    stack.results.insert(
                                                         frame.frame_id,
                                                         (
                                                             Node::DelimitedList(
@@ -3356,7 +3365,7 @@ impl<'a> Parser<'_> {
                                                 }
                                             } else {
                                                 self.pos = *matched_idx;
-                                                results.insert(
+                                                stack.results.insert(
                                                     frame.frame_id,
                                                     (
                                                         Node::DelimitedList(
@@ -3420,7 +3429,7 @@ impl<'a> Parser<'_> {
                                                     ));
                                                 }
                                                 // Complete with trailing delimiter
-                                                results.insert(
+                                                stack.results.insert(
                                                     frame.frame_id,
                                                     (
                                                         Node::DelimitedList(
@@ -3451,7 +3460,7 @@ impl<'a> Parser<'_> {
                                                 {
                                                     log::debug!("[ITERATIVE] Delimited: at terminator/EOF before next element, completing");
                                                     self.pos = *matched_idx;
-                                                    results.insert(
+                                                    stack.results.insert(
                                                         frame.frame_id,
                                                         (
                                                             Node::DelimitedList(
@@ -3479,7 +3488,7 @@ impl<'a> Parser<'_> {
                                                 };
 
                                                 let child_frame = ParseFrame::new_child(
-                                                    frame_id_counter,
+                                                    stack.frame_id_counter,
                                                     child_grammar,
                                                     *working_idx,
                                                     frame_terminators.clone(),
@@ -3490,7 +3499,6 @@ impl<'a> Parser<'_> {
                                                     &mut stack,
                                                     frame,
                                                     child_frame,
-                                                    &mut frame_id_counter,
                                                     "Delimited",
                                                 );
                                                 continue 'main_loop; // Skip to processing the child frame
@@ -3568,19 +3576,19 @@ impl<'a> Parser<'_> {
 
                         // Push frame back onto stack so it can be re-checked after child completes
                         // NOTE: We push (not insert at 0) so LIFO order is maintained
-                        stack.push(frame);
+                        stack.push(&mut frame);
                         continue;
                     }
                 }
 
                 FrameState::Combining => {
-                    // TODO: Handle combining results
+                    // TODO: Handle combining stack.results
                     unimplemented!("Combining state not yet implemented");
                 }
 
                 FrameState::Complete(node) => {
                     // This frame is done
-                    results.insert(frame.frame_id, (node, self.pos, None));
+                    stack.results.insert(frame.frame_id, (node, self.pos, None));
                 }
             }
         }
@@ -3588,7 +3596,7 @@ impl<'a> Parser<'_> {
         // Return the result from the initial frame
         log::debug!("DEBUG: Main loop ended. Stack has {} frames left. Results has {} entries. Looking for frame_id={}",
             stack.len(),
-            results.len(),
+            stack.results.len(),
             initial_frame_id
         );
 
@@ -3655,13 +3663,13 @@ impl<'a> Parser<'_> {
 
         log::debug!(
             "Main loop ended. Stack empty. Results has {} entries. Looking for frame_id={}",
-            results.len(),
+            stack.results.len(),
             initial_frame_id
         );
-        for (fid, (_node, _pos, _key)) in results.iter() {
+        for (fid, (_node, _pos, _key)) in stack.results.iter() {
             log::debug!("  Result frame_id={}", fid);
         }
-        if let Some((node, end_pos, _element_key)) = results.get(&initial_frame_id) {
+        if let Some((node, end_pos, _element_key)) = stack.results.get(&initial_frame_id) {
             log::debug!(
                 "DEBUG: Found result for frame_id={}, end_pos={}",
                 initial_frame_id,
@@ -3714,9 +3722,9 @@ impl<'a> Parser<'_> {
         } else {
             // Store parse error in cache
             let error = ParseError::new(format!(
-                "Iterative parse produced no result (initial_frame_id={}, results has {} entries)",
+                "Iterative parse produced no result (initial_frame_id={}, stack.results has {} entries)",
                 initial_frame_id,
-                results.len()
+                stack.results.len()
             ));
             self.parse_cache.put(cache_key, Err(error.clone()));
             Err(error)
