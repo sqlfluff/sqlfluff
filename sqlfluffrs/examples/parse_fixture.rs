@@ -80,16 +80,16 @@ fn main() {
 
     // Parse
     let mut parser = Parser::new(&tokens, dialect);
-    let ast = match parser.call_rule_with_type("FileSegment", &[], Some("file")) {
+    let ast = match parser.call_rule_as_root() {
         Ok(node) => node,
         Err(e) => {
-            log::debug!("=== PARSE ERROR ===");
-            log::debug!("{:?}", e);
+            eprintln!("=== PARSE ERROR ===");
+            eprintln!("{:?}", e);
             process::exit(1);
         }
     };
 
-    eprintln!("DEBUG: AST node type: {:?}", ast);
+    println!("DEBUG: AST node type: {:?}", ast);
 
     println!("=== PARSE SUCCESS ===");
     println!();
@@ -255,7 +255,7 @@ fn print_match_tree(
             }
             print_match_tree(child, tokens, depth + 1);
         }
-        Node::Sequence(children) | Node::DelimitedList(children) => {
+        Node::Sequence(children) | Node::DelimitedList(children) | Node::File(children) => {
             // Container nodes - print children
             for child in children {
                 print_match_tree(child, tokens, depth);
@@ -305,6 +305,7 @@ fn get_node_slice(
         Node::Ref { child, .. } => get_node_slice(child, tokens),
         Node::Sequence(children)
         | Node::DelimitedList(children)
+        | Node::File(children)
         | Node::Bracketed(children)
         | Node::Unparsable(_, children) => {
             if children.is_empty() {
@@ -438,7 +439,7 @@ fn node_to_yaml_value(
                 Ok(child_yaml)
             }
         }
-        Node::Sequence(children) | Node::DelimitedList(children) => {
+        Node::Sequence(children) | Node::DelimitedList(children) | Node::File(children) => {
             let mut items = Vec::new();
             for child in children {
                 // Filter out non-code elements if code_only is true

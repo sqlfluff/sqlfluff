@@ -318,7 +318,7 @@ fn node_to_yaml_value(
             Ok(Value::Mapping(map))
         }
 
-        Node::Sequence(children) | Node::DelimitedList(children) => {
+        Node::Sequence(children) | Node::DelimitedList(children) | Node::File(children) => {
             // Collect all code-only children
             let filtered_children: Vec<&Node> = children
                 .iter()

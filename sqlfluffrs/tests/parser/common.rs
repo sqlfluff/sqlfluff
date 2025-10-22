@@ -77,6 +77,7 @@ pub fn collect_token_positions(node: &Node, positions: &mut std::collections::Ha
         }
         Node::Sequence(children)
         | Node::DelimitedList(children)
+        | Node::File(children)
         | Node::Unparsable(_, children)
         | Node::Bracketed(children) => {
             for child in children {

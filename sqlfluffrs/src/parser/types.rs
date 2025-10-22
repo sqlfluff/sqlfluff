@@ -68,7 +68,11 @@ impl SimpleHint {
     pub fn union(&self, other: &SimpleHint) -> Self {
         Self {
             raw_values: self.raw_values.union(&other.raw_values).cloned().collect(),
-            token_types: self.token_types.union(&other.token_types).cloned().collect(),
+            token_types: self
+                .token_types
+                .union(&other.token_types)
+                .cloned()
+                .collect(),
         }
     }
 
@@ -96,7 +100,11 @@ impl SimpleHint {
     /// Check if this hint can match the given token (using a set of types)
     /// This matches Python's behavior where it checks intersection of hint types with token's class_types
     /// Returns true if the token's raw value OR any type matches, or if hint is empty (can't determine)
-    pub fn can_match_token_types(&self, raw_upper: &str, token_types: &std::collections::HashSet<String>) -> bool {
+    pub fn can_match_token_types(
+        &self,
+        raw_upper: &str,
+        token_types: &std::collections::HashSet<String>,
+    ) -> bool {
         // Empty hint means "complex - can't determine", so return true (must try it)
         if self.raw_values.is_empty() && self.token_types.is_empty() {
             return true;
@@ -350,7 +358,10 @@ impl Grammar {
             }
 
             // Meta: Invisible to matching - return empty hint so it doesn't block pruning
-            // Grammar::Meta(_) => Some(SimpleHint::empty()),
+            Grammar::Meta(s) => match *s {
+                "indent" | "dedent" => Some(SimpleHint::empty()),
+                _ => None,
+            },
 
             // Sequence: accumulate hints from optional elements until first non-optional
             // Python logic: union all optional elements, then return when hitting first required
@@ -861,6 +872,9 @@ pub enum Node {
     /// Used when an optional part didn't match
     Empty,
     Meta(&'static str),
+
+    /// Root element representing the entire parsed file
+    File(Vec<Node>),
 }
 
 impl Node {
@@ -1032,6 +1046,7 @@ impl Node {
 
             Node::Sequence(children)
             | Node::DelimitedList(children)
+            | Node::File(children)
             | Node::Bracketed(children) => {
                 let mut current_idx = token_idx;
                 let mut eof_indices = Vec::new();
@@ -1067,6 +1082,7 @@ impl Node {
 
             Node::Sequence(children)
             | Node::DelimitedList(children)
+            | Node::File(children)
             | Node::Bracketed(children)
             | Node::Unparsable(_, children) => {
                 children.iter().find_map(|c| c.find_first_token_idx())
@@ -1099,6 +1115,7 @@ impl Node {
             // Container nodes: check if they contain any code
             Node::Sequence(children)
             | Node::DelimitedList(children)
+            | Node::File(children)
             | Node::Bracketed(children) => children.iter().any(|child| child.is_code()),
 
             // Ref nodes: delegate to child
@@ -1143,6 +1160,7 @@ impl Node {
             Node::Bracketed(_) => Some("bracketed".to_string()),
             Node::Meta(name) => Some(format!("meta_{}", name)),
             Node::Empty => None,
+            Node::File(_) => Some("file".to_string()),
         }
     }
 

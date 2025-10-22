@@ -77,6 +77,7 @@ fn collect_positions(
         }
         Node::Sequence(children)
         | Node::Bracketed(children)
+        | Node::File(children)
         | Node::DelimitedList(children)
         | Node::Unparsable(_, children) => {
             for child in children {

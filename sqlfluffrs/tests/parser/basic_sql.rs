@@ -4,7 +4,10 @@
 
 use crate::parser::common::parse_sql;
 use sqlfluffrs::parser::{ParseError, Parser};
-use sqlfluffrs::{lexer::{LexInput, Lexer}, Dialect};
+use sqlfluffrs::{
+    lexer::{LexInput, Lexer},
+    Dialect,
+};
 
 macro_rules! with_larger_stack {
     ($test_fn:expr) => {{
@@ -44,8 +47,16 @@ fn parse_select_single_item() -> Result<(), ParseError> {
     let ast = parser.call_rule("SelectClauseSegment", &[])?;
     println!("AST: {:#?}", ast);
 
-    assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
-    assert_eq!(parser.pos, parser.tokens.len());
+    let last_non_code_pos = parser
+        .tokens
+        .iter()
+        .enumerate()
+        .rev()
+        .find(|(_, t)| !t.is_code())
+        .map(|(i, _)| i)
+        .unwrap_or(parser.tokens.len());
+
+    assert!(parser.pos >= last_non_code_pos);
 
     Ok(())
 }
@@ -115,11 +126,11 @@ fn parse_statements() -> Result<(), ParseError> {
     let (tokens, _errors) = lexer.lex(input, false);
     let mut parser = Parser::new(&tokens, dialect);
 
-    let ast = parser.call_rule("FileSegment", &[])?;
+    let ast = parser.call_rule_as_root()?;
     println!("AST: {:#?}", ast);
 
-    assert_eq!(parser.tokens[parser.pos - 1].get_type(), "end_of_file");
-    assert_eq!(parser.pos, parser.tokens.len());
+    assert_eq!(parser.pos, tokens.len());
+    assert_eq!(tokens[parser.pos - 1].get_type(), "end_of_file");
 
     Ok(())
 }

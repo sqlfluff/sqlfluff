@@ -14,9 +14,9 @@ pub struct Parser<'a> {
     pub dialect: Dialect,
     pub parse_cache: ParseCache,
     pub collected_transparent_positions: std::collections::HashSet<usize>, // Track which token positions have had transparent tokens collected
-    pub pruning_calls: std::cell::Cell<usize>,  // Track number of prune_options calls
-    pub pruning_total: std::cell::Cell<usize>,  // Total options considered
-    pub pruning_kept: std::cell::Cell<usize>,   // Options kept after pruning
+    pub pruning_calls: std::cell::Cell<usize>, // Track number of prune_options calls
+    pub pruning_total: std::cell::Cell<usize>, // Total options considered
+    pub pruning_kept: std::cell::Cell<usize>,  // Options kept after pruning
     pub pruning_hinted: std::cell::Cell<usize>, // Options that had hints
     pub pruning_complex: std::cell::Cell<usize>, // Options that returned None (complex)
 }
@@ -113,6 +113,71 @@ impl<'a> Parser<'a> {
             segment_type: final_segment_type,
             child: Box::new(node),
         })
+    }
+
+    pub fn call_rule_as_root(&mut self) -> Result<Node, ParseError> {
+        let root_grammar = self.dialect.get_root_grammar();
+        let mut last_non_code_pos = self.tokens.len();
+        for (i, token) in self.tokens.iter().enumerate().rev() {
+            if !token.is_code() {
+                last_non_code_pos = i;
+                break;
+            }
+        }
+        let token_slice_orig = self.tokens;
+        let token_slice = &self.tokens[..last_non_code_pos];
+        let end_nodes = self.end_children_nodes(last_non_code_pos);
+
+        if token_slice.is_empty() {
+            // Wrap in a Ref node for type clarity
+            return Ok(Node::Ref {
+                name: "Root".to_string(),
+                segment_type: Some("file".to_string()),
+                child: Box::new(Node::File(end_nodes)),
+            });
+        }
+
+        self.tokens = token_slice;
+        let nodes = self.parse_with_grammar_cached(&root_grammar, &[]);
+        self.tokens = token_slice_orig;
+        match nodes {
+            Ok(mut n) => {
+                // If we have end nodes, wrap in File
+                if !end_nodes.is_empty() {
+                    let mut children = vec![n];
+                    let end_len = end_nodes.len();
+                    children.extend(end_nodes);
+                    n = Node::File(children);
+                    self.pos += end_len;
+                }
+                Ok(Node::Ref {
+                    name: "Root".to_string(),
+                    segment_type: Some("file".to_string()),
+                    child: Box::new(n),
+                })
+            }
+            Err(e) => Err(e),
+        }
+    }
+
+    fn end_children_nodes(&mut self, start_idx: usize) -> Vec<Node> {
+        // Only non-code tokens present; return them as nodes with type mapping
+        let mut children = Vec::new();
+        for (i, token) in self.tokens[start_idx..].iter().enumerate() {
+            if token.is_code() {
+                break;
+            }
+            let node = match token.get_type().as_str() {
+                "meta" => Node::Meta("meta"),
+                "dedent" => Node::Meta("dedent"),
+                "whitespace" => Node::Whitespace(token.raw().to_string(), start_idx + i),
+                "newline" => Node::Newline(token.raw().to_string(), start_idx + i),
+                "end_of_file" => Node::EndOfFile(token.raw().to_string(), start_idx + i),
+                other => Node::Token(other.to_string(), token.raw().to_string(), start_idx + i),
+            };
+            children.push(node);
+        }
+        children
     }
 
     /// Lookup SegmentDef by name

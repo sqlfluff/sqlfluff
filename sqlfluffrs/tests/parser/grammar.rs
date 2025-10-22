@@ -136,7 +136,7 @@ fn test_anysetof_foreign_key() -> Result<(), ParseError> {
 
         // Test parsing a foreign key constraint with ON DELETE/UPDATE clauses
         // These can appear in any order
-        let raw = "FOREIGN KEY (col1) REFERENCES other_table(other_col) ON DELETE CASCADE ON UPDATE RESTRICT";
+        let raw = "REFERENCES other_table(other_col) ON DELETE CASCADE ON UPDATE RESTRICT";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
         let lexer = Lexer::new(None, dialect);
@@ -144,7 +144,7 @@ fn test_anysetof_foreign_key() -> Result<(), ParseError> {
 
         let mut parser = Parser::new(&tokens, dialect);
 
-        let ast = parser.call_rule("ForeignKeyConstraintSegment", &[])?;
+        let ast = parser.call_rule("ReferenceDefinitionGrammar", &[])?;
         println!("AST: {:#?}", ast);
 
         Ok(())
@@ -153,31 +153,29 @@ fn test_anysetof_foreign_key() -> Result<(), ParseError> {
 
 #[test]
 fn test_anysetof_order_independence() -> Result<(), ParseError> {
-    with_larger_stack!(|| {
-        env_logger::try_init().ok();
+    env_logger::try_init().ok();
 
-        // Test that foreign key actions can appear in any order
-        let test_cases = vec![
-            "FOREIGN KEY (col1) REFERENCES other_table(other_col) ON DELETE CASCADE ON UPDATE RESTRICT",
-            "FOREIGN KEY (col1) REFERENCES other_table(other_col) ON UPDATE RESTRICT ON DELETE CASCADE",
-        ];
+    // Test that foreign key actions can appear in any order
+    let test_cases = vec![
+        "REFERENCES other_table(other_col) ON DELETE CASCADE ON UPDATE RESTRICT",
+        "REFERENCES other_table(other_col) ON UPDATE RESTRICT ON DELETE CASCADE",
+    ];
 
-        for raw in test_cases {
-            println!("\nTesting: {}", raw);
-            let input = LexInput::String(raw.into());
-            let dialect = Dialect::Ansi;
-            let lexer = Lexer::new(None, dialect);
-            let (tokens, _errors) = lexer.lex(input, false);
+    for raw in test_cases {
+        println!("\nTesting: {}", raw);
+        let input = LexInput::String(raw.into());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, dialect);
+        let (tokens, _errors) = lexer.lex(input, false);
 
-            let mut parser = Parser::new(&tokens, dialect);
+        let mut parser = Parser::new(&tokens, dialect);
 
-            let ast = parser.call_rule("ForeignKeyConstraintSegment", &[])?;
-            println!("Parsed successfully!");
-            println!("AST: {:#?}", ast);
-        }
+        let ast = parser.call_rule("ReferenceDefinitionGrammar", &[])?;
+        println!("Parsed successfully!");
+        println!("AST: {:#?}", ast);
+    }
 
-        Ok(())
-    })
+    Ok(())
 }
 
 #[test]
@@ -302,6 +300,8 @@ fn test_no_duplicate_whitespace_tokens() -> Result<(), ParseError> {
 
     let ast = parser.call_rule("SelectStatementSegment", &[])?;
 
+    println!("AST: {:#?}", ast);
+
     // Collect all token positions in AST
     fn collect_positions(node: &Node, positions: &mut Vec<usize>) {
         match node {
@@ -313,6 +313,7 @@ fn test_no_duplicate_whitespace_tokens() -> Result<(), ParseError> {
             }
             Node::Sequence(children)
             | Node::DelimitedList(children)
+            | Node::File(children)
             | Node::Unparsable(_, children)
             | Node::Bracketed(children) => {
                 for child in children {

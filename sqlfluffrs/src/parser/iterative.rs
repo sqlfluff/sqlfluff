@@ -992,6 +992,47 @@ impl<'a> Parser<'_> {
         // Create child frame for first element
         let first_element = available_options[0].clone();
         let element_key = first_element.cache_key();
+
+        // Optimization: Handle Nothing grammar inline without creating a frame
+        if matches!(first_element, Grammar::Nothing() | Grammar::Empty) {
+            log::debug!(
+                "OneOf: First element is Nothing, handling inline (element_key={})",
+                element_key
+            );
+            // Nothing always returns Empty at current position with zero consumed tokens
+            frame.context = match frame.context {
+                FrameContext::OneOf {
+                    elements,
+                    allow_gaps,
+                    optional,
+                    leading_ws,
+                    post_skip_pos,
+                    longest_match: _,
+                    tried_elements,
+                    max_idx,
+                    parse_mode,
+                    last_child_frame_id: _,
+                } => FrameContext::OneOf {
+                    elements,
+                    allow_gaps,
+                    optional,
+                    leading_ws,
+                    post_skip_pos,
+                    longest_match: Some((Node::Empty, 0, element_key)), // Empty with 0 consumed
+                    tried_elements: tried_elements + 1,
+                    max_idx,
+                    parse_mode,
+                    last_child_frame_id: None,
+                },
+                _ => unreachable!(),
+            };
+            frame.state = FrameState::WaitingForChild {
+                child_index: 0,
+                total_children: 1,
+            };
+            stack.push(frame);
+            return true; // Continue to process next element in OneOf
+        }
         log::debug!("OneOf: Trying first element (cache_key: {})", element_key);
 
         // Use OUR computed max_idx for the child, not the parent's parent_max_idx
@@ -1017,189 +1058,6 @@ impl<'a> Parser<'_> {
         stack.push(frame); // Push parent back to stack first
         stack.push(child_frame); // Then push child
         true // Continue main loop
-    }
-
-    /// Handle Sequence grammar Initial state in iterative parser
-    /// Returns true if caller should continue main loop
-    fn handle_sequence_initial(
-        &mut self,
-        elements: &[Grammar],
-        optional: bool,
-        seq_terminators: &[Grammar],
-        reset_terminators: bool,
-        allow_gaps: bool,
-        parse_mode: ParseMode,
-        frame: ParseFrame,
-        parent_terminators: &[Grammar],
-        stack: &mut Vec<ParseFrame>,
-        frame_id_counter: &mut usize,
-        results: &mut std::collections::HashMap<usize, (Node, usize, Option<u64>)>,
-    ) -> bool {
-        let pos = frame.pos;
-        log::debug!("DEBUG: Sequence Initial at pos={}, parent_max_idx={:?}, allow_gaps={}, elements.len()={}",
-                  pos, frame.parent_max_idx, allow_gaps, elements.len());
-        let start_idx = pos;
-
-        // Combine parent and local terminators
-        let all_terminators: Vec<Grammar> = if reset_terminators {
-            seq_terminators.to_vec()
-        } else {
-            seq_terminators
-                .iter()
-                .cloned()
-                .chain(parent_terminators.iter().cloned())
-                .collect()
-        };
-
-        // Calculate max_idx for GREEDY mode
-        self.pos = start_idx;
-        let max_idx = if parse_mode == ParseMode::Greedy {
-            self.trim_to_terminator(start_idx, &all_terminators)
-        } else {
-            self.tokens.len()
-        };
-
-        // Apply parent's max_idx limit (simulates Python's segments[:max_idx])
-        let max_idx = if let Some(parent_limit) = frame.parent_max_idx {
-            max_idx.min(parent_limit)
-        } else {
-            max_idx
-        };
-
-        // Update frame with Sequence context
-        let mut frame = frame;
-        frame.state = FrameState::WaitingForChild {
-            child_index: 0,
-            total_children: elements.len(),
-        };
-        frame.context = FrameContext::Sequence {
-            elements: elements.to_vec(),
-            allow_gaps,
-            optional,
-            parse_mode,
-            matched_idx: start_idx,
-            tentatively_collected: vec![],
-            max_idx,
-            original_max_idx: max_idx, // Store original before any GREEDY_ONCE_STARTED trimming
-            last_child_frame_id: None,
-            current_element_idx: 0, // Start at first element
-            first_match: true,      // For GREEDY_ONCE_STARTED trimming
-        };
-        frame.terminators = all_terminators;
-        let current_frame_id = frame.frame_id; // Save before moving frame
-        stack.push(frame);
-
-        // Skip to code if allow_gaps (matching Python's behavior at sequence.py line 196)
-        let first_child_pos = if allow_gaps {
-            self.skip_start_index_forward_to_code(start_idx, max_idx)
-        } else {
-            start_idx
-        };
-
-        // Push first child to parse
-        if !elements.is_empty() {
-            // Check if we've run out of segments before first element
-            if first_child_pos >= max_idx {
-                // Haven't matched anything yet and already at limit
-                // Pop the frame we just pushed since we're returning early
-                stack.pop();
-
-                if parse_mode == ParseMode::Strict {
-                    // In strict mode, return Empty
-                    results.insert(current_frame_id, (Node::Empty, start_idx, None));
-                    return false; // Don't continue, we stored a result
-                }
-                // In greedy modes, check if first element is optional
-                if elements[0].is_optional() {
-                    // First element is optional, can skip
-                    results.insert(current_frame_id, (Node::Empty, start_idx, None));
-                    return false;
-                } else {
-                    // Required element, no segments - this is unparsable in greedy mode
-                    results.insert(current_frame_id, (Node::Empty, start_idx, None));
-                    return false;
-                }
-            }
-
-            // Handle Meta elements specially
-            let mut child_idx = 0;
-            while child_idx < elements.len() {
-                if let Grammar::Meta(meta_type) = &elements[child_idx] {
-                    // Meta doesn't need parsing - just add to accumulated
-                    if let Some(ref mut parent_frame) = stack.last_mut() {
-                        if *meta_type == "indent" {
-                            // Indent goes before whitespace
-                            let mut insert_pos = parent_frame.accumulated.len();
-                            while insert_pos > 0 {
-                                match &parent_frame.accumulated[insert_pos - 1] {
-                                    Node::Whitespace(_, _) | Node::Newline(_, _) => {
-                                        insert_pos -= 1;
-                                    }
-                                    _ => break,
-                                }
-                            }
-                            parent_frame
-                                .accumulated
-                                .insert(insert_pos, Node::Meta(meta_type));
-                        } else {
-                            parent_frame.accumulated.push(Node::Meta(meta_type));
-                        }
-
-                        // Update state to next child
-                        if let FrameState::WaitingForChild {
-                            child_index,
-                            total_children: _,
-                        } = &mut parent_frame.state
-                        {
-                            *child_index = child_idx + 1;
-                        }
-                    }
-                    child_idx += 1;
-                } else {
-                    // Get max_idx from parent Sequence to pass to child
-                    let current_max_idx = if let Some(parent_frame) = stack.last() {
-                        if let FrameContext::Sequence { max_idx, .. } = &parent_frame.context {
-                            Some(*max_idx)
-                        } else {
-                            None
-                        }
-                    } else {
-                        None
-                    };
-
-                    // Non-meta element - needs actual parsing
-                    log::debug!(
-                        "DEBUG: Creating FIRST child at pos={}, max_idx={}",
-                        first_child_pos,
-                        max_idx
-                    );
-                    let child_frame = ParseFrame {
-                        frame_id: *frame_id_counter,
-                        grammar: elements[child_idx].clone(),
-                        pos: first_child_pos, // Use position after skipping to code!
-                        terminators: stack
-                            .last()
-                            .map(|f| f.terminators.clone())
-                            .unwrap_or_default(),
-                        state: FrameState::Initial,
-                        accumulated: vec![],
-                        context: FrameContext::None,
-                        parent_max_idx: current_max_idx, // Pass Sequence's max_idx to child!
-                    };
-
-                    // Update parent (already on stack) and push child
-                    ParseFrame::update_sequence_parent_and_push_child(
-                        stack,
-                        child_frame,
-                        frame_id_counter,
-                        child_idx,
-                    );
-                    return true; // Continue to process the child we just pushed
-                }
-            }
-        }
-
-        false // No child pushed, don't continue
     }
 
     /// Handle Delimited grammar Initial state in iterative parser
@@ -2139,73 +1997,73 @@ impl<'a> Parser<'_> {
                                     // Collect any trailing transparent tokens (whitespace, newlines, end_of_file)
                                     // Note: We always consume end_of_file even if allow_gaps is false
                                     // Use self.tokens.len() as the upper bound to collect all trailing tokens
-                                    self.pos = current_matched_idx;
-                                    log::debug!(
-                                        "Sequence frame_id={}: Collecting trailing tokens from pos {} to {}, allow_gaps={}",
-                                        frame.frame_id, self.pos, self.tokens.len(), current_allow_gaps
-                                    );
-                                    while self.pos < self.tokens.len() {
-                                        if let Some(tok) = self.peek() {
-                                            if tok.is_code() {
-                                                log::debug!("Sequence frame_id={}: Stopped at code token at pos {}", frame.frame_id, self.pos);
-                                                break; // Stop at code tokens
-                                            }
-                                            let tok_type = tok.get_type();
-                                            let already_collected = self
-                                                .collected_transparent_positions
-                                                .contains(&self.pos);
-                                            log::debug!(
-                                                "Sequence frame_id={}: Checking pos {}, type={}, already_collected={}",
-                                                frame.frame_id, self.pos, tok_type, already_collected
-                                            );
-                                            if tok_type == "whitespace" {
-                                                if current_allow_gaps
-                                                    && !self
-                                                        .collected_transparent_positions
-                                                        .contains(&self.pos)
-                                                    && !tentatively_collected.contains(&self.pos)
-                                                {
-                                                    frame.accumulated.push(Node::Whitespace(
-                                                        tok.raw().to_string(),
-                                                        self.pos,
-                                                    ));
-                                                    tentatively_collected.push(self.pos);
-                                                }
-                                            } else if tok_type == "newline" {
-                                                if current_allow_gaps
-                                                    && !self
-                                                        .collected_transparent_positions
-                                                        .contains(&self.pos)
-                                                    && !tentatively_collected.contains(&self.pos)
-                                                {
-                                                    frame.accumulated.push(Node::Newline(
-                                                        tok.raw().to_string(),
-                                                        self.pos,
-                                                    ));
-                                                    tentatively_collected.push(self.pos);
-                                                }
-                                            } else if tok_type == "end_of_file" {
-                                                // Always collect end_of_file if it hasn't been collected yet
-                                                if !self
-                                                    .collected_transparent_positions
-                                                    .contains(&self.pos)
-                                                    && !tentatively_collected.contains(&self.pos)
-                                                {
-                                                    log::debug!("Sequence frame_id={}: COLLECTING end_of_file at position {}", frame.frame_id, self.pos);
-                                                    frame.accumulated.push(Node::EndOfFile(
-                                                        tok.raw().to_string(),
-                                                        self.pos,
-                                                    ));
-                                                    tentatively_collected.push(self.pos);
-                                                }
-                                            }
-                                            self.bump();
-                                        } else {
-                                            break;
-                                        }
-                                    }
+                                    // self.pos = current_matched_idx;
+                                    // log::debug!(
+                                    //     "Sequence frame_id={}: Collecting trailing tokens from pos {} to {}, allow_gaps={}",
+                                    //     frame.frame_id, self.pos, self.tokens.len(), current_allow_gaps
+                                    // );
+                                    // while self.pos < self.tokens.len() {
+                                    //     if let Some(tok) = self.peek() {
+                                    //         if tok.is_code() {
+                                    //             log::debug!("Sequence frame_id={}: Stopped at code token at pos {}", frame.frame_id, self.pos);
+                                    //             break; // Stop at code tokens
+                                    //         }
+                                    //         let tok_type = tok.get_type();
+                                    //         let already_collected = self
+                                    //             .collected_transparent_positions
+                                    //             .contains(&self.pos);
+                                    //         log::debug!(
+                                    //             "Sequence frame_id={}: Checking pos {}, type={}, already_collected={}",
+                                    //             frame.frame_id, self.pos, tok_type, already_collected
+                                    //         );
+                                    //         if tok_type == "whitespace" {
+                                    //             if current_allow_gaps
+                                    //                 && !self
+                                    //                     .collected_transparent_positions
+                                    //                     .contains(&self.pos)
+                                    //                 && !tentatively_collected.contains(&self.pos)
+                                    //             {
+                                    //                 frame.accumulated.push(Node::Whitespace(
+                                    //                     tok.raw().to_string(),
+                                    //                     self.pos,
+                                    //                 ));
+                                    //                 tentatively_collected.push(self.pos);
+                                    //             }
+                                    //         } else if tok_type == "newline" {
+                                    //             if current_allow_gaps
+                                    //                 && !self
+                                    //                     .collected_transparent_positions
+                                    //                     .contains(&self.pos)
+                                    //                 && !tentatively_collected.contains(&self.pos)
+                                    //             {
+                                    //                 frame.accumulated.push(Node::Newline(
+                                    //                     tok.raw().to_string(),
+                                    //                     self.pos,
+                                    //                 ));
+                                    //                 tentatively_collected.push(self.pos);
+                                    //             }
+                                    //             // } else if tok_type == "end_of_file" {
+                                    //             //     // Always collect end_of_file if it hasn't been collected yet
+                                    //             //     if !self
+                                    //             //         .collected_transparent_positions
+                                    //             //         .contains(&self.pos)
+                                    //             //         && !tentatively_collected.contains(&self.pos)
+                                    //             //     {
+                                    //             //         log::debug!("Sequence frame_id={}: COLLECTING end_of_file at position {}", frame.frame_id, self.pos);
+                                    //             //         frame.accumulated.push(Node::EndOfFile(
+                                    //             //             tok.raw().to_string(),
+                                    //             //             self.pos,
+                                    //             //         ));
+                                    //             //         tentatively_collected.push(self.pos);
+                                    //             //     }
+                                    //         }
+                                    //         self.bump();
+                                    //     } else {
+                                    //         break;
+                                    //     }
+                                    // }
                                     // Update matched_idx to current position after collecting trailing tokens
-                                    let current_matched_idx = self.pos;
+                                    // let current_matched_idx = self.pos;
                                     log::debug!("DEBUG: Sequence completing - frame_id={}, self.pos={}, current_matched_idx={}, elements.len={}, accumulated.len={}",
                                         frame.frame_id, self.pos, current_matched_idx, elements_clone.len(), frame.accumulated.len());
 
@@ -2259,28 +2117,37 @@ impl<'a> Parser<'_> {
                                                 {
                                                     let tok = &self.tokens[collect_pos];
                                                     let tok_type = tok.get_type();
-                                                    if tok_type == "whitespace" {
-                                                        log::debug!(
-                                                            "COLLECTING whitespace at {}: {:?}",
-                                                            collect_pos,
-                                                            tok.raw()
-                                                        );
-                                                        frame.accumulated.push(Node::Whitespace(
-                                                            tok.raw().to_string(),
-                                                            collect_pos,
-                                                        ));
-                                                        tentatively_collected.push(collect_pos);
-                                                    } else if tok_type == "newline" {
-                                                        log::debug!(
-                                                            "COLLECTING newline at {}: {:?}",
-                                                            collect_pos,
-                                                            tok.raw()
-                                                        );
-                                                        frame.accumulated.push(Node::Newline(
-                                                            tok.raw().to_string(),
-                                                            collect_pos,
-                                                        ));
-                                                        tentatively_collected.push(collect_pos);
+                                                    // Only collect if not already present in frame.accumulated
+                                                    let already_collected = frame.accumulated.iter().any(|node| {
+                                                        match node {
+                                                            Node::Whitespace(_, pos) | Node::Newline(_, pos) => *pos == collect_pos,
+                                                            _ => false,
+                                                        }
+                                                    });
+                                                    if !already_collected {
+                                                        if tok_type == "whitespace" {
+                                                            log::debug!(
+                                                                "COLLECTING whitespace at {}: {:?}",
+                                                                collect_pos,
+                                                                tok.raw()
+                                                            );
+                                                            frame.accumulated.push(Node::Whitespace(
+                                                                tok.raw().to_string(),
+                                                                collect_pos,
+                                                            ));
+                                                            tentatively_collected.push(collect_pos);
+                                                        } else if tok_type == "newline" {
+                                                            log::debug!(
+                                                                "COLLECTING newline at {}: {:?}",
+                                                                collect_pos,
+                                                                tok.raw()
+                                                            );
+                                                            frame.accumulated.push(Node::Newline(
+                                                                tok.raw().to_string(),
+                                                                collect_pos,
+                                                            ));
+                                                            tentatively_collected.push(collect_pos);
+                                                        }
                                                     }
                                                 }
                                             }
@@ -2696,9 +2563,10 @@ impl<'a> Parser<'_> {
 
                                             // OPTIMIZATION: Use pre-computed matching bracket to set tight max_idx
                                             // This prevents exploring beyond the closing bracket
-                                            let bracket_max_idx = child_node
-                                                .get_token_idx()
-                                                .and_then(|open_idx| self.get_matching_bracket_idx(open_idx));
+                                            let bracket_max_idx =
+                                                child_node.get_token_idx().and_then(|open_idx| {
+                                                    self.get_matching_bracket_idx(open_idx)
+                                                });
 
                                             if let Some(close_idx) = bracket_max_idx {
                                                 log::debug!(
