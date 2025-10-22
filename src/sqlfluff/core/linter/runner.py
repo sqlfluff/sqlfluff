@@ -133,7 +133,9 @@ class ParallelRunner(BaseRunner):
         self.processes = processes
 
     @staticmethod
-    def _render_file_static(args: tuple[str, Linter, FluffConfig]) -> tuple[str, RenderedFile] | None:
+    def _render_file_static(
+        args: tuple[str, Linter, FluffConfig]
+    ) -> tuple[str, RenderedFile] | None:
         """Static helper for multiprocessing."""
         fname, linter, config = args
         try:
@@ -152,9 +154,11 @@ class ParallelRunner(BaseRunner):
                 yield result
             return
 
-        sequenced = list(self.linter.templater.sequence_files(
-            fnames, config=self.config, formatter=self.linter.formatter
-        ))
+        sequenced = list(
+            self.linter.templater.sequence_files(
+                fnames, config=self.config, formatter=self.linter.formatter
+            )
+        )
         # Prepare arguments for each file
         args_list = [(fname, self.linter, self.config) for fname in sequenced]
 
