@@ -5,6 +5,14 @@ use std::hash::{Hash, Hasher};
 
 use crate::token::Token;
 use hashbrown::HashSet;
+use serde_yaml::Mapping;
+
+/// Helper enum for tuple serialization, similar to Python's TupleSerialisedSegment.
+#[derive(Debug, Clone, PartialEq)]
+pub enum NodeTupleValue {
+    Raw(String),
+    Tuple(Vec<NodeTupleValue>),
+}
 
 /// SimpleHint is used for fast pruning of OneOf alternatives.
 /// It represents what raw values and token types a grammar can start with.
@@ -878,6 +886,226 @@ pub enum Node {
 }
 
 impl Node {
+    /// Return a tuple structure from this node, similar to Python BaseSegment::to_tuple.
+    /// This is useful for serialization to YAML/JSON and for parity with Python tests.
+    pub fn to_tuple(
+        &self,
+        code_only: bool,
+        show_raw: bool,
+        include_meta: bool,
+    ) -> (String, NodeTupleValue) {
+        match self {
+            Node::Token(token_type, raw, _pos) => {
+                if show_raw {
+                    (token_type.clone(), NodeTupleValue::Raw(raw.clone()))
+                } else {
+                    (token_type.clone(), NodeTupleValue::Tuple(vec![]))
+                }
+            }
+            Node::Whitespace(raw, _) => {
+                // These are filtered in code_only mode
+                if code_only {
+                    ("whitespace".to_string(), NodeTupleValue::Tuple(vec![]))
+                } else {
+                    (
+                        "whitespace".to_string(),
+                        NodeTupleValue::Raw(raw.to_string()),
+                    )
+                }
+            }
+            Node::Newline(raw, _) => {
+                // These are filtered in code_only mode
+                if code_only {
+                    ("newline".to_string(), NodeTupleValue::Tuple(vec![]))
+                } else {
+                    ("newline".to_string(), NodeTupleValue::Raw(raw.to_string()))
+                }
+            }
+            Node::EndOfFile(raw, _) => {
+                // These are filtered in code_only mode
+                if code_only {
+                    ("end_of_file".to_string(), NodeTupleValue::Tuple(vec![]))
+                } else {
+                    (
+                        "end_of_file".to_string(),
+                        NodeTupleValue::Raw(raw.to_string()),
+                    )
+                }
+            }
+            Node::Meta(meta_type) => {
+                if include_meta {
+                    (meta_type.to_string(), NodeTupleValue::Raw("".to_string()))
+                } else {
+                    (meta_type.to_string(), NodeTupleValue::Tuple(vec![]))
+                }
+            }
+            Node::Ref {
+                segment_type,
+                child,
+                ..
+            } => {
+                let (_typ, val) = child.to_tuple(code_only, show_raw, include_meta);
+                if let Some(segment_type) = segment_type {
+                    (segment_type.clone(), val)
+                } else {
+                    ("".to_string(), val)
+                }
+            }
+            Node::Sequence(children)
+            | Node::DelimitedList(children)
+            | Node::File(children)
+            | Node::Bracketed(children)
+            | Node::Unparsable(_, children) => {
+                let mut tupled = vec![];
+                for child in children {
+                    // Filter out non-code elements if code_only is true
+                    if code_only && !child.is_code() {
+                        continue;
+                    }
+                    let (_typ, val) = child.to_tuple(code_only, show_raw, include_meta);
+                    tupled.push(val);
+                }
+                ("grammar".to_string(), NodeTupleValue::Tuple(tupled))
+            }
+            Node::Empty => ("empty".to_string(), NodeTupleValue::Tuple(vec![])),
+        }
+    }
+
+    /// Serialize the Node AST to a simplified record structure for YAML/JSON output.
+    /// Mirrors Python's BaseSegment::as_record logic.
+    pub fn as_record(&self) -> Option<serde_yaml::Value> {
+        use serde_yaml::Value;
+
+        // Helper: merge child mappings if keys are unique, else use a list
+        fn merge_or_list(key: String, contents: Vec<Value>) -> Value {
+            let mut subkeys = Vec::new();
+            let mut dicts = Vec::new();
+            for v in &contents {
+                if let Value::Mapping(map) = v {
+                    for k in map.keys() {
+                        if let Some(s) = k.as_str() {
+                            subkeys.push(s.to_string());
+                        }
+                    }
+                    dicts.push(map.clone());
+                }
+            }
+            if subkeys.len() == 0 {
+                // All children are null or empty
+                let mut map = Mapping::new();
+                map.insert(Value::String(key.clone()), Value::Null);
+                Value::Mapping(map)
+            } else if subkeys.len() == dicts.len() {
+                // All keys are unique, merge into one dict
+                let mut merged = Mapping::new();
+                for dict in dicts {
+                    for (k, v) in dict {
+                        merged.insert(k, v);
+                    }
+                }
+                let mut map = Mapping::new();
+                map.insert(Value::String(key.clone()), Value::Mapping(merged));
+                Value::Mapping(map)
+            } else {
+                // Duplicates: use a list
+                let mut map = Mapping::new();
+                map.insert(Value::String(key.clone()), Value::Sequence(contents));
+                Value::Mapping(map)
+            }
+        }
+
+        match self {
+            Node::Token(token_type, raw, _) => {
+                let mut map = Mapping::new();
+                map.insert(
+                    Value::String(token_type.clone()),
+                    Value::String(raw.clone()),
+                );
+                Some(Value::Mapping(map))
+            }
+            Node::Whitespace(raw, _) => {
+                let mut map = Mapping::new();
+                map.insert(
+                    Value::String("whitespace".to_string()),
+                    Value::String(raw.clone()),
+                );
+                Some(Value::Mapping(map))
+            }
+            Node::Newline(raw, _) => {
+                let mut map = Mapping::new();
+                map.insert(
+                    Value::String("newline".to_string()),
+                    Value::String(raw.clone()),
+                );
+                Some(Value::Mapping(map))
+            }
+            Node::EndOfFile(raw, _) => {
+                let mut map = Mapping::new();
+                map.insert(
+                    Value::String("end_of_file".to_string()),
+                    Value::String(raw.clone()),
+                );
+                Some(Value::Mapping(map))
+            }
+            Node::Meta(name) => {
+                let mut map = Mapping::new();
+                map.insert(Value::String(format!("meta_{}", name)), Value::Null);
+                Some(Value::Mapping(map))
+            }
+            Node::Empty => {
+                // Represent as None/null
+                None
+            }
+            Node::Unparsable(expected, children) => {
+                let contents: Vec<Value> = children.iter().filter_map(|c| c.as_record()).collect();
+                let mut map = Mapping::new();
+                map.insert(
+                    Value::String("unparsable".to_string()),
+                    Value::Sequence(contents),
+                );
+                Some(Value::Mapping(map))
+            }
+            Node::Ref {
+                name,
+                segment_type,
+                child,
+            } => {
+                let key = segment_type
+                    .clone()
+                    .unwrap_or_else(|| simplify_segment_name(name));
+                if let Some(child_rec) = child.as_record() {
+                    let mut map = Mapping::new();
+                    map.insert(Value::String(key), child_rec);
+                    Some(Value::Mapping(map))
+                } else {
+                    let mut map = Mapping::new();
+                    map.insert(Value::String(key), Value::Null);
+                    Some(Value::Mapping(map))
+                }
+            }
+            Node::Sequence(children)
+            | Node::DelimitedList(children)
+            | Node::Bracketed(children)
+            | Node::File(children) => {
+                let key = match self {
+                    Node::Sequence(_) => "sequence",
+                    Node::DelimitedList(_) => "delimited_list",
+                    Node::Bracketed(_) => "bracketed",
+                    Node::File(_) => "file",
+                    _ => unreachable!(),
+                };
+                let contents: Vec<Value> = children.iter().filter_map(|c| c.as_record()).collect();
+                if contents.is_empty() {
+                    let mut map = Mapping::new();
+                    map.insert(Value::String(key.to_string()), Value::Null);
+                    Some(Value::Mapping(map))
+                } else {
+                    Some(merge_or_list(key.to_string(), contents))
+                }
+            }
+        }
+    }
+
     pub fn is_empty(&self) -> bool {
         match &self {
             Node::Empty => true,
@@ -1266,5 +1494,212 @@ impl ParseContext {
             uuid,
             match_segment: String::from("File"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use serde_yaml::Value;
+
+    #[test]
+    fn test_token_node_as_record() {
+        let node = Node::Token("keyword".to_string(), "SELECT".to_string(), 0);
+        let record = node.as_record().unwrap();
+        let expected = Value::Mapping({
+            let mut m = serde_yaml::Mapping::new();
+            m.insert(
+                Value::String("keyword".to_string()),
+                Value::String("SELECT".to_string()),
+            );
+            m
+        });
+        assert_eq!(record, expected);
+    }
+
+    #[test]
+    fn test_sequence_node_as_record_empty() {
+        let node = Node::Sequence(vec![]);
+        let record = node.as_record().unwrap();
+        let expected = Value::Mapping({
+            let mut m = serde_yaml::Mapping::new();
+            m.insert(Value::String("sequence".to_string()), Value::Null);
+            m
+        });
+        assert_eq!(record, expected);
+    }
+
+    #[test]
+    fn test_sequence_node_as_record_merge() {
+        let node = Node::Sequence(vec![
+            Node::Token("keyword".to_string(), "SELECT".to_string(), 0),
+            Node::Token("naked_identifier".to_string(), "foo".to_string(), 1),
+        ]);
+        let record = node.as_record().unwrap();
+        let mut merged = serde_yaml::Mapping::new();
+        merged.insert(
+            Value::String("keyword".to_string()),
+            Value::String("SELECT".to_string()),
+        );
+        merged.insert(
+            Value::String("naked_identifier".to_string()),
+            Value::String("foo".to_string()),
+        );
+        let expected = Value::Mapping({
+            let mut m = serde_yaml::Mapping::new();
+            m.insert(
+                Value::String("sequence".to_string()),
+                Value::Mapping(merged),
+            );
+            m
+        });
+        assert_eq!(record, expected);
+    }
+
+    #[test]
+    fn test_ref_node_as_record() {
+        let child = Node::Token("keyword".to_string(), "SELECT".to_string(), 0);
+        let node = Node::Ref {
+            name: "SelectKeywordSegment".to_string(),
+            segment_type: Some("keyword".to_string()),
+            child: Box::new(child),
+        };
+        let record = node.as_record().unwrap();
+        let expected = Value::Mapping({
+            let mut m = serde_yaml::Mapping::new();
+            m.insert(
+                Value::String("keyword".to_string()),
+                Value::Mapping({
+                    let mut inner = serde_yaml::Mapping::new();
+                    inner.insert(
+                        Value::String("keyword".to_string()),
+                        Value::String("SELECT".to_string()),
+                    );
+                    inner
+                }),
+            );
+            m
+        });
+        assert_eq!(record, expected);
+    }
+
+    #[test]
+    fn test_meta_node_as_record() {
+        let node = Node::Meta("indent");
+        let record = node.as_record().unwrap();
+        let expected = Value::Mapping({
+            let mut m = serde_yaml::Mapping::new();
+            m.insert(Value::String("meta_indent".to_string()), Value::Null);
+            m
+        });
+        assert_eq!(record, expected);
+    }
+
+    #[test]
+    fn test_unparsable_node_as_record() {
+        let node = Node::Unparsable(
+            "expected foo".to_string(),
+            vec![
+                Node::Token("keyword".to_string(), "SELECT".to_string(), 0),
+                Node::Token("naked_identifier".to_string(), "foo".to_string(), 1),
+            ],
+        );
+        let record = node.as_record().unwrap();
+        let expected = Value::Mapping({
+            let mut m = serde_yaml::Mapping::new();
+            let mut seq = Vec::new();
+            seq.push(Value::Mapping({
+                let mut inner = serde_yaml::Mapping::new();
+                inner.insert(
+                    Value::String("keyword".to_string()),
+                    Value::String("SELECT".to_string()),
+                );
+                inner
+            }));
+            seq.push(Value::Mapping({
+                let mut inner = serde_yaml::Mapping::new();
+                inner.insert(
+                    Value::String("naked_identifier".to_string()),
+                    Value::String("foo".to_string()),
+                );
+                inner
+            }));
+            m.insert(
+                Value::String("unparsable".to_string()),
+                Value::Sequence(seq),
+            );
+            m
+        });
+        assert_eq!(record, expected);
+    }
+
+    #[test]
+    fn test_token_node_to_tuple_show_raw() {
+        let node = Node::Token("keyword".to_string(), "SELECT".to_string(), 0);
+        let (typ, val) = node.to_tuple(false, true, false);
+        assert_eq!(typ, "keyword");
+        assert_eq!(val, NodeTupleValue::Raw("SELECT".to_string()));
+    }
+
+    #[test]
+    fn test_token_node_to_tuple_no_raw() {
+        let node = Node::Token("keyword".to_string(), "SELECT".to_string(), 0);
+        let (typ, val) = node.to_tuple(false, false, false);
+        assert_eq!(typ, "keyword");
+        assert_eq!(val, NodeTupleValue::Tuple(vec![]));
+    }
+
+    #[test]
+    fn test_sequence_node_to_tuple() {
+        let child1 = Node::Token("keyword".to_string(), "SELECT".to_string(), 0);
+        let child2 = Node::Token("keyword".to_string(), "FROM".to_string(), 1);
+        let node = Node::Sequence(vec![child1, child2]);
+        let (typ, val) = node.to_tuple(false, true, false);
+        assert_eq!(typ, "sequence");
+        assert_eq!(
+            val,
+            NodeTupleValue::Tuple(vec![
+                NodeTupleValue::Raw("SELECT".to_string()),
+                NodeTupleValue::Raw("FROM".to_string()),
+            ])
+        );
+    }
+
+    #[test]
+    fn test_ref_node_to_tuple() {
+        let child = Node::Token("keyword".to_string(), "SELECT".to_string(), 0);
+        let node = Node::Ref {
+            name: "SelectKeywordSegment".to_string(),
+            segment_type: None,
+            child: Box::new(child),
+        };
+        let (typ, val) = node.to_tuple(false, true, false);
+        assert_eq!(typ, "");
+        assert_eq!(val, NodeTupleValue::Raw("SELECT".to_string()));
+    }
+
+    #[test]
+    fn test_meta_node_to_tuple_include_meta() {
+        let node = Node::Meta("indent");
+        let (typ, val) = node.to_tuple(false, false, true);
+        assert_eq!(typ, "indent");
+        assert_eq!(val, NodeTupleValue::Raw("".to_string()));
+    }
+
+    #[test]
+    fn test_meta_node_to_tuple_exclude_meta() {
+        let node = Node::Meta("indent");
+        let (typ, val) = node.to_tuple(false, false, false);
+        assert_eq!(typ, "indent");
+        assert_eq!(val, NodeTupleValue::Tuple(vec![]));
+    }
+
+    #[test]
+    fn test_empty_node_to_tuple() {
+        let node = Node::Empty;
+        let (typ, val) = node.to_tuple(false, false, false);
+        assert_eq!(typ, "empty");
+        assert_eq!(val, NodeTupleValue::Tuple(vec![]));
     }
 }

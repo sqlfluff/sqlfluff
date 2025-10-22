@@ -333,25 +333,26 @@ fn node_to_yaml(
     // Use code_only=true to match Python's behavior
     let yaml_value = node_to_yaml_value(node, tokens, true)?;
 
-    // Add hash placeholder (would need to compute actual hash)
+    // Use Node::as_record for YAML serialization
     let mut root_map = Mapping::new();
+    let as_record = node.as_record();
+    // Add hash placeholder
     root_map.insert(
         Value::String("_hash".to_string()),
         Value::String("PLACEHOLDER_HASH".to_string()),
     );
 
-    // Merge the node's YAML into the root
-    if let Value::Mapping(node_map) = yaml_value {
-        for (k, v) in node_map {
-            let mut v = v;
-            // Special case: if node is Empty, represent as "null"
-            if v == Value::Sequence(vec![]) {
-                v = Value::Null;
-            }
+    if let Some(Value::Mapping(m)) = as_record {
+        for (k, v) in m {
             root_map.insert(k, v);
         }
-    }
-    // }
+    } else {
+        // fallback: just insert the node under a generic key
+        root_map.insert(
+            Value::String("node".to_string()),
+            as_record.expect("Node as_record should not be None"),
+        );
+    };
 
     // Add header comments
     let header = "# YML test files are auto-generated from SQL files and should not be edited by\n\
