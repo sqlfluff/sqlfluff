@@ -13,6 +13,9 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process;
 
+use blake2::{Blake2s256, Digest};
+use serde_yaml::Value;
+
 fn main() {
     env_logger::init();
 
@@ -337,20 +340,18 @@ fn node_to_yaml(
         Value::String("PLACEHOLDER_HASH".to_string()),
     );
 
-    // Special case: if node is Empty, represent as "file: null"
-    if matches!(node, sqlfluffrs::parser::Node::Empty) {
-        root_map.insert(
-            Value::String("file".to_string()),
-            Value::Null,
-        );
-    } else {
-        // Merge the node's YAML into the root
-        if let Value::Mapping(node_map) = yaml_value {
-            for (k, v) in node_map {
-                root_map.insert(k, v);
+    // Merge the node's YAML into the root
+    if let Value::Mapping(node_map) = yaml_value {
+        for (k, v) in node_map {
+            let mut v = v;
+            // Special case: if node is Empty, represent as "null"
+            if v == Value::Sequence(vec![]) {
+                v = Value::Null;
             }
+            root_map.insert(k, v);
         }
     }
+    // }
 
     // Add header comments
     let header = "# YML test files are auto-generated from SQL files and should not be edited by\n\
@@ -359,7 +360,9 @@ fn node_to_yaml(
                   # `python test/generate_parse_fixture_yml.py`  to generate them after adding or\n\
                   # altering SQL files.\n";
 
-    let yaml_str = serde_yaml::to_string(&Value::Mapping(root_map))?;
+    let mut yaml_val = Value::Mapping(root_map);
+    insert_yaml_hash(&mut yaml_val);
+    let yaml_str = serde_yaml::to_string(&yaml_val)?;
     Ok(format!("{}{}", header, yaml_str))
 }
 
@@ -497,6 +500,55 @@ fn node_to_yaml_value(
         Node::Empty | Node::Meta(_) => {
             // Empty nodes and meta nodes are typically filtered out
             Ok(Value::Sequence(vec![]))
+        }
+    }
+}
+
+/// Compute a hash for a serde_yaml::Value, excluding the _hash field.
+/// Returns a lowercase hex string (SHA256).
+pub fn compute_yaml_hash(yaml: &Value) -> String {
+    // Remove _hash field if present
+    let mut clean = match yaml {
+        Value::Mapping(map) => {
+            let mut m = map.clone();
+            m.remove(&Value::String("_hash".to_string()));
+            Value::Mapping(m)
+        }
+        _ => yaml.clone(),
+    };
+    // Dump to canonical YAML string (no comments)
+    let yaml_str = serde_yaml::to_string(&clean).unwrap();
+    // Compute SHA256 hash
+    let mut hasher = Blake2s256::new();
+    hasher.update(yaml_str.as_bytes());
+    format!("{:x}", hasher.finalize())
+}
+
+/// Insert the hash into the _hash field of a YAML mapping
+pub fn insert_yaml_hash(yaml: &mut Value) {
+    let hash = compute_yaml_hash(yaml);
+    if let Value::Mapping(map) = yaml {
+        map.insert(Value::String("_hash".to_string()), Value::String(hash));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_yaml::Value;
+    use std::collections::BTreeMap;
+
+    #[test]
+    fn test_hash_insertion() {
+        let mut map = serde_yaml::Mapping::new();
+        map.insert(
+            Value::String("foo".to_string()),
+            Value::String("bar".to_string()),
+        );
+        let mut yaml = Value::Mapping(map);
+        insert_yaml_hash(&mut yaml);
+        if let Value::Mapping(m) = &yaml {
+            assert!(m.contains_key(&Value::String("_hash".to_string())));
         }
     }
 }
