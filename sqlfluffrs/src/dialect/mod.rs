@@ -226,6 +226,39 @@ impl Dialect {
             Dialect::Vertica => crate::dialect::vertica::parser::get_vertica_segment_type(name),
         }
     }
+
+    pub fn get_root_grammar(&self) -> &'static Grammar {
+        match self {
+            Dialect::Ansi => crate::dialect::ansi::parser::get_ansi_root_grammar(),
+            Dialect::Athena => crate::dialect::athena::parser::get_athena_root_grammar(),
+            Dialect::Bigquery => crate::dialect::bigquery::parser::get_bigquery_root_grammar(),
+            Dialect::Clickhouse => crate::dialect::clickhouse::parser::get_clickhouse_root_grammar(),
+            Dialect::Databricks => crate::dialect::databricks::parser::get_databricks_root_grammar(),
+            Dialect::Db2 => crate::dialect::db2::parser::get_db2_root_grammar(),
+            Dialect::Doris => crate::dialect::doris::parser::get_doris_root_grammar(),
+            Dialect::Duckdb => crate::dialect::duckdb::parser::get_duckdb_root_grammar(),
+            Dialect::Exasol => crate::dialect::exasol::parser::get_exasol_root_grammar(),
+            Dialect::Flink => crate::dialect::flink::parser::get_flink_root_grammar(),
+            Dialect::Greenplum => crate::dialect::greenplum::parser::get_greenplum_root_grammar(),
+            Dialect::Hive => crate::dialect::hive::parser::get_hive_root_grammar(),
+            Dialect::Impala => crate::dialect::impala::parser::get_impala_root_grammar(),
+            Dialect::Mariadb => crate::dialect::mariadb::parser::get_mariadb_root_grammar(),
+            Dialect::Materialize => crate::dialect::materialize::parser::get_materialize_root_grammar(),
+            Dialect::Mysql => crate::dialect::mysql::parser::get_mysql_root_grammar(),
+            Dialect::Oracle => crate::dialect::oracle::parser::get_oracle_root_grammar(),
+            Dialect::Postgres => crate::dialect::postgres::parser::get_postgres_root_grammar(),
+            Dialect::Redshift => crate::dialect::redshift::parser::get_redshift_root_grammar(),
+            Dialect::Snowflake => crate::dialect::snowflake::parser::get_snowflake_root_grammar(),
+            Dialect::Soql => crate::dialect::soql::parser::get_soql_root_grammar(),
+            Dialect::Sparksql => crate::dialect::sparksql::parser::get_sparksql_root_grammar(),
+            Dialect::Sqlite => crate::dialect::sqlite::parser::get_sqlite_root_grammar(),
+            Dialect::Starrocks => crate::dialect::starrocks::parser::get_starrocks_root_grammar(),
+            Dialect::Teradata => crate::dialect::teradata::parser::get_teradata_root_grammar(),
+            Dialect::Trino => crate::dialect::trino::parser::get_trino_root_grammar(),
+            Dialect::Tsql => crate::dialect::tsql::parser::get_tsql_root_grammar(),
+            Dialect::Vertica => crate::dialect::vertica::parser::get_vertica_root_grammar()
+        }
+    }
 }
 
 impl FromStr for Dialect {

@@ -13,3 +13,9 @@ pub fn get_sparksql_segment_type(name: &str) -> Option<&'static str> {
             _ => None,
     }
 }
+
+pub fn get_sparksql_root_grammar() -> &'static Grammar {
+    get_sparksql_segment_grammar(
+        "FileSegment"
+    ).expect("Root grammar missing.")
+}

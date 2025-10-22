@@ -13,3 +13,9 @@ pub fn get_trino_segment_type(name: &str) -> Option<&'static str> {
             _ => None,
     }
 }
+
+pub fn get_trino_root_grammar() -> &'static Grammar {
+    get_trino_segment_grammar(
+        "FileSegment"
+    ).expect("Root grammar missing.")
+}

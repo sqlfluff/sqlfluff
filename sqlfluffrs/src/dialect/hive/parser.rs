@@ -13,3 +13,9 @@ pub fn get_hive_segment_type(name: &str) -> Option<&'static str> {
             _ => None,
     }
 }
+
+pub fn get_hive_root_grammar() -> &'static Grammar {
+    get_hive_segment_grammar(
+        "FileSegment"
+    ).expect("Root grammar missing.")
+}

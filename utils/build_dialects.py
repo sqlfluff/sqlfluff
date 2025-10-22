@@ -56,6 +56,14 @@ def generate_dialect_enum():
             for d in dialect_readout()
         ]
     )
+    dialect_get_root_grammars = ",\n            ".join(
+        [
+            f"Dialect::{d.label.capitalize()} => "
+            f"crate::dialect::{d.label.lower()}::"
+            f"parser::get_{d.label.lower()}_root_grammar()"
+            for d in dialect_readout()
+        ]
+    )
     dialect_strings = ",\n            ".join(
         [
             f'"{d.label}" => Ok(Dialect::{d.label.capitalize()})'
@@ -91,6 +99,12 @@ impl Dialect {{
     pub fn get_segment_type(&self, name: &str) -> Option<&'static str> {{
         match self {{
             {dialect_get_segment_types},
+        }}
+    }}
+
+    pub fn get_root_grammar(&self) -> &'static Grammar {{
+        match self {{
+            {dialect_get_root_grammars}
         }}
     }}
 }}

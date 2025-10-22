@@ -103,6 +103,15 @@ def generate_parser(dialect: str):
     print("    }")
     print("}")
 
+    print(
+        f"""
+pub fn get_{dialect.lower()}_root_grammar() -> &'static Grammar {{
+    get_{dialect.lower()}_segment_grammar(
+        "{loaded_dialect.get_root_segment().__name__}"
+    ).expect("Root grammar missing.")
+}}"""
+    )
+
 
 def _to_rust_parser_grammar(match_grammar, parse_context):
     # print(type(match_grammar), vars(match_grammar))

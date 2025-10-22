@@ -23397,7 +23397,7 @@ Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(r#"^(INNER|INTERVAL|JOIN|ON|NOT|PARTITION|CASE|CROSS|RESPECT|OUTER|ROWS|IGNORE|ORDER|RIGHT|SET|FULL|NATURAL|SELECT|LEFT|UNION|USING|NULL)$"#),
+    anti_template: Some(r#"^(ROWS|RESPECT|INNER|NULL|CROSS|CASE|PARTITION|NOT|INTERVAL|SELECT|FULL|SET|NATURAL|UNION|OUTER|USING|JOIN|ON|IGNORE|RIGHT|LEFT|ORDER)$"#),
 }
 );
 
@@ -36422,4 +36422,10 @@ pub fn get_ansi_segment_type(name: &str) -> Option<&'static str> {
             "WordSegment" => Some("word"),
             _ => None,
     }
+}
+
+pub fn get_ansi_root_grammar() -> &'static Grammar {
+    get_ansi_segment_grammar(
+        "FileSegment"
+    ).expect("Root grammar missing.")
 }

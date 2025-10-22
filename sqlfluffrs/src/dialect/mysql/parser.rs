@@ -13,3 +13,9 @@ pub fn get_mysql_segment_type(name: &str) -> Option<&'static str> {
             _ => None,
     }
 }
+
+pub fn get_mysql_root_grammar() -> &'static Grammar {
+    get_mysql_segment_grammar(
+        "FileSegment"
+    ).expect("Root grammar missing.")
+}

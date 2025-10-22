@@ -13,3 +13,9 @@ pub fn get_sqlite_segment_type(name: &str) -> Option<&'static str> {
             _ => None,
     }
 }
+
+pub fn get_sqlite_root_grammar() -> &'static Grammar {
+    get_sqlite_segment_grammar(
+        "FileSegment"
+    ).expect("Root grammar missing.")
+}
