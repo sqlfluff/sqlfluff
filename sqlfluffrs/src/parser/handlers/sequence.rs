@@ -1,7 +1,6 @@
 use crate::{
     parser::{
-        iterative::{NextStep, ParseFrameStack},
-        FrameContext, FrameState, Grammar, Node, ParseError, ParseFrame, Parser,
+        iterative::{NextStep, ParseFrameStack}, BracketedState, FrameContext, FrameState, Grammar, Node, ParseError, ParseFrame, Parser
     },
     ParseMode,
 };
@@ -229,5 +228,86 @@ impl<'a> Parser<'_> {
         }
 
         Ok(NextStep::Fallthrough) // No child pushed, don't continue
+    }
+
+    /// Handle Bracketed grammar Initial state in iterative parser
+    pub(crate) fn handle_bracketed_initial(
+        &mut self,
+        bracket_pairs: &(Box<Grammar>, Box<Grammar>),
+        elements: &[Grammar],
+        optional: bool,
+        bracket_terminators: &[Grammar],
+        reset_terminators: bool,
+        allow_gaps: bool,
+        parse_mode: ParseMode,
+        frame: &mut ParseFrame,
+        parent_terminators: &[Grammar],
+        stack: &mut ParseFrameStack,
+    ) -> Result<NextStep, ParseError> {
+        let start_idx = frame.pos;
+        log::debug!(
+            "Bracketed starting at {}, allow_gaps={}, parse_mode={:?}",
+            start_idx,
+            allow_gaps,
+            parse_mode
+        );
+
+        // Combine parent and local terminators
+        let all_terminators: Vec<Grammar> = if reset_terminators {
+            bracket_terminators.to_vec()
+        } else {
+            bracket_terminators
+                .iter()
+                .cloned()
+                .chain(parent_terminators.iter().cloned())
+                .collect()
+        };
+
+        // Update frame with Bracketed context
+        frame.state = FrameState::WaitingForChild {
+            child_index: 0,
+            total_children: 3, // open, content, close
+        };
+        frame.context = FrameContext::Bracketed {
+            bracket_pairs: bracket_pairs.clone(),
+            elements: elements.to_vec(),
+            allow_gaps,
+            optional,
+            parse_mode,
+            state: BracketedState::MatchingOpen,
+            last_child_frame_id: None,
+        };
+        frame.terminators = all_terminators.clone();
+        stack.push(frame);
+
+        // Start by trying to match the opening bracket
+        let mut child_frame = ParseFrame {
+            frame_id: stack.frame_id_counter,
+            grammar: (*bracket_pairs.0).clone(),
+            pos: start_idx,
+            terminators: all_terminators,
+            state: FrameState::Initial,
+            accumulated: vec![],
+            context: FrameContext::None,
+            parent_max_idx: stack.last_mut().unwrap().parent_max_idx, // Propagate parent's limit!
+        };
+
+        // Update parent's last_child_frame_id
+        {
+            let next_child_id = stack.frame_id_counter;
+            if let Some(parent_frame) = stack.last_mut() {
+                if let FrameContext::Bracketed {
+                    last_child_frame_id,
+                    ..
+                } = &mut parent_frame.context
+                {
+                    *last_child_frame_id = Some(next_child_id);
+                }
+            }
+        }
+
+        stack.increment_frame_id_counter();
+        stack.push(&mut child_frame);
+        Ok(NextStep::Continue)
     }
 }

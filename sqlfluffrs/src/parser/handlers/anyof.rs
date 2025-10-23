@@ -1,6 +1,6 @@
-use hashbrown::HashSet;
-use crate::parser::{Node, ParseError, ParseFrame, ParseMode, Grammar};
 use crate::parser::iterative::{NextStep, ParseFrameStack};
+use crate::parser::{Grammar, Node, ParseError, ParseFrame, ParseMode};
+use hashbrown::HashSet;
 
 impl crate::parser::Parser<'_> {
     /// Handle AnySetOf grammar Initial state in iterative parser
@@ -137,7 +137,7 @@ impl crate::parser::Parser<'_> {
         parse_mode: ParseMode,
         frame: &mut ParseFrame,
         parent_terminators: &[Grammar],
-    stack: &mut ParseFrameStack,
+        stack: &mut ParseFrameStack,
         iteration_count: usize,
     ) -> Result<NextStep, ParseError> {
         let start_idx = frame.pos;
@@ -274,7 +274,7 @@ impl crate::parser::Parser<'_> {
         parse_mode: ParseMode,
         frame: &mut ParseFrame,
         parent_terminators: &[Grammar],
-    stack: &mut ParseFrameStack,
+        stack: &mut ParseFrameStack,
     ) -> Result<NextStep, ParseError> {
         let pos = frame.pos;
         log::debug!(
@@ -334,7 +334,13 @@ impl crate::parser::Parser<'_> {
             let result = if optional {
                 Node::Empty
             } else {
-                crate::parser::utils::apply_parse_mode_to_result(self.tokens, Node::Empty, pos, max_idx, parse_mode)
+                crate::parser::utils::apply_parse_mode_to_result(
+                    self.tokens,
+                    Node::Empty,
+                    pos,
+                    max_idx,
+                    parse_mode,
+                )
             };
 
             let final_pos = if matches!(result, Node::Empty) {
@@ -359,7 +365,13 @@ impl crate::parser::Parser<'_> {
             let result = if optional {
                 Node::Empty
             } else {
-                crate::parser::utils::apply_parse_mode_to_result(self.tokens, Node::Empty, pos, max_idx, parse_mode)
+                crate::parser::utils::apply_parse_mode_to_result(
+                    self.tokens,
+                    Node::Empty,
+                    pos,
+                    max_idx,
+                    parse_mode,
+                )
             };
 
             let final_pos = if matches!(result, Node::Empty) {
@@ -452,5 +464,50 @@ impl crate::parser::Parser<'_> {
         stack.push(frame);
         stack.push(&mut child_frame);
         Ok(NextStep::Continue)
+    }
+
+    // Helper methods
+    /// Try to match a grammar at a specific position without consuming tokens
+    /// Returns Some(end_pos) if the grammar matches, None otherwise
+    ///
+    /// This uses the same parsing logic as the main parser but in a non-destructive way,
+    /// similar to how terminators are checked.
+    fn try_match_grammar(
+        &mut self,
+        grammar: &Grammar,
+        pos: usize,
+        terminators: &[Grammar],
+    ) -> Option<usize> {
+        // Save current state
+        let saved_pos = self.pos;
+
+        // Try to parse the grammar using parse_with_grammar_cached
+        // This will temporarily move the parser position but we'll restore it
+        self.pos = pos;
+
+        let result = self.parse_with_grammar_cached(grammar, terminators);
+
+        // Get the end position before restoring
+        let end_pos = self.pos;
+
+        // Restore position regardless of match success
+        self.pos = saved_pos;
+
+        // If the grammar matched, return the end position
+        match result {
+            Ok(node) => {
+                // Only consider it a match if we actually consumed something
+                // or if it's an empty match at the exact position
+                if end_pos > pos {
+                    Some(end_pos)
+                } else if matches!(node, Node::Empty) {
+                    // Empty nodes might still be valid matches (like optional elements)
+                    None
+                } else {
+                    Some(end_pos)
+                }
+            }
+            Err(_) => None,
+        }
     }
 }
