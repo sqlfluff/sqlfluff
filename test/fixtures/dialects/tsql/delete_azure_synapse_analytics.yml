@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e295294d0f6b4236e99c57836df2c796088a0c72a4fe412dfd94e0a12b110b31
+_hash: db808376d7efd1bf72e7b96c0298bbe8eeb9aa300cd8c28110aa0eb02758ebe2
 file:
   batch:
   - statement:
@@ -77,8 +77,9 @@ file:
             end_bracket: )
       - output_clause:
         - keyword: OUTPUT
-        - column_reference:
-            naked_identifier: age
+        - expression:
+            column_reference:
+              naked_identifier: age
         - keyword: INTO
         - table_reference:
             naked_identifier: ages

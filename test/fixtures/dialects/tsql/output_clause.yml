@@ -1,0 +1,942 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3fe15bcc6af0396110f95b54f0f63a63ed215c222183cdcae1b84ef6bf3413b6
+file:
+- batch:
+    statement:
+      delete_statement:
+        keyword: DELETE
+        table_reference:
+        - naked_identifier: Sales
+        - dot: .
+        - naked_identifier: ShoppingCartItem
+        output_clause:
+        - keyword: OUTPUT
+        - keyword: DELETED
+        - dot: .
+        - wildcard_identifier:
+            star: '*'
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: ShoppingCartID
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '20621'
+        statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      delete_statement:
+        keyword: DELETE
+        table_reference:
+        - naked_identifier: Sales
+        - dot: .
+        - naked_identifier: ShoppingCartItem
+        output_clause:
+        - keyword: OUTPUT
+        - keyword: DELETED
+        - dot: .
+        - naked_identifier: ProductID
+        - comma: ','
+        - keyword: DELETED
+        - dot: .
+        - naked_identifier: Quantity
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: ShoppingCartID
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '20621'
+        statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      delete_statement:
+        keyword: DELETE
+        table_reference:
+        - naked_identifier: Sales
+        - dot: .
+        - naked_identifier: ShoppingCartItem
+        output_clause:
+        - keyword: OUTPUT
+        - keyword: DELETED
+        - dot: .
+        - naked_identifier: ProductID
+        - alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: RemovedProductID
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: ShoppingCartID
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '20621'
+        statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@DeletedRows'
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: ProductID
+            data_type:
+              data_type_identifier: INT
+        - comma: ','
+        - column_definition:
+            naked_identifier: Quantity
+            data_type:
+              data_type_identifier: INT
+        - end_bracket: )
+      - statement_terminator: ;
+  - statement:
+      delete_statement:
+        keyword: DELETE
+        table_reference:
+        - naked_identifier: Sales
+        - dot: .
+        - naked_identifier: ShoppingCartItem
+        output_clause:
+        - keyword: OUTPUT
+        - keyword: DELETED
+        - dot: .
+        - naked_identifier: ProductID
+        - comma: ','
+        - keyword: DELETED
+        - dot: .
+        - naked_identifier: Quantity
+        - keyword: INTO
+        - parameter: '@DeletedRows'
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: ShoppingCartID
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '20621'
+        statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@MyTableVar'
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: NewScrapReasonID
+            data_type:
+              data_type_identifier: SMALLINT
+        - comma: ','
+        - column_definition:
+            naked_identifier: Name
+            data_type:
+              data_type_identifier: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '50'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: ModifiedDate
+            data_type:
+              data_type_identifier: DATETIME
+        - end_bracket: )
+      - statement_terminator: ;
+  - statement:
+      insert_statement:
+        keyword: INSERT
+        table_reference:
+        - naked_identifier: Production
+        - dot: .
+        - naked_identifier: ScrapReason
+        output_clause:
+        - keyword: OUTPUT
+        - keyword: INSERTED
+        - dot: .
+        - naked_identifier: ScrapReasonID
+        - comma: ','
+        - keyword: INSERTED
+        - dot: .
+        - naked_identifier: Name
+        - comma: ','
+        - keyword: INSERTED
+        - dot: .
+        - naked_identifier: ModifiedDate
+        - keyword: INTO
+        - parameter: '@MyTableVar'
+        values_clause:
+          keyword: VALUES
+          bracketed:
+            start_bracket: (
+            quoted_literal: "N'Operator error'"
+            comma: ','
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: GETDATE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+            end_bracket: )
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+    statement:
+      insert_statement:
+        keyword: INSERT
+        table_reference:
+        - naked_identifier: Production
+        - dot: .
+        - naked_identifier: ScrapReason
+        output_clause:
+        - keyword: OUTPUT
+        - keyword: INSERTED
+        - dot: .
+        - naked_identifier: ScrapReasonID
+        - comma: ','
+        - keyword: INSERTED
+        - dot: .
+        - naked_identifier: Name
+        values_clause:
+          keyword: VALUES
+          bracketed:
+            start_bracket: (
+            quoted_literal: "N'Operator error'"
+            comma: ','
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: GETDATE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+            end_bracket: )
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@UpdatedRows'
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: EmpID
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: OldVacationHours
+            data_type:
+              data_type_identifier: INT
+        - comma: ','
+        - column_definition:
+            naked_identifier: NewVacationHours
+            data_type:
+              data_type_identifier: INT
+        - end_bracket: )
+      - statement_terminator: ;
+  - statement:
+      update_statement:
+        keyword: UPDATE
+        table_reference:
+        - naked_identifier: HumanResources
+        - dot: .
+        - naked_identifier: Employee
+        set_clause_list:
+          keyword: SET
+          set_clause:
+            column_reference:
+              naked_identifier: VacationHours
+            assignment_operator:
+              raw_comparison_operator: '='
+            expression:
+              column_reference:
+                naked_identifier: VacationHours
+              binary_operator: '*'
+              numeric_literal: '1.25'
+        output_clause:
+        - keyword: OUTPUT
+        - keyword: INSERTED
+        - dot: .
+        - naked_identifier: BusinessEntityID
+        - comma: ','
+        - keyword: DELETED
+        - dot: .
+        - naked_identifier: VacationHours
+        - comma: ','
+        - keyword: INSERTED
+        - dot: .
+        - naked_identifier: VacationHours
+        - keyword: INTO
+        - parameter: '@UpdatedRows'
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: BusinessEntityID
+            comparison_operator:
+              raw_comparison_operator: <
+            integer_literal: '10'
+        statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+    statement:
+      update_statement:
+        keyword: UPDATE
+        table_reference:
+        - naked_identifier: HumanResources
+        - dot: .
+        - naked_identifier: Employee
+        set_clause_list:
+          keyword: SET
+          set_clause:
+            column_reference:
+              naked_identifier: VacationHours
+            assignment_operator:
+              raw_comparison_operator: '='
+            expression:
+              column_reference:
+                naked_identifier: VacationHours
+              binary_operator: '*'
+              numeric_literal: '1.25'
+        output_clause:
+        - keyword: OUTPUT
+        - keyword: INSERTED
+        - dot: .
+        - naked_identifier: BusinessEntityID
+        - comma: ','
+        - keyword: DELETED
+        - dot: .
+        - naked_identifier: VacationHours
+        - alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: OldValue
+        - comma: ','
+        - keyword: INSERTED
+        - dot: .
+        - naked_identifier: VacationHours
+        - alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: NewValue
+        - comma: ','
+        - expression:
+          - column_reference:
+            - naked_identifier: INSERTED
+            - dot: .
+            - naked_identifier: VacationHours
+          - binary_operator: '-'
+          - column_reference:
+            - naked_identifier: DELETED
+            - dot: .
+            - naked_identifier: VacationHours
+        - alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: Difference
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: BusinessEntityID
+            comparison_operator:
+              raw_comparison_operator: <
+            integer_literal: '10'
+        statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@MyTestVar'
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: OldScrapReasonID
+            data_type:
+              data_type_identifier: INT
+        - comma: ','
+        - column_definition:
+            naked_identifier: NewScrapReasonID
+            data_type:
+              data_type_identifier: INT
+        - comma: ','
+        - column_definition:
+            naked_identifier: WorkOrderID
+            data_type:
+              data_type_identifier: INT
+        - comma: ','
+        - column_definition:
+            naked_identifier: ProductID
+            data_type:
+              data_type_identifier: INT
+        - comma: ','
+        - column_definition:
+            naked_identifier: ProductName
+            data_type:
+              data_type_identifier: NVARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '50'
+                  end_bracket: )
+        - end_bracket: )
+      - statement_terminator: ;
+  - statement:
+      update_statement:
+        keyword: UPDATE
+        table_reference:
+        - naked_identifier: Production
+        - dot: .
+        - naked_identifier: WorkOrder
+        set_clause_list:
+          keyword: SET
+          set_clause:
+            column_reference:
+              naked_identifier: ScrapReasonID
+            assignment_operator:
+              raw_comparison_operator: '='
+            expression:
+              integer_literal: '4'
+        output_clause:
+        - keyword: OUTPUT
+        - keyword: DELETED
+        - dot: .
+        - naked_identifier: ScrapReasonID
+        - comma: ','
+        - keyword: INSERTED
+        - dot: .
+        - naked_identifier: ScrapReasonID
+        - comma: ','
+        - keyword: INSERTED
+        - dot: .
+        - naked_identifier: WorkOrderID
+        - comma: ','
+        - keyword: INSERTED
+        - dot: .
+        - naked_identifier: ProductID
+        - comma: ','
+        - naked_identifier: p
+        - dot: .
+        - naked_identifier: Name
+        - keyword: INTO
+        - parameter: '@MyTestVar'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: Production
+                - dot: .
+                - naked_identifier: WorkOrder
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: wo
+            join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: Production
+                  - dot: .
+                  - naked_identifier: Product
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: p
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: wo
+                  - dot: .
+                  - naked_identifier: ProductID
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: p
+                  - dot: .
+                  - naked_identifier: ProductID
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+            - naked_identifier: wo
+            - dot: .
+            - naked_identifier: ScrapReasonID
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '16'
+        statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@SummaryOfChanges'
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: ChangeType
+            data_type:
+              data_type_identifier: NVARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '10'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: ProductID
+            data_type:
+              data_type_identifier: INT
+        - end_bracket: )
+      - statement_terminator: ;
+  - statement:
+      merge_statement:
+      - keyword: MERGE
+      - table_reference:
+        - naked_identifier: Production
+        - dot: .
+        - naked_identifier: ProductInventory
+      - alias_expression:
+          alias_operator:
+            keyword: AS
+          naked_identifier: target
+      - keyword: USING
+      - bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: ProductID
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: SUM
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: OrderQty
+                      end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: TotalQty
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: Sales
+                    - dot: .
+                    - naked_identifier: SalesOrderDetail
+            groupby_clause:
+            - keyword: GROUP
+            - keyword: BY
+            - column_reference:
+                naked_identifier: ProductID
+          end_bracket: )
+      - alias_expression:
+          alias_operator:
+            keyword: AS
+          naked_identifier: source
+      - join_on_condition:
+          keyword: 'ON'
+          expression:
+          - column_reference:
+            - naked_identifier: target
+            - dot: .
+            - naked_identifier: ProductID
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: source
+            - dot: .
+            - naked_identifier: ProductID
+      - merge_match:
+        - merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: AND
+          - expression:
+            - column_reference:
+              - naked_identifier: target
+              - dot: .
+              - naked_identifier: Quantity
+            - binary_operator: '-'
+            - column_reference:
+              - naked_identifier: source
+              - dot: .
+              - naked_identifier: TotalQty
+            - comparison_operator:
+              - raw_comparison_operator: <
+              - raw_comparison_operator: '='
+            - integer_literal: '0'
+          - keyword: THEN
+          - merge_delete_clause:
+              keyword: DELETE
+        - merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_update_clause:
+              keyword: UPDATE
+              set_clause_list:
+                keyword: SET
+                set_clause:
+                  column_reference:
+                  - naked_identifier: target
+                  - dot: .
+                  - naked_identifier: Quantity
+                  assignment_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                  - column_reference:
+                    - naked_identifier: target
+                    - dot: .
+                    - naked_identifier: Quantity
+                  - binary_operator: '-'
+                  - column_reference:
+                    - naked_identifier: source
+                    - dot: .
+                    - naked_identifier: TotalQty
+        - output_clause:
+          - keyword: OUTPUT
+          - action_parameter: $ACTION
+          - comma: ','
+          - keyword: DELETED
+          - dot: .
+          - naked_identifier: ProductID
+          - keyword: INTO
+          - parameter: '@SummaryOfChanges'
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+    statement:
+      merge_statement:
+      - keyword: MERGE
+      - table_reference:
+        - naked_identifier: Production
+        - dot: .
+        - naked_identifier: ProductInventory
+      - alias_expression:
+          alias_operator:
+            keyword: AS
+          naked_identifier: target
+      - keyword: USING
+      - bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: ProductID
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: SUM
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: OrderQty
+                      end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: TotalQty
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: Sales
+                    - dot: .
+                    - naked_identifier: SalesOrderDetail
+            groupby_clause:
+            - keyword: GROUP
+            - keyword: BY
+            - column_reference:
+                naked_identifier: ProductID
+          end_bracket: )
+      - alias_expression:
+          alias_operator:
+            keyword: AS
+          naked_identifier: source
+      - join_on_condition:
+          keyword: 'ON'
+          expression:
+          - column_reference:
+            - naked_identifier: target
+            - dot: .
+            - naked_identifier: ProductID
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: source
+            - dot: .
+            - naked_identifier: ProductID
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_update_clause:
+              keyword: UPDATE
+              set_clause_list:
+                keyword: SET
+                set_clause:
+                  column_reference:
+                  - naked_identifier: target
+                  - dot: .
+                  - naked_identifier: Quantity
+                  assignment_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                  - column_reference:
+                    - naked_identifier: target
+                    - dot: .
+                    - naked_identifier: Quantity
+                  - binary_operator: '-'
+                  - column_reference:
+                    - naked_identifier: source
+                    - dot: .
+                    - naked_identifier: TotalQty
+          output_clause:
+          - keyword: OUTPUT
+          - action_parameter: $ACTION
+          - comma: ','
+          - keyword: INSERTED
+          - dot: .
+          - naked_identifier: ProductID
+          - comma: ','
+          - keyword: INSERTED
+          - dot: .
+          - naked_identifier: Quantity
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          hash_identifier: '#OutputTable'
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: ProductID
+            data_type:
+              data_type_identifier: INT
+        - comma: ','
+        - column_definition:
+            naked_identifier: DeletedQuantity
+            data_type:
+              data_type_identifier: INT
+        - end_bracket: )
+      - statement_terminator: ;
+  - statement:
+      delete_statement:
+        keyword: DELETE
+        table_reference:
+        - naked_identifier: Sales
+        - dot: .
+        - naked_identifier: ShoppingCartItem
+        output_clause:
+        - keyword: OUTPUT
+        - keyword: DELETED
+        - dot: .
+        - naked_identifier: ProductID
+        - comma: ','
+        - keyword: DELETED
+        - dot: .
+        - naked_identifier: Quantity
+        - keyword: INTO
+        - table_reference:
+            hash_identifier: '#OutputTable'
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: ShoppingCartID
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '20621'
+        statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@Results'
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: ProdID
+            data_type:
+              data_type_identifier: INT
+        - comma: ','
+        - column_definition:
+            naked_identifier: Qty
+            data_type:
+              data_type_identifier: INT
+        - end_bracket: )
+      - statement_terminator: ;
+  - statement:
+      delete_statement:
+        keyword: DELETE
+        table_reference:
+        - naked_identifier: Sales
+        - dot: .
+        - naked_identifier: ShoppingCartItem
+        output_clause:
+        - keyword: OUTPUT
+        - keyword: DELETED
+        - dot: .
+        - naked_identifier: ProductID
+        - comma: ','
+        - keyword: DELETED
+        - dot: .
+        - naked_identifier: Quantity
+        - keyword: INTO
+        - parameter: '@Results'
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: ProdID
+          - comma: ','
+          - column_reference:
+              naked_identifier: Qty
+          - end_bracket: )
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: ShoppingCartID
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '20621'
+        statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+    statement:
+      update_statement:
+        keyword: UPDATE
+        table_reference:
+        - naked_identifier: Production
+        - dot: .
+        - naked_identifier: Product
+        set_clause_list:
+          keyword: SET
+          set_clause:
+            column_reference:
+              naked_identifier: ListPrice
+            assignment_operator:
+              raw_comparison_operator: '='
+            expression:
+              column_reference:
+                naked_identifier: ListPrice
+              binary_operator: '*'
+              numeric_literal: '1.1'
+        output_clause:
+        - keyword: OUTPUT
+        - keyword: INSERTED
+        - dot: .
+        - naked_identifier: ProductID
+        - comma: ','
+        - keyword: DELETED
+        - dot: .
+        - naked_identifier: ListPrice
+        - comma: ','
+        - keyword: INSERTED
+        - dot: .
+        - naked_identifier: ListPrice
+        - comma: ','
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: GETDATE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+        - alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: UpdateDate
+        - comma: ','
+        - expression:
+            bare_function: SYSTEM_USER
+        - alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: UpdatedBy
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: ProductID
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '680'
+        statement_terminator: ;
+    go_statement:
+      keyword: GO
