@@ -280,8 +280,15 @@ class Rule_CV12(BaseRule):
                 assert function_seg is not None
                 function_name = function_seg.get_child("function_name")
                 assert function_name is not None
-                function_id = function_name.get_child("function_name_identifier").raw_upper
-                return function_id
+                function_id = function_name.get_child(
+                    "function_name_identifier"
+                ).raw_upper
+            else:
+                function_id = table_expr_seg.raw_upper
+        else:
+            function_id = from_expr_element.raw_upper
+
+        return function_id
 
     @staticmethod
     def _is_where_clause_simplifable(where_clause: BaseSegment) -> bool:
