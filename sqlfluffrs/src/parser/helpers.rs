@@ -258,13 +258,13 @@ impl<'a> Parser<'a> {
 
             let tok_type = tok.get_type();
             let node = if tok_type == "whitespace" {
-                Node::Whitespace(tok.raw(), token_pos)
+                Node::Whitespace { raw: tok.raw(), token_idx: token_pos }
             } else if tok_type == "newline" {
-                Node::Newline(tok.raw(), token_pos)
+                Node::Newline { raw: tok.raw(), token_idx: token_pos }
             } else if tok_type == "end_of_file" {
-                Node::EndOfFile(tok.raw(), token_pos)
+                Node::EndOfFile { raw: tok.raw(), token_idx: token_pos }
             } else {
-                Node::Token(tok.raw(), tok.token_type.clone(), token_pos) // Fallback for other non-code tokens
+                Node::Token { token_type: tok.raw(), raw: tok.token_type.clone(), token_idx: token_pos } // Fallback for other non-code tokens
             };
 
             log::debug!(

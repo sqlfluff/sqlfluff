@@ -209,14 +209,14 @@ fn node_to_yaml_value(
     match node {
         Node::Empty => Ok(Value::Null),
 
-        Node::Meta(_) => Ok(Value::Null), // Meta nodes are not in YAML
+        Node::Meta { .. } => Ok(Value::Null), // Meta nodes are not in YAML
 
-        Node::Whitespace(_, _) | Node::Newline(_, _) | Node::EndOfFile(_, _) => {
+        Node::Whitespace { raw: _, token_idx: _ } | Node::Newline { raw: _, token_idx: _ } | Node::EndOfFile { raw: _, token_idx: _ } => {
             // These are filtered out in code_only mode
             Ok(Value::Null)
         }
 
-        Node::Token(token_type, raw, _) => {
+        Node::Token { token_type, raw, token_idx: _ } => {
             // Filter whitespace tokens in code_only mode
             if code_only && matches!(token_type.as_str(), "whitespace" | "newline") {
                 Ok(Value::Null)
@@ -232,7 +232,7 @@ fn node_to_yaml_value(
             }
         }
 
-        Node::Unparsable(msg, children) => {
+        Node::Unparsable { expected_message: msg, children } => {
             let mut map = Mapping::new();
             map.insert(
                 Value::String("unparsable".to_string()),
@@ -293,7 +293,7 @@ fn node_to_yaml_value(
             Ok(Value::Mapping(map))
         }
 
-        Node::Bracketed(children) => {
+        Node::Bracketed { children } => {
             // Bracketed nodes are already properly structured, just convert to YAML
             let mut bracketed_children = Vec::new();
 
@@ -318,7 +318,7 @@ fn node_to_yaml_value(
             Ok(Value::Mapping(map))
         }
 
-        Node::Sequence(children) | Node::DelimitedList(children) | Node::File(children) => {
+        Node::Sequence { children } | Node::DelimitedList { children } | Node::Sequence { children } => {
             // Collect all code-only children
             let filtered_children: Vec<&Node> = children
                 .iter()

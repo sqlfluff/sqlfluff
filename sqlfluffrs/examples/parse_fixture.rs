@@ -201,7 +201,7 @@ fn print_match_tree(
     let prefix = if depth == 0 { "" } else { "+" };
 
     match node {
-        Node::Token(token_type, raw, pos) => {
+        Node::Token { token_type, raw, token_idx: pos } => {
             // Leaf token - show type and raw value
             println!(
                 "{}{}Match <{}>: slice({}, {}, None)",
@@ -213,7 +213,7 @@ fn print_match_tree(
             );
             println!("{}  -raw: {:?}", indent, raw);
         }
-        Node::Whitespace(raw, pos) => {
+        Node::Whitespace { raw, token_idx: pos } => {
             println!(
                 "{}{}<whitespace>: slice({}, {}, None)",
                 indent,
@@ -223,7 +223,7 @@ fn print_match_tree(
             );
             println!("{}  -raw: {:?}", indent, raw);
         }
-        Node::Newline(raw, pos) => {
+        Node::Newline { raw, token_idx: pos } => {
             println!(
                 "{}{}<newline>: slice({}, {}, None)",
                 indent,
@@ -233,7 +233,7 @@ fn print_match_tree(
             );
             println!("{}  -raw: {:?}", indent, raw);
         }
-        Node::EndOfFile(raw, pos) => {
+        Node::EndOfFile { raw, token_idx: pos } => {
             println!(
                 "{}{}<end_of_file>: slice({}, {}, None)",
                 indent,
@@ -258,13 +258,13 @@ fn print_match_tree(
             }
             print_match_tree(child, tokens, depth + 1);
         }
-        Node::Sequence(children) | Node::DelimitedList(children) | Node::File(children) => {
+        Node::Sequence { children } | Node::DelimitedList { children } | Node::Sequence { children } => {
             // Container nodes - print children
             for child in children {
                 print_match_tree(child, tokens, depth);
             }
         }
-        Node::Bracketed(children) => {
+        Node::Bracketed { children } => {
             let (start, end) = get_node_slice(node, tokens);
             println!(
                 "{}{}Match <bracketed>: slice({}, {}, None)",
@@ -274,7 +274,7 @@ fn print_match_tree(
                 print_match_tree(child, tokens, depth + 1);
             }
         }
-        Node::Unparsable(_msg, children) => {
+        Node::Unparsable { expected_message: _msg, children } => {
             let (start, end) = get_node_slice(node, tokens);
             println!(
                 "{}{}Match <unparsable>: slice({}, {}, None)",
@@ -287,7 +287,7 @@ fn print_match_tree(
         Node::Empty => {
             // Don't print empty nodes
         }
-        Node::Meta(meta_type) => {
+        Node::Meta { token_type: meta_type, .. } => {
             println!("{}+Meta: {}", indent, meta_type);
         }
     }
@@ -301,16 +301,16 @@ fn get_node_slice(
     use sqlfluffrs::parser::Node;
 
     match node {
-        Node::Token(_, _, pos)
-        | Node::Whitespace(_, pos)
-        | Node::Newline(_, pos)
-        | Node::EndOfFile(_, pos) => (*pos, *pos + 1),
+        Node::Token { token_type: _, raw: _, token_idx: pos }
+        | Node::Whitespace { raw: _, token_idx: pos }
+        | Node::Newline { raw: _, token_idx: pos }
+        | Node::EndOfFile { raw: _, token_idx: pos } => (*pos, *pos + 1),
         Node::Ref { child, .. } => get_node_slice(child, tokens),
-        Node::Sequence(children)
-        | Node::DelimitedList(children)
-        | Node::File(children)
-        | Node::Bracketed(children)
-        | Node::Unparsable(_, children) => {
+        Node::Sequence { children }
+        | Node::DelimitedList { children }
+        | Node::Sequence { children }
+        | Node::Bracketed { children }
+        | Node::Unparsable { expected_message: _, children } => {
             if children.is_empty() {
                 (0, 0)
             } else {
@@ -319,7 +319,7 @@ fn get_node_slice(
                 (first.0, last.1)
             }
         }
-        Node::Empty | Node::Meta(_) => (0, 0),
+        Node::Empty | Node::Meta { .. } => (0, 0),
     }
 }
 
@@ -377,7 +377,7 @@ fn node_to_yaml_value(
     use sqlfluffrs::parser::Node;
 
     match node {
-        Node::Token(token_type, raw, _pos) => {
+        Node::Token { token_type, raw, token_idx: _pos } => {
             let mut map = Mapping::new();
             map.insert(
                 Value::String(token_type.clone()),
@@ -385,26 +385,26 @@ fn node_to_yaml_value(
             );
             Ok(Value::Mapping(map))
         }
-        Node::Whitespace(_raw, _pos) | Node::Newline(_raw, _pos) | Node::EndOfFile(_raw, _pos) => {
+        Node::Whitespace { raw: _raw, token_idx: _pos } | Node::Newline { raw: _raw, token_idx: _pos } | Node::EndOfFile { raw: _raw, token_idx: _pos } => {
             // These are filtered in code_only mode
             if code_only {
                 Ok(Value::Sequence(vec![]))
             } else {
                 let mut map = Mapping::new();
                 match node {
-                    Node::Whitespace(raw, _) => {
+                    Node::Whitespace { raw, token_idx: _ } => {
                         map.insert(
                             Value::String("whitespace".to_string()),
                             Value::String(raw.clone()),
                         );
                     }
-                    Node::Newline(raw, _) => {
+                    Node::Newline { raw, token_idx: _ } => {
                         map.insert(
                             Value::String("newline".to_string()),
                             Value::String(raw.clone()),
                         );
                     }
-                    Node::EndOfFile(raw, _) => {
+                    Node::EndOfFile { raw, token_idx: _ } => {
                         map.insert(
                             Value::String("end_of_file".to_string()),
                             Value::String(raw.clone()),
@@ -443,7 +443,7 @@ fn node_to_yaml_value(
                 Ok(child_yaml)
             }
         }
-        Node::Sequence(children) | Node::DelimitedList(children) | Node::File(children) => {
+        Node::Sequence { children } | Node::DelimitedList { children } | Node::Sequence { children } => {
             let mut items = Vec::new();
             for child in children {
                 // Filter out non-code elements if code_only is true
@@ -459,7 +459,7 @@ fn node_to_yaml_value(
             }
             Ok(Value::Sequence(items))
         }
-        Node::Bracketed(children) => {
+        Node::Bracketed { children } => {
             // Bracketed node - create a mapping with "bracketed" key
             let mut items = Vec::new();
             for child in children {
@@ -481,7 +481,7 @@ fn node_to_yaml_value(
             );
             Ok(Value::Mapping(map))
         }
-        Node::Unparsable(_msg, children) => {
+        Node::Unparsable { expected_message: _msg, children } => {
             let mut items = Vec::new();
             for child in children {
                 if code_only && !child.is_code() {
@@ -498,7 +498,7 @@ fn node_to_yaml_value(
             );
             Ok(Value::Mapping(map))
         }
-        Node::Empty | Node::Meta(_) => {
+        Node::Empty | Node::Meta { .. } => {
             // Empty nodes and meta nodes are typically filtered out
             Ok(Value::Sequence(vec![]))
         }

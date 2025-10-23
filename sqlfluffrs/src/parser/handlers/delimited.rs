@@ -97,7 +97,7 @@ impl crate::parser::Parser<'_> {
             log::debug!("[ITERATIVE] Delimited: empty optional");
             stack
                 .results
-                .insert(frame.frame_id, (Node::DelimitedList(vec![]), pos, None));
+                .insert(frame.frame_id, (Node::DelimitedList { children: vec![] }, pos, None));
             return Ok(NextStep::Fallthrough); // Don't continue, we stored a result
         }
 

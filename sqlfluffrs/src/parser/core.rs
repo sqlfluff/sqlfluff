@@ -102,7 +102,7 @@ impl<'a> Parser<'a> {
         let final_segment_type = match segment_type {
             Some(st) => Some(st.to_string()),
             None => match &node {
-                Node::Token(_, t, _) => Some(t.clone()),
+                Node::Token { token_type: _, raw: t, token_idx: _ } => Some(t.clone()),
                 _ => None,
             },
         };
@@ -133,7 +133,7 @@ impl<'a> Parser<'a> {
             return Ok(Node::Ref {
                 name: "Root".to_string(),
                 segment_type: Some("file".to_string()),
-                child: Box::new(Node::File(end_nodes)),
+                child: Box::new(Node::Sequence { children: end_nodes }),
             });
         }
 
@@ -147,7 +147,7 @@ impl<'a> Parser<'a> {
                     let mut children = vec![n];
                     let end_len = end_nodes.len();
                     children.extend(end_nodes);
-                    n = Node::File(children);
+                    n = Node::Sequence { children };
                     self.pos += end_len;
                 }
                 Ok(Node::Ref {
@@ -168,12 +168,12 @@ impl<'a> Parser<'a> {
                 break;
             }
             let node = match token.get_type().as_str() {
-                "meta" => Node::Meta("meta"),
-                "dedent" => Node::Meta("dedent"),
-                "whitespace" => Node::Whitespace(token.raw().to_string(), start_idx + i),
-                "newline" => Node::Newline(token.raw().to_string(), start_idx + i),
-                "end_of_file" => Node::EndOfFile(token.raw().to_string(), start_idx + i),
-                other => Node::Token(other.to_string(), token.raw().to_string(), start_idx + i),
+                "meta" => Node::Meta { token_type: "meta", token_idx: Some(start_idx + i) },
+                "dedent" => Node::Meta { token_type: "dedent", token_idx: Some(start_idx + i) },
+                "whitespace" => Node::Whitespace { raw: token.raw().to_string(), token_idx: start_idx + i },
+                "newline" => Node::Newline { raw: token.raw().to_string(), token_idx: start_idx + i },
+                "end_of_file" => Node::EndOfFile { raw: token.raw().to_string(), token_idx: start_idx + i },
+                other => Node::Token { token_type: other.to_string(), raw: token.raw().to_string(), token_idx: start_idx + i },
             };
             children.push(node);
         }

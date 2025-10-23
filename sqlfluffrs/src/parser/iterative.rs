@@ -61,7 +61,6 @@ impl ParseFrameStack {
     // Add more helper methods as needed for dispatch or state management
 }
 
-
 use super::{
     BracketedState, DelimitedState, FrameContext, FrameState, Grammar, Node, ParseError,
     ParseFrame, ParseMode,
@@ -611,7 +610,9 @@ impl<'a> Parser<'_> {
                                     Ok((final_node.clone(), self.pos, transparent_positions)),
                                 );
 
-                                stack.results.insert(frame.frame_id, (final_node, self.pos, None));
+                                stack
+                                    .results
+                                    .insert(frame.frame_id, (final_node, self.pos, None));
                                 continue 'main_loop; // Frame is complete, move to next frame
                             }
                             FrameContext::Sequence {
@@ -674,7 +675,8 @@ impl<'a> Parser<'_> {
                                         for pos in tentatively_collected.iter() {
                                             self.collected_transparent_positions.remove(pos);
                                         }
-                                        stack.results
+                                        stack
+                                            .results
                                             .insert(frame.frame_id, (Node::Empty, frame.pos, None));
                                         continue 'main_loop; // Skip to next frame
                                     }
@@ -727,17 +729,17 @@ impl<'a> Parser<'_> {
                                                     let tok_type = tok.get_type();
                                                     if tok_type == "whitespace" {
                                                         log::debug!("RETROACTIVELY collecting whitespace at {}: {:?}", check_pos, tok.raw());
-                                                        frame.accumulated.push(Node::Whitespace(
-                                                            tok.raw().to_string(),
-                                                            check_pos,
-                                                        ));
+                                                        frame.accumulated.push(Node::Whitespace {
+                                                            raw: tok.raw().to_string(),
+                                                            token_idx: check_pos,
+                                                        });
                                                         tentatively_collected.push(check_pos);
                                                     } else if tok_type == "newline" {
                                                         log::debug!("RETROACTIVELY collecting newline at {}: {:?}", check_pos, tok.raw());
-                                                        frame.accumulated.push(Node::Newline(
-                                                            tok.raw().to_string(),
-                                                            check_pos,
-                                                        ));
+                                                        frame.accumulated.push(Node::Newline {
+                                                            raw: tok.raw().to_string(),
+                                                            token_idx: check_pos,
+                                                        });
                                                         tentatively_collected.push(check_pos);
                                                     }
                                                 }
@@ -869,7 +871,9 @@ impl<'a> Parser<'_> {
                                                   frame.frame_id, current_elem_idx, elements_clone.len());
                                         Node::Empty
                                     } else {
-                                        Node::Sequence(frame.accumulated.clone())
+                                        Node::Sequence {
+                                            children: frame.accumulated.clone(),
+                                        }
                                     };
                                     log::debug!(
                                         "Sequence COMPLETE: Storing result at frame_id={}",
@@ -919,10 +923,14 @@ impl<'a> Parser<'_> {
                                                         .accumulated
                                                         .iter()
                                                         .any(|node| match node {
-                                                            Node::Whitespace(_, pos)
-                                                            | Node::Newline(_, pos) => {
-                                                                *pos == collect_pos
+                                                            Node::Whitespace {
+                                                                raw: _,
+                                                                token_idx: pos,
                                                             }
+                                                            | Node::Newline {
+                                                                raw: _,
+                                                                token_idx: pos,
+                                                            } => *pos == collect_pos,
                                                             _ => false,
                                                         });
                                                     if !already_collected {
@@ -933,10 +941,10 @@ impl<'a> Parser<'_> {
                                                                 tok.raw()
                                                             );
                                                             frame.accumulated.push(
-                                                                Node::Whitespace(
-                                                                    tok.raw().to_string(),
-                                                                    collect_pos,
-                                                                ),
+                                                                Node::Whitespace {
+                                                                    raw: tok.raw().to_string(),
+                                                                    token_idx: collect_pos,
+                                                                },
                                                             );
                                                             tentatively_collected.push(collect_pos);
                                                         } else if tok_type == "newline" {
@@ -945,10 +953,10 @@ impl<'a> Parser<'_> {
                                                                 collect_pos,
                                                                 tok.raw()
                                                             );
-                                                            frame.accumulated.push(Node::Newline(
-                                                                tok.raw().to_string(),
-                                                                collect_pos,
-                                                            ));
+                                                            frame.accumulated.push(Node::Newline {
+                                                                raw: tok.raw().to_string(),
+                                                                token_idx: collect_pos,
+                                                            });
                                                             tentatively_collected.push(collect_pos);
                                                         }
                                                     }
@@ -1007,7 +1015,9 @@ impl<'a> Parser<'_> {
                                             let result_node = if frame.accumulated.is_empty() {
                                                 Node::Empty
                                             } else {
-                                                Node::Sequence(frame.accumulated.clone())
+                                                Node::Sequence {
+                                                    children: frame.accumulated.clone(),
+                                                }
                                             };
                                             stack.results.insert(
                                                 frame.frame_id,
@@ -1037,8 +1047,9 @@ impl<'a> Parser<'_> {
                                                         .insert(*pos);
                                                 }
                                                 self.pos = current_matched_idx;
-                                                let result_node =
-                                                    Node::Sequence(frame.accumulated.clone());
+                                                let result_node = Node::Sequence {
+                                                    children: frame.accumulated.clone(),
+                                                };
                                                 stack.results.insert(
                                                     frame.frame_id,
                                                     (result_node, current_matched_idx, None),
@@ -1076,21 +1087,42 @@ impl<'a> Parser<'_> {
                                                 let mut insert_pos = final_accumulated.len();
                                                 while insert_pos > 0 {
                                                     match &final_accumulated[insert_pos - 1] {
-                                                        Node::Whitespace(_, _)
-                                                        | Node::Newline(_, _) => {
+                                                        Node::Whitespace {
+                                                            raw: _,
+                                                            token_idx: _,
+                                                        }
+                                                        | Node::Newline {
+                                                            raw: _,
+                                                            token_idx: _,
+                                                        } => {
                                                             insert_pos -= 1;
                                                         }
                                                         _ => break,
                                                     }
                                                 }
-                                                final_accumulated
-                                                    .insert(insert_pos, Node::Meta(meta_type));
-                                                frame
-                                                    .accumulated
-                                                    .insert(insert_pos, Node::Meta(meta_type));
+                                                final_accumulated.insert(
+                                                    insert_pos,
+                                                    Node::Meta {
+                                                        token_type: meta_type,
+                                                        token_idx: None,
+                                                    },
+                                                );
+                                                frame.accumulated.insert(
+                                                    insert_pos,
+                                                    Node::Meta {
+                                                        token_type: meta_type,
+                                                        token_idx: None,
+                                                    },
+                                                );
                                             } else {
-                                                final_accumulated.push(Node::Meta(meta_type));
-                                                frame.accumulated.push(Node::Meta(meta_type));
+                                                final_accumulated.push(Node::Meta {
+                                                    token_type: meta_type,
+                                                    token_idx: None,
+                                                });
+                                                frame.accumulated.push(Node::Meta {
+                                                    token_type: meta_type,
+                                                    token_idx: None,
+                                                });
                                             }
                                             next_elem_idx += 1;
                                         } else {
@@ -1141,7 +1173,9 @@ impl<'a> Parser<'_> {
                                     let result_node = if final_accumulated.is_empty() {
                                         Node::Empty
                                     } else {
-                                        Node::Sequence(final_accumulated)
+                                        Node::Sequence {
+                                            children: final_accumulated,
+                                        }
                                     };
                                     stack.results.insert(
                                         frame_id_for_debug,
@@ -1184,15 +1218,15 @@ impl<'a> Parser<'_> {
                                             if let Some(tok) = self.tokens.get(*matched_idx) {
                                                 let tok_type = tok.get_type();
                                                 if tok_type == "whitespace" {
-                                                    frame.accumulated.push(Node::Whitespace(
-                                                        tok.raw().to_string(),
-                                                        *matched_idx,
-                                                    ));
+                                                    frame.accumulated.push(Node::Whitespace {
+                                                        raw: tok.raw().to_string(),
+                                                        token_idx: *matched_idx,
+                                                    });
                                                 } else if tok_type == "newline" {
-                                                    frame.accumulated.push(Node::Newline(
-                                                        tok.raw().to_string(),
-                                                        *matched_idx,
-                                                    ));
+                                                    frame.accumulated.push(Node::Newline {
+                                                        raw: tok.raw().to_string(),
+                                                        token_idx: *matched_idx,
+                                                    });
                                                 }
                                             }
                                             *matched_idx += 1;
@@ -1279,8 +1313,9 @@ impl<'a> Parser<'_> {
                                     } else {
                                         // Done with loop - complete the frame
                                         self.pos = *matched_idx;
-                                        let result_node =
-                                            Node::DelimitedList(frame.accumulated.clone());
+                                        let result_node = Node::DelimitedList {
+                                            children: frame.accumulated.clone(),
+                                        };
                                         log::debug!(
                                             "AnyNumberOf COMPLETE: {} matches, storing result at frame_id={}",
                                             count,
@@ -1309,14 +1344,16 @@ impl<'a> Parser<'_> {
                                             count,
                                             min_times
                                         );
-                                        stack.results
+                                        stack
+                                            .results
                                             .insert(frame.frame_id, (Node::Empty, frame.pos, None));
                                         continue; // Frame is complete, move to next frame
                                     } else {
                                         // We've met min_times - complete with what we have
                                         self.pos = *matched_idx;
-                                        let result_node =
-                                            Node::DelimitedList(frame.accumulated.clone());
+                                        let result_node = Node::DelimitedList {
+                                            children: frame.accumulated.clone(),
+                                        };
                                         log::debug!(
                                             "AnyNumberOf COMPLETE (child failed): {} matches, storing result at frame_id={}",
                                             count,
@@ -1388,16 +1425,16 @@ impl<'a> Parser<'_> {
                                                         let tok_type = tok.get_type();
                                                         if tok_type == "whitespace" {
                                                             frame.accumulated.push(
-                                                                Node::Whitespace(
-                                                                    tok.raw().to_string(),
-                                                                    pos,
-                                                                ),
+                                                                Node::Whitespace {
+                                                                    raw: tok.raw().to_string(),
+                                                                    token_idx: pos,
+                                                                },
                                                             );
                                                         } else if tok_type == "newline" {
-                                                            frame.accumulated.push(Node::Newline(
-                                                                tok.raw().to_string(),
-                                                                pos,
-                                                            ));
+                                                            frame.accumulated.push(Node::Newline {
+                                                                raw: tok.raw().to_string(),
+                                                                token_idx: pos,
+                                                            });
                                                         }
                                                     }
                                                 }
@@ -1453,8 +1490,8 @@ impl<'a> Parser<'_> {
                                             let mut to_process = vec![child_node.clone()];
                                             while let Some(node) = to_process.pop() {
                                                 match node {
-                                                    Node::Sequence(children)
-                                                    | Node::DelimitedList(children) => {
+                                                    Node::Sequence { children }
+                                                    | Node::DelimitedList { children } => {
                                                         // Add children to processing queue in reverse order to maintain order
                                                         to_process
                                                             .extend(children.into_iter().rev());
@@ -1485,15 +1522,15 @@ impl<'a> Parser<'_> {
                                                 if let Some(tok) = self.tokens.get(pos) {
                                                     let tok_type = tok.get_type();
                                                     if tok_type == "whitespace" {
-                                                        frame.accumulated.push(Node::Whitespace(
-                                                            tok.raw().to_string(),
-                                                            pos,
-                                                        ));
+                                                        frame.accumulated.push(Node::Whitespace {
+                                                            raw: tok.raw().to_string(),
+                                                            token_idx: pos,
+                                                        });
                                                     } else if tok_type == "newline" {
-                                                        frame.accumulated.push(Node::Newline(
-                                                            tok.raw().to_string(),
-                                                            pos,
-                                                        ));
+                                                        frame.accumulated.push(Node::Newline {
+                                                            raw: tok.raw().to_string(),
+                                                            token_idx: pos,
+                                                        });
                                                     }
                                                 }
                                             }
@@ -1575,8 +1612,9 @@ impl<'a> Parser<'_> {
                                             frame.accumulated.push(child_node.clone());
                                             self.pos = *child_end_pos;
 
-                                            let result_node =
-                                                Node::Bracketed(frame.accumulated.clone());
+                                            let result_node = Node::Bracketed {
+                                                children: frame.accumulated.clone(),
+                                            };
                                             log::debug!(
                                                 "Bracketed COMPLETE: {} children, storing result at frame_id={}",
                                                 frame.accumulated.len(),
@@ -1638,8 +1676,9 @@ impl<'a> Parser<'_> {
                                         // Met min_times, complete with what we have
                                         log::debug!("[ITERATIVE] AnySetOf met min_times, completing with {} items", frame.accumulated.len());
                                         self.pos = *matched_idx;
-                                        let result_node =
-                                            Node::DelimitedList(frame.accumulated.clone());
+                                        let result_node = Node::DelimitedList {
+                                            children: frame.accumulated.clone(),
+                                        };
                                         stack.results.insert(
                                             frame.frame_id,
                                             (result_node, *matched_idx, None),
@@ -1666,17 +1705,17 @@ impl<'a> Parser<'_> {
                                                 let tok = &self.tokens[check_pos];
                                                 let tok_type = tok.get_type();
                                                 if tok_type == "whitespace" {
-                                                    frame.accumulated.push(Node::Whitespace(
-                                                        tok.raw().to_string(),
-                                                        check_pos,
-                                                    ));
+                                                    frame.accumulated.push(Node::Whitespace {
+                                                        raw: tok.raw().to_string(),
+                                                        token_idx: check_pos,
+                                                    });
                                                     self.collected_transparent_positions
                                                         .insert(check_pos);
                                                 } else if tok_type == "newline" {
-                                                    frame.accumulated.push(Node::Newline(
-                                                        tok.raw().to_string(),
-                                                        check_pos,
-                                                    ));
+                                                    frame.accumulated.push(Node::Newline {
+                                                        raw: tok.raw().to_string(),
+                                                        token_idx: check_pos,
+                                                    });
                                                     self.collected_transparent_positions
                                                         .insert(check_pos);
                                                 }
@@ -1722,8 +1761,9 @@ impl<'a> Parser<'_> {
                                             count, min_times, matched_idx, max_idx
                                         );
                                         self.pos = *matched_idx;
-                                        let result_node =
-                                            Node::DelimitedList(frame.accumulated.clone());
+                                        let result_node = Node::DelimitedList {
+                                            children: frame.accumulated.clone(),
+                                        };
                                         stack.results.insert(
                                             frame.frame_id,
                                             (result_node, *matched_idx, None),
@@ -1759,8 +1799,9 @@ impl<'a> Parser<'_> {
                                             // All elements matched - complete
                                             log::debug!("[ITERATIVE] AnySetOf: all elements matched, completing");
                                             self.pos = *matched_idx;
-                                            let result_node =
-                                                Node::DelimitedList(frame.accumulated.clone());
+                                            let result_node = Node::DelimitedList {
+                                                children: frame.accumulated.clone(),
+                                            };
                                             stack.results.insert(
                                                 frame.frame_id,
                                                 (result_node, *matched_idx, None),
@@ -1926,7 +1967,7 @@ impl<'a> Parser<'_> {
                                         let result = if !leading_ws.is_empty() {
                                             let mut children = leading_ws.clone();
                                             children.push(best_node.clone());
-                                            Node::Sequence(children)
+                                            Node::Sequence { children }
                                         } else {
                                             best_node.clone()
                                         };
@@ -1965,7 +2006,8 @@ impl<'a> Parser<'_> {
                                         };
 
                                         self.pos = final_pos;
-                                        stack.results
+                                        stack
+                                            .results
                                             .insert(frame.frame_id, (result_node, final_pos, None));
                                         continue;
                                     }
@@ -2000,7 +2042,7 @@ impl<'a> Parser<'_> {
                                         match child_node {
                                             Node::Empty => "Empty".to_string(),
                                             Node::Ref { name, .. } => format!("Ref({})", name),
-                                            Node::Sequence(items) => format!("Sequence({} items)", items.len()),
+                                            Node::Sequence { children: items } => format!("Sequence({} items)", items.len()),
                                             _ => format!("{:?}", child_node).chars().take(100).collect(),
                                         });
                                 }
@@ -2022,7 +2064,9 @@ impl<'a> Parser<'_> {
                                             stack.results.insert(
                                                 frame.frame_id,
                                                 (
-                                                    Node::DelimitedList(frame.accumulated.clone()),
+                                                    Node::DelimitedList {
+                                                        children: frame.accumulated.clone(),
+                                                    },
                                                     *matched_idx,
                                                     None,
                                                 ),
@@ -2045,18 +2089,18 @@ impl<'a> Parser<'_> {
                                                         let tok_type = tok.get_type();
                                                         if tok_type == "whitespace" {
                                                             frame.accumulated.push(
-                                                                Node::Whitespace(
-                                                                    tok.raw().to_string(),
-                                                                    check_pos,
-                                                                ),
+                                                                Node::Whitespace {
+                                                                    raw: tok.raw().to_string(),
+                                                                    token_idx: check_pos,
+                                                                },
                                                             );
                                                             self.collected_transparent_positions
                                                                 .insert(check_pos);
                                                         } else if tok_type == "newline" {
-                                                            frame.accumulated.push(Node::Newline(
-                                                                tok.raw().to_string(),
-                                                                check_pos,
-                                                            ));
+                                                            frame.accumulated.push(Node::Newline {
+                                                                raw: tok.raw().to_string(),
+                                                                token_idx: check_pos,
+                                                            });
                                                             self.collected_transparent_positions
                                                                 .insert(check_pos);
                                                         }
@@ -2092,9 +2136,9 @@ impl<'a> Parser<'_> {
                                                 stack.results.insert(
                                                     frame.frame_id,
                                                     (
-                                                        Node::DelimitedList(
-                                                            frame.accumulated.clone(),
-                                                        ),
+                                                        Node::DelimitedList {
+                                                            children: frame.accumulated.clone(),
+                                                        },
                                                         *matched_idx,
                                                         None,
                                                     ),
@@ -2139,9 +2183,9 @@ impl<'a> Parser<'_> {
                                                     stack.results.insert(
                                                         frame.frame_id,
                                                         (
-                                                            Node::DelimitedList(
-                                                                frame.accumulated.clone(),
-                                                            ),
+                                                            Node::DelimitedList {
+                                                                children: frame.accumulated.clone(),
+                                                            },
                                                             frame.pos,
                                                             None,
                                                         ),
@@ -2157,9 +2201,9 @@ impl<'a> Parser<'_> {
                                                 stack.results.insert(
                                                     frame.frame_id,
                                                     (
-                                                        Node::DelimitedList(
-                                                            frame.accumulated.clone(),
-                                                        ),
+                                                        Node::DelimitedList {
+                                                            children: frame.accumulated.clone(),
+                                                        },
                                                         *matched_idx,
                                                         None,
                                                     ),
@@ -2182,18 +2226,18 @@ impl<'a> Parser<'_> {
                                                         let tok_type = tok.get_type();
                                                         if tok_type == "whitespace" {
                                                             frame.accumulated.push(
-                                                                Node::Whitespace(
-                                                                    tok.raw().to_string(),
-                                                                    check_pos,
-                                                                ),
+                                                                Node::Whitespace {
+                                                                    raw: tok.raw().to_string(),
+                                                                    token_idx: check_pos,
+                                                                },
                                                             );
                                                             self.collected_transparent_positions
                                                                 .insert(check_pos);
                                                         } else if tok_type == "newline" {
-                                                            frame.accumulated.push(Node::Newline(
-                                                                tok.raw().to_string(),
-                                                                check_pos,
-                                                            ));
+                                                            frame.accumulated.push(Node::Newline {
+                                                                raw: tok.raw().to_string(),
+                                                                token_idx: check_pos,
+                                                            });
                                                             self.collected_transparent_positions
                                                                 .insert(check_pos);
                                                         }
@@ -2221,9 +2265,9 @@ impl<'a> Parser<'_> {
                                                 stack.results.insert(
                                                     frame.frame_id,
                                                     (
-                                                        Node::DelimitedList(
-                                                            frame.accumulated.clone(),
-                                                        ),
+                                                        Node::DelimitedList {
+                                                            children: frame.accumulated.clone(),
+                                                        },
                                                         *matched_idx,
                                                         None,
                                                     ),
@@ -2252,9 +2296,9 @@ impl<'a> Parser<'_> {
                                                     stack.results.insert(
                                                         frame.frame_id,
                                                         (
-                                                            Node::DelimitedList(
-                                                                frame.accumulated.clone(),
-                                                            ),
+                                                            Node::DelimitedList {
+                                                                children: frame.accumulated.clone(),
+                                                            },
                                                             *matched_idx,
                                                             None,
                                                         ),

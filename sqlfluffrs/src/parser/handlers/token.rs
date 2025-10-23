@@ -32,7 +32,7 @@ impl<'a> Parser<'_> {
                     self.pos
                 );
 
-                let node = Node::Token(token_type.to_string(), tok.raw(), token_pos);
+                let node = Node::Token { token_type: token_type.to_string(), raw: tok.raw(), token_idx: token_pos };
                 results.insert(frame.frame_id, (node, self.pos, None));
                 Ok(NextStep::Fallthrough)
             } else {

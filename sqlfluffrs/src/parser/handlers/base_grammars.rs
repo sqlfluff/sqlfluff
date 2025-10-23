@@ -32,7 +32,7 @@ impl Parser<'_> {
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
         log::debug!("Doing nothing with meta {}", token_type);
-        results.insert(frame.frame_id, (Node::Meta(token_type), frame.pos, None));
+        results.insert(frame.frame_id, (Node::Meta { token_type, token_idx: None }, frame.pos, None));
         Ok(NextStep::Fallthrough)
     }
 
@@ -51,11 +51,7 @@ impl Parser<'_> {
                 break;
             }
             if let Some(tok) = self.peek() {
-                anything_tokens.push(Node::Token(
-                    "anything".to_string(),
-                    tok.raw().to_string(),
-                    self.pos,
-                ));
+                anything_tokens.push(Node::Token { token_type: "anything".to_string(), raw: tok.raw().to_string(), token_idx: self.pos });
                 self.bump();
             }
         }
@@ -63,7 +59,7 @@ impl Parser<'_> {
         log::debug!("Anything matched tokens: {:?}", anything_tokens);
         results.insert(
             frame.frame_id,
-            (Node::DelimitedList(anything_tokens), self.pos, None),
+            (Node::DelimitedList { children: anything_tokens }, self.pos, None),
         );
         Ok(NextStep::Fallthrough)
     }

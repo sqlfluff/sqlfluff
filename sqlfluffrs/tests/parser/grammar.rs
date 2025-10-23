@@ -305,17 +305,16 @@ fn test_no_duplicate_whitespace_tokens() -> Result<(), ParseError> {
     // Collect all token positions in AST
     fn collect_positions(node: &Node, positions: &mut Vec<usize>) {
         match node {
-            Node::Whitespace(_, pos)
-            | Node::Newline(_, pos)
-            | Node::Token(_, _, pos)
-            | Node::EndOfFile(_, pos) => {
+            Node::Whitespace { raw: _, token_idx: pos }
+            | Node::Newline { raw: _, token_idx: pos }
+            | Node::Token { token_type: _, raw: _, token_idx: pos }
+            | Node::EndOfFile { raw: _, token_idx: pos } => {
                 positions.push(*pos);
             }
-            Node::Sequence(children)
-            | Node::DelimitedList(children)
-            | Node::File(children)
-            | Node::Unparsable(_, children)
-            | Node::Bracketed(children) => {
+            Node::Sequence { children }
+            | Node::DelimitedList { children }
+            | Node::Unparsable { expected_message: _, children }
+            | Node::Bracketed { children } => {
                 for child in children {
                     collect_positions(child, positions);
                 }
@@ -323,7 +322,7 @@ fn test_no_duplicate_whitespace_tokens() -> Result<(), ParseError> {
             Node::Ref { child, .. } => {
                 collect_positions(child, positions);
             }
-            Node::Empty | Node::Meta(_) => {}
+            Node::Empty | Node::Meta { .. } => {}
         }
     }
 

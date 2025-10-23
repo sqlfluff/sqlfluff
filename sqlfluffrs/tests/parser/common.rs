@@ -65,21 +65,38 @@ pub fn verify_all_tokens_in_ast(raw: &str, ast: &Node, tokens: &[Token]) -> Resu
 /// Recursively collect all token positions from a Node
 pub fn collect_token_positions(node: &Node, positions: &mut std::collections::HashSet<usize>) {
     match node {
-        Node::Whitespace(_, pos) | Node::Newline(_, pos) | Node::Token(_, _, pos) => {
+        Node::Whitespace {
+            raw: _,
+            token_idx: pos,
+        }
+        | Node::Newline {
+            raw: _,
+            token_idx: pos,
+        }
+        | Node::Token {
+            token_type: _,
+            raw: _,
+            token_idx: pos,
+        } => {
             positions.insert(*pos);
         }
-        Node::EndOfFile(_, pos) => {
+        Node::EndOfFile {
+            raw: _,
+            token_idx: pos,
+        } => {
             log::debug!(
                 "collect_token_positions: Found EndOfFile at position {}",
                 pos
             );
             positions.insert(*pos);
         }
-        Node::Sequence(children)
-        | Node::DelimitedList(children)
-        | Node::File(children)
-        | Node::Unparsable(_, children)
-        | Node::Bracketed(children) => {
+        Node::Sequence { children }
+        | Node::DelimitedList { children }
+        | Node::Unparsable {
+            expected_message: _,
+            children,
+        }
+        | Node::Bracketed { children } => {
             for child in children {
                 collect_token_positions(child, positions);
             }
@@ -87,7 +104,7 @@ pub fn collect_token_positions(node: &Node, positions: &mut std::collections::Ha
         Node::Ref { child, .. } => {
             collect_token_positions(child, positions);
         }
-        Node::Empty | Node::Meta(_) => {
+        Node::Empty | Node::Meta { .. } => {
             // No tokens
         }
     }

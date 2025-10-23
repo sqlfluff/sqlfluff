@@ -123,7 +123,7 @@ impl<'a> Parser<'_> {
                             let mut insert_pos = parent_frame.accumulated.len();
                             while insert_pos > 0 {
                                 match &parent_frame.accumulated[insert_pos - 1] {
-                                    Node::Whitespace(_, _) | Node::Newline(_, _) => {
+                                    Node::Whitespace { raw: _, token_idx: _ } | Node::Newline { raw: _, token_idx: _ } => {
                                         insert_pos -= 1;
                                     }
                                     _ => break,
@@ -131,9 +131,9 @@ impl<'a> Parser<'_> {
                             }
                             parent_frame
                                 .accumulated
-                                .insert(insert_pos, Node::Meta(meta_type));
+                                .insert(insert_pos, Node::Meta { token_type: meta_type, token_idx: None });
                         } else {
-                            parent_frame.accumulated.push(Node::Meta(meta_type));
+                            parent_frame.accumulated.push(Node::Meta { token_type: meta_type, token_idx: None });
                         }
 
                         // Update state to next child
@@ -193,7 +193,7 @@ impl<'a> Parser<'_> {
                             // Pop the parent frame to finalize
                             if let Some(mut parent_frame) = stack.pop() {
                                 let seq_node =
-                                    Node::Sequence(std::mem::take(&mut parent_frame.accumulated));
+                                    Node::Sequence { children: std::mem::take(&mut parent_frame.accumulated) };
                                 stack
                                     .results
                                     .insert(current_frame_id, (seq_node, first_child_pos, None));

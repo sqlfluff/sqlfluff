@@ -118,15 +118,11 @@ pub fn apply_parse_mode_to_result(
             let tok = &tokens[i];
             let tok_type = tok.get_type();
             if tok_type == "whitespace" {
-                unparsable_children.push(Node::Whitespace(tok.raw().to_string(), i));
+                unparsable_children.push(Node::Whitespace { raw: tok.raw().to_string(), token_idx: i });
             } else if tok_type == "newline" {
-                unparsable_children.push(Node::Newline(tok.raw().to_string(), i));
+                unparsable_children.push(Node::Newline { raw: tok.raw().to_string(), token_idx: i });
             } else {
-                unparsable_children.push(Node::Token(
-                    tok.get_type().to_string(),
-                    tok.raw().to_string(),
-                    i,
-                ));
+                unparsable_children.push(Node::Token { token_type: tok.get_type().to_string(), raw: tok.raw().to_string(), token_idx: i });
             }
         }
     }
@@ -138,15 +134,15 @@ pub fn apply_parse_mode_to_result(
         "Nothing else".to_string()
     };
 
-    let unparsable_node = Node::Unparsable(expected, unparsable_children);
+    let unparsable_node = Node::Unparsable { expected_message: expected, children: unparsable_children };
 
     // Combine current match with unparsable segment
     match current_node {
         Node::Empty => unparsable_node,
-        Node::Sequence(mut children) => {
+        Node::Sequence { mut children } => {
             children.push(unparsable_node);
-            Node::Sequence(children)
+            Node::Sequence { children }
         }
-        other => Node::Sequence(vec![other, unparsable_node]),
+        other => Node::Sequence { children: vec![other, unparsable_node] },
     }
 }

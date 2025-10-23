@@ -24,7 +24,7 @@ impl Parser<'_> {
                 self.bump();
                 log::debug!("MATCHED String matched: {}", tok);
 
-                let node = Node::Token(token_type.to_string(), tok.raw(), token_pos);
+                let node = Node::Token { token_type: token_type.to_string(), raw: tok.raw(), token_idx: token_pos };
                 results.insert(frame.frame_id, (node, self.pos, None));
             }
             _ => {
@@ -63,7 +63,7 @@ impl Parser<'_> {
                 self.bump();
                 log::debug!("MATCHED MultiString matched: {}", tok);
 
-                let node = Node::Token(token_type.to_string(), tok.raw(), token_pos);
+                let node = Node::Token { token_type: token_type.to_string(), raw: tok.raw(), token_idx: token_pos };
                 results.insert(frame.frame_id, (node, self.pos, None));
             }
             _ => {
@@ -112,7 +112,7 @@ impl Parser<'_> {
                     token_pos
                 );
                 log::debug!("MATCHED Typed matched: {}", tok.token_type);
-                let node = Node::Token(token_type.to_string(), raw, token_pos);
+                let node = Node::Token { token_type: token_type.to_string(), raw, token_idx: token_pos };
                 results.insert(frame.frame_id, (node, self.pos, None));
             } else {
                 log::debug!(
@@ -182,7 +182,7 @@ impl Parser<'_> {
                 log::debug!("MATCHED Regex matched and non anti-match: {}", tok);
                 let token_pos = self.pos;
                 self.bump();
-                let node = Node::Token(token_type.to_string(), tok.raw(), token_pos);
+                let node = Node::Token { token_type: token_type.to_string(), raw: tok.raw(), token_idx: token_pos };
                 results.insert(frame.frame_id, (node, self.pos, None));
                 Ok(NextStep::Fallthrough)
             }
