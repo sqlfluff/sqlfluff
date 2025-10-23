@@ -14,11 +14,24 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
-## Highlights
+This is an alpha release of SQLFluff 4.0 to begin verification of the rust portions of the codebase.
+In particular to verify that publishing to pypi works as expected, and that users can install the
+package. Rust support is still in beta, but from this release, users can install `sqlfluff[rs]` to
+get some of the parser running in rust. Current implementation is not expected to yield significant gains
+but we do expect that once mature that it will.
 
-> Maintainers: Copy and paste the commentary from the changelog here.
-> Check that the name and tag are correct before releasing.
-> Publishing a GitHub release will trigger the deploy to pypi and dockerhub.
+**We do not recommend that users install this release except for testing and evaluation**.
+
+Big thanks to [@keraion](https://github.com/keraion), who's been leading the way on this effort.
+
+Additionally in this release:
+
+* We drop support for dbt 1.4 and older, and include support for dbt1.10.
+* We add the capability to force implicit indents.
+* Bufixes for CV12 and RF01.
+* Dialect improvements for Clickhouse, TSQL & SparkSQL.
+
+These will be added to the changelog properly in the full 4.0.0 release.
 
 ## What’s Changed
 
