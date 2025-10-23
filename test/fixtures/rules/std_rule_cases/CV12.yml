@@ -109,3 +109,26 @@ test_fail_join_with_bracketed_join:
       )
     WHERE
       bar.id = foo1.id;
+
+test_pass_left_join_unnest_where_aliased:
+  pass_str: |
+    SELECT
+      t.user_id,
+      unnested_value AS purchased_product
+    FROM
+      t
+    LEFT JOIN
+      UNNEST(t.purchases) AS unnested_value
+    WHERE
+      unnested_value = 'laptop'
+
+test_pass_left_join_unnest_where_unaliased:
+  pass_str: |
+    SELECT
+      t.user_id
+    FROM
+      t
+    LEFT JOIN
+      UNNEST(t.purchases)
+    WHERE
+      t.user_id != 1
