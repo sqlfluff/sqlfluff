@@ -278,13 +278,8 @@ class Rule_CV12(BaseRule):
             segment: BaseSegment, child_type: str, default: BaseSegment
         ) -> BaseSegment:
             """Helper to safely get a child segment or return a default."""
-            if segment is None:
-                return default
             child = segment.get_child(child_type)
             return child if child else default
-
-        if from_expr_element is None:
-            return ""
 
         table_expr = get_segment_or_default(
             from_expr_element, "table_expression", from_expr_element
