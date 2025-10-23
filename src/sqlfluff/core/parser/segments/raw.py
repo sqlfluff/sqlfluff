@@ -4,13 +4,17 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
-from typing import Any, Callable, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, Optional, Union, cast
 from uuid import uuid4
 
 import regex as re
 
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
+
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.templaters import TemplatedFile
+    from sqlfluffrs import RsToken
 
 
 class RawSegment(BaseSegment):
@@ -298,6 +302,26 @@ class RawSegment(BaseSegment):
             pos_marker=raw_seg.pos_marker,
             **new_segment_kwargs,
         )
+
+    @classmethod
+    def from_rstoken(
+        cls,
+        token: "RsToken",
+        tf: "TemplatedFile",
+    ) -> "RawSegment":
+        """Create a RawSegment from an RSQL token."""
+        segment = cls(
+            raw=token.raw,
+            pos_marker=PositionMarker.from_rs_position_marker(token.pos_marker, tf),
+            instance_types=tuple(token.instance_types),
+            trim_start=token.trim_start,
+            trim_chars=token.trim_chars,
+            source_fixes=token.source_fixes,
+            uuid=token.uuid,
+            quoted_value=token.quoted_value,
+            escape_replacements=token.escape_replacements,
+        )
+        return segment
 
 
 __all__ = [
