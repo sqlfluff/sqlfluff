@@ -108,9 +108,17 @@ class Rule_CV12(BaseRule):
                     no_recursive_seg_type=["select_statement"],
                 )
             )
+            encountered_function = self._get_from_expression_element_function(
+                join_table_reference
+            )
+            if encountered_function in ("UNNEST",):
+                # If UNNEST function is used, disregard lack of condition
+                continue
+
             encountered_references.add(
                 self._get_from_expression_element_alias(join_table_reference)
             )
+
             join_clause_keywords = [
                 seg for seg in join_clause.segments if seg.type == "keyword"
             ]
@@ -261,6 +269,19 @@ class Rule_CV12(BaseRule):
             alias_str = from_expr_element.raw_upper
 
         return alias_str
+
+
+    @staticmethod
+    def _get_from_expression_element_function(from_expr_element: BaseSegment) -> str:
+        if "table_expression" in from_expr_element.direct_descendant_type_set:
+            table_expr_seg = from_expr_element.get_child("table_expression")
+            if "function" in table_expr_seg.direct_descendant_type_set:
+                function_seg = table_expr_seg.get_child("function")
+                assert function_seg is not None
+                function_name = function_seg.get_child("function_name")
+                assert function_name is not None
+                function_id = function_name.get_child("function_name_identifier").raw_upper
+                return function_id
 
     @staticmethod
     def _is_where_clause_simplifable(where_clause: BaseSegment) -> bool:
