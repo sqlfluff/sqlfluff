@@ -273,22 +273,21 @@ class Rule_CV12(BaseRule):
 
     @staticmethod
     def _get_from_expression_element_function(from_expr_element: BaseSegment) -> str:
-        if "table_expression" in from_expr_element.direct_descendant_type_set:
-            table_expr_seg = from_expr_element.get_child("table_expression")
-            if "function" in table_expr_seg.direct_descendant_type_set:
-                function_seg = table_expr_seg.get_child("function")
-                assert function_seg is not None
-                function_name = function_seg.get_child("function_name")
-                assert function_name is not None
-                function_id = function_name.get_child(
-                    "function_name_identifier"
-                ).raw_upper
-            else:
-                function_id = table_expr_seg.raw_upper
-        else:
-            function_id = from_expr_element.raw_upper
+        """Extract the function name from a from_expression_element if present.
+        """
+        if "table_expression" not in from_expr_element.direct_descendant_type_set:
+            return from_expr_element.raw_upper
 
-        return function_id
+        table_expr_seg = from_expr_element.get_child("table_expression")
+        if "function" not in table_expr_seg.direct_descendant_type_set:
+            return table_expr_seg.raw_upper
+
+        # Extract function name through the segment hierarchy
+        function_seg = table_expr_seg.get_child("function")
+        function_name = function_seg.get_child("function_name")
+        function_id = function_name.get_child("function_name_identifier")
+
+        return function_id.raw_upper if function_id else table_expr_seg.raw_upper
 
     @staticmethod
     def _is_where_clause_simplifable(where_clause: BaseSegment) -> bool:
