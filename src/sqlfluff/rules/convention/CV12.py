@@ -270,11 +270,13 @@ class Rule_CV12(BaseRule):
 
         return alias_str
 
-
     @staticmethod
     def _get_from_expression_element_function(from_expr_element: BaseSegment) -> str:
         """Extract the function name from a from_expression_element if present."""
-        def get_segment_or_default(segment: BaseSegment, child_type: str, default: BaseSegment) -> BaseSegment:
+
+        def get_segment_or_default(
+            segment: BaseSegment, child_type: str, default: BaseSegment
+        ) -> BaseSegment:
             """Helper to safely get a child segment or return a default."""
             if segment is None:
                 return default
@@ -285,9 +287,7 @@ class Rule_CV12(BaseRule):
             return ""
 
         table_expr = get_segment_or_default(
-            from_expr_element,
-            "table_expression",
-            from_expr_element
+            from_expr_element, "table_expression", from_expr_element
         )
 
         if "function" not in table_expr.direct_descendant_type_set:
@@ -296,9 +296,7 @@ class Rule_CV12(BaseRule):
         function = get_segment_or_default(table_expr, "function", table_expr)
         function_name = get_segment_or_default(function, "function_name", table_expr)
         function_id = get_segment_or_default(
-            function_name,
-            "function_name_identifier",
-            table_expr
+            function_name, "function_name_identifier", table_expr
         )
 
         return function_id.raw_upper
