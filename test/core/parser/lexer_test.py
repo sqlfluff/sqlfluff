@@ -6,11 +6,22 @@ from typing import Any, NamedTuple, Union
 import pytest
 
 from sqlfluff.core import FluffConfig, SQLLexError
-from sqlfluff.core.parser import CodeSegment, Lexer, NewlineSegment
+from sqlfluff.core.parser import CodeSegment, Lexer, NewlineSegment, PyLexer
 from sqlfluff.core.parser.lexer import LexMatch, RegexLexer, StringLexer
 from sqlfluff.core.parser.segments.meta import TemplateSegment
 from sqlfluff.core.templaters import JinjaTemplater, RawFileSlice, TemplatedFile
 from sqlfluff.core.templaters.base import TemplatedFileSlice
+
+try:
+    from sqlfluff.core.parser.lexer import PyRsLexer
+    from sqlfluffrs import RsSQLLexerError
+
+    SQLLexErrorClass = (SQLLexError, RsSQLLexerError)
+    HAS_RUST_LEXER = True
+except ImportError:
+    PyRsLexer = None  # type: ignore
+    SQLLexErrorClass = (SQLLexError,)
+    HAS_RUST_LEXER = False
 
 
 def assert_matches(instring, matcher, matchstring):
@@ -117,7 +128,7 @@ def test__parser__lexer_lex_match(caplog):
         RegexLexer("test", r"#[^#]*#", CodeSegment),
     ]
     with caplog.at_level(logging.DEBUG):
-        res = Lexer.lex_match("..#..#..#", matchers)
+        res = PyLexer.lex_match("..#..#..#", matchers)
         assert res.forward_string == "#"  # Should match right up to the final element
         assert len(res.elements) == 5
         assert res.elements[2].raw == "#..#"
@@ -131,7 +142,7 @@ def test__parser__lexer_fail():
 
     assert len(vs) == 1
     err = vs[0]
-    assert isinstance(err, SQLLexError)
+    assert isinstance(err, SQLLexErrorClass)
     assert err.line_pos == 8
 
 
@@ -142,7 +153,7 @@ def test__parser__lexer_fail_via_parse():
     assert vs
     assert len(vs) == 1
     err = vs[0]
-    assert isinstance(err, SQLLexError)
+    assert isinstance(err, SQLLexErrorClass)
     assert err.line_pos == 8
 
 
@@ -165,7 +176,7 @@ def test__parser__lexer_trim_post_subdivide(caplog):
         )
     ]
     with caplog.at_level(logging.DEBUG):
-        res = Lexer.lex_match(";\n/\n", matcher)
+        res = PyLexer.lex_match(";\n/\n", matcher)
         assert res.elements[0].raw == ";"
         assert res.elements[1].raw == "\n"
         assert res.elements[2].raw == "/"
@@ -446,3 +457,114 @@ def test__parser__lexer_slicing_from_template_file(case: _LexerSlicingTemplateFi
         )
         for seg in lexing_segments
     ]
+
+
+@pytest.mark.skipif(not HAS_RUST_LEXER, reason="Rust lexer not available")
+def test__parser__pyrs_lexer_tokens_to_segments():
+    """Test the _tokens_to_segments static method."""
+    from unittest.mock import Mock
+
+    from sqlfluff.core.parser.segments import RawSegment
+
+    # Create a mock templated file
+    py_template = TemplatedFile.from_string("SELECT 1")
+
+    # Helper function to create a complete mock token
+    def create_mock_token(
+        token_type, raw, source_idx, templated_idx, instance_types=None
+    ):
+        mock_token = Mock()
+        mock_token.type = token_type
+        mock_token.raw = raw
+        mock_token.instance_types = instance_types or [token_type]
+        mock_token.trim_start = None
+        mock_token.trim_chars = None
+        mock_token.source_fixes = None
+        mock_token.uuid = None
+        mock_token.quoted_value = None
+        mock_token.escape_replacements = None
+
+        # Create mock position marker
+        mock_pos = Mock()
+        mock_pos.source_slice = slice(source_idx, source_idx + len(raw))
+        mock_pos.templated_slice = slice(templated_idx, templated_idx + len(raw))
+        mock_token.pos_marker = mock_pos
+        return mock_token
+
+    # Create mock tokens with different types
+    mock_token_word = create_mock_token("word", "SELECT", 0, 0, ["word"])
+    mock_token_whitespace = create_mock_token("whitespace", " ", 6, 6, ["whitespace"])
+    mock_token_literal = create_mock_token("literal", "1", 7, 7, ["literal"])
+
+    # Test conversion
+    tokens = [mock_token_word, mock_token_whitespace, mock_token_literal]
+    segments = PyRsLexer._tokens_to_segments(tokens, py_template)
+
+    # Verify results
+    assert isinstance(segments, tuple)
+    assert len(segments) == 3
+    assert all(isinstance(seg, RawSegment) for seg in segments)
+    assert segments[0].raw == "SELECT"
+    assert segments[1].raw == " "
+    assert segments[2].raw == "1"
+
+
+@pytest.mark.skipif(not HAS_RUST_LEXER, reason="Rust lexer not available")
+def test__parser__pyrs_lexer_tokens_to_segments_empty():
+    """Test _tokens_to_segments with empty token list."""
+    py_template = TemplatedFile.from_string("")
+
+    segments = PyRsLexer._tokens_to_segments([], py_template)
+
+    assert isinstance(segments, tuple)
+    assert len(segments) == 0
+
+
+@pytest.mark.skipif(not HAS_RUST_LEXER, reason="Rust lexer not available")
+def test__parser__pyrs_lexer_tokens_to_segments_unknown_type():
+    """Test _tokens_to_segments with unknown token type falls back to RawSegment."""
+    from unittest.mock import Mock
+
+    from sqlfluff.core.parser.segments import RawSegment
+
+    py_template = TemplatedFile.from_string("???")
+
+    # Create a mock token with an unknown type
+    mock_token = Mock()
+    mock_token.type = "unknown_type_xyz"
+    mock_token.raw = "???"
+    mock_token.instance_types = ["unknown_type_xyz"]
+    mock_token.trim_start = None
+    mock_token.trim_chars = None
+    mock_token.source_fixes = None
+    mock_token.uuid = None
+    mock_token.quoted_value = None
+    mock_token.escape_replacements = None
+
+    # Create mock position marker
+    mock_pos = Mock()
+    mock_pos.source_slice = slice(0, 3)
+    mock_pos.templated_slice = slice(0, 3)
+    mock_token.pos_marker = mock_pos
+
+    segments = PyRsLexer._tokens_to_segments([mock_token], py_template)
+
+    assert isinstance(segments, tuple)
+    assert len(segments) == 1
+    assert isinstance(segments[0], RawSegment)
+    assert segments[0].raw == "???"
+
+
+@pytest.mark.skipif(not HAS_RUST_LEXER, reason="Rust lexer not available")
+def test__parser__pyrs_lexer_integration():
+    """Test that PyRsLexer properly integrates _tokens_to_segments in lex method."""
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    lexer = PyRsLexer(config=config)
+
+    segments, errors = lexer.lex("SELECT 1")
+
+    # Verify that segments were created properly
+    assert len(segments) > 0
+    # Should have SELECT, whitespace, 1, and EOF
+    assert any(seg.raw == "SELECT" for seg in segments)
+    assert any(seg.raw == "1" for seg in segments)

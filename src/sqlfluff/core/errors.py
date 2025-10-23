@@ -17,6 +17,12 @@ if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser import BaseSegment, PositionMarker
     from sqlfluff.core.rules import BaseRule, LintFix
 
+    try:
+        from sqlfluffrs import RsSQLLexerError
+    except ImportError:
+        ...
+
+
 CheckTuple = tuple[str, int, int]
 SerializedObject = dict[str, Union[str, int, bool, list["SerializedObject"]]]
 
@@ -180,6 +186,18 @@ class SQLLexError(SQLBaseError):
 
     _code = "LXR"
     _identifier = "lexing"
+
+    @classmethod
+    def from_rs_error(cls, rs_error: "RsSQLLexerError") -> "SQLLexError":
+        """Create a SQLLexError from a RsSQLLexerError."""
+        return cls(
+            description=rs_error.desc,
+            line_no=rs_error.line_no,
+            line_pos=rs_error.line_pos,
+            ignore=rs_error.ignore,
+            fatal=rs_error.fatal,
+            warning=rs_error.warning,
+        )
 
 
 class SQLParseError(SQLBaseError):
