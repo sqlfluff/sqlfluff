@@ -36,7 +36,7 @@ impl<'a> Parser<'a> {
         // Use ALL types (instance_types + class_types) to match Python's behavior
         let first_raw = first_token.raw_upper();
         let first_types: HashSet<String> =
-            first_token.get_all_types().into_iter().collect();
+            first_token.get_all_types();
 
         // log::debug!(
         //     "Pruning {} options at pos {} (token: '{}', types: {:?})",
@@ -47,14 +47,10 @@ impl<'a> Parser<'a> {
         // );
 
         let mut available_options = Vec::new();
-        // let mut pruned_count = 0;
-
-        // Create empty crumbs set for recursion protection
-        let crumbs = HashSet::new();
 
         for opt in options {
             // Try to get simple hint for this grammar (with dialect for Ref resolution)
-            match opt.simple_hint_with_dialect(Some(&self.dialect), &crumbs, &mut self.simple_hint_cache) {
+            match opt.simple_hint(&mut self.simple_hint_cache) {
                 None => {
                     // Complex grammar - must try full match
                     self.pruning_complex.set(self.pruning_complex.get() + 1);
@@ -550,15 +546,17 @@ impl<'a> Parser<'a> {
             return false;
         }
         let current_token = current_token.unwrap();
+        let current_token_raw_upper = current_token.raw_upper();
+        let current_token_types = current_token.get_all_types();
 
         // First pass: check all simple terminators (fast path)
         for term in terminators.iter() {
-            let simple_opt = term.simple_hint();
+            let simple_opt = term.simple_hint(&mut self.simple_hint_cache);
             if let Some(simple) = simple_opt {
                 // Use fast simple matching
                 if simple.can_match_token(
-                    &current_token.raw_upper(),
-                    &current_token.get_all_types().into_iter().collect(),
+                    &current_token_raw_upper,
+                    &current_token_types,
                 ) {
                     log::debug!("  TERMED Simple terminator matched: {}", term);
                     self.pos = init_pos; // restore original position
@@ -571,7 +569,7 @@ impl<'a> Parser<'a> {
         // Second pass: check complex terminators that need full parsing (slow path)
         for term in terminators.iter() {
             // Skip simple terminators (already checked)
-            if term.simple_hint().is_some() {
+            if term.simple_hint(&mut self.simple_hint_cache).is_some() {
                 continue;
             }
 

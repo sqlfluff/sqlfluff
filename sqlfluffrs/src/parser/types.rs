@@ -304,10 +304,8 @@ impl Grammar {
     ///
     /// The dialect parameter is needed to resolve Ref grammars.
     /// The crumbs parameter tracks visited Refs to prevent infinite recursion.
-    pub fn simple_hint_with_dialect(
+    pub fn simple_hint(
         &self,
-        dialect: Option<&crate::dialect::Dialect>,
-        crumbs: &hashbrown::HashSet<String>,
         cache: &mut hashbrown::HashMap<u64, Option<SimpleHint>>,
     ) -> Option<SimpleHint> {
         let key = self.cache_key();
@@ -362,9 +360,7 @@ impl Grammar {
             Grammar::Delimited { simple_hint, .. } => simple_hint.clone(),
 
             // Bracketed: starts with opening bracket
-            Grammar::Bracketed { bracket_pairs, .. } => bracket_pairs
-                .0
-                .simple_hint_with_dialect(dialect, crumbs, cache),
+            Grammar::Bracketed { bracket_pairs, .. } => bracket_pairs.0.simple_hint(cache),
 
             // Nothing/Empty: matches nothing, so empty hint is correct
             Grammar::Nothing() | Grammar::Empty => Some(SimpleHint::empty()),
@@ -374,12 +370,6 @@ impl Grammar {
         };
         cache.insert(key, result.as_ref().cloned());
         result
-    }
-
-    /// Convenience method that calls simple_hint_with_dialect with empty crumbs
-    pub fn simple_hint(&self) -> Option<SimpleHint> {
-        let mut cache = hashbrown::HashMap::new();
-        self.simple_hint_with_dialect(None, &hashbrown::HashSet::new(), &mut cache)
     }
 }
 
@@ -1820,7 +1810,7 @@ mod tests {
         let mut cache: hashbrown::HashMap<u64, Option<SimpleHint>> = hashbrown::HashMap::new();
         // Get the hint
         let hint = grammar
-            .simple_hint_with_dialect(Some(&dialect), &HashSet::new(), &mut cache)
+            .simple_hint(&mut cache)
             .expect("Should return a hint");
         // Should match raw value ","
         assert!(hint.raw_values.contains(&" ,".trim().to_uppercase()));

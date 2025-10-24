@@ -436,7 +436,7 @@ mod tests {
             optional: false,
         };
 
-        let simple_hint = grammar.simple_hint_with_dialect(Some(&Dialect::Ansi), &HashSet::new(), &mut HashMap::new());
+        let simple_hint = grammar.simple_hint(&mut HashMap::new());
         let simple_hint = simple_hint.expect("Expected Some from simple_hint_with_dialect");
         assert!(simple_hint.raw_values.contains("SELECT"));
         assert!(simple_hint.token_types.is_empty());
@@ -451,7 +451,7 @@ mod tests {
             optional: false,
         };
 
-        let simple = grammar.simple_hint_with_dialect(Some(&Dialect::Ansi), &HashSet::new(), &mut HashMap::new());
+        let simple = grammar.simple_hint(&mut HashMap::new());
         let simple = simple.expect("Expected Some from simple_hint_with_dialect");
         assert!(simple.raw_values.is_empty());
         assert!(simple.token_types.contains("word"));
@@ -466,7 +466,7 @@ mod tests {
             optional: false,
         };
 
-        let simple_hint = grammar.simple_hint_with_dialect(Some(&Dialect::Ansi), &HashSet::new(), &mut HashMap::new());
+        let simple_hint = grammar.simple_hint(&mut HashMap::new());
         let simple_hint = simple_hint.expect("Expected Some from simple_hint_with_dialect");
         assert_eq!(simple_hint.raw_values.len(), 3);
         assert!(simple_hint.raw_values.contains("SELECT"));

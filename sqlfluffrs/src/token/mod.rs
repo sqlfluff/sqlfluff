@@ -218,10 +218,10 @@ impl Token {
 
     /// Get all types for this token (instance_types + class_types)
     /// This is equivalent to Python's class_types property
-    pub fn get_all_types(&self) -> Vec<String> {
-        let mut types = Vec::new();
-        types.extend(self.instance_types.clone());
-        types.extend(self.class_types.clone());
+    pub fn get_all_types(&self) -> hashbrown::HashSet<String> {
+        let mut types = hashbrown::HashSet::new();
+        types.extend(self.instance_types.iter().cloned());
+        types.extend(self.class_types.iter().cloned());
         types
     }
 
@@ -598,13 +598,7 @@ impl Token {
                 .segments
                 .iter()
                 .enumerate()
-                .map(|(idx, seg)| {
-                    seg.copy(
-                        None,
-                        Some(Arc::new(new_segment.clone())),
-                        Some(idx),
-                    )
-                })
+                .map(|(idx, seg)| seg.copy(None, Some(Arc::new(new_segment.clone())), Some(idx)))
                 .collect();
         }
 
@@ -763,43 +757,39 @@ mod tests {
                 ));
                 continue;
             }
-            let (token_fn, instance_types): (TokenGenerator, Vec<String>) =
-                match elem {
-                    " " | "\t" => (
-                        Token::whitespace_token_compat,
-                        Vec::new(),
-                    ),
-                    "\n" => (Token::newline_token_compat, Vec::new()),
-                    "(" => (
-                        Token::symbol_token_compat,
-                        Vec::from_iter(["start_bracket".to_string()]),
-                    ),
-                    ")" => (
-                        Token::symbol_token_compat,
-                        Vec::from_iter(["end_bracket".to_string()]),
-                    ),
-                    "[" => (
-                        Token::symbol_token_compat,
-                        Vec::from_iter(["start_square_bracket".to_string()]),
-                    ),
-                    "]" => (
-                        Token::symbol_token_compat,
-                        Vec::from_iter(["end_square_bracket".to_string()]),
-                    ),
-                    s if s.starts_with("--") => (
-                        Token::comment_token_compat,
-                        Vec::from_iter(["inline_comment".to_string()]),
-                    ),
-                    s if s.starts_with("\"") => (
-                        Token::code_token_compat,
-                        Vec::from_iter(["double_quote".to_string()]),
-                    ),
-                    s if s.starts_with("'") => (
-                        Token::code_token_compat,
-                        Vec::from_iter(["single_quote".to_string()]),
-                    ),
-                    _ => (Token::code_token_compat, Vec::new()),
-                };
+            let (token_fn, instance_types): (TokenGenerator, Vec<String>) = match elem {
+                " " | "\t" => (Token::whitespace_token_compat, Vec::new()),
+                "\n" => (Token::newline_token_compat, Vec::new()),
+                "(" => (
+                    Token::symbol_token_compat,
+                    Vec::from_iter(["start_bracket".to_string()]),
+                ),
+                ")" => (
+                    Token::symbol_token_compat,
+                    Vec::from_iter(["end_bracket".to_string()]),
+                ),
+                "[" => (
+                    Token::symbol_token_compat,
+                    Vec::from_iter(["start_square_bracket".to_string()]),
+                ),
+                "]" => (
+                    Token::symbol_token_compat,
+                    Vec::from_iter(["end_square_bracket".to_string()]),
+                ),
+                s if s.starts_with("--") => (
+                    Token::comment_token_compat,
+                    Vec::from_iter(["inline_comment".to_string()]),
+                ),
+                s if s.starts_with("\"") => (
+                    Token::code_token_compat,
+                    Vec::from_iter(["double_quote".to_string()]),
+                ),
+                s if s.starts_with("'") => (
+                    Token::code_token_compat,
+                    Vec::from_iter(["single_quote".to_string()]),
+                ),
+                _ => (Token::code_token_compat, Vec::new()),
+            };
 
             buff.push(token_fn(
                 elem.into(),
