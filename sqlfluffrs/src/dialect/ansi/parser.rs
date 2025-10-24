@@ -1,6 +1,6 @@
 /* This is a generated file! */
 use once_cell::sync::Lazy;
-use crate::parser::{Grammar, ParseMode};
+use crate::parser::{Grammar, ParseMode, types::SimpleHint};
 
 // name='AbortKeywordSegment'
 pub static ABORT_KEYWORD_SEGMENT: Lazy<Grammar> = Lazy::new(||
@@ -56,6 +56,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GRANT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -77,6 +81,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -88,6 +96,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -97,6 +109,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -106,6 +122,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WAREHOUSE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -115,6 +135,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -124,6 +148,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INTEGRATION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -134,6 +162,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLE".to_string(), "DATABASE".to_string(), "WAREHOUSE".to_string(), "INTEGRATION".to_string(), "USER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -143,6 +175,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -154,6 +190,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["APPLY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -163,6 +203,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MASKING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -172,6 +216,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["POLICY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -181,6 +229,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["APPLY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -192,6 +244,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXECUTE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -201,6 +257,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TASK".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -210,6 +270,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXECUTE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -221,6 +285,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MANAGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -230,6 +298,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GRANTS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -239,6 +311,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MANAGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -250,6 +326,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -261,6 +341,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXECUTION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -270,6 +354,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USAGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -280,6 +368,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USAGE".to_string(), "EXECUTION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -289,6 +381,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -299,6 +395,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["APPLY".to_string(), "MANAGE".to_string(), "CREATE".to_string(), "EXECUTE".to_string(), "MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -314,6 +414,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -325,6 +429,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -336,6 +444,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MASKING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -345,6 +457,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["POLICY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -354,6 +470,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MASKING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -363,6 +483,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PIPE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -374,6 +498,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -383,6 +511,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VIEW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -392,6 +524,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["STAGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -401,6 +537,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FUNCTION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -410,6 +550,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PROCEDURE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -419,6 +563,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROUTINE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -428,6 +576,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SEQUENCE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -437,6 +589,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["STREAM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -446,6 +602,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TASK".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -457,6 +617,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MATERIALIZED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -466,6 +630,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VIEW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -475,6 +643,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MATERIALIZED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -486,6 +658,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXTERNAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -495,6 +671,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -504,6 +684,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXTERNAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -515,6 +699,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FILE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -524,6 +712,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FORMAT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -533,6 +725,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FILE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -543,6 +739,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLE".to_string(), "STAGE".to_string(), "PROCEDURE".to_string(), "MATERIALIZED".to_string(), "FUNCTION".to_string(), "SEQUENCE".to_string(), "ROUTINE".to_string(), "EXTERNAL".to_string(), "STREAM".to_string(), "TASK".to_string(), "VIEW".to_string(), "FILE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -553,6 +753,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLE".to_string(), "STAGE".to_string(), "PROCEDURE".to_string(), "MATERIALIZED".to_string(), "SCHEMA".to_string(), "FUNCTION".to_string(), "SEQUENCE".to_string(), "ROUTINE".to_string(), "EXTERNAL".to_string(), "STREAM".to_string(), "TASK".to_string(), "MASKING".to_string(), "PIPE".to_string(), "VIEW".to_string(), "FILE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -562,6 +766,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -573,6 +781,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -584,6 +796,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -593,6 +809,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CATALOG".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -603,6 +823,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CATALOG".to_string(), "SCHEMA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -612,6 +836,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -623,6 +851,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IMPORTED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -632,6 +864,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PRIVILEGES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -641,6 +877,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IMPORTED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -650,6 +890,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["APPLY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -659,6 +903,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CONNECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -668,6 +916,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -677,6 +929,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DELETE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -686,6 +942,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXECUTE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -695,6 +955,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -704,6 +968,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MODIFY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -713,6 +981,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -722,6 +994,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OPERATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -731,6 +1007,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OWNERSHIP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -740,6 +1020,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["READ".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -749,6 +1033,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["REFERENCE_USAGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -758,6 +1046,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["REFERENCES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -767,6 +1059,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -776,6 +1072,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TEMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -785,6 +1085,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -794,6 +1098,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TRIGGER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -803,6 +1111,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TRUNCATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -812,6 +1124,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -821,6 +1137,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USAGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -830,6 +1150,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USE_ANY_ROLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -839,6 +1163,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WRITE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -850,6 +1178,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -859,6 +1191,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PRIVILEGES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -868,6 +1204,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -878,6 +1218,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string(), "SELECT".to_string(), "CONNECT".to_string(), "TRUNCATE".to_string(), "USE_ANY_ROLE".to_string(), "USAGE".to_string(), "OPERATE".to_string(), "TEMPORARY".to_string(), "OWNERSHIP".to_string(), "WRITE".to_string(), "ALL".to_string(), "IMPORTED".to_string(), "APPLY".to_string(), "EXECUTE".to_string(), "READ".to_string(), "UPDATE".to_string(), "TEMP".to_string(), "USE".to_string(), "TRIGGER".to_string(), "REFERENCE_USAGE".to_string(), "MODIFY".to_string(), "CREATE".to_string(), "REFERENCES".to_string(), "DELETE".to_string(), "MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -887,6 +1231,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -896,6 +1244,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string(), "SELECT".to_string(), "CONNECT".to_string(), "TRUNCATE".to_string(), "USE_ANY_ROLE".to_string(), "USAGE".to_string(), "OPERATE".to_string(), "TEMPORARY".to_string(), "OWNERSHIP".to_string(), "WRITE".to_string(), "ALL".to_string(), "IMPORTED".to_string(), "APPLY".to_string(), "EXECUTE".to_string(), "READ".to_string(), "UPDATE".to_string(), "TEMP".to_string(), "USE".to_string(), "TRIGGER".to_string(), "REFERENCE_USAGE".to_string(), "MODIFY".to_string(), "CREATE".to_string(), "REFERENCES".to_string(), "DELETE".to_string(), "MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -906,6 +1258,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string(), "MANAGE".to_string(), "SELECT".to_string(), "CONNECT".to_string(), "TRUNCATE".to_string(), "USE_ANY_ROLE".to_string(), "USAGE".to_string(), "OPERATE".to_string(), "TEMPORARY".to_string(), "OWNERSHIP".to_string(), "WRITE".to_string(), "ALL".to_string(), "IMPORTED".to_string(), "APPLY".to_string(), "EXECUTE".to_string(), "READ".to_string(), "UPDATE".to_string(), "TEMP".to_string(), "USE".to_string(), "TRIGGER".to_string(), "REFERENCE_USAGE".to_string(), "MODIFY".to_string(), "CREATE".to_string(), "REFERENCES".to_string(), "DELETE".to_string(), "MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -917,6 +1273,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -929,6 +1289,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -936,6 +1300,10 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string(), "MANAGE".to_string(), "SELECT".to_string(), "CONNECT".to_string(), "TRUNCATE".to_string(), "USE_ANY_ROLE".to_string(), "USAGE".to_string(), "OPERATE".to_string(), "TEMPORARY".to_string(), "OWNERSHIP".to_string(), "WRITE".to_string(), "ALL".to_string(), "IMPORTED".to_string(), "APPLY".to_string(), "EXECUTE".to_string(), "READ".to_string(), "UPDATE".to_string(), "TEMP".to_string(), "USE".to_string(), "TRIGGER".to_string(), "REFERENCE_USAGE".to_string(), "MODIFY".to_string(), "CREATE".to_string(), "REFERENCES".to_string(), "DELETE".to_string(), "MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -945,6 +1313,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -956,6 +1328,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ACCOUNT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -971,6 +1347,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["RESOURCE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -980,6 +1360,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -989,6 +1373,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["RESOURCE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -998,6 +1386,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WAREHOUSE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1007,6 +1399,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1016,6 +1412,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DOMAIN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1025,6 +1425,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INTEGRATION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1034,6 +1438,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LANGUAGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1043,6 +1451,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1052,6 +1464,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CATALOG".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1061,6 +1477,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1070,6 +1490,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLESPACE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1079,6 +1503,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TYPE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -1090,6 +1518,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FOREIGN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -1101,6 +1533,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SERVER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -1112,6 +1548,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1121,6 +1561,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WRAPPER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -1130,6 +1574,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -1140,6 +1588,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SERVER".to_string(), "DATA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -1149,6 +1601,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FOREIGN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -1160,6 +1616,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1169,6 +1629,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMAS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1178,6 +1642,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1187,6 +1655,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -1196,6 +1668,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -1207,6 +1683,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FUTURE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1216,6 +1696,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMAS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1225,6 +1709,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1234,6 +1722,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -1243,6 +1735,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FUTURE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -1254,6 +1750,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1263,6 +1763,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VIEW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1272,6 +1776,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["STAGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1281,6 +1789,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FUNCTION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1290,6 +1802,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PROCEDURE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1299,6 +1815,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROUTINE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1308,6 +1828,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SEQUENCE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1317,6 +1841,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["STREAM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1326,6 +1854,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TASK".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -1337,6 +1869,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MATERIALIZED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1346,6 +1882,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VIEW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -1355,6 +1895,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MATERIALIZED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -1366,6 +1910,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXTERNAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1375,6 +1923,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -1384,6 +1936,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXTERNAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -1395,6 +1951,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FILE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1404,6 +1964,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FORMAT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -1413,6 +1977,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FILE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -1423,6 +1991,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLE".to_string(), "STAGE".to_string(), "PROCEDURE".to_string(), "MATERIALIZED".to_string(), "FUNCTION".to_string(), "SEQUENCE".to_string(), "ROUTINE".to_string(), "EXTERNAL".to_string(), "STREAM".to_string(), "TASK".to_string(), "VIEW".to_string(), "FILE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -1434,6 +2006,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -1445,6 +2021,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1454,6 +2034,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VIEWS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1463,6 +2047,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["STAGES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1472,6 +2060,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FUNCTIONS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1481,6 +2073,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PROCEDURES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1490,6 +2086,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROUTINES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1499,6 +2099,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SEQUENCES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1508,6 +2112,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["STREAMS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1517,6 +2125,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TASKS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -1527,6 +2139,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SEQUENCES".to_string(), "STREAMS".to_string(), "TABLES".to_string(), "STAGES".to_string(), "PROCEDURES".to_string(), "ROUTINES".to_string(), "VIEWS".to_string(), "FUNCTIONS".to_string(), "TASKS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1536,6 +2152,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1545,6 +2165,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -1554,6 +2178,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -1565,6 +2193,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FUTURE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -1576,6 +2208,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1585,6 +2221,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VIEWS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1594,6 +2234,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["STAGES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1603,6 +2247,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FUNCTIONS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1612,6 +2260,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PROCEDURES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1621,6 +2273,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROUTINES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1630,6 +2286,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SEQUENCES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1639,6 +2299,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["STREAMS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1648,6 +2312,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TASKS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -1658,6 +2326,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SEQUENCES".to_string(), "STREAMS".to_string(), "TABLES".to_string(), "STAGES".to_string(), "PROCEDURES".to_string(), "ROUTINES".to_string(), "VIEWS".to_string(), "FUNCTIONS".to_string(), "TASKS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1667,6 +2339,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -1678,6 +2354,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1687,6 +2367,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -1697,6 +2381,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMA".to_string(), "DATABASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -1706,6 +2394,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FUTURE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -1716,6 +2408,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DOMAIN".to_string(), "TYPE".to_string(), "STAGE".to_string(), "FUTURE".to_string(), "SCHEMA".to_string(), "FUNCTION".to_string(), "SEQUENCE".to_string(), "ROUTINE".to_string(), "TABLESPACE".to_string(), "CATALOG".to_string(), "FOREIGN".to_string(), "STREAM".to_string(), "DATABASE".to_string(), "ALL".to_string(), "RESOURCE".to_string(), "TABLE".to_string(), "PROCEDURE".to_string(), "MATERIALIZED".to_string(), "INTEGRATION".to_string(), "ROLE".to_string(), "EXTERNAL".to_string(), "LANGUAGE".to_string(), "TASK".to_string(), "WAREHOUSE".to_string(), "VIEW".to_string(), "FILE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Delimited {
@@ -1727,6 +2423,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -1738,6 +2435,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -1747,6 +2445,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -1756,6 +2458,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -1765,6 +2468,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -1776,6 +2480,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -1788,6 +2496,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TO".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1797,6 +2509,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FROM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -1804,6 +2520,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -1813,6 +2530,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -1824,6 +2542,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LARGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1833,6 +2555,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OBJECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1842,6 +2568,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
     ],
@@ -1851,6 +2581,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LARGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -1861,6 +2595,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -1870,6 +2605,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string(), "MANAGE".to_string(), "SELECT".to_string(), "CONNECT".to_string(), "TRUNCATE".to_string(), "USE_ANY_ROLE".to_string(), "USAGE".to_string(), "OPERATE".to_string(), "TEMPORARY".to_string(), "OWNERSHIP".to_string(), "WRITE".to_string(), "ALL".to_string(), "IMPORTED".to_string(), "APPLY".to_string(), "EXECUTE".to_string(), "READ".to_string(), "UPDATE".to_string(), "TEMP".to_string(), "USE".to_string(), "TRIGGER".to_string(), "REFERENCE_USAGE".to_string(), "MODIFY".to_string(), "CREATE".to_string(), "REFERENCES".to_string(), "DELETE".to_string(), "MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -1881,6 +2620,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1890,6 +2633,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -1899,6 +2643,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -1910,6 +2658,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OWNERSHIP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1919,6 +2671,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1928,6 +2684,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1937,6 +2697,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -1946,6 +2707,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OWNERSHIP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1955,6 +2720,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -1965,6 +2731,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -1974,6 +2741,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TO".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -1985,6 +2756,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -1994,6 +2769,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2003,6 +2782,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2012,6 +2795,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SHARE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2022,6 +2809,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLE".to_string(), "SHARE".to_string(), "USER".to_string(), "GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Delimited {
@@ -2035,6 +2826,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -2044,6 +2836,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -2053,6 +2846,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PUBLIC".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2063,6 +2860,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -2074,6 +2872,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -2084,6 +2886,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -2097,6 +2900,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2106,6 +2913,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GRANT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2115,6 +2926,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OPTION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2124,6 +2939,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -2135,6 +2954,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2144,6 +2967,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ADMIN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2153,6 +2980,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OPTION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2162,6 +2993,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -2173,6 +3008,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["COPY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2182,6 +3021,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CURRENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2191,6 +3034,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GRANTS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2200,6 +3047,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["COPY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2210,6 +3061,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "COPY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -2221,6 +3076,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GRANTED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2230,6 +3089,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -2241,6 +3104,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CURRENT_USER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2250,6 +3117,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SESSION_USER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2259,6 +3130,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -2269,6 +3141,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -2278,6 +3151,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GRANTED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2287,6 +3164,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GRANT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -2298,6 +3179,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["REVOKE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -2309,6 +3194,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GRANT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2318,6 +3207,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OPTION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2327,6 +3220,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2336,6 +3233,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GRANT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -2357,6 +3258,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -2368,6 +3273,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2377,6 +3286,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2386,6 +3299,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WAREHOUSE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2395,6 +3312,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2404,6 +3325,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INTEGRATION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2414,6 +3339,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLE".to_string(), "DATABASE".to_string(), "WAREHOUSE".to_string(), "INTEGRATION".to_string(), "USER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2423,6 +3352,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -2434,6 +3367,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["APPLY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2443,6 +3380,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MASKING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2452,6 +3393,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["POLICY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2461,6 +3406,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["APPLY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -2472,6 +3421,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXECUTE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2481,6 +3434,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TASK".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2490,6 +3447,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXECUTE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -2501,6 +3462,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MANAGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2510,6 +3475,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GRANTS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2519,6 +3488,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MANAGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -2530,6 +3503,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -2541,6 +3518,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXECUTION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2550,6 +3531,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USAGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2560,6 +3545,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USAGE".to_string(), "EXECUTION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2569,6 +3558,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2579,6 +3572,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["APPLY".to_string(), "MANAGE".to_string(), "CREATE".to_string(), "EXECUTE".to_string(), "MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -2594,6 +3591,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -2605,6 +3606,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -2616,6 +3621,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MASKING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2625,6 +3634,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["POLICY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2634,6 +3647,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MASKING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2643,6 +3660,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PIPE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -2654,6 +3675,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2663,6 +3688,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VIEW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2672,6 +3701,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["STAGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2681,6 +3714,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FUNCTION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2690,6 +3727,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PROCEDURE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2699,6 +3740,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROUTINE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2708,6 +3753,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SEQUENCE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2717,6 +3766,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["STREAM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2726,6 +3779,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TASK".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -2737,6 +3794,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MATERIALIZED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2746,6 +3807,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VIEW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2755,6 +3820,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MATERIALIZED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -2766,6 +3835,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXTERNAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2775,6 +3848,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2784,6 +3861,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXTERNAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -2795,6 +3876,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FILE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2804,6 +3889,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FORMAT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2813,6 +3902,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FILE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2823,6 +3916,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLE".to_string(), "STAGE".to_string(), "PROCEDURE".to_string(), "MATERIALIZED".to_string(), "FUNCTION".to_string(), "SEQUENCE".to_string(), "ROUTINE".to_string(), "EXTERNAL".to_string(), "STREAM".to_string(), "TASK".to_string(), "VIEW".to_string(), "FILE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2833,6 +3930,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLE".to_string(), "STAGE".to_string(), "PROCEDURE".to_string(), "MATERIALIZED".to_string(), "SCHEMA".to_string(), "FUNCTION".to_string(), "SEQUENCE".to_string(), "ROUTINE".to_string(), "EXTERNAL".to_string(), "STREAM".to_string(), "TASK".to_string(), "MASKING".to_string(), "PIPE".to_string(), "VIEW".to_string(), "FILE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2842,6 +3943,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -2853,6 +3958,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -2864,6 +3973,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2873,6 +3986,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CATALOG".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2883,6 +4000,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CATALOG".to_string(), "SCHEMA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2892,6 +4013,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -2903,6 +4028,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IMPORTED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2912,6 +4041,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PRIVILEGES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -2921,6 +4054,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IMPORTED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2930,6 +4067,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["APPLY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2939,6 +4080,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CONNECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2948,6 +4093,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2957,6 +4106,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DELETE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2966,6 +4119,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXECUTE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2975,6 +4132,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2984,6 +4145,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MODIFY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -2993,6 +4158,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3002,6 +4171,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OPERATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3011,6 +4184,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OWNERSHIP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3020,6 +4197,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["READ".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3029,6 +4210,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["REFERENCE_USAGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3038,6 +4223,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["REFERENCES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3047,6 +4236,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3056,6 +4249,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TEMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3065,6 +4262,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3074,6 +4275,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TRIGGER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3083,6 +4288,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TRUNCATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3092,6 +4301,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3101,6 +4314,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USAGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3110,6 +4327,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USE_ANY_ROLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3119,6 +4340,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WRITE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -3130,6 +4355,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3139,6 +4368,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PRIVILEGES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3148,6 +4381,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3158,6 +4395,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string(), "SELECT".to_string(), "CONNECT".to_string(), "TRUNCATE".to_string(), "USE_ANY_ROLE".to_string(), "USAGE".to_string(), "OPERATE".to_string(), "TEMPORARY".to_string(), "OWNERSHIP".to_string(), "WRITE".to_string(), "ALL".to_string(), "IMPORTED".to_string(), "APPLY".to_string(), "EXECUTE".to_string(), "READ".to_string(), "UPDATE".to_string(), "TEMP".to_string(), "USE".to_string(), "TRIGGER".to_string(), "REFERENCE_USAGE".to_string(), "MODIFY".to_string(), "CREATE".to_string(), "REFERENCES".to_string(), "DELETE".to_string(), "MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3167,6 +4408,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3176,6 +4421,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string(), "SELECT".to_string(), "CONNECT".to_string(), "TRUNCATE".to_string(), "USE_ANY_ROLE".to_string(), "USAGE".to_string(), "OPERATE".to_string(), "TEMPORARY".to_string(), "OWNERSHIP".to_string(), "WRITE".to_string(), "ALL".to_string(), "IMPORTED".to_string(), "APPLY".to_string(), "EXECUTE".to_string(), "READ".to_string(), "UPDATE".to_string(), "TEMP".to_string(), "USE".to_string(), "TRIGGER".to_string(), "REFERENCE_USAGE".to_string(), "MODIFY".to_string(), "CREATE".to_string(), "REFERENCES".to_string(), "DELETE".to_string(), "MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3186,6 +4435,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string(), "MANAGE".to_string(), "SELECT".to_string(), "CONNECT".to_string(), "TRUNCATE".to_string(), "USE_ANY_ROLE".to_string(), "USAGE".to_string(), "OPERATE".to_string(), "TEMPORARY".to_string(), "OWNERSHIP".to_string(), "WRITE".to_string(), "ALL".to_string(), "IMPORTED".to_string(), "APPLY".to_string(), "EXECUTE".to_string(), "READ".to_string(), "UPDATE".to_string(), "TEMP".to_string(), "USE".to_string(), "TRIGGER".to_string(), "REFERENCE_USAGE".to_string(), "MODIFY".to_string(), "CREATE".to_string(), "REFERENCES".to_string(), "DELETE".to_string(), "MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3197,6 +4450,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -3209,6 +4466,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3216,6 +4477,10 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string(), "MANAGE".to_string(), "SELECT".to_string(), "CONNECT".to_string(), "TRUNCATE".to_string(), "USE_ANY_ROLE".to_string(), "USAGE".to_string(), "OPERATE".to_string(), "TEMPORARY".to_string(), "OWNERSHIP".to_string(), "WRITE".to_string(), "ALL".to_string(), "IMPORTED".to_string(), "APPLY".to_string(), "EXECUTE".to_string(), "READ".to_string(), "UPDATE".to_string(), "TEMP".to_string(), "USE".to_string(), "TRIGGER".to_string(), "REFERENCE_USAGE".to_string(), "MODIFY".to_string(), "CREATE".to_string(), "REFERENCES".to_string(), "DELETE".to_string(), "MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3225,6 +4490,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -3236,6 +4505,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ACCOUNT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -3251,6 +4524,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["RESOURCE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3260,6 +4537,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3269,6 +4550,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["RESOURCE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3278,6 +4563,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WAREHOUSE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3287,6 +4576,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3296,6 +4589,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DOMAIN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3305,6 +4602,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INTEGRATION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3314,6 +4615,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LANGUAGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3323,6 +4628,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3332,6 +4641,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CATALOG".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3341,6 +4654,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3350,6 +4667,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLESPACE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3359,6 +4680,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TYPE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -3370,6 +4695,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FOREIGN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -3381,6 +4710,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SERVER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -3392,6 +4725,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3401,6 +4738,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WRAPPER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3410,6 +4751,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3420,6 +4765,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SERVER".to_string(), "DATA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3429,6 +4778,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FOREIGN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -3440,6 +4793,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3449,6 +4806,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMAS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3458,6 +4819,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3467,6 +4832,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3476,6 +4845,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -3487,6 +4860,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FUTURE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3496,6 +4873,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMAS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3505,6 +4886,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3514,6 +4899,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3523,6 +4912,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FUTURE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -3534,6 +4927,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3543,6 +4940,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VIEW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3552,6 +4953,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["STAGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3561,6 +4966,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FUNCTION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3570,6 +4979,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PROCEDURE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3579,6 +4992,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROUTINE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3588,6 +5005,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SEQUENCE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3597,6 +5018,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["STREAM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3606,6 +5031,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TASK".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -3617,6 +5046,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MATERIALIZED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3626,6 +5059,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VIEW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3635,6 +5072,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MATERIALIZED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -3646,6 +5087,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXTERNAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3655,6 +5100,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3664,6 +5113,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXTERNAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -3675,6 +5128,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FILE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3684,6 +5141,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FORMAT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3693,6 +5154,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FILE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3703,6 +5168,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLE".to_string(), "STAGE".to_string(), "PROCEDURE".to_string(), "MATERIALIZED".to_string(), "FUNCTION".to_string(), "SEQUENCE".to_string(), "ROUTINE".to_string(), "EXTERNAL".to_string(), "STREAM".to_string(), "TASK".to_string(), "VIEW".to_string(), "FILE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -3714,6 +5183,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -3725,6 +5198,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3734,6 +5211,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VIEWS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3743,6 +5224,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["STAGES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3752,6 +5237,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FUNCTIONS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3761,6 +5250,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PROCEDURES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3770,6 +5263,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROUTINES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3779,6 +5276,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SEQUENCES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3788,6 +5289,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["STREAMS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3797,6 +5302,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TASKS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3807,6 +5316,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SEQUENCES".to_string(), "STREAMS".to_string(), "TABLES".to_string(), "STAGES".to_string(), "PROCEDURES".to_string(), "ROUTINES".to_string(), "VIEWS".to_string(), "FUNCTIONS".to_string(), "TASKS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3816,6 +5329,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3825,6 +5342,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3834,6 +5355,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -3845,6 +5370,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FUTURE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -3856,6 +5385,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3865,6 +5398,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VIEWS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3874,6 +5411,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["STAGES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3883,6 +5424,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FUNCTIONS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3892,6 +5437,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PROCEDURES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3901,6 +5450,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROUTINES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3910,6 +5463,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SEQUENCES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3919,6 +5476,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["STREAMS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3928,6 +5489,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TASKS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3938,6 +5503,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SEQUENCES".to_string(), "STREAMS".to_string(), "TABLES".to_string(), "STAGES".to_string(), "PROCEDURES".to_string(), "ROUTINES".to_string(), "VIEWS".to_string(), "FUNCTIONS".to_string(), "TASKS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3947,6 +5516,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -3958,6 +5531,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -3967,6 +5544,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3977,6 +5558,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMA".to_string(), "DATABASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3986,6 +5571,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FUTURE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -3996,6 +5585,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DOMAIN".to_string(), "TYPE".to_string(), "STAGE".to_string(), "FUTURE".to_string(), "SCHEMA".to_string(), "FUNCTION".to_string(), "SEQUENCE".to_string(), "ROUTINE".to_string(), "TABLESPACE".to_string(), "CATALOG".to_string(), "FOREIGN".to_string(), "STREAM".to_string(), "DATABASE".to_string(), "ALL".to_string(), "RESOURCE".to_string(), "TABLE".to_string(), "PROCEDURE".to_string(), "MATERIALIZED".to_string(), "INTEGRATION".to_string(), "ROLE".to_string(), "EXTERNAL".to_string(), "LANGUAGE".to_string(), "TASK".to_string(), "WAREHOUSE".to_string(), "VIEW".to_string(), "FILE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Delimited {
@@ -4007,6 +5600,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -4018,6 +5612,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -4027,6 +5622,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -4036,6 +5635,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -4045,6 +5645,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -4056,6 +5657,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -4068,6 +5673,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TO".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4077,6 +5686,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FROM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -4084,6 +5697,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -4093,6 +5707,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -4104,6 +5719,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LARGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4113,6 +5732,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OBJECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4122,6 +5745,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
     ],
@@ -4131,6 +5758,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LARGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -4141,6 +5772,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -4150,6 +5782,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string(), "MANAGE".to_string(), "SELECT".to_string(), "CONNECT".to_string(), "TRUNCATE".to_string(), "USE_ANY_ROLE".to_string(), "USAGE".to_string(), "OPERATE".to_string(), "TEMPORARY".to_string(), "OWNERSHIP".to_string(), "WRITE".to_string(), "ALL".to_string(), "IMPORTED".to_string(), "APPLY".to_string(), "EXECUTE".to_string(), "READ".to_string(), "UPDATE".to_string(), "TEMP".to_string(), "USE".to_string(), "TRIGGER".to_string(), "REFERENCE_USAGE".to_string(), "MODIFY".to_string(), "CREATE".to_string(), "REFERENCES".to_string(), "DELETE".to_string(), "MONITOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -4161,6 +5797,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4170,6 +5810,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -4179,6 +5820,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -4190,6 +5835,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OWNERSHIP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4199,6 +5848,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4208,6 +5861,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4217,6 +5874,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -4226,6 +5884,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OWNERSHIP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4235,6 +5897,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -4245,6 +5908,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -4254,6 +5918,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FROM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -4265,6 +5933,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4274,6 +5946,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4283,6 +5959,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4292,6 +5972,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SHARE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -4302,6 +5986,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLE".to_string(), "SHARE".to_string(), "USER".to_string(), "GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Delimited {
@@ -4313,6 +6001,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -4324,6 +6013,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -4334,6 +6027,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -4343,6 +6037,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CASCADE".to_string(), "RESTRICT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -4352,6 +6050,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["REVOKE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -4362,6 +6064,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["REVOKE".to_string(), "GRANT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -4376,6 +6082,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["[".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -4389,6 +6099,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["[".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -4482,6 +6196,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -4499,6 +6217,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -4512,6 +6234,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Bracketed {
@@ -4523,6 +6246,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -4550,6 +6274,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -4559,6 +6287,7 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -4568,6 +6297,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
     ],
@@ -4578,6 +6311,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -4589,6 +6323,7 @@ Grammar::Meta("dedent")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -4613,6 +6348,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -4622,6 +6358,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -4631,6 +6368,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -4688,6 +6426,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INCREMENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4697,6 +6439,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4706,6 +6452,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
     ],
@@ -4715,6 +6465,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INCREMENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4724,6 +6478,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "MINVALUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4733,6 +6491,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "MAXVALUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -4746,6 +6508,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CACHE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4755,6 +6521,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
     ],
@@ -4764,6 +6534,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CACHE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4773,6 +6547,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOCACHE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -4783,6 +6561,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOCACHE".to_string(), "CACHE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -4794,6 +6576,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CYCLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4803,6 +6589,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOCYCLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -4813,6 +6603,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOCYCLE".to_string(), "CYCLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4822,6 +6616,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOORDER".to_string(), "ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -4832,6 +6630,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "NOCYCLE".to_string(), "MINVALUE".to_string(), "NOORDER".to_string(), "ORDER".to_string(), "CYCLE".to_string(), "MAXVALUE".to_string(), "INCREMENT".to_string(), "NOCACHE".to_string(), "CACHE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -4847,6 +6649,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALTER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4856,6 +6662,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SEQUENCE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4865,6 +6675,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::AnyNumberOf {
@@ -4876,6 +6687,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "NOCYCLE".to_string(), "MINVALUE".to_string(), "NOORDER".to_string(), "ORDER".to_string(), "CYCLE".to_string(), "MAXVALUE".to_string(), "INCREMENT".to_string(), "NOCACHE".to_string(), "CACHE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -4889,6 +6704,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "NOCYCLE".to_string(), "MINVALUE".to_string(), "NOORDER".to_string(), "ORDER".to_string(), "CYCLE".to_string(), "MAXVALUE".to_string(), "INCREMENT".to_string(), "NOCACHE".to_string(), "CACHE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -4898,6 +6717,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALTER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -4912,6 +6735,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4921,6 +6748,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["COLUMN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4930,6 +6761,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -4939,6 +6774,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -4948,6 +6784,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -4964,6 +6804,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -4973,6 +6814,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -4984,6 +6829,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -4993,6 +6839,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -5003,6 +6850,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -5012,6 +6860,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -5025,6 +6874,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ADD".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5034,6 +6887,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MODIFY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -5044,6 +6901,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ADD".to_string(), "MODIFY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5053,6 +6914,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["COLUMN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5062,6 +6927,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -5077,6 +6943,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FIRST".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5086,6 +6956,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AFTER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -5096,6 +6970,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AFTER".to_string(), "FIRST".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5105,6 +6983,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -5114,6 +6993,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AFTER".to_string(), "FIRST".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5123,6 +7006,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -5133,6 +7020,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AFTER".to_string(), "(".to_string(), "FIRST".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -5142,6 +7033,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ADD".to_string(), "MODIFY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5151,6 +7046,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -5162,6 +7061,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["RENAME".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -5173,6 +7076,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5182,6 +7089,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TO".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -5192,6 +7103,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TO".to_string(), "AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5201,6 +7116,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -5210,6 +7126,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["RENAME".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -5220,6 +7140,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -5235,6 +7156,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALTER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5244,6 +7169,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5253,6 +7182,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Delimited {
@@ -5264,6 +7194,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -5275,6 +7206,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -5285,6 +7220,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -5294,6 +7230,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALTER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -5398,6 +7338,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5407,6 +7351,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5416,6 +7364,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["/".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5425,6 +7377,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["*".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5434,6 +7390,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["%".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5443,6 +7403,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["&".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5452,6 +7416,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["|".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5461,6 +7429,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["^".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5470,6 +7442,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["<".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5479,6 +7455,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([">".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -5489,6 +7469,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "/".to_string(), "^".to_string(), "&".to_string(), "|".to_string(), "%".to_string(), "<".to_string(), "*".to_string(), ">".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -5508,6 +7492,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5517,6 +7505,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -5527,6 +7516,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -5538,6 +7528,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([":".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -5548,6 +7542,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -5575,6 +7570,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Greedy,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["[".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -5608,6 +7607,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -5619,6 +7619,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -5629,6 +7633,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -5656,6 +7661,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["[".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -5677,6 +7686,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -5686,6 +7699,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -5820,6 +7837,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AUTO_INCREMENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -5829,6 +7850,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AUTO_INCREMENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -5903,6 +7928,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -5912,6 +7938,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIME".to_string(), "CURRENT_DATE".to_string(), "CURRENT_TIMESTAMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5921,6 +7951,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5930,6 +7964,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -5939,6 +7974,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -5948,6 +7984,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -5959,6 +7996,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -5968,6 +8006,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -5977,6 +8016,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -5990,6 +8030,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -5999,12 +8043,17 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -6095,6 +8144,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "/".to_string(), "^".to_string(), "&".to_string(), "|".to_string(), "%".to_string(), "<".to_string(), "*".to_string(), ">".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -6104,6 +8157,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["|".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -6113,6 +8170,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OR".to_string(), "AND".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -6122,6 +8183,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IS".to_string(), ">".to_string(), "=".to_string(), "<".to_string(), "!".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
+    }),
 }
 ,
     ],
@@ -6132,6 +8197,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "/".to_string(), "IS".to_string(), "^".to_string(), "AND".to_string(), "&".to_string(), "=".to_string(), "|".to_string(), "%".to_string(), "<".to_string(), "!".to_string(), "*".to_string(), ">".to_string(), "-".to_string(), "OR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
+    }),
 }
 );
 
@@ -6193,6 +8262,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["&".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -6208,6 +8281,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["<".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -6217,6 +8294,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["<".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -6226,6 +8307,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["<".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -6239,6 +8324,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["|".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -6254,6 +8343,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([">".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -6263,6 +8356,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([">".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -6272,6 +8369,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([">".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -6316,6 +8417,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AND".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -6325,6 +8430,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -6335,6 +8444,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OR".to_string(), "AND".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -6359,6 +8472,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TRUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -6368,6 +8485,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FALSE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -6378,6 +8499,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FALSE".to_string(), "TRUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -6405,6 +8530,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -6416,6 +8542,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -6426,6 +8556,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -6453,6 +8584,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -6469,6 +8604,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -6480,6 +8616,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -6490,6 +8630,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -6517,6 +8658,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -6539,6 +8684,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "SELECT".to_string(), "(".to_string(), "VALUES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -6566,6 +8715,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -6631,6 +8784,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -6658,6 +8812,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -6673,6 +8831,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -6682,6 +8841,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -6691,6 +8854,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -6702,6 +8869,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -6729,6 +8900,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Greedy,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -6738,6 +8913,7 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -6815,6 +8991,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -6828,6 +9008,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -6844,6 +9028,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ELSE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -6853,12 +9041,20 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["END".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
     reset_terminators: true,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -6873,10 +9069,18 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["END".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
     reset_terminators: true,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ELSE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("dedent")
@@ -6888,6 +9092,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["END".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -6897,6 +9105,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -6908,6 +9120,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -6917,6 +9133,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("indent")
@@ -6930,6 +9147,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -6946,6 +9167,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ELSE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -6955,12 +9180,20 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["END".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
     reset_terminators: true,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -6975,10 +9208,18 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["END".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
     reset_terminators: true,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ELSE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("dedent")
@@ -6990,6 +9231,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["END".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -6999,6 +9244,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -7012,6 +9261,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IS".to_string(), ">".to_string(), "=".to_string(), "<".to_string(), "!".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -7021,6 +9274,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -7030,12 +9287,20 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "/".to_string(), "IS".to_string(), "^".to_string(), "AND".to_string(), "&".to_string(), "=".to_string(), "|".to_string(), "%".to_string(), "<".to_string(), "!".to_string(), "*".to_string(), ">".to_string(), "-".to_string(), "OR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
+    }),
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -7389,6 +9654,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
 Grammar::Delimited {
@@ -7400,6 +9669,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -7411,6 +9681,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -7423,6 +9697,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -7430,6 +9705,7 @@ Grammar::Ref {
     allow_gaps: false,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -7440,6 +9716,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -7524,6 +9801,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -7533,6 +9811,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -7542,6 +9821,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -7551,6 +9831,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIME".to_string(), "CURRENT_DATE".to_string(), "CURRENT_TIMESTAMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -7561,6 +9845,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -7578,6 +9863,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CONSTRAINT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -7587,6 +9876,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -7596,6 +9886,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CONSTRAINT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -7609,6 +9903,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -7618,6 +9916,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NULL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -7627,6 +9929,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "NULL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -7638,6 +9944,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CHECK".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -7649,6 +9959,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -7676,6 +9987,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -7685,6 +10000,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CHECK".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -7696,6 +10015,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DEFAULT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -7705,6 +10028,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -7714,6 +10038,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DEFAULT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -7725,6 +10053,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PRIMARY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -7734,6 +10066,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -7743,6 +10076,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PRIMARY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -7752,6 +10089,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UNIQUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -7761,6 +10102,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AUTO_INCREMENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -7772,6 +10117,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["REFERENCES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -7781,6 +10130,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -7790,6 +10140,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["REFERENCES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -7799,6 +10153,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["COMMENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -7810,6 +10168,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["COLLATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -7819,6 +10181,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -7828,6 +10191,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["COLLATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -7837,6 +10204,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -7847,6 +10215,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -7856,6 +10225,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -7871,6 +10241,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -7880,6 +10251,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Bracketed {
@@ -7911,6 +10283,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::AnyNumberOf {
@@ -7922,6 +10298,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -7935,6 +10312,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -7944,6 +10322,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -7974,6 +10353,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -7985,6 +10365,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -7997,6 +10381,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -8004,6 +10389,7 @@ Grammar::Ref {
     allow_gaps: false,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -8033,6 +10419,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 );
 
@@ -8098,6 +10485,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["COMMENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8107,6 +10498,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
     ],
@@ -8116,6 +10511,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["COMMENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -8168,6 +10567,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8177,6 +10580,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([">".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8186,6 +10593,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["<".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8195,6 +10606,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([">".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8204,6 +10619,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["<".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8213,6 +10632,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["<".to_string(), "!".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8222,6 +10645,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8231,6 +10658,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -8241,6 +10672,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IS".to_string(), ">".to_string(), "=".to_string(), "<".to_string(), "!".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
+    }),
 }
 );
 
@@ -8310,6 +10745,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["|".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8319,6 +10758,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["|".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -8328,6 +10771,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["|".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -8360,6 +10807,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CROSS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -8374,6 +10825,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FULL".to_string(), "LEFT".to_string(), "INNER".to_string(), "RIGHT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8383,6 +10838,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CROSS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8392,6 +10851,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -8402,6 +10862,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -8617,6 +11078,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8626,6 +11091,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CAST".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -8637,6 +11106,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -8646,6 +11116,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8655,6 +11129,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -8682,6 +11157,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8691,6 +11170,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8700,6 +11183,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SPECIFIC".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -8711,6 +11198,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROUTINE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8720,6 +11211,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FUNCTION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8729,6 +11224,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PROCEDURE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -8742,6 +11241,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSTANCE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8751,6 +11254,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["STATIC".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8760,6 +11267,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CONSTRUCTOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -8770,6 +11281,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CONSTRUCTOR".to_string(), "STATIC".to_string(), "INSTANCE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8779,6 +11294,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["METHOD".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -8788,6 +11307,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["METHOD".to_string(), "CONSTRUCTOR".to_string(), "STATIC".to_string(), "INSTANCE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -8798,6 +11321,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["METHOD".to_string(), "PROCEDURE".to_string(), "CONSTRUCTOR".to_string(), "STATIC".to_string(), "FUNCTION".to_string(), "ROUTINE".to_string(), "INSTANCE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8807,6 +11334,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -8816,6 +11344,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -8827,6 +11359,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8836,6 +11372,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -8845,6 +11382,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -8856,6 +11397,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8865,6 +11410,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ASSIGNMENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -8874,6 +11423,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -8883,6 +11436,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -8898,6 +11455,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8907,6 +11468,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8916,6 +11481,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8925,6 +11494,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -8934,6 +11504,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -8949,6 +11523,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8958,6 +11536,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8967,6 +11549,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "TEMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8976,6 +11562,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FUNCTION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8985,6 +11575,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -8994,6 +11588,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -9003,6 +11598,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -9014,6 +11613,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["RETURNS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9023,6 +11626,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -9032,6 +11636,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["RETURNS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9041,6 +11649,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -9050,6 +11662,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -9065,6 +11681,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9074,6 +11694,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9083,6 +11707,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UNIQUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9092,6 +11720,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INDEX".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9101,6 +11733,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9110,6 +11746,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -9119,6 +11756,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9128,6 +11769,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -9143,6 +11785,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -9154,6 +11797,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -9164,6 +11811,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -9191,6 +11839,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -9200,6 +11852,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -9209,6 +11865,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -9234,6 +11894,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9243,6 +11907,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9252,6 +11920,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MODEL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9261,6 +11933,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9270,6 +11946,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -9281,6 +11958,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OPTIONS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -9296,6 +11977,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -9305,6 +11987,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -9316,6 +12002,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Bracketed {
@@ -9329,6 +12016,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
     ],
@@ -9340,6 +12031,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -9350,6 +12045,10 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
     ],
@@ -9377,6 +12076,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["[".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -9387,6 +12090,7 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -9396,6 +12100,7 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -9407,6 +12112,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -9417,6 +12126,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -9444,6 +12154,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -9453,6 +12167,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OPTIONS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9462,6 +12180,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9471,6 +12193,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -9480,6 +12206,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -9495,6 +12225,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9504,6 +12238,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9513,6 +12251,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9522,6 +12264,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -9531,6 +12274,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -9546,6 +12293,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9555,6 +12306,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9564,6 +12319,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9573,6 +12332,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -9582,6 +12342,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -9599,6 +12363,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INCREMENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9608,6 +12376,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9617,6 +12389,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
     ],
@@ -9626,6 +12402,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INCREMENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -9637,6 +12417,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["START".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9646,6 +12430,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9655,6 +12443,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
     ],
@@ -9664,6 +12456,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["START".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9673,6 +12469,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "MINVALUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9682,6 +12482,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "MAXVALUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -9695,6 +12499,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CACHE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9704,6 +12512,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
     ],
@@ -9713,6 +12525,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CACHE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9722,6 +12538,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOCACHE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -9732,6 +12552,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOCACHE".to_string(), "CACHE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -9743,6 +12567,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CYCLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9752,6 +12580,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOCYCLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -9762,6 +12594,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOCYCLE".to_string(), "CYCLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9771,6 +12607,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOORDER".to_string(), "ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -9781,6 +12621,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "NOCYCLE".to_string(), "MINVALUE".to_string(), "NOORDER".to_string(), "ORDER".to_string(), "CYCLE".to_string(), "MAXVALUE".to_string(), "INCREMENT".to_string(), "NOCACHE".to_string(), "CACHE".to_string(), "START".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -9796,6 +12640,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9805,6 +12653,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SEQUENCE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9814,6 +12666,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::AnyNumberOf {
@@ -9825,6 +12678,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "NOCYCLE".to_string(), "MINVALUE".to_string(), "NOORDER".to_string(), "ORDER".to_string(), "CYCLE".to_string(), "MAXVALUE".to_string(), "INCREMENT".to_string(), "NOCACHE".to_string(), "CACHE".to_string(), "START".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -9838,6 +12695,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "NOCYCLE".to_string(), "MINVALUE".to_string(), "NOORDER".to_string(), "ORDER".to_string(), "CYCLE".to_string(), "MAXVALUE".to_string(), "INCREMENT".to_string(), "NOCACHE".to_string(), "CACHE".to_string(), "START".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -9847,6 +12708,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -9862,6 +12727,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9871,6 +12740,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9880,6 +12753,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TEMP".to_string(), "TEMPORARY".to_string(), "TRANSIENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9889,6 +12766,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9898,6 +12779,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9907,6 +12792,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -9926,6 +12812,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CONSTRAINT".to_string(), "UNIQUE".to_string(), "FOREIGN".to_string(), "PRIMARY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -9935,6 +12825,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -9945,6 +12836,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -9956,6 +12848,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -9966,6 +12862,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -9993,6 +12890,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10002,6 +12903,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["COMMENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10011,6 +12916,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -10022,6 +12931,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -10035,6 +12948,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10062,6 +12979,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10071,6 +12992,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10081,6 +13006,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10090,6 +13019,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -10101,6 +13034,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LIKE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10110,6 +13047,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -10119,6 +13057,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LIKE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10129,6 +13071,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LIKE".to_string(), "AS".to_string(), "(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10138,6 +13084,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -10147,6 +13094,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -10162,6 +13113,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10171,6 +13126,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TRIGGER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10180,6 +13139,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -10191,6 +13151,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BEFORE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10200,6 +13164,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AFTER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -10211,6 +13179,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSTEAD".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10220,6 +13192,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10229,6 +13205,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSTEAD".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10239,6 +13219,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSTEAD".to_string(), "BEFORE".to_string(), "AFTER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Delimited {
@@ -10250,6 +13234,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10259,6 +13247,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DELETE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -10270,6 +13262,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10279,6 +13275,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Delimited {
@@ -10290,6 +13290,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -10301,6 +13302,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -10313,6 +13318,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10322,6 +13331,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10329,6 +13342,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -10338,6 +13352,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10349,6 +13367,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -10361,6 +13383,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10368,6 +13394,10 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string(), "DELETE".to_string(), "UPDATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10377,6 +13407,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10386,6 +13420,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::AnyNumberOf {
@@ -10399,6 +13434,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["REFERENCING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10408,6 +13447,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OLD".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10417,6 +13460,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10426,6 +13473,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10435,6 +13486,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -10444,6 +13496,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NEW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10453,6 +13509,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10462,6 +13522,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10471,6 +13535,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -10480,6 +13545,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["REFERENCING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -10491,6 +13560,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FROM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10500,6 +13573,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -10509,6 +13583,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FROM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -10522,6 +13600,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10531,6 +13613,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DEFERRABLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10540,6 +13626,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -10551,6 +13641,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DEFERRABLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -10564,6 +13658,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INITIALLY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10573,6 +13671,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IMMEDIATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10582,6 +13684,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INITIALLY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -10593,6 +13699,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INITIALLY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10602,6 +13712,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DEFERRED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10611,25 +13725,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
-}
-,
-    ],
-    exclude: None,
-    optional: false,
-    terminators: vec![
-    ],
-    reset_terminators: false,
-    allow_gaps: true,
-    parse_mode: ParseMode::Strict,
-}
-,
-    ],
-    optional: false,
-    terminators: vec![
-    ],
-    reset_terminators: false,
-    allow_gaps: true,
-    parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INITIALLY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10640,6 +13739,37 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INITIALLY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DEFERRABLE".to_string(), "INITIALLY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+}
+,
+    ],
+    exclude: None,
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "DEFERRABLE".to_string(), "INITIALLY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -10651,6 +13781,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10660,6 +13794,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EACH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -10671,6 +13809,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10680,6 +13822,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["STATEMENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10690,6 +13836,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["STATEMENT".to_string(), "ROW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10699,6 +13849,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -10710,6 +13864,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -10721,6 +13879,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -10748,6 +13907,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10757,6 +13920,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10770,6 +13937,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INITIALLY".to_string(), "DEFERRABLE".to_string(), "FOR".to_string(), "NOT".to_string(), "FROM".to_string(), "WHEN".to_string(), "REFERENCING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -10781,6 +13952,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXECUTE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10790,6 +13965,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PROCEDURE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10799,6 +13978,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["word".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10808,6 +13991,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10817,6 +14004,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXECUTE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10826,6 +14017,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -10841,6 +14036,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10850,6 +14049,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10859,6 +14062,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -10868,6 +14072,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -10883,6 +14091,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10892,6 +14104,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10901,6 +14117,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VIEW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10910,6 +14130,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10919,6 +14143,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -10928,6 +14153,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10937,6 +14166,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -10950,6 +14183,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10977,6 +14214,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -10986,6 +14227,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -10996,6 +14241,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -11005,6 +14254,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -11014,6 +14267,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -11102,6 +14359,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CUBE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -11111,6 +14372,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLLUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -11121,6 +14386,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CUBE".to_string(), "ROLLUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -11132,6 +14401,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -11159,6 +14429,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -11168,6 +14442,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CUBE".to_string(), "ROLLUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -11333,6 +14611,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -11344,6 +14623,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -11356,6 +14639,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -11363,6 +14647,7 @@ Grammar::Ref {
     allow_gaps: false,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -11398,6 +14683,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -11408,6 +14694,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -11423,6 +14710,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TIME".to_string(), "TIMESTAMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -11434,6 +14725,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DOUBLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -11443,6 +14738,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PRECISION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -11452,6 +14751,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DOUBLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -11469,6 +14772,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CHARACTER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -11478,6 +14785,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BINARY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -11488,6 +14799,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BINARY".to_string(), "CHARACTER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -11499,6 +14814,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VARYING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -11510,6 +14829,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LARGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -11519,6 +14842,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OBJECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -11528,6 +14855,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LARGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -11538,6 +14869,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LARGE".to_string(), "VARYING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -11547,6 +14882,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BINARY".to_string(), "CHARACTER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -11560,6 +14899,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -11569,6 +14909,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -11578,6 +14922,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -11587,6 +14932,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -11596,6 +14942,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -11606,6 +14953,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -11615,6 +14963,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::AnyNumberOf {
@@ -11626,6 +14978,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UNSIGNED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -11635,6 +14991,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -11648,6 +15005,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -11657,6 +15015,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -11666,6 +15025,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -11676,6 +15036,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -11709,6 +15070,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATEADD".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -11728,6 +15093,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DAYOFYEAR".to_string(), "MILLISECOND".to_string(), "QUARTER".to_string(), "SECOND".to_string(), "DAY".to_string(), "HOUR".to_string(), "WEEKDAY".to_string(), "MONTH".to_string(), "WEEK".to_string(), "YEAR".to_string(), "MINUTE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -11737,6 +15106,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -11748,6 +15118,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -11758,6 +15132,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -11785,6 +15160,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -11794,6 +15173,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -11810,6 +15193,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -11819,6 +15206,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TIME".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -11828,6 +15219,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TIMESTAMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -11837,6 +15232,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -11847,6 +15246,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATE".to_string(), "INTERVAL".to_string(), "TIME".to_string(), "TIMESTAMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::TypedParser {
@@ -11863,6 +15266,10 @@ Grammar::TypedParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATE".to_string(), "INTERVAL".to_string(), "TIME".to_string(), "TIMESTAMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -12072,6 +15479,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DEFAULT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12081,6 +15492,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -12090,6 +15505,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DEFAULT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -12195,6 +15614,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DELETE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12204,6 +15627,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FROM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12213,6 +15640,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHERE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -12222,6 +15653,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DELETE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -12234,6 +15669,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([";".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -12339,6 +15778,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DESCRIBE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12348,6 +15791,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -12357,6 +15801,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -12366,6 +15811,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DESCRIBE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -12570,6 +16019,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["RESTRICT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12579,6 +16032,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CASCADE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -12589,6 +16046,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CASCADE".to_string(), "RESTRICT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -12604,6 +16065,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12613,6 +16078,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CAST".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -12624,6 +16093,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -12633,6 +16103,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12642,6 +16116,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -12669,6 +16144,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12678,6 +16157,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CASCADE".to_string(), "RESTRICT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -12687,6 +16170,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -12702,6 +16189,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12711,6 +16202,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12720,6 +16215,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12729,6 +16228,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -12738,6 +16238,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CASCADE".to_string(), "RESTRICT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -12747,6 +16251,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -12762,6 +16270,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12771,6 +16283,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FUNCTION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12780,6 +16296,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12789,6 +16309,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -12798,6 +16319,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -12813,6 +16338,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12822,6 +16351,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INDEX".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12831,6 +16364,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12840,6 +16377,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -12849,6 +16387,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CASCADE".to_string(), "RESTRICT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -12858,6 +16400,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -12883,6 +16429,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12892,6 +16442,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MODEL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12901,6 +16455,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12910,6 +16468,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -12919,6 +16478,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -12934,6 +16497,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12943,6 +16510,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12952,6 +16523,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12961,6 +16536,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -12970,6 +16546,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -12985,6 +16565,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -12994,6 +16578,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13003,6 +16591,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13012,6 +16604,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -13021,6 +16614,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CASCADE".to_string(), "RESTRICT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -13030,6 +16627,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -13045,6 +16646,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13054,6 +16659,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SEQUENCE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13063,6 +16672,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -13072,6 +16682,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -13087,6 +16701,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13096,6 +16714,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "TEMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13105,6 +16727,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13114,6 +16740,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Delimited {
@@ -13125,6 +16755,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -13136,6 +16767,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -13146,6 +16781,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -13155,6 +16791,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CASCADE".to_string(), "RESTRICT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -13164,6 +16804,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -13179,6 +16823,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13188,6 +16836,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TRIGGER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13197,6 +16849,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13206,6 +16862,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -13215,6 +16872,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -13230,6 +16891,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13239,6 +16904,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TYPE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13248,6 +16917,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13257,6 +16930,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -13266,6 +16940,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CASCADE".to_string(), "RESTRICT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -13275,6 +16953,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -13290,6 +16972,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13299,6 +16985,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13308,6 +16998,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13317,6 +17011,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -13326,6 +17021,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -13341,6 +17040,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13350,6 +17053,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VIEW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13359,6 +17066,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13368,6 +17079,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -13377,6 +17089,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CASCADE".to_string(), "RESTRICT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -13386,6 +17102,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -13471,6 +17191,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ELSE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -13482,6 +17206,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -13493,6 +17218,10 @@ Grammar::Meta("dedent")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ELSE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -13546,6 +17275,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -13561,6 +17294,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -13570,6 +17304,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -13579,6 +17317,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -13702,6 +17441,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -13887,6 +17630,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXPLAIN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -13898,6 +17645,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13907,6 +17658,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13916,6 +17671,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -13925,6 +17684,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DELETE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -13935,6 +17698,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string(), "WITH".to_string(), "(".to_string(), "UPDATE".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string(), "DELETE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -13944,6 +17711,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXPLAIN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -13957,6 +17728,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 );
 
@@ -13971,6 +17743,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::AnyNumberOf {
@@ -13984,6 +17757,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "LIKE".to_string(), "RLIKE".to_string(), "ILIKE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -13995,6 +17772,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "/".to_string(), "IS".to_string(), "^".to_string(), "AND".to_string(), "&".to_string(), "=".to_string(), "|".to_string(), "%".to_string(), "<".to_string(), "!".to_string(), "*".to_string(), ">".to_string(), "-".to_string(), "OR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14004,6 +17785,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -14013,6 +17795,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "/".to_string(), "IS".to_string(), "^".to_string(), "AND".to_string(), "&".to_string(), "=".to_string(), "|".to_string(), "%".to_string(), "<".to_string(), "!".to_string(), "*".to_string(), ">".to_string(), "-".to_string(), "OR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14022,6 +17808,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "IN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -14033,6 +17823,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14042,6 +17836,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14051,6 +17849,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -14060,6 +17859,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14069,6 +17872,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -14078,6 +17882,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -14087,6 +17892,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -14098,6 +17904,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14107,6 +17917,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BETWEEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14116,6 +17930,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -14125,6 +17940,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AND".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14134,6 +17953,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -14143,6 +17963,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "BETWEEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -14154,6 +17978,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -14163,6 +17988,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -14172,6 +17998,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -14182,6 +18009,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -14195,6 +18023,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -14204,6 +18033,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -14218,6 +18048,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14227,6 +18061,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["~".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14236,6 +18074,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14245,6 +18087,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PRIOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -14255,6 +18101,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "~".to_string(), "PRIOR".to_string(), "NOT".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -14269,6 +18119,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::AnyNumberOf {
@@ -14286,6 +18137,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "/".to_string(), "^".to_string(), "&".to_string(), "|".to_string(), "%".to_string(), "<".to_string(), "*".to_string(), ">".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14295,6 +18150,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["|".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14304,6 +18163,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IS".to_string(), ">".to_string(), "=".to_string(), "<".to_string(), "!".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
+    }),
 }
 ,
     ],
@@ -14314,6 +18177,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "/".to_string(), "IS".to_string(), "^".to_string(), "&".to_string(), "=".to_string(), "|".to_string(), "%".to_string(), "<".to_string(), "!".to_string(), "*".to_string(), ">".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14323,6 +18190,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -14332,6 +18200,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "/".to_string(), "IS".to_string(), "^".to_string(), "&".to_string(), "=".to_string(), "|".to_string(), "%".to_string(), "<".to_string(), "!".to_string(), "*".to_string(), ">".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
+    }),
 }
 ,
     ],
@@ -14342,6 +18214,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "/".to_string(), "IS".to_string(), "^".to_string(), "&".to_string(), "=".to_string(), "|".to_string(), "%".to_string(), "<".to_string(), "!".to_string(), "*".to_string(), ">".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
+    }),
 }
 ,
     ],
@@ -14355,6 +18231,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "/".to_string(), "IS".to_string(), "^".to_string(), "&".to_string(), "=".to_string(), "|".to_string(), "%".to_string(), "<".to_string(), "!".to_string(), "*".to_string(), ">".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
+    }),
 }
 ,
     ],
@@ -14364,6 +18244,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -14378,6 +18259,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14387,6 +18272,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["~".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -14397,6 +18286,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string(), "~".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -14413,6 +18306,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXISTS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -14424,6 +18321,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -14451,6 +18352,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -14460,6 +18365,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXISTS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -14473,6 +18382,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -14482,6 +18392,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -14492,6 +18406,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::AnyNumberOf {
@@ -14503,6 +18418,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -14516,6 +18435,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -14525,6 +18448,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -14534,6 +18458,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -14547,12 +18472,17 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -14569,6 +18499,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIME".to_string(), "CURRENT_DATE".to_string(), "CURRENT_TIMESTAMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14578,6 +18512,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Bracketed {
@@ -14591,6 +18526,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -14600,6 +18536,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Delimited {
@@ -14611,6 +18551,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -14620,6 +18561,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -14629,6 +18571,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -14638,6 +18581,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -14647,6 +18591,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -14658,6 +18603,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -14668,6 +18617,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -14678,6 +18628,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -14705,6 +18656,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Greedy,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14714,6 +18669,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -14725,6 +18681,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -14734,6 +18691,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14743,6 +18704,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["*".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -14752,6 +18717,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -14765,6 +18731,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -14774,6 +18741,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -14784,6 +18752,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Bracketed {
@@ -14797,6 +18766,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -14808,6 +18778,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -14818,6 +18792,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -14845,6 +18820,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -14854,6 +18833,7 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -14865,6 +18845,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -14876,6 +18857,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14885,6 +18870,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14894,6 +18883,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FALSE".to_string(), "TRUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14903,6 +18896,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NULL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -14912,6 +18909,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATE".to_string(), "INTERVAL".to_string(), "TIME".to_string(), "TIMESTAMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -14922,6 +18923,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TRUE".to_string(), "NULL".to_string(), "TIMESTAMP".to_string(), "FALSE".to_string(), "DATE".to_string(), "INTERVAL".to_string(), "TIME".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string(), "numeric_literal".to_string()]),
+    }),
 }
 ,
     ],
@@ -14931,6 +18936,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -14940,6 +18946,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -14949,6 +18956,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -14962,12 +18970,17 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -14977,6 +18990,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["[".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -14986,6 +19003,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -15000,6 +19018,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -15009,6 +19031,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -15018,6 +19041,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -15027,6 +19054,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -15036,6 +19064,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -15045,6 +19074,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -15054,6 +19084,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OVERLAPS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -15064,6 +19098,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -15094,6 +19129,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -15105,6 +19141,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -15117,6 +19157,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -15124,6 +19165,7 @@ Grammar::Ref {
     allow_gaps: false,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -15179,6 +19221,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -15190,6 +19236,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FIRST".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -15199,6 +19249,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NEXT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -15209,6 +19263,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NEXT".to_string(), "FIRST".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -15220,6 +19278,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -15229,6 +19291,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -15239,6 +19302,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -15250,6 +19314,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -15259,6 +19327,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -15269,6 +19341,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "ROW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -15280,6 +19356,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ONLY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -15291,6 +19371,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -15300,6 +19384,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TIES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -15309,6 +19397,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -15319,6 +19411,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "ONLY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -15328,6 +19424,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -15375,6 +19475,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([";".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -15388,6 +19492,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([";".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Delimited {
@@ -15399,6 +19507,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string(), "ALTER".to_string(), "DROP".to_string(), "MERGE".to_string(), "SELECT".to_string(), "TRUNCATE".to_string(), "ROLLBACK".to_string(), "REVOKE".to_string(), "DESCRIBE".to_string(), "START".to_string(), "WITH".to_string(), "UPDATE".to_string(), "EXPLAIN".to_string(), "END".to_string(), "SET".to_string(), "BEGIN".to_string(), "GRANT".to_string(), "USE".to_string(), "COMMIT".to_string(), "CREATE".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "DELETE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -15412,6 +19524,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([";".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -15425,6 +19541,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([";".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: true,
@@ -15435,6 +19555,10 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string(), "ALTER".to_string(), "DROP".to_string(), "MERGE".to_string(), "SELECT".to_string(), "TRUNCATE".to_string(), "ROLLBACK".to_string(), "REVOKE".to_string(), "DESCRIBE".to_string(), "START".to_string(), "WITH".to_string(), "UPDATE".to_string(), "EXPLAIN".to_string(), "END".to_string(), "SET".to_string(), "BEGIN".to_string(), "GRANT".to_string(), "USE".to_string(), "COMMIT".to_string(), "CREATE".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "DELETE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::AnyNumberOf {
@@ -15446,6 +19570,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([";".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -15459,6 +19587,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([";".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -15468,6 +19600,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string(), "ALTER".to_string(), "DROP".to_string(), "MERGE".to_string(), "SELECT".to_string(), "TRUNCATE".to_string(), ";".to_string(), "ROLLBACK".to_string(), "REVOKE".to_string(), "DESCRIBE".to_string(), "START".to_string(), "WITH".to_string(), "UPDATE".to_string(), "EXPLAIN".to_string(), "END".to_string(), "SET".to_string(), "BEGIN".to_string(), "GRANT".to_string(), "USE".to_string(), "COMMIT".to_string(), "CREATE".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "DELETE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -15492,6 +19628,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FILTER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -15505,6 +19645,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHERE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -15514,6 +19658,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -15523,6 +19668,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHERE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -15550,6 +19699,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -15559,6 +19712,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FILTER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -15683,6 +19840,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FOREIGN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -15692,6 +19853,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["KEY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -15701,6 +19866,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FOREIGN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -15766,6 +19935,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "RANGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -15781,6 +19954,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CURRENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -15790,6 +19967,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -15799,6 +19980,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CURRENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -15812,6 +19997,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -15821,6 +20010,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -15830,6 +20023,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UNBOUNDED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -15839,6 +20036,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -15849,6 +20047,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -15860,6 +20059,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PRECEDING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -15869,6 +20072,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FOLLOWING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -15879,6 +20086,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PRECEDING".to_string(), "FOLLOWING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -15888,6 +20099,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -15898,6 +20110,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -15909,6 +20122,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BETWEEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -15922,6 +20139,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CURRENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -15931,6 +20152,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -15940,6 +20165,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CURRENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -15953,6 +20182,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -15962,6 +20195,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -15971,6 +20208,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UNBOUNDED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -15980,6 +20221,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -15990,6 +20232,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -16001,6 +20244,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PRECEDING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16010,6 +20257,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FOLLOWING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -16020,6 +20271,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PRECEDING".to_string(), "FOLLOWING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -16029,6 +20284,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -16039,6 +20295,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -16048,6 +20305,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AND".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -16061,6 +20322,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CURRENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16070,6 +20335,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -16079,6 +20348,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CURRENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -16092,6 +20365,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16101,6 +20378,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16110,6 +20391,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UNBOUNDED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16119,6 +20404,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -16129,6 +20415,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -16140,6 +20427,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PRECEDING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16149,6 +20440,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FOLLOWING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -16159,6 +20454,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PRECEDING".to_string(), "FOLLOWING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -16168,25 +20467,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
-}
-,
-    ],
-    exclude: None,
-    optional: false,
-    terminators: vec![
-    ],
-    reset_terminators: false,
-    allow_gaps: true,
-    parse_mode: ParseMode::Strict,
-}
-,
-    ],
-    optional: false,
-    terminators: vec![
-    ],
-    reset_terminators: false,
-    allow_gaps: true,
-    parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -16197,6 +20478,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -16206,6 +20488,34 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BETWEEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+}
+,
+    ],
+    exclude: None,
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+    simple_hint: None,
+}
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "RANGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -16220,6 +20530,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16229,6 +20543,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["RANGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -16239,6 +20557,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "RANGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -16294,6 +20616,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FROM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Delimited {
@@ -16305,6 +20631,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -16316,6 +20643,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -16326,6 +20657,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -16335,6 +20667,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FROM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -16349,6 +20685,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHERE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16358,6 +20698,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LIMIT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -16369,6 +20713,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16378,6 +20726,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -16387,6 +20739,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -16398,6 +20754,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16407,6 +20767,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -16416,6 +20780,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16425,6 +20793,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["HAVING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16434,6 +20806,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["QUALIFY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16443,6 +20819,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WINDOW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16452,6 +20832,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "UNION".to_string(), "INTERSECT".to_string(), "MINUS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16461,6 +20845,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16470,6 +20858,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16479,6 +20871,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16488,6 +20884,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OFFSET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -16498,6 +20898,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "QUALIFY".to_string(), "WITH".to_string(), "WINDOW".to_string(), "INTERSECT".to_string(), "ORDER".to_string(), "LIMIT".to_string(), "WHERE".to_string(), "UNION".to_string(), "HAVING".to_string(), "OFFSET".to_string(), "FETCH".to_string(), "MINUS".to_string(), "GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -16515,6 +20919,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -16528,6 +20933,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -16555,6 +20961,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16564,6 +20974,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -16574,6 +20985,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -16583,6 +20995,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -16592,6 +21005,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -16603,6 +21017,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16612,6 +21030,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OFFSET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16621,6 +21043,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -16630,6 +21053,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16639,6 +21066,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLESAMPLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16648,6 +21079,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -16657,6 +21089,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Bracketed {
@@ -16672,6 +21105,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -16685,6 +21119,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -16712,6 +21147,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16721,6 +21160,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -16731,6 +21171,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -16740,6 +21181,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -16749,6 +21191,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -16760,6 +21203,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16769,6 +21216,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OFFSET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16778,6 +21229,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -16787,6 +21239,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16796,6 +21252,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLESAMPLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16805,6 +21265,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -16814,6 +21275,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::AnyNumberOf {
@@ -16825,6 +21287,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -16838,6 +21301,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -16847,6 +21311,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -16874,6 +21339,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -16884,6 +21353,7 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -16907,6 +21377,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ML".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16916,6 +21390,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Bracketed {
@@ -16927,6 +21402,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -16954,6 +21430,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -16969,6 +21449,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -16978,6 +21462,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -16987,6 +21475,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -16998,6 +21490,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -17007,6 +21503,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -17016,12 +21516,17 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -17041,6 +21546,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -17050,6 +21556,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -17060,6 +21567,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -17069,6 +21577,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -17087,6 +21596,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -17096,6 +21609,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -17105,6 +21622,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -17116,6 +21637,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -17125,6 +21650,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -17134,12 +21663,17 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("conditional")
@@ -17151,6 +21685,7 @@ Grammar::Meta("conditional")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -17178,6 +21713,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -17193,6 +21732,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ML".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -17202,6 +21745,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Bracketed {
@@ -17213,6 +21757,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -17240,6 +21785,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -17255,6 +21804,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -17264,6 +21817,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -17273,6 +21830,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -17284,6 +21845,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -17293,6 +21858,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -17302,12 +21871,17 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -17327,6 +21901,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -17336,6 +21911,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -17346,6 +21922,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -17355,6 +21932,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -17373,6 +21951,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -17382,6 +21964,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -17391,6 +21977,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -17402,6 +21992,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -17411,6 +22005,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -17420,12 +22018,17 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("conditional")
@@ -17437,6 +22040,7 @@ Grammar::Meta("conditional")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -17447,6 +22051,7 @@ Grammar::Meta("conditional")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -17489,6 +22094,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 );
 
@@ -17503,6 +22109,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -17514,6 +22121,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -17523,6 +22131,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -17532,6 +22144,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -17541,6 +22154,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -17552,6 +22166,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TRAILING".to_string(), "BOTH".to_string(), "LEADING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -17561,6 +22179,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -17570,6 +22189,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FROM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -17579,6 +22202,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -17588,6 +22212,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TRAILING".to_string(), "BOTH".to_string(), "LEADING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -17601,6 +22229,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DAYOFYEAR".to_string(), "MILLISECOND".to_string(), "QUARTER".to_string(), "SECOND".to_string(), "DAY".to_string(), "HOUR".to_string(), "WEEKDAY".to_string(), "MONTH".to_string(), "WEEK".to_string(), "YEAR".to_string(), "MINUTE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -17610,6 +22242,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -17620,6 +22253,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -17629,6 +22263,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FROM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -17638,6 +22276,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -17647,6 +22286,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -17658,6 +22298,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DISTINCT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -17669,6 +22313,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["*".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Delimited {
@@ -17680,6 +22328,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -17691,6 +22340,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -17701,6 +22354,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -17711,6 +22365,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -17720,6 +22375,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -17729,6 +22385,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -17740,6 +22400,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SEPARATOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -17749,6 +22413,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -17758,6 +22423,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SEPARATOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -17771,6 +22440,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -17780,6 +22453,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -17789,6 +22463,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -17799,6 +22474,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -17808,6 +22484,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -17819,6 +22499,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -17828,6 +22512,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -17837,6 +22522,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -17847,6 +22533,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -17856,6 +22543,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -17865,6 +22553,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IGNORE".to_string(), "RESPECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -17874,6 +22566,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -17883,6 +22576,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -17896,6 +22590,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -17913,6 +22608,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -17940,6 +22636,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -17949,6 +22649,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -17964,6 +22668,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -17973,6 +22681,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -17984,6 +22696,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LANGUAGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -17993,6 +22709,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -18002,6 +22719,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LANGUAGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -18011,6 +22732,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -18050,6 +22775,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -18059,6 +22785,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -18068,6 +22798,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -18084,12 +22815,17 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -18101,6 +22837,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["word".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -18110,6 +22850,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["double_quote".to_string()]),
+    }),
 }
 ,
     ],
@@ -18123,12 +22867,20 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["double_quote".to_string(), "word".to_string()]),
+    }),
 }
 ,
     ],
@@ -18138,6 +22890,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -18154,6 +22907,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -18167,6 +22921,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ANY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -18176,6 +22934,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TYPE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -18185,6 +22947,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ANY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -18194,6 +22960,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -18204,6 +22971,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -18213,6 +22981,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -18226,6 +22995,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ANY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -18235,6 +23008,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TYPE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -18244,6 +23021,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ANY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -18253,6 +23034,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -18263,6 +23045,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -18273,6 +23056,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -18290,6 +23074,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -18301,6 +23086,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -18311,6 +23100,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -18338,6 +23128,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -18355,6 +23149,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATEADD".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -18364,6 +23162,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -18373,6 +23175,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATEADD".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -18382,6 +23188,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -18395,6 +23202,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -18404,6 +23212,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -18413,6 +23225,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -18422,6 +23235,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -18431,6 +23245,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -18441,6 +23256,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -18596,6 +23412,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([">".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -18605,6 +23425,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -18614,6 +23438,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([">".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -18627,6 +23455,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([">".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -18652,6 +23484,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -18661,6 +23497,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -18674,6 +23514,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -18683,6 +23527,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUPING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -18692,6 +23540,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CUBE".to_string(), "ROLLUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -18707,6 +23559,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -18716,6 +23569,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -18725,6 +23582,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -18735,6 +23593,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -18746,6 +23605,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -18758,6 +23621,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["HAVING".to_string(), "QUALIFY".to_string(), "WINDOW".to_string(), "FETCH".to_string(), "ORDER".to_string(), "LIMIT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -18765,6 +23632,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -18774,6 +23642,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -18784,6 +23653,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -18795,6 +23665,10 @@ Grammar::Meta("dedent")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -18811,6 +23685,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -18820,6 +23698,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -18829,6 +23711,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -18838,6 +23724,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LIMIT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -18847,6 +23737,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["HAVING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -18856,6 +23750,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["QUALIFY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -18865,6 +23763,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WINDOW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -18874,6 +23776,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -18884,6 +23790,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["HAVING".to_string(), "QUALIFY".to_string(), "WINDOW".to_string(), "FETCH".to_string(), "ORDER".to_string(), "LIMIT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -18913,6 +23823,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -18922,6 +23833,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -18931,6 +23846,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Bracketed {
@@ -18960,6 +23876,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -18970,6 +23890,7 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -18981,6 +23902,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -18993,6 +23918,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["HAVING".to_string(), "QUALIFY".to_string(), "WINDOW".to_string(), "FETCH".to_string(), "ORDER".to_string(), "LIMIT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -19000,6 +23929,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -19009,6 +23939,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -19034,6 +23965,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUPING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -19043,6 +23978,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SETS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -19056,6 +23995,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CUBE".to_string(), "ROLLUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -19065,6 +24008,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -19076,6 +24020,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -19086,6 +24034,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -19113,6 +24062,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -19122,6 +24075,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUPING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -19147,6 +24104,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["HAVING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -19162,6 +24123,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -19189,6 +24151,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -19198,6 +24164,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -19208,6 +24175,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -19219,6 +24187,10 @@ Grammar::Meta("dedent")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["HAVING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -19235,6 +24207,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -19244,6 +24220,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -19253,6 +24233,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -19262,6 +24246,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LIMIT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -19271,6 +24259,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["QUALIFY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -19280,6 +24272,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WINDOW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -19289,6 +24285,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -19299,6 +24299,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["QUALIFY".to_string(), "WINDOW".to_string(), "FETCH".to_string(), "ORDER".to_string(), "LIMIT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -19496,6 +24500,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -19505,6 +24513,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXISTS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -19514,6 +24526,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -19538,6 +24554,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -19547,6 +24567,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -19556,6 +24580,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXISTS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -19565,6 +24593,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -19591,6 +24623,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IGNORE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -19600,6 +24636,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["RESPECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -19610,6 +24650,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IGNORE".to_string(), "RESPECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -19619,6 +24663,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NULLS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -19628,6 +24676,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IGNORE".to_string(), "RESPECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -19717,6 +24769,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -19726,6 +24782,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -19743,6 +24803,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -19754,6 +24815,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -19764,6 +24829,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -19773,6 +24839,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -19783,6 +24853,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -19810,6 +24881,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Greedy,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -19819,6 +24894,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -19829,6 +24905,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -19838,6 +24915,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "IN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -19888,6 +24969,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -19899,6 +24981,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ASC".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -19908,6 +24994,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DESC".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -19918,6 +25008,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ASC".to_string(), "DESC".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -19927,6 +25021,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -19952,6 +25047,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -19963,6 +25059,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -19975,6 +25075,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -19982,6 +25083,7 @@ Grammar::Ref {
     allow_gaps: false,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -20127,6 +25229,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -20136,6 +25242,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OVERWRITE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -20145,6 +25255,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INTO".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -20154,6 +25268,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -20165,6 +25280,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -20176,6 +25295,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -20185,6 +25308,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -20194,6 +25321,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -20203,6 +25334,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DEFAULT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -20213,6 +25348,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "DEFAULT".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -20222,6 +25361,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -20387,6 +25530,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -20400,6 +25547,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -20411,6 +25562,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -20420,6 +25575,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DAYOFYEAR".to_string(), "MILLISECOND".to_string(), "QUARTER".to_string(), "SECOND".to_string(), "DAY".to_string(), "HOUR".to_string(), "WEEKDAY".to_string(), "MONTH".to_string(), "WEEK".to_string(), "YEAR".to_string(), "MINUTE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -20430,6 +25589,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DAYOFYEAR".to_string(), "MILLISECOND".to_string(), "QUARTER".to_string(), "SECOND".to_string(), "DAY".to_string(), "HOUR".to_string(), "WEEKDAY".to_string(), "MONTH".to_string(), "WEEK".to_string(), "YEAR".to_string(), "MINUTE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
     ],
@@ -20439,6 +25602,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -20448,6 +25615,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -20459,6 +25630,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -20470,6 +25645,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -20479,6 +25658,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DAYOFYEAR".to_string(), "MILLISECOND".to_string(), "QUARTER".to_string(), "SECOND".to_string(), "DAY".to_string(), "HOUR".to_string(), "WEEKDAY".to_string(), "MONTH".to_string(), "WEEK".to_string(), "YEAR".to_string(), "MINUTE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -20489,6 +25672,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DAYOFYEAR".to_string(), "MILLISECOND".to_string(), "QUARTER".to_string(), "SECOND".to_string(), "DAY".to_string(), "HOUR".to_string(), "WEEKDAY".to_string(), "MONTH".to_string(), "WEEK".to_string(), "YEAR".to_string(), "MINUTE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
     ],
@@ -20498,6 +25685,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
     ],
@@ -20508,6 +25699,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string(), "numeric_literal".to_string()]),
+    }),
 }
 ,
     ],
@@ -20517,6 +25712,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -20561,6 +25760,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NULL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -20570,6 +25773,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NAN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -20579,6 +25786,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -20588,6 +25796,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FALSE".to_string(), "TRUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -20597,6 +25809,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -20607,6 +25820,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -20621,6 +25835,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -20630,6 +25848,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -20639,6 +25861,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DISTINCT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -20648,6 +25874,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FROM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -20657,6 +25887,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -20729,6 +25963,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -20738,6 +25973,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["JOIN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -20749,6 +25988,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::AnyNumberOf {
@@ -20760,6 +26000,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -20773,6 +26014,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -20788,6 +26030,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -20799,6 +26042,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -20808,6 +26055,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -20818,6 +26069,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USING".to_string(), "ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("conditional")
@@ -20829,6 +26084,7 @@ Grammar::Meta("conditional")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -20838,6 +26094,7 @@ Grammar::Meta("conditional")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -20849,6 +26106,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -20858,6 +26116,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["JOIN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -20869,6 +26131,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -20878,6 +26141,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -20889,6 +26153,7 @@ Grammar::Meta("dedent")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -20900,6 +26165,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("indent")
@@ -20911,6 +26177,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -20922,6 +26189,7 @@ Grammar::Meta("dedent")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -20932,6 +26200,7 @@ Grammar::Meta("dedent")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -20956,6 +26225,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["JOIN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -20965,6 +26238,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["JOIN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -20985,6 +26262,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("conditional")
@@ -21000,6 +26281,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -21027,6 +26309,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21036,6 +26322,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -21046,6 +26333,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("conditional")
@@ -21057,6 +26345,10 @@ Grammar::Meta("conditional")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -21071,6 +26363,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INNER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -21084,6 +26380,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FULL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21093,6 +26393,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LEFT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21102,6 +26406,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["RIGHT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -21112,6 +26420,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FULL".to_string(), "LEFT".to_string(), "RIGHT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21121,6 +26433,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OUTER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -21130,6 +26446,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FULL".to_string(), "LEFT".to_string(), "RIGHT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -21140,6 +26460,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FULL".to_string(), "LEFT".to_string(), "INNER".to_string(), "RIGHT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -21154,6 +26478,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -21169,6 +26497,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -21180,6 +26509,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -21190,6 +26523,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -21217,6 +26551,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Greedy,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("dedent")
@@ -21228,6 +26566,10 @@ Grammar::Meta("dedent")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -21441,6 +26783,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["<".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21450,6 +26796,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -21459,6 +26809,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["<".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -21472,6 +26826,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["<".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -21498,6 +26856,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21507,6 +26869,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LIKE".to_string(), "RLIKE".to_string(), "ILIKE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -21516,6 +26882,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "LIKE".to_string(), "RLIKE".to_string(), "ILIKE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21525,6 +26895,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -21536,6 +26907,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ESCAPE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21545,6 +26920,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -21554,6 +26930,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ESCAPE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -21563,6 +26943,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "LIKE".to_string(), "RLIKE".to_string(), "ILIKE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -21577,6 +26961,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LIKE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21586,6 +26974,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["RLIKE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21595,6 +26987,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ILIKE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -21605,6 +27001,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LIKE".to_string(), "RLIKE".to_string(), "ILIKE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -21640,6 +27040,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LIMIT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -21657,6 +27061,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21666,6 +27074,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -21675,6 +27084,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -21685,6 +27098,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -21712,6 +27126,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -21723,6 +27141,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21732,6 +27154,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -21741,6 +27164,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -21751,6 +27178,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -21761,6 +27189,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -21774,6 +27203,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OFFSET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -21785,6 +27218,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21794,6 +27231,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -21804,6 +27242,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -21813,6 +27252,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OFFSET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -21824,6 +27267,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21833,6 +27280,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
     ],
@@ -21842,6 +27293,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -21852,6 +27307,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OFFSET".to_string(), ",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("dedent")
@@ -21863,6 +27322,10 @@ Grammar::Meta("dedent")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LIMIT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -21922,6 +27385,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21931,6 +27398,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21940,6 +27411,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FALSE".to_string(), "TRUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21949,6 +27424,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21958,6 +27437,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NULL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21967,6 +27450,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATE".to_string(), "INTERVAL".to_string(), "TIME".to_string(), "TIMESTAMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21976,6 +27463,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["[".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -21985,6 +27476,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -21994,6 +27486,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["{".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -22004,6 +27500,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -22221,6 +27718,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ML".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -22230,6 +27731,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -22239,6 +27744,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Bracketed {
@@ -22252,6 +27758,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MODEL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -22261,6 +27771,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -22270,6 +27781,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MODEL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -22281,6 +27796,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -22292,6 +27811,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -22319,6 +27842,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -22328,6 +27855,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -22355,6 +27886,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -22364,6 +27899,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ML".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -22529,6 +28068,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DELETE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -22544,6 +28087,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -22555,6 +28102,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("dedent")
@@ -22566,6 +28117,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "VALUES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -22575,6 +28130,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -22589,6 +28148,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MERGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -22598,6 +28161,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INTO".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -22607,6 +28174,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MERGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -22632,6 +28203,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -22641,6 +28216,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -22654,6 +28233,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -22669,6 +28252,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -22678,6 +28265,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MATCHED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -22689,6 +28280,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AND".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -22698,6 +28293,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -22707,6 +28303,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AND".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -22716,6 +28316,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["THEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -22729,6 +28333,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -22738,6 +28346,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DELETE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -22748,6 +28360,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string(), "DELETE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("dedent")
@@ -22759,6 +28375,10 @@ Grammar::Meta("dedent")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -22774,6 +28394,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -22783,6 +28407,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -22792,6 +28420,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MATCHED".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -22803,6 +28435,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AND".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -22812,6 +28448,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -22821,6 +28458,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AND".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -22830,6 +28471,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["THEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -22841,6 +28486,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("dedent")
@@ -22852,6 +28501,10 @@ Grammar::Meta("dedent")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -22867,6 +28520,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MERGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -22880,6 +28537,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -22889,6 +28547,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -22899,6 +28558,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -22910,6 +28570,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -22923,6 +28587,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -22932,6 +28597,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -22945,6 +28611,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -22972,6 +28642,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -22981,6 +28655,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -22990,6 +28665,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -23000,6 +28679,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -23013,6 +28693,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("conditional")
@@ -23024,6 +28708,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -23033,6 +28721,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MERGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -23048,6 +28740,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -23059,6 +28755,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("dedent")
@@ -23070,6 +28770,10 @@ Grammar::Meta("dedent")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -23403,7 +29107,7 @@ Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(ROWS|RIGHT|ORDER|FULL|CROSS|CASE|ON|SELECT|LEFT|NATURAL|USING|INTERVAL|PARTITION|INNER|UNION|SET|NULL|OUTER|JOIN|NOT|IGNORE|RESPECT)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexBuilder::new(r#"^(CASE|CROSS|NULL|ON|OUTER|FULL|SELECT|INTERVAL|ORDER|ROWS|UNION|RIGHT|RESPECT|JOIN|IGNORE|SET|NATURAL|LEFT|USING|NOT|INNER|PARTITION)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
 }
 );
 
@@ -23429,6 +29133,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -23438,6 +29143,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -23449,6 +29158,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Bracketed {
@@ -23460,6 +29170,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -23487,6 +29198,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Greedy,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -23497,6 +29212,7 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -23506,6 +29222,7 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -23521,6 +29238,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WINDOW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -23534,6 +29255,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -23545,6 +29267,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -23555,6 +29281,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -23566,6 +29293,10 @@ Grammar::Meta("dedent")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WINDOW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -23620,6 +29351,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NATURAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -23629,6 +29364,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FULL".to_string(), "LEFT".to_string(), "INNER".to_string(), "RIGHT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -23638,6 +29377,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NATURAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -23855,6 +29598,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "VALUES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -23864,6 +29611,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -23875,6 +29626,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -23902,6 +29657,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -23913,6 +29672,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -23940,6 +29703,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -23951,6 +29718,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -23978,6 +29749,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -23987,6 +29762,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -23997,6 +29776,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -24016,6 +29799,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24025,6 +29812,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24034,6 +29825,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DELETE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24043,6 +29838,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MERGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -24053,6 +29852,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string(), "MERGE".to_string(), "UPDATE".to_string(), "DELETE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -24067,6 +29870,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "SELECT".to_string(), "(".to_string(), "VALUES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -24080,6 +29887,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -24107,6 +29918,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24116,6 +29931,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -24126,6 +29945,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string(), "(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24135,6 +29958,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -24145,6 +29972,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -24232,6 +30063,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["!".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24241,6 +30076,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -24250,6 +30089,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["!".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -24261,6 +30104,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["<".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24270,6 +30117,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([">".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -24279,6 +30130,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["<".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -24289,6 +30144,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["<".to_string(), "!".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -24459,6 +30318,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24468,6 +30331,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([":".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24477,6 +30344,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -24486,6 +30354,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 );
 
@@ -24503,6 +30375,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
     ],
@@ -24514,6 +30390,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -24524,6 +30404,10 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
     ],
@@ -24551,6 +30435,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["{".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -24565,6 +30453,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -24576,6 +30468,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24585,6 +30481,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -24594,6 +30494,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -24604,6 +30508,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -24619,6 +30527,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -24630,6 +30539,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -24642,6 +30555,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -24649,6 +30563,7 @@ Grammar::Ref {
     allow_gaps: false,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -24663,6 +30578,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24672,6 +30591,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24681,6 +30604,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24690,6 +30617,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24699,6 +30630,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["::".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24708,6 +30643,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["[".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24717,6 +30656,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24726,6 +30669,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "/".to_string(), "IS".to_string(), "^".to_string(), "AND".to_string(), "&".to_string(), "=".to_string(), "|".to_string(), "%".to_string(), "<".to_string(), "!".to_string(), "*".to_string(), ">".to_string(), "-".to_string(), "OR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24735,6 +30682,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([":".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24744,6 +30695,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([";".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24753,6 +30708,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Token{
@@ -24768,6 +30724,7 @@ Grammar::Token{
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -24843,6 +30800,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OFFSET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -24854,6 +30815,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24863,6 +30828,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -24873,6 +30839,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -24884,6 +30851,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -24893,6 +30864,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -24903,6 +30878,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "ROW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -24912,6 +30891,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OFFSET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -25136,6 +31119,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -25145,6 +31132,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["REPLACE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -25154,6 +31145,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -25169,6 +31164,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -25178,6 +31177,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -25195,6 +31198,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -25204,6 +31208,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -25213,6 +31221,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -25223,6 +31232,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::OneOf {
@@ -25234,6 +31244,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ASC".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -25243,6 +31257,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DESC".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -25253,6 +31271,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ASC".to_string(), "DESC".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -25264,6 +31286,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NULLS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -25275,6 +31301,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FIRST".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -25284,6 +31314,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LAST".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -25294,6 +31328,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LAST".to_string(), "FIRST".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -25303,6 +31341,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NULLS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -25312,6 +31354,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -25321,6 +31364,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -25332,6 +31376,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -25344,6 +31392,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LIMIT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -25353,6 +31405,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "RANGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -25360,6 +31416,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -25371,6 +31428,10 @@ Grammar::Meta("dedent")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -25385,6 +31446,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LIMIT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -25394,6 +31459,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["HAVING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -25403,6 +31472,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["QUALIFY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -25412,6 +31485,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WINDOW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -25421,6 +31498,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "RANGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -25430,6 +31511,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SEPARATOR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -25439,6 +31524,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -25449,6 +31538,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "HAVING".to_string(), "QUALIFY".to_string(), "WINDOW".to_string(), "SEPARATOR".to_string(), "FETCH".to_string(), "RANGE".to_string(), "LIMIT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -25473,6 +31566,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -25482,6 +31579,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -25492,6 +31593,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NOORDER".to_string(), "ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -25579,6 +31684,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IGNORE".to_string(), "RESPECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -25588,6 +31697,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OVER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -25599,6 +31712,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Bracketed {
@@ -25610,6 +31724,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -25637,6 +31752,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Greedy,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -25647,6 +31766,7 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -25658,6 +31778,7 @@ Grammar::Meta("dedent")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -25683,6 +31804,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OVERLAPS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -25698,6 +31823,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATE".to_string(), "INTERVAL".to_string(), "TIME".to_string(), "TIMESTAMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -25707,6 +31836,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -25716,6 +31849,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATE".to_string(), "INTERVAL".to_string(), "TIME".to_string(), "TIMESTAMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -25743,6 +31880,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -25752,6 +31893,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -25761,6 +31906,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -25771,6 +31917,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -25780,6 +31927,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OVERLAPS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -25989,6 +32140,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PARTITION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -25998,6 +32153,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -26015,6 +32174,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -26026,6 +32186,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -26036,6 +32200,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -26063,6 +32228,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Delimited {
@@ -26074,6 +32243,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -26085,6 +32255,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -26095,6 +32269,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -26105,6 +32280,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -26116,6 +32292,10 @@ Grammar::Meta("dedent")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PARTITION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -26173,6 +32353,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["/".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Delimited {
@@ -26193,6 +32377,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["/".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -26203,6 +32391,10 @@ Grammar::Ref {
     allow_gaps: false,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["word".to_string()]),
+    }),
 }
 ,
     ],
@@ -26212,6 +32404,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["/".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -26221,6 +32417,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 ,
     ],
@@ -26231,6 +32431,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["/".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
+    }),
 }
 );
 
@@ -26390,6 +32594,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -26399,6 +32604,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FILTER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -26409,6 +32618,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -26523,6 +32733,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PRIMARY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -26532,6 +32746,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["KEY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -26541,6 +32759,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PRIMARY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -26676,6 +32898,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -26685,6 +32911,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
     ],
@@ -26694,6 +32924,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -26936,6 +33170,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["REFERENCES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -26945,6 +33183,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -26954,6 +33193,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -26963,6 +33206,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MATCH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::AnySetOf {
@@ -26976,6 +33223,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -26985,6 +33236,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DELETE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -26994,6 +33249,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "RESTRICT".to_string(), "SET".to_string(), "CASCADE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -27003,6 +33262,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -27014,6 +33277,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -27023,6 +33290,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -27032,6 +33303,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "RESTRICT".to_string(), "SET".to_string(), "CASCADE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -27041,6 +33316,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -27053,6 +33332,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ON".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -27062,6 +33345,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["REFERENCES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -27076,6 +33363,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MATCH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -27087,6 +33378,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FULL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -27096,6 +33391,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PARTIAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -27105,6 +33404,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SIMPLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -27115,6 +33418,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FULL".to_string(), "SIMPLE".to_string(), "PARTIAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -27124,6 +33431,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MATCH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -27168,6 +33479,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["RESTRICT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -27177,6 +33492,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CASCADE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -27188,6 +33507,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -27197,6 +33520,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NULL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -27206,6 +33533,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -27217,6 +33548,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -27226,6 +33561,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ACTION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -27235,6 +33574,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -27246,6 +33589,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -27255,6 +33602,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DEFAULT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -27264,6 +33615,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -27274,6 +33629,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "RESTRICT".to_string(), "SET".to_string(), "CASCADE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -27667,6 +34026,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 );
 
@@ -27863,6 +34223,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLESAMPLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -27874,6 +34238,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BERNOULLI".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -27883,6 +34251,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SYSTEM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -27893,6 +34265,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BERNOULLI".to_string(), "SYSTEM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -27904,6 +34280,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
     ],
@@ -27931,6 +34311,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -27944,6 +34328,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["REPEATABLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -27954,6 +34342,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["REPEATABLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -27965,6 +34357,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
     ],
@@ -27992,6 +34388,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -28001,6 +34401,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["REPEATABLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -28010,6 +34414,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLESAMPLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -28065,6 +34473,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -28076,6 +34485,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -28088,6 +34501,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -28095,6 +34509,7 @@ Grammar::Ref {
     allow_gaps: false,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -28230,6 +34645,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -28241,6 +34657,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -28250,6 +34667,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -28259,6 +34677,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -28269,6 +34688,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -28284,6 +34704,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DISTINCT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28293,6 +34717,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -28303,6 +34731,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DISTINCT".to_string(), "ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -28318,6 +34750,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28327,6 +34763,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DISTINCT".to_string(), "ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -28340,6 +34780,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -28351,6 +34792,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: true,
@@ -28361,6 +34806,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -28375,12 +34821,20 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "OVERLAPS".to_string(), "FROM".to_string(), "ORDER".to_string(), "INTERSECT".to_string(), "LIMIT".to_string(), "WHERE".to_string(), "UNION".to_string(), "FETCH".to_string(), "MINUS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::GreedyOnceStarted,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -28395,6 +34849,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FROM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28404,6 +34862,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHERE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -28415,6 +34877,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28424,6 +34890,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -28433,6 +34903,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28442,6 +34916,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LIMIT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28451,6 +34929,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OVERLAPS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28460,6 +34942,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "UNION".to_string(), "INTERSECT".to_string(), "MINUS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28469,6 +34955,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -28479,6 +34969,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "OVERLAPS".to_string(), "FROM".to_string(), "ORDER".to_string(), "INTERSECT".to_string(), "LIMIT".to_string(), "WHERE".to_string(), "UNION".to_string(), "FETCH".to_string(), "MINUS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -28504,6 +34998,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28513,6 +35011,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FROM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28522,6 +35024,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHERE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28531,6 +35037,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28540,6 +35050,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["HAVING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28549,6 +35063,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OVERLAPS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28558,6 +35076,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WINDOW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28567,6 +35089,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28576,6 +35102,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OFFSET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28585,6 +35115,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28594,6 +35128,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LIMIT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28603,6 +35141,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WINDOW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -28615,6 +35157,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "UNION".to_string(), "INTERSECT".to_string(), "MINUS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28624,6 +35170,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28633,12 +35183,20 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::GreedyOnceStarted,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -28657,6 +35215,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -28684,6 +35246,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28693,6 +35259,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -28703,6 +35273,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -28716,6 +35290,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -28743,6 +35321,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28752,6 +35334,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -28762,6 +35348,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28771,6 +35361,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -28782,6 +35376,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -28809,6 +35407,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -28819,6 +35421,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -28885,6 +35491,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MAXVALUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28894,6 +35504,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
     ],
@@ -28903,6 +35517,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MAXVALUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -28914,6 +35532,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28923,6 +35545,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MAXVALUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -28932,6 +35558,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -28942,6 +35572,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "MAXVALUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -28958,6 +35592,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MINVALUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28967,6 +35605,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string()]),
+    }),
 }
 ,
     ],
@@ -28976,6 +35618,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MINVALUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -28987,6 +35633,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -28996,6 +35646,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MINVALUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -29005,6 +35659,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -29015,6 +35673,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "MINVALUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -29030,6 +35692,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -29041,6 +35704,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -29053,6 +35720,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -29060,6 +35728,7 @@ Grammar::Ref {
     allow_gaps: false,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -29135,6 +35804,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -29148,6 +35821,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -29159,6 +35833,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -29169,6 +35847,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -29180,6 +35859,10 @@ Grammar::Meta("dedent")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -29195,6 +35878,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -29204,6 +35888,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -29215,6 +35903,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -29224,6 +35913,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIME".to_string(), "CURRENT_DATE".to_string(), "CURRENT_TIMESTAMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -29233,6 +35926,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -29242,6 +35936,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -29251,6 +35946,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -29260,6 +35956,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "VALUES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -29269,6 +35969,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DEFAULT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -29279,6 +35983,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -29288,6 +35993,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -29303,6 +36009,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::AnyNumberOf {
@@ -29316,6 +36026,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "UNION".to_string(), "INTERSECT".to_string(), "MINUS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -29325,6 +36039,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -29334,6 +36052,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "UNION".to_string(), "INTERSECT".to_string(), "MINUS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -29347,6 +36069,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "UNION".to_string(), "INTERSECT".to_string(), "MINUS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -29356,6 +36082,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -29365,6 +36095,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LIMIT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -29374,6 +36108,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WINDOW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -29383,6 +36121,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "SELECT".to_string(), "(".to_string(), "VALUES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -29408,6 +36150,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UNION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -29421,6 +36167,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INTERSECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -29430,6 +36180,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -29440,6 +36194,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "INTERSECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -29449,6 +36207,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -29458,6 +36220,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "INTERSECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -29467,6 +36233,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MINUS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -29480,6 +36250,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -29511,6 +36285,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -29520,6 +36298,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     )),
     optional: false,
@@ -29528,6 +36310,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "UNION".to_string(), "INTERSECT".to_string(), "MINUS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -29543,6 +36329,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -29552,6 +36342,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -29561,6 +36355,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["IF".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -29570,6 +36368,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -29579,6 +36378,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -29646,6 +36449,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -29655,6 +36459,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CASE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -29665,6 +36473,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::AnyNumberOf {
@@ -29678,6 +36487,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["::".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -29687,6 +36500,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -29696,6 +36510,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -29705,6 +36523,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["::".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -29718,6 +36540,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["::".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -29727,6 +36553,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -29771,6 +36598,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -29780,6 +36611,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -29790,6 +36625,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -29824,6 +36663,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -29833,6 +36673,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([]),
+        token_types: hashbrown::HashSet::from_iter(["double_quote".to_string()]),
+    }),
 }
 ,
     ],
@@ -29846,12 +36690,17 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -29867,6 +36716,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -29878,6 +36728,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -29888,6 +36742,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -29923,6 +36778,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -29932,6 +36788,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["[".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -29941,6 +36801,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -30376,6 +37237,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30385,6 +37250,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MERGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30394,6 +37263,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30403,6 +37276,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLLBACK".to_string(), "COMMIT".to_string(), "END".to_string(), "BEGIN".to_string(), "START".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30412,6 +37289,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30421,6 +37302,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30430,6 +37315,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30439,6 +37328,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30448,6 +37341,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TRUNCATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30457,6 +37354,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["REVOKE".to_string(), "GRANT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30466,6 +37367,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30475,6 +37380,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30484,6 +37393,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30493,6 +37406,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALTER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30502,6 +37419,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30511,6 +37432,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30520,6 +37445,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30529,6 +37458,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30538,6 +37471,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30547,6 +37484,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30556,6 +37497,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30565,6 +37510,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30574,6 +37523,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30583,6 +37536,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DELETE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30592,6 +37549,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30601,6 +37562,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30610,6 +37575,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30619,6 +37588,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30628,6 +37601,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30637,6 +37614,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30646,6 +37627,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30655,6 +37640,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DESCRIBE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30664,6 +37653,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30673,6 +37666,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXPLAIN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30682,6 +37679,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30691,6 +37692,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALTER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30700,6 +37705,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30709,6 +37718,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -30718,6 +37731,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -30731,12 +37748,20 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([";".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string(), "ALTER".to_string(), "DROP".to_string(), "MERGE".to_string(), "SELECT".to_string(), "TRUNCATE".to_string(), "ROLLBACK".to_string(), "REVOKE".to_string(), "DESCRIBE".to_string(), "START".to_string(), "WITH".to_string(), "UPDATE".to_string(), "EXPLAIN".to_string(), "END".to_string(), "SET".to_string(), "BEGIN".to_string(), "GRANT".to_string(), "USE".to_string(), "COMMIT".to_string(), "CREATE".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "DELETE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -30861,6 +37886,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["|".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -30871,6 +37900,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["|".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -30900,6 +37933,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -30909,6 +37943,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -30918,6 +37953,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -30929,6 +37965,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -30939,6 +37979,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -30966,6 +38007,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -31147,6 +38192,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CONSTRAINT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -31156,6 +38205,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -31165,6 +38215,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CONSTRAINT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -31178,6 +38232,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UNIQUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -31187,6 +38245,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -31196,6 +38258,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UNIQUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -31207,6 +38273,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PRIMARY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -31216,6 +38286,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -31225,6 +38299,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PRIMARY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -31236,6 +38314,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FOREIGN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -31245,6 +38327,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -31254,6 +38340,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["REFERENCES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -31263,6 +38353,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FOREIGN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -31273,6 +38367,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UNIQUE".to_string(), "FOREIGN".to_string(), "PRIMARY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -31282,6 +38380,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CONSTRAINT".to_string(), "UNIQUE".to_string(), "FOREIGN".to_string(), "PRIMARY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -31303,6 +38405,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "VALUES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -31312,6 +38418,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIME".to_string(), "CURRENT_DATE".to_string(), "CURRENT_TIMESTAMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -31321,6 +38431,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -31330,6 +38441,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Bracketed {
@@ -31341,6 +38453,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -31368,6 +38484,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -31379,6 +38499,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["MERGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -31406,6 +38530,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -31416,6 +38544,7 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -31441,6 +38570,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -31452,6 +38582,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -31464,6 +38598,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -31471,6 +38606,7 @@ Grammar::Ref {
     allow_gaps: false,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -31526,6 +38662,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -31537,6 +38674,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -31549,6 +38690,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -31556,6 +38698,7 @@ Grammar::Ref {
     allow_gaps: false,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -31571,6 +38714,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -31582,6 +38726,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -31594,6 +38742,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -31601,6 +38750,7 @@ Grammar::Ref {
     allow_gaps: false,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -31617,6 +38767,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "~".to_string(), "PRIOR".to_string(), "NOT".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -31633,12 +38787,20 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "/".to_string(), "IS".to_string(), "^".to_string(), "AND".to_string(), "&".to_string(), "=".to_string(), "|".to_string(), "%".to_string(), "<".to_string(), "!".to_string(), "*".to_string(), ">".to_string(), "-".to_string(), "OR".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
+    }),
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "~".to_string(), "PRIOR".to_string(), "NOT".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -31648,6 +38810,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -31657,6 +38820,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -31673,6 +38837,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string(), "~".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -31686,6 +38854,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string(), "~".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -31695,6 +38867,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -31704,6 +38877,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -31764,6 +38938,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TEMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -31773,6 +38951,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -31783,6 +38965,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "TEMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -31807,6 +38993,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TRANSIENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -31816,6 +39006,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "TEMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -31826,6 +39020,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TEMP".to_string(), "TEMPORARY".to_string(), "TRANSIENT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -31932,6 +39130,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TIME".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -31941,6 +39143,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TIMESTAMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -31951,6 +39157,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TIME".to_string(), "TIMESTAMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -31960,6 +39170,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -31973,6 +39187,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -31982,6 +39200,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITHOUT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -31992,6 +39214,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "WITHOUT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -32001,6 +39227,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TIME".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -32010,6 +39240,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ZONE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -32019,6 +39253,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "WITHOUT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -32028,6 +39266,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TIME".to_string(), "TIMESTAMP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -32045,6 +39287,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -32054,6 +39300,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TIME".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -32063,6 +39313,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ZONE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -32072,6 +39326,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -32081,6 +39336,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -32094,6 +39353,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -32241,6 +39504,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["START".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -32250,6 +39517,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BEGIN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -32259,6 +39530,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["COMMIT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -32268,6 +39543,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLLBACK".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -32277,6 +39556,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["END".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -32287,6 +39570,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLLBACK".to_string(), "COMMIT".to_string(), "END".to_string(), "BEGIN".to_string(), "START".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -32298,6 +39585,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TRANSACTION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -32307,6 +39598,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WORK".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -32317,6 +39612,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TRANSACTION".to_string(), "WORK".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -32328,6 +39627,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NAME".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -32337,6 +39640,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -32346,6 +39650,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NAME".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -32357,6 +39665,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AND".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -32366,6 +39678,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -32375,6 +39691,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["CHAIN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -32384,6 +39704,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["AND".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -32393,6 +39717,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROLLBACK".to_string(), "COMMIT".to_string(), "END".to_string(), "BEGIN".to_string(), "START".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -32518,6 +39846,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -32529,6 +39858,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -32541,6 +39874,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -32548,6 +39882,7 @@ Grammar::Ref {
     allow_gaps: false,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -32602,6 +39937,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BOTH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -32611,6 +39950,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LEADING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -32620,6 +39963,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TRAILING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -32630,6 +39977,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TRAILING".to_string(), "BOTH".to_string(), "LEADING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -32675,6 +40026,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TRUNCATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -32684,6 +40039,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -32693,6 +40052,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -32702,6 +40062,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TRUNCATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -32739,6 +40103,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -32750,6 +40115,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -32760,6 +40129,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -32787,6 +40157,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -32812,6 +40186,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -32821,6 +40196,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["[".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -32830,6 +40209,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -32845,6 +40225,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -32854,6 +40235,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -32863,6 +40248,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -32922,6 +40308,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NATURAL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -32931,6 +40321,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -32940,6 +40331,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -32950,6 +40342,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -32994,6 +40387,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UNION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::OneOf {
@@ -33005,6 +40402,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DISTINCT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -33014,6 +40415,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -33024,6 +40429,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DISTINCT".to_string(), "ALL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -33033,6 +40442,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UNION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -33057,6 +40470,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UNIQUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -33066,6 +40483,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UNIQUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -33146,6 +40567,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -33155,6 +40580,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FROM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -33164,6 +40593,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHERE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -33173,6 +40606,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -33182,6 +40619,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["HAVING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -33191,6 +40632,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OVERLAPS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -33200,6 +40645,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WINDOW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -33212,6 +40661,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "UNION".to_string(), "INTERSECT".to_string(), "MINUS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -33221,6 +40674,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -33230,6 +40687,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -33239,6 +40700,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -33248,12 +40713,20 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LIMIT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::GreedyOnceStarted,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -33269,6 +40742,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::AnyNumberOf {
@@ -33282,6 +40759,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "UNION".to_string(), "INTERSECT".to_string(), "MINUS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -33291,6 +40772,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -33300,6 +40785,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "UNION".to_string(), "INTERSECT".to_string(), "MINUS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -33313,6 +40802,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "UNION".to_string(), "INTERSECT".to_string(), "MINUS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -33322,6 +40815,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "SELECT".to_string(), "(".to_string(), "VALUES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -33367,6 +40864,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -33378,6 +40879,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -33387,6 +40889,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -33398,6 +40901,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -33407,6 +40914,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FROM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -33416,6 +40927,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHERE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -33425,6 +40940,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -33480,6 +40999,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -33489,6 +41012,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -33498,6 +41022,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["USE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -33675,6 +41203,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -33684,6 +41216,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -33694,6 +41230,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "VALUES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Delimited {
@@ -33707,6 +41247,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Bracketed {
@@ -33720,6 +41264,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DEFAULT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -33729,6 +41277,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -33738,6 +41287,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -33749,6 +41299,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -33759,6 +41313,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -33786,6 +41341,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Greedy,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -33795,6 +41354,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "ROW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -33806,6 +41369,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: false,
@@ -33816,6 +41383,10 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "ROW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -33825,6 +41396,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "VALUES".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -34040,6 +41615,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -34053,6 +41632,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -34064,6 +41644,7 @@ Grammar::Meta("dedent")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("conditional")
@@ -34075,6 +41656,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["THEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("conditional")
@@ -34086,6 +41671,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("conditional")
@@ -34099,6 +41685,10 @@ Grammar::Meta("conditional")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHEN".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -34134,6 +41724,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHERE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("indent")
@@ -34149,6 +41743,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -34176,6 +41771,10 @@ Grammar::StringParser {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -34185,6 +41784,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -34195,6 +41795,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("dedent")
@@ -34206,6 +41807,10 @@ Grammar::Meta("dedent")
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WHERE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -34220,6 +41825,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["LIMIT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -34231,6 +41840,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -34240,6 +41853,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -34249,6 +41866,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -34260,6 +41881,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -34269,6 +41894,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -34278,6 +41907,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -34287,6 +41920,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["HAVING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -34296,6 +41933,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["QUALIFY".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -34305,6 +41946,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WINDOW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -34314,6 +41959,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["OVERLAPS".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -34323,6 +41972,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -34333,6 +41986,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["HAVING".to_string(), "QUALIFY".to_string(), "OVERLAPS".to_string(), "WINDOW".to_string(), "FETCH".to_string(), "ORDER".to_string(), "GROUP".to_string(), "LIMIT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -34386,6 +42043,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -34395,6 +42053,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -34416,6 +42075,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -34425,6 +42085,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -34434,6 +42098,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Sequence {
@@ -34445,6 +42110,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["*".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -34454,6 +42123,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([".".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -34463,6 +42136,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["*".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -34473,6 +42150,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
     ],
@@ -34486,6 +42164,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -34495,6 +42174,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["*".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -34504,6 +42187,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: false,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -34529,6 +42213,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
 Grammar::Ref {
@@ -34538,6 +42223,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PARTITION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -34547,6 +42236,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -34556,6 +42249,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "RANGE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -34565,6 +42262,7 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 );
 
@@ -34580,6 +42278,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -34589,6 +42291,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["RECURSIVE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("conditional")
@@ -34602,6 +42308,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -34613,6 +42320,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: true,
@@ -34625,6 +42336,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -34632,6 +42347,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("conditional")
@@ -34643,6 +42359,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["INSERT".to_string(), "MERGE".to_string(), "UPDATE".to_string(), "DELETE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -34652,6 +42372,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -34667,6 +42391,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -34676,6 +42404,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["RECURSIVE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Meta("conditional")
@@ -34689,6 +42421,7 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
 }
 ,
     ],
@@ -34700,6 +42433,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter([",".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
     ),
     allow_trailing: true,
@@ -34712,6 +42449,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -34719,6 +42460,7 @@ Grammar::Ref {
     allow_gaps: true,
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
+    simple_hint: None,
 }
 ,
 Grammar::Meta("conditional")
@@ -34730,6 +42472,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUES".to_string(), "VALUE".to_string(), "SELECT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -34739,6 +42485,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -34754,6 +42504,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Sequence {
@@ -34765,6 +42519,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -34774,6 +42532,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -34783,6 +42545,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -34792,6 +42558,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 
@@ -34823,6 +42593,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -34832,6 +42606,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -34841,6 +42619,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SCHEMA".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
 Grammar::Ref {
@@ -34850,6 +42632,10 @@ Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["BINDING".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 ,
     ],
@@ -34859,6 +42645,10 @@ Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
 }
 );
 

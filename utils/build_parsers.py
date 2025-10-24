@@ -24,6 +24,7 @@ from sqlfluff.core.parser.parsers import (
 )
 from sqlfluff.core.parser.segments.base import BaseSegment, SegmentMetaclass
 from sqlfluff.core.parser.segments.meta import MetaSegment
+from sqlfluff.core.parser.types import SimpleHintType
 
 
 @dataclass
@@ -31,12 +32,13 @@ class DummyParseContext:
     """Dummy context for parse context."""
 
     dialect: Dialect
+    uuid: int
 
 
 def generate_use():
     """Generates the `use` statements."""
     print("use once_cell::sync::Lazy;")
-    print("use crate::parser::{Grammar, ParseMode};")
+    print("use crate::parser::{Grammar, ParseMode, types::SimpleHint};")
 
 
 def matchable_to_const_name(s: str):
@@ -51,7 +53,7 @@ def matchable_to_const_name(s: str):
 def generate_parser(dialect: str):
     """Generate the parser for a dialect."""
     loaded_dialect = dialect_selector(dialect)
-    parse_context = DummyParseContext(loaded_dialect)
+    parse_context = DummyParseContext(loaded_dialect, 0)
     segment_grammars = []
     segment_types = []
 
@@ -126,6 +128,8 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
             print(",")
         print("    ],")
         print(f"    reset_terminators: {str(match_grammar.reset_terminators).lower()},")
+        rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
+        print(f"    simple_hint: {rust_simple},")
         print("}")
     elif match_grammar.__class__ is StringParser and isinstance(
         match_grammar, StringParser
@@ -226,6 +230,8 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
             match_grammar.parse_mode.name, "ParseMode::Strict"
         )
         print(f"    parse_mode: {rust_parse_mode},")
+        rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
+        print(f"    simple_hint: {rust_simple},")
         print("}")
     elif (
         match_grammar.__class__ is OneOf
@@ -264,6 +270,8 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
             match_grammar.parse_mode.name, "ParseMode::Strict"
         )
         print(f"    parse_mode: {rust_parse_mode},")
+        rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
+        print(f"    simple_hint: {rust_simple},")
         print("}")
     elif match_grammar.__class__ is Bracketed and isinstance(match_grammar, Bracketed):
         print("Grammar::Bracketed {")
@@ -303,6 +311,8 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
             match_grammar.parse_mode.name, "ParseMode::Strict"
         )
         print(f"    parse_mode: {rust_parse_mode},")
+        rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
+        print(f"    simple_hint: {rust_simple},")
         print("}")
     elif match_grammar.__class__ is Sequence and isinstance(match_grammar, Sequence):
         print("Grammar::Sequence {")
@@ -329,6 +339,8 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
             match_grammar.parse_mode.name, "ParseMode::Strict"
         )
         print(f"    parse_mode: {rust_parse_mode},")
+        rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
+        print(f"    simple_hint: {rust_simple},")
         print("}")
     elif match_grammar.__class__ is AnyNumberOf and isinstance(
         match_grammar, AnyNumberOf
@@ -369,6 +381,8 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
             match_grammar.parse_mode.name, "ParseMode::Strict"
         )
         print(f"    parse_mode: {rust_parse_mode},")
+        rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
+        print(f"    simple_hint: {rust_simple},")
         print("}")
     elif match_grammar.__class__ is AnySetOf and isinstance(match_grammar, AnySetOf):
         # AnySetOf is AnyNumberOf with max_times_per_element=1
@@ -406,6 +420,8 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
             match_grammar.parse_mode.name, "ParseMode::Strict"
         )
         print(f"    parse_mode: {rust_parse_mode},")
+        rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
+        print(f"    simple_hint: {rust_simple},")
         print("}")
     elif isinstance(match_grammar, Anything):
         print("Grammar::Anything")
@@ -458,6 +474,18 @@ def as_rust_option(value, is_regex: bool = False):
     elif isinstance(value, bool):
         return f"Some({str(value).lower()})" if value else "None"
     return f"Some({value})" if value else "None"
+
+
+def rust_simple_hint(hint: SimpleHintType):
+    """Generates a prebuilt simple_hint for Rust."""
+    if hint is None:
+        return "None"
+    raw = ", ".join(f'"{v}".to_string()' for v in hint[0])
+    types = ", ".join(f'"{t}".to_string()' for t in hint[1])
+    return f"""Some(SimpleHint {{
+        raw_values: hashbrown::HashSet::from_iter([{raw}]),
+        token_types: hashbrown::HashSet::from_iter([{types}]),
+    }})"""
 
 
 if __name__ == "__main__":

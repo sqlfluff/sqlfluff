@@ -58,6 +58,7 @@ fn test_anysetof_basic() -> Result<(), ParseError> {
         reset_terminators: false,
         allow_gaps: true,
         parse_mode: ParseMode::Strict,
+        simple_hint: None,
     };
 
     // Use the internal parse method directly
@@ -112,6 +113,7 @@ fn test_anysetof_order_independent() -> Result<(), ParseError> {
             reset_terminators: false,
             allow_gaps: true,
             parse_mode: ParseMode::Strict,
+            simple_hint: None,
         };
 
         let result = parser.parse_with_grammar_cached(&grammar, &[])?;
@@ -306,15 +308,31 @@ fn test_no_duplicate_whitespace_tokens() -> Result<(), ParseError> {
     // Collect all token positions in AST
     fn collect_positions(node: &Node, positions: &mut Vec<usize>) {
         match node {
-            Node::Whitespace { raw: _, token_idx: pos }
-            | Node::Newline { raw: _, token_idx: pos }
-            | Node::Token { token_type: _, raw: _, token_idx: pos }
-            | Node::EndOfFile { raw: _, token_idx: pos } => {
+            Node::Whitespace {
+                raw: _,
+                token_idx: pos,
+            }
+            | Node::Newline {
+                raw: _,
+                token_idx: pos,
+            }
+            | Node::Token {
+                token_type: _,
+                raw: _,
+                token_idx: pos,
+            }
+            | Node::EndOfFile {
+                raw: _,
+                token_idx: pos,
+            } => {
                 positions.push(*pos);
             }
             Node::Sequence { children }
             | Node::DelimitedList { children }
-            | Node::Unparsable { expected_message: _, children }
+            | Node::Unparsable {
+                expected_message: _,
+                children,
+            }
             | Node::Bracketed { children } => {
                 for child in children {
                     collect_positions(child, positions);

@@ -8,7 +8,7 @@ macro_rules! handle_anynumberof_waiting_for_child {
                                         $elements:ident, $min_times:ident, $max_times:ident, $max_times_per_element:ident,
                                         $allow_gaps:ident, $optional:ident, $parse_mode:ident, $count:ident, $matched_idx:ident,
                                         $working_idx:ident, $option_counter:ident, $max_idx:ident, $frame_terminators:ident,
-                                        $iteration_count:ident
+                                        $iteration_count:ident, $simple_hint:ident
                                     ) => {
                                         log::debug!(
                                             "AnyNumberOf WaitingForChild: count={}, child_node empty={}, matched_idx={}, working_idx={}",
@@ -94,6 +94,7 @@ macro_rules! handle_anynumberof_waiting_for_child {
                                                             reset_terminators: false,
                                                             allow_gaps: *$allow_gaps,
                                                             parse_mode: *$parse_mode,
+                                                            simple_hint: None
                                                         }
                                                     };
 
@@ -174,21 +175,54 @@ impl crate::parser::Parser<'_> {
     /// Handle AnySetOf grammar Initial state in iterative parser
     pub fn handle_anysetof_initial(
         &mut self,
-        elements: &[Grammar],
-        min_times: usize,
-        max_times: Option<usize>,
-        exclude: &Option<Box<Grammar>>,
-        optional: bool,
-        local_terminators: &[Grammar],
-        reset_terminators: bool,
-        allow_gaps: bool,
-        parse_mode: ParseMode,
+        grammar: &Grammar,
         frame: &mut ParseFrame,
         parent_terminators: &[Grammar],
         stack: &mut ParseFrameStack,
     ) -> Result<NextStep, ParseError> {
         let pos = frame.pos;
         log::debug!("[ITERATIVE] AnySetOf Initial state at pos {}", pos);
+
+        // Destructure the AnySetOf grammar
+        let (
+            elements,
+            min_times,
+            max_times,
+            exclude,
+            optional,
+            local_terminators,
+            reset_terminators,
+            allow_gaps,
+            parse_mode,
+        ) = match grammar {
+            Grammar::AnySetOf {
+                elements,
+                min_times,
+                max_times,
+                exclude,
+                optional,
+                terminators,
+                reset_terminators,
+                allow_gaps,
+                parse_mode,
+                ..
+            } => (
+                elements,
+                *min_times,
+                max_times.clone(),
+                exclude,
+                *optional,
+                terminators,
+                *reset_terminators,
+                *allow_gaps,
+                *parse_mode,
+            ),
+            _ => {
+                return Err(ParseError {
+                    message: "handle_anysetof_initial called with non-AnySetOf grammar".to_string(),
+                });
+            }
+        };
 
         // Check exclude grammar first
         if let Some(exclude_grammar) = exclude {
@@ -261,6 +295,7 @@ impl crate::parser::Parser<'_> {
             reset_terminators: false,
             allow_gaps,
             parse_mode,
+            simple_hint: None,
         };
 
         let mut child_frame = crate::parser::ParseFrame {
@@ -293,21 +328,32 @@ impl crate::parser::Parser<'_> {
     /// Handle AnyNumberOf grammar Initial state in iterative parser
     pub fn handle_anynumberof_initial(
         &mut self,
-        elements: &[Grammar],
-        min_times: usize,
-        max_times: Option<usize>,
-        max_times_per_element: Option<usize>,
-        exclude: &Option<Box<Grammar>>,
-        optional: bool,
-        any_terminators: &[Grammar],
-        reset_terminators: bool,
-        allow_gaps: bool,
-        parse_mode: ParseMode,
+        grammar: &Grammar,
         frame: &mut ParseFrame,
         parent_terminators: &[Grammar],
         stack: &mut ParseFrameStack,
         iteration_count: usize,
     ) -> Result<NextStep, ParseError> {
+        let (elements, min_times, max_times, max_times_per_element, exclude, optional, any_terminators, reset_terminators, allow_gaps, parse_mode) = match grammar {
+            Grammar::AnyNumberOf {
+                elements,
+                min_times,
+                max_times,
+                max_times_per_element,
+                exclude,
+                optional,
+                terminators: any_terminators,
+                reset_terminators,
+                allow_gaps,
+                parse_mode,
+                ..
+            } => (elements, *min_times, max_times.clone(), max_times_per_element.clone(), exclude, *optional, any_terminators, *reset_terminators, *allow_gaps, *parse_mode),
+            _ => {
+                return Err(ParseError {
+                    message: "handle_anynumberof_initial called with non-AnyNumberOf grammar".to_string(),
+                });
+            }
+        };
         let start_idx = frame.pos;
         log::debug!(
             "AnyNumberOf starting at {}, min_times={}, max_times={:?}, allow_gaps={}, parse_mode={:?}",
@@ -406,6 +452,7 @@ impl crate::parser::Parser<'_> {
                 reset_terminators: false,
                 allow_gaps,
                 parse_mode,
+                simple_hint: None,
             };
 
             let mut child_frame = crate::parser::ParseFrame {
@@ -445,17 +492,25 @@ impl crate::parser::Parser<'_> {
     /// Handle OneOf grammar Initial state in iterative parser
     pub fn handle_oneof_initial(
         &mut self,
-        elements: &[Grammar],
-        exclude: &Option<Box<Grammar>>,
-        optional: bool,
-        local_terminators: &[Grammar],
-        reset_terminators: bool,
-        allow_gaps: bool,
-        parse_mode: ParseMode,
+        grammar: &Grammar,
         frame: &mut ParseFrame,
         parent_terminators: &[Grammar],
         stack: &mut ParseFrameStack,
     ) -> Result<NextStep, ParseError> {
+        // Destructure Grammar::OneOf fields
+        let (elements, exclude, optional, local_terminators, reset_terminators, allow_gaps, parse_mode) = match grammar {
+            Grammar::OneOf {
+                elements,
+                exclude,
+                optional,
+                terminators: local_terminators,
+                reset_terminators,
+                allow_gaps,
+                parse_mode,
+                ..
+            } => (elements, exclude, optional, local_terminators, reset_terminators, allow_gaps, parse_mode),
+            _ => panic!("handle_oneof_initial called with non-OneOf grammar"),
+        };
         let pos = frame.pos;
         // log::debug!(
         //     "OneOf Initial state at pos {}, {} elements, parse_mode={:?}",
@@ -478,14 +533,14 @@ impl crate::parser::Parser<'_> {
             }
         }
 
-        let leading_ws = if allow_gaps {
+        let leading_ws = if *allow_gaps {
             self.collect_transparent(true)
         } else {
             Vec::new()
         };
         let post_skip_pos = self.pos;
 
-        let all_terminators: Vec<Grammar> = if reset_terminators {
+        let all_terminators: Vec<Grammar> = if *reset_terminators {
             local_terminators.to_vec()
         } else {
             local_terminators
@@ -495,7 +550,7 @@ impl crate::parser::Parser<'_> {
                 .collect()
         };
 
-        let max_idx = if parse_mode == ParseMode::Greedy {
+        let max_idx = if *parse_mode == ParseMode::Greedy {
             self.trim_to_terminator(post_skip_pos, &all_terminators)
         } else {
             self.tokens.len()
@@ -511,7 +566,7 @@ impl crate::parser::Parser<'_> {
             // log::debug!("OneOf: Already at terminator");
             self.pos = pos;
 
-            let result = if optional {
+            let result = if *optional {
                 Node::Empty
             } else {
                 crate::parser::utils::apply_parse_mode_to_result(
@@ -519,7 +574,7 @@ impl crate::parser::Parser<'_> {
                     Node::Empty,
                     pos,
                     max_idx,
-                    parse_mode,
+                    *parse_mode,
                 )
             };
 
@@ -542,7 +597,7 @@ impl crate::parser::Parser<'_> {
             // log::debug!("OneOf: No viable options after pruning");
             self.pos = pos;
 
-            let result = if optional {
+            let result = if *optional {
                 Node::Empty
             } else {
                 crate::parser::utils::apply_parse_mode_to_result(
@@ -550,7 +605,7 @@ impl crate::parser::Parser<'_> {
                     Node::Empty,
                     pos,
                     max_idx,
-                    parse_mode,
+                    *parse_mode,
                 )
             };
 
@@ -568,21 +623,21 @@ impl crate::parser::Parser<'_> {
 
         frame.context = crate::parser::FrameContext::OneOf {
             elements: available_options.clone(),
-            allow_gaps,
-            optional,
+            allow_gaps: *allow_gaps,
+            optional: *optional,
             leading_ws: leading_ws.clone(),
             post_skip_pos,
             longest_match: None,
             tried_elements: 0,
             max_idx,
-            parse_mode,
+            parse_mode: *parse_mode,
             last_child_frame_id: Some(stack.frame_id_counter),
         };
 
         let first_element = available_options[0].clone();
         let element_key = first_element.cache_key();
 
-        if matches!(first_element, Grammar::Nothing() | Grammar::Empty) {
+    if matches!(first_element, Grammar::Nothing() | Grammar::Empty) {
             // log::debug!(
             //     "OneOf: First element is Nothing, handling inline (element_key={})",
             //     element_key

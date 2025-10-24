@@ -1,6 +1,6 @@
 /* This is a generated file! */
 use once_cell::sync::Lazy;
-use crate::parser::{Grammar, ParseMode};
+use crate::parser::{Grammar, ParseMode, types::SimpleHint};
 
 pub fn get_impala_segment_grammar(name: &str) -> Option<&'static Grammar> {
     match name {

@@ -51,12 +51,14 @@ fn test_oneof_with_exclude() -> Result<(), ParseError> {
             reset_terminators: false,
             allow_gaps: true,
             parse_mode: ParseMode::Strict,
+            simple_hint: None,
         })),
         optional: false,
         terminators: vec![],
         reset_terminators: false,
         allow_gaps: true,
         parse_mode: ParseMode::Strict,
+        simple_hint: None,
     };
 
     // This should match since we only have "A", not "AB"
@@ -112,12 +114,14 @@ fn test_oneof_exclude_blocks_match() -> Result<(), ParseError> {
             reset_terminators: false,
             allow_gaps: true,
             parse_mode: ParseMode::Strict,
+            simple_hint: None,
         })),
         optional: false,
         terminators: vec![],
         reset_terminators: false,
         allow_gaps: true,
         parse_mode: ParseMode::Strict,
+        simple_hint: None,
     };
 
     // This should return Empty because "AB" matches the exclude pattern
@@ -167,6 +171,7 @@ fn test_anynumberof_with_exclude() -> Result<(), ParseError> {
         reset_terminators: false,
         allow_gaps: true,
         parse_mode: ParseMode::Strict,
+        simple_hint: None,
     };
 
     // This should match all three "A"s since there's no "B"

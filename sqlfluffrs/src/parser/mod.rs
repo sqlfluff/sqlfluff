@@ -5,7 +5,7 @@
 
 #[macro_use]
 mod macros;
-mod types;
+pub(crate) mod types;
 mod frame;
 mod cache;
 mod core;

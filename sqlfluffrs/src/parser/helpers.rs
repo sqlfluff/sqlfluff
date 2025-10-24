@@ -16,7 +16,7 @@ impl<'a> Parser<'a> {
     /// This is the Rust equivalent of Python's `prune_options()` function.
     /// It filters the list of grammar options to only those that could possibly
     /// match the current token, based on quick checks of raw strings and types.
-    pub(crate) fn prune_options<'g>(&self, options: &'g [Grammar]) -> Vec<&'g Grammar> {
+    pub(crate) fn prune_options<'g>(&mut self, options: &'g [Grammar]) -> Vec<&'g Grammar> {
         // Track stats
         self.pruning_calls.set(self.pruning_calls.get() + 1);
         self.pruning_total
@@ -54,7 +54,7 @@ impl<'a> Parser<'a> {
 
         for opt in options {
             // Try to get simple hint for this grammar (with dialect for Ref resolution)
-            match opt.simple_hint_with_dialect(Some(&self.dialect), &crumbs) {
+            match opt.simple_hint_with_dialect(Some(&self.dialect), &crumbs, &mut self.simple_hint_cache) {
                 None => {
                     // Complex grammar - must try full match
                     self.pruning_complex.set(self.pruning_complex.get() + 1);

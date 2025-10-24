@@ -19,6 +19,7 @@ mod parse_mode_equality_tests {
             reset_terminators: false,
             allow_gaps: true,
             parse_mode: ParseMode::Strict,
+            simple_hint: None,
         };
 
         assert_eq!(seq_strict.parse_mode(), ParseMode::Strict);

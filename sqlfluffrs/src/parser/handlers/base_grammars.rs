@@ -1,5 +1,6 @@
 use crate::parser::iterative::NextStep;
 use crate::parser::iterative::ParseFrameStack;
+use crate::parser::types::SimpleHint;
 use crate::parser::FrameContext;
 use crate::parser::FrameState;
 use crate::parser::Grammar;
@@ -27,10 +28,16 @@ impl Parser<'_> {
     /// Handle Meta grammar in iterative parser
     pub(crate) fn handle_meta_initial(
         &mut self,
-        token_type: &'static str,
+        grammar: &Grammar,
         frame: &ParseFrame,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
+        let token_type = match grammar {
+            Grammar::Meta(token_type) => *token_type,
+            _ => {
+                return Err(ParseError::new("handle_meta_initial called with non-Meta grammar".into()));
+            }
+        };
         log::debug!("Doing nothing with meta {}", token_type);
         results.insert(frame.frame_id, (Node::Meta { token_type, token_idx: None }, frame.pos, None));
         Ok(NextStep::Fallthrough)
@@ -78,16 +85,24 @@ impl Parser<'_> {
     /// Handle Ref grammar Initial state in iterative parser
     pub(crate) fn handle_ref_initial(
         &mut self,
-        name: &str,
-        optional: bool,
-        allow_gaps: bool,
-        ref_terminators: &[Grammar],
-        reset_terminators: bool,
+        grammar: &Grammar,
         frame: &mut ParseFrame,
         parent_terminators: &[Grammar],
         stack: &mut ParseFrameStack,
         iteration_count: usize,
     ) -> Result<NextStep, ParseError> {
+        // Destructure Grammar::Ref fields
+        let (name, optional, allow_gaps, ref_terminators, reset_terminators) = match grammar {
+            Grammar::Ref {
+                name,
+                optional,
+                allow_gaps,
+                terminators: ref_terminators,
+                reset_terminators,
+                ..
+            } => (name, optional, allow_gaps, ref_terminators, reset_terminators),
+            _ => panic!("handle_ref_initial called with non-Ref grammar"),
+        };
         log::debug!(
             "Iterative Ref to segment: {}, optional: {}, allow_gaps: {}",
             name,
@@ -96,10 +111,10 @@ impl Parser<'_> {
         );
         let saved = frame.pos;
         self.pos = frame.pos;
-        self.skip_transparent(allow_gaps);
+        self.skip_transparent(*allow_gaps);
 
         // Combine parent and local terminators
-        let all_terminators: Vec<Grammar> = if reset_terminators {
+        let all_terminators: Vec<Grammar> = if *reset_terminators {
             ref_terminators.to_vec()
         } else {
             ref_terminators
@@ -139,8 +154,8 @@ impl Parser<'_> {
                 };
                 frame.context = FrameContext::Ref {
                     name: name.to_string(),
-                    optional,
-                    allow_gaps,
+                    optional: *optional,
+                    allow_gaps: *allow_gaps,
                     segment_type,
                     saved_pos: saved,
                     last_child_frame_id: Some(child_frame_id), // Track the child we just created
@@ -174,7 +189,7 @@ impl Parser<'_> {
             }
             None => {
                 self.pos = saved;
-                if optional {
+                if *optional {
                     log::debug!("Iterative Ref optional (grammar not found), skipping");
                     stack
                         .results

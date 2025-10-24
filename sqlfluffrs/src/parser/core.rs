@@ -11,6 +11,7 @@ use super::{cache::ParseCache, Grammar, Node, ParseError};
 
 /// The main parser struct that holds parsing state and provides parsing methods.
 pub struct Parser<'a> {
+    pub simple_hint_cache: hashbrown::HashMap<u64, Option<crate::parser::types::SimpleHint>>,
     pub tokens: &'a [Token],
     pub pos: usize, // current position in tokens
     pub dialect: Dialect,
@@ -37,6 +38,7 @@ impl<'a> Parser<'a> {
             pruning_kept: std::cell::Cell::new(0),
             pruning_hinted: std::cell::Cell::new(0),
             pruning_complex: std::cell::Cell::new(0),
+            simple_hint_cache: hashbrown::HashMap::new(),
         }
     }
 

@@ -38,3 +38,6 @@ flamegraph = "0.6.8"
 [[bench]]
 name = "parser_bench"
 harness = false
+
+[profile.bench]
+debug = true

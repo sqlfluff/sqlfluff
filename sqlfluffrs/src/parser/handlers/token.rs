@@ -1,3 +1,4 @@
+use crate::parser::Grammar;
 use hashbrown::HashMap;
 use crate::parser::{Node, ParseError, ParseFrame};
 use crate::parser::iterative::NextStep;
@@ -8,10 +9,16 @@ impl<'a> Parser<'_> {
     /// Handle Token grammar in iterative parser
     pub(crate) fn handle_token_initial(
         &mut self,
-        token_type: &str,
+        grammar: &Grammar,
         frame: &ParseFrame,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
+        let token_type = match grammar {
+            Grammar::Token { token_type } => token_type,
+            _ => {
+                return Err(ParseError::new("handle_token_initial called with non-Token grammar".into()));
+            }
+        };
         log::debug!("DEBUG: Token grammar frame_id={}, pos={}, parent_max_idx={:?}, token_type={:?}, available_tokens={}",
             frame.frame_id, frame.pos, frame.parent_max_idx, token_type, self.tokens.len());
 
@@ -22,7 +29,7 @@ impl<'a> Parser<'_> {
             let tok = token.clone();
             log::debug!("Current token: {:?}", tok.get_type());
 
-            if tok.get_type() == token_type {
+            if tok.get_type().as_str() == *token_type {
                 let token_pos = self.pos;
                 self.bump();
                 log::debug!("MATCHED Token matched: {:?}", tok);

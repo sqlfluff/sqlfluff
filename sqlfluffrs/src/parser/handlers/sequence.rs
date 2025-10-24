@@ -10,23 +10,31 @@ impl<'a> Parser<'_> {
     /// Returns true if caller should continue main loop
     pub(crate) fn handle_sequence_initial(
         &mut self,
-        elements: &[Grammar],
-        optional: bool,
-        seq_terminators: &[Grammar],
-        reset_terminators: bool,
-        allow_gaps: bool,
-        parse_mode: ParseMode,
+        grammar: &Grammar,
         frame: &mut ParseFrame,
         parent_terminators: &[Grammar],
         stack: &mut ParseFrameStack,
     ) -> Result<NextStep, ParseError> {
+        // Destructure Grammar::Sequence fields
+        let (elements, optional, seq_terminators, reset_terminators, allow_gaps, parse_mode) = match grammar {
+            Grammar::Sequence {
+                elements,
+                optional,
+                terminators: seq_terminators,
+                reset_terminators,
+                allow_gaps,
+                parse_mode,
+                ..
+            } => (elements, optional, seq_terminators, reset_terminators, allow_gaps, parse_mode),
+            _ => panic!("handle_sequence_initial called with non-Sequence grammar"),
+        };
         let pos = frame.pos;
         log::debug!("DEBUG: Sequence Initial at pos={}, parent_max_idx={:?}, allow_gaps={}, elements.len()={}",
                   pos, frame.parent_max_idx, allow_gaps, elements.len());
         let start_idx = pos; // Where did we start
 
         // Combine parent and local terminators
-        let all_terminators: Vec<Grammar> = if reset_terminators {
+        let all_terminators: Vec<Grammar> = if *reset_terminators {
             seq_terminators.to_vec()
         } else {
             seq_terminators
@@ -37,9 +45,8 @@ impl<'a> Parser<'_> {
         };
 
         // Calculate max_idx for GREEDY mode
-        // What is the limit
         self.pos = start_idx;
-        let max_idx = if parse_mode == ParseMode::Greedy {
+        let max_idx = if *parse_mode == ParseMode::Greedy {
             self.trim_to_terminator(start_idx, &all_terminators)
         } else {
             self.tokens.len()
@@ -59,9 +66,9 @@ impl<'a> Parser<'_> {
         };
         frame.context = FrameContext::Sequence {
             elements: elements.to_vec(),
-            allow_gaps,
-            optional,
-            parse_mode,
+            allow_gaps: *allow_gaps,
+            optional: *optional,
+            parse_mode: *parse_mode,
             matched_idx: start_idx,
             tentatively_collected: vec![],
             max_idx,
@@ -75,7 +82,7 @@ impl<'a> Parser<'_> {
         stack.push(frame);
 
         // Skip to code if allow_gaps (matching Python's behavior at sequence.py line 196)
-        let first_child_pos = if allow_gaps {
+        let first_child_pos = if *allow_gaps {
             self.skip_start_index_forward_to_code(start_idx, max_idx)
         } else {
             start_idx
@@ -89,7 +96,7 @@ impl<'a> Parser<'_> {
                 // Pop the frame we just pushed since we're returning early
                 stack.pop();
 
-                if parse_mode == ParseMode::Strict {
+                if *parse_mode == ParseMode::Strict {
                     // In strict mode, return Empty
                     stack
                         .results
@@ -233,17 +240,28 @@ impl<'a> Parser<'_> {
     /// Handle Bracketed grammar Initial state in iterative parser
     pub(crate) fn handle_bracketed_initial(
         &mut self,
-        bracket_pairs: &(Box<Grammar>, Box<Grammar>),
-        elements: &[Grammar],
-        optional: bool,
-        bracket_terminators: &[Grammar],
-        reset_terminators: bool,
-        allow_gaps: bool,
-        parse_mode: ParseMode,
+        grammar: &Grammar,
         frame: &mut ParseFrame,
         parent_terminators: &[Grammar],
         stack: &mut ParseFrameStack,
     ) -> Result<NextStep, ParseError> {
+        let (bracket_pairs, elements, optional, bracket_terminators, reset_terminators, allow_gaps, parse_mode) = match grammar {
+            Grammar::Bracketed {
+                bracket_pairs,
+                elements,
+                optional,
+                terminators: bracket_terminators,
+                reset_terminators,
+                allow_gaps,
+                parse_mode,
+                ..
+            } => (bracket_pairs, elements, optional, bracket_terminators, reset_terminators, allow_gaps, parse_mode),
+            _ => {
+                return Err(ParseError {
+                    message: "handle_bracketed_initial called with non-Bracketed grammar".to_string(),
+                });
+            }
+        };
         let start_idx = frame.pos;
         log::debug!(
             "Bracketed starting at {}, allow_gaps={}, parse_mode={:?}",
@@ -253,7 +271,7 @@ impl<'a> Parser<'_> {
         );
 
         // Combine parent and local terminators
-        let all_terminators: Vec<Grammar> = if reset_terminators {
+        let all_terminators: Vec<Grammar> = if *reset_terminators {
             bracket_terminators.to_vec()
         } else {
             bracket_terminators
@@ -271,9 +289,9 @@ impl<'a> Parser<'_> {
         frame.context = FrameContext::Bracketed {
             bracket_pairs: bracket_pairs.clone(),
             elements: elements.to_vec(),
-            allow_gaps,
-            optional,
-            parse_mode,
+            allow_gaps: *allow_gaps,
+            optional: *optional,
+            parse_mode: *parse_mode,
             state: BracketedState::MatchingOpen,
             last_child_frame_id: None,
         };

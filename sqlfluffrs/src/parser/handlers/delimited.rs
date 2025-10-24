@@ -8,15 +8,7 @@ impl crate::parser::Parser<'_> {
     /// Returns true if caller should continue main loop
     pub fn handle_delimited_initial(
         &mut self,
-        elements: &[Grammar],
-        delimiter: &Grammar,
-        allow_trailing: bool,
-        optional: bool,
-        local_terminators: &[Grammar],
-        reset_terminators: bool,
-        allow_gaps: bool,
-        min_delimiters: usize,
-        parse_mode: ParseMode,
+        grammar: &Grammar,
         frame: &mut ParseFrame,
         parent_terminators: &[Grammar],
         stack: &mut ParseFrameStack,
@@ -24,11 +16,52 @@ impl crate::parser::Parser<'_> {
         let pos = frame.pos;
         log::debug!("[ITERATIVE] Delimited Initial state at pos {}", pos);
 
+        // Destructure the Delimited grammar
+        let (
+            elements,
+            delimiter,
+            allow_trailing,
+            optional,
+            local_terminators,
+            reset_terminators,
+            allow_gaps,
+            min_delimiters,
+            parse_mode,
+        ) = match grammar {
+            Grammar::Delimited {
+                elements,
+                delimiter,
+                allow_trailing,
+                optional,
+                terminators,
+                reset_terminators,
+                allow_gaps,
+                min_delimiters,
+                parse_mode,
+                ..
+            } => (
+                elements,
+                delimiter,
+                *allow_trailing,
+                *optional,
+                terminators,
+                *reset_terminators,
+                *allow_gaps,
+                *min_delimiters,
+                *parse_mode,
+            ),
+            _ => {
+                return Err(ParseError {
+                    message: "handle_delimited_initial called with non-Delimited grammar".to_string(),
+                });
+            }
+        };
+
         // Combine terminators, filtering out delimiter from parent terminators
         // This is critical - delimiter shouldn't terminate the delimited list itself
         let filtered_parent: Vec<Grammar> = parent_terminators
             .iter()
-            .filter(|t| *t != delimiter)
+            .filter(|t| *t != delimiter.as_ref())
             .cloned()
             .collect();
 
@@ -108,7 +141,7 @@ impl crate::parser::Parser<'_> {
         };
         frame.context = FrameContext::Delimited {
             elements: elements.to_vec(),
-            delimiter: Box::new(delimiter.clone()),
+            delimiter: Box::new(delimiter.as_ref().clone()),
             allow_trailing,
             optional,
             allow_gaps,
@@ -137,6 +170,7 @@ impl crate::parser::Parser<'_> {
             reset_terminators: false,
             allow_gaps,
             parse_mode,
+            simple_hint: None,
         };
 
         // Debug logging for specific grammars

@@ -5,7 +5,7 @@
 
 use hashbrown::{HashMap, HashSet};
 
-use crate::parser::iterative::ParseFrameStack;
+use crate::parser::{iterative::ParseFrameStack, types::SimpleHint};
 
 use super::types::{Grammar, Node, ParseMode};
 

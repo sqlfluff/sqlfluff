@@ -1,3 +1,4 @@
+use crate::parser::Grammar;
 use crate::parser::iterative::NextStep;
 use crate::parser::{Node, ParseError, ParseFrame};
 use hashbrown::HashMap;
@@ -8,12 +9,17 @@ impl Parser<'_> {
     /// Handle StringParser grammar in iterative parser
     pub fn handle_string_parser_initial(
         &mut self,
-        template: &str,
-        token_type: &str,
+        grammar: &Grammar,
         frame: &ParseFrame,
         iteration_count: usize,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
+        let (template, token_type) = match grammar {
+            Grammar::StringParser { template, token_type, .. } => (template, token_type),
+            _ => {
+                return Err(ParseError::new("handle_string_parser_initial called with non-StringParser grammar".into()));
+            }
+        };
         self.pos = frame.pos;
         self.skip_transparent(true);
         let tok_raw = self.peek().cloned();
@@ -48,11 +54,16 @@ impl Parser<'_> {
     /// Handle MultiStringParser grammar in iterative parser
     pub fn handle_multi_string_parser_initial(
         &mut self,
-        templates: &[&str],
-        token_type: &str,
+        grammar: &Grammar,
         frame: &ParseFrame,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
+        let (templates, token_type) = match grammar {
+            Grammar::MultiStringParser { templates, token_type, .. } => (templates, token_type),
+            _ => {
+                return Err(ParseError::new("handle_multi_string_parser_initial called with non-MultiStringParser grammar".into()));
+            }
+        };
         self.pos = frame.pos;
         self.skip_transparent(true);
         let token = self.peek().cloned();
@@ -85,11 +96,16 @@ impl Parser<'_> {
     /// Handle TypedParser grammar in iterative parser
     pub fn handle_typed_parser_initial(
         &mut self,
-        template: &str,
-        token_type: &str,
+        grammar: &Grammar,
         frame: &ParseFrame,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
+        let (template, token_type) = match grammar {
+            Grammar::TypedParser { template, token_type, .. } => (template, token_type),
+            _ => {
+                return Err(ParseError::new("handle_typed_parser_initial called with non-TypedParser grammar".into()));
+            }
+        };
         log::debug!(
             "DEBUG: TypedParser frame_id={}, pos={}, parent_max_idx={:?}, template={:?}",
             frame.frame_id,
@@ -156,12 +172,16 @@ impl Parser<'_> {
     /// Returns true if the caller should continue to the next frame (anti-template matched)
     pub fn handle_regex_parser_initial(
         &mut self,
-        template: &regex::Regex,
-        anti_template: &Option<regex::Regex>,
-        token_type: &str,
+        grammar: &Grammar,
         frame: &ParseFrame,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
+        let (template, anti_template, token_type) = match grammar {
+            Grammar::RegexParser { template, anti_template, token_type, .. } => (template, anti_template, token_type),
+            _ => {
+                return Err(ParseError::new("handle_regex_parser_initial called with non-RegexParser grammar".into()));
+            }
+        };
         self.pos = frame.pos;
         self.skip_transparent(true);
         let token = self.peek().cloned();

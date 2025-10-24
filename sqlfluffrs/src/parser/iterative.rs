@@ -98,56 +98,25 @@ impl Parser<'_> {
 
         match &grammar {
             // Simple leaf grammars - parse directly without recursion
-            Grammar::Token { token_type } => {
-                self.handle_token_initial(token_type, frame, &mut stack.results)?;
+            Grammar::Token { .. } => {
+                self.handle_token_initial(&grammar, frame, &mut stack.results)?;
                 Ok(NextStep::Fallthrough)
             }
 
-            Grammar::StringParser {
-                template,
-                token_type,
-                ..
-            } => self.handle_string_parser_initial(
-                template,
-                token_type,
-                frame,
-                iteration_count,
-                &mut stack.results,
-            ),
+            Grammar::StringParser { .. } =>
+                self.handle_string_parser_initial(&grammar, frame, iteration_count, &mut stack.results),
 
-            Grammar::MultiStringParser {
-                templates,
-                token_type,
-                ..
-            } => self.handle_multi_string_parser_initial(
-                templates,
-                token_type,
-                frame,
-                &mut stack.results,
-            ),
+            Grammar::MultiStringParser { .. } =>
+                self.handle_multi_string_parser_initial(&grammar, frame, &mut stack.results),
 
-            Grammar::TypedParser {
-                template,
-                token_type,
-                ..
-            } => self.handle_typed_parser_initial(template, token_type, frame, &mut stack.results),
+            Grammar::TypedParser { .. } =>
+                self.handle_typed_parser_initial(&grammar, frame, &mut stack.results),
 
-            Grammar::RegexParser {
-                template,
-                token_type,
-                anti_template,
-                ..
-            } => self.handle_regex_parser_initial(
-                template,
-                anti_template,
-                token_type,
-                frame,
-                &mut stack.results,
-            ),
+            Grammar::RegexParser { .. } =>
+                self.handle_regex_parser_initial(&grammar, frame, &mut stack.results),
 
-            Grammar::Meta(token_type) => {
-                self.handle_meta_initial(token_type, frame, &mut stack.results)
-            }
+            Grammar::Meta(_) =>
+                self.handle_meta_initial(&grammar, frame, &mut stack.results),
 
             Grammar::Nothing() => self.handle_nothing_initial(frame, &mut stack.results),
 
@@ -160,162 +129,27 @@ impl Parser<'_> {
             }
 
             // Complex grammars - need special handling
-            Grammar::Sequence {
-                elements,
-                optional,
-                terminators: seq_terminators,
-                reset_terminators,
-                allow_gaps,
-                parse_mode,
-            } => self.handle_sequence_initial(
-                elements,
-                *optional,
-                seq_terminators,
-                *reset_terminators,
-                *allow_gaps,
-                *parse_mode,
-                frame,
-                &terminators,
-                &mut *stack,
-            ),
+            Grammar::Sequence { .. } =>
+                self.handle_sequence_initial(&grammar, frame, &terminators, &mut *stack),
 
-            Grammar::OneOf {
-                elements,
-                exclude,
-                optional,
-                terminators: local_terminators,
-                reset_terminators,
-                allow_gaps,
-                parse_mode,
-            } => self.handle_oneof_initial(
-                elements,
-                exclude,
-                *optional,
-                local_terminators,
-                *reset_terminators,
-                *allow_gaps,
-                *parse_mode,
-                frame,
-                &terminators,
-                stack,
-            ),
+            Grammar::OneOf { .. } =>
+                self.handle_oneof_initial(&grammar, frame, &terminators, stack),
 
-            Grammar::Ref {
-                name,
-                optional,
-                allow_gaps,
-                terminators: ref_terminators,
-                reset_terminators,
-            } => self.handle_ref_initial(
-                name,
-                *optional,
-                *allow_gaps,
-                ref_terminators,
-                *reset_terminators,
-                frame,
-                &terminators,
-                stack,
-                iteration_count,
-            ),
+            Grammar::Ref { .. } =>
+                self.handle_ref_initial(&grammar, frame, &terminators, stack, iteration_count),
 
-            Grammar::AnyNumberOf {
-                elements,
-                min_times,
-                max_times,
-                max_times_per_element,
-                exclude,
-                optional,
-                terminators: any_terminators,
-                reset_terminators,
-                allow_gaps,
-                parse_mode,
-            } => self.handle_anynumberof_initial(
-                elements,
-                *min_times,
-                *max_times,
-                *max_times_per_element,
-                exclude,
-                *optional,
-                any_terminators,
-                *reset_terminators,
-                *allow_gaps,
-                *parse_mode,
-                frame,
-                &terminators,
-                stack,
-                iteration_count,
-            ),
+            Grammar::AnyNumberOf { .. } =>
+                self.handle_anynumberof_initial(&grammar, frame, &terminators, stack, iteration_count),
 
-            Grammar::Bracketed {
-                elements,
-                bracket_pairs,
-                optional,
-                terminators: bracket_terminators,
-                reset_terminators,
-                allow_gaps,
-                parse_mode,
-            } => self.handle_bracketed_initial(
-                bracket_pairs,
-                elements,
-                *optional,
-                bracket_terminators,
-                *reset_terminators,
-                *allow_gaps,
-                *parse_mode,
-                frame,
-                &terminators,
-                stack,
-            ),
+            Grammar::Bracketed { .. } =>
+                self.handle_bracketed_initial(&grammar, frame, &terminators, stack),
 
-            Grammar::AnySetOf {
-                elements,
-                min_times,
-                max_times,
-                exclude,
-                optional,
-                terminators: local_terminators,
-                reset_terminators,
-                allow_gaps,
-                parse_mode,
-            } => self.handle_anysetof_initial(
-                elements,
-                *min_times,
-                *max_times,
-                exclude,
-                *optional,
-                local_terminators,
-                *reset_terminators,
-                *allow_gaps,
-                *parse_mode,
-                frame,
-                &terminators,
-                stack,
-            ),
+            Grammar::AnySetOf { .. } =>
+                self.handle_anysetof_initial(&grammar, frame, &terminators, stack),
 
-            Grammar::Delimited {
-                elements,
-                delimiter,
-                allow_trailing,
-                optional,
-                terminators: local_terminators,
-                reset_terminators,
-                allow_gaps,
-                min_delimiters,
-                parse_mode,
-            } => self.handle_delimited_initial(
-                elements,
-                delimiter,
-                *allow_trailing,
-                *optional,
-                local_terminators,
-                *reset_terminators,
-                *allow_gaps,
-                *min_delimiters,
-                *parse_mode,
-                frame,
-                &terminators,
-                stack,
-            ),
+            Grammar::Delimited { .. } => {
+                self.handle_delimited_initial(&grammar, frame, &terminators, stack)
+            }
         }
     }
 
@@ -1225,7 +1059,8 @@ impl Parser<'_> {
                                     option_counter,
                                     max_idx,
                                     frame_terminators,
-                                    iteration_count
+                                    iteration_count,
+                                    simple_hint
                                 );
                             }
 
@@ -1315,6 +1150,7 @@ impl Parser<'_> {
                                                 reset_terminators: true, // Clear parent terminators!
                                                 allow_gaps: *allow_gaps,
                                                 parse_mode: *parse_mode,
+                                                simple_hint: None,
                                             };
 
                                             // OPTIMIZATION: Use pre-computed closing bracket as max_idx!
@@ -1678,6 +1514,7 @@ impl Parser<'_> {
                                                 reset_terminators: false,
                                                 allow_gaps: *allow_gaps,
                                                 parse_mode: *parse_mode,
+                                                simple_hint: None,
                                             };
 
                                             // Get parent_max_idx to propagate
@@ -2179,6 +2016,7 @@ impl Parser<'_> {
                                                     reset_terminators: false,
                                                     allow_gaps: *allow_gaps,
                                                     parse_mode: *parse_mode,
+                                                    simple_hint: None,
                                                 };
 
                                                 let child_frame = ParseFrame::new_child(

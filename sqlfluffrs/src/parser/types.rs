@@ -35,6 +35,7 @@ impl SimpleHint {
     }
 
     /// Create a hint from a raw string value
+    #[inline]
     pub fn from_raw(raw: &str) -> Self {
         let mut set = HashSet::new();
         set.insert(raw.to_uppercase());
@@ -89,7 +90,7 @@ impl SimpleHint {
     /// Returns true if the token's raw value OR any type matches, or if hint is empty (can't determine)
     pub fn can_match_token(&self, raw_upper: &str, token_types: &HashSet<String>) -> bool {
         // Empty hint means "complex - can't determine", so return true (must try it)
-        if self.raw_values.is_empty() && self.token_types.is_empty() {
+        if self.is_empty() {
             return true;
         }
 
@@ -111,6 +112,7 @@ impl SimpleHint {
     }
 
     /// Check if this hint is empty (meaning grammar is too complex to analyze)
+    #[inline]
     pub fn is_empty(&self) -> bool {
         self.raw_values.is_empty() && self.token_types.is_empty()
     }
@@ -145,6 +147,7 @@ pub enum Grammar {
         reset_terminators: bool,
         allow_gaps: bool,
         parse_mode: ParseMode,
+        simple_hint: Option<SimpleHint>,
     },
     AnyNumberOf {
         elements: Vec<Grammar>,
@@ -157,6 +160,7 @@ pub enum Grammar {
         reset_terminators: bool,
         allow_gaps: bool,
         parse_mode: ParseMode,
+        simple_hint: Option<SimpleHint>,
     },
     OneOf {
         elements: Vec<Grammar>,
@@ -166,6 +170,7 @@ pub enum Grammar {
         reset_terminators: bool,
         allow_gaps: bool,
         parse_mode: ParseMode,
+        simple_hint: Option<SimpleHint>,
     },
     AnySetOf {
         elements: Vec<Grammar>,
@@ -177,6 +182,7 @@ pub enum Grammar {
         reset_terminators: bool,
         allow_gaps: bool,
         parse_mode: ParseMode,
+        simple_hint: Option<SimpleHint>,
     },
     Delimited {
         elements: Vec<Grammar>,
@@ -188,6 +194,7 @@ pub enum Grammar {
         allow_gaps: bool,
         min_delimiters: usize,
         parse_mode: ParseMode,
+        simple_hint: Option<SimpleHint>,
     },
     Bracketed {
         elements: Vec<Grammar>,
@@ -197,6 +204,7 @@ pub enum Grammar {
         reset_terminators: bool,
         allow_gaps: bool,
         parse_mode: ParseMode,
+        simple_hint: Option<SimpleHint>,
     },
     Ref {
         name: &'static str,
@@ -204,6 +212,7 @@ pub enum Grammar {
         terminators: Vec<Grammar>,
         reset_terminators: bool,
         allow_gaps: bool,
+        simple_hint: Option<SimpleHint>,
     },
     StringParser {
         template: &'static str,
@@ -298,9 +307,15 @@ impl Grammar {
     pub fn simple_hint_with_dialect(
         &self,
         dialect: Option<&crate::dialect::Dialect>,
-        crumbs: &HashSet<String>,
+        crumbs: &hashbrown::HashSet<String>,
+        cache: &mut hashbrown::HashMap<u64, Option<SimpleHint>>,
     ) -> Option<SimpleHint> {
-        match self {
+        let key = self.cache_key();
+        if let Some(cached) = cache.get(&key) {
+            return cached.as_ref().cloned();
+        }
+
+        let result = match self {
             // Direct token matchers - can hint by type
             Grammar::Token { token_type } => Some(SimpleHint::from_type(token_type)),
 
@@ -325,119 +340,46 @@ impl Grammar {
             },
 
             // Ref: Resolve to referenced grammar (with recursion protection)
-            Grammar::Ref { name, .. } => {
-                // Check for self-reference
-                if crumbs.contains(*name) {
-                    log::debug!("Self-referential Ref detected: {}", name);
-                    return None;
-                }
-
-                // Try to resolve using dialect
-                if let Some(d) = dialect {
-                    if let Some(grammar) = d.get_segment_grammar(name) {
-                        // Add this ref to crumbs and recurse
-                        let mut new_crumbs = crumbs.clone();
-                        new_crumbs.insert(name.to_string());
-                        return grammar.simple_hint_with_dialect(Some(d), &new_crumbs);
-                    }
-                }
-
-                // No dialect or couldn't resolve
-                None
-            }
+            Grammar::Ref { simple_hint, .. } => simple_hint.clone(),
 
             // Sequence: accumulate hints from optional elements until first non-optional
             // Python logic: union all optional elements, then return when hitting first required
-            Grammar::Sequence { elements, .. } => {
-                let mut combined = SimpleHint::empty();
-                for elem in elements {
-                    // Skip Meta elements - they're invisible
-                    if matches!(elem, Grammar::Meta(_)) {
-                        continue;
-                    }
-
-                    match elem.simple_hint_with_dialect(dialect, crumbs) {
-                        None => return None, // Complex element = whole sequence is complex
-                        Some(hint) => {
-                            combined = combined.union(&hint);
-                            if !elem.is_optional() {
-                                // Found first required element, return accumulated hints
-                                return Some(combined);
-                            }
-                        }
-                    }
-                }
-                // All elements are optional (or no elements)
-                Some(combined)
-            }
+            Grammar::Sequence { simple_hint, .. } => simple_hint.clone(),
 
             // OneOf: union of all alternatives' hints
             // Python logic: if ANY element returns None, the whole OneOf returns None
-            Grammar::OneOf { elements, .. } => {
-                let mut combined = SimpleHint::empty();
-                for elem in elements {
-                    match elem.simple_hint_with_dialect(dialect, crumbs) {
-                        Some(hint) => combined = combined.union(&hint),
-                        None => return None, // One complex element = whole OneOf is complex
-                    }
-                }
-                Some(combined)
-            }
+            Grammar::OneOf { simple_hint, .. } => simple_hint.clone(),
 
             // AnyNumberOf: union of all elements (like OneOf)
             // Python logic: ALL elements must be simple, or return None
-            Grammar::AnyNumberOf { elements, .. } => {
-                let mut combined = SimpleHint::empty();
-                for elem in elements {
-                    match elem.simple_hint_with_dialect(dialect, crumbs) {
-                        Some(hint) => combined = combined.union(&hint),
-                        None => return None, // One complex element = whole AnyNumberOf is complex
-                    }
-                }
-                Some(combined)
-            }
+            Grammar::AnyNumberOf { simple_hint, .. } => simple_hint.clone(),
 
             // AnySetOf: union of all elements (same as AnyNumberOf)
-            Grammar::AnySetOf { elements, .. } => {
-                let mut combined = SimpleHint::empty();
-                for elem in elements {
-                    match elem.simple_hint_with_dialect(dialect, crumbs) {
-                        Some(hint) => combined = combined.union(&hint),
-                        None => return None,
-                    }
-                }
-                Some(combined)
-            }
+            Grammar::AnySetOf { simple_hint, .. } => simple_hint.clone(),
 
             // Delimited: union of all element alternatives
             // Note: Delimiter is NOT part of the simple hint (it terminates, doesn't start)
-            Grammar::Delimited { elements, .. } => {
-                let mut combined = SimpleHint::empty();
-                for elem in elements {
-                    match elem.simple_hint_with_dialect(dialect, crumbs) {
-                        Some(hint) => combined = combined.union(&hint),
-                        None => return None,
-                    }
-                }
-                Some(combined)
-            }
+            Grammar::Delimited { simple_hint, .. } => simple_hint.clone(),
 
             // Bracketed: starts with opening bracket
-            Grammar::Bracketed { bracket_pairs, .. } => {
-                bracket_pairs.0.simple_hint_with_dialect(dialect, crumbs)
-            }
+            Grammar::Bracketed { bracket_pairs, .. } => bracket_pairs
+                .0
+                .simple_hint_with_dialect(dialect, crumbs, cache),
 
             // Nothing/Empty: matches nothing, so empty hint is correct
             Grammar::Nothing() | Grammar::Empty => Some(SimpleHint::empty()),
 
             // Anything, Missing, Indent, Dedent: Can't determine
             _ => None,
-        }
+        };
+        cache.insert(key, result.as_ref().cloned());
+        result
     }
 
     /// Convenience method that calls simple_hint_with_dialect with empty crumbs
     pub fn simple_hint(&self) -> Option<SimpleHint> {
-        self.simple_hint_with_dialect(None, &HashSet::new())
+        let mut cache = hashbrown::HashMap::new();
+        self.simple_hint_with_dialect(None, &hashbrown::HashSet::new(), &mut cache)
     }
 }
 
@@ -1871,12 +1813,14 @@ mod tests {
             terminators: vec![],
             reset_terminators: false,
             allow_gaps: false,
+            simple_hint: None,
         };
         // Get the Ansi dialect
         let dialect = Dialect::Ansi;
+        let mut cache: hashbrown::HashMap<u64, Option<SimpleHint>> = hashbrown::HashMap::new();
         // Get the hint
         let hint = grammar
-            .simple_hint_with_dialect(Some(&dialect), &HashSet::new())
+            .simple_hint_with_dialect(Some(&dialect), &HashSet::new(), &mut cache)
             .expect("Should return a hint");
         // Should match raw value ","
         assert!(hint.raw_values.contains(&" ,".trim().to_uppercase()));
