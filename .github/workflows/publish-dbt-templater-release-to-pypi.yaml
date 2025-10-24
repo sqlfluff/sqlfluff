@@ -31,5 +31,5 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ secrets.PYPI_DBT_TEMPLATER_TOKEN }}
+          password: ${{ secrets.PYPI_SQLFLUFFRS_TOKEN }}
           skip-existing: true
