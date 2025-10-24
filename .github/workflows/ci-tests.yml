@@ -45,6 +45,7 @@ jobs:
             "mypy",
             "mypyc",
             "doctests",
+            "check-rs",
           ]
         include:
           # Default to most recent python version
@@ -64,9 +65,144 @@ jobs:
     - name: Run the tests
       run: tox -e ${{ matrix.job }}
 
+  rs-build-linux:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      matrix:
+        platform:
+          - runner: ubuntu-latest
+            target: x86_64
+          - runner: ubuntu-latest
+            target: x86
+          - runner: ubuntu-latest
+            target: aarch64
+          - runner: ubuntu-latest
+            target: armv7
+          - runner: ubuntu-latest
+            target: s390x
+          - runner: ubuntu-latest
+            target: ppc64le
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          manylinux: auto
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-${{ matrix.platform.target }}
+          path: dist
+
+  rs-build-musllinux:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      matrix:
+        platform:
+          - runner: ubuntu-latest
+            target: x86_64
+          - runner: ubuntu-latest
+            target: x86
+          - runner: ubuntu-latest
+            target: aarch64
+          - runner: ubuntu-latest
+            target: armv7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          manylinux: musllinux_1_2
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-musllinux-${{ matrix.platform.target }}
+          path: dist
+
+  rs-build-windows:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      matrix:
+        platform:
+          - runner: windows-latest
+            target: x64
+          - runner: windows-latest
+            target: x86
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+          architecture: ${{ matrix.platform.target }}
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-windows-${{ matrix.platform.target }}
+          path: dist
+
+  rs-build-macos:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      matrix:
+        platform:
+          - runner: macos-13
+            target: x86_64
+          - runner: macos-14
+            target: aarch64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-macos-${{ matrix.platform.target }}
+          path: dist
+
+  rs-build-sdist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build sdist
+        uses: PyO3/maturin-action@v1
+        with:
+          command: sdist
+          args: --out dist --manifest-path sqlfluffrs/Cargo.toml
+      - name: Upload sdist
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-sdist
+          path: dist
+
   # Test with coverage tracking on most recent python (py313).
   python-version-tests:
     name: Python Tests
+    needs: rs-build-linux
     strategy:
       matrix:
         python-version: [ "3.9", "3.10", "3.11", "3.12", "3.13" ]
@@ -77,6 +213,7 @@ jobs:
           # Override coverage to be true for most recent python version.
           - python-version: "3.13"
             coverage: true
+        with-rust: [ "-rust", "" ]
     permissions:
       contents: read
       pull-requests: write
@@ -84,6 +221,7 @@ jobs:
     with:
       python-version: ${{ matrix.python-version }}
       coverage: ${{ matrix.coverage }}
+      with-rust: ${{ matrix.with-rust }}
     secrets:
       gh_token: ${{ secrets.github_token }}
 
@@ -114,9 +252,12 @@ jobs:
       gh_token: ${{ secrets.github_token }}
 
   dialect-tests:
-    name: Dialect ${{ matrix.marks }}
+    name: Dialect ${{ matrix.marks }}${{ matrix.with-rust }}
+    needs: rs-build-linux
     strategy:
       matrix:
+        marks: [ "parse_suite", "fix_suite", "rules_suite" ]
+        with-rust: [ "-rust", "" ]
         include:
           # This runs the bulk of the dialect _parsing_ tests.
           #
@@ -149,6 +290,7 @@ jobs:
       python-version: "3.13"
       marks: ${{ matrix.marks }}
       coverage: ${{ matrix.coverage }}
+      with-rust: ${{ matrix.with-rust }}
     secrets:
       gh_token: ${{ secrets.github_token }}
 

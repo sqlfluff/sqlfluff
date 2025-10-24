@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7db209f0c7e592b08be653476499b31147b6276a754a92e57967fb4126c5db31
+_hash: 54e1c2e3c2c96bb46231eb8080e885c5ed15cde697a19d81e6ec0c53f01de497
 file:
 - statement:
     pipe_statement:
@@ -726,7 +726,7 @@ file:
                             start_bracket: (
                             expression:
                               typed_array_literal:
-                                array_type:
+                                data_type:
                                   keyword: ARRAY
                                   start_angle_bracket: <
                                   data_type:
@@ -771,7 +771,7 @@ file:
                             start_bracket: (
                             expression:
                               typed_array_literal:
-                                array_type:
+                                data_type:
                                   keyword: ARRAY
                                   start_angle_bracket: <
                                   data_type:
@@ -864,7 +864,7 @@ file:
                             start_bracket: (
                             expression:
                               typed_array_literal:
-                                array_type:
+                                data_type:
                                   keyword: ARRAY
                                   start_angle_bracket: <
                                   data_type:
@@ -905,7 +905,7 @@ file:
                             start_bracket: (
                             expression:
                               typed_array_literal:
-                                array_type:
+                                data_type:
                                   keyword: ARRAY
                                   start_angle_bracket: <
                                   data_type:
@@ -1207,7 +1207,7 @@ file:
                       start_bracket: (
                       expression:
                         typed_array_literal:
-                          array_type:
+                          data_type:
                             keyword: ARRAY
                             start_angle_bracket: <
                             data_type:
