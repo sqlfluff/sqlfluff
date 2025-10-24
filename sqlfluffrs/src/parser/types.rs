@@ -87,11 +87,7 @@ impl SimpleHint {
     /// Check if this hint can match the given token (using a set of types)
     /// This matches Python's behavior where it checks intersection of hint types with token's class_types
     /// Returns true if the token's raw value OR any type matches, or if hint is empty (can't determine)
-    pub fn can_match_token(
-        &self,
-        raw_upper: &str,
-        token_types: &HashSet<String>,
-    ) -> bool {
+    pub fn can_match_token(&self, raw_upper: &str, token_types: &HashSet<String>) -> bool {
         // Empty hint means "complex - can't determine", so return true (must try it)
         if self.raw_values.is_empty() && self.token_types.is_empty() {
             return true;
@@ -322,6 +318,12 @@ impl Grammar {
                 Some(SimpleHint::from_raws(&raws))
             }
 
+            // Meta: Invisible to matching - return empty hint so it doesn't block pruning
+            Grammar::Meta(s) => match *s {
+                "indent" | "dedent" => Some(SimpleHint::empty()),
+                _ => None,
+            },
+
             // Ref: Resolve to referenced grammar (with recursion protection)
             Grammar::Ref { name, .. } => {
                 // Check for self-reference
@@ -343,12 +345,6 @@ impl Grammar {
                 // No dialect or couldn't resolve
                 None
             }
-
-            // Meta: Invisible to matching - return empty hint so it doesn't block pruning
-            Grammar::Meta(s) => match *s {
-                "indent" | "dedent" => Some(SimpleHint::empty()),
-                _ => None,
-            },
 
             // Sequence: accumulate hints from optional elements until first non-optional
             // Python logic: union all optional elements, then return when hitting first required
@@ -1879,7 +1875,9 @@ mod tests {
         // Get the Ansi dialect
         let dialect = Dialect::Ansi;
         // Get the hint
-        let hint = grammar.simple_hint_with_dialect(Some(&dialect), &HashSet::new()).expect("Should return a hint");
+        let hint = grammar
+            .simple_hint_with_dialect(Some(&dialect), &HashSet::new())
+            .expect("Should return a hint");
         // Should match raw value ","
         assert!(hint.raw_values.contains(&" ,".trim().to_uppercase()));
         // Should match can_match_token for ","

@@ -38,16 +38,16 @@ impl<'a> Parser<'a> {
         let first_types: HashSet<String> =
             first_token.get_all_types().into_iter().collect();
 
-        log::debug!(
-            "Pruning {} options at pos {} (token: '{}', types: {:?})",
-            options.len(),
-            self.pos,
-            first_raw,
-            first_types
-        );
+        // log::debug!(
+        //     "Pruning {} options at pos {} (token: '{}', types: {:?})",
+        //     options.len(),
+        //     self.pos,
+        //     first_raw,
+        //     first_types
+        // );
 
         let mut available_options = Vec::new();
-        let mut pruned_count = 0;
+        // let mut pruned_count = 0;
 
         // Create empty crumbs set for recursion protection
         let crumbs = HashSet::new();
@@ -58,7 +58,7 @@ impl<'a> Parser<'a> {
                 None => {
                     // Complex grammar - must try full match
                     self.pruning_complex.set(self.pruning_complex.get() + 1);
-                    log::debug!("  Keeping complex grammar: {}", opt);
+                    // log::debug!("  Keeping complex grammar: {}", opt);
                     available_options.push(opt);
                 }
                 Some(hint) => {
@@ -66,25 +66,25 @@ impl<'a> Parser<'a> {
                     self.pruning_hinted.set(self.pruning_hinted.get() + 1);
                     // Check if hint matches current token (using ALL types for intersection)
                     if hint.can_match_token(&first_raw, &first_types) {
-                        log::debug!("  Keeping matched grammar: {}", opt);
+                        // log::debug!("  Keeping matched grammar: {}", opt);
                         available_options.push(opt);
                     } else {
-                        log::debug!("  PRUNED grammar: {}", opt);
-                        pruned_count += 1;
+                        // log::debug!("  PRUNED grammar: {}", opt);
+                        // pruned_count += 1;
                     }
                 }
             }
         }
 
-        if pruned_count > 0 {
-            log::debug!(
-                "Pruned from {} to {} options ({} pruned, {:.1}% reduction)",
-                options.len(),
-                available_options.len(),
-                pruned_count,
-                100.0 * (pruned_count as f64 / options.len() as f64)
-            );
-        }
+        // if pruned_count > 0 {
+            // log::debug!(
+            //     "Pruned from {} to {} options ({} pruned, {:.1}% reduction)",
+            //     options.len(),
+            //     available_options.len(),
+            //     pruned_count,
+            //     100.0 * (pruned_count as f64 / options.len() as f64)
+            // );
+        // }
 
         self.pruning_kept
             .set(self.pruning_kept.get() + available_options.len());

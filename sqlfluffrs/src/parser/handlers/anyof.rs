@@ -457,20 +457,20 @@ impl crate::parser::Parser<'_> {
         stack: &mut ParseFrameStack,
     ) -> Result<NextStep, ParseError> {
         let pos = frame.pos;
-        log::debug!(
-            "OneOf Initial state at pos {}, {} elements, parse_mode={:?}",
-            pos,
-            elements.len(),
-            parse_mode
-        );
+        // log::debug!(
+        //     "OneOf Initial state at pos {}, {} elements, parse_mode={:?}",
+        //     pos,
+        //     elements.len(),
+        //     parse_mode
+        // );
 
         if let Some(exclude_grammar) = exclude {
             let test_result = self.try_match_grammar(exclude_grammar, pos, parent_terminators);
             if test_result.is_some() {
-                log::debug!(
-                    "OneOf: exclude grammar matched at pos {}, returning empty",
-                    pos
-                );
+                // log::debug!(
+                //     "OneOf: exclude grammar matched at pos {}, returning empty",
+                //     pos
+                // );
                 stack
                     .results
                     .insert(frame.frame_id, (Node::Empty, pos, None));
@@ -508,7 +508,7 @@ impl crate::parser::Parser<'_> {
         };
 
         if self.is_terminated(&all_terminators) {
-            log::debug!("OneOf: Already at terminator");
+            // log::debug!("OneOf: Already at terminator");
             self.pos = pos;
 
             let result = if optional {
@@ -539,7 +539,7 @@ impl crate::parser::Parser<'_> {
             self.prune_options(elements).into_iter().cloned().collect();
 
         if available_options.is_empty() {
-            log::debug!("OneOf: No viable options after pruning");
+            // log::debug!("OneOf: No viable options after pruning");
             self.pos = pos;
 
             let result = if optional {
@@ -583,10 +583,10 @@ impl crate::parser::Parser<'_> {
         let element_key = first_element.cache_key();
 
         if matches!(first_element, Grammar::Nothing() | Grammar::Empty) {
-            log::debug!(
-                "OneOf: First element is Nothing, handling inline (element_key={})",
-                element_key
-            );
+            // log::debug!(
+            //     "OneOf: First element is Nothing, handling inline (element_key={})",
+            //     element_key
+            // );
             frame.context = if let crate::parser::FrameContext::OneOf {
                 elements,
                 allow_gaps,
