@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 49405dfb91d09673e5e6d25c2b8d5c10a10547b706dae2e3de30f4d57121ecad
+_hash: b2e4b59d03d53ffbd43e687665a926bc469f259afa2da1ed083ab44772e6ba44
 file:
   batch:
   - statement:
@@ -146,12 +146,12 @@ file:
         - column_definition:
             naked_identifier: Type
             data_type:
-              data_type_identifier: INT
+              keyword: INT
         - comma: ','
         - column_definition:
             naked_identifier: Value
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -162,7 +162,7 @@ file:
         - column_definition:
             naked_identifier: Format
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -173,7 +173,7 @@ file:
         - column_definition:
             naked_identifier: Class
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -184,7 +184,7 @@ file:
         - column_definition:
             naked_identifier: Array
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -195,12 +195,12 @@ file:
         - column_definition:
             quoted_identifier: '[SELECT]'
             data_type:
-              data_type_identifier: INT
+              keyword: INT
         - comma: ','
         - column_definition:
             quoted_identifier: '[UPDATE]'
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -211,7 +211,7 @@ file:
         - column_definition:
             naked_identifier: Name
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -642,12 +642,12 @@ file:
         - column_definition:
             naked_identifier: Type
             data_type:
-              data_type_identifier: INT
+              keyword: INT
         - comma: ','
         - column_definition:
             naked_identifier: Value
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -658,7 +658,7 @@ file:
         - column_definition:
             naked_identifier: Name
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -669,7 +669,7 @@ file:
         - column_definition:
             naked_identifier: Data
             data_type:
-              data_type_identifier: VARBINARY
+              keyword: VARBINARY
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -679,7 +679,7 @@ file:
         - column_definition:
             naked_identifier: Format
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (

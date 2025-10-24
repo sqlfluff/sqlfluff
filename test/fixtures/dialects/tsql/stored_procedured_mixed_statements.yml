@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5ca1f6514cbd5475004930865ed99cb510360651efcb034a34e63ce18f68fa9e
+_hash: 11f14b55556eb2d5226529ce7d671f6f775785510e73a10d0921426144f92a71
 file:
   batch:
     statement:
@@ -21,7 +21,7 @@ file:
               keyword: DECLARE
               parameter: '@DATEFUNCTION'
               data_type:
-                data_type_identifier: DATE
+                keyword: DATE
               comparison_operator:
                 raw_comparison_operator: '='
               expression:
@@ -46,7 +46,7 @@ file:
               keyword: DECLARE
               parameter: '@deadlock_var'
               data_type:
-                data_type_identifier: NCHAR
+                keyword: NCHAR
                 bracketed_arguments:
                   bracketed:
                     start_bracket: (

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a20c572eef8c620d037c11bfbc0b8af93bb35f1ac20f8eeeda3f2ec6af60b7c5
+_hash: 6fc8649a99294fd5d357b3a42405c8beecca4b0c99fa6981edd1d629bf94995c
 file:
 - batch:
     statement:
@@ -323,7 +323,7 @@ file:
                     - start_bracket: (
                     - quoted_identifier: '[country_code]'
                     - data_type:
-                        data_type_identifier: VARCHAR
+                        keyword: VARCHAR
                         bracketed_arguments:
                           bracketed:
                             start_bracket: (
@@ -336,7 +336,7 @@ file:
                     - comma: ','
                     - quoted_identifier: '[country_name]'
                     - data_type:
-                        data_type_identifier: VARCHAR
+                        keyword: VARCHAR
                         bracketed_arguments:
                           bracketed:
                             start_bracket: (
@@ -350,11 +350,11 @@ file:
                     - comma: ','
                     - quoted_identifier: '[year]'
                     - data_type:
-                        data_type_identifier: smallint
+                        keyword: smallint
                     - comma: ','
                     - quoted_identifier: '[population]'
                     - data_type:
-                        data_type_identifier: bigint
+                        keyword: bigint
                     - end_bracket: )
               alias_expression:
                 alias_operator:
@@ -398,7 +398,7 @@ file:
                     - start_bracket: (
                     - quoted_identifier: '[stateName]'
                     - data_type:
-                        data_type_identifier: VARCHAR
+                        keyword: VARCHAR
                         bracketed_arguments:
                           bracketed:
                             start_bracket: (
@@ -408,7 +408,7 @@ file:
                     - comma: ','
                     - quoted_identifier: '[stateName_explicit_path]'
                     - data_type:
-                        data_type_identifier: VARCHAR
+                        keyword: VARCHAR
                         bracketed_arguments:
                           bracketed:
                             start_bracket: (
@@ -419,7 +419,7 @@ file:
                     - comma: ','
                     - quoted_identifier: '[COUNTYNAME]'
                     - data_type:
-                        data_type_identifier: VARCHAR
+                        keyword: VARCHAR
                         bracketed_arguments:
                           bracketed:
                             start_bracket: (
@@ -429,7 +429,7 @@ file:
                     - comma: ','
                     - quoted_identifier: '[countyName_explicit_path]'
                     - data_type:
-                        data_type_identifier: VARCHAR
+                        keyword: VARCHAR
                         bracketed_arguments:
                           bracketed:
                             start_bracket: (
@@ -440,7 +440,7 @@ file:
                     - comma: ','
                     - quoted_identifier: '[population]'
                     - data_type:
-                        data_type_identifier: bigint
+                        keyword: bigint
                     - quoted_literal: "'strict $.population'"
                     - end_bracket: )
               alias_expression:

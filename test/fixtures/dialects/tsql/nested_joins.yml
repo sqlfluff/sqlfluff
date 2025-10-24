@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1b63dbe755608c063321279aaaf139de28ae6cb84a9efa7c9ef2d11556b61612
+_hash: 87d8e7ff5e03b2c4f0b353d46e5e60b3a45f32c8cd5a1b001bc1160052ae6289
 file:
 - batch:
     statement:
@@ -149,7 +149,7 @@ file:
                             - naked_identifier: IDEID
                           keyword: AS
                           data_type:
-                            data_type_identifier: varchar
+                            keyword: varchar
                           end_bracket: )
             - join_clause:
               - keyword: LEFT
@@ -210,7 +210,7 @@ file:
                             - naked_identifier: IDEID
                           keyword: AS
                           data_type:
-                            data_type_identifier: varchar
+                            keyword: varchar
                           end_bracket: )
             - join_on_condition:
                 keyword: 'ON'
@@ -228,7 +228,7 @@ file:
                           - naked_identifier: IDEID
                         keyword: AS
                         data_type:
-                          data_type_identifier: varchar
+                          keyword: varchar
                         end_bracket: )
                   comparison_operator:
                     raw_comparison_operator: '='

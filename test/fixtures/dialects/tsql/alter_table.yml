@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5de14ee956b14a5f09c9c51727b853ca119ab45abb334d90527c0b40ff275464
+_hash: 9cb962abf0332e2d2d7efb792068885a82816c63e620703e3114bd8e283e7263
 file:
 - batch:
     statement:
@@ -19,7 +19,7 @@ file:
           column_definition:
             naked_identifier: column_a
             data_type:
-              data_type_identifier: INT
+              keyword: INT
           end_bracket: )
       - statement_terminator: ;
     go_statement:
@@ -37,7 +37,7 @@ file:
       - column_definition:
           naked_identifier: column_b
           data_type:
-            data_type_identifier: VARCHAR
+            keyword: VARCHAR
             bracketed_arguments:
               bracketed:
                 start_bracket: (
@@ -63,7 +63,7 @@ file:
           column_definition:
             naked_identifier: column_a
             data_type:
-              data_type_identifier: INT
+              keyword: INT
           end_bracket: )
       - statement_terminator: ;
     go_statement:
@@ -81,7 +81,7 @@ file:
       - column_definition:
         - naked_identifier: column_b
         - data_type:
-            data_type_identifier: VARCHAR
+            keyword: VARCHAR
             bracketed_arguments:
               bracketed:
                 start_bracket: (
@@ -148,12 +148,12 @@ file:
         - column_definition:
             naked_identifier: column_a
             data_type:
-              data_type_identifier: INT
+              keyword: INT
         - comma: ','
         - column_definition:
             naked_identifier: column_b
             data_type:
-              data_type_identifier: INT
+              keyword: INT
         - end_bracket: )
       - statement_terminator: ;
     go_statement:
@@ -298,7 +298,7 @@ file:
       - column_definition:
           naked_identifier: rec_number
           data_type:
-            data_type_identifier: VARCHAR
+            keyword: VARCHAR
             bracketed_arguments:
               bracketed:
                 start_bracket: (
@@ -395,12 +395,12 @@ file:
       - column_definition:
           naked_identifier: my_col_1
           data_type:
-            data_type_identifier: INT
+            keyword: INT
       - comma: ','
       - column_definition:
           naked_identifier: my_col_2
           data_type:
-            data_type_identifier: INT
+            keyword: INT
     go_statement:
       keyword: GO
 - batch:
@@ -913,7 +913,7 @@ file:
                     quoted_identifier: '[InventoryTs]'
                 keyword: AS
                 data_type:
-                  data_type_identifier: date
+                  keyword: date
                 end_bracket: )
     statement_terminator: ;
     go_statement:
@@ -1010,12 +1010,10 @@ file:
             quoted_identifier: '[strUserId]'
             data_type:
               data_type_identifier: '[char]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    integer_literal: '21'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '21'
+              end_bracket: )
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -1024,12 +1022,10 @@ file:
             quoted_identifier: '[strItem]'
             data_type:
               data_type_identifier: '[binary]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    integer_literal: '400'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '400'
+              end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
@@ -1037,12 +1033,10 @@ file:
             quoted_identifier: '[strSkill]'
             data_type:
               data_type_identifier: '[binary]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    integer_literal: '400'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '400'
+              end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','

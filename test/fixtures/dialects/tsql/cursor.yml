@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ff024fdcaabd2eec2fda1e6730047c019e2718daa5f305da9f0da9a0be38fd1e
+_hash: 9615d153dcdb70e7319d0e4a4843bdc76b8d0399f3b2e935f6cfbfc243ac2877
 file:
   batch:
   - statement:
@@ -81,7 +81,8 @@ file:
   - statement_terminator: ;
   - statement:
       declare_segment:
-      - keyword: DECLARE
-      - parameter: '@cursorName'
-      - keyword: CURSOR
-      - statement_terminator: ;
+        keyword: DECLARE
+        parameter: '@cursorName'
+        data_type:
+          keyword: CURSOR
+        statement_terminator: ;

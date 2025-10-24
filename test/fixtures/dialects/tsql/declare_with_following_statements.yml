@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b38b8436fb6e83416b265978f28ba7795341b9d69d04287a55c8ef4c6f890501
+_hash: 36db034aa3ee0a4f100c9ef2ba3418380bac2ab968464264443f561de569a458
 file:
   batch:
     statement:
@@ -25,14 +25,14 @@ file:
                 - parameter: '@startdate'
                 - keyword: AS
                 - data_type:
-                    data_type_identifier: DATE
+                    keyword: DATE
                 - statement_terminator: ;
             - statement:
                 declare_segment:
                   keyword: DECLARE
                   parameter: '@DateNow'
                   data_type:
-                    data_type_identifier: DATE
+                    keyword: DATE
                   comparison_operator:
                     raw_comparison_operator: '='
                   expression:
@@ -49,7 +49,7 @@ file:
                 - keyword: DECLARE
                 - parameter: '@DateStart'
                 - data_type:
-                    data_type_identifier: DATETIME2
+                    keyword: DATETIME2
                 - comparison_operator:
                     raw_comparison_operator: '='
                 - expression:
@@ -63,7 +63,7 @@ file:
                 - comma: ','
                 - parameter: '@DateEnd'
                 - data_type:
-                    data_type_identifier: DATETIME2
+                    keyword: DATETIME2
                 - comparison_operator:
                     raw_comparison_operator: '='
                 - expression:
@@ -79,7 +79,7 @@ file:
                   keyword: DECLARE
                   parameter: '@EOMONTH'
                   data_type:
-                    data_type_identifier: DATE
+                    keyword: DATE
                   comparison_operator:
                     raw_comparison_operator: '='
                   expression:
@@ -93,7 +93,7 @@ file:
                   keyword: DECLARE
                   parameter: '@USER'
                   data_type:
-                    data_type_identifier: DATE
+                    keyword: DATE
                   comparison_operator:
                     raw_comparison_operator: '='
                   expression:
@@ -104,7 +104,7 @@ file:
                   keyword: DECLARE
                   parameter: '@CURRENTTIME'
                   data_type:
-                    data_type_identifier: DATE
+                    keyword: DATE
                   comparison_operator:
                     raw_comparison_operator: '='
                   expression:
