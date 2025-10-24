@@ -228,3 +228,30 @@ test_fail_select_lower_keyword_functions:
     rules:
       capitalisation.keywords:
         capitalisation_policy: upper
+
+test_pass_bigquery_struct:
+  pass_str: |
+    select
+      STRUCT(
+        first_name as firstName,
+        last_name as lastName
+      ) as name
+    from persons
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_array:
+  pass_str: |
+    select
+      ARRAY<STRUCT<
+        first_name STRING,
+        last_name STRING
+      >>[
+        STRUCT('John' as first_name, 'Doe' as last_name),
+        STRUCT('Jane' as first_name, 'Smith' as last_name)
+      ] as people
+    from dual
+  configs:
+    core:
+      dialect: bigquery
