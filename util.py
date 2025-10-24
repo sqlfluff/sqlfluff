@@ -216,6 +216,18 @@ def release(new_version_num):
             write_file.write(line)
         write_file.close()
 
+    click.echo("Updating sqlfluffrs/Cargo.toml")
+    for filename in ["sqlfluffrs/Cargo.toml"]:
+        # NOTE: Toml files are always encoded in UTF-8.
+        input_file = open(filename, "r", encoding="utf-8").readlines()
+        # Regardless of platform, write newlines as \n
+        write_file = open(filename, "w", encoding="utf-8", newline="\n")
+        for line in input_file:
+            if line.startswith("version"):
+                line = f'version = "{new_version_num}"\n'
+            write_file.write(line)
+        write_file.close()
+
     keys = ["version"]
     if not is_pre_release:
         # Only update stable_version if it's not a pre-release.
@@ -232,6 +244,9 @@ def release(new_version_num):
                     # For pyproject.toml we quote the version identifier.
                     line = f'{key} = "{new_version_num}"\n'
                     break
+            # Update sqlfluffrs dependency version
+            if line.startswith('rs = ["sqlfluffrs'):
+                line = f'rs = ["sqlfluffrs=={new_version_num}"]\n'
             write_file.write(line)
         write_file.close()
 
