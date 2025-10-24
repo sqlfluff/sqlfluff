@@ -9,6 +9,7 @@ use crate::{
     parser::{Node, Parser},
     Dialect,
 };
+use hashbrown::HashSet;
 use serde_yaml::{Mapping, Value};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -365,7 +366,7 @@ fn node_to_yaml_value(
             }
 
             // Check for duplicate keys in mappings
-            let unique_keys: std::collections::HashSet<_> = all_keys.iter().collect();
+            let unique_keys: HashSet<_> = all_keys.iter().collect();
             let has_duplicates = unique_keys.len() != all_keys.len();
 
             // If we have only mappings and no duplicates, try to merge them

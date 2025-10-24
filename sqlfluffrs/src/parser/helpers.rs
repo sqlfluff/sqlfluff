@@ -35,7 +35,7 @@ impl<'a> Parser<'a> {
         // Get token properties for matching
         // Use ALL types (instance_types + class_types) to match Python's behavior
         let first_raw = first_token.raw_upper();
-        let first_types: std::collections::HashSet<String> =
+        let first_types: HashSet<String> =
             first_token.get_all_types().into_iter().collect();
 
         log::debug!(
@@ -91,22 +91,18 @@ impl<'a> Parser<'a> {
         available_options
     }
 
+    /// Find the longest matching grammar option from a list.
+    /// This is more reflective of the python implementation of longest_match.
     pub(crate) fn longest_match(
         &mut self,
         options: &[Grammar],
         max_idx: usize,
         terminators: &[Grammar],
     ) -> Node {
-        if options.is_empty() || self.pos == max_idx {
-            return Node::Empty;
-        }
-
-        let available_options = self.prune_options(options);
-
-        if available_options.is_empty() {
-            log::debug!("No options left after pruning, returning Empty");
-            return Node::Empty;
-        }
+        let available_options = match self.get_available_grammar_options(options, max_idx) {
+            Ok(value) => value,
+            Err(value) => return value,
+        };
 
         let mut terminated = false;
         let mut best_option = Node::Empty;
@@ -165,7 +161,23 @@ impl<'a> Parser<'a> {
             self.pos = saved_pos; // Restore position for next option
         }
 
-        return best_option;
+        best_option
+    }
+
+    pub(crate) fn get_available_grammar_options<'g>(
+        &mut self,
+        options: &'g [Grammar],
+        max_idx: usize,
+    ) -> Result<Vec<&'g Grammar>, Node> {
+        if options.is_empty() || self.pos == max_idx {
+            return Err(Node::Empty);
+        }
+        let available_options = self.prune_options(options);
+        if available_options.is_empty() {
+            log::debug!("No options left after pruning, returning Empty");
+            return Err(Node::Empty);
+        }
+        Ok(available_options)
     }
 
     /// Print cache statistics
@@ -258,13 +270,26 @@ impl<'a> Parser<'a> {
 
             let tok_type = tok.get_type();
             let node = if tok_type == "whitespace" {
-                Node::Whitespace { raw: tok.raw(), token_idx: token_pos }
+                Node::Whitespace {
+                    raw: tok.raw(),
+                    token_idx: token_pos,
+                }
             } else if tok_type == "newline" {
-                Node::Newline { raw: tok.raw(), token_idx: token_pos }
+                Node::Newline {
+                    raw: tok.raw(),
+                    token_idx: token_pos,
+                }
             } else if tok_type == "end_of_file" {
-                Node::EndOfFile { raw: tok.raw(), token_idx: token_pos }
+                Node::EndOfFile {
+                    raw: tok.raw(),
+                    token_idx: token_pos,
+                }
             } else {
-                Node::Token { token_type: tok.raw(), raw: tok.token_type.clone(), token_idx: token_pos } // Fallback for other non-code tokens
+                Node::Token {
+                    token_type: tok.raw(),
+                    raw: tok.token_type.clone(),
+                    token_idx: token_pos,
+                } // Fallback for other non-code tokens
             };
 
             log::debug!(

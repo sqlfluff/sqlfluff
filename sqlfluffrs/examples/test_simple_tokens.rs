@@ -1,3 +1,4 @@
+use hashbrown::HashSet;
 use sqlfluffrs::lexer::{LexInput, Lexer};
 use sqlfluffrs::parser::Parser;
 use sqlfluffrs::Dialect;
@@ -26,7 +27,7 @@ fn main() {
             println!("\nAST collected successfully");
 
             // Collect positions
-            let mut positions = std::collections::HashSet::new();
+            let mut positions = HashSet::new();
             collect_positions(&ast, &mut positions);
 
             println!("\nPositions in AST: {:?}", {
@@ -65,7 +66,7 @@ fn main() {
 
 fn collect_positions(
     node: &sqlfluffrs::parser::Node,
-    positions: &mut std::collections::HashSet<usize>,
+    positions: &mut HashSet<usize>,
 ) {
     use sqlfluffrs::parser::Node;
     match node {

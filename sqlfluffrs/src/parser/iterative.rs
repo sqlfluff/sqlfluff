@@ -6,7 +6,6 @@
 //! The iterative parser processes grammars by maintaining a stack of ParseFrames,
 //! each representing a parsing state. This approach prevents stack overflow on
 //! deeply nested or complex SQL grammars.
-use hashbrown::{HashMap, HashSet};
 
 pub enum NextStep {
     Continue,
@@ -19,6 +18,12 @@ pub struct ParseFrameStack {
     pub results: hashbrown::HashMap<usize, (Node, usize, Option<u64>)>,
     pub frame_id_counter: usize,
     // Add any additional state fields here as needed
+}
+
+impl Default for ParseFrameStack {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl ParseFrameStack {
@@ -50,7 +55,7 @@ impl ParseFrameStack {
         self.stack.last_mut()
     }
 
-    pub fn iter(&self) -> std::slice::Iter<ParseFrame> {
+    pub fn iter(&'_ self) -> std::slice::Iter<'_, ParseFrame> {
         self.stack.iter()
     }
 
@@ -71,7 +76,7 @@ use super::utils::{apply_parse_mode_to_result, is_grammar_optional};
 // Import Parser from core module
 use super::core::Parser;
 
-impl<'a> Parser<'_> {
+impl Parser<'_> {
     // ========================================================================
     // Iterative Parser Helper Functions
     // ========================================================================
@@ -94,7 +99,7 @@ impl<'a> Parser<'_> {
         match &grammar {
             // Simple leaf grammars - parse directly without recursion
             Grammar::Token { token_type } => {
-                self.handle_token_initial(token_type, &frame, &mut stack.results)?;
+                self.handle_token_initial(token_type, frame, &mut stack.results)?;
                 Ok(NextStep::Fallthrough)
             }
 
@@ -105,7 +110,7 @@ impl<'a> Parser<'_> {
             } => self.handle_string_parser_initial(
                 template,
                 token_type,
-                &frame,
+                frame,
                 iteration_count,
                 &mut stack.results,
             ),
@@ -117,7 +122,7 @@ impl<'a> Parser<'_> {
             } => self.handle_multi_string_parser_initial(
                 templates,
                 token_type,
-                &frame,
+                frame,
                 &mut stack.results,
             ),
 
@@ -125,7 +130,7 @@ impl<'a> Parser<'_> {
                 template,
                 token_type,
                 ..
-            } => self.handle_typed_parser_initial(template, token_type, &frame, &mut stack.results),
+            } => self.handle_typed_parser_initial(template, token_type, frame, &mut stack.results),
 
             Grammar::RegexParser {
                 template,
@@ -136,22 +141,22 @@ impl<'a> Parser<'_> {
                 template,
                 anti_template,
                 token_type,
-                &frame,
+                frame,
                 &mut stack.results,
             ),
 
             Grammar::Meta(token_type) => {
-                self.handle_meta_initial(token_type, &frame, &mut stack.results)
+                self.handle_meta_initial(token_type, frame, &mut stack.results)
             }
 
-            Grammar::Nothing() => self.handle_nothing_initial(&frame, &mut stack.results),
+            Grammar::Nothing() => self.handle_nothing_initial(frame, &mut stack.results),
 
-            Grammar::Empty => self.handle_empty_initial(&frame, &mut stack.results),
+            Grammar::Empty => self.handle_empty_initial(frame, &mut stack.results),
 
             Grammar::Missing => self.handle_missing_initial(),
 
             Grammar::Anything => {
-                self.handle_anything_initial(&frame, &terminators, &mut stack.results)
+                self.handle_anything_initial(frame, &terminators, &mut stack.results)
             }
 
             // Complex grammars - need special handling
@@ -424,7 +429,7 @@ impl<'a> Parser<'_> {
             }
 
             // Debug: Show what frame we're processing periodically
-            if iteration_count % 5000 == 0 {
+            if iteration_count.is_multiple_of(5000) {
                 log::debug!(
                     "\nDEBUG [iter {}]: Processing frame_id={}, state={:?}",
                     iteration_count,
@@ -527,7 +532,7 @@ impl<'a> Parser<'_> {
                         );
 
                         // Debug: Show when we find a child result
-                        if iteration_count % 100 == 0 || iteration_count < 200 {
+                        if iteration_count.is_multiple_of(100) || iteration_count < 200 {
                             log::debug!(
                                 "DEBUG [iter {}]: Frame {} found child {} result, grammar: {:?}",
                                 iteration_count,
@@ -1189,9 +1194,9 @@ impl<'a> Parser<'_> {
                                 elements,
                                 min_times,
                                 max_times,
-                                max_times_per_element,
+                                max_times_per_element: _max_times_per_element,
                                 allow_gaps,
-                                optional,
+                                optional: _optional,
                                 parse_mode,
                                 count,
                                 matched_idx,
@@ -1200,172 +1205,28 @@ impl<'a> Parser<'_> {
                                 max_idx,
                                 last_child_frame_id: _last_child_frame_id,
                             } => {
-                                log::debug!(
-                                    "AnyNumberOf WaitingForChild: count={}, child_node empty={}, matched_idx={}, working_idx={}",
+                                handle_anynumberof_waiting_for_child!(
+                                    self,
+                                    frame,
+                                    stack,
+                                    child_node,
+                                    child_end_pos,
+                                    child_element_key,
+                                    elements,
+                                    min_times,
+                                    max_times,
+                                    max_times_per_element,
+                                    allow_gaps,
+                                    optional,
+                                    parse_mode,
                                     count,
-                                    child_node.is_empty(),
                                     matched_idx,
-                                    working_idx
+                                    working_idx,
+                                    option_counter,
+                                    max_idx,
+                                    frame_terminators,
+                                    iteration_count
                                 );
-
-                                // Handle the child result
-                                if !child_node.is_empty() {
-                                    // Successfully matched!
-
-                                    // Collect transparent tokens if allow_gaps
-                                    if *allow_gaps && *matched_idx < *working_idx {
-                                        while *matched_idx < *working_idx {
-                                            if let Some(tok) = self.tokens.get(*matched_idx) {
-                                                let tok_type = tok.get_type();
-                                                if tok_type == "whitespace" {
-                                                    frame.accumulated.push(Node::Whitespace {
-                                                        raw: tok.raw().to_string(),
-                                                        token_idx: *matched_idx,
-                                                    });
-                                                } else if tok_type == "newline" {
-                                                    frame.accumulated.push(Node::Newline {
-                                                        raw: tok.raw().to_string(),
-                                                        token_idx: *matched_idx,
-                                                    });
-                                                }
-                                            }
-                                            *matched_idx += 1;
-                                        }
-                                    }
-
-                                    // Add the matched node
-                                    frame.accumulated.push(child_node.clone());
-                                    *matched_idx = *child_end_pos;
-                                    *working_idx = *matched_idx;
-                                    *count += 1;
-
-                                    // Update option_counter with the element_key from OneOf child
-                                    let element_key = child_element_key.unwrap_or(0);
-                                    *option_counter.entry(element_key).or_insert(0) += 1;
-
-                                    log::debug!(
-                                        "AnyNumberOf: matched element #{}, element_key={}, matched_idx now: {}",
-                                        count, element_key, matched_idx
-                                    );
-
-                                    // Python behavior: Check for complete match (consumed all to max_idx)
-                                    // If we've consumed all available segments, stop trying more matches
-                                    let reached_max = *matched_idx >= *max_idx;
-
-                                    if reached_max {
-                                        log::debug!(
-                                            "AnyNumberOf: Complete match (reached max_idx={}), stopping iteration",
-                                            max_idx
-                                        );
-                                    }
-
-                                    // Check if we've reached limits
-                                    let should_continue = !reached_max
-                                        && (*count < *min_times
-                                            || (max_times.is_none()
-                                                || *count < max_times.unwrap()));
-
-                                    if should_continue {
-                                        // Continue loop - try matching next element
-                                        // Update working_idx to skip whitespace if allowed
-                                        if *allow_gaps {
-                                            *working_idx = self.skip_start_index_forward_to_code(
-                                                *working_idx,
-                                                *max_idx,
-                                            );
-                                        }
-
-                                        // Create OneOf wrapper to try all elements (proper longest-match)
-                                        if !elements.is_empty() {
-                                            // Optimization: if only one element, use it directly (avoid OneOf overhead)
-                                            let child_grammar = if elements.len() == 1 {
-                                                elements[0].clone()
-                                            } else {
-                                                // Multiple elements: wrap in OneOf for longest-match selection
-                                                Grammar::OneOf {
-                                                    elements: elements.clone(),
-                                                    exclude: None,
-                                                    optional: true, // Let AnyNumberOf handle empty
-                                                    terminators: frame_terminators.clone(),
-                                                    reset_terminators: false,
-                                                    allow_gaps: *allow_gaps,
-                                                    parse_mode: *parse_mode,
-                                                }
-                                            };
-
-                                            let child_frame = ParseFrame::new_child(
-                                                stack.frame_id_counter,
-                                                child_grammar,
-                                                *working_idx,
-                                                frame_terminators.clone(),
-                                                Some(*max_idx), // Pass AnyNumberOf's max_idx to child!
-                                            );
-
-                                            ParseFrame::push_child_and_update_parent(
-                                                &mut stack,
-                                                frame,
-                                                child_frame,
-                                                "AnyNumberOf",
-                                            );
-                                            log::debug!("DEBUG [iter {}]: AnyNumberOf pushed parent and child, stack.len()={}", iteration_count, stack.len());
-                                            continue 'main_loop; // Exit the WaitingForChild handler - continue to next iteration
-                                        }
-                                    } else {
-                                        // Done with loop - complete the frame
-                                        self.pos = *matched_idx;
-                                        let result_node = Node::DelimitedList {
-                                            children: frame.accumulated.clone(),
-                                        };
-                                        log::debug!(
-                                            "AnyNumberOf COMPLETE: {} matches, storing result at frame_id={}",
-                                            count,
-                                            frame.frame_id
-                                        );
-                                        stack.results.insert(
-                                            frame.frame_id,
-                                            (result_node, *matched_idx, None),
-                                        );
-                                        continue; // Frame is complete, move to next frame
-                                    }
-                                } else {
-                                    // Child failed to match
-                                    log::debug!(
-                                        "AnyNumberOf: child failed to match at position {}",
-                                        working_idx
-                                    );
-
-                                    // Check if we've met min_times
-                                    if *count < *min_times {
-                                        // Haven't met minimum occurrences - return Empty
-                                        // Let the parent grammar decide if this is a failure or not
-                                        self.pos = frame.pos;
-                                        log::debug!(
-                                            "AnyNumberOf returning Empty (didn't meet min_times {} < {})",
-                                            count,
-                                            min_times
-                                        );
-                                        stack
-                                            .results
-                                            .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                                        continue; // Frame is complete, move to next frame
-                                    } else {
-                                        // We've met min_times - complete with what we have
-                                        self.pos = *matched_idx;
-                                        let result_node = Node::DelimitedList {
-                                            children: frame.accumulated.clone(),
-                                        };
-                                        log::debug!(
-                                            "AnyNumberOf COMPLETE (child failed): {} matches, storing result at frame_id={}",
-                                            count,
-                                            frame.frame_id
-                                        );
-                                        stack.results.insert(
-                                            frame.frame_id,
-                                            (result_node, *matched_idx, None),
-                                        );
-                                        continue; // Frame is complete, move to next frame
-                                    }
-                                }
                             }
 
                             FrameContext::Bracketed {
@@ -1844,7 +1705,7 @@ impl<'a> Parser<'_> {
 
                             FrameContext::OneOf {
                                 elements,
-                                allow_gaps,
+                                allow_gaps: _allow_gaps,
                                 optional,
                                 leading_ws,
                                 post_skip_pos,
@@ -2389,7 +2250,7 @@ impl<'a> Parser<'_> {
                         );
 
                         // Check if we're in an infinite loop - frame waiting for child that doesn't exist
-                        if iteration_count > 100 && iteration_count % 100 == 0 {
+                        if iteration_count > 100 && iteration_count.is_multiple_of(100) {
                             log::debug!("WARNING: Frame {} waiting for child {} but result not found (iteration {})",
                                 frame.frame_id, child_id_str, iteration_count);
 

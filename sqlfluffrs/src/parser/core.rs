@@ -3,6 +3,8 @@
 //! This module contains the Parser struct definition and its core methods
 //! including the main entry point for parsing with grammar.
 
+use hashbrown::HashSet;
+
 use crate::{dialect::Dialect, token::Token};
 
 use super::{cache::ParseCache, Grammar, Node, ParseError};
@@ -13,7 +15,7 @@ pub struct Parser<'a> {
     pub pos: usize, // current position in tokens
     pub dialect: Dialect,
     pub parse_cache: ParseCache,
-    pub collected_transparent_positions: std::collections::HashSet<usize>, // Track which token positions have had transparent tokens collected
+    pub collected_transparent_positions: HashSet<usize>, // Track which token positions have had transparent tokens collected
     pub pruning_calls: std::cell::Cell<usize>, // Track number of prune_options calls
     pub pruning_total: std::cell::Cell<usize>, // Total options considered
     pub pruning_kept: std::cell::Cell<usize>,  // Options kept after pruning
@@ -29,7 +31,7 @@ impl<'a> Parser<'a> {
             pos: 0,
             dialect,
             parse_cache: ParseCache::new(),
-            collected_transparent_positions: std::collections::HashSet::new(),
+            collected_transparent_positions: HashSet::new(),
             pruning_calls: std::cell::Cell::new(0),
             pruning_total: std::cell::Cell::new(0),
             pruning_kept: std::cell::Cell::new(0),

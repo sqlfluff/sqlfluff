@@ -2,6 +2,174 @@ use crate::parser::iterative::{NextStep, ParseFrameStack};
 use crate::parser::{Grammar, Node, ParseError, ParseFrame, ParseMode};
 use hashbrown::HashSet;
 
+macro_rules! handle_anynumberof_waiting_for_child {
+                                    (
+                                        $self:ident, $frame:ident, $stack:ident, $child_node:ident, $child_end_pos:ident, $child_element_key:ident,
+                                        $elements:ident, $min_times:ident, $max_times:ident, $max_times_per_element:ident,
+                                        $allow_gaps:ident, $optional:ident, $parse_mode:ident, $count:ident, $matched_idx:ident,
+                                        $working_idx:ident, $option_counter:ident, $max_idx:ident, $frame_terminators:ident,
+                                        $iteration_count:ident
+                                    ) => {
+                                        log::debug!(
+                                            "AnyNumberOf WaitingForChild: count={}, child_node empty={}, matched_idx={}, working_idx={}",
+                                            $count,
+                                            $child_node.is_empty(),
+                                            $matched_idx,
+                                            $working_idx
+                                        );
+
+                                        // Handle the child result
+                                        if !$child_node.is_empty() {
+                                            // Successfully matched!
+
+                                            // Collect transparent tokens if allow_gaps
+                                            if *$allow_gaps && *$matched_idx < *$working_idx {
+                                                while *$matched_idx < *$working_idx {
+                                                    if let Some(tok) = $self.tokens.get(*$matched_idx) {
+                                                        let tok_type = tok.get_type();
+                                                        if tok_type == "whitespace" {
+                                                            $frame.accumulated.push(Node::Whitespace { raw: tok.raw().to_string(), token_idx: *$matched_idx });
+                                                        } else if tok_type == "newline" {
+                                                            $frame.accumulated.push(Node::Newline { raw: tok.raw().to_string(), token_idx: *$matched_idx });
+                                                        }
+                                                    }
+                                                    *$matched_idx += 1;
+                                                }
+                                            }
+
+                                            // Add the matched node
+                                            $frame.accumulated.push($child_node.clone());
+                                            *$matched_idx = *$child_end_pos;
+                                            *$working_idx = *$matched_idx;
+                                            *$count += 1;
+
+                                            // Update option_counter with the element_key from OneOf child
+                                            let element_key = $child_element_key.unwrap_or(0);
+                                            *$option_counter.entry(element_key).or_insert(0) += 1;
+
+                                            log::debug!(
+                                                "AnyNumberOf: matched element #{}, element_key={}, matched_idx now: {}",
+                                                $count, element_key, $matched_idx
+                                            );
+
+                                            // Python behavior: Check for complete match (consumed all to max_idx)
+                                            // If we've consumed all available segments, stop trying more matches
+                                            let reached_max = *$matched_idx >= *$max_idx;
+
+                                            if reached_max {
+                                                log::debug!(
+                                                    "AnyNumberOf: Complete match (reached max_idx={}), stopping iteration",
+                                                    $max_idx
+                                                );
+                                            }
+
+                                            // Check if we've reached limits
+                                            let should_continue = !reached_max
+                                                && (*$count < *$min_times
+                                                    || ($max_times.is_none()
+                                                        || *$count < $max_times.unwrap()));
+
+                                            if should_continue {
+                                                // Continue loop - try matching next element
+                                                // Update working_idx to skip whitespace if allowed
+                                                if *$allow_gaps {
+                                                    *$working_idx = $self.skip_start_index_forward_to_code(
+                                                        *$working_idx,
+                                                        *$max_idx,
+                                                    );
+                                                }
+
+                                                // Create OneOf wrapper to try all elements (proper longest-match)
+                                                if !$elements.is_empty() {
+                                                    // Optimization: if only one element, use it directly (avoid OneOf overhead)
+                                                    let child_grammar = if $elements.len() == 1 {
+                                                        $elements[0].clone()
+                                                    } else {
+                                                        // Multiple elements: wrap in OneOf for longest-match selection
+                                                        Grammar::OneOf {
+                                                            elements: $elements.clone(),
+                                                            exclude: None,
+                                                            optional: true, // Let AnyNumberOf handle empty
+                                                            terminators: $frame_terminators.clone(),
+                                                            reset_terminators: false,
+                                                            allow_gaps: *$allow_gaps,
+                                                            parse_mode: *$parse_mode,
+                                                        }
+                                                    };
+
+                                                    let child_frame = ParseFrame::new_child(
+                                                        $stack.frame_id_counter,
+                                                        child_grammar,
+                                                        *$working_idx,
+                                                        $frame_terminators.clone(),
+                                                        Some(*$max_idx), // Pass AnyNumberOf's max_idx to child!
+                                                    );
+
+                                                    ParseFrame::push_child_and_update_parent(
+                                                        &mut $stack,
+                                                        $frame,
+                                                        child_frame,
+                                                        "AnyNumberOf",
+                                                    );
+                                                    log::debug!("DEBUG [iter {}]: AnyNumberOf pushed parent and child, stack.len()={}", $iteration_count, $stack.len());
+                                                    continue; // Exit the WaitingForChild handler - continue to next iteration
+                                                }
+                                            } else {
+                                                // Done with loop - complete the frame
+                                                $self.pos = *$matched_idx;
+                                                let result_node =
+                                                    Node::DelimitedList { children: $frame.accumulated.clone() };
+                                                log::debug!(
+                                                    "AnyNumberOf COMPLETE: {} matches, storing result at frame_id={}",
+                                                    $count,
+                                                    $frame.frame_id
+                                                );
+                                                $stack.results.insert(
+                                                    $frame.frame_id,
+                                                    (result_node, *$matched_idx, None),
+                                                );
+                                                continue; // Frame is complete, move to next frame
+                                            }
+                                        } else {
+                                            // Child failed to match
+                                            log::debug!(
+                                                "AnyNumberOf: child failed to match at position {}",
+                                                $working_idx
+                                            );
+
+                                            // Check if we've met min_times
+                                            if *$count < *$min_times {
+                                                // Haven't met minimum occurrences - return Empty
+                                                // Let the parent grammar decide if this is a failure or not
+                                                $self.pos = $frame.pos;
+                                                log::debug!(
+                                                    "AnyNumberOf returning Empty (didn't meet min_times {} < {})",
+                                                    $count,
+                                                    $min_times
+                                                );
+                                                $stack.results
+                                                    .insert($frame.frame_id, (Node::Empty, $frame.pos, None));
+                                                continue; // Frame is complete, move to next frame
+                                            } else {
+                                                // We've met min_times - complete with what we have
+                                                $self.pos = *$matched_idx;
+                                                let result_node =
+                                                    Node::DelimitedList { children: $frame.accumulated.clone() };
+                                                log::debug!(
+                                                    "AnyNumberOf COMPLETE (child failed): {} matches, storing result at frame_id={}",
+                                                    $count,
+                                                    $frame.frame_id
+                                                );
+                                                $stack.results.insert(
+                                                    $frame.frame_id,
+                                                    (result_node, *$matched_idx, None),
+                                                );
+                                                continue; // Frame is complete, move to next frame
+                                            }
+                                        }
+                                    };
+                                }
+
 impl crate::parser::Parser<'_> {
     /// Handle AnySetOf grammar Initial state in iterative parser
     pub fn handle_anysetof_initial(
@@ -193,6 +361,18 @@ impl crate::parser::Parser<'_> {
             max_idx,
             self.tokens.len()
         );
+
+        let elements = match self.get_available_grammar_options(elements, max_idx) {
+            Ok(value) => value.into_iter().cloned().collect::<Vec<_>>(),
+            Err(value) => {
+                if let Node::Empty = value {
+                    log::debug!("AnyNumberOf: No available options at start, returning Empty");
+                    return self.handle_empty_initial(frame, &mut stack.results);
+                } else {
+                    unreachable!()
+                }
+            }
+        };
 
         frame.state = crate::parser::FrameState::WaitingForChild {
             child_index: 0,

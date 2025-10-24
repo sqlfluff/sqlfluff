@@ -102,11 +102,11 @@ fn main() {
 
     // Print match tree
     println!("=== MATCH TREE ===");
-    print_match_tree(&ast, &tokens, 0);
+    print_match_tree(&ast, 0);
     println!();
 
     // Generate YAML
-    let generated_yaml = match node_to_yaml(&ast, &tokens) {
+    let generated_yaml = match node_to_yaml(&ast) {
         Ok(yaml) => yaml,
         Err(e) => {
             log::debug!("=== YAML CONVERSION ERROR ===");
@@ -192,7 +192,6 @@ fn infer_dialect(path: &Path) -> Dialect {
 /// Print the match tree in a format similar to Python SQLFluff
 fn print_match_tree(
     node: &sqlfluffrs::parser::Node,
-    tokens: &[sqlfluffrs::token::Token],
     depth: usize,
 ) {
     use sqlfluffrs::parser::Node;
@@ -201,7 +200,11 @@ fn print_match_tree(
     let prefix = if depth == 0 { "" } else { "+" };
 
     match node {
-        Node::Token { token_type, raw, token_idx: pos } => {
+        Node::Token {
+            token_type,
+            raw,
+            token_idx: pos,
+        } => {
             // Leaf token - show type and raw value
             println!(
                 "{}{}Match <{}>: slice({}, {}, None)",
@@ -213,7 +216,10 @@ fn print_match_tree(
             );
             println!("{}  -raw: {:?}", indent, raw);
         }
-        Node::Whitespace { raw, token_idx: pos } => {
+        Node::Whitespace {
+            raw,
+            token_idx: pos,
+        } => {
             println!(
                 "{}{}<whitespace>: slice({}, {}, None)",
                 indent,
@@ -223,7 +229,10 @@ fn print_match_tree(
             );
             println!("{}  -raw: {:?}", indent, raw);
         }
-        Node::Newline { raw, token_idx: pos } => {
+        Node::Newline {
+            raw,
+            token_idx: pos,
+        } => {
             println!(
                 "{}{}<newline>: slice({}, {}, None)",
                 indent,
@@ -233,7 +242,10 @@ fn print_match_tree(
             );
             println!("{}  -raw: {:?}", indent, raw);
         }
-        Node::EndOfFile { raw, token_idx: pos } => {
+        Node::EndOfFile {
+            raw,
+            token_idx: pos,
+        } => {
             println!(
                 "{}{}<end_of_file>: slice({}, {}, None)",
                 indent,
@@ -250,44 +262,50 @@ fn print_match_tree(
         } => {
             // Ref node - show segment type if present
             if let Some(seg_type) = segment_type {
-                let (start, end) = get_node_slice(child, tokens);
+                let (start, end) = get_node_slice(child);
                 println!(
                     "{}{}Match <{}>: slice({}, {}, None)",
                     indent, prefix, seg_type, start, end
                 );
             }
-            print_match_tree(child, tokens, depth + 1);
+            print_match_tree(child, depth + 1);
         }
-        Node::Sequence { children } | Node::DelimitedList { children } | Node::Sequence { children } => {
+        Node::Sequence { children } | Node::DelimitedList { children } => {
             // Container nodes - print children
             for child in children {
-                print_match_tree(child, tokens, depth);
+                print_match_tree(child, depth);
             }
         }
         Node::Bracketed { children } => {
-            let (start, end) = get_node_slice(node, tokens);
+            let (start, end) = get_node_slice(node);
             println!(
                 "{}{}Match <bracketed>: slice({}, {}, None)",
                 indent, prefix, start, end
             );
             for child in children {
-                print_match_tree(child, tokens, depth + 1);
+                print_match_tree(child, depth + 1);
             }
         }
-        Node::Unparsable { expected_message: _msg, children } => {
-            let (start, end) = get_node_slice(node, tokens);
+        Node::Unparsable {
+            expected_message: _msg,
+            children,
+        } => {
+            let (start, end) = get_node_slice(node);
             println!(
                 "{}{}Match <unparsable>: slice({}, {}, None)",
                 indent, prefix, start, end
             );
             for child in children {
-                print_match_tree(child, tokens, depth + 1);
+                print_match_tree(child, depth + 1);
             }
         }
         Node::Empty => {
             // Don't print empty nodes
         }
-        Node::Meta { token_type: meta_type, .. } => {
+        Node::Meta {
+            token_type: meta_type,
+            ..
+        } => {
             println!("{}+Meta: {}", indent, meta_type);
         }
     }
@@ -296,26 +314,40 @@ fn print_match_tree(
 /// Get the start and end position (token indices) for a node
 fn get_node_slice(
     node: &sqlfluffrs::parser::Node,
-    tokens: &[sqlfluffrs::token::Token],
 ) -> (usize, usize) {
     use sqlfluffrs::parser::Node;
 
     match node {
-        Node::Token { token_type: _, raw: _, token_idx: pos }
-        | Node::Whitespace { raw: _, token_idx: pos }
-        | Node::Newline { raw: _, token_idx: pos }
-        | Node::EndOfFile { raw: _, token_idx: pos } => (*pos, *pos + 1),
-        Node::Ref { child, .. } => get_node_slice(child, tokens),
+        Node::Token {
+            token_type: _,
+            raw: _,
+            token_idx: pos,
+        }
+        | Node::Whitespace {
+            raw: _,
+            token_idx: pos,
+        }
+        | Node::Newline {
+            raw: _,
+            token_idx: pos,
+        }
+        | Node::EndOfFile {
+            raw: _,
+            token_idx: pos,
+        } => (*pos, *pos + 1),
+        Node::Ref { child, .. } => get_node_slice(child),
         Node::Sequence { children }
         | Node::DelimitedList { children }
-        | Node::Sequence { children }
         | Node::Bracketed { children }
-        | Node::Unparsable { expected_message: _, children } => {
+        | Node::Unparsable {
+            expected_message: _,
+            children,
+        } => {
             if children.is_empty() {
                 (0, 0)
             } else {
-                let first = get_node_slice(&children[0], tokens);
-                let last = get_node_slice(&children[children.len() - 1], tokens);
+                let first = get_node_slice(&children[0]);
+                let last = get_node_slice(&children[children.len() - 1]);
                 (first.0, last.1)
             }
         }
@@ -326,12 +358,12 @@ fn get_node_slice(
 /// Convert a Node to YAML format matching Python SQLFluff output
 fn node_to_yaml(
     node: &sqlfluffrs::parser::Node,
-    tokens: &[sqlfluffrs::token::Token],
+    // tokens: &[sqlfluffrs::token::Token],
 ) -> Result<String, Box<dyn std::error::Error>> {
     use serde_yaml::{Mapping, Value};
 
     // Use code_only=true to match Python's behavior
-    let yaml_value = node_to_yaml_value(node, tokens, true)?;
+    // let yaml_value = node_to_yaml_value(node, tokens, true)?;
 
     // Use Node::as_record for YAML serialization
     let mut root_map = Mapping::new();
@@ -368,16 +400,19 @@ fn node_to_yaml(
 }
 
 /// Recursively convert a Node to a YAML Value
-fn node_to_yaml_value(
+pub fn node_to_yaml_value(
     node: &sqlfluffrs::parser::Node,
-    tokens: &[sqlfluffrs::token::Token],
     code_only: bool,
 ) -> Result<serde_yaml::Value, Box<dyn std::error::Error>> {
     use serde_yaml::{Mapping, Value};
     use sqlfluffrs::parser::Node;
 
     match node {
-        Node::Token { token_type, raw, token_idx: _pos } => {
+        Node::Token {
+            token_type,
+            raw,
+            token_idx: _pos,
+        } => {
             let mut map = Mapping::new();
             map.insert(
                 Value::String(token_type.clone()),
@@ -385,7 +420,18 @@ fn node_to_yaml_value(
             );
             Ok(Value::Mapping(map))
         }
-        Node::Whitespace { raw: _raw, token_idx: _pos } | Node::Newline { raw: _raw, token_idx: _pos } | Node::EndOfFile { raw: _raw, token_idx: _pos } => {
+        Node::Whitespace {
+            raw: _raw,
+            token_idx: _pos,
+        }
+        | Node::Newline {
+            raw: _raw,
+            token_idx: _pos,
+        }
+        | Node::EndOfFile {
+            raw: _raw,
+            token_idx: _pos,
+        } => {
             // These are filtered in code_only mode
             if code_only {
                 Ok(Value::Sequence(vec![]))
@@ -421,7 +467,7 @@ fn node_to_yaml_value(
             child,
         } => {
             // Get child YAML first
-            let child_yaml = node_to_yaml_value(child, tokens, code_only)?;
+            let child_yaml = node_to_yaml_value(child, code_only)?;
 
             // If we have a segment_type, wrap it
             if let Some(seg_type) = segment_type {
@@ -443,14 +489,14 @@ fn node_to_yaml_value(
                 Ok(child_yaml)
             }
         }
-        Node::Sequence { children } | Node::DelimitedList { children } | Node::Sequence { children } => {
+        Node::Sequence { children } | Node::DelimitedList { children } => {
             let mut items = Vec::new();
             for child in children {
                 // Filter out non-code elements if code_only is true
                 if code_only && !child.is_code() {
                     continue;
                 }
-                let child_yaml = node_to_yaml_value(child, tokens, code_only)?;
+                let child_yaml = node_to_yaml_value(child, code_only)?;
                 // Skip empty sequences
                 if matches!(child_yaml, Value::Sequence(ref v) if v.is_empty()) {
                     continue;
@@ -466,7 +512,7 @@ fn node_to_yaml_value(
                 if code_only && !child.is_code() {
                     continue;
                 }
-                let child_yaml = node_to_yaml_value(child, tokens, code_only)?;
+                let child_yaml = node_to_yaml_value(child, code_only)?;
                 // Skip empty sequences
                 if matches!(child_yaml, Value::Sequence(ref v) if v.is_empty()) {
                     continue;
@@ -481,13 +527,16 @@ fn node_to_yaml_value(
             );
             Ok(Value::Mapping(map))
         }
-        Node::Unparsable { expected_message: _msg, children } => {
+        Node::Unparsable {
+            expected_message: _msg,
+            children,
+        } => {
             let mut items = Vec::new();
             for child in children {
                 if code_only && !child.is_code() {
                     continue;
                 }
-                let child_yaml = node_to_yaml_value(child, tokens, code_only)?;
+                let child_yaml = node_to_yaml_value(child, code_only)?;
                 items.push(child_yaml);
             }
 
@@ -509,10 +558,10 @@ fn node_to_yaml_value(
 /// Returns a lowercase hex string (SHA256).
 pub fn compute_yaml_hash(yaml: &Value) -> String {
     // Remove _hash field if present
-    let mut clean = match yaml {
+    let clean = match yaml {
         Value::Mapping(map) => {
             let mut m = map.clone();
-            m.remove(&Value::String("_hash".to_string()));
+            m.remove(Value::String("_hash".to_string()));
             Value::Mapping(m)
         }
         _ => yaml.clone(),

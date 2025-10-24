@@ -3,7 +3,7 @@
 /// This module implements a memoization cache for parse results to avoid
 /// redundant parsing operations. It's based on the Python implementation's
 /// parse cache which provides 30-50% speedup on complex queries.
-use std::collections::HashMap;
+use hashbrown::HashMap;
 use std::hash::{Hash, Hasher};
 
 use crate::parser::{Grammar, Node, ParseError};
@@ -266,7 +266,7 @@ fn grammar_hash(grammar: &Grammar) -> u64 {
             token_type,
             ..
         } => {
-            template.hash(&mut hasher);
+            template.as_str().hash(&mut hasher);
             token_type.hash(&mut hasher);
         }
         Grammar::Ref { name, .. } => {

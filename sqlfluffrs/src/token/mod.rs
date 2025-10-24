@@ -704,7 +704,7 @@ impl Token {
     //             }
     //         }
 
-    //         if subkeys.len() != subkeys.iter().collect::<std::collections::HashSet<_>>().len() {
+    //         if subkeys.len() != subkeys.iter().collect::<HashSet<_>>().len() {
     //             // If there are duplicate keys, use a list of child objects.
     //             result.insert(key, Some(serde_json::Value::Array(child_results)));
     //         } else {

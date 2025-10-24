@@ -161,7 +161,10 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         match_grammar, RegexParser
     ):
         print("Grammar::RegexParser {")
-        print(f'    template: r#"{match_grammar.template}"#,')
+        print(f'    template: regex::RegexBuilder::new(r#"{match_grammar.template}"#)')
+        print("         .case_insensitive(true)")
+        print("         .build()")
+        print("         .unwrap(),")
         print(f'    token_type: "{match_grammar._instance_types[0]}",')
         print(f'    raw_class: "{match_grammar.raw_class.__name__}",')
         print(f"    optional: {str(match_grammar.is_optional()).lower()},")
@@ -441,7 +444,15 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
 def as_rust_option(value, is_regex: bool = False):
     """Converts an optional value to a Rust Option."""
     if isinstance(value, str) and is_regex:
-        return f'Some(r#"{value}"#)' if value else "None"
+        return (
+            f'Some(regex::RegexBuilder::new(r#"{value}"#)'
+            "         .case_insensitive(true)"
+            "         .build()"
+            "         .unwrap()"
+            "     )"
+            if value
+            else "None"
+        )
     if isinstance(value, str):
         return f'Some("{value}")' if value else "None"
     elif isinstance(value, bool):

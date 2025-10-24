@@ -90,7 +90,7 @@ impl SimpleHint {
     pub fn can_match_token(
         &self,
         raw_upper: &str,
-        token_types: &std::collections::HashSet<String>,
+        token_types: &HashSet<String>,
     ) -> bool {
         // Empty hint means "complex - can't determine", so return true (must try it)
         if self.raw_values.is_empty() && self.token_types.is_empty() {
@@ -228,11 +228,11 @@ pub enum Grammar {
         optional: bool,
     },
     RegexParser {
-        template: &'static str,
+        template: regex::Regex,
         token_type: &'static str,
         raw_class: &'static str,
         optional: bool,
-        anti_template: Option<&'static str>,
+        anti_template: Option<regex::Regex>,
     },
     Meta(&'static str),
     Nothing(),
@@ -463,7 +463,7 @@ impl Hash for Grammar {
             Grammar::StringParser { template, .. } => template.hash(state),
             Grammar::MultiStringParser { templates, .. } => templates.hash(state),
             Grammar::TypedParser { template, .. } => template.hash(state),
-            Grammar::RegexParser { template, .. } => template.hash(state),
+            Grammar::RegexParser { template, .. } => template.as_str().hash(state),
             Grammar::Sequence {
                 elements,
                 optional,
@@ -742,7 +742,13 @@ impl PartialEq for Grammar {
                     anti_template: at2,
                     ..
                 },
-            ) => template == t2 && token_type == tt2 && optional == o2 && anti_template == at2,
+            ) => {
+                template.as_str() == t2.as_str()
+                    && token_type == tt2
+                    && optional == o2
+                    && anti_template.as_ref().map(|at1| at1.as_str())
+                        == at2.as_ref().map(|x| x.as_str())
+            }
             (Grammar::Meta(s1), Grammar::Meta(s2)) => s1 == s2,
             (Grammar::Nothing(), Grammar::Nothing()) => true,
             (Grammar::Anything, Grammar::Anything) => true,
@@ -1081,7 +1087,6 @@ impl Node {
                     Node::Sequence { children: _ } => "sequence",
                     Node::DelimitedList { children: _ } => "delimited_list",
                     Node::Bracketed { children: _ } => "bracketed",
-                    Node::Sequence { children: _ } => "file",
                     _ => unreachable!(),
                 };
                 let contents: Vec<Value> = children.iter().filter_map(|c| c.as_record()).collect();
@@ -1482,7 +1487,6 @@ impl Node {
                 token_type: name, ..
             } => Some(format!("meta_{}", name)),
             Node::Empty => None,
-            Node::Sequence { children: _ } => Some("file".to_string()),
         }
     }
 
@@ -1856,5 +1860,31 @@ mod tests {
         let (typ, val) = node.to_tuple(&[], false, false, false);
         assert_eq!(typ, "empty");
         assert_eq!(val, NodeTupleValue::Tuple(vec![]));
+    }
+
+    #[test]
+    fn test_simple_hint_with_dialect_ref_comma_segment() {
+        use crate::dialect::ansi::parser::COMMA_SEGMENT;
+        use crate::Dialect;
+        use hashbrown::HashSet;
+
+        // Create a Ref grammar for CommaSegment
+        let grammar = Grammar::Ref {
+            name: "CommaSegment",
+            optional: false,
+            terminators: vec![],
+            reset_terminators: false,
+            allow_gaps: false,
+        };
+        // Get the Ansi dialect
+        let dialect = Dialect::Ansi;
+        // Get the hint
+        let hint = grammar.simple_hint_with_dialect(Some(&dialect), &HashSet::new()).expect("Should return a hint");
+        // Should match raw value ","
+        assert!(hint.raw_values.contains(&" ,".trim().to_uppercase()));
+        // Should match can_match_token for ","
+        let mut token_types = HashSet::new();
+        token_types.insert("comma".to_string());
+        assert!(hint.can_match_token(&" ,".trim().to_uppercase(), &token_types));
     }
 }

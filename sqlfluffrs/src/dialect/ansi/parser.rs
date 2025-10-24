@@ -11381,11 +11381,14 @@ pub static DATATYPE_IDENTIFIER_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::OneOf {
     elements: vec![
 Grammar::RegexParser {
-    template: r#"[A-Z_][A-Z0-9_]*"#,
+    template: regex::RegexBuilder::new(r#"[A-Z_][A-Z0-9_]*"#)
+         .case_insensitive(true)
+         .build()
+         .unwrap(),
     token_type: "data_type_identifier",
     raw_class: "CodeSegment",
     optional: false,
-    anti_template: Some(r#"^(NOT)$"#),
+    anti_template: Some(regex::RegexBuilder::new(r#"^(NOT)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
 }
 ,
 Grammar::Ref {
@@ -23393,11 +23396,14 @@ Grammar::StringParser {
 // name='NakedIdentifierSegment'
 pub static NAKED_IDENTIFIER_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::RegexParser {
-    template: r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#,
+    template: regex::RegexBuilder::new(r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#)
+         .case_insensitive(true)
+         .build()
+         .unwrap(),
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(r#"^(ROWS|RESPECT|INNER|NULL|CROSS|CASE|PARTITION|NOT|INTERVAL|SELECT|FULL|SET|NATURAL|UNION|OUTER|USING|JOIN|ON|IGNORE|RIGHT|LEFT|ORDER)$"#),
+    anti_template: Some(regex::RegexBuilder::new(r#"^(ROWS|RIGHT|ORDER|FULL|CROSS|CASE|ON|SELECT|LEFT|NATURAL|USING|INTERVAL|PARTITION|INNER|UNION|SET|NULL|OUTER|JOIN|NOT|IGNORE|RESPECT)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
 }
 );
 
@@ -25870,7 +25876,10 @@ Grammar::StringParser {
 // name='ParameterNameSegment'
 pub static PARAMETER_NAME_SEGMENT: Lazy<Grammar> = Lazy::new(||
 Grammar::RegexParser {
-    template: r#"\"?[A-Z][A-Z0-9_]*\"?"#,
+    template: regex::RegexBuilder::new(r#"\"?[A-Z][A-Z0-9_]*\"?"#)
+         .case_insensitive(true)
+         .build()
+         .unwrap(),
     token_type: "parameter",
     raw_class: "CodeSegment",
     optional: false,

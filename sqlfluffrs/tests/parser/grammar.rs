@@ -2,6 +2,7 @@
 //!
 //! Tests for specific grammar features like AnySetOf, Delimited, Bracketed, etc.
 
+use hashbrown::HashSet;
 use sqlfluffrs::parser::{Grammar, Node, ParseError, ParseMode, Parser};
 use sqlfluffrs::{
     lexer::{LexInput, Lexer},
@@ -330,7 +331,7 @@ fn test_no_duplicate_whitespace_tokens() -> Result<(), ParseError> {
     collect_positions(&ast, &mut positions);
 
     // Check for duplicates
-    let mut seen = std::collections::HashSet::new();
+    let mut seen = HashSet::new();
     for pos in &positions {
         assert!(seen.insert(*pos), "Duplicate token position {} in AST", pos);
     }

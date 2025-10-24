@@ -9,6 +9,7 @@ mod types;
 mod frame;
 mod cache;
 mod core;
+#[macro_use]
 mod handlers;
 mod helpers;  // Utility methods for Parser
 mod iterative;

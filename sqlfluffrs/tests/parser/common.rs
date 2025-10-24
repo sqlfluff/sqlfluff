@@ -1,5 +1,6 @@
 //! Common test helpers and utilities
 
+use hashbrown::HashSet;
 use sqlfluffrs::parser::{Node, ParseError, Parser};
 use sqlfluffrs::token::Token;
 use sqlfluffrs::{
@@ -24,7 +25,7 @@ macro_rules! with_larger_stack {
 /// Verify that all tokens from the lexer appear in the AST
 pub fn verify_all_tokens_in_ast(raw: &str, ast: &Node, tokens: &[Token]) -> Result<(), String> {
     // Collect all token positions from the AST
-    let mut ast_positions = std::collections::HashSet::new();
+    let mut ast_positions = HashSet::new();
     collect_token_positions(ast, &mut ast_positions);
 
     log::debug!(
@@ -63,7 +64,7 @@ pub fn verify_all_tokens_in_ast(raw: &str, ast: &Node, tokens: &[Token]) -> Resu
 }
 
 /// Recursively collect all token positions from a Node
-pub fn collect_token_positions(node: &Node, positions: &mut std::collections::HashSet<usize>) {
+pub fn collect_token_positions(node: &Node, positions: &mut HashSet<usize>) {
     match node {
         Node::Whitespace {
             raw: _,

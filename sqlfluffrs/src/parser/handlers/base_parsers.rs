@@ -1,6 +1,6 @@
-use hashbrown::HashMap;
-use crate::parser::{Node, ParseError, ParseFrame};
 use crate::parser::iterative::NextStep;
+use crate::parser::{Node, ParseError, ParseFrame};
+use hashbrown::HashMap;
 
 use crate::parser::core::Parser;
 
@@ -24,7 +24,11 @@ impl Parser<'_> {
                 self.bump();
                 log::debug!("MATCHED String matched: {}", tok);
 
-                let node = Node::Token { token_type: token_type.to_string(), raw: tok.raw(), token_idx: token_pos };
+                let node = Node::Token {
+                    token_type: token_type.to_string(),
+                    raw: tok.raw(),
+                    token_idx: token_pos,
+                };
                 results.insert(frame.frame_id, (node, self.pos, None));
             }
             _ => {
@@ -63,7 +67,11 @@ impl Parser<'_> {
                 self.bump();
                 log::debug!("MATCHED MultiString matched: {}", tok);
 
-                let node = Node::Token { token_type: token_type.to_string(), raw: tok.raw(), token_idx: token_pos };
+                let node = Node::Token {
+                    token_type: token_type.to_string(),
+                    raw: tok.raw(),
+                    token_idx: token_pos,
+                };
                 results.insert(frame.frame_id, (node, self.pos, None));
             }
             _ => {
@@ -112,7 +120,11 @@ impl Parser<'_> {
                     token_pos
                 );
                 log::debug!("MATCHED Typed matched: {}", tok.token_type);
-                let node = Node::Token { token_type: token_type.to_string(), raw, token_idx: token_pos };
+                let node = Node::Token {
+                    token_type: token_type.to_string(),
+                    raw,
+                    token_idx: token_pos,
+                };
                 results.insert(frame.frame_id, (node, self.pos, None));
             } else {
                 log::debug!(
@@ -144,8 +156,8 @@ impl Parser<'_> {
     /// Returns true if the caller should continue to the next frame (anti-template matched)
     pub fn handle_regex_parser_initial(
         &mut self,
-        template: &str,
-        anti_template: &Option<&'static str>,
+        template: &regex::Regex,
+        anti_template: &Option<regex::Regex>,
         token_type: &str,
         frame: &ParseFrame,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
@@ -155,23 +167,12 @@ impl Parser<'_> {
         let token = self.peek().cloned();
 
         match token {
-            Some(tok)
-                if regex::RegexBuilder::new(template)
-                    .case_insensitive(true)
-                    .build()
-                    .unwrap()
-                    .is_match(&tok.raw()) =>
-            {
+            Some(tok) if template.is_match(&tok.raw()) => {
                 log::debug!("Regex matched: {}", tok);
 
                 // Check anti-template if present
                 if let Some(anti) = anti_template {
-                    if regex::RegexBuilder::new(anti)
-                        .case_insensitive(true)
-                        .build()
-                        .unwrap()
-                        .is_match(&tok.raw())
-                    {
+                    if anti.is_match(&tok.raw()) {
                         log::debug!("Regex anti-matched: {}", tok);
                         log::debug!("RegexParser anti-match, returning Empty");
                         results.insert(frame.frame_id, (Node::Empty, self.pos, None));
@@ -182,7 +183,11 @@ impl Parser<'_> {
                 log::debug!("MATCHED Regex matched and non anti-match: {}", tok);
                 let token_pos = self.pos;
                 self.bump();
-                let node = Node::Token { token_type: token_type.to_string(), raw: tok.raw(), token_idx: token_pos };
+                let node = Node::Token {
+                    token_type: token_type.to_string(),
+                    raw: tok.raw(),
+                    token_idx: token_pos,
+                };
                 results.insert(frame.frame_id, (node, self.pos, None));
                 Ok(NextStep::Fallthrough)
             }
