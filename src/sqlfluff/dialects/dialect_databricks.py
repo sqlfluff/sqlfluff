@@ -266,6 +266,12 @@ databricks_dialect.replace(
         ],
         at=0,
     ),
+    # Add ParameterizedSegment to the LiteralGrammar to support named parameters
+    LiteralGrammar=sparksql_dialect.get_grammar("LiteralGrammar").copy(
+        insert=[
+            Ref("ParameterizedSegment"),
+        ]
+    ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),
         Ref("NamedArgumentSegment"),
@@ -495,6 +501,17 @@ class CatalogReferenceSegment(ansi.ObjectReferenceSegment):
     """
 
     type = "catalog_reference"
+    
+    # Allow catalog names to be identifiers or parameters
+    match_grammar: Matchable = OneOf(
+        Delimited(
+            OneOf(Ref("SingleIdentifierGrammar"), Ref("IdentifierClauseSegment")),
+            delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+            terminators=[Ref("ObjectReferenceTerminatorGrammar")],
+            allow_gaps=False,
+        ),
+        Ref("ParameterizedSegment"),
+    )
 
 
 class VolumeReferenceSegment(ansi.ObjectReferenceSegment):
@@ -1218,6 +1235,25 @@ class OptimizeTableStatementSegment(BaseSegment):
     )
 
 
+class LimitClauseSegment(sparksql.LimitClauseSegment):
+    """A `LIMIT` clause like in `SELECT`.
+
+    Enhanced from SparkSQL to support parameterized values.
+    """
+
+    match_grammar = Sequence(
+        "LIMIT",
+        Indent,
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            "ALL",
+            Ref("FunctionSegment"),
+            Ref("ParameterizedSegment"),  # Add support for parameters
+        ),
+        Dedent,
+    )
+
+
 class StatementSegment(sparksql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -1703,6 +1739,20 @@ class MagicCellStatementSegment(BaseSegment):
         ),
         terminators=[Ref("CommandCellSegment", optional=True)],
         reset_terminators=True,
+    )
+
+
+class ParameterizedSegment(BaseSegment):
+    """Databricks named parameters to prevent SQL Injection.
+
+    https://docs.databricks.com/aws/en/jobs/parameter-use#use-named-parameters-in-a-sql-notebook
+    """
+
+    type = "parameterized_expression"
+    match_grammar = Sequence(
+        Ref("ColonSegment"),
+        Ref("NakedIdentifierSegment"),
+        allow_gaps=False,
     )
 
 
