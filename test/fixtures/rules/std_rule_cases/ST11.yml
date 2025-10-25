@@ -208,4 +208,3 @@ test_pass_quoted_brackets_table_name:
   configs:
     core:
       dialect: tsql
-    
