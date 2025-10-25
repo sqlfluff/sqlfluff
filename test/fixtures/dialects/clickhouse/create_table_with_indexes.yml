@@ -1,0 +1,257 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 285ed9fdcc354542cb3b7fbaff3ef3e21ed203b560a86a910ff6d4b2d6556232
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_indexes
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          naked_identifier: category
+          data_type:
+            data_type_identifier: LowCardinality
+            bracketed:
+              start_bracket: (
+              data_type:
+                data_type_identifier: String
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: content
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          naked_identifier: tags
+          data_type:
+            data_type_identifier: Array
+            bracketed:
+              start_bracket: (
+              data_type:
+                data_type_identifier: String
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: score
+          data_type:
+            data_type_identifier: Float64
+      - comma: ','
+      - index_definition:
+        - keyword: INDEX
+        - naked_identifier: idx_bloom_filter
+        - expression:
+            column_reference:
+              naked_identifier: name
+        - keyword: TYPE
+        - index_type_identifier: BLOOM_FILTER
+        - keyword: GRANULARITY
+        - numeric_literal: '1'
+      - comma: ','
+      - index_definition:
+        - keyword: INDEX
+        - naked_identifier: idx_bloom_filter_params
+        - expression:
+            column_reference:
+              naked_identifier: content
+        - keyword: TYPE
+        - index_type_identifier: BLOOM_FILTER
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '0.01'
+            end_bracket: )
+        - keyword: GRANULARITY
+        - numeric_literal: '1'
+      - comma: ','
+      - index_definition:
+        - keyword: INDEX
+        - naked_identifier: idx_minmax
+        - expression:
+            column_reference:
+              naked_identifier: score
+        - keyword: TYPE
+        - index_type_identifier: MINMAX
+        - keyword: GRANULARITY
+        - numeric_literal: '8192'
+      - comma: ','
+      - index_definition:
+        - keyword: INDEX
+        - naked_identifier: idx_set
+        - expression:
+            column_reference:
+              naked_identifier: category
+        - keyword: TYPE
+        - index_type_identifier: SET
+        - keyword: GRANULARITY
+        - numeric_literal: '100'
+      - comma: ','
+      - index_definition:
+        - keyword: INDEX
+        - naked_identifier: idx_ngrambf
+        - expression:
+            column_reference:
+              naked_identifier: name
+        - keyword: TYPE
+        - index_type_identifier: NGRAMBF_V1
+        - keyword: GRANULARITY
+        - numeric_literal: '1'
+      - comma: ','
+      - index_definition:
+        - keyword: INDEX
+        - naked_identifier: idx_tokenbf
+        - expression:
+            column_reference:
+              naked_identifier: content
+        - keyword: TYPE
+        - index_type_identifier: TOKENBF_V1
+        - keyword: GRANULARITY
+        - numeric_literal: '1'
+      - comma: ','
+      - index_definition:
+        - keyword: INDEX
+        - naked_identifier: idx_hypothesis
+        - expression:
+            column_reference:
+              naked_identifier: tags
+        - keyword: TYPE
+        - index_type_identifier: HYPOTHESIS
+        - keyword: GRANULARITY
+        - numeric_literal: '1'
+      - end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_index_simple
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - index_definition:
+        - keyword: INDEX
+        - naked_identifier: idx_simple
+        - expression:
+            column_reference:
+              naked_identifier: name
+        - keyword: TYPE
+        - index_type_identifier: SET
+        - keyword: GRANULARITY
+        - numeric_literal: '1'
+      - end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_index_bracketed
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          naked_identifier: category
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - index_definition:
+        - keyword: INDEX
+        - naked_identifier: idx_bracketed
+        - bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+                naked_identifier: name
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: category
+          - end_bracket: )
+        - keyword: TYPE
+        - index_type_identifier: MINMAX
+        - keyword: GRANULARITY
+        - numeric_literal: '1'
+      - end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
+- statement_terminator: ;
