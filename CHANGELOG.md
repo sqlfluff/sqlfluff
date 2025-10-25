@@ -10,6 +10,44 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [4.0.0a1] - 2025-10-23
+
+## Highlights
+
+This is an alpha release of SQLFluff 4.0 to begin verification of the rust portions of the codebase.
+In particular to verify that publishing to pypi works as expected, and that users can install the
+package. Rust support is still in beta, but from this release, users can install `sqlfluff[rs]` to
+get some of the parser running in rust. Current implementation is not expected to yield significant gains
+but we do expect that once mature that it will.
+
+**We do not recommend that users install this release except for testing and evaluation**.
+
+Big thanks to [@keraion](https://github.com/keraion), who's been leading the way on this effort.
+
+Additionally in this release:
+
+* We drop support for dbt 1.4 and older, and include support for dbt1.10.
+* We add the capability to force implicit indents.
+* Bufixes for CV12 and RF01.
+* Dialect improvements for Clickhouse, TSQL & SparkSQL.
+
+These will be added to the changelog properly in the full 4.0.0 release.
+
+## What’s Changed
+
+* Clickhouse: Adds support for parametric aggregate functions [#7205](https://github.com/sqlfluff/sqlfluff/pull/7205) [@franloza](https://github.com/franloza)
+* TSQL: update OutputClauseSegment to match specification [#7207](https://github.com/sqlfluff/sqlfluff/pull/7207) [@peterbud](https://github.com/peterbud)
+* Write an implementation of the lexer in Rust [#7132](https://github.com/sqlfluff/sqlfluff/pull/7132) [@keraion](https://github.com/keraion)
+* Disregard CV12 when UNNEST is detected in from_expression_element [#7211](https://github.com/sqlfluff/sqlfluff/pull/7211) [@annebelleo](https://github.com/annebelleo)
+* TSQL: Update T-SQL keyword identifier usage [#7191](https://github.com/sqlfluff/sqlfluff/pull/7191) [@peterbud](https://github.com/peterbud)
+* Add the option to require implicit indents [#7197](https://github.com/sqlfluff/sqlfluff/pull/7197) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Update dbt CI matrix [#7196](https://github.com/sqlfluff/sqlfluff/pull/7196) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* SparkSQL: allow accessing nested array fields for RF01 [#7198](https://github.com/sqlfluff/sqlfluff/pull/7198) [@Ruward](https://github.com/Ruward)
+
+## New Contributors
+
+* [@Ruward](https://github.com/Ruward) made their first contribution in [#7198](https://github.com/sqlfluff/sqlfluff/pull/7198)
+
 ## [3.5.0] - 2025-10-18
 
 ## Highlights
