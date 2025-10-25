@@ -17,24 +17,24 @@ class UnqualifiedReferenceError(ValueError):
 class Rule_ST11(BaseRule):
     """Joined table not referenced in query.
 
-    This rule will check if there are any tables that are referenced in the
-    ``FROM`` or ``JOIN`` clause of a ``SELECT`` statement, but where no
-    columns from that table are referenced in the any of the other clauses.
-    Because some types of join are often used as filters, or to otherwise
+    This rule will check if any tables are referenced in the
+    ``FROM`` or ``JOIN`` clause of a ``SELECT`` statement where no
+    columns from that table are referenced in any of the other clauses.
+    Because some types of joins are often used as filters or to otherwise
     control granularity without being referenced (e.g. ``INNER`` and ``CROSS``),
-    this rule only applies to explicit ``OUTER`` joins (i.e. ``LEFT``, ``RIGHT``
+    this rule only applies to explicit ``OUTER`` joins (i.e. ``LEFT``, ``RIGHT``,
     and ``FULL`` joins).
 
     This rule relies on all of the column references in the ``SELECT``
     statement being qualified with at least the table name, and so is
     designed to work alongside :sqlfluff:ref:`references.qualification`
-    (:sqlfluff:ref:`RF02`). This is because without the knowledge of what
+    (:sqlfluff:ref:`RF02`). This is because, without the knowledge of what
     columns exist in each upstream table, the rule is unable to resolve
     which table an unqualified column reference is pulled from.
 
-    This rule does not propose a fix, because it assumes that it an unused
-    table is a mistake, but doesn't know whether the mistake was the join,
-    or the mistake was not using it.
+    This rule does not propose a fix because it assumes that an unused
+    table is a mistake, but it doesn't know whether the mistake was due to the join
+    or the failure to use the table.
 
     **Anti-pattern**
 
@@ -255,7 +255,7 @@ class Rule_ST11(BaseRule):
         self.logger.debug(
             f"Select statement {context.segment} references "
             f"tables: {table_references}.\n"
-            f"Joined tables to asses: {joined_tables}"
+            f"Joined tables to assess: {joined_tables}"
         )
         for tbl_ref, segment in joined_tables:
             if tbl_ref not in table_references:
