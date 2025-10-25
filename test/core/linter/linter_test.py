@@ -22,6 +22,13 @@ from sqlfluff.core.linter.linting_result import combine_dicts, sum_dicts
 from sqlfluff.core.linter.runner import get_runner
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 
+try:
+    from sqlfluffrs import RsSQLLexerError
+
+    SQLLexErrorClass = (SQLLexError, RsSQLLexerError)
+except ImportError:
+    SQLLexErrorClass = (SQLLexError,)
+
 
 class DummyLintError(SQLBaseError):
     """Fake lint error used by tests, similar to SQLLintError."""
@@ -560,7 +567,9 @@ def test__linter__encoding(fname, config_encoding, lexerror):
         )
     )
     result = lntr.lint_paths((fname,))
-    assert lexerror == (SQLLexError in [type(v) for v in result.get_violations()])
+    assert lexerror == any(
+        True for v in result.get_violations() if type(v) in SQLLexErrorClass
+    )
 
 
 def test_delayed_exception():

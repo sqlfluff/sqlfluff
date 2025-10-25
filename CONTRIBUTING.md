@@ -224,6 +224,10 @@ for development, and which parts of the test suite you may find most useful.
    runs to specific dialects to further improve iteration speed. e.g.
    - `tox -e generate-fixture-yml -- -d mysql` will run just the mysql tests.
    - `python test/generate_parse_fixture_yml.py -d mysql` will do the same.
+   As you make changes to a dialect, you will also need to regenerate the Rust
+   dialects to keep them in sync. To do this, run `tox -e generate-rs` (if using
+   tox), or, with sqlfluff installed in a virtual environment, run
+   `utils/rustify.py build` to resync the languages.
 2. Developing for the dbt templater should only require running the dbt test
    suite (see below).
 3. Developing rules and rule plugins there are a couple of scenarios.
