@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aa742b5130da21297720aedd63f0f8b6b40e9150e51736b27a1d4a5cf1bc9bd6
+_hash: 76336c897d6317a32237c1a1205214cb97800056732bca57d892e348f1915c3e
 file:
   batch:
   - statement:
@@ -123,9 +123,10 @@ file:
               integer_literal: '1'
         output_clause:
         - keyword: OUTPUT
-        - wildcard_expression:
-            wildcard_identifier:
-              star: '*'
+        - keyword: DELETED
+        - dot: .
+        - wildcard_identifier:
+            star: '*'
         - keyword: INTO
         - table_reference:
             naked_identifier: trash

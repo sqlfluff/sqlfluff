@@ -1,0 +1,142 @@
+rule: TQ02
+
+test_fail_multiple_statements_no_begin_end:
+  fail_str: |
+    CREATE PROCEDURE Reporting.BeginBlock
+    AS
+    SELECT
+        [ID],
+        [DataDate],
+        [CaseOutput]
+    FROM Table1;
+
+    SELECT
+        [ID],
+        [DataDate],
+        [CaseOutput]
+    FROM Table2;
+  fix_str: |
+    CREATE PROCEDURE Reporting.BeginBlock
+    AS
+    BEGIN
+    SELECT
+        [ID],
+        [DataDate],
+        [CaseOutput]
+    FROM Table1;
+
+    SELECT
+        [ID],
+        [DataDate],
+        [CaseOutput]
+    FROM Table2;
+    END
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_alter_procedure_multiple_statements:
+  fail_str: |
+    ALTER PROCEDURE dbo.MyProc
+    AS
+    SELECT ID FROM Table1;
+    SELECT ID FROM Table2;
+  fix_str: |
+    ALTER PROCEDURE dbo.MyProc
+    AS
+    BEGIN
+    SELECT ID FROM Table1;
+    SELECT ID FROM Table2;
+    END
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_create_or_alter_multiple_statements:
+  fail_str: |
+    CREATE OR ALTER PROCEDURE dbo.MyProc
+    AS
+    SELECT ID FROM Table1;
+    SELECT ID FROM Table2;
+    SELECT ID FROM Table3;
+  fix_str: |
+    CREATE OR ALTER PROCEDURE dbo.MyProc
+    AS
+    BEGIN
+    SELECT ID FROM Table1;
+    SELECT ID FROM Table2;
+    SELECT ID FROM Table3;
+    END
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_single_statement_no_begin_end:
+  pass_str: |
+    CREATE PROCEDURE dbo.SingleStatement
+    AS
+    SELECT
+        [ID],
+        [DataDate],
+        [CaseOutput]
+    FROM Table1;
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_single_statement_with_begin_end:
+  pass_str: |
+    CREATE PROCEDURE dbo.SingleStatement
+    AS
+    BEGIN
+        SELECT
+            [ID],
+            [DataDate],
+            [CaseOutput]
+        FROM Table1;
+    END
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_multiple_statements_with_begin_end:
+  pass_str: |
+    CREATE PROCEDURE Reporting.BeginBlock
+    AS
+    BEGIN
+        SELECT
+            [ID],
+            [DataDate],
+            [CaseOutput]
+        FROM Table1;
+
+        SELECT
+            [ID],
+            [DataDate],
+            [CaseOutput]
+        FROM Table2;
+    END
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_atomic_begin_end_block:
+  pass_str: |
+    CREATE PROCEDURE dbo.AtomicProc
+    AS
+    BEGIN ATOMIC WITH (TRANSACTION ISOLATION LEVEL = SNAPSHOT, LANGUAGE = N'us_english')
+        SELECT ID FROM Table1;
+        SELECT ID FROM Table2;
+    END
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_external_name:
+  pass_str: |
+    CREATE PROCEDURE dbo.ExternalProc
+    AS
+    EXTERNAL NAME AssemblyName.ClassName.MethodName;
+  configs:
+    core:
+      dialect: tsql

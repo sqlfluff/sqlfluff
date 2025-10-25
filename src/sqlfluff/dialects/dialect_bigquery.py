@@ -463,7 +463,7 @@ bigquery_dialect.bracket_sets("angle_bracket_pairs").update(
 class ArrayTypeSegment(ansi.ArrayTypeSegment):
     """Prefix for array literals specifying the type."""
 
-    type = "array_type"
+    type = "data_type"
     match_grammar = Sequence(
         "ARRAY",
         Bracketed(
@@ -1369,6 +1369,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
 class StructTypeSegment(ansi.StructTypeSegment):
     """Expression to construct a STRUCT datatype."""
 
+    type = "data_type"
     match_grammar = Sequence(
         "STRUCT",
         Ref("StructTypeSchemaSegment", optional=True),

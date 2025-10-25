@@ -451,6 +451,9 @@ tsql_dialect.add(
         Ref("QuotedIdentifierSegment"),
         Ref("BracketedIdentifierSegment"),
     ),
+    ActionParameterSegment=RegexParser(
+        r"\$ACTION", CodeSegment, type="action_parameter"
+    ),
 )
 
 tsql_dialect.replace(
@@ -5190,6 +5193,9 @@ class TableExpressionSegment(BaseSegment):
 
     In SQL standard, as well as T-SQL, table expressions (`table reference` in SQL
     standard) can also be join tables, optionally bracketed, allowing for nested joins.
+
+    T-SQL also allows DML statements (DELETE, INSERT, UPDATE) with OUTPUT clauses
+    to be used as derived tables when bracketed.
     """
 
     type = "table_expression"
@@ -5205,7 +5211,11 @@ class TableExpressionSegment(BaseSegment):
         Ref("StorageLocationSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
+        # DML statements with OUTPUT clauses can be used as derived tables
         Bracketed(Ref("MergeStatementSegment")),
+        Bracketed(Ref("DeleteStatementSegment")),
+        Bracketed(Ref("InsertStatementSegment")),
+        Bracketed(Ref("UpdateStatementSegment")),
         Bracketed(
             Sequence(
                 Ref("TableExpressionSegment"),
@@ -6195,39 +6205,52 @@ class MergeInsertClauseSegment(BaseSegment):
 class OutputClauseSegment(BaseSegment):
     """OUTPUT Clause used within DELETE, INSERT, UPDATE, MERGE.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/queries/output-clause-transact-sql
+    https://learn.microsoft.com/en-us/sql/t-sql/queries/output-clause-transact-sql
     """
 
     type = "output_clause"
-    match_grammar = AnyNumberOf(
-        Sequence(
-            "OUTPUT",
-            Indent,
-            Delimited(
-                AnyNumberOf(
-                    Ref("WildcardExpressionSegment"),
-                    Sequence(
-                        Ref("BaseExpressionElementGrammar"),
-                        Ref("AliasExpressionSegment", optional=True),
-                    ),
-                    Ref("SingleIdentifierGrammar"),
-                    terminators=[Ref.keyword("INTO")],
-                ),
-            ),
-            Dedent,
+    match_grammar = Sequence(
+        "OUTPUT",
+        Indent,
+        Delimited(
             Sequence(
-                "INTO",
-                Indent,
-                Ref("TableReferenceSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("ColumnReferenceSegment"),
+                OneOf(
+                    # { DELETED | INSERTED | from_table_name } . { * | column_name }
+                    Sequence(
+                        OneOf(
+                            "DELETED",
+                            "INSERTED",
+                            Ref("SingleIdentifierGrammar"),
+                        ),
+                        Ref("DotSegment"),
+                        OneOf(
+                            Ref("WildcardIdentifierSegment"),
+                            Ref("SingleIdentifierGrammar"),
+                        ),
                     ),
-                    optional=True,
+                    # $action (for MERGE statements) - special literal
+                    Ref("ActionParameterSegment"),
+                    # scalar_expression (fallback for everything else)
+                    Ref("ExpressionSegment"),
                 ),
-                Dedent,
-                optional=True,
+                # [ [ AS ] column_alias_identifier ]
+                Ref("AliasExpressionSegment", optional=True),
             ),
+            terminators=[Ref.keyword("INTO"), Ref.keyword("FROM")],
+        ),
+        Dedent,
+        Sequence(
+            "INTO",
+            Indent,
+            # @table_variable | output_table
+            OneOf(
+                Ref("ParameterNameSegment"),
+                Ref("TableReferenceSegment"),
+            ),
+            # [ ( column_list ) ]
+            Ref("BracketedColumnReferenceListGrammar", optional=True),
+            Dedent,
+            optional=True,
         ),
     )
 

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 07d4fe3480678462b502f76cca4c139e8990dd21b70cfc444680e8f76d0b3860
+_hash: e4d280056244febcb008ddbc17e919665fabd55a1ea9708f28cc7c3c95a74604
 file:
 - batch:
     statement:
@@ -566,20 +566,17 @@ file:
               - end_bracket: )
           output_clause:
           - keyword: OUTPUT
-          - wildcard_expression:
-              wildcard_identifier:
-                naked_identifier: deleted
-                dot: .
-                star: '*'
+          - keyword: deleted
+          - dot: .
+          - wildcard_identifier:
+              star: '*'
           - comma: ','
-          - column_reference:
-              variable_identifier: $action
+          - action_parameter: $action
           - comma: ','
-          - wildcard_expression:
-              wildcard_identifier:
-                naked_identifier: inserted
-                dot: .
-                star: '*'
+          - keyword: inserted
+          - dot: .
+          - wildcard_identifier:
+              star: '*'
           - keyword: INTO
           - table_reference:
               hash_identifier: '#MyTempTable'
@@ -763,38 +760,31 @@ file:
                           end_bracket: )
         - output_clause:
           - keyword: OUTPUT
-          - column_reference:
-              variable_identifier: $action
+          - action_parameter: $action
           - comma: ','
-          - column_reference:
-            - naked_identifier: Inserted
-            - dot: .
-            - naked_identifier: ProductID
+          - keyword: Inserted
+          - dot: .
+          - naked_identifier: ProductID
           - comma: ','
-          - column_reference:
-            - naked_identifier: Inserted
-            - dot: .
-            - naked_identifier: Quantity
+          - keyword: Inserted
+          - dot: .
+          - naked_identifier: Quantity
           - comma: ','
-          - column_reference:
-            - naked_identifier: Inserted
-            - dot: .
-            - naked_identifier: ModifiedDate
+          - keyword: Inserted
+          - dot: .
+          - naked_identifier: ModifiedDate
           - comma: ','
-          - column_reference:
-            - naked_identifier: Deleted
-            - dot: .
-            - naked_identifier: ProductID
+          - keyword: Deleted
+          - dot: .
+          - naked_identifier: ProductID
           - comma: ','
-          - column_reference:
-            - naked_identifier: Deleted
-            - dot: .
-            - naked_identifier: Quantity
+          - keyword: Deleted
+          - dot: .
+          - naked_identifier: Quantity
           - comma: ','
-          - column_reference:
-            - naked_identifier: Deleted
-            - dot: .
-            - naked_identifier: ModifiedDate
+          - keyword: Deleted
+          - dot: .
+          - naked_identifier: ModifiedDate
     statement_terminator: ;
     go_statement:
       keyword: GO
@@ -972,32 +962,27 @@ file:
               keyword: DELETE
         - output_clause:
           - keyword: OUTPUT
-          - column_reference:
-              variable_identifier: $action
+          - action_parameter: $action
           - comma: ','
-          - column_reference:
-            - naked_identifier: Inserted
-            - dot: .
-            - naked_identifier: ProductID
+          - keyword: Inserted
+          - dot: .
+          - naked_identifier: ProductID
           - comma: ','
-          - column_reference:
-            - naked_identifier: Inserted
-            - dot: .
-            - naked_identifier: LocationID
+          - keyword: Inserted
+          - dot: .
+          - naked_identifier: LocationID
           - comma: ','
-          - column_reference:
-            - naked_identifier: Inserted
-            - dot: .
-            - naked_identifier: Quantity
+          - keyword: Inserted
+          - dot: .
+          - naked_identifier: Quantity
           - alias_expression:
               alias_operator:
                 keyword: AS
               naked_identifier: NewQty
           - comma: ','
-          - column_reference:
-            - naked_identifier: Deleted
-            - dot: .
-            - naked_identifier: Quantity
+          - keyword: Deleted
+          - dot: .
+          - naked_identifier: Quantity
           - alias_expression:
               alias_operator:
                 keyword: AS
@@ -1102,11 +1087,10 @@ file:
                                   - dot: .
                                   - naked_identifier: columnC
                         output_clause:
-                          keyword: output
-                          column_reference:
-                          - naked_identifier: inserted
-                          - dot: .
-                          - naked_identifier: columnC
+                        - keyword: output
+                        - keyword: inserted
+                        - dot: .
+                        - naked_identifier: columnC
                     end_bracket: )
                 alias_expression:
                   alias_operator:
@@ -1223,20 +1207,17 @@ file:
               - end_bracket: )
           output_clause:
           - keyword: OUTPUT
-          - wildcard_expression:
-              wildcard_identifier:
-                naked_identifier: deleted
-                dot: .
-                star: '*'
+          - keyword: deleted
+          - dot: .
+          - wildcard_identifier:
+              star: '*'
           - comma: ','
-          - column_reference:
-              variable_identifier: $action
+          - action_parameter: $action
           - comma: ','
-          - wildcard_expression:
-              wildcard_identifier:
-                naked_identifier: inserted
-                dot: .
-                star: '*'
+          - keyword: inserted
+          - dot: .
+          - wildcard_identifier:
+              star: '*'
           - keyword: INTO
           - table_reference:
               hash_identifier: '#MyTempTable'
@@ -1435,32 +1416,27 @@ file:
               keyword: DELETE
         - output_clause:
           - keyword: OUTPUT
-          - column_reference:
-              variable_identifier: $action
+          - action_parameter: $action
           - comma: ','
-          - column_reference:
-            - naked_identifier: Inserted
-            - dot: .
-            - naked_identifier: ProductID
+          - keyword: Inserted
+          - dot: .
+          - naked_identifier: ProductID
           - comma: ','
-          - column_reference:
-            - naked_identifier: Inserted
-            - dot: .
-            - naked_identifier: LocationID
+          - keyword: Inserted
+          - dot: .
+          - naked_identifier: LocationID
           - comma: ','
-          - column_reference:
-            - naked_identifier: Inserted
-            - dot: .
-            - naked_identifier: Quantity
+          - keyword: Inserted
+          - dot: .
+          - naked_identifier: Quantity
           - alias_expression:
               alias_operator:
                 keyword: AS
               naked_identifier: NewQty
           - comma: ','
-          - column_reference:
-            - naked_identifier: Deleted
-            - dot: .
-            - naked_identifier: Quantity
+          - keyword: Deleted
+          - dot: .
+          - naked_identifier: Quantity
           - alias_expression:
               alias_operator:
                 keyword: AS
