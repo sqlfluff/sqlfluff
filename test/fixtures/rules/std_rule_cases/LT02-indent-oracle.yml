@@ -1,0 +1,339 @@
+rule: LT02
+
+# Test cases for conditionals and loops indentation scenarios
+test_fail_oracle_if_clause_indentation:
+  fail_str: |
+    BEGIN
+    IF 1 > 0 THEN
+    DBMS_OUTPUT.PUT_LINE('condition met');
+    ELSIF 2 > 1 THEN
+    DBMS_OUTPUT.PUT_LINE('alternative met');
+    ELSE
+    DBMS_OUTPUT.PUT_LINE('default case');
+    END IF;
+    END;
+  fix_str: |
+    BEGIN
+        IF 1 > 0 THEN
+            DBMS_OUTPUT.PUT_LINE('condition met');
+        ELSIF 2 > 1 THEN
+            DBMS_OUTPUT.PUT_LINE('alternative met');
+        ELSE
+            DBMS_OUTPUT.PUT_LINE('default case');
+        END IF;
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_for_loop_indentation:
+  fail_str: |
+    BEGIN
+    FOR i IN 1..10 LOOP
+    DBMS_OUTPUT.PUT_LINE('Counter: ' || i);
+    IF i < 5 THEN
+    DBMS_OUTPUT.PUT_LINE('Small number');
+    ELSE
+    DBMS_OUTPUT.PUT_LINE('Large number');
+    END IF;
+    END LOOP;
+    END;
+  fix_str: |
+    BEGIN
+        FOR i IN 1..10 LOOP
+            DBMS_OUTPUT.PUT_LINE('Counter: ' || i);
+            IF i < 5 THEN
+                DBMS_OUTPUT.PUT_LINE('Small number');
+            ELSE
+                DBMS_OUTPUT.PUT_LINE('Large number');
+            END IF;
+        END LOOP;
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_nested_control_structures:
+  fail_str: |
+    BEGIN
+    IF 1 > 0 THEN
+    FOR i IN 1..3 LOOP
+    IF i = 2 THEN
+    DBMS_OUTPUT.PUT_LINE('Found two: ' || i);
+    ELSIF i = 1 THEN
+    DBMS_OUTPUT.PUT_LINE('Found one: ' || i);
+    ELSE
+    DBMS_OUTPUT.PUT_LINE('Found other: ' || i);
+    END IF;
+    END LOOP;
+    END IF;
+    END;
+  fix_str: |
+    BEGIN
+        IF 1 > 0 THEN
+            FOR i IN 1..3 LOOP
+                IF i = 2 THEN
+                    DBMS_OUTPUT.PUT_LINE('Found two: ' || i);
+                ELSIF i = 1 THEN
+                    DBMS_OUTPUT.PUT_LINE('Found one: ' || i);
+                ELSE
+                    DBMS_OUTPUT.PUT_LINE('Found other: ' || i);
+                END IF;
+            END LOOP;
+        END IF;
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_simple_block_indentation:
+  fail_str: |
+    BEGIN
+    FOR i IN 1..5 LOOP
+    IF i < 3 THEN
+    DBMS_OUTPUT.PUT_LINE('Small: ' || i);
+    ELSE
+    DBMS_OUTPUT.PUT_LINE('Large: ' || i);
+    END IF;
+    END LOOP;
+    END;
+  fix_str: |
+    BEGIN
+        FOR i IN 1..5 LOOP
+            IF i < 3 THEN
+                DBMS_OUTPUT.PUT_LINE('Small: ' || i);
+            ELSE
+                DBMS_OUTPUT.PUT_LINE('Large: ' || i);
+            END IF;
+        END LOOP;
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_proper_indentation:
+  pass_str: |
+    BEGIN
+        FOR i IN 1..3 LOOP
+            IF i < 2 THEN
+                DBMS_OUTPUT.PUT_LINE('Small: ' || i);
+            ELSE
+                DBMS_OUTPUT.PUT_LINE('Large: ' || i);
+            END IF;
+        END LOOP;
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+# Test cases for declare blocks indentation scenarios
+test_fail_declare_block_basic_declarations:
+  fail_str: |
+    DECLARE
+    v_name VARCHAR2(50);
+    v_count NUMBER;
+    c_max_count CONSTANT NUMBER;
+    c_pi CONSTANT NUMBER;
+    BEGIN
+      NULL;
+    END;
+  fix_str: |
+    DECLARE
+        v_name VARCHAR2(50);
+        v_count NUMBER;
+        c_max_count CONSTANT NUMBER;
+        c_pi CONSTANT NUMBER;
+    BEGIN
+        NULL;
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_declare_block_mixed_declarations:
+  fail_str: |
+    DECLARE
+    v_name VARCHAR2(50);
+    TYPE emp_record IS RECORD (
+    emp_id NUMBER,
+    name VARCHAR2(100)
+    );
+    v_emp emp_record;
+    c_max CONSTANT NUMBER;
+    BEGIN
+      NULL;
+    END;
+  fix_str: |
+    DECLARE
+        v_name VARCHAR2(50);
+        TYPE emp_record IS RECORD (
+            emp_id NUMBER,
+            name VARCHAR2(100)
+        );
+        v_emp emp_record;
+        c_max CONSTANT NUMBER;
+    BEGIN
+        NULL;
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+# Test cases for Oracle IS/AS block indentation scenarios
+test_oracle_procedure_indentation_after_as:
+  # Test CREATE PROCEDURE indentation after AS keyword
+  fail_str: |
+    CREATE OR REPLACE PROCEDURE test_procedure AS
+    v_counter NUMBER;
+    v_name VARCHAR2(50);
+    CURSOR emp_cursor IS
+    SELECT employee_id, first_name FROM employees;
+    BEGIN
+    NULL;
+    END test_procedure;
+  fix_str: |
+    CREATE OR REPLACE PROCEDURE test_procedure AS
+        v_counter NUMBER;
+        v_name VARCHAR2(50);
+        CURSOR emp_cursor IS
+            SELECT employee_id, first_name FROM employees;
+    BEGIN
+        NULL;
+    END test_procedure;
+  configs:
+    core:
+      dialect: oracle
+
+test_oracle_function_indentation_after_as:
+  # Test CREATE FUNCTION indentation after AS keyword
+  fail_str: |
+    CREATE OR REPLACE FUNCTION test_function(p_value NUMBER) RETURN NUMBER AS
+    v_result NUMBER;
+    CURSOR calc_cursor IS
+    SELECT value FROM test_table;
+    BEGIN
+    RETURN 1;
+    END test_function;
+  fix_str: |
+    CREATE OR REPLACE FUNCTION test_function(p_value NUMBER) RETURN NUMBER AS
+        v_result NUMBER;
+        CURSOR calc_cursor IS
+            SELECT value FROM test_table;
+    BEGIN
+        RETURN 1;
+    END test_function;
+  configs:
+    core:
+      dialect: oracle
+
+test_oracle_package_indentation_after_as:
+  # Test CREATE PACKAGE indentation after AS keyword
+  fail_str: |
+    CREATE OR REPLACE PACKAGE test_package AS
+    CURSOR pkg_cursor IS
+    SELECT id, name FROM employees;
+    PROCEDURE pkg_procedure(p_id NUMBER);
+    FUNCTION pkg_function RETURN NUMBER;
+    END test_package;
+  fix_str: |
+    CREATE OR REPLACE PACKAGE test_package AS
+        CURSOR pkg_cursor IS
+            SELECT id, name FROM employees;
+        PROCEDURE pkg_procedure(p_id NUMBER);
+        FUNCTION pkg_function RETURN NUMBER;
+    END test_package;
+  configs:
+    core:
+      dialect: oracle
+
+test_oracle_package_body_indentation_after_as:
+  # Test CREATE PACKAGE BODY indentation after AS keyword
+  fail_str: |
+    CREATE OR REPLACE PACKAGE BODY test_package AS
+    v_private_var NUMBER;
+    CURSOR private_cursor IS
+    SELECT employee_id FROM employees;
+    PROCEDURE pkg_procedure(p_id NUMBER) AS
+    v_local NUMBER;
+    BEGIN
+    NULL;
+    END pkg_procedure;
+    END test_package;
+  fix_str: |
+    CREATE OR REPLACE PACKAGE BODY test_package AS
+        v_private_var NUMBER;
+        CURSOR private_cursor IS
+            SELECT employee_id FROM employees;
+        PROCEDURE pkg_procedure(p_id NUMBER) AS
+            v_local NUMBER;
+        BEGIN
+            NULL;
+        END pkg_procedure;
+    END test_package;
+  configs:
+    core:
+      dialect: oracle
+
+test_oracle_type_body_indentation_after_as:
+  # Test CREATE TYPE BODY indentation after AS keyword
+  fail_str: |
+    CREATE OR REPLACE TYPE BODY test_type AS
+    MEMBER FUNCTION calculate_power RETURN NUMBER AS
+    v_result NUMBER;
+    BEGIN
+    RETURN id;
+    END calculate_power;
+    END;
+  fix_str: |
+    CREATE OR REPLACE TYPE BODY test_type AS
+        MEMBER FUNCTION calculate_power RETURN NUMBER AS
+            v_result NUMBER;
+        BEGIN
+            RETURN id;
+        END calculate_power;
+    END;
+  configs:
+    core:
+      dialect: oracle
+
+test_oracle_nested_indentation_scenarios:
+  # Test nested IS/AS indentation scenarios
+  fail_str: |
+    CREATE OR REPLACE PACKAGE BODY complex_package AS
+    v_global_var NUMBER;
+    CURSOR global_cursor IS
+    SELECT * FROM all_tables;
+    PROCEDURE nested_proc AS
+    v_local_var NUMBER;
+    CURSOR local_cursor IS
+    SELECT table_name FROM user_tables;
+    FUNCTION inner_func RETURN NUMBER AS
+    v_inner_var NUMBER;
+    BEGIN
+    RETURN 42;
+    END inner_func;
+    BEGIN
+    NULL;
+    END nested_proc;
+    END complex_package;
+  fix_str: |
+    CREATE OR REPLACE PACKAGE BODY complex_package AS
+        v_global_var NUMBER;
+        CURSOR global_cursor IS
+            SELECT * FROM all_tables;
+        PROCEDURE nested_proc AS
+            v_local_var NUMBER;
+            CURSOR local_cursor IS
+                SELECT table_name FROM user_tables;
+            FUNCTION inner_func RETURN NUMBER AS
+                v_inner_var NUMBER;
+            BEGIN
+                RETURN 42;
+            END inner_func;
+        BEGIN
+            NULL;
+        END nested_proc;
+    END complex_package;
+  configs:
+    core:
+      dialect: oracle

@@ -239,6 +239,7 @@ def paths_from_path(
     ignore_files: bool = True,
     working_path: str = os.getcwd(),
     target_file_exts: Sequence[str] = (".sql",),
+    check_non_existent_file: bool = False,
 ) -> list[str]:
     """Return a set of sql file paths from a potentially more ambiguous path string.
 
@@ -255,7 +256,7 @@ def paths_from_path(
     of the two. This might be counterintuitive, but supports an appropriate solution
     for the dbt templater without having to additionally pass the project root path.
     """
-    if not os.path.exists(path):
+    if not os.path.exists(path) and not check_non_existent_file:
         if ignore_non_existent_files:
             return []
         else:
@@ -282,7 +283,7 @@ def paths_from_path(
                 outer_ignore_specs.append(ignore_spec)
 
     # Handle being passed an exact file first.
-    if os.path.isfile(path):
+    if os.path.isfile(path) or check_non_existent_file:
         return _process_exact_path(
             path, working_path, lower_file_exts, outer_ignore_specs
         )

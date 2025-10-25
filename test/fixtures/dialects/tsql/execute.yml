@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8e92edc5714c409b37dc9cb648090c17447331c402a710bdba3dccdfeb01cd52
+_hash: b44bb276247dcbbab68f753a8a413e6eaf328f2abe27f4d12c600a01191b70a3
 file:
 - batch:
   - statement:
@@ -34,7 +34,7 @@ file:
         - dot: .
         - naked_identifier: ProcTestDefaults
       - expression:
-          numeric_literal: '68'
+          integer_literal: '68'
       - comma: ','
       - expression:
           quoted_literal: "'B'"
@@ -47,7 +47,7 @@ file:
         - dot: .
         - naked_identifier: ProcTestDefaults
       - expression:
-          numeric_literal: '68'
+          integer_literal: '68'
       - comma: ','
       - expression:
           quoted_literal: "'C'"
@@ -263,7 +263,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '10'
+                integer_literal: '10'
               end_bracket: )
       - comparison_operator:
           raw_comparison_operator: '='
@@ -280,7 +280,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '10'
+                integer_literal: '10'
               end_bracket: )
         comparison_operator:
           raw_comparison_operator: '='
@@ -288,23 +288,23 @@ file:
           null_literal: 'NULL'
         statement_terminator: ;
   - statement:
-      set_segment:
+      set_local_variable_segment:
         keyword: SET
         parameter: '@s1'
         assignment_operator:
           raw_comparison_operator: '='
         expression:
           quoted_literal: "'select '"
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
-      set_segment:
+      set_local_variable_segment:
         keyword: SET
         parameter: '@s2'
         assignment_operator:
           raw_comparison_operator: '='
         expression:
           quoted_literal: "'123'"
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
         keyword: EXECUTE
@@ -342,7 +342,7 @@ file:
         - dot: .
         - naked_identifier: uspGetEmployeeManagers
         expression:
-          numeric_literal: '6'
+          integer_literal: '6'
         statement_terminator: ;
   - statement:
       execute_script_statement:
@@ -355,7 +355,7 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         expression:
-          numeric_literal: '6'
+          integer_literal: '6'
         statement_terminator: ;
   - statement:
       execute_script_statement:
@@ -370,8 +370,8 @@ file:
       - parameter: '@ManagerID'
       - keyword: OUTPUT
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+  - go_statement:
+      keyword: GO
 - batch:
     statement:
       execute_script_statement:
@@ -383,10 +383,10 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         expression:
-          numeric_literal: '6'
+          integer_literal: '6'
         statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
   - statement:
       declare_segment:
@@ -414,7 +414,7 @@ file:
         - dot: .
         - naked_identifier: uspGetWhereUsedProductID
       - expression:
-          numeric_literal: '819'
+          integer_literal: '819'
       - comma: ','
       - expression:
           parameter: '@CheckDate'
@@ -476,7 +476,7 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - expression:
-          numeric_literal: '6'
+          integer_literal: '6'
       - statement_terminator: ;
   - statement:
       declare_segment:
@@ -489,7 +489,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '30'
+                integer_literal: '30'
               end_bracket: )
       - comparison_operator:
           raw_comparison_operator: '='
@@ -576,7 +576,7 @@ file:
           quoted_literal: "'SELECT * FROM scott.emp WHERE MGR = ?'"
           comma: ','
           expression:
-            numeric_literal: '7902'
+            integer_literal: '7902'
           end_bracket: )
       - keyword: AT
       - object_reference:
@@ -609,7 +609,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '15'
+                integer_literal: '15'
               end_bracket: )
       - statement_terminator: ;
   - statement:
@@ -625,7 +625,7 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - expression:
-          numeric_literal: '2'
+          integer_literal: '2'
       - statement_terminator: ;
   - statement:
       execute_script_statement:
@@ -647,7 +647,7 @@ file:
       - object_reference:
           naked_identifier: uspGetEmployeeManagers
       - expression:
-          numeric_literal: '16'
+          integer_literal: '16'
       - keyword: WITH
       - execute_option:
         - keyword: RESULT
@@ -678,7 +678,7 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      numeric_literal: '50'
+                      integer_literal: '50'
                     end_bracket: )
             - keyword: NOT
             - keyword: 'NULL'
@@ -691,7 +691,7 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      numeric_literal: '50'
+                      integer_literal: '50'
                     end_bracket: )
             - keyword: NOT
             - keyword: 'NULL'
@@ -716,7 +716,7 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      numeric_literal: '50'
+                      integer_literal: '50'
                     end_bracket: )
             - keyword: NOT
             - keyword: 'NULL'
@@ -729,7 +729,7 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      numeric_literal: '50'
+                      integer_literal: '50'
                     end_bracket: )
             - keyword: NOT
             - keyword: 'NULL'

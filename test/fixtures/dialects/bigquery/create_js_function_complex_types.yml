@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8f953523c623c2f0f692913757e4e5b6b3166da87fe5b8f571796a8e326977cb
+_hash: d1fa0d72cc2af0530c5f21c4cea3da882175a110632f386d1752c6136a1bb15f
 file:
   statement:
     create_function_statement:
@@ -21,7 +21,7 @@ file:
         - comma: ','
         - parameter: foo2
         - data_type:
-            array_type:
+            data_type:
               keyword: ARRAY
               start_angle_bracket: <
               data_type:
@@ -30,7 +30,7 @@ file:
         - comma: ','
         - parameter: foo3
         - data_type:
-            struct_type:
+            data_type:
               keyword: STRUCT
               struct_type_schema:
                 start_angle_bracket: <
@@ -41,7 +41,7 @@ file:
         - comma: ','
         - parameter: foo4
         - data_type:
-            struct_type:
+            data_type:
               keyword: STRUCT
               struct_type_schema:
               - start_angle_bracket: <
@@ -56,13 +56,13 @@ file:
         - comma: ','
         - parameter: foo5
         - data_type:
-            struct_type:
+            data_type:
               keyword: STRUCT
               struct_type_schema:
               - start_angle_bracket: <
               - parameter: a
               - data_type:
-                  array_type:
+                  data_type:
                     keyword: ARRAY
                     start_angle_bracket: <
                     data_type:
@@ -71,7 +71,7 @@ file:
               - comma: ','
               - parameter: b
               - data_type:
-                  struct_type:
+                  data_type:
                     keyword: STRUCT
                     struct_type_schema:
                     - start_angle_bracket: <
@@ -87,13 +87,13 @@ file:
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        struct_type:
+        data_type:
           keyword: STRUCT
           struct_type_schema:
             start_angle_bracket: <
             parameter: product_id
             data_type:
-              array_type:
+              data_type:
                 keyword: ARRAY
                 start_angle_bracket: <
                 data_type:

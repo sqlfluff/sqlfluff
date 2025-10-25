@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0d8e851e9e3b7d2d99dbfc90f19362d1e67daa6df553f6f01dd1881c3679d31f
+_hash: eba8c5409a8d3a0dc5974e0382ba29d7ce64499302085fe3e28253c39aad1136
 file:
   statement:
     create_trigger_statement:
@@ -419,9 +419,7 @@ file:
                     - keyword: CONSTANT
                     - data_type:
                         data_type_identifier: SIMPLE_INTEGER
-                    - colon: ':'
-                    - comparison_operator:
-                        raw_comparison_operator: '='
+                    - assignment_operator: :=
                     - expression:
                         numeric_literal: '7'
                     - statement_terminator: ;
@@ -448,9 +446,7 @@ file:
                     - naked_identifier: idx
                     - data_type:
                         data_type_identifier: SIMPLE_INTEGER
-                    - colon: ':'
-                    - comparison_operator:
-                        raw_comparison_operator: '='
+                    - assignment_operator: :=
                     - expression:
                         numeric_literal: '0'
                     - statement_terminator: ;
@@ -464,9 +460,7 @@ file:
                           keyword: CONSTANT
                           data_type:
                             data_type_identifier: SIMPLE_INTEGER
-                          colon: ':'
-                          comparison_operator:
-                            raw_comparison_operator: '='
+                          assignment_operator: :=
                           expression:
                             function:
                               function_name:
@@ -516,9 +510,7 @@ file:
                             assignment_segment_statement:
                               object_reference:
                                 naked_identifier: idx
-                              colon: ':'
-                              comparison_operator:
-                                raw_comparison_operator: '='
+                              assignment_operator: :=
                               expression:
                                 numeric_literal: '0'
                         - statement_terminator: ;
@@ -558,9 +550,7 @@ file:
                         assignment_segment_statement:
                           object_reference:
                             naked_identifier: idx
-                          colon: ':'
-                          comparison_operator:
-                            raw_comparison_operator: '='
+                          assignment_operator: :=
                           expression:
                             column_reference:
                               naked_identifier: idx
@@ -579,9 +569,7 @@ file:
                         - dot: .
                         - object_reference:
                             naked_identifier: employee_id
-                        - colon: ':'
-                        - comparison_operator:
-                            raw_comparison_operator: '='
+                        - assignment_operator: :=
                         - expression:
                             sqlplus_variable:
                             - colon: ':'
@@ -601,9 +589,7 @@ file:
                         - dot: .
                         - object_reference:
                             naked_identifier: change_date
-                        - colon: ':'
-                        - comparison_operator:
-                            raw_comparison_operator: '='
+                        - assignment_operator: :=
                         - expression:
                             bare_function: SYSTIMESTAMP
                     - statement_terminator: ;
@@ -619,9 +605,7 @@ file:
                         - dot: .
                         - object_reference:
                             naked_identifier: salary
-                        - colon: ':'
-                        - comparison_operator:
-                            raw_comparison_operator: '='
+                        - assignment_operator: :=
                         - expression:
                             sqlplus_variable:
                             - colon: ':'
@@ -717,9 +701,7 @@ file:
                               - parameter: new
                               - dot: .
                               - parameter: created_at
-                              colon: ':'
-                              comparison_operator:
-                                raw_comparison_operator: '='
+                              assignment_operator: :=
                               expression:
                                 bare_function: CURRENT_TIMESTAMP
                         - statement_terminator: ;
@@ -733,9 +715,7 @@ file:
                               - parameter: new
                               - dot: .
                               - parameter: updated_at
-                              colon: ':'
-                              comparison_operator:
-                                raw_comparison_operator: '='
+                              assignment_operator: :=
                               expression:
                                 bare_function: CURRENT_TIMESTAMP
                         - statement_terminator: ;

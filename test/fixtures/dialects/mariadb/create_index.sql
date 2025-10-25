@@ -12,3 +12,4 @@ CREATE INDEX idx ON tbl (col) ALGORITHM NOCOPY;
 CREATE INDEX idx ON tbl (col) ALGORITHM INSTANT;
 CREATE INDEX idx ON tbl (col) LOCK DEFAULT;
 CREATE INDEX idx ON tbl ((col1 + col2), (col1 - col2), col1);
+CREATE INDEX IF NOT EXISTS index_name ON table_name (field_name);

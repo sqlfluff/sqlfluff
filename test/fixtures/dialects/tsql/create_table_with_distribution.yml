@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2b5704dab85931563d9a29f1d454c0ee1fbb3a2278481306089d4be3505ddc96
+_hash: a58aaa74fa016934f74518e90e45149957d9085e84d4ad7b316468b03e493539
 file:
 - batch:
     statement:
@@ -24,7 +24,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -35,7 +35,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -46,10 +46,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_distribution_index_clause:
@@ -68,8 +68,8 @@ file:
             - keyword: ROUND_ROBIN
             end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       drop_table_statement:
@@ -79,8 +79,8 @@ file:
         - quoted_identifier: '[dbo]'
         - dot: .
         - quoted_identifier: '[EC DC]'
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -100,7 +100,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -111,7 +111,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -122,10 +122,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_distribution_index_clause:
@@ -142,8 +142,8 @@ file:
             - keyword: REPLICATE
             end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       drop_table_statement:
@@ -153,8 +153,8 @@ file:
         - quoted_identifier: '[dbo]'
         - dot: .
         - quoted_identifier: '[EC DC]'
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -174,7 +174,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -185,7 +185,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -196,10 +196,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_distribution_index_clause:
@@ -224,8 +224,8 @@ file:
                 end_bracket: )
             end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       drop_table_statement:
@@ -235,8 +235,8 @@ file:
         - quoted_identifier: '[dbo]'
         - dot: .
         - quoted_identifier: '[EC DC]'
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -256,7 +256,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -267,7 +267,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -278,10 +278,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_distribution_index_clause:
@@ -311,8 +311,8 @@ file:
                 end_bracket: )
           - end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       drop_table_statement:
@@ -322,8 +322,8 @@ file:
         - quoted_identifier: '[dbo]'
         - dot: .
         - quoted_identifier: '[EC DC]'
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -343,7 +343,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -354,7 +354,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -365,10 +365,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_distribution_index_clause:
@@ -396,8 +396,8 @@ file:
                 end_bracket: )
             end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       drop_table_statement:
@@ -408,8 +408,8 @@ file:
         - dot: .
         - quoted_identifier: '[EC DC]'
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -429,7 +429,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -440,7 +440,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
@@ -451,10 +451,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_distribution_index_clause:
@@ -484,8 +484,8 @@ file:
                 end_bracket: )
             end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       drop_table_statement:
@@ -496,8 +496,8 @@ file:
         - dot: .
         - quoted_identifier: '[EC DC]'
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -517,7 +517,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
             column_constraint_segment:
             - keyword: NOT
@@ -554,5 +554,5 @@ file:
               - keyword: ASC
               - end_bracket: )
             end_bracket: )
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO

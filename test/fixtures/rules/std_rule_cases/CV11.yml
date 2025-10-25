@@ -336,6 +336,28 @@ test_pass_when_dialect_is_teradata:
     core:
       dialect: teradata
 
+test_pass_when_dialect_is_athena:
+  pass_str: |
+    select cast(1 as varchar(10)) as bar
+    from foo;
+  configs:
+    core:
+      dialect: athena
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: shorthand
+
+test_pass_when_dialect_is_trino:
+  pass_str: |
+    select cast(1 as varchar(10)) as bar
+    from foo;
+  configs:
+    core:
+      dialect: trino
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: shorthand
+
 test_fail_parenthesize_expression_when_config_shorthand_from_cast:
   fail_str: |
     select

@@ -276,6 +276,7 @@ ansi_dialect.add(
     # NOTE: The purpose of the colon_delimiter is that it has different layout rules.
     # It assumes no whitespace on either side.
     ColonDelimiterSegment=StringParser(":", SymbolSegment, type="colon_delimiter"),
+    ColonPrefixSegment=StringParser(":", SymbolSegment, type="colon_prefix"),
     StartBracketSegment=StringParser("(", SymbolSegment, type="start_bracket"),
     EndBracketSegment=StringParser(")", SymbolSegment, type="end_bracket"),
     StartSquareBracketSegment=StringParser(
@@ -792,6 +793,7 @@ ansi_dialect.add(
         Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
         Sequence("NO", "MAXVALUE"),
     ),
+    ColumnGeneratedGrammar=Nothing(),
 )
 
 
@@ -803,11 +805,16 @@ class FileSegment(BaseFileSegment):
     has no match_grammar.
     """
 
-    match_grammar = Delimited(
-        Ref("StatementSegment"),
-        delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
-        allow_gaps=True,
-        allow_trailing=True,
+    # Allow leading & trailing delimiters plus runs of delimited statements.
+    match_grammar = Sequence(
+        AnyNumberOf(Ref("DelimiterGrammar")),
+        Delimited(
+            Ref("StatementSegment"),
+            delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+            allow_gaps=True,
+            allow_trailing=True,
+        ),
+        AnyNumberOf(Ref("DelimiterGrammar")),
     )
 
     def get_table_references(self) -> set[str]:
@@ -1596,8 +1603,9 @@ class FrameClauseSegment(BaseSegment):
         Sequence(
             OneOf(
                 Ref("NumericLiteralSegment"),
-                Sequence("INTERVAL", Ref("QuotedLiteralSegment")),
+                Ref("IntervalExpressionSegment"),
                 "UNBOUNDED",
+                Ref("ColumnReferenceSegment"),
             ),
             OneOf("PRECEDING", "FOLLOWING"),
         ),
@@ -3218,6 +3226,7 @@ class ColumnConstraintSegment(BaseSegment):
             Sequence(
                 "COLLATE", Ref("CollationReferenceSegment")
             ),  # https://www.sqlite.org/datatype3.html#collation
+            Ref("ColumnGeneratedGrammar"),
         ),
     )
 
@@ -3633,6 +3642,7 @@ class AccessStatementSegment(BaseSegment):
                     _schema_object_types,
                 ),
             ),
+            Sequence("USE", OneOf("SCHEMA", "CATALOG")),
             Sequence("IMPORTED", "PRIVILEGES"),
             "APPLY",
             "CONNECT",
@@ -3674,6 +3684,7 @@ class AccessStatementSegment(BaseSegment):
                 "INTEGRATION",
                 "LANGUAGE",
                 "SCHEMA",
+                "CATALOG",
                 "ROLE",
                 "TABLESPACE",
                 "TYPE",

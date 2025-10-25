@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 48977d26c7882b0c980d91d20a2bb803892e87ddf2bcd0b2e78dd5d73c69fee3
+_hash: 49f77834a7e7a55591bede19e32cf1e49a67c62ccdce80e1827f2afa30d52aad
 file:
   batch:
   - statement:
@@ -25,7 +25,7 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  numeric_literal: '100'
+                  integer_literal: '100'
                 end_bracket: )
           - select_clause_element:
               column_reference:
@@ -101,7 +101,7 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  numeric_literal: '100'
+                  integer_literal: '100'
                 end_bracket: )
           - select_clause_element:
               column_reference:
@@ -218,7 +218,7 @@ file:
                 naked_identifier: ReceivedQty
             - comparison_operator:
                 raw_comparison_operator: '>'
-            - numeric_literal: '0'
+            - integer_literal: '0'
             - binary_operator: AND
             - column_reference:
                 naked_identifier: DueDate

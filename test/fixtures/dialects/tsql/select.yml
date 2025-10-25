@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8272450206c2b86996fda2b977fa3b1b22dd363b3c6c39a5986e6e4193c02ad0
+_hash: 78c6fc88cc49231444a1316f884ab2fd2d2214e9e3b89605420da0f223b4fa77
 file:
   batch:
   - statement:
@@ -17,162 +17,162 @@ file:
               - when_clause:
                 - keyword: WHEN
                 - expression:
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                   - comparison_operator:
                       raw_comparison_operator: '='
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                 - keyword: THEN
                 - expression:
                     quoted_literal: "'True'"
               - when_clause:
                 - keyword: WHEN
                 - expression:
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                   - comparison_operator:
                       raw_comparison_operator: '>'
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                 - keyword: THEN
                 - expression:
                     quoted_literal: "'False'"
               - when_clause:
                 - keyword: WHEN
                 - expression:
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                   - comparison_operator:
                       raw_comparison_operator: <
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                 - keyword: THEN
                 - expression:
                     quoted_literal: "'False'"
               - when_clause:
                 - keyword: WHEN
                 - expression:
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                   - comparison_operator:
                     - raw_comparison_operator: '>'
                     - raw_comparison_operator: '='
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                 - keyword: THEN
                 - expression:
                     quoted_literal: "'True'"
               - when_clause:
                 - keyword: WHEN
                 - expression:
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                   - comparison_operator:
                     - raw_comparison_operator: '>'
                     - raw_comparison_operator: '='
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                 - keyword: THEN
                 - expression:
                     quoted_literal: "'True'"
               - when_clause:
                 - keyword: WHEN
                 - expression:
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                   - comparison_operator:
                     - raw_comparison_operator: <
                     - raw_comparison_operator: '='
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                 - keyword: THEN
                 - expression:
                     quoted_literal: "'True'"
               - when_clause:
                 - keyword: WHEN
                 - expression:
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                   - comparison_operator:
                     - raw_comparison_operator: <
                     - raw_comparison_operator: '='
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                 - keyword: THEN
                 - expression:
                     quoted_literal: "'True'"
               - when_clause:
                 - keyword: WHEN
                 - expression:
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                   - comparison_operator:
                     - raw_comparison_operator: <
                     - raw_comparison_operator: '>'
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                 - keyword: THEN
                 - expression:
                     quoted_literal: "'False'"
               - when_clause:
                 - keyword: WHEN
                 - expression:
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                   - comparison_operator:
                     - raw_comparison_operator: <
                     - raw_comparison_operator: '>'
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                 - keyword: THEN
                 - expression:
                     quoted_literal: "'False'"
               - when_clause:
                 - keyword: WHEN
                 - expression:
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                   - comparison_operator:
                     - raw_comparison_operator: '!'
                     - raw_comparison_operator: <
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                 - keyword: THEN
                 - expression:
                     quoted_literal: "'Why is this a thing?'"
               - when_clause:
                 - keyword: WHEN
                 - expression:
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                   - comparison_operator:
                     - raw_comparison_operator: '!'
                     - raw_comparison_operator: <
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                 - keyword: THEN
                 - expression:
                     quoted_literal: "'Or this sort of thing?'"
               - when_clause:
                 - keyword: WHEN
                 - expression:
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                   - comparison_operator:
                     - raw_comparison_operator: '!'
                     - raw_comparison_operator: '='
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                 - keyword: THEN
                 - expression:
                     quoted_literal: "'False'"
               - when_clause:
                 - keyword: WHEN
                 - expression:
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                   - comparison_operator:
                     - raw_comparison_operator: '!'
                     - raw_comparison_operator: '='
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                 - keyword: THEN
                 - expression:
                     quoted_literal: "'False'"
               - when_clause:
                 - keyword: WHEN
                 - expression:
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                   - comparison_operator:
                     - raw_comparison_operator: '!'
                     - raw_comparison_operator: '>'
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                 - keyword: THEN
                 - expression:
                     quoted_literal: "'NULL Handling, Probably'"
               - when_clause:
                 - keyword: WHEN
                 - expression:
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                   - comparison_operator:
                     - raw_comparison_operator: '!'
                     - raw_comparison_operator: '>'
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                 - keyword: THEN
                 - expression:
                     quoted_literal: "'NULL Handling, Probably'"
@@ -288,14 +288,6 @@ file:
         - comma: ','
         - select_clause_element:
             column_reference:
-              naked_identifier: DISK
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              naked_identifier: DUMP
-        - comma: ','
-        - select_clause_element:
-            column_reference:
               naked_identifier: FIPS_FLAGGER
         - comma: ','
         - select_clause_element:
@@ -309,10 +301,6 @@ file:
         - select_clause_element:
             column_reference:
               naked_identifier: IMPLICIT_TRANSACTIONS
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              naked_identifier: LOAD
         - comma: ','
         - select_clause_element:
             column_reference:
@@ -336,10 +324,6 @@ file:
         - comma: ','
         - select_clause_element:
             column_reference:
-              naked_identifier: PRECISION
-        - comma: ','
-        - select_clause_element:
-            column_reference:
               naked_identifier: PROPERTY
         - comma: ','
         - select_clause_element:
@@ -353,10 +337,6 @@ file:
         - select_clause_element:
             column_reference:
               naked_identifier: REMOTE_PROC_TRANSACTIONS
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              naked_identifier: SECURITYAUDIT
         - comma: ','
         - select_clause_element:
             column_reference:
@@ -875,7 +855,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '1'
+                    integer_literal: '1'
                   keyword: as
                   data_type:
                     data_type_identifier: character
@@ -884,7 +864,7 @@ file:
                       bracketed:
                         start_bracket: (
                         expression:
-                          numeric_literal: '1'
+                          integer_literal: '1'
                         end_bracket: )
                   end_bracket: )
         - comma: ','
@@ -929,7 +909,7 @@ file:
                     keyword: default
                 - comma: ','
                 - expression:
-                    numeric_literal: '2'
+                    integer_literal: '2'
                 - end_bracket: )
         from_clause:
           keyword: FROM
@@ -949,7 +929,7 @@ file:
           - keyword: DISTINCT
           - keyword: TOP
           - expression:
-              numeric_literal: '5'
+              integer_literal: '5'
           select_clause_element:
             column_reference:
               naked_identifier: some_value

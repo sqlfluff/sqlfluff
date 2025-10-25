@@ -516,3 +516,86 @@ test_pass_file_with_only_comments_with_require_final_semicolon:
     rules:
       convention.terminator:
         require_final_semicolon: true
+
+test_pass_oracle_block_with_slash_delimiter:
+  pass_str: |
+    CREATE PROCEDURE test_proc AS
+    BEGIN
+        NULL;
+    END;
+    /
+  configs:
+    core:
+      dialect: oracle
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_pass_oracle_block_with_slash_delimiter_multiline:
+  pass_str: |
+    CREATE PROCEDURE test_proc AS
+    BEGIN
+        NULL;
+    END;
+    /
+  configs:
+    core:
+      dialect: oracle
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_pass_oracle_mixed_terminators:
+  pass_str: |
+    SELECT * FROM table1;
+    CREATE PROCEDURE test_proc AS
+    BEGIN
+        NULL;
+    END;
+    /
+
+    SELECT * FROM table2;
+    CREATE PROCEDURE test_proc2 AS
+    BEGIN
+        NULL;
+    END;
+    /
+    SELECT * FROM table2;
+  configs:
+    core:
+      dialect: oracle
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_pass_oracle_slash_positioning_same_line:
+  pass_str: |
+    CREATE PROCEDURE test_proc AS
+    BEGIN
+        NULL;
+    END; /
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_slash_positioning_newline:
+  pass_str: |
+    CREATE PROCEDURE test_proc AS
+    BEGIN
+        NULL;
+    END;
+    /
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_slash_with_extra_spacing:
+  pass_str: |
+    CREATE PROCEDURE test_proc AS
+    BEGIN
+        NULL;
+    END;   /
+  configs:
+    core:
+      dialect: oracle

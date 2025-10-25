@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 79179b70d53285f84676528487a6a71ca11f416ec858ecdfa0c5909f1f467d30
+_hash: 0e83e439d8537e3a217e2edb9a9ce855eb646bed22849f13436e830e9739a3aa
 file:
   batch:
   - statement:
@@ -13,7 +13,7 @@ file:
           select_clause_modifier:
             keyword: top
             expression:
-              numeric_literal: '1'
+              integer_literal: '1'
           select_clause_element:
             column_reference:
             - naked_identifier: t
@@ -54,7 +54,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '10'
+                integer_literal: '10'
               end_bracket: )
         - select_clause_element:
             column_reference:
@@ -82,7 +82,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '10'
+                integer_literal: '10'
               end_bracket: )
         - select_clause_element:
             column_reference:
@@ -116,7 +116,7 @@ file:
           - bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '5'
+                integer_literal: '5'
               end_bracket: )
           - keyword: PERCENT
         - select_clause_element:
@@ -151,7 +151,7 @@ file:
           - bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '10'
+                integer_literal: '10'
               end_bracket: )
           - keyword: PERCENT
           - keyword: WITH

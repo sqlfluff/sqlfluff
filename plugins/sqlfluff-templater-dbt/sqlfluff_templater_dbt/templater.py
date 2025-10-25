@@ -16,6 +16,7 @@ from collections import deque
 from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import cached_property
+from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -257,22 +258,9 @@ class DbtTemplater(JinjaTemplater):
         # https://github.com/sqlfluff/sqlfluff/issues/5054
         self.try_silence_dbt_logs()
 
-        if self.dbt_version_tuple >= (1, 5):
-            user_config = None
-            # 1.5.x+ this is a dict.
-            cli_vars = self._get_cli_vars()
-        else:
-            # Here, we read flags.PROFILE_DIR directly, prior to calling
-            # set_from_args(). Apparently, set_from_args() sets PROFILES_DIR
-            # to a lowercase version of the value, and the profile wouldn't be
-            # found if the directory name contained uppercase letters. This fix
-            # was suggested and described here:
-            # https://github.com/sqlfluff/sqlfluff/issues/2253#issuecomment-1018722979
-            from dbt.config import read_user_config
-
-            user_config = read_user_config(flags.PROFILES_DIR)
-            # Pre 1.5.x this is a string.
-            cli_vars = str(self._get_cli_vars())
+        user_config = None
+        # 1.5.x+ this is a dict.
+        cli_vars = self._get_cli_vars()
 
         flags.set_from_args(
             DbtConfigArgs(
@@ -518,6 +506,7 @@ class DbtTemplater(JinjaTemplater):
 
         for fname in fnames:
             if fname not in already_yielded:
+                templater_logger.debug("Yielding file: %s", fname)
                 yield fname
                 # Dedupe here so we don't yield twice
                 already_yielded.add(fname)
@@ -557,13 +546,11 @@ class DbtTemplater(JinjaTemplater):
 
         # NOTE: dbt exceptions are caught and handled safely for pickling by the outer
         # `handle_dbt_errors` decorator.
-        try:
-            os.chdir(self.project_dir)
-            return self._unsafe_process(fname_absolute_path, in_str, config)
-        finally:
-            os.chdir(self.working_dir)
+        return self._unsafe_process(
+            fname_absolute_path, in_str, config, self.project_dir
+        )
 
-    def _find_node(self, fname, config=None):
+    def _find_node(self, fname, config=None, dbt_dir=os.getcwd()):
         if not config:  # pragma: no cover
             raise ValueError(
                 "For the dbt templater, the `process()` method "
@@ -577,15 +564,17 @@ class DbtTemplater(JinjaTemplater):
             raise SQLFluffUserError(
                 "The dbt templater does not support stdin input, provide a path instead"
             )
+        rel_path = os.path.relpath(fname, start=dbt_dir)
+        abs_path = (Path(dbt_dir) / rel_path).resolve()
         selected = self.dbt_selector_method.search(
             included_nodes=self.dbt_manifest.nodes,
             # Selector needs to be a relative path
-            selector=os.path.relpath(fname, start=os.getcwd()),
+            selector=rel_path,
         )
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
         if not results:
-            skip_reason = self._find_skip_reason(fname)
+            skip_reason = self._find_skip_reason(abs_path)
             if skip_reason:
                 raise SQLFluffSkipFile(
                     f"Skipped file {fname} because it is {skip_reason}"
@@ -598,20 +587,21 @@ class DbtTemplater(JinjaTemplater):
     def _find_skip_reason(self, fname) -> Optional[str]:
         """Return string reason if model okay to skip, otherwise None."""
         # Scan macros.
-        abspath = os.path.abspath(fname)
         for macro in self.dbt_manifest.macros.values():
-            if os.path.abspath(macro.original_file_path) == abspath:
+            if (Path(self.project_dir) / macro.original_file_path).resolve() == fname:
                 return "a macro"
 
         # Scan disabled nodes.
         for nodes in self.dbt_manifest.disabled.values():
             for node in nodes:
-                if os.path.abspath(node.original_file_path) == abspath:
+                if (
+                    Path(self.project_dir) / node.original_file_path
+                ).resolve() == fname:
                     return "disabled"
         return None  # pragma: no cover
 
-    def _unsafe_process(self, fname, in_str=None, config=None):
-        original_file_path = os.path.relpath(fname, start=os.getcwd())
+    def _unsafe_process(self, fname, in_str=None, config=None, dbt_dir=os.getcwd()):
+        original_file_path = os.path.relpath(fname, start=dbt_dir)
 
         # Below, we monkeypatch Environment.from_string() to intercept when dbt
         # compiles (i.e. runs Jinja) to expand the "node" corresponding to fname.
@@ -627,12 +617,8 @@ class DbtTemplater(JinjaTemplater):
         # overwritten.
         render_func: Optional[Callable[[str], str]] = None
 
-        if self.dbt_version_tuple >= (1, 3):
-            compiled_sql_attribute = "compiled_code"
-            raw_sql_attribute = "raw_code"
-        else:  # pragma: no cover
-            compiled_sql_attribute = "compiled_sql"
-            raw_sql_attribute = "raw_sql"
+        compiled_sql_attribute = "compiled_code"
+        raw_sql_attribute = "raw_code"
 
         def from_string(*args, **kwargs):
             """Replaces (via monkeypatch) the jinja2.Environment function."""
@@ -660,23 +646,36 @@ class DbtTemplater(JinjaTemplater):
 
             return old_from_string(*args, **kwargs)
 
-        # NOTE: We need to inject the project root here in reaction to the
-        # breaking change upstream with dbt. Coverage works in 1.5.2, but
-        # appears to no longer be covered in 1.5.3.
-        # This change was backported and so exists in some versions
-        # but not others. When not present, no additional action is needed.
-        # https://github.com/dbt-labs/dbt-core/pull/7949
-        # On the 1.5.x branch this was between 1.5.1 and 1.5.2
+        # NOTE: Inject the project root for dbt contextvars compatibility.
+        # Prefer dbt_common (latest), then fallback to dbt.events or dbt.task.
         try:
-            from dbt.task.contextvars import cv_project_root
+            from dbt_common.events.contextvars import set_task_contextvars
 
-            cv_project_root.set(self.project_dir)  # pragma: no cover
-        except ImportError:
-            cv_project_root = None
+            set_task_contextvars(project_root=self.project_dir)
+        except ImportError:  # pragma: no cover
+            try:
+                from dbt.events.contextvars import set_task_contextvars
+
+                set_task_contextvars(project_root=self.project_dir)
+            except ImportError:
+                # NOTE: We need to inject the project root here in reaction to the
+                # breaking change upstream with dbt. Coverage works in 1.5.2, but
+                # appears to no longer be covered in 1.5.3.
+                # This change was backported and so exists in some versions
+                # but not others. When not present, no additional action is needed.
+                # https://github.com/dbt-labs/dbt-core/pull/7949
+                # On the 1.5.x branch this was between 1.5.1 and 1.5.2
+                try:
+                    from dbt.task.contextvars import cv_project_root
+
+                    cv_project_root.set(self.project_dir)  # pragma: no cover
+                except ImportError:
+                    cv_project_root = None
+                    pass
 
         # NOTE: _find_node will raise a compilation exception if the project
         # fails to compile, and we catch that in the outer `.process()` method.
-        node = self._find_node(fname, config)
+        node = self._find_node(fname, config, dbt_dir)
 
         templater_logger.debug(
             "_find_node for path %r returned object of type %s.", fname, type(node)
@@ -701,6 +700,7 @@ class DbtTemplater(JinjaTemplater):
                 node = self.dbt_compiler.compile_node(
                     node=node,
                     manifest=self.dbt_manifest,
+                    write=False,
                 )
             except UndefinedMacroError as err:
                 # The explanation on the undefined macro error is already fairly

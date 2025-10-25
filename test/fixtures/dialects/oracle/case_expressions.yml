@@ -1,0 +1,1769 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 162ce31b0e333dc38b301e2cd94fff10314fd8eec6c2863fdd253212729da876
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '5'
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '1'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '10'
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '2'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  numeric_literal: '0'
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '5'
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '1'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '10'
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '2'
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '5'
+              - keyword: THEN
+              - expression:
+                  case_expression:
+                  - keyword: CASE
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                        column_reference:
+                          naked_identifier: y
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        numeric_literal: '6'
+                    - keyword: THEN
+                    - expression:
+                        numeric_literal: '999'
+                  - keyword: END
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: hi
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '5'
+              - keyword: THEN
+              - expression:
+                  case_expression:
+                  - keyword: CASE
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                        column_reference:
+                          naked_identifier: y
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        numeric_literal: '6'
+                    - keyword: THEN
+                    - expression:
+                        numeric_literal: '999'
+                  - else_clause:
+                      keyword: ELSE
+                      expression:
+                        numeric_literal: '888'
+                  - keyword: END
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  numeric_literal: '777'
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - expression:
+                column_reference:
+                  naked_identifier: x
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  numeric_literal: '5'
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '1'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  numeric_literal: '10'
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '2'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  numeric_literal: '0'
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - expression:
+                column_reference:
+                  naked_identifier: x
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  numeric_literal: '5'
+              - keyword: THEN
+              - expression:
+                  case_expression:
+                  - keyword: CASE
+                  - expression:
+                      column_reference:
+                        naked_identifier: y
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                        numeric_literal: '6'
+                    - keyword: THEN
+                    - expression:
+                        numeric_literal: '999'
+                  - else_clause:
+                      keyword: ELSE
+                      expression:
+                        numeric_literal: '888'
+                  - keyword: END
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  numeric_literal: '10'
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '2'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  numeric_literal: '0'
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '5'
+              - keyword: THEN
+              - expression:
+                  case_expression:
+                  - keyword: CASE
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                        column_reference:
+                          naked_identifier: y
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        numeric_literal: '6'
+                    - keyword: THEN
+                    - expression:
+                        case_expression:
+                        - keyword: CASE
+                        - expression:
+                            column_reference:
+                              naked_identifier: z
+                        - when_clause:
+                          - keyword: WHEN
+                          - expression:
+                              numeric_literal: '7'
+                          - keyword: THEN
+                          - expression:
+                              numeric_literal: '777'
+                        - when_clause:
+                          - keyword: WHEN
+                          - expression:
+                              numeric_literal: '8'
+                          - keyword: THEN
+                          - expression:
+                              numeric_literal: '888'
+                        - else_clause:
+                            keyword: ELSE
+                            expression:
+                              numeric_literal: '999'
+                        - keyword: END
+                  - else_clause:
+                      keyword: ELSE
+                      expression:
+                        numeric_literal: '666'
+                  - keyword: END
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '10'
+              - keyword: THEN
+              - expression:
+                  case_expression:
+                  - keyword: CASE
+                  - expression:
+                      column_reference:
+                        naked_identifier: y
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                        numeric_literal: '11'
+                    - keyword: THEN
+                    - expression:
+                        numeric_literal: '111'
+                  - else_clause:
+                      keyword: ELSE
+                      expression:
+                        numeric_literal: '222'
+                  - keyword: END
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  numeric_literal: '333'
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: complex_result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+      where_clause:
+        keyword: WHERE
+        expression:
+          case_expression:
+          - keyword: CASE
+          - when_clause:
+            - keyword: WHEN
+            - expression:
+                column_reference:
+                  naked_identifier: x
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '5'
+            - keyword: THEN
+            - expression:
+                numeric_literal: '1'
+          - when_clause:
+            - keyword: WHEN
+            - expression:
+                column_reference:
+                  naked_identifier: x
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '10'
+            - keyword: THEN
+            - expression:
+                numeric_literal: '2'
+          - else_clause:
+              keyword: ELSE
+              expression:
+                numeric_literal: '0'
+          - keyword: END
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: x
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: y
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: z
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - expression:
+          case_expression:
+          - keyword: CASE
+          - when_clause:
+            - keyword: WHEN
+            - expression:
+                column_reference:
+                  naked_identifier: x
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '5'
+            - keyword: THEN
+            - expression:
+                numeric_literal: '1'
+          - when_clause:
+            - keyword: WHEN
+            - expression:
+                column_reference:
+                  naked_identifier: x
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '10'
+            - keyword: THEN
+            - expression:
+                numeric_literal: '2'
+          - else_clause:
+              keyword: ELSE
+              expression:
+                numeric_literal: '3'
+          - keyword: END
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: LENGTH
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: name
+                        end_bracket: )
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  numeric_literal: '10'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Long'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: LENGTH
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: name
+                        end_bracket: )
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  numeric_literal: '5'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Medium'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'Short'"
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: name_length
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  keyword: IS
+                  null_literal: 'NULL'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'NULL'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '0'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Zero'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  numeric_literal: '0'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Positive'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'Negative'"
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: x_status
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                    naked_identifier: x
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - numeric_literal: '5'
+                - binary_operator: AND
+                - column_reference:
+                    naked_identifier: y
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - numeric_literal: '6'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Both match'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                    naked_identifier: x
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - numeric_literal: '5'
+                - binary_operator: OR
+                - column_reference:
+                    naked_identifier: y
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - numeric_literal: '6'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'One matches'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'Neither matches'"
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: condition_result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '5'
+              - keyword: THEN
+              - expression:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      select_statement:
+                        select_clause:
+                          keyword: SELECT
+                          select_clause_element:
+                            function:
+                              function_name:
+                                function_name_identifier: MAX
+                              function_contents:
+                                bracketed:
+                                  start_bracket: (
+                                  expression:
+                                    column_reference:
+                                      naked_identifier: id
+                                  end_bracket: )
+                        from_clause:
+                          keyword: FROM
+                          from_expression:
+                            from_expression_element:
+                              table_expression:
+                                table_reference:
+                                  naked_identifier: def
+                        where_clause:
+                          keyword: WHERE
+                          expression:
+                          - column_reference:
+                              naked_identifier: id
+                          - comparison_operator:
+                              raw_comparison_operator: '='
+                          - column_reference:
+                              naked_identifier: x
+                    end_bracket: )
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '10'
+              - keyword: THEN
+              - expression:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      select_statement:
+                        select_clause:
+                          keyword: SELECT
+                          select_clause_element:
+                            function:
+                              function_name:
+                                function_name_identifier: MIN
+                              function_contents:
+                                bracketed:
+                                  start_bracket: (
+                                  expression:
+                                    column_reference:
+                                      naked_identifier: id
+                                  end_bracket: )
+                        from_clause:
+                          keyword: FROM
+                          from_expression:
+                            from_expression_element:
+                              table_expression:
+                                table_reference:
+                                  naked_identifier: def
+                        where_clause:
+                          keyword: WHERE
+                          expression:
+                          - column_reference:
+                              naked_identifier: id
+                          - comparison_operator:
+                              raw_comparison_operator: '='
+                          - column_reference:
+                              naked_identifier: x
+                    end_bracket: )
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  numeric_literal: '0'
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: subquery_result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '5'
+              - keyword: THEN
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: TO_CHAR
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: x
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'999'"
+                      - end_bracket: )
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '10'
+              - keyword: THEN
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: TO_NUMBER
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'10'"
+                        end_bracket: )
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'Unknown'"
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: converted_result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: abc
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: status
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '5'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Active'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '10'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Inactive'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'Unknown'"
+            - keyword: END
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: id
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: abc
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - comma: ','
+      - column_reference:
+          naked_identifier: status
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            expression:
+              case_expression:
+              - keyword: CASE
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                    column_reference:
+                      naked_identifier: x
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    numeric_literal: '5'
+                - keyword: THEN
+                - expression:
+                    quoted_literal: "'Active'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                    column_reference:
+                      naked_identifier: x
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    numeric_literal: '10'
+                - keyword: THEN
+                - expression:
+                    quoted_literal: "'Inactive'"
+              - else_clause:
+                  keyword: ELSE
+                  expression:
+                    quoted_literal: "'Unknown'"
+              - keyword: END
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: def
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: created_date
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  bare_function: SYSDATE
+                  binary_operator: '-'
+                  numeric_literal: '1'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Recent'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: created_date
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  bare_function: SYSDATE
+                  binary_operator: '-'
+                  numeric_literal: '7'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'This week'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: created_date
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  bare_function: SYSDATE
+                  binary_operator: '-'
+                  numeric_literal: '30'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'This month'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'Old'"
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: age_category
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: UPPER
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: name
+                        end_bracket: )
+                  keyword: LIKE
+                  quoted_literal: "'%TEST%'"
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Test record'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: LOWER
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: name
+                        end_bracket: )
+                  keyword: LIKE
+                  quoted_literal: "'%prod%'"
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Production record'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'Other'"
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: record_type
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                    naked_identifier: x
+                - binary_operator: +
+                - column_reference:
+                    naked_identifier: y
+                - comparison_operator:
+                    raw_comparison_operator: '>'
+                - numeric_literal: '100'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'High sum'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                    naked_identifier: x
+                - binary_operator: '*'
+                - column_reference:
+                    naked_identifier: y
+                - comparison_operator:
+                    raw_comparison_operator: '>'
+                - numeric_literal: '50'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'High product'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                    naked_identifier: x
+                - binary_operator: '-'
+                - column_reference:
+                    naked_identifier: y
+                - comparison_operator:
+                    raw_comparison_operator: <
+                - numeric_literal: '0'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Negative difference'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'Normal'"
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: calculation_result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  keyword: EXISTS
+                  bracketed:
+                    start_bracket: (
+                    select_statement:
+                      select_clause:
+                        keyword: SELECT
+                        select_clause_element:
+                          numeric_literal: '1'
+                      from_clause:
+                        keyword: FROM
+                        from_expression:
+                          from_expression_element:
+                            table_expression:
+                              table_reference:
+                                naked_identifier: def
+                      where_clause:
+                        keyword: WHERE
+                        expression:
+                        - column_reference:
+                          - naked_identifier: def
+                          - dot: .
+                          - naked_identifier: id
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - column_reference:
+                          - naked_identifier: abc
+                          - dot: .
+                          - naked_identifier: x
+                    end_bracket: )
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Exists in def'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  keyword: EXISTS
+                  bracketed:
+                    start_bracket: (
+                    select_statement:
+                      select_clause:
+                        keyword: SELECT
+                        select_clause_element:
+                          numeric_literal: '1'
+                      from_clause:
+                        keyword: FROM
+                        from_expression:
+                          from_expression_element:
+                            table_expression:
+                              table_reference:
+                                naked_identifier: ghi
+                      where_clause:
+                        keyword: WHERE
+                        expression:
+                        - column_reference:
+                          - naked_identifier: ghi
+                          - dot: .
+                          - naked_identifier: id
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - column_reference:
+                          - naked_identifier: abc
+                          - dot: .
+                          - naked_identifier: y
+                    end_bracket: )
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Exists in ghi'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'Not found'"
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: existence_check
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  keyword: IN
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '1'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - comma: ','
+                  - numeric_literal: '3'
+                  - end_bracket: )
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Low'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  keyword: IN
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '4'
+                  - comma: ','
+                  - numeric_literal: '5'
+                  - comma: ','
+                  - numeric_literal: '6'
+                  - end_bracket: )
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Medium'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  keyword: IN
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '7'
+                  - comma: ','
+                  - numeric_literal: '8'
+                  - comma: ','
+                  - numeric_literal: '9'
+                  - end_bracket: )
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'High'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'Unknown'"
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: range_category
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                    naked_identifier: x
+                - keyword: BETWEEN
+                - numeric_literal: '1'
+                - keyword: AND
+                - numeric_literal: '10'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'First range'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                    naked_identifier: x
+                - keyword: BETWEEN
+                - numeric_literal: '11'
+                - keyword: AND
+                - numeric_literal: '20'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Second range'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                    naked_identifier: x
+                - keyword: BETWEEN
+                - numeric_literal: '21'
+                - keyword: AND
+                - numeric_literal: '30'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Third range'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'Out of range'"
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: between_result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: REGEXP_LIKE
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: name
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'^[A-Z]'"
+                      - end_bracket: )
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Starts with uppercase'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: REGEXP_LIKE
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: name
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'[0-9]'"
+                      - end_bracket: )
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Contains number'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'Other pattern'"
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: pattern_match
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - expression:
+                column_reference:
+                  naked_identifier: x
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  numeric_literal: '1'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'One'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  numeric_literal: '2'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Two'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  numeric_literal: '3'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'Three'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'Other'"
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: decode_equivalent
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '1'
+              - keyword: THEN
+              - expression:
+                  case_expression:
+                  - keyword: CASE
+                  - expression:
+                      column_reference:
+                        naked_identifier: y
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                        numeric_literal: '10'
+                    - keyword: THEN
+                    - expression:
+                        case_expression:
+                        - keyword: CASE
+                        - expression:
+                            column_reference:
+                              naked_identifier: z
+                        - when_clause:
+                          - keyword: WHEN
+                          - expression:
+                              numeric_literal: '100'
+                          - keyword: THEN
+                          - expression:
+                              quoted_literal: "'Level 3 - 100'"
+                        - when_clause:
+                          - keyword: WHEN
+                          - expression:
+                              numeric_literal: '200'
+                          - keyword: THEN
+                          - expression:
+                              quoted_literal: "'Level 3 - 200'"
+                        - else_clause:
+                            keyword: ELSE
+                            expression:
+                              quoted_literal: "'Level 3 - Other'"
+                        - keyword: END
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                        numeric_literal: '20'
+                    - keyword: THEN
+                    - expression:
+                        quoted_literal: "'Level 2 - 20'"
+                  - else_clause:
+                      keyword: ELSE
+                      expression:
+                        quoted_literal: "'Level 2 - Other'"
+                  - keyword: END
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '2'
+              - keyword: THEN
+              - expression:
+                  case_expression:
+                  - keyword: CASE
+                  - expression:
+                      column_reference:
+                        naked_identifier: y
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                        numeric_literal: '30'
+                    - keyword: THEN
+                    - expression:
+                        quoted_literal: "'Level 2 - 30'"
+                  - else_clause:
+                      keyword: ELSE
+                      expression:
+                        quoted_literal: "'Level 2 - Other'"
+                  - keyword: END
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'Level 1 - Other'"
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: multi_level_result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '5'
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '1'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '10'
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '2'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  numeric_literal: '0'
+            - keyword: END
+            - keyword: CASE
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '5'
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '1'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '10'
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '2'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  numeric_literal: '0'
+            - keyword: END
+            - naked_identifier: my_case
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: abc
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '1'
+              - keyword: THEN
+              - expression:
+                  null_literal: 'NULL'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                    - column_reference:
+                        naked_identifier: defg
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - numeric_literal: '2'
+                    - binary_operator: AND
+                    - column_reference:
+                        naked_identifier: hijk
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - numeric_literal: '3'
+                    end_bracket: )
+              - keyword: THEN
+              - expression:
+                  null_literal: 'NULL'
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: abc
+- statement_terminator: ;

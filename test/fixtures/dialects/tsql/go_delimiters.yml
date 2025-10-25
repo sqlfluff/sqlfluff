@@ -3,10 +3,11 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b5da83f2dfc435ece584287628e0fcc92d30a506e7f8ca3b44ac5f8deed4f9ff
+_hash: de7346d12a00680dc8dfe9eec1d2934822c99e64198167eca2462f53144be32b
 file:
-- go_statement:
-    keyword: GO
+- batch:
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -22,10 +23,11 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: bar
-- go_statement:
-    keyword: GO
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
+- batch:
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -41,12 +43,14 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: bar
-- go_statement:
-    keyword: GO
-- go_statement:
-    keyword: GO
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
+- batch:
+    go_statement:
+      keyword: GO
+- batch:
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -62,5 +66,5 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: bar
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO

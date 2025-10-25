@@ -1,4 +1,4 @@
-"""Tests specific to the snowflake dialect."""
+"""Tests specific to the bigquery dialect."""
 
 import hypothesis.strategies as st
 import pytest

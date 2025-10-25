@@ -23,6 +23,7 @@ RESERVED_KEYWORDS = [
 ]
 
 UNRESERVED_KEYWORDS = [
+    "AUTO",
     "CATALOG",
     "COMPENSATION",
     "CRON",
@@ -43,6 +44,7 @@ UNRESERVED_KEYWORDS = [
     "RELY",
     "SCHEDULE",
     "SQL",
+    "TAG",
     "TAGS",
     "TIMESERIES",
     "VOLUME",

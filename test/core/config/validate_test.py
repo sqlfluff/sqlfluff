@@ -6,7 +6,10 @@ from sqlfluff.core.config.removed import (
     REMOVED_CONFIGS,
     validate_config_dict_for_removed,
 )
-from sqlfluff.core.config.validate import _validate_layout_config
+from sqlfluff.core.config.validate import (
+    _validate_indentation_config,
+    _validate_layout_config,
+)
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import (
     iter_records_from_nested_dict,
@@ -92,3 +95,52 @@ def test__validate_layouts(config_dict, config_warning):
         _validate_layout_config(config_dict, "<test>")
     assert "set an invalid `layout` option" in str(excinfo.value)
     assert config_warning in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "config_dict,config_warning",
+    [
+        (
+            {"indentation": {"implicit_indents": "invalid"}},
+            "set an invalid value for `implicit_indents`: 'invalid'",
+        ),
+        (
+            {"indentation": {"implicit_indents": "true"}},
+            "set an invalid value for `implicit_indents`: 'true'",
+        ),
+        (
+            {"indentation": {"implicit_indents": "REQUIRE"}},
+            "set an invalid value for `implicit_indents`: 'REQUIRE'",
+        ),
+        (
+            {"indentation": {"implicit_indents": ""}},
+            "set an invalid value for `implicit_indents`: ''",
+        ),
+        (
+            {"indentation": {"implicit_indents": 123}},
+            "set an invalid value for `implicit_indents`: 123",
+        ),
+    ],
+)
+def test__validate_indentation_invalid(config_dict, config_warning):
+    """Test the indentation validation checks for invalid values."""
+    with pytest.raises(SQLFluffUserError) as excinfo:
+        _validate_indentation_config(config_dict, "<test>")
+    assert config_warning in str(excinfo.value)
+    assert "Valid options are: forbid, allow, require" in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "config_dict",
+    [
+        {"indentation": {"implicit_indents": "forbid"}},
+        {"indentation": {"implicit_indents": "allow"}},
+        {"indentation": {"implicit_indents": "require"}},
+        {"indentation": {}},  # missing key should be ok
+        {},  # no indentation section should be ok
+    ],
+)
+def test__validate_indentation_valid(config_dict):
+    """Test the indentation validation checks for valid values."""
+    # Should not raise any exception
+    _validate_indentation_config(config_dict, "<test>")

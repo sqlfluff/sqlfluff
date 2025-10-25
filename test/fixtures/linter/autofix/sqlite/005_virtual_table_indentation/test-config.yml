@@ -1,0 +1,4 @@
+test-config:
+  dialect: sqlite
+  rules:
+    - LT02

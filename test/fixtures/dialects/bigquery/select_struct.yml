@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b43493b887c46ef510709ffe1787e9110d6e44282e5ff67328802daec77a44cd
+_hash: b7c378252d3e544c5d02c42689a9d7e718ec0a5e4d7335659d2041d0de252f2c
 file:
 - statement:
     select_statement:
@@ -112,7 +112,7 @@ file:
         select_clause_element:
           expression:
             typed_struct_literal:
-              struct_type:
+              data_type:
                 keyword: struct
               struct_literal:
                 bracketed:
@@ -191,11 +191,11 @@ file:
                     start_bracket: (
                     expression:
                       typed_array_literal:
-                        array_type:
+                        data_type:
                           keyword: ARRAY
                           start_angle_bracket: <
                           data_type:
-                            struct_type:
+                            data_type:
                               keyword: STRUCT
                               struct_type_schema:
                               - start_angle_bracket: <
@@ -235,7 +235,7 @@ file:
       - select_clause_element:
           expression:
             typed_struct_literal:
-              struct_type:
+              data_type:
                 keyword: STRUCT
                 struct_type_schema:
                   start_angle_bracket: <
@@ -251,7 +251,7 @@ file:
       - select_clause_element:
           expression:
             typed_struct_literal:
-              struct_type:
+              data_type:
                 keyword: STRUCT
                 struct_type_schema:
                   start_angle_bracket: <
@@ -267,7 +267,7 @@ file:
       - select_clause_element:
           expression:
             typed_struct_literal:
-              struct_type:
+              data_type:
                 keyword: STRUCT
                 struct_type_schema:
                 - start_angle_bracket: <
@@ -293,7 +293,7 @@ file:
       - select_clause_element:
           expression:
             typed_struct_literal:
-              struct_type:
+              data_type:
                 keyword: STRUCT
                 struct_type_schema:
                   start_angle_bracket: <
@@ -314,7 +314,7 @@ file:
         select_clause_element:
           expression:
             typed_struct_literal:
-              struct_type:
+              data_type:
                 keyword: STRUCT
               struct_literal:
                 bracketed:
@@ -350,7 +350,7 @@ file:
                 start_bracket: (
                 expression:
                   typed_struct_literal:
-                    struct_type:
+                    data_type:
                       keyword: STRUCT
                     struct_literal:
                       bracketed:
@@ -388,7 +388,7 @@ file:
           - bracketed:
               start_bracket: (
               typed_struct_literal:
-                struct_type:
+                data_type:
                   keyword: STRUCT
                 struct_literal:
                   bracketed:
