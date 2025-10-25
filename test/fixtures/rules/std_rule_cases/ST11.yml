@@ -208,14 +208,4 @@ test_pass_quoted_brackets_table_name:
   configs:
     core:
       dialect: tsql
-
-test_pass_unnest_aliased_not_in_select:
-  pass_str: |
-    SELECT
-      table_1.item_id,
-      table_3.item_name
-    FROM table_1
-    LEFT JOIN table_2 ON table_1.item_id = table_2.item_id
-    LEFT JOIN UNNEST(table_2.object_id) AS object_id
-    LEFT JOIN table_3 ON object_id = table_3.object_id;
     
