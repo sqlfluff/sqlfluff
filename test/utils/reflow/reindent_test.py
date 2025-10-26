@@ -940,7 +940,7 @@ def test_reflow__indent_compensation_insufficient_space_warning(default_config, 
     )
 
     # Call reindent and check for the warning
-    with caplog.at_level(logging.WARNING, logger="sqlfluff.rules.reflow"):
+    with caplog.at_level(logging.WARNING, logger="sqlfluff.utils.reflow"):
         result = seq.reindent()
         assert result is not None
 

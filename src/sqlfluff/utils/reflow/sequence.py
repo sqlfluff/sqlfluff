@@ -618,7 +618,8 @@ class ReflowSequence:
                     spaces_after = 0
                 else:
                     raise NotImplementedError(
-                        f"spacing after type of `{block_config.spacing_after}` is not supported."
+                        f"spacing after type of `{block_config.spacing_after}` "
+                        + "is not supported."
                     )
 
                 indentation_align_following[t] = spaces_after
