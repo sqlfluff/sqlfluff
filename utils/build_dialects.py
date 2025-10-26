@@ -8,7 +8,8 @@ def generate_use():
     # print("#[allow(clippy::needless_raw_string_hashes)]")
     # print("pub mod matcher;")
     # print("pub mod parser;")
-    # print()
+    print("use std::sync::Arc;")
+    print()
     print("/* dialect mods */")
     for dialect in dialect_readout():
         print(f"pub mod {dialect.label.lower()};")
@@ -90,7 +91,7 @@ impl Dialect {{
         }}
     }}
 
-    pub fn get_segment_grammar(&self, name: &str) -> Option<&'static Grammar> {{
+    pub fn get_segment_grammar(&self, name: &str) -> Option<Arc<Grammar>> {{
         match self {{
             {dialect_get_segments},
         }}
@@ -102,7 +103,7 @@ impl Dialect {{
         }}
     }}
 
-    pub fn get_root_grammar(&self) -> &'static Grammar {{
+    pub fn get_root_grammar(&self) -> Arc<Grammar> {{
         match self {{
             {dialect_get_root_grammars}
         }}

@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::parser::iterative::NextStep;
 use crate::parser::iterative::ParseFrameStack;
 use crate::parser::types::SimpleHint;
@@ -28,18 +30,30 @@ impl Parser<'_> {
     /// Handle Meta grammar in iterative parser
     pub(crate) fn handle_meta_initial(
         &mut self,
-        grammar: &Grammar,
+        grammar: Arc<Grammar>,
         frame: &ParseFrame,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
-        let token_type = match grammar {
+        let token_type = match grammar.as_ref() {
             Grammar::Meta(token_type) => *token_type,
             _ => {
-                return Err(ParseError::new("handle_meta_initial called with non-Meta grammar".into()));
+                return Err(ParseError::new(
+                    "handle_meta_initial called with non-Meta grammar".into(),
+                ));
             }
         };
         log::debug!("Doing nothing with meta {}", token_type);
-        results.insert(frame.frame_id, (Node::Meta { token_type, token_idx: None }, frame.pos, None));
+        results.insert(
+            frame.frame_id,
+            (
+                Node::Meta {
+                    token_type,
+                    token_idx: None,
+                },
+                frame.pos,
+                None,
+            ),
+        );
         Ok(NextStep::Fallthrough)
     }
 
@@ -47,7 +61,7 @@ impl Parser<'_> {
     pub fn handle_anything_initial(
         &mut self,
         frame: &ParseFrame,
-        parent_terminators: &[Grammar],
+        parent_terminators: &[Arc<Grammar>],
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
         self.pos = frame.pos;
@@ -58,7 +72,11 @@ impl Parser<'_> {
                 break;
             }
             if let Some(tok) = self.peek() {
-                anything_tokens.push(Node::Token { token_type: "anything".to_string(), raw: tok.raw().to_string(), token_idx: self.pos });
+                anything_tokens.push(Node::Token {
+                    token_type: "anything".to_string(),
+                    raw: tok.raw().to_string(),
+                    token_idx: self.pos,
+                });
                 self.bump();
             }
         }
@@ -66,7 +84,13 @@ impl Parser<'_> {
         log::debug!("Anything matched tokens: {:?}", anything_tokens);
         results.insert(
             frame.frame_id,
-            (Node::DelimitedList { children: anything_tokens }, self.pos, None),
+            (
+                Node::DelimitedList {
+                    children: anything_tokens,
+                },
+                self.pos,
+                None,
+            ),
         );
         Ok(NextStep::Fallthrough)
     }
@@ -85,26 +109,33 @@ impl Parser<'_> {
     /// Handle Ref grammar Initial state in iterative parser
     pub(crate) fn handle_ref_initial(
         &mut self,
-        grammar: &Grammar,
+        grammar: Arc<Grammar>,
         frame: &mut ParseFrame,
-        parent_terminators: &[Grammar],
+        parent_terminators: &[Arc<Grammar>],
         stack: &mut ParseFrameStack,
         iteration_count: usize,
     ) -> Result<NextStep, ParseError> {
         // Destructure Grammar::Ref fields
-        let (name, optional, allow_gaps, ref_terminators, reset_terminators) = match grammar {
-            Grammar::Ref {
-                name,
-                optional,
-                allow_gaps,
-                terminators: ref_terminators,
-                reset_terminators,
-                ..
-            } => (name, optional, allow_gaps, ref_terminators, reset_terminators),
-            _ => panic!("handle_ref_initial called with non-Ref grammar"),
-        };
+        let (name, optional, allow_gaps, ref_terminators, reset_terminators) =
+            match grammar.as_ref() {
+                Grammar::Ref {
+                    name,
+                    optional,
+                    allow_gaps,
+                    terminators: ref_terminators,
+                    reset_terminators,
+                    ..
+                } => (
+                    name,
+                    optional,
+                    allow_gaps,
+                    ref_terminators,
+                    reset_terminators,
+                ),
+                _ => panic!("handle_ref_initial called with non-Ref grammar"),
+            };
         log::debug!(
-            "Iterative Ref to segment: {}, optional: {}, allow_gaps: {}",
+            "Ref to segment: {}, optional: {}, allow_gaps: {}",
             name,
             optional,
             allow_gaps
@@ -114,13 +145,13 @@ impl Parser<'_> {
         self.skip_transparent(*allow_gaps);
 
         // Combine parent and local terminators
-        let all_terminators: Vec<Grammar> = if *reset_terminators {
-            ref_terminators.to_vec()
+        let all_terminators: Vec<Arc<Grammar>> = if *reset_terminators {
+            ref_terminators.into_iter().cloned().collect()
         } else {
             ref_terminators
-                .iter()
+                .into_iter()
+                .chain(parent_terminators.iter())
                 .cloned()
-                .chain(parent_terminators.iter().cloned())
                 .collect()
         };
 
@@ -136,9 +167,12 @@ impl Parser<'_> {
                 let child_frame_id = stack.frame_id_counter;
                 stack.increment_frame_id_counter();
 
+                // Clone child_grammar for debug log before moving it into child_frame
+                let child_grammar_for_debug = child_grammar.clone();
+
                 let mut child_frame = ParseFrame {
                     frame_id: child_frame_id,
-                    grammar: child_grammar.clone(),
+                    grammar: child_grammar,
                     pos: self.pos,
                     terminators: all_terminators,
                     state: FrameState::Initial,
@@ -153,9 +187,7 @@ impl Parser<'_> {
                     total_children: 1,
                 };
                 frame.context = FrameContext::Ref {
-                    name: name.to_string(),
-                    optional: *optional,
-                    allow_gaps: *allow_gaps,
+                    grammar: grammar.clone(),
                     segment_type,
                     saved_pos: saved,
                     last_child_frame_id: Some(child_frame_id), // Track the child we just created
@@ -169,12 +201,12 @@ impl Parser<'_> {
                     name,
                     stack.last_mut().unwrap().frame_id,
                     child_frame_id,
-                    match &child_grammar {
+                    match child_grammar_for_debug.as_ref() {
                         Grammar::Ref { name, .. } => format!("Ref({})", name),
                         Grammar::Token { token_type } => format!("Token({})", token_type),
                         Grammar::Sequence { elements, .. } => format!("Sequence({} elements)", elements.len()),
                         Grammar::OneOf { elements, .. } => format!("OneOf({} elements)", elements.len()),
-                        _ => format!("{:?}", child_grammar),
+                        _ => format!("{:?}", child_grammar_for_debug),
                     }
                 );
 

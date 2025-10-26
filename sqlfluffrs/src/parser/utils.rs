@@ -2,15 +2,20 @@
 //!
 //! This module contains pure utility functions that don't depend on Parser state
 
+use std::sync::Arc;
+
 use super::types::{Grammar, Node, ParseMode};
 use crate::token::Token;
 
 /// Check if a grammar element is optional.
 ///
 /// Returns true if the grammar can match zero tokens successfully.
-pub fn is_grammar_optional(grammar: &Grammar) -> bool {
-    let result = match grammar {
-        Grammar::Sequence { optional, .. } => *optional,
+pub fn is_grammar_optional(grammar: Arc<Grammar>) -> bool {
+    let result = match grammar.as_ref() {
+        Grammar::Sequence { optional, elements, .. } => {
+            // A Sequence is optional if all its elements are optional
+            *optional || elements.iter().all(|el| is_grammar_optional(el.clone()))
+        }
         Grammar::AnyNumberOf {
             optional,
             min_times,
@@ -23,12 +28,24 @@ pub fn is_grammar_optional(grammar: &Grammar) -> bool {
             );
             *optional || *min_times == 0
         }
+        Grammar::AnySetOf {
+            optional,
+            min_times,
+            ..
+        } => {
+            log::debug!(
+                "is_grammar_optional: AnySetOf optional={}, min_times={}",
+                optional,
+                min_times
+            );
+            *optional || *min_times == 0
+        }
         Grammar::OneOf { optional, .. } => *optional,
         Grammar::Delimited { optional, .. } => *optional,
         Grammar::Bracketed { optional, .. } => *optional,
         Grammar::Ref { optional, .. } => *optional,
         Grammar::StringParser { optional, .. } => *optional,
-        Grammar::MultiStringParser { optional, ..} => *optional,
+        Grammar::MultiStringParser { optional, .. } => *optional,
         Grammar::TypedParser { optional, .. } => *optional,
         Grammar::RegexParser { optional, .. } => *optional,
         _ => false,
@@ -118,11 +135,21 @@ pub fn apply_parse_mode_to_result(
             let tok = &tokens[i];
             let tok_type = tok.get_type();
             if tok_type == "whitespace" {
-                unparsable_children.push(Node::Whitespace { raw: tok.raw().to_string(), token_idx: i });
+                unparsable_children.push(Node::Whitespace {
+                    raw: tok.raw().to_string(),
+                    token_idx: i,
+                });
             } else if tok_type == "newline" {
-                unparsable_children.push(Node::Newline { raw: tok.raw().to_string(), token_idx: i });
+                unparsable_children.push(Node::Newline {
+                    raw: tok.raw().to_string(),
+                    token_idx: i,
+                });
             } else {
-                unparsable_children.push(Node::Token { token_type: tok.get_type().to_string(), raw: tok.raw().to_string(), token_idx: i });
+                unparsable_children.push(Node::Token {
+                    token_type: tok.get_type().to_string(),
+                    raw: tok.raw().to_string(),
+                    token_idx: i,
+                });
             }
         }
     }
@@ -134,7 +161,10 @@ pub fn apply_parse_mode_to_result(
         "Nothing else".to_string()
     };
 
-    let unparsable_node = Node::Unparsable { expected_message: expected, children: unparsable_children };
+    let unparsable_node = Node::Unparsable {
+        expected_message: expected,
+        children: unparsable_children,
+    };
 
     // Combine current match with unparsable segment
     match current_node {
@@ -143,6 +173,8 @@ pub fn apply_parse_mode_to_result(
             children.push(unparsable_node);
             Node::Sequence { children }
         }
-        other => Node::Sequence { children: vec![other, unparsable_node] },
+        other => Node::Sequence {
+            children: vec![other, unparsable_node],
+        },
     }
 }

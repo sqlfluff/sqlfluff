@@ -2,6 +2,7 @@
 
 use std::fmt::Display;
 use std::hash::{Hash, Hasher};
+use std::sync::Arc;
 
 use crate::token::Token;
 use hashbrown::HashSet;
@@ -141,55 +142,55 @@ pub enum ParseMode {
 #[derive(Debug, Clone)]
 pub enum Grammar {
     Sequence {
-        elements: Vec<Grammar>,
+        elements: Vec<Arc<Grammar>>,
         optional: bool,
-        terminators: Vec<Grammar>,
+        terminators: Vec<Arc<Grammar>>,
         reset_terminators: bool,
         allow_gaps: bool,
         parse_mode: ParseMode,
         simple_hint: Option<SimpleHint>,
     },
     AnyNumberOf {
-        elements: Vec<Grammar>,
+        elements: Vec<Arc<Grammar>>,
         min_times: usize,
         max_times: Option<usize>,
         max_times_per_element: Option<usize>,
-        exclude: Option<Box<Grammar>>,
+        exclude: Option<Box<Arc<Grammar>>>,
         optional: bool,
-        terminators: Vec<Grammar>,
+        terminators: Vec<Arc<Grammar>>,
         reset_terminators: bool,
         allow_gaps: bool,
         parse_mode: ParseMode,
         simple_hint: Option<SimpleHint>,
     },
     OneOf {
-        elements: Vec<Grammar>,
-        exclude: Option<Box<Grammar>>,
+        elements: Vec<Arc<Grammar>>,
+        exclude: Option<Box<Arc<Grammar>>>,
         optional: bool,
-        terminators: Vec<Grammar>,
+        terminators: Vec<Arc<Grammar>>,
         reset_terminators: bool,
         allow_gaps: bool,
         parse_mode: ParseMode,
         simple_hint: Option<SimpleHint>,
     },
     AnySetOf {
-        elements: Vec<Grammar>,
+        elements: Vec<Arc<Grammar>>,
         min_times: usize,
         max_times: Option<usize>,
-        exclude: Option<Box<Grammar>>,
+        exclude: Option<Box<Arc<Grammar>>>,
         optional: bool,
-        terminators: Vec<Grammar>,
+        terminators: Vec<Arc<Grammar>>,
         reset_terminators: bool,
         allow_gaps: bool,
         parse_mode: ParseMode,
         simple_hint: Option<SimpleHint>,
     },
     Delimited {
-        elements: Vec<Grammar>,
-        delimiter: Box<Grammar>,
+        elements: Vec<Arc<Grammar>>,
+        delimiter: Box<Arc<Grammar>>,
         allow_trailing: bool,
         optional: bool,
-        terminators: Vec<Grammar>,
+        terminators: Vec<Arc<Grammar>>,
         reset_terminators: bool,
         allow_gaps: bool,
         min_delimiters: usize,
@@ -197,10 +198,10 @@ pub enum Grammar {
         simple_hint: Option<SimpleHint>,
     },
     Bracketed {
-        elements: Vec<Grammar>,
-        bracket_pairs: (Box<Grammar>, Box<Grammar>),
+        elements: Vec<Arc<Grammar>>,
+        bracket_pairs: (Box<Arc<Grammar>>, Box<Arc<Grammar>>),
         optional: bool,
-        terminators: Vec<Grammar>,
+        terminators: Vec<Arc<Grammar>>,
         reset_terminators: bool,
         allow_gaps: bool,
         parse_mode: ParseMode,
@@ -209,7 +210,7 @@ pub enum Grammar {
     Ref {
         name: &'static str,
         optional: bool,
-        terminators: Vec<Grammar>,
+        terminators: Vec<Arc<Grammar>>,
         reset_terminators: bool,
         allow_gaps: bool,
         simple_hint: Option<SimpleHint>,
@@ -1793,20 +1794,11 @@ mod tests {
     #[test]
     fn test_simple_hint_with_dialect_ref_comma_segment() {
         use crate::dialect::ansi::parser::COMMA_SEGMENT;
-        use crate::Dialect;
         use hashbrown::HashSet;
 
         // Create a Ref grammar for CommaSegment
-        let grammar = Grammar::Ref {
-            name: "CommaSegment",
-            optional: false,
-            terminators: vec![],
-            reset_terminators: false,
-            allow_gaps: false,
-            simple_hint: None,
-        };
+        let grammar = COMMA_SEGMENT.clone();
         // Get the Ansi dialect
-        let dialect = Dialect::Ansi;
         let mut cache: hashbrown::HashMap<u64, Option<SimpleHint>> = hashbrown::HashMap::new();
         // Get the hint
         let hint = grammar

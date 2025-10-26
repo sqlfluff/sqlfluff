@@ -37,6 +37,7 @@ class DummyParseContext:
 
 def generate_use():
     """Generates the `use` statements."""
+    print("use std::sync::Arc;")
     print("use once_cell::sync::Lazy;")
     print("use crate::parser::{Grammar, ParseMode, types::SimpleHint};")
 
@@ -61,7 +62,7 @@ def generate_parser(dialect: str):
     if dialect == "ansi":
         for name, match_grammar in sorted(loaded_dialect._library.items()):
             segment_grammars.append(
-                f'"{name}" => Some(&{matchable_to_const_name(name)}),'
+                f'"{name}" => Some({matchable_to_const_name(name)}.clone()),'
             )
 
             # Check if this is a Segment class (has a 'type' attribute)
@@ -75,7 +76,7 @@ def generate_parser(dialect: str):
             print(f"// {name=}")
             print(
                 f"pub static {matchable_to_const_name(name)}: "
-                "Lazy<Grammar> = Lazy::new(||"
+                "Lazy<Arc<Grammar>> = Lazy::new(||"
             )
             _to_rust_parser_grammar(match_grammar, parse_context)
             print(");")
@@ -85,7 +86,7 @@ def generate_parser(dialect: str):
 
     print(
         f"pub fn get_{dialect.lower()}_segment_grammar(name: &str) "
-        "-> Option<&'static Grammar> {"
+        "-> Option<Arc<Grammar>> {"
     )
     print("    match name {")
     for match_arm in segment_grammars:
@@ -107,7 +108,7 @@ def generate_parser(dialect: str):
 
     print(
         f"""
-pub fn get_{dialect.lower()}_root_grammar() -> &'static Grammar {{
+pub fn get_{dialect.lower()}_root_grammar() -> Arc<Grammar> {{
     get_{dialect.lower()}_segment_grammar(
         "{loaded_dialect.get_root_segment().__name__}"
     ).expect("Root grammar missing.")
@@ -118,7 +119,7 @@ pub fn get_{dialect.lower()}_root_grammar() -> &'static Grammar {{
 def _to_rust_parser_grammar(match_grammar, parse_context):
     # print(type(match_grammar), vars(match_grammar))
     if match_grammar.__class__ is Ref and isinstance(match_grammar, Ref):
-        print("Grammar::Ref {")
+        print("Arc::new(Grammar::Ref {")
         print(f'    name: "{match_grammar._ref}",')
         print(f"    optional: {str(match_grammar.is_optional()).lower()},")
         print(f"    allow_gaps: {str(match_grammar.allow_gaps).lower()},")
@@ -130,29 +131,32 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print(f"    reset_terminators: {str(match_grammar.reset_terminators).lower()},")
         rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
         print(f"    simple_hint: {rust_simple},")
-        print("}")
+        print("})")
+
     elif match_grammar.__class__ is StringParser and isinstance(
         match_grammar, StringParser
     ):
-        print("Grammar::StringParser {")
+        print("Arc::new(Grammar::StringParser {")
         print(f'    template: "{match_grammar.template}",')
         print(f'    token_type: "{match_grammar._instance_types[0]}",')
         print(f'    raw_class: "{match_grammar.raw_class.__name__}",')
         print(f"    optional: {str(match_grammar.is_optional()).lower()},")
-        print("}")
+        print("})")
+
     elif match_grammar.__class__ is TypedParser and isinstance(
         match_grammar, TypedParser
     ):
-        print("Grammar::TypedParser {")
+        print("Arc::new(Grammar::TypedParser {")
         print(f'    template: "{match_grammar.template}",')
         print(f'    token_type: "{match_grammar._instance_types[0]}",')
         print(f'    raw_class: "{match_grammar.raw_class.__name__}",')
         print(f"    optional: {str(match_grammar.is_optional()).lower()},")
-        print("}")
+        print("})")
+
     elif match_grammar.__class__ is MultiStringParser and isinstance(
         match_grammar, MultiStringParser
     ):
-        print("Grammar::MultiStringParser {")
+        print("Arc::new(Grammar::MultiStringParser {")
         multistring = ", ".join(
             sorted(map(lambda x: f'"{x}"', match_grammar.templates))
         )
@@ -160,11 +164,12 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print(f'    token_type: "{match_grammar._instance_types[0]}",')
         print(f'    raw_class: "{match_grammar.raw_class.__name__}",')
         print(f"    optional: {str(match_grammar.is_optional()).lower()},")
-        print("}")
+        print("})")
+
     elif match_grammar.__class__ is RegexParser and isinstance(
         match_grammar, RegexParser
     ):
-        print("Grammar::RegexParser {")
+        print("Arc::new(Grammar::RegexParser {")
         print(f'    template: regex::RegexBuilder::new(r#"{match_grammar.template}"#)')
         print("         .case_insensitive(true)")
         print("         .build()")
@@ -175,33 +180,13 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print(
             f"    anti_template: {as_rust_option(match_grammar.anti_template, True)},"
         )
-        print("}")
-    # elif match_grammar.__class__ is OptionallyBracketed and isinstance(
-    #     match_grammar, OptionallyBracketed
-    # ):
-    #     print("// OptionallyBracketed")
-    #     print(f"// {match_grammar._elements}")
-    # print("Grammar::OneOf{")
-    # print("    elements: vec![")
-    # elements = match_grammar._elements
-    # _to_rust_parser_grammar(Bracketed(*elements), parse_context)
-    # print(",")
-    # _to_rust_parser_grammar(
-    #     elements[0] if len(elements) == 1 else Sequence(*elements), parse_context
-    # )
-    # print("    ],")
-    # print(f"    optional: {str(match_grammar.is_optional()).lower()},")
-    # print("    terminators: vec![")
-    # for term_grammar in match_grammar.terminators:
-    #     _to_rust_parser_grammar(term_grammar, parse_context)
-    #     print(",")
-    # print("    ],")
-    # print(f"    allow_gaps: {str(match_grammar.allow_gaps).lower()},")
-    # print("}")
+        print("})")
+
     elif match_grammar.__class__ is Nothing:
-        print("Grammar::Nothing()")
+        print("Arc::new(Grammar::Nothing())")
+
     elif match_grammar.__class__ is Delimited and isinstance(match_grammar, Delimited):
-        print("Grammar::Delimited {")
+        print("Arc::new(Grammar::Delimited {")
         print("    elements: vec![")
         for subgrammar in match_grammar._elements:
             _to_rust_parser_grammar(subgrammar, parse_context)
@@ -232,13 +217,14 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print(f"    parse_mode: {rust_parse_mode},")
         rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
         print(f"    simple_hint: {rust_simple},")
-        print("}")
+        print("})")
+
     elif (
         match_grammar.__class__ is OneOf
         or match_grammar.__class__ is OptionallyBracketed
         and isinstance(match_grammar, OneOf)
     ):
-        print("Grammar::OneOf {")
+        print("Arc::new(Grammar::OneOf {")
         # print(f'    name: "{name}",')
         print("    elements: vec![")
         for subgrammar in match_grammar._elements:
@@ -272,9 +258,10 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print(f"    parse_mode: {rust_parse_mode},")
         rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
         print(f"    simple_hint: {rust_simple},")
-        print("}")
+        print("})")
+
     elif match_grammar.__class__ is Bracketed and isinstance(match_grammar, Bracketed):
-        print("Grammar::Bracketed {")
+        print("Arc::new(Grammar::Bracketed {")
         print("    elements: vec![")
         for subgrammar in match_grammar._elements:
             _to_rust_parser_grammar(subgrammar, parse_context)
@@ -313,9 +300,10 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print(f"    parse_mode: {rust_parse_mode},")
         rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
         print(f"    simple_hint: {rust_simple},")
-        print("}")
+        print("})")
+
     elif match_grammar.__class__ is Sequence and isinstance(match_grammar, Sequence):
-        print("Grammar::Sequence {")
+        print("Arc::new(Grammar::Sequence {")
         print("    elements: vec![")
         for subgrammar in match_grammar._elements:
             _to_rust_parser_grammar(subgrammar, parse_context)
@@ -341,11 +329,12 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print(f"    parse_mode: {rust_parse_mode},")
         rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
         print(f"    simple_hint: {rust_simple},")
-        print("}")
+        print("})")
+
     elif match_grammar.__class__ is AnyNumberOf and isinstance(
         match_grammar, AnyNumberOf
     ):
-        print("Grammar::AnyNumberOf {")
+        print("Arc::new(Grammar::AnyNumberOf {")
         print("    elements: vec![")
         for subgrammar in match_grammar._elements:
             _to_rust_parser_grammar(subgrammar, parse_context)
@@ -383,10 +372,11 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print(f"    parse_mode: {rust_parse_mode},")
         rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
         print(f"    simple_hint: {rust_simple},")
-        print("}")
+        print("})")
+
     elif match_grammar.__class__ is AnySetOf and isinstance(match_grammar, AnySetOf):
         # AnySetOf is AnyNumberOf with max_times_per_element=1
-        print("Grammar::AnySetOf {")
+        print("Arc::new(Grammar::AnySetOf {")
         print("    elements: vec![")
         for subgrammar in match_grammar._elements:
             _to_rust_parser_grammar(subgrammar, parse_context)
@@ -422,18 +412,23 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print(f"    parse_mode: {rust_parse_mode},")
         rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
         print(f"    simple_hint: {rust_simple},")
-        print("}")
+        print("})")
+
     elif isinstance(match_grammar, Anything):
-        print("Grammar::Anything")
+        print("Arc::new(Grammar::Anything)")
+
     elif match_grammar.__class__ is Conditional:
-        print('Grammar::Meta("conditional")')
+        print('Arc::new(Grammar::Meta("conditional"))')
+
     elif isinstance(match_grammar, BaseGrammar):
         print(
             f"// got to an unimplemented base grammar called {match_grammar.__class__}"
         )
-        print("Grammar::Missing")
+        print("Arc::new(Grammar::Missing)")
+
     elif issubclass(match_grammar, MetaSegment):
-        print(f'Grammar::Meta("{match_grammar.type}")')
+        print(f'Arc::new(Grammar::Meta("{match_grammar.type}"))')
+
     elif (
         match_grammar.__class__ is SegmentMetaclass
         and isinstance(match_grammar, SegmentMetaclass)
@@ -441,20 +436,22 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
     ):
         print(f"// {match_grammar.__name__}")
         _to_rust_parser_grammar(match_grammar.match_grammar, parse_context)
+
     elif issubclass(match_grammar, BaseSegment) and not hasattr(
         match_grammar, "match_grammar"
     ):
-        print("Grammar::Token{")
+        print("Arc::new(Grammar::Token{")
         print(f'    token_type: "{match_grammar.type}",')
         print(f'//    token_type: "{match_grammar.__name__}",')
-        print("}")
+        print("})")
+
     else:
         print(f"// Missing elements {match_grammar=}, {match_grammar.__class__=}")
         print(f"// {match_grammar.__name__=}")
         print(f"// {match_grammar.__qualname__=}")
         # print(f"// {match_grammar.__mro__=}")
         # print("todo!()")
-        print("Grammar::Missing")
+        print("Arc::new(Grammar::Missing)")
 
 
 def as_rust_option(value, is_regex: bool = False):

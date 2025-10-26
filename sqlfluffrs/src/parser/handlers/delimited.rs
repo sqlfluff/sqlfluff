@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::parser::{Node, ParseError, ParseFrame, ParseMode, Grammar};
 use crate::parser::iterative::{NextStep, ParseFrameStack};
 use crate::parser::{FrameState, FrameContext};
@@ -8,9 +10,9 @@ impl crate::parser::Parser<'_> {
     /// Returns true if caller should continue main loop
     pub fn handle_delimited_initial(
         &mut self,
-        grammar: &Grammar,
+        grammar: Arc<Grammar>,
         frame: &mut ParseFrame,
-        parent_terminators: &[Grammar],
+        parent_terminators: &[Arc<Grammar>],
         stack: &mut ParseFrameStack,
     ) -> Result<NextStep, ParseError> {
         let pos = frame.pos;
@@ -27,7 +29,7 @@ impl crate::parser::Parser<'_> {
             allow_gaps,
             min_delimiters,
             parse_mode,
-        ) = match grammar {
+        ) = match grammar.as_ref() {
             Grammar::Delimited {
                 elements,
                 delimiter,
@@ -59,13 +61,13 @@ impl crate::parser::Parser<'_> {
 
         // Combine terminators, filtering out delimiter from parent terminators
         // This is critical - delimiter shouldn't terminate the delimited list itself
-        let filtered_parent: Vec<Grammar> = parent_terminators
+        let filtered_parent: Vec<Arc<Grammar>> = parent_terminators
             .iter()
             .filter(|t| *t != delimiter.as_ref())
             .cloned()
             .collect();
 
-        let all_terminators: Vec<Grammar> = if reset_terminators {
+        let all_terminators: Vec<Arc<Grammar>> = if reset_terminators {
             local_terminators.to_vec()
         } else {
             local_terminators
@@ -107,11 +109,11 @@ impl crate::parser::Parser<'_> {
 
         // Debug terminators for function-related Delimited
         if elements.iter().any(|e| {
-            matches!(e, Grammar::Ref { name, .. } if name.contains("FunctionContents") || name.contains("DatetimeUnit"))
+            matches!(e.as_ref(), Grammar::Ref { name, .. } if name.contains("FunctionContents") || name.contains("DatetimeUnit"))
         }) {
             log::debug!("[DELIMITED-DEBUG] Active terminators (count={}):", all_terminators.len());
             for (i, term) in all_terminators.iter().enumerate() {
-                match term {
+                match term.as_ref() {
                     Grammar::StringParser { template, .. } => {
                         log::debug!("  [{}] StringParser('{}')", i, template);
                     }
@@ -140,13 +142,7 @@ impl crate::parser::Parser<'_> {
             total_children: usize::MAX, // Unknown number of children
         };
         frame.context = FrameContext::Delimited {
-            elements: elements.to_vec(),
-            delimiter: Box::new(delimiter.as_ref().clone()),
-            allow_trailing,
-            optional,
-            allow_gaps,
-            min_delimiters,
-            parse_mode,
+            grammar: grammar.clone(),
             delimiter_count: 0,
             matched_idx: pos,
             working_idx: pos,
@@ -175,11 +171,11 @@ impl crate::parser::Parser<'_> {
 
         // Debug logging for specific grammars
         if elements.iter().any(|e| {
-            matches!(e, Grammar::Ref { name, .. } if name.contains("FunctionContents") || name.contains("DatetimeUnit"))
+            matches!(e.as_ref(), Grammar::Ref { name, .. } if name.contains("FunctionContents") || name.contains("DatetimeUnit"))
         }) {
             log::debug!("[DELIMITED-DEBUG] Creating Delimited OneOf with {} elements at pos {}, max_idx={}", elements.len(), pos, child_max_idx);
             for (i, elem) in elements.iter().enumerate() {
-                match elem {
+                match elem.as_ref(){
                     Grammar::Ref { name, optional, .. } => {
                         log::debug!("  [{}] Ref({}) optional={}", i, name, optional);
                     }
@@ -192,7 +188,7 @@ impl crate::parser::Parser<'_> {
 
         let mut child_frame = ParseFrame::new_child(
             stack.frame_id_counter,
-            child_grammar,
+            child_grammar.into(),
             pos,
             all_terminators,
             Some(child_max_idx), // Use Delimited's max_idx!

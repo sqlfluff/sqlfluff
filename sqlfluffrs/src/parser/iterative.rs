@@ -66,6 +66,8 @@ impl ParseFrameStack {
     // Add more helper methods as needed for dispatch or state management
 }
 
+use std::sync::Arc;
+
 use super::{
     BracketedState, DelimitedState, FrameContext, FrameState, Grammar, Node, ParseError,
     ParseFrame, ParseMode,
@@ -94,29 +96,34 @@ impl Parser<'_> {
     ) -> Result<NextStep, ParseError> {
         let grammar = frame.grammar.clone();
         let terminators = frame.terminators.clone();
-        // let pos = frame.pos;
 
-        match &grammar {
+        match grammar.as_ref() {
             // Simple leaf grammars - parse directly without recursion
             Grammar::Token { .. } => {
-                self.handle_token_initial(&grammar, frame, &mut stack.results)?;
+                self.handle_token_initial(grammar, frame, &mut stack.results)?;
                 Ok(NextStep::Fallthrough)
             }
 
-            Grammar::StringParser { .. } =>
-                self.handle_string_parser_initial(&grammar, frame, iteration_count, &mut stack.results),
+            Grammar::StringParser { .. } => self.handle_string_parser_initial(
+                grammar,
+                frame,
+                iteration_count,
+                &mut stack.results,
+            ),
 
-            Grammar::MultiStringParser { .. } =>
-                self.handle_multi_string_parser_initial(&grammar, frame, &mut stack.results),
+            Grammar::MultiStringParser { .. } => {
+                self.handle_multi_string_parser_initial(grammar, frame, &mut stack.results)
+            }
 
-            Grammar::TypedParser { .. } =>
-                self.handle_typed_parser_initial(&grammar, frame, &mut stack.results),
+            Grammar::TypedParser { .. } => {
+                self.handle_typed_parser_initial(grammar, frame, &mut stack.results)
+            }
 
-            Grammar::RegexParser { .. } =>
-                self.handle_regex_parser_initial(&grammar, frame, &mut stack.results),
+            Grammar::RegexParser { .. } => {
+                self.handle_regex_parser_initial(grammar, frame, &mut stack.results)
+            }
 
-            Grammar::Meta(_) =>
-                self.handle_meta_initial(&grammar, frame, &mut stack.results),
+            Grammar::Meta(_) => self.handle_meta_initial(grammar, frame, &mut stack.results),
 
             Grammar::Nothing() => self.handle_nothing_initial(frame, &mut stack.results),
 
@@ -129,26 +136,34 @@ impl Parser<'_> {
             }
 
             // Complex grammars - need special handling
-            Grammar::Sequence { .. } =>
-                self.handle_sequence_initial(&grammar, frame, &terminators, &mut *stack),
+            Grammar::Sequence { .. } => {
+                self.handle_sequence_initial(grammar, frame, &terminators, &mut *stack)
+            }
 
-            Grammar::OneOf { .. } =>
-                self.handle_oneof_initial(&grammar, frame, &terminators, stack),
+            Grammar::OneOf { .. } => self.handle_oneof_initial(grammar, frame, &terminators, stack),
 
-            Grammar::Ref { .. } =>
-                self.handle_ref_initial(&grammar, frame, &terminators, stack, iteration_count),
+            Grammar::Ref { .. } => {
+                self.handle_ref_initial(grammar, frame, &terminators, stack, iteration_count)
+            }
 
-            Grammar::AnyNumberOf { .. } =>
-                self.handle_anynumberof_initial(&grammar, frame, &terminators, stack, iteration_count),
+            Grammar::AnyNumberOf { .. } => self.handle_anynumberof_initial(
+                grammar,
+                frame,
+                &terminators,
+                stack,
+                iteration_count,
+            ),
 
-            Grammar::Bracketed { .. } =>
-                self.handle_bracketed_initial(&grammar, frame, &terminators, stack),
+            Grammar::Bracketed { .. } => {
+                self.handle_bracketed_initial(grammar, frame, &terminators, stack)
+            }
 
-            Grammar::AnySetOf { .. } =>
-                self.handle_anysetof_initial(&grammar, frame, &terminators, stack),
+            Grammar::AnySetOf { .. } => {
+                self.handle_anysetof_initial(grammar, frame, &terminators, stack)
+            }
 
             Grammar::Delimited { .. } => {
-                self.handle_delimited_initial(&grammar, frame, &terminators, stack)
+                self.handle_delimited_initial(grammar, frame, &terminators, stack)
             }
         }
     }
@@ -163,8 +178,8 @@ impl Parser<'_> {
     /// stack-based state machine to avoid stack overflow on deeply nested grammars.
     pub fn parse_iterative(
         &mut self,
-        grammar: &Grammar,
-        parent_terminators: &[Grammar],
+        grammar: Arc<Grammar>,
+        parent_terminators: &[Arc<Grammar>],
     ) -> Result<Node, ParseError> {
         use super::cache::CacheKey;
 
@@ -174,35 +189,44 @@ impl Parser<'_> {
             self.pos
         );
 
-        // Check cache first
+        // Check cache first, unless disabled
         let start_pos = self.pos;
-        let cache_key = CacheKey::new(start_pos, grammar, self.tokens, parent_terminators);
+        let grammar_for_log = grammar.clone();
+        let grammar_for_cache = grammar.clone();
+        let cache_key = CacheKey::new(
+            start_pos,
+            grammar_for_cache,
+            self.tokens,
+            parent_terminators,
+        );
 
-        if let Some(cached_result) = self.parse_cache.get(&cache_key) {
-            match cached_result {
-                Ok((node, end_pos, transparent_positions)) => {
-                    log::debug!(
-                        "Cache HIT for grammar {} at pos {} -> end_pos {}",
-                        grammar,
-                        start_pos,
-                        end_pos
-                    );
+        if self.cache_enabled {
+            if let Some(cached_result) = self.parse_cache.get(&cache_key) {
+                match cached_result {
+                    Ok((node, end_pos, transparent_positions)) => {
+                        log::debug!(
+                            "Cache HIT for grammar {} at pos {} -> end_pos {}",
+                            grammar_for_log,
+                            start_pos,
+                            end_pos
+                        );
 
-                    // Restore parser position and transparent positions
-                    self.pos = end_pos;
-                    for &pos in &transparent_positions {
-                        self.collected_transparent_positions.insert(pos);
+                        // Restore parser position and transparent positions
+                        self.pos = end_pos;
+                        for &pos in &transparent_positions {
+                            self.collected_transparent_positions.insert(pos);
+                        }
+
+                        return Ok(node);
                     }
-
-                    return Ok(node);
-                }
-                Err(e) => {
-                    log::debug!(
-                        "Cache HIT (error) for grammar {} at pos {}",
-                        grammar,
-                        start_pos
-                    );
-                    return Err(e);
+                    Err(e) => {
+                        log::debug!(
+                            "Cache HIT (error) for grammar {} at pos {}",
+                            grammar_for_log,
+                            start_pos
+                        );
+                        return Err(e);
+                    }
                 }
             }
         }
@@ -213,7 +237,7 @@ impl Parser<'_> {
         stack.frame_id_counter += 1;
         stack.push(&mut ParseFrame {
             frame_id: initial_frame_id,
-            grammar: grammar.clone(),
+            grammar: grammar,
             pos: self.pos,
             terminators: parent_terminators.to_vec(),
             state: FrameState::Initial,
@@ -227,6 +251,47 @@ impl Parser<'_> {
 
         'main_loop: while let Some(mut frame) = stack.pop() {
             iteration_count += 1;
+
+            // Re-check the cache for this frame before processing, unless disabled
+            if self.cache_enabled {
+                let cache_key = super::cache::CacheKey::new(
+                    frame.pos,
+                    frame.grammar.clone(),
+                    self.tokens,
+                    &frame.terminators,
+                );
+                if let Some(cached_result) = self.parse_cache.get(&cache_key) {
+                    match cached_result {
+                        Ok((node, end_pos, transparent_positions)) => {
+                            log::debug!(
+                                "[LOOP] Cache HIT for grammar {} at pos {} -> end_pos {} (frame_id={})",
+                                frame.grammar,
+                                frame.pos,
+                                end_pos,
+                                frame.frame_id
+                            );
+                            self.pos = end_pos;
+                            for &pos in &transparent_positions {
+                                self.collected_transparent_positions.insert(pos);
+                            }
+                            stack.results.insert(frame.frame_id, (node, end_pos, None));
+                            continue 'main_loop;
+                        }
+                        Err(_e) => {
+                            log::debug!(
+                                "[LOOP] Cache HIT (error) for grammar {} at pos {} (frame_id={})",
+                                frame.grammar,
+                                frame.pos,
+                                frame.frame_id
+                            );
+                            stack
+                                .results
+                                .insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                            continue 'main_loop;
+                        }
+                    }
+                }
+            }
 
             if iteration_count > max_iterations {
                 eprintln!("ERROR: Exceeded max iterations ({})", max_iterations);
@@ -242,7 +307,7 @@ impl Parser<'_> {
                         i,
                         f.state,
                         f.pos,
-                        match &f.grammar {
+                        match f.grammar.as_ref() {
                             Grammar::Ref { name, .. } => format!("Ref({})", name),
                             Grammar::Bracketed { .. } => "Bracketed".to_string(),
                             Grammar::Delimited { .. } => "Delimited".to_string(),
@@ -275,7 +340,7 @@ impl Parser<'_> {
                     stack.len(),
                     stack.results.len()
                 );
-                match &frame.grammar {
+                match frame.grammar.as_ref() {
                     Grammar::Ref { name, .. } => log::debug!("  Grammar: Ref({})", name),
                     Grammar::Token { token_type } => {
                         log::debug!("  Grammar: Token({})", token_type)
@@ -372,7 +437,7 @@ impl Parser<'_> {
                                 iteration_count,
                                 frame.frame_id,
                                 child_frame_id,
-                                match &frame.grammar {
+                                match frame.grammar.as_ref() {
                                     Grammar::Ref { name, .. } => format!("Ref({})", name),
                                     _ => format!("{:?}", frame.grammar),
                                 }
@@ -384,17 +449,19 @@ impl Parser<'_> {
 
                         match &mut frame.context {
                             FrameContext::Ref {
-                                name,
-                                optional,
+                                grammar,
                                 segment_type,
                                 saved_pos,
                                 last_child_frame_id: _last_child_frame_id,
                                 ..
                             } => {
+                                let Grammar::Ref { name, .. } = grammar.as_ref() else {
+                                    panic!("Expected Grammar::Ref in FrameContext::Ref");
+                                };
                                 // Wrap the child node in a Ref node
                                 let final_node = if child_node.is_empty() {
                                     // Empty result
-                                    if *optional {
+                                    if grammar.is_optional() {
                                         log::debug!(
                                             "Ref {} returned empty (optional), accepting",
                                             name
@@ -414,7 +481,7 @@ impl Parser<'_> {
 
                                     // Wrap in Ref node
                                     Node::Ref {
-                                        name: name.clone(),
+                                        name: name.to_string(),
                                         segment_type: segment_type.clone(),
                                         child: Box::new(child_node.clone()),
                                     }
@@ -426,7 +493,7 @@ impl Parser<'_> {
                                 // This enables nested function calls to be cached separately
                                 let cache_key = super::cache::CacheKey::new(
                                     *saved_pos,
-                                    &frame.grammar,
+                                    frame.grammar,
                                     self.tokens,
                                     &frame.terminators,
                                 );
@@ -455,10 +522,7 @@ impl Parser<'_> {
                                 continue 'main_loop; // Frame is complete, move to next frame
                             }
                             FrameContext::Sequence {
-                                elements,
-                                allow_gaps,
-                                optional: _optional,
-                                parse_mode,
+                                grammar,
                                 matched_idx,
                                 tentatively_collected,
                                 max_idx,
@@ -467,6 +531,16 @@ impl Parser<'_> {
                                 current_element_idx,
                                 first_match,
                             } => {
+                                let Grammar::Sequence {
+                                    elements,
+                                    allow_gaps,
+                                    parse_mode,
+                                    simple_hint: _,
+                                    ..
+                                } = grammar.as_ref()
+                                else {
+                                    panic!("Expected Grammar::Sequence in FrameContext::Sequence");
+                                };
                                 let element_start = *matched_idx;
 
                                 // Handle the child result
@@ -478,7 +552,7 @@ impl Parser<'_> {
                                         // Fall through to "move to next child" logic below
                                     } else {
                                         // Required element returned Empty - sequence fails
-                                        let element_desc = match current_element {
+                                        let element_desc = match current_element.as_ref() {
                                             Grammar::Ref { name, .. } => format!("Ref({})", name),
                                             Grammar::StringParser { template, .. } => {
                                                 format!("StringParser('{}')", template)
@@ -825,13 +899,16 @@ impl Parser<'_> {
                                         let mut check_idx = next_elem_idx;
                                         let mut next_element_optional = true; // Default to true if all remaining are Meta
                                         while check_idx < elements_clone.len() {
-                                            if let Grammar::Meta(_) = &elements_clone[check_idx] {
+                                            if let Grammar::Meta(_) =
+                                                &elements_clone[check_idx].as_ref()
+                                            {
                                                 // Skip Meta elements - they don't consume input
                                                 check_idx += 1;
                                             } else {
                                                 // Found a non-Meta element - check if it's optional
-                                                next_element_optional =
-                                                    is_grammar_optional(&elements_clone[check_idx]);
+                                                next_element_optional = is_grammar_optional(
+                                                    elements_clone[check_idx].clone(),
+                                                );
                                                 break;
                                             }
                                         }
@@ -919,7 +996,7 @@ impl Parser<'_> {
                                             &elements_clone[next_elem_idx]
                                         );
                                         if let Grammar::Meta(meta_type) =
-                                            &elements_clone[next_elem_idx]
+                                            elements_clone[next_elem_idx].as_ref()
                                         {
                                             // Add Meta to accumulated directly
                                             if *meta_type == "indent" {
@@ -1025,13 +1102,7 @@ impl Parser<'_> {
                             }
 
                             FrameContext::AnyNumberOf {
-                                elements,
-                                min_times,
-                                max_times,
-                                max_times_per_element: _max_times_per_element,
-                                allow_gaps,
-                                optional: _optional,
-                                parse_mode,
+                                grammar,
                                 count,
                                 matched_idx,
                                 working_idx,
@@ -1046,13 +1117,7 @@ impl Parser<'_> {
                                     child_node,
                                     child_end_pos,
                                     child_element_key,
-                                    elements,
-                                    min_times,
-                                    max_times,
-                                    max_times_per_element,
-                                    allow_gaps,
-                                    optional,
-                                    parse_mode,
+                                    grammar,
                                     count,
                                     matched_idx,
                                     working_idx,
@@ -1065,19 +1130,31 @@ impl Parser<'_> {
                             }
 
                             FrameContext::Bracketed {
-                                bracket_pairs,
-                                elements,
-                                allow_gaps,
-                                optional,
-                                parse_mode,
+                                grammar,
                                 state,
                                 last_child_frame_id,
+                                bracket_max_idx,
                             } => {
+                                // Extract bracket_max_idx before match on state to avoid borrow checker issues
+                                let local_bracket_max_idx = *bracket_max_idx;
                                 log::debug!(
                                     "Bracketed WaitingForChild: state={:?}, child_node empty={}",
                                     state,
                                     child_node.is_empty()
                                 );
+                                let Grammar::Bracketed {
+                                    elements,
+                                    bracket_pairs,
+                                    allow_gaps,
+                                    parse_mode,
+                                    optional,
+                                    ..
+                                } = grammar.as_ref()
+                                else {
+                                    panic!(
+                                        "Expected Grammar::Bracketed in FrameContext::Bracketed"
+                                    );
+                                };
 
                                 match state {
                                     BracketedState::MatchingOpen => {
@@ -1099,9 +1176,23 @@ impl Parser<'_> {
                                             // This prevents exploring beyond the closing bracket
                                             let bracket_max_idx =
                                                 child_node.get_token_idx().and_then(|open_idx| {
-                                                    self.get_matching_bracket_idx(open_idx)
+                                                    let idx = self.get_matching_bracket_idx(open_idx);
+                                                    if let Some(close_idx) = idx {
+                                                        let close_tok = self.tokens.get(close_idx);
+                                                        let before_tok = if close_idx > 0 { self.tokens.get(close_idx - 1) } else { None };
+                                                        let after_tok = self.tokens.get(close_idx + 1);
+                                                        log::debug!(
+                                                            "[BRACKET-DEBUG] open_idx={}, close_idx={}, close_tok={:?}, before_tok={:?}, after_tok={:?}",
+                                                            open_idx, close_idx,
+                                                            close_tok.map(|t| t.raw()),
+                                                            before_tok.map(|t| t.raw()),
+                                                            after_tok.map(|t| t.raw()),
+                                                        );
+                                                    } else {
+                                                        log::debug!("[BRACKET-DEBUG] open_idx={}, no matching close_idx", open_idx);
+                                                    }
+                                                    idx
                                                 });
-
                                             if let Some(close_idx) = bracket_max_idx {
                                                 log::debug!(
                                                     "Bracketed: Using pre-computed closing bracket at idx={} as max_idx",
@@ -1159,12 +1250,17 @@ impl Parser<'_> {
                                             // The content must end before the closing bracket, so we can safely limit it.
                                             let mut child_frame = ParseFrame {
                                                 frame_id: stack.frame_id_counter,
-                                                grammar: content_grammar,
+                                                grammar: content_grammar.into(),
                                                 pos: self.pos,
                                                 terminators: vec![(*bracket_pairs.1).clone()],
                                                 state: FrameState::Initial,
                                                 accumulated: vec![],
-                                                context: FrameContext::None,
+                                                context: FrameContext::Bracketed {
+                                                    grammar: grammar.clone(),
+                                                    state: BracketedState::MatchingContent,
+                                                    last_child_frame_id: *last_child_frame_id,
+                                                    bracket_max_idx,
+                                                },
                                                 parent_max_idx: bracket_max_idx, // Tight boundary from pre-computed bracket!
                                             };
 
@@ -1181,6 +1277,32 @@ impl Parser<'_> {
                                     }
                                     BracketedState::MatchingContent => {
                                         log::debug!("Bracketed MatchingContent - frame_id={}, child_end_pos={}, is_empty={}", frame.frame_id, child_end_pos, child_node.is_empty());
+                                        let mut check_pos = *child_end_pos;
+                                        // Skip whitespace/newline tokens
+                                        while let Some(tok) = self.tokens.get(check_pos) {
+                                            let is_not_code = !tok.is_code();
+                                            if is_not_code {
+                                                log::debug!("[BRACKET-DEBUG] Skipping non-code token at pos {}: type='{}', raw='{}'", check_pos, tok.get_type(), tok.raw());
+                                                check_pos += 1;
+                                            } else {
+                                                break;
+                                            }
+                                        }
+                                        if let Some(expected_close_pos) = local_bracket_max_idx {
+                                            log::debug!("[BRACKET-DEBUG] After skipping ws/nl: check_pos={}, expected_close_pos={}", check_pos, expected_close_pos);
+                                            if check_pos != expected_close_pos {
+                                                log::debug!("[BRACKET-DEBUG] Bracketed content did not end at closing bracket (check_pos != expected_close_pos), returning Node::Empty for retry. frame_id={}, frame.pos={}", frame.frame_id, frame.pos);
+                                                self.pos = frame.pos;
+                                                stack.results.insert(
+                                                    frame.frame_id,
+                                                    (Node::Empty, frame.pos, None),
+                                                );
+                                                continue 'main_loop;
+                                            } else {
+                                                log::debug!("[BRACKET-DEBUG] Bracketed content ends at expected closing bracket (check_pos == expected_close_pos)");
+                                            }
+                                        }
+
                                         // Content result
                                         if !child_node.is_empty() {
                                             // Recursively flatten sequence/delimited nodes to get a flat list of content
@@ -1214,6 +1336,12 @@ impl Parser<'_> {
                                             let code_idx = self.skip_start_index_forward_to_code(
                                                 gap_start,
                                                 self.tokens.len(),
+                                            );
+                                            log::debug!(
+                                                "[BRACKET-DEBUG] After content, gap_start={}, code_idx={}, token at gap_start={:?}, token at code_idx={:?}",
+                                                gap_start, code_idx,
+                                                self.tokens.get(gap_start).map(|t| t.raw()),
+                                                self.tokens.get(code_idx).map(|t| t.raw()),
                                             );
                                             for pos in gap_start..code_idx {
                                                 if let Some(tok) = self.tokens.get(pos) {
@@ -1289,6 +1417,36 @@ impl Parser<'_> {
                                     }
                                     BracketedState::MatchingClose => {
                                         log::debug!("DEBUG: Bracketed MatchingClose - child_node.is_empty={}, child_end_pos={}", child_node.is_empty(), child_end_pos);
+                                        // Log the current token and a window of tokens for debugging
+                                        let window = 5;
+                                        let start = if self.pos >= window {
+                                            self.pos - window
+                                        } else {
+                                            0
+                                        };
+                                        let end = (self.pos + window + 1).min(self.tokens.len());
+                                        for idx in start..end {
+                                            let t = &self.tokens[idx];
+                                            log::debug!(
+                                                "[BRACKET-DEBUG] Token[{}]: type='{}', raw='{}'{}",
+                                                idx,
+                                                t.get_type(),
+                                                t.raw(),
+                                                if idx == self.pos {
+                                                    " <-- parser pos"
+                                                } else {
+                                                    ""
+                                                }
+                                            );
+                                        }
+                                        if let Some(tok) = self.tokens.get(self.pos) {
+                                            log::debug!("[BRACKET-DEBUG] At parser pos {}: type='{}', raw='{}'", self.pos, tok.get_type(), tok.raw());
+                                        } else {
+                                            log::debug!(
+                                                "[BRACKET-DEBUG] At parser pos {}: <out of bounds>",
+                                                self.pos
+                                            );
+                                        }
                                         // Closing bracket result
                                         if child_node.is_empty() {
                                             // No closing bracket found
@@ -1328,21 +1486,27 @@ impl Parser<'_> {
                             }
 
                             FrameContext::AnySetOf {
-                                elements,
-                                min_times,
-                                max_times,
-                                allow_gaps,
-                                optional,
+                                grammar,
                                 count,
                                 matched_idx,
                                 working_idx,
                                 matched_elements,
                                 max_idx,
                                 last_child_frame_id: _last_child_frame_id,
-                                parse_mode,
                             } => {
                                 log::debug!("[ITERATIVE] AnySetOf WaitingForChild: count={}, matched_idx={}", count, matched_idx);
-
+                                let Grammar::AnySetOf {
+                                    elements,
+                                    min_times,
+                                    max_times,
+                                    allow_gaps,
+                                    optional,
+                                    parse_mode,
+                                    ..
+                                } = grammar.as_ref()
+                                else {
+                                    panic!("Expected Grammar::AnySetOf in FrameContext::AnySetOf");
+                                };
                                 // Handle child result
                                 if child_node.is_empty() {
                                     // Child match failed
@@ -1478,7 +1642,7 @@ impl Parser<'_> {
                                         };
 
                                         // Filter out already matched elements by element_key
-                                        let unmatched_elements: Vec<Grammar> = elements
+                                        let unmatched_elements: Vec<Arc<Grammar>> = elements
                                             .iter()
                                             .filter(|elem| {
                                                 !matched_elements.contains(&elem.cache_key())
@@ -1522,7 +1686,7 @@ impl Parser<'_> {
 
                                             let child_frame = ParseFrame::new_child(
                                                 stack.frame_id_counter,
-                                                child_grammar,
+                                                child_grammar.into(),
                                                 *working_idx,
                                                 frame_terminators.clone(),
                                                 parent_limit, // Propagate parent's limit!
@@ -1541,15 +1705,12 @@ impl Parser<'_> {
                             }
 
                             FrameContext::OneOf {
-                                elements,
-                                allow_gaps: _allow_gaps,
-                                optional,
+                                grammar,
                                 leading_ws,
                                 post_skip_pos,
                                 longest_match,
                                 tried_elements,
                                 max_idx,
-                                parse_mode,
                                 last_child_frame_id: _last_child_frame_id, // Managed by helper
                             } => {
                                 log::debug!(
@@ -1557,6 +1718,19 @@ impl Parser<'_> {
                                     tried_elements,
                                     child_node.is_empty()
                                 );
+                                let Grammar::OneOf {
+                                    elements,
+                                    exclude: _,
+                                    optional,
+                                    terminators: _,
+                                    reset_terminators: _,
+                                    allow_gaps: _,
+                                    parse_mode,
+                                    simple_hint: _,
+                                } = grammar.as_ref()
+                                else {
+                                    panic!("Expected Grammar::OneOf in FrameContext::OneOf");
+                                };
 
                                 // Get child end position and element_key
                                 let child_end_pos = self.pos;
@@ -1713,13 +1887,7 @@ impl Parser<'_> {
                             }
 
                             FrameContext::Delimited {
-                                elements,
-                                delimiter,
-                                allow_trailing,
-                                optional,
-                                allow_gaps,
-                                min_delimiters,
-                                parse_mode,
+                                grammar,
                                 delimiter_count,
                                 matched_idx,
                                 working_idx,
@@ -1727,12 +1895,27 @@ impl Parser<'_> {
                                 state,
                                 last_child_frame_id: _last_child_frame_id,
                             } => {
+                                let Grammar::Delimited {
+                                    elements,
+                                    delimiter,
+                                    min_delimiters,
+                                    allow_trailing,
+                                    allow_gaps,
+                                    optional,
+                                    parse_mode,
+                                    ..
+                                } = grammar.as_ref()
+                                else {
+                                    panic!(
+                                        "Expected Grammar::Delimited in FrameContext::Delimited"
+                                    );
+                                };
                                 log::debug!("[ITERATIVE] Delimited WaitingForChild: state={:?}, delimiter_count={}, child_node is_empty={}",
                                     state, delimiter_count, child_node.is_empty());
 
                                 // Debug: Show element types for function-related Delimited
                                 if elements.iter().any(|e| {
-                                    matches!(e, Grammar::Ref { name, .. } if name.contains("FunctionContents") || name.contains("DatetimeUnit"))
+                                    matches!(e.as_ref(), Grammar::Ref { name, .. } if name.contains("FunctionContents") || name.contains("DatetimeUnit"))
                                 }) {
                                     log::debug!("[DELIMITED-DEBUG] Processing child result at pos {}, child_end_pos={}, state={:?}",
                                         frame.pos, child_end_pos, state);
@@ -2021,7 +2204,7 @@ impl Parser<'_> {
 
                                                 let child_frame = ParseFrame::new_child(
                                                     stack.frame_id_counter,
-                                                    child_grammar,
+                                                    child_grammar.into(),
                                                     *working_idx,
                                                     frame_terminators.clone(),
                                                     Some(child_max_idx),
@@ -2134,7 +2317,7 @@ impl Parser<'_> {
 
         // Debug: Show what frames are left on the stack
         for (i, frame) in stack.iter().enumerate() {
-            let grammar_desc = match &frame.grammar {
+            let grammar_desc = match frame.grammar.as_ref() {
                 Grammar::Ref { name, .. } => format!("Ref({})", name),
                 Grammar::Bracketed { .. } => "Bracketed".to_string(),
                 Grammar::Delimited { .. } => "Delimited".to_string(),
@@ -2234,7 +2417,7 @@ impl Parser<'_> {
                 }
 
                 log::debug!("\nGrammar that failed to match:");
-                log::debug!("  {}", grammar);
+                log::debug!("  {}", grammar_for_log);
                 log::debug!("===================\n");
             }
 

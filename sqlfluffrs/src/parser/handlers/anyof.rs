@@ -1,12 +1,13 @@
+use std::sync::Arc;
+
 use crate::parser::iterative::{NextStep, ParseFrameStack};
-use crate::parser::{Grammar, Node, ParseError, ParseFrame, ParseMode};
+use crate::parser::{FrameContext, Grammar, Node, ParseError, ParseFrame, ParseMode};
 use hashbrown::HashSet;
 
 macro_rules! handle_anynumberof_waiting_for_child {
                                     (
                                         $self:ident, $frame:ident, $stack:ident, $child_node:ident, $child_end_pos:ident, $child_element_key:ident,
-                                        $elements:ident, $min_times:ident, $max_times:ident, $max_times_per_element:ident,
-                                        $allow_gaps:ident, $optional:ident, $parse_mode:ident, $count:ident, $matched_idx:ident,
+                                        $grammar:ident, $count:ident, $matched_idx:ident,
                                         $working_idx:ident, $option_counter:ident, $max_idx:ident, $frame_terminators:ident,
                                         $iteration_count:ident, $simple_hint:ident
                                     ) => {
@@ -17,13 +18,29 @@ macro_rules! handle_anynumberof_waiting_for_child {
                                             $matched_idx,
                                             $working_idx
                                         );
+                                        // Destructure the grammar for easier access
+                                        let Grammar::AnyNumberOf {
+                                            elements,
+                                            min_times,
+                                            max_times,
+                                            max_times_per_element,
+                                            exclude,
+                                            optional,
+                                            terminators,
+                                            reset_terminators,
+                                            allow_gaps,
+                                            parse_mode,
+                                            ..
+                                        } = $grammar.as_ref() else {
+                                            unreachable!("Expected AnyNumberOf grammar");
+                                        };
 
                                         // Handle the child result
                                         if !$child_node.is_empty() {
                                             // Successfully matched!
 
                                             // Collect transparent tokens if allow_gaps
-                                            if *$allow_gaps && *$matched_idx < *$working_idx {
+                                            if *allow_gaps && *$matched_idx < *$working_idx {
                                                 while *$matched_idx < *$working_idx {
                                                     if let Some(tok) = $self.tokens.get(*$matched_idx) {
                                                         let tok_type = tok.get_type();
@@ -65,14 +82,14 @@ macro_rules! handle_anynumberof_waiting_for_child {
 
                                             // Check if we've reached limits
                                             let should_continue = !reached_max
-                                                && (*$count < *$min_times
-                                                    || ($max_times.is_none()
-                                                        || *$count < $max_times.unwrap()));
+                                                && (*$count < *min_times
+                                                    || (max_times.is_none()
+                                                        || *$count < max_times.unwrap()));
 
                                             if should_continue {
                                                 // Continue loop - try matching next element
                                                 // Update working_idx to skip whitespace if allowed
-                                                if *$allow_gaps {
+                                                if *allow_gaps {
                                                     *$working_idx = $self.skip_start_index_forward_to_code(
                                                         *$working_idx,
                                                         *$max_idx,
@@ -80,22 +97,22 @@ macro_rules! handle_anynumberof_waiting_for_child {
                                                 }
 
                                                 // Create OneOf wrapper to try all elements (proper longest-match)
-                                                if !$elements.is_empty() {
+                                                if !elements.is_empty() {
                                                     // Optimization: if only one element, use it directly (avoid OneOf overhead)
-                                                    let child_grammar = if $elements.len() == 1 {
-                                                        $elements[0].clone()
+
+                                                    let child_grammar = if elements.len() == 1 {
+                                                        Arc::clone(&elements[0])
                                                     } else {
-                                                        // Multiple elements: wrap in OneOf for longest-match selection
-                                                        Grammar::OneOf {
-                                                            elements: $elements.clone(),
+                                                        Arc::new(Grammar::OneOf {
+                                                            elements: elements.clone(),
                                                             exclude: None,
                                                             optional: true, // Let AnyNumberOf handle empty
                                                             terminators: $frame_terminators.clone(),
                                                             reset_terminators: false,
-                                                            allow_gaps: *$allow_gaps,
-                                                            parse_mode: *$parse_mode,
+                                                            allow_gaps: *allow_gaps,
+                                                            parse_mode: *parse_mode,
                                                             simple_hint: None
-                                                        }
+                                                        })
                                                     };
 
                                                     let child_frame = ParseFrame::new_child(
@@ -139,14 +156,14 @@ macro_rules! handle_anynumberof_waiting_for_child {
                                             );
 
                                             // Check if we've met min_times
-                                            if *$count < *$min_times {
+                                            if *$count < *min_times {
                                                 // Haven't met minimum occurrences - return Empty
                                                 // Let the parent grammar decide if this is a failure or not
                                                 $self.pos = $frame.pos;
                                                 log::debug!(
                                                     "AnyNumberOf returning Empty (didn't meet min_times {} < {})",
                                                     $count,
-                                                    $min_times
+                                                    min_times
                                                 );
                                                 $stack.results
                                                     .insert($frame.frame_id, (Node::Empty, $frame.pos, None));
@@ -175,9 +192,9 @@ impl crate::parser::Parser<'_> {
     /// Handle AnySetOf grammar Initial state in iterative parser
     pub fn handle_anysetof_initial(
         &mut self,
-        grammar: &Grammar,
+        grammar: Arc<Grammar>,
         frame: &mut ParseFrame,
-        parent_terminators: &[Grammar],
+        parent_terminators: &[Arc<Grammar>],
         stack: &mut ParseFrameStack,
     ) -> Result<NextStep, ParseError> {
         let pos = frame.pos;
@@ -194,7 +211,7 @@ impl crate::parser::Parser<'_> {
             reset_terminators,
             allow_gaps,
             parse_mode,
-        ) = match grammar {
+        ) = match grammar.as_ref() {
             Grammar::AnySetOf {
                 elements,
                 min_times,
@@ -226,7 +243,8 @@ impl crate::parser::Parser<'_> {
 
         // Check exclude grammar first
         if let Some(exclude_grammar) = exclude {
-            let test_result = self.try_match_grammar(exclude_grammar, pos, parent_terminators);
+            let test_result =
+                self.try_match_grammar((**exclude_grammar).clone(), pos, parent_terminators);
             if test_result.is_some() {
                 log::debug!(
                     "AnySetOf: exclude grammar matched at pos {}, returning empty",
@@ -236,7 +254,7 @@ impl crate::parser::Parser<'_> {
             }
         }
 
-        let all_terminators: Vec<Grammar> = if reset_terminators {
+        let all_terminators: Vec<Arc<Grammar>> = if reset_terminators {
             local_terminators.to_vec()
         } else {
             local_terminators
@@ -269,25 +287,20 @@ impl crate::parser::Parser<'_> {
             child_index: 0,
             total_children: max_times.unwrap_or(usize::MAX).min(elements.len()),
         };
-        frame.context = crate::parser::FrameContext::AnySetOf {
-            min_times,
-            max_times,
-            allow_gaps,
-            optional,
+        frame.context = FrameContext::AnySetOf {
+            grammar: grammar.clone(),
             count: 0,
             matched_idx: pos,
             working_idx: pos,
             matched_elements: HashSet::new(),
             max_idx,
             last_child_frame_id: None,
-            elements: elements.to_vec(),
-            parse_mode,
         };
         frame.terminators = all_terminators.clone();
 
         stack.push(frame);
 
-        let child_grammar = Grammar::OneOf {
+        let child_grammar = Arc::new(Grammar::OneOf {
             elements: elements.to_vec(),
             exclude: None,
             optional: false,
@@ -296,22 +309,22 @@ impl crate::parser::Parser<'_> {
             allow_gaps,
             parse_mode,
             simple_hint: None,
-        };
+        });
 
         let mut child_frame = crate::parser::ParseFrame {
             frame_id: stack.frame_id_counter,
-            grammar: child_grammar,
+            grammar: Arc::clone(&child_grammar),
             pos,
             terminators: all_terminators,
             state: crate::parser::FrameState::Initial,
             accumulated: vec![],
-            context: crate::parser::FrameContext::None,
+            context: FrameContext::None,
             parent_max_idx: Some(max_idx),
         };
 
         let next_child_id = stack.frame_id_counter;
         if let Some(parent_frame) = stack.last_mut() {
-            if let crate::parser::FrameContext::AnySetOf {
+            if let FrameContext::AnySetOf {
                 last_child_frame_id,
                 ..
             } = &mut parent_frame.context
@@ -328,13 +341,24 @@ impl crate::parser::Parser<'_> {
     /// Handle AnyNumberOf grammar Initial state in iterative parser
     pub fn handle_anynumberof_initial(
         &mut self,
-        grammar: &Grammar,
+        grammar: Arc<Grammar>,
         frame: &mut ParseFrame,
-        parent_terminators: &[Grammar],
+        parent_terminators: &[Arc<Grammar>],
         stack: &mut ParseFrameStack,
         iteration_count: usize,
     ) -> Result<NextStep, ParseError> {
-        let (elements, min_times, max_times, max_times_per_element, exclude, optional, any_terminators, reset_terminators, allow_gaps, parse_mode) = match grammar {
+        let (
+            elements,
+            min_times,
+            max_times,
+            max_times_per_element,
+            exclude,
+            optional,
+            any_terminators,
+            reset_terminators,
+            allow_gaps,
+            parse_mode,
+        ) = match grammar.as_ref() {
             Grammar::AnyNumberOf {
                 elements,
                 min_times,
@@ -347,10 +371,22 @@ impl crate::parser::Parser<'_> {
                 allow_gaps,
                 parse_mode,
                 ..
-            } => (elements, *min_times, max_times.clone(), max_times_per_element.clone(), exclude, *optional, any_terminators, *reset_terminators, *allow_gaps, *parse_mode),
+            } => (
+                elements,
+                *min_times,
+                max_times.clone(),
+                max_times_per_element.clone(),
+                exclude,
+                *optional,
+                any_terminators,
+                *reset_terminators,
+                *allow_gaps,
+                *parse_mode,
+            ),
             _ => {
                 return Err(ParseError {
-                    message: "handle_anynumberof_initial called with non-AnyNumberOf grammar".to_string(),
+                    message: "handle_anynumberof_initial called with non-AnyNumberOf grammar"
+                        .to_string(),
                 });
             }
         };
@@ -366,7 +402,7 @@ impl crate::parser::Parser<'_> {
 
         if let Some(exclude_grammar) = exclude {
             let test_result =
-                self.try_match_grammar(exclude_grammar, start_idx, parent_terminators);
+                self.try_match_grammar(*exclude_grammar.clone(), start_idx, parent_terminators);
             if test_result.is_some() {
                 log::debug!(
                     "AnyNumberOf: exclude grammar matched at pos {}, returning empty",
@@ -376,7 +412,7 @@ impl crate::parser::Parser<'_> {
             }
         }
 
-        let all_terminators: Vec<Grammar> = if reset_terminators {
+        let all_terminators: Vec<Arc<Grammar>> = if reset_terminators {
             any_terminators.to_vec()
         } else {
             any_terminators
@@ -409,7 +445,7 @@ impl crate::parser::Parser<'_> {
         );
 
         let elements = match self.get_available_grammar_options(elements, max_idx) {
-            Ok(value) => value.into_iter().cloned().collect::<Vec<_>>(),
+            Ok(value) => value.into_iter().collect::<Vec<_>>(),
             Err(value) => {
                 if let Node::Empty = value {
                     log::debug!("AnyNumberOf: No available options at start, returning Empty");
@@ -424,14 +460,8 @@ impl crate::parser::Parser<'_> {
             child_index: 0,
             total_children: elements.len(),
         };
-        frame.context = crate::parser::FrameContext::AnyNumberOf {
-            elements: elements.to_vec(),
-            min_times,
-            max_times,
-            max_times_per_element,
-            allow_gaps,
-            optional,
-            parse_mode,
+        frame.context = FrameContext::AnyNumberOf {
+            grammar,
             count: 0,
             matched_idx: start_idx,
             working_idx: start_idx,
@@ -444,7 +474,7 @@ impl crate::parser::Parser<'_> {
         stack.push(frame);
 
         if !elements.is_empty() {
-            let child_grammar = Grammar::OneOf {
+            let child_grammar = Arc::new(Grammar::OneOf {
                 elements: elements.to_vec(),
                 exclude: None,
                 optional: true,
@@ -453,22 +483,22 @@ impl crate::parser::Parser<'_> {
                 allow_gaps,
                 parse_mode,
                 simple_hint: None,
-            };
+            });
 
             let mut child_frame = crate::parser::ParseFrame {
                 frame_id: stack.frame_id_counter,
-                grammar: child_grammar,
+                grammar: Arc::clone(&child_grammar),
                 pos: start_idx,
                 terminators: all_terminators,
                 state: crate::parser::FrameState::Initial,
                 accumulated: vec![],
-                context: crate::parser::FrameContext::None,
+                context: FrameContext::None,
                 parent_max_idx: Some(max_idx),
             };
 
             let next_child_id = stack.frame_id_counter;
             if let Some(parent_frame) = stack.last_mut() {
-                if let crate::parser::FrameContext::AnyNumberOf {
+                if let FrameContext::AnyNumberOf {
                     last_child_frame_id,
                     ..
                 } = &mut parent_frame.context
@@ -492,13 +522,21 @@ impl crate::parser::Parser<'_> {
     /// Handle OneOf grammar Initial state in iterative parser
     pub fn handle_oneof_initial(
         &mut self,
-        grammar: &Grammar,
+        grammar: Arc<Grammar>,
         frame: &mut ParseFrame,
-        parent_terminators: &[Grammar],
+        parent_terminators: &[Arc<Grammar>],
         stack: &mut ParseFrameStack,
     ) -> Result<NextStep, ParseError> {
         // Destructure Grammar::OneOf fields
-        let (elements, exclude, optional, local_terminators, reset_terminators, allow_gaps, parse_mode) = match grammar {
+        let (
+            elements,
+            exclude,
+            optional,
+            local_terminators,
+            reset_terminators,
+            allow_gaps,
+            parse_mode,
+        ) = match grammar.as_ref() {
             Grammar::OneOf {
                 elements,
                 exclude,
@@ -508,7 +546,15 @@ impl crate::parser::Parser<'_> {
                 allow_gaps,
                 parse_mode,
                 ..
-            } => (elements, exclude, optional, local_terminators, reset_terminators, allow_gaps, parse_mode),
+            } => (
+                elements,
+                exclude,
+                *optional,
+                local_terminators,
+                *reset_terminators,
+                *allow_gaps,
+                *parse_mode,
+            ),
             _ => panic!("handle_oneof_initial called with non-OneOf grammar"),
         };
         let pos = frame.pos;
@@ -520,7 +566,7 @@ impl crate::parser::Parser<'_> {
         // );
 
         if let Some(exclude_grammar) = exclude {
-            let test_result = self.try_match_grammar(exclude_grammar, pos, parent_terminators);
+            let test_result = self.try_match_grammar(*exclude_grammar.clone(), pos, parent_terminators);
             if test_result.is_some() {
                 // log::debug!(
                 //     "OneOf: exclude grammar matched at pos {}, returning empty",
@@ -533,14 +579,14 @@ impl crate::parser::Parser<'_> {
             }
         }
 
-        let leading_ws = if *allow_gaps {
+        let leading_ws = if allow_gaps {
             self.collect_transparent(true)
         } else {
             Vec::new()
         };
         let post_skip_pos = self.pos;
 
-        let all_terminators: Vec<Grammar> = if *reset_terminators {
+        let all_terminators: Vec<Arc<Grammar>> = if reset_terminators {
             local_terminators.to_vec()
         } else {
             local_terminators
@@ -550,7 +596,7 @@ impl crate::parser::Parser<'_> {
                 .collect()
         };
 
-        let max_idx = if *parse_mode == ParseMode::Greedy {
+        let max_idx = if parse_mode == ParseMode::Greedy {
             self.trim_to_terminator(post_skip_pos, &all_terminators)
         } else {
             self.tokens.len()
@@ -566,7 +612,7 @@ impl crate::parser::Parser<'_> {
             // log::debug!("OneOf: Already at terminator");
             self.pos = pos;
 
-            let result = if *optional {
+            let result = if optional {
                 Node::Empty
             } else {
                 crate::parser::utils::apply_parse_mode_to_result(
@@ -574,7 +620,7 @@ impl crate::parser::Parser<'_> {
                     Node::Empty,
                     pos,
                     max_idx,
-                    *parse_mode,
+                    parse_mode,
                 )
             };
 
@@ -590,14 +636,14 @@ impl crate::parser::Parser<'_> {
             return Ok(NextStep::Fallthrough);
         }
 
-        let available_options: Vec<Grammar> =
-            self.prune_options(elements).into_iter().cloned().collect();
+        let available_options: Vec<Arc<Grammar>> =
+            self.prune_options(&elements).into_iter().collect();
 
         if available_options.is_empty() {
             // log::debug!("OneOf: No viable options after pruning");
             self.pos = pos;
 
-            let result = if *optional {
+            let result = if optional {
                 Node::Empty
             } else {
                 crate::parser::utils::apply_parse_mode_to_result(
@@ -605,7 +651,7 @@ impl crate::parser::Parser<'_> {
                     Node::Empty,
                     pos,
                     max_idx,
-                    *parse_mode,
+                    parse_mode,
                 )
             };
 
@@ -621,50 +667,41 @@ impl crate::parser::Parser<'_> {
             return Ok(NextStep::Fallthrough);
         }
 
-        frame.context = crate::parser::FrameContext::OneOf {
-            elements: available_options.clone(),
-            allow_gaps: *allow_gaps,
-            optional: *optional,
+        frame.context = FrameContext::OneOf {
+            grammar,
             leading_ws: leading_ws.clone(),
             post_skip_pos,
             longest_match: None,
             tried_elements: 0,
             max_idx,
-            parse_mode: *parse_mode,
             last_child_frame_id: Some(stack.frame_id_counter),
         };
 
         let first_element = available_options[0].clone();
         let element_key = first_element.cache_key();
 
-    if matches!(first_element, Grammar::Nothing() | Grammar::Empty) {
+        if matches!(*first_element, Grammar::Nothing() | Grammar::Empty) {
             // log::debug!(
             //     "OneOf: First element is Nothing, handling inline (element_key={})",
             //     element_key
             // );
-            frame.context = if let crate::parser::FrameContext::OneOf {
-                elements,
-                allow_gaps,
-                optional,
+            frame.context = if let FrameContext::OneOf {
+                grammar,
                 leading_ws,
                 post_skip_pos,
                 longest_match: _,
                 tried_elements,
                 max_idx,
-                parse_mode,
                 last_child_frame_id: _,
             } = &frame.context
             {
-                crate::parser::FrameContext::OneOf {
-                    elements: elements.clone(),
-                    allow_gaps: *allow_gaps,
-                    optional: *optional,
+                FrameContext::OneOf {
+                    grammar: grammar.clone(),
                     leading_ws: leading_ws.clone(),
                     post_skip_pos: *post_skip_pos,
                     longest_match: Some((Node::Empty, 0, element_key)),
                     tried_elements: *tried_elements + 1,
                     max_idx: *max_idx,
-                    parse_mode: *parse_mode,
                     last_child_frame_id: None,
                 }
             } else {
@@ -681,12 +718,12 @@ impl crate::parser::Parser<'_> {
 
         let mut child_frame = crate::parser::ParseFrame {
             frame_id: stack.frame_id_counter,
-            grammar: first_element,
+            grammar: Arc::clone(&first_element),
             pos: post_skip_pos,
             terminators: all_terminators.clone(),
             state: crate::parser::FrameState::Initial,
             accumulated: Vec::new(),
-            context: crate::parser::FrameContext::None,
+            context: FrameContext::None,
             parent_max_idx: Some(max_idx),
         };
 
@@ -709,9 +746,9 @@ impl crate::parser::Parser<'_> {
     /// similar to how terminators are checked.
     fn try_match_grammar(
         &mut self,
-        grammar: &Grammar,
+        grammar: Arc<Grammar>,
         pos: usize,
-        terminators: &[Grammar],
+        terminators: &[Arc<Grammar>],
     ) -> Option<usize> {
         // Save current state
         let saved_pos = self.pos;

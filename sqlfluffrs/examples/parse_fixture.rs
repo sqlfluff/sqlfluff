@@ -83,6 +83,8 @@ fn main() {
 
     // Parse
     let mut parser = Parser::new(&tokens, dialect);
+    // Disable parse cache for this run (for debugging)
+    parser.set_cache_enabled(true);
     let ast = match parser.call_rule_as_root() {
         Ok(node) => node,
         Err(e) => {

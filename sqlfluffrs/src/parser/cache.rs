@@ -5,6 +5,7 @@
 /// parse cache which provides 30-50% speedup on complex queries.
 use hashbrown::HashMap;
 use std::hash::{Hash, Hasher};
+use std::sync::Arc;
 
 use crate::parser::{Grammar, Node, ParseError};
 use crate::token::Token;
@@ -152,8 +153,8 @@ impl Grammar {
     // }
 }
 
-fn is_optional(grammar: &Grammar) -> bool {
-    match grammar {
+fn is_optional(grammar: Arc<Grammar>) -> bool {
+    match grammar.as_ref() {
         Grammar::Sequence { optional, .. } => *optional,
         Grammar::AnyNumberOf { optional, .. } => *optional,
         Grammar::OneOf { optional, .. } => *optional,
@@ -187,7 +188,7 @@ pub struct CacheKey {
 }
 
 impl CacheKey {
-    pub fn new(pos: usize, grammar: &Grammar, tokens: &[Token], terminators: &[Grammar]) -> Self {
+    pub fn new(pos: usize, grammar: Arc<Grammar>, tokens: &[Token], terminators: &[Arc<Grammar>]) -> Self {
         let grammar_hash = grammar_hash(grammar);
         let raw = tokens
             .get(pos)
@@ -210,14 +211,19 @@ impl CacheKey {
 }
 
 /// Hash terminators for cache key
-fn hash_terminators(terminators: &[Grammar]) -> u64 {
+fn hash_terminators(terminators: &[Arc<Grammar>]) -> u64 {
     use std::collections::hash_map::DefaultHasher;
     use std::hash::{Hash, Hasher};
 
+    // Compute the hash for each terminator grammar
+    let mut hashes: Vec<u64> = terminators.iter().map(|term| grammar_hash(term.clone())).collect();
+    // Sort the hashes to make the result order-insensitive
+    hashes.sort_unstable();
+
     let mut hasher = DefaultHasher::new();
-    terminators.len().hash(&mut hasher);
-    for term in terminators {
-        grammar_hash(term).hash(&mut hasher);
+    hashes.len().hash(&mut hasher);
+    for h in hashes {
+        h.hash(&mut hasher);
     }
     hasher.finish()
 }
@@ -229,14 +235,14 @@ fn hash_terminators(terminators: &[Grammar]) -> u64 {
 type CacheValue = Result<(Node, usize, Vec<usize>), ParseError>;
 
 /// Compute a stable hash for a grammar
-fn grammar_hash(grammar: &Grammar) -> u64 {
+fn grammar_hash(grammar: Arc<Grammar>) -> u64 {
     use std::collections::hash_map::DefaultHasher;
 
     let mut hasher = DefaultHasher::new();
-    grammar_discriminant(grammar).hash(&mut hasher);
+    grammar_discriminant(grammar.clone()).hash(&mut hasher);
 
     // Hash key identifying fields
-    match grammar {
+    match grammar.as_ref() {
         Grammar::StringParser {
             template,
             token_type,
@@ -281,12 +287,12 @@ fn grammar_hash(grammar: &Grammar) -> u64 {
         // For compound grammars, hash recursively (expensive but necessary)
         Grammar::Sequence { elements, .. } => {
             for elem in elements {
-                grammar_hash(elem).hash(&mut hasher);
+                grammar_hash(elem.clone()).hash(&mut hasher);
             }
         }
         Grammar::OneOf { elements, .. } => {
             for elem in elements {
-                grammar_hash(elem).hash(&mut hasher);
+                grammar_hash(elem.clone()).hash(&mut hasher);
             }
         }
         Grammar::AnyNumberOf {
@@ -296,7 +302,7 @@ fn grammar_hash(grammar: &Grammar) -> u64 {
             ..
         } => {
             for elem in elements {
-                grammar_hash(elem).hash(&mut hasher);
+                grammar_hash(elem.clone()).hash(&mut hasher);
             }
             min_times.hash(&mut hasher);
             max_times.hash(&mut hasher);
@@ -307,9 +313,9 @@ fn grammar_hash(grammar: &Grammar) -> u64 {
             ..
         } => {
             for elem in elements {
-                grammar_hash(elem).hash(&mut hasher);
+                grammar_hash(elem.clone()).hash(&mut hasher);
             }
-            grammar_hash(delimiter).hash(&mut hasher);
+            grammar_hash((**delimiter).clone()).hash(&mut hasher);
         }
         Grammar::Bracketed {
             elements,
@@ -317,10 +323,10 @@ fn grammar_hash(grammar: &Grammar) -> u64 {
             ..
         } => {
             for elem in elements {
-                grammar_hash(elem).hash(&mut hasher);
+                grammar_hash(elem.clone()).hash(&mut hasher);
             }
-            grammar_hash(&bracket_pairs.0).hash(&mut hasher);
-            grammar_hash(&bracket_pairs.1).hash(&mut hasher);
+            grammar_hash((*bracket_pairs.0).clone()).hash(&mut hasher);
+            grammar_hash((*bracket_pairs.1).clone()).hash(&mut hasher);
         }
         _ => {}
     }
@@ -328,10 +334,10 @@ fn grammar_hash(grammar: &Grammar) -> u64 {
     hasher.finish()
 }
 
-fn grammar_discriminant(grammar: &Grammar) -> usize {
+fn grammar_discriminant(grammar: Arc<Grammar>) -> usize {
     // Rust doesn't expose discriminant directly for custom enums,
     // so we use a match to get a unique number per variant
-    match grammar {
+    match grammar.as_ref() {
         Grammar::Sequence { .. } => 0,
         Grammar::AnyNumberOf { .. } => 1,
         Grammar::OneOf { .. } => 2,
@@ -381,13 +387,18 @@ impl ParseCache {
             }
             None => {
                 self.misses += 1;
-                log::debug!("Cache MISS at pos {} (hash: {})", key.pos, key.grammar_hash);
+                log::debug!("Cache MISS at pos {} (hash: {}, max_idx: {}, term_hash: {}, raw: {})", key.pos, key.grammar_hash, key.max_idx, key.terminators_hash, key.raw);
                 None
             }
         }
     }
 
     pub fn put(&mut self, key: CacheKey, result: CacheValue) {
+        // Log the full cache key and a summary of the value being inserted
+        log::debug!(
+            "Cache INSERT: key = {:?}, value = {:?}",
+            key, result
+        );
         let serialized = result.map_err(|e| ParseError::new(e.message.clone()));
         self.cache.insert(key, serialized);
     }
@@ -420,13 +431,670 @@ impl Default for ParseCache {
 
 #[cfg(test)]
 mod tests {
-    use hashbrown::HashSet;
+    #[test]
+    fn test_cache_key_equivalence_for_terminator_order() {
+        use std::sync::Arc;
+        use crate::parser::types::Grammar;
+
+        // Two different grammars to use as terminators
+        let t1 = Arc::new(Grammar::Token { token_type: "foo" });
+        let t2 = Arc::new(Grammar::Token { token_type: "bar" });
+
+        // Main grammar
+        let g = Arc::new(Grammar::StringParser {
+            template: "baz",
+            token_type: "word",
+            raw_class: "WordSegment",
+            optional: false,
+        });
+
+        let tokens: Vec<crate::token::Token> = vec![];
+
+        // Terminators in different orders
+        let terms1 = vec![t1.clone(), t2.clone()];
+        let terms2 = vec![t2, t1];
+
+        let k1 = super::CacheKey::new(0, g.clone(), &tokens, &terms1);
+        let k2 = super::CacheKey::new(0, g, &tokens, &terms2);
+
+        assert_eq!(k1.terminators_hash, k2.terminators_hash, "terminators_hash should be order-insensitive");
+        assert_eq!(k1, k2, "CacheKey should be equal for different terminator orders");
+    }
+    #[test]
+    fn test_cache_key_equivalence_for_identical_anynumberof_with_inline_arcs() {
+        use std::sync::Arc;
+        use crate::parser::types::Grammar;
+
+        let g1 = Arc::new(Grammar::AnyNumberOf {
+            elements: vec![
+                Arc::new(Grammar::StringParser {
+                    template: "FOO",
+                    token_type: "word",
+                    raw_class: "WordSegment",
+                    optional: false,
+                }),
+            ],
+            min_times: 0,
+            max_times: Some(3),
+            max_times_per_element: None,
+            exclude: None,
+            optional: false,
+            terminators: vec![],
+            reset_terminators: false,
+            allow_gaps: true,
+            parse_mode: crate::parser::types::ParseMode::Strict,
+            simple_hint: None,
+        });
+        let g2 = Arc::new(Grammar::AnyNumberOf {
+            elements: vec![
+                Arc::new(Grammar::StringParser {
+                    template: "FOO",
+                    token_type: "word",
+                    raw_class: "WordSegment",
+                    optional: false,
+                }),
+            ],
+            min_times: 0,
+            max_times: Some(3),
+            max_times_per_element: None,
+            exclude: None,
+            optional: false,
+            terminators: vec![],
+            reset_terminators: false,
+            allow_gaps: true,
+            parse_mode: crate::parser::types::ParseMode::Strict,
+            simple_hint: None,
+        });
+        assert!(!Arc::ptr_eq(&g1, &g2));
+        let h1 = super::grammar_hash(g1.clone());
+        let h2 = super::grammar_hash(g2.clone());
+        assert_eq!(h1, h2, "Grammar hash should be equal for identical AnyNumberOf with inline Arcs");
+        let tokens: Vec<crate::token::Token> = vec![];
+        let terms: Vec<Arc<Grammar>> = vec![];
+        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
+        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+        assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
+        assert_eq!(k1, k2, "CacheKey should be equal for identical AnyNumberOf with inline Arcs");
+    }
+
+    #[test]
+    fn test_cache_key_equivalence_for_identical_anysetof_with_inline_arcs() {
+        use std::sync::Arc;
+        use crate::parser::types::Grammar;
+
+        let g1 = Arc::new(Grammar::AnySetOf {
+            elements: vec![
+                Arc::new(Grammar::StringParser {
+                    template: "FOO",
+                    token_type: "word",
+                    raw_class: "WordSegment",
+                    optional: false,
+                }),
+            ],
+            min_times: 0,
+            max_times: Some(2),
+            exclude: None,
+            optional: false,
+            terminators: vec![],
+            reset_terminators: false,
+            allow_gaps: true,
+            parse_mode: crate::parser::types::ParseMode::Strict,
+            simple_hint: None,
+        });
+        let g2 = Arc::new(Grammar::AnySetOf {
+            elements: vec![
+                Arc::new(Grammar::StringParser {
+                    template: "FOO",
+                    token_type: "word",
+                    raw_class: "WordSegment",
+                    optional: false,
+                }),
+            ],
+            min_times: 0,
+            max_times: Some(2),
+            exclude: None,
+            optional: false,
+            terminators: vec![],
+            reset_terminators: false,
+            allow_gaps: true,
+            parse_mode: crate::parser::types::ParseMode::Strict,
+            simple_hint: None,
+        });
+        assert!(!Arc::ptr_eq(&g1, &g2));
+        let h1 = super::grammar_hash(g1.clone());
+        let h2 = super::grammar_hash(g2.clone());
+        assert_eq!(h1, h2, "Grammar hash should be equal for identical AnySetOf with inline Arcs");
+        let tokens: Vec<crate::token::Token> = vec![];
+        let terms: Vec<Arc<Grammar>> = vec![];
+        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
+        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+        assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
+        assert_eq!(k1, k2, "CacheKey should be equal for identical AnySetOf with inline Arcs");
+    }
+
+    #[test]
+    fn test_cache_key_equivalence_for_identical_ref() {
+        use std::sync::Arc;
+        use crate::parser::types::Grammar;
+
+        let g1 = Arc::new(Grammar::Ref {
+            name: "SomeRef",
+            optional: false,
+            terminators: vec![],
+            reset_terminators: false,
+            allow_gaps: true,
+            simple_hint: None,
+        });
+        let g2 = Arc::new(Grammar::Ref {
+            name: "SomeRef",
+            optional: false,
+            terminators: vec![],
+            reset_terminators: false,
+            allow_gaps: true,
+            simple_hint: None,
+        });
+        assert!(!Arc::ptr_eq(&g1, &g2));
+        let h1 = super::grammar_hash(g1.clone());
+        let h2 = super::grammar_hash(g2.clone());
+        assert_eq!(h1, h2, "Grammar hash should be equal for identical Ref");
+        let tokens: Vec<crate::token::Token> = vec![];
+        let terms: Vec<Arc<Grammar>> = vec![];
+        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
+        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+        assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
+        assert_eq!(k1, k2, "CacheKey should be equal for identical Ref");
+    }
+
+    #[test]
+    fn test_cache_key_equivalence_for_identical_meta() {
+        use std::sync::Arc;
+        use crate::parser::types::Grammar;
+
+        let g1 = Arc::new(Grammar::Meta("indent"));
+        let g2 = Arc::new(Grammar::Meta("indent"));
+        assert!(!Arc::ptr_eq(&g1, &g2));
+        let h1 = super::grammar_hash(g1.clone());
+        let h2 = super::grammar_hash(g2.clone());
+        assert_eq!(h1, h2, "Grammar hash should be equal for identical Meta");
+        let tokens: Vec<crate::token::Token> = vec![];
+        let terms: Vec<Arc<Grammar>> = vec![];
+        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
+        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+        assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
+        assert_eq!(k1, k2, "CacheKey should be equal for identical Meta");
+    }
+
+    #[test]
+    fn test_cache_key_equivalence_for_nothing_anything_empty_missing() {
+        use std::sync::Arc;
+        use crate::parser::types::Grammar;
+
+        let g1 = Arc::new(Grammar::Nothing());
+        let g2 = Arc::new(Grammar::Nothing());
+        let g3 = Arc::new(Grammar::Anything);
+        let g4 = Arc::new(Grammar::Anything);
+        let g5 = Arc::new(Grammar::Empty);
+        let g6 = Arc::new(Grammar::Empty);
+        let g7 = Arc::new(Grammar::Missing);
+        let g8 = Arc::new(Grammar::Missing);
+
+        // Nothing
+        assert!(!Arc::ptr_eq(&g1, &g2));
+        let h1 = super::grammar_hash(g1.clone());
+        let h2 = super::grammar_hash(g2.clone());
+        assert_eq!(h1, h2, "Grammar hash should be equal for Nothing");
+        let tokens: Vec<crate::token::Token> = vec![];
+        let terms: Vec<Arc<Grammar>> = vec![];
+        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
+        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+        assert_eq!(k1, k2, "CacheKey should be equal for Nothing");
+
+        // Anything
+        assert!(!Arc::ptr_eq(&g3, &g4));
+        let h3 = super::grammar_hash(g3.clone());
+        let h4 = super::grammar_hash(g4.clone());
+        assert_eq!(h3, h4, "Grammar hash should be equal for Anything");
+        let k3 = super::CacheKey::new(0, g3, &tokens, &terms);
+        let k4 = super::CacheKey::new(0, g4, &tokens, &terms);
+        assert_eq!(k3, k4, "CacheKey should be equal for Anything");
+
+        // Empty
+        assert!(!Arc::ptr_eq(&g5, &g6));
+        let h5 = super::grammar_hash(g5.clone());
+        let h6 = super::grammar_hash(g6.clone());
+        assert_eq!(h5, h6, "Grammar hash should be equal for Empty");
+        let k5 = super::CacheKey::new(0, g5, &tokens, &terms);
+        let k6 = super::CacheKey::new(0, g6, &tokens, &terms);
+        assert_eq!(k5, k6, "CacheKey should be equal for Empty");
+
+        // Missing
+        assert!(!Arc::ptr_eq(&g7, &g8));
+        let h7 = super::grammar_hash(g7.clone());
+        let h8 = super::grammar_hash(g8.clone());
+        assert_eq!(h7, h8, "Grammar hash should be equal for Missing");
+        let k7 = super::CacheKey::new(0, g7, &tokens, &terms);
+        let k8 = super::CacheKey::new(0, g8, &tokens, &terms);
+        assert_eq!(k7, k8, "CacheKey should be equal for Missing");
+    }
+    #[test]
+    fn test_cache_key_equivalence_for_identical_sequence_with_inline_arcs() {
+        use std::sync::Arc;
+        use crate::parser::types::Grammar;
+
+        let g1 = Arc::new(Grammar::Sequence {
+            elements: vec![
+                Arc::new(Grammar::StringParser {
+                    template: "FOO",
+                    token_type: "word",
+                    raw_class: "WordSegment",
+                    optional: false,
+                }),
+                Arc::new(Grammar::StringParser {
+                    template: "BAR",
+                    token_type: "word",
+                    raw_class: "WordSegment",
+                    optional: false,
+                }),
+            ],
+            optional: false,
+            terminators: vec![],
+            reset_terminators: false,
+            allow_gaps: true,
+            parse_mode: crate::parser::types::ParseMode::Strict,
+            simple_hint: None,
+        });
+        let g2 = Arc::new(Grammar::Sequence {
+            elements: vec![
+                Arc::new(Grammar::StringParser {
+                    template: "FOO",
+                    token_type: "word",
+                    raw_class: "WordSegment",
+                    optional: false,
+                }),
+                Arc::new(Grammar::StringParser {
+                    template: "BAR",
+                    token_type: "word",
+                    raw_class: "WordSegment",
+                    optional: false,
+                }),
+            ],
+            optional: false,
+            terminators: vec![],
+            reset_terminators: false,
+            allow_gaps: true,
+            parse_mode: crate::parser::types::ParseMode::Strict,
+            simple_hint: None,
+        });
+        assert!(!Arc::ptr_eq(&g1, &g2));
+        let h1 = super::grammar_hash(g1.clone());
+        let h2 = super::grammar_hash(g2.clone());
+        assert_eq!(h1, h2, "Grammar hash should be equal for identical Sequence with inline Arcs");
+        let tokens: Vec<crate::token::Token> = vec![];
+        let terms: Vec<Arc<Grammar>> = vec![];
+        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
+        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+        assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
+        assert_eq!(k1, k2, "CacheKey should be equal for identical Sequence with inline Arcs");
+    }
+
+    #[test]
+    fn test_cache_key_equivalence_for_identical_oneof_with_inline_arcs() {
+        use std::sync::Arc;
+        use crate::parser::types::Grammar;
+
+        let g1 = Arc::new(Grammar::OneOf {
+            elements: vec![
+                Arc::new(Grammar::StringParser {
+                    template: "FOO",
+                    token_type: "word",
+                    raw_class: "WordSegment",
+                    optional: false,
+                }),
+                Arc::new(Grammar::StringParser {
+                    template: "BAR",
+                    token_type: "word",
+                    raw_class: "WordSegment",
+                    optional: false,
+                }),
+            ],
+            exclude: None,
+            optional: false,
+            terminators: vec![],
+            reset_terminators: false,
+            allow_gaps: true,
+            parse_mode: crate::parser::types::ParseMode::Strict,
+            simple_hint: None,
+        });
+        let g2 = Arc::new(Grammar::OneOf {
+            elements: vec![
+                Arc::new(Grammar::StringParser {
+                    template: "FOO",
+                    token_type: "word",
+                    raw_class: "WordSegment",
+                    optional: false,
+                }),
+                Arc::new(Grammar::StringParser {
+                    template: "BAR",
+                    token_type: "word",
+                    raw_class: "WordSegment",
+                    optional: false,
+                }),
+            ],
+            exclude: None,
+            optional: false,
+            terminators: vec![],
+            reset_terminators: false,
+            allow_gaps: true,
+            parse_mode: crate::parser::types::ParseMode::Strict,
+            simple_hint: None,
+        });
+        assert!(!Arc::ptr_eq(&g1, &g2));
+        let h1 = super::grammar_hash(g1.clone());
+        let h2 = super::grammar_hash(g2.clone());
+        assert_eq!(h1, h2, "Grammar hash should be equal for identical OneOf with inline Arcs");
+        let tokens: Vec<crate::token::Token> = vec![];
+        let terms: Vec<Arc<Grammar>> = vec![];
+        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
+        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+        assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
+        assert_eq!(k1, k2, "CacheKey should be equal for identical OneOf with inline Arcs");
+    }
+
+    #[test]
+    fn test_cache_key_equivalence_for_identical_delimited_with_inline_arcs() {
+        use std::sync::Arc;
+        use crate::parser::types::Grammar;
+
+        let g1 = Arc::new(Grammar::Delimited {
+            elements: vec![
+                Arc::new(Grammar::StringParser {
+                    template: "FOO",
+                    token_type: "word",
+                    raw_class: "WordSegment",
+                    optional: false,
+                }),
+            ],
+            delimiter: Box::new(Arc::new(Grammar::StringParser {
+                template: ",",
+                token_type: "comma",
+                raw_class: "SymbolSegment",
+                optional: false,
+            })),
+            allow_trailing: false,
+            optional: false,
+            terminators: vec![],
+            reset_terminators: false,
+            allow_gaps: true,
+            min_delimiters: 0,
+            parse_mode: crate::parser::types::ParseMode::Strict,
+            simple_hint: None,
+        });
+        let g2 = Arc::new(Grammar::Delimited {
+            elements: vec![
+                Arc::new(Grammar::StringParser {
+                    template: "FOO",
+                    token_type: "word",
+                    raw_class: "WordSegment",
+                    optional: false,
+                }),
+            ],
+            delimiter: Box::new(Arc::new(Grammar::StringParser {
+                template: ",",
+                token_type: "comma",
+                raw_class: "SymbolSegment",
+                optional: false,
+            })),
+            allow_trailing: false,
+            optional: false,
+            terminators: vec![],
+            reset_terminators: false,
+            allow_gaps: true,
+            min_delimiters: 0,
+            parse_mode: crate::parser::types::ParseMode::Strict,
+            simple_hint: None,
+        });
+        assert!(!Arc::ptr_eq(&g1, &g2));
+        let h1 = super::grammar_hash(g1.clone());
+        let h2 = super::grammar_hash(g2.clone());
+        assert_eq!(h1, h2, "Grammar hash should be equal for identical Delimited with inline Arcs");
+        let tokens: Vec<crate::token::Token> = vec![];
+        let terms: Vec<Arc<Grammar>> = vec![];
+        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
+        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+        assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
+        assert_eq!(k1, k2, "CacheKey should be equal for identical Delimited with inline Arcs");
+    }
+
+    #[test]
+    fn test_cache_key_equivalence_for_identical_bracketed_with_inline_arcs() {
+        use std::sync::Arc;
+        use crate::parser::types::Grammar;
+
+        let g1 = Arc::new(Grammar::Bracketed {
+            elements: vec![
+                Arc::new(Grammar::StringParser {
+                    template: "FOO",
+                    token_type: "word",
+                    raw_class: "WordSegment",
+                    optional: false,
+                }),
+            ],
+            bracket_pairs: (
+                Box::new(Arc::new(Grammar::StringParser {
+                    template: "(",
+                    token_type: "start_bracket",
+                    raw_class: "SymbolSegment",
+                    optional: false,
+                })),
+                Box::new(Arc::new(Grammar::StringParser {
+                    template: ")",
+                    token_type: "end_bracket",
+                    raw_class: "SymbolSegment",
+                    optional: false,
+                })),
+            ),
+            optional: false,
+            terminators: vec![],
+            reset_terminators: false,
+            allow_gaps: true,
+            parse_mode: crate::parser::types::ParseMode::Strict,
+            simple_hint: None,
+        });
+        let g2 = Arc::new(Grammar::Bracketed {
+            elements: vec![
+                Arc::new(Grammar::StringParser {
+                    template: "FOO",
+                    token_type: "word",
+                    raw_class: "WordSegment",
+                    optional: false,
+                }),
+            ],
+            bracket_pairs: (
+                Box::new(Arc::new(Grammar::StringParser {
+                    template: "(",
+                    token_type: "start_bracket",
+                    raw_class: "SymbolSegment",
+                    optional: false,
+                })),
+                Box::new(Arc::new(Grammar::StringParser {
+                    template: ")",
+                    token_type: "end_bracket",
+                    raw_class: "SymbolSegment",
+                    optional: false,
+                })),
+            ),
+            optional: false,
+            terminators: vec![],
+            reset_terminators: false,
+            allow_gaps: true,
+            parse_mode: crate::parser::types::ParseMode::Strict,
+            simple_hint: None,
+        });
+        assert!(!Arc::ptr_eq(&g1, &g2));
+        let h1 = super::grammar_hash(g1.clone());
+        let h2 = super::grammar_hash(g2.clone());
+        assert_eq!(h1, h2, "Grammar hash should be equal for identical Bracketed with inline Arcs");
+        let tokens: Vec<crate::token::Token> = vec![];
+        let terms: Vec<Arc<Grammar>> = vec![];
+        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
+        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+        assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
+        assert_eq!(k1, k2, "CacheKey should be equal for identical Bracketed with inline Arcs");
+    }
+    #[test]
+    fn test_cache_key_equivalence_for_identical_multistringparsers() {
+        use std::sync::Arc;
+        use crate::parser::types::Grammar;
+
+        let g1 = Arc::new(Grammar::MultiStringParser {
+            templates: vec!["FOO", "BAR"],
+            token_type: "word",
+            raw_class: "WordSegment",
+            optional: false,
+        });
+        let g2 = Arc::new(Grammar::MultiStringParser {
+            templates: vec!["FOO", "BAR"],
+            token_type: "word",
+            raw_class: "WordSegment",
+            optional: false,
+        });
+        assert!(!Arc::ptr_eq(&g1, &g2));
+        let h1 = super::grammar_hash(g1.clone());
+        let h2 = super::grammar_hash(g2.clone());
+        assert_eq!(h1, h2, "Grammar hash should be equal for identical MultiStringParsers");
+        let tokens: Vec<crate::token::Token> = vec![];
+        let terms: Vec<Arc<Grammar>> = vec![];
+        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
+        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+        assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
+        assert_eq!(k1, k2, "CacheKey should be equal for identical MultiStringParsers");
+    }
+
+    #[test]
+    fn test_cache_key_equivalence_for_identical_typedparsers() {
+        use std::sync::Arc;
+        use crate::parser::types::Grammar;
+
+        let g1 = Arc::new(Grammar::TypedParser {
+            template: "FOO",
+            token_type: "word",
+            raw_class: "WordSegment",
+            optional: false,
+        });
+        let g2 = Arc::new(Grammar::TypedParser {
+            template: "FOO",
+            token_type: "word",
+            raw_class: "WordSegment",
+            optional: false,
+        });
+        assert!(!Arc::ptr_eq(&g1, &g2));
+        let h1 = super::grammar_hash(g1.clone());
+        let h2 = super::grammar_hash(g2.clone());
+        assert_eq!(h1, h2, "Grammar hash should be equal for identical TypedParsers");
+        let tokens: Vec<crate::token::Token> = vec![];
+        let terms: Vec<Arc<Grammar>> = vec![];
+        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
+        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+        assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
+        assert_eq!(k1, k2, "CacheKey should be equal for identical TypedParsers");
+    }
+
+    #[test]
+    fn test_cache_key_equivalence_for_identical_regexparsers() {
+        use std::sync::Arc;
+        use crate::parser::types::Grammar;
+        let regex = regex::Regex::new("^[a-z]+$").unwrap();
+        let g1 = Arc::new(Grammar::RegexParser {
+            template: regex.clone(),
+            token_type: "word",
+            raw_class: "WordSegment",
+            optional: false,
+            anti_template: None,
+        });
+        let g2 = Arc::new(Grammar::RegexParser {
+            template: regex.clone(),
+            token_type: "word",
+            raw_class: "WordSegment",
+            optional: false,
+            anti_template: None,
+        });
+        assert!(!Arc::ptr_eq(&g1, &g2));
+        let h1 = super::grammar_hash(g1.clone());
+        let h2 = super::grammar_hash(g2.clone());
+        assert_eq!(h1, h2, "Grammar hash should be equal for identical RegexParsers");
+        let tokens: Vec<crate::token::Token> = vec![];
+        let terms: Vec<Arc<Grammar>> = vec![];
+        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
+        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+        assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
+        assert_eq!(k1, k2, "CacheKey should be equal for identical RegexParsers");
+    }
+
+    #[test]
+    fn test_cache_key_equivalence_for_identical_token() {
+        use std::sync::Arc;
+        use crate::parser::types::Grammar;
+
+        let g1 = Arc::new(Grammar::Token {
+            token_type: "word",
+        });
+        let g2 = Arc::new(Grammar::Token {
+            token_type: "word",
+        });
+        assert!(!Arc::ptr_eq(&g1, &g2));
+        let h1 = super::grammar_hash(g1.clone());
+        let h2 = super::grammar_hash(g2.clone());
+        assert_eq!(h1, h2, "Grammar hash should be equal for identical Token grammars");
+        let tokens: Vec<crate::token::Token> = vec![];
+        let terms: Vec<Arc<Grammar>> = vec![];
+        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
+        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+        assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
+        assert_eq!(k1, k2, "CacheKey should be equal for identical Token grammars");
+    }
 
     use super::*;
     use crate::lexer::{LexInput, Lexer};
     use crate::parser::Parser;
     use crate::Dialect;
 
+    #[test]
+    fn test_cache_key_equivalence_for_identical_stringparsers() {
+        use std::sync::Arc;
+        use crate::parser::types::Grammar;
+
+        // Create two different Arc<Grammar> instances with identical StringParser content
+        let g1 = Arc::new(Grammar::StringParser {
+            template: "FOO",
+            token_type: "word",
+            raw_class: "WordSegment",
+            optional: false,
+        });
+        let g2 = Arc::new(Grammar::StringParser {
+            template: "FOO",
+            token_type: "word",
+            raw_class: "WordSegment",
+            optional: false,
+        });
+
+        // They are not pointer-equal
+        assert!(!Arc::ptr_eq(&g1, &g2));
+
+        // But their hashes should be equal
+        let h1 = super::grammar_hash(g1.clone());
+        let h2 = super::grammar_hash(g2.clone());
+        assert_eq!(h1, h2, "Grammar hash should be equal for identical StringParsers");
+
+        // And their cache keys should be equal for the same position/tokens/terminators
+        let tokens: Vec<crate::token::Token> = vec![];
+        let terms: Vec<Arc<Grammar>> = vec![];
+        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
+        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+        assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
+        assert_eq!(k1, k2, "CacheKey should be equal for identical StringParsers");
+    }
+
+    use hashbrown::HashSet;
     #[test]
     fn test_simple_match_string_parser() {
         let grammar = Grammar::StringParser {
@@ -487,7 +1155,7 @@ mod tests {
     //         optional: false,
     //     };
 
-    //     let key = CacheKey::new(0, &grammar, &tokens);
+    //     let key = CacheKey::new(0, Arc<Grammar>, &tokens);
     //     assert_eq!(key.pos, 0);
     //     assert_eq!(key.raw, "SELECT");
     //     assert_eq!(key.max_idx, 2);
@@ -514,6 +1182,7 @@ mod tests {
             Ok(_ast) => {
                 println!("✓ Parse successful");
                 parser.print_cache_stats();
+                println!("{:#?}", parser.parse_cache.cache)
             }
             Err(e) => {
                 panic!("✗ Parse failed: {:?}", e);
@@ -529,6 +1198,7 @@ mod tests {
             Ok(_ast) => {
                 println!("✓ Parse successful");
                 parser.print_cache_stats();
+                println!("{:#?}", parser.parse_cache.cache)
             }
             Err(e) => {
                 panic!("✗ Parse failed: {:?}", e);

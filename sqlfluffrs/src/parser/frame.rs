@@ -3,11 +3,13 @@
 //! This module contains the core types used by the iterative parser to track
 //! parsing state without recursion.
 
+use std::sync::Arc;
+
 use hashbrown::{HashMap, HashSet};
 
-use crate::parser::{iterative::ParseFrameStack, types::SimpleHint};
+use crate::parser::{iterative::ParseFrameStack};
 
-use super::types::{Grammar, Node, ParseMode};
+use super::types::{Grammar, Node};
 
 /// A parse frame represents a single parsing task in the iterative parser.
 ///
@@ -18,12 +20,12 @@ use super::types::{Grammar, Node, ParseMode};
 pub struct ParseFrame {
     /// Unique ID for this frame
     pub frame_id: usize,
-    /// The grammar to parse
-    pub grammar: Grammar,
+    /// Reference to the grammar to parse (static, immutable)
+    pub grammar: Arc<Grammar>,
     /// Position in token stream
     pub pos: usize,
-    /// Terminators for this parse
-    pub terminators: Vec<Grammar>,
+    /// Terminators for this parse (references to static Grammar)
+    pub terminators: Vec<Arc<Grammar>>,
     /// Current state of this frame
     pub state: FrameState,
     /// Accumulated results so far
@@ -39,9 +41,9 @@ impl ParseFrame {
     /// Create a new child frame with common default settings
     pub fn new_child(
         frame_id: usize,
-        grammar: Grammar,
+        grammar: Arc<Grammar>,
         pos: usize,
-        terminators: Vec<Grammar>,
+        terminators: Vec<Arc<Grammar>>,
         parent_max_idx: Option<usize>,
     ) -> Self {
         ParseFrame {
@@ -246,18 +248,13 @@ pub enum FrameState {
 pub enum FrameContext {
     None,
     Ref {
-        name: String,
-        optional: bool,
-        allow_gaps: bool,
+        grammar: Arc<Grammar>,
         segment_type: Option<String>,
         saved_pos: usize, // Position before skipping transparent tokens
         last_child_frame_id: Option<usize>, // Track which child frame we created
     },
     Sequence {
-        elements: Vec<Grammar>,
-        allow_gaps: bool,
-        optional: bool,
-        parse_mode: ParseMode,
+        grammar: Arc<Grammar>,
         matched_idx: usize,
         tentatively_collected: Vec<usize>,
         max_idx: usize,
@@ -267,63 +264,40 @@ pub enum FrameContext {
         first_match: bool,          // For GREEDY_ONCE_STARTED: trim max_idx after first match
     },
     OneOf {
-        elements: Vec<Grammar>, // Available elements to try
-        allow_gaps: bool,
-        optional: bool,
+        grammar: Arc<Grammar>,
         leading_ws: Vec<Node>,
         post_skip_pos: usize,
         longest_match: Option<(Node, usize, u64)>, // (node, consumed, element_key)
         tried_elements: usize,
         max_idx: usize, // Limit for greedy matching
-        parse_mode: ParseMode,
         last_child_frame_id: Option<usize>, // Track child frame for WaitingForChild state
     },
     AnyNumberOf {
-        min_times: usize,
-        max_times: Option<usize>,
-        max_times_per_element: Option<usize>,
-        allow_gaps: bool,
-        optional: bool,
+        grammar: Arc<Grammar>,
         count: usize,
         matched_idx: usize,
         working_idx: usize,
         option_counter: HashMap<u64, usize>,
         max_idx: usize,
         last_child_frame_id: Option<usize>,
-        elements: Vec<Grammar>,
-        parse_mode: ParseMode,
     },
     AnySetOf {
-        min_times: usize,
-        max_times: Option<usize>,
-        allow_gaps: bool,
-        optional: bool,
+        grammar: Arc<Grammar>,
         count: usize,
         matched_idx: usize,
         working_idx: usize,
         matched_elements: HashSet<u64>,
         max_idx: usize,
         last_child_frame_id: Option<usize>,
-        elements: Vec<Grammar>,
-        parse_mode: ParseMode,
     },
     Bracketed {
-        bracket_pairs: (Box<Grammar>, Box<Grammar>),
-        elements: Vec<Grammar>,
-        allow_gaps: bool,
-        optional: bool,
-        parse_mode: ParseMode,
+        grammar: Arc<Grammar>,
         state: BracketedState,
         last_child_frame_id: Option<usize>,
+        bracket_max_idx: Option<usize>,
     },
     Delimited {
-        elements: Vec<Grammar>,
-        delimiter: Box<Grammar>,
-        allow_trailing: bool,
-        optional: bool,
-        allow_gaps: bool,
-        min_delimiters: usize,
-        parse_mode: ParseMode,
+        grammar: Arc<Grammar>,
         delimiter_count: usize,
         matched_idx: usize,
         working_idx: usize,

@@ -1,5 +1,7 @@
 /* This is a generated file! */
 
+use std::sync::Arc;
+
 /* dialect mods */
 pub mod ansi;
 use crate::dialect::ansi::matcher::{ANSI_KEYWORDS, ANSI_LEXERS};
@@ -161,7 +163,7 @@ impl Dialect {
         }
     }
 
-    pub fn get_segment_grammar(&self, name: &str) -> Option<&'static Grammar> {
+    pub fn get_segment_grammar(&self, name: &str) -> Option<Arc<Grammar>> {
         match self {
             Dialect::Ansi => crate::dialect::ansi::parser::get_ansi_segment_grammar(name),
             Dialect::Athena => crate::dialect::athena::parser::get_athena_segment_grammar(name),
@@ -227,7 +229,7 @@ impl Dialect {
         }
     }
 
-    pub fn get_root_grammar(&self) -> &'static Grammar {
+    pub fn get_root_grammar(&self) -> Arc<Grammar> {
         match self {
             Dialect::Ansi => crate::dialect::ansi::parser::get_ansi_root_grammar(),
             Dialect::Athena => crate::dialect::athena::parser::get_athena_root_grammar(),

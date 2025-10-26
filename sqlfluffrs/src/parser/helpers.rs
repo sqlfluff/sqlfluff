@@ -3,6 +3,8 @@
 //! This module contains utility methods used by both iterative and recursive parsers
 //! including token navigation, whitespace handling, and terminator checking.
 
+use std::sync::Arc;
+
 use hashbrown::HashSet;
 
 use super::core::Parser;
@@ -16,7 +18,7 @@ impl<'a> Parser<'a> {
     /// This is the Rust equivalent of Python's `prune_options()` function.
     /// It filters the list of grammar options to only those that could possibly
     /// match the current token, based on quick checks of raw strings and types.
-    pub(crate) fn prune_options<'g>(&mut self, options: &'g [Grammar]) -> Vec<&'g Grammar> {
+    pub(crate) fn prune_options(&mut self, options: &[Arc<Grammar>]) -> Vec<Arc<Grammar>> {
         // Track stats
         self.pruning_calls.set(self.pruning_calls.get() + 1);
         self.pruning_total
@@ -29,7 +31,7 @@ impl<'a> Parser<'a> {
         let Some(first_token) = first_code_token else {
             self.pruning_kept
                 .set(self.pruning_kept.get() + options.len());
-            return options.iter().collect();
+            return options.iter().cloned().collect();
         };
 
         // Get token properties for matching
@@ -55,7 +57,7 @@ impl<'a> Parser<'a> {
                     // Complex grammar - must try full match
                     self.pruning_complex.set(self.pruning_complex.get() + 1);
                     // log::debug!("  Keeping complex grammar: {}", opt);
-                    available_options.push(opt);
+                    available_options.push(opt.clone());
                 }
                 Some(hint) => {
                     // Track that this had a hint
@@ -63,7 +65,7 @@ impl<'a> Parser<'a> {
                     // Check if hint matches current token (using ALL types for intersection)
                     if hint.can_match_token(&first_raw, &first_types) {
                         // log::debug!("  Keeping matched grammar: {}", opt);
-                        available_options.push(opt);
+                        available_options.push(opt.clone());
                     } else {
                         // log::debug!("  PRUNED grammar: {}", opt);
                         // pruned_count += 1;
@@ -91,9 +93,9 @@ impl<'a> Parser<'a> {
     /// This is more reflective of the python implementation of longest_match.
     pub(crate) fn longest_match(
         &mut self,
-        options: &[Grammar],
+        options: &[Arc<Grammar>],
         max_idx: usize,
-        terminators: &[Grammar],
+        terminators: &[Arc<Grammar>],
     ) -> Node {
         let available_options = match self.get_available_grammar_options(options, max_idx) {
             Ok(value) => value,
@@ -102,12 +104,12 @@ impl<'a> Parser<'a> {
 
         let mut terminated = false;
         let mut best_option = Node::Empty;
-        let mut best_grammar: Option<&Grammar> = None;
+        let mut best_grammar: Option<Arc<Grammar>> = None;
         let mut best_length = 0;
 
         for (match_idx, opt) in available_options.iter().enumerate() {
             let saved_pos = self.pos;
-            match self.parse_with_grammar_cached(opt, terminators) {
+            match self.parse_with_grammar_cached(opt.clone(), terminators) {
                 Ok(node) => {
                     let length = self.pos - saved_pos;
                     log::debug!("Option {} matched with length {}: {:#?}", opt, length, node);
@@ -119,7 +121,7 @@ impl<'a> Parser<'a> {
                     if length >= best_length {
                         best_length = length;
                         best_option = node;
-                        best_grammar = Some(opt);
+                        best_grammar = Some(opt.clone());
 
                         if match_idx == available_options.len() - 1 {
                             log::debug!(
@@ -162,9 +164,9 @@ impl<'a> Parser<'a> {
 
     pub(crate) fn get_available_grammar_options<'g>(
         &mut self,
-        options: &'g [Grammar],
+        options: &[Arc<Grammar>],
         max_idx: usize,
-    ) -> Result<Vec<&'g Grammar>, Node> {
+    ) -> Result<Vec<Arc<Grammar>>, Node> {
         if options.is_empty() || self.pos == max_idx {
             return Err(Node::Empty);
         }
@@ -427,7 +429,7 @@ impl<'a> Parser<'a> {
     pub(crate) fn trim_to_terminator(
         &mut self,
         start_idx: usize,
-        terminators: &[Grammar],
+        terminators: &[Arc<Grammar>],
     ) -> usize {
         if start_idx >= self.tokens.len() {
             return self.tokens.len();
@@ -511,7 +513,7 @@ impl<'a> Parser<'a> {
     ///
     /// This uses fast simple matching where possible, falling back to full parsing
     /// only when necessary for complex terminators.
-    pub fn is_terminated(&mut self, terminators: &[Grammar]) -> bool {
+    pub fn is_terminated(&mut self, terminators: &[Arc<Grammar>]) -> bool {
         let init_pos = self.pos;
         self.skip_transparent(true);
         let saved_pos = self.pos;
@@ -578,7 +580,7 @@ impl<'a> Parser<'a> {
             let check_pos = self.pos;
             self.pos = saved_pos;
 
-            if let Ok(node) = self.parse_with_grammar_cached(term, &[]) {
+            if let Ok(node) = self.parse_with_grammar_cached(term.clone(), &[]) {
                 // Check if the node is "empty" in various ways
                 let is_empty = node.is_empty();
 

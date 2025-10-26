@@ -2,6 +2,7 @@
 //!
 //! Tests for specific grammar features like AnySetOf, Delimited, Bracketed, etc.
 
+use std::sync::Arc;
 use hashbrown::HashSet;
 use sqlfluffrs::parser::{Grammar, Node, ParseError, ParseMode, Parser};
 use sqlfluffrs::{
@@ -35,20 +36,20 @@ fn test_anysetof_basic() -> Result<(), ParseError> {
     let mut parser = Parser::new(&tokens, dialect);
 
     // Create a simple AnySetOf grammar manually
-    let grammar = Grammar::AnySetOf {
+    let grammar = Arc::new(Grammar::AnySetOf {
         elements: vec![
-            Grammar::StringParser {
+            Arc::new(Grammar::StringParser {
                 template: "A",
                 raw_class: "WordSegment",
                 token_type: "word",
                 optional: false,
-            },
-            Grammar::StringParser {
+            }),
+            Arc::new(Grammar::StringParser {
                 template: "B",
                 raw_class: "WordSegment",
                 token_type: "word",
                 optional: false,
-            },
+            }),
         ],
         min_times: 2,       // Must match at least 2 times total
         max_times: Some(2), // At most 2 times total (one for each element)
@@ -59,10 +60,10 @@ fn test_anysetof_basic() -> Result<(), ParseError> {
         allow_gaps: true,
         parse_mode: ParseMode::Strict,
         simple_hint: None,
-    };
+    });
 
     // Use the internal parse method directly
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_with_grammar_cached(grammar, &[])?;
 
     println!("\nParsed successfully!");
     println!("Result: {:#?}", result);
@@ -90,20 +91,20 @@ fn test_anysetof_order_independent() -> Result<(), ParseError> {
 
         let mut parser = Parser::new(&tokens, dialect);
 
-        let grammar = Grammar::AnySetOf {
+        let grammar = Arc::new(Grammar::AnySetOf {
             elements: vec![
-                Grammar::StringParser {
+                Arc::new(Grammar::StringParser {
                     template: "A",
                     raw_class: "WordSegment",
                     token_type: "word",
                     optional: false,
-                },
-                Grammar::StringParser {
+                }),
+                Arc::new(Grammar::StringParser {
                     template: "B",
                     raw_class: "WordSegment",
                     token_type: "word",
                     optional: false,
-                },
+                }),
             ],
             min_times: 2,
             max_times: Some(2),
@@ -114,9 +115,9 @@ fn test_anysetof_order_independent() -> Result<(), ParseError> {
             allow_gaps: true,
             parse_mode: ParseMode::Strict,
             simple_hint: None,
-        };
+        });
 
-        let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+        let result = parser.parse_with_grammar_cached(grammar, &[])?;
 
         println!("Result: {:#?}", result);
 

@@ -1,6 +1,9 @@
+use std::sync::Arc;
+
 use crate::{
     parser::{
-        iterative::{NextStep, ParseFrameStack}, BracketedState, FrameContext, FrameState, Grammar, Node, ParseError, ParseFrame, Parser
+        iterative::{NextStep, ParseFrameStack},
+        BracketedState, FrameContext, FrameState, Grammar, Node, ParseError, ParseFrame, Parser,
     },
     ParseMode,
 };
@@ -10,31 +13,39 @@ impl<'a> Parser<'_> {
     /// Returns true if caller should continue main loop
     pub(crate) fn handle_sequence_initial(
         &mut self,
-        grammar: &Grammar,
+        grammar: Arc<Grammar>,
         frame: &mut ParseFrame,
-        parent_terminators: &[Grammar],
+        parent_terminators: &[Arc<Grammar>],
         stack: &mut ParseFrameStack,
     ) -> Result<NextStep, ParseError> {
         // Destructure Grammar::Sequence fields
-        let (elements, optional, seq_terminators, reset_terminators, allow_gaps, parse_mode) = match grammar {
-            Grammar::Sequence {
-                elements,
-                optional,
-                terminators: seq_terminators,
-                reset_terminators,
-                allow_gaps,
-                parse_mode,
-                ..
-            } => (elements, optional, seq_terminators, reset_terminators, allow_gaps, parse_mode),
-            _ => panic!("handle_sequence_initial called with non-Sequence grammar"),
-        };
+        let (elements, optional, seq_terminators, reset_terminators, allow_gaps, parse_mode) =
+            match grammar.as_ref() {
+                Grammar::Sequence {
+                    elements,
+                    optional,
+                    terminators: seq_terminators,
+                    reset_terminators,
+                    allow_gaps,
+                    parse_mode,
+                    ..
+                } => (
+                    elements,
+                    optional,
+                    seq_terminators,
+                    reset_terminators,
+                    allow_gaps,
+                    parse_mode,
+                ),
+                _ => panic!("handle_sequence_initial called with non-Sequence grammar"),
+            };
         let pos = frame.pos;
         log::debug!("DEBUG: Sequence Initial at pos={}, parent_max_idx={:?}, allow_gaps={}, elements.len()={}",
                   pos, frame.parent_max_idx, allow_gaps, elements.len());
         let start_idx = pos; // Where did we start
 
         // Combine parent and local terminators
-        let all_terminators: Vec<Grammar> = if *reset_terminators {
+        let all_terminators: Vec<Arc<Grammar>> = if *reset_terminators {
             seq_terminators.to_vec()
         } else {
             seq_terminators
@@ -65,10 +76,7 @@ impl<'a> Parser<'_> {
             total_children: elements.len(),
         };
         frame.context = FrameContext::Sequence {
-            elements: elements.to_vec(),
-            allow_gaps: *allow_gaps,
-            optional: *optional,
-            parse_mode: *parse_mode,
+            grammar: grammar.clone(),
             matched_idx: start_idx,
             tentatively_collected: vec![],
             max_idx,
@@ -122,7 +130,7 @@ impl<'a> Parser<'_> {
             // Handle Meta elements specially
             let mut child_idx = 0;
             while child_idx < elements.len() {
-                if let Grammar::Meta(meta_type) = &elements[child_idx] {
+                if let Grammar::Meta(meta_type) = &*elements[child_idx] {
                     // Meta doesn't need parsing - just add to accumulated
                     if let Some(ref mut parent_frame) = stack.last_mut() {
                         if *meta_type == "indent" {
@@ -130,17 +138,31 @@ impl<'a> Parser<'_> {
                             let mut insert_pos = parent_frame.accumulated.len();
                             while insert_pos > 0 {
                                 match &parent_frame.accumulated[insert_pos - 1] {
-                                    Node::Whitespace { raw: _, token_idx: _ } | Node::Newline { raw: _, token_idx: _ } => {
+                                    Node::Whitespace {
+                                        raw: _,
+                                        token_idx: _,
+                                    }
+                                    | Node::Newline {
+                                        raw: _,
+                                        token_idx: _,
+                                    } => {
                                         insert_pos -= 1;
                                     }
                                     _ => break,
                                 }
                             }
-                            parent_frame
-                                .accumulated
-                                .insert(insert_pos, Node::Meta { token_type: meta_type, token_idx: None });
+                            parent_frame.accumulated.insert(
+                                insert_pos,
+                                Node::Meta {
+                                    token_type: meta_type,
+                                    token_idx: None,
+                                },
+                            );
                         } else {
-                            parent_frame.accumulated.push(Node::Meta { token_type: meta_type, token_idx: None });
+                            parent_frame.accumulated.push(Node::Meta {
+                                token_type: meta_type,
+                                token_idx: None,
+                            });
                         }
 
                         // Update state to next child
@@ -173,7 +195,7 @@ impl<'a> Parser<'_> {
                     );
 
                     // Optimization: Handle Nothing grammar inline without creating a frame
-                    if matches!(elements[child_idx], Grammar::Nothing() | Grammar::Empty) {
+                    if matches!(elements[child_idx].as_ref(), Grammar::Nothing() | Grammar::Empty) {
                         log::debug!(
                             "Sequence: Element {} is Nothing, handling inline",
                             child_idx
@@ -199,8 +221,9 @@ impl<'a> Parser<'_> {
                             // No more elements - sequence is complete
                             // Pop the parent frame to finalize
                             if let Some(mut parent_frame) = stack.pop() {
-                                let seq_node =
-                                    Node::Sequence { children: std::mem::take(&mut parent_frame.accumulated) };
+                                let seq_node = Node::Sequence {
+                                    children: std::mem::take(&mut parent_frame.accumulated),
+                                };
                                 stack
                                     .results
                                     .insert(current_frame_id, (seq_node, first_child_pos, None));
@@ -240,12 +263,20 @@ impl<'a> Parser<'_> {
     /// Handle Bracketed grammar Initial state in iterative parser
     pub(crate) fn handle_bracketed_initial(
         &mut self,
-        grammar: &Grammar,
+        grammar: Arc<Grammar>,
         frame: &mut ParseFrame,
-        parent_terminators: &[Grammar],
+        parent_terminators: &[Arc<Grammar>],
         stack: &mut ParseFrameStack,
     ) -> Result<NextStep, ParseError> {
-        let (bracket_pairs, elements, optional, bracket_terminators, reset_terminators, allow_gaps, parse_mode) = match grammar {
+        let (
+            bracket_pairs,
+            elements,
+            optional,
+            bracket_terminators,
+            reset_terminators,
+            allow_gaps,
+            parse_mode,
+        ) = match grammar.as_ref() {
             Grammar::Bracketed {
                 bracket_pairs,
                 elements,
@@ -255,10 +286,19 @@ impl<'a> Parser<'_> {
                 allow_gaps,
                 parse_mode,
                 ..
-            } => (bracket_pairs, elements, optional, bracket_terminators, reset_terminators, allow_gaps, parse_mode),
+            } => (
+                bracket_pairs,
+                elements,
+                optional,
+                bracket_terminators,
+                reset_terminators,
+                allow_gaps,
+                parse_mode,
+            ),
             _ => {
                 return Err(ParseError {
-                    message: "handle_bracketed_initial called with non-Bracketed grammar".to_string(),
+                    message: "handle_bracketed_initial called with non-Bracketed grammar"
+                        .to_string(),
                 });
             }
         };
@@ -271,7 +311,7 @@ impl<'a> Parser<'_> {
         );
 
         // Combine parent and local terminators
-        let all_terminators: Vec<Grammar> = if *reset_terminators {
+        let all_terminators: Vec<Arc<Grammar>> = if *reset_terminators {
             bracket_terminators.to_vec()
         } else {
             bracket_terminators
@@ -287,13 +327,10 @@ impl<'a> Parser<'_> {
             total_children: 3, // open, content, close
         };
         frame.context = FrameContext::Bracketed {
-            bracket_pairs: bracket_pairs.clone(),
-            elements: elements.to_vec(),
-            allow_gaps: *allow_gaps,
-            optional: *optional,
-            parse_mode: *parse_mode,
+            grammar: grammar.clone(),
             state: BracketedState::MatchingOpen,
             last_child_frame_id: None,
+            bracket_max_idx: None,
         };
         frame.terminators = all_terminators.clone();
         stack.push(frame);

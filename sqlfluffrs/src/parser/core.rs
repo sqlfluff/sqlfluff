@@ -3,6 +3,8 @@
 //! This module contains the Parser struct definition and its core methods
 //! including the main entry point for parsing with grammar.
 
+use std::sync::Arc;
+
 use hashbrown::HashSet;
 
 use crate::{dialect::Dialect, token::Token};
@@ -16,6 +18,7 @@ pub struct Parser<'a> {
     pub pos: usize, // current position in tokens
     pub dialect: Dialect,
     pub parse_cache: ParseCache,
+    pub cache_enabled: bool,
     pub collected_transparent_positions: HashSet<usize>, // Track which token positions have had transparent tokens collected
     pub pruning_calls: std::cell::Cell<usize>, // Track number of prune_options calls
     pub pruning_total: std::cell::Cell<usize>, // Total options considered
@@ -39,15 +42,21 @@ impl<'a> Parser<'a> {
             pruning_hinted: std::cell::Cell::new(0),
             pruning_complex: std::cell::Cell::new(0),
             simple_hint_cache: hashbrown::HashMap::new(),
+            cache_enabled: true,
         }
+    }
+
+    /// Enable or disable the parse cache (for debugging)
+    pub fn set_cache_enabled(&mut self, enabled: bool) {
+        self.cache_enabled = enabled;
     }
 
     /// Main entry point for parsing with grammar and caching.
     /// Dispatches to either iterative or recursive implementation based on flag.
     pub fn parse_with_grammar_cached(
         &mut self,
-        grammar: &Grammar,
-        parent_terminators: &[Grammar],
+        grammar: Arc<Grammar>,
+        parent_terminators: &[Arc<Grammar>],
     ) -> Result<Node, ParseError> {
         self.parse_with_grammar_cached_iterative(grammar, parent_terminators)
     }
@@ -56,15 +65,15 @@ impl<'a> Parser<'a> {
     /// Uses a stack-based approach to avoid deep recursion.
     fn parse_with_grammar_cached_iterative(
         &mut self,
-        grammar: &Grammar,
-        parent_terminators: &[Grammar],
+        grammar: Arc<Grammar>,
+        parent_terminators: &[Arc<Grammar>],
     ) -> Result<Node, ParseError> {
         self.parse_iterative(grammar, parent_terminators)
     }
 
     /// Get the grammar for a rule by name.
     /// This is used by the iterative parser to expand Ref nodes into their grammars.
-    pub fn get_rule_grammar(&self, name: &str) -> Result<Grammar, ParseError> {
+    pub fn get_rule_grammar(&self, name: &str) -> Result<Arc<Grammar>, ParseError> {
         // Look up the grammar for the segment
         match self.get_segment_grammar(name) {
             Some(g) => Ok(g.clone()),
@@ -76,7 +85,7 @@ impl<'a> Parser<'a> {
     pub fn call_rule(
         &mut self,
         name: &str,
-        parent_terminators: &[Grammar],
+        parent_terminators: &[Arc<Grammar>],
     ) -> Result<Node, ParseError> {
         self.call_rule_with_type(name, parent_terminators, None)
     }
@@ -84,7 +93,7 @@ impl<'a> Parser<'a> {
     pub fn call_rule_with_type(
         &mut self,
         name: &str,
-        parent_terminators: &[Grammar],
+        parent_terminators: &[Arc<Grammar>],
         segment_type: Option<&str>,
     ) -> Result<Node, ParseError> {
         // Look up the grammar for the segment
@@ -142,7 +151,7 @@ impl<'a> Parser<'a> {
         }
 
         self.tokens = token_slice;
-        let nodes = self.parse_with_grammar_cached(&root_grammar, &[]);
+        let nodes = self.parse_with_grammar_cached(root_grammar, &[]);
         self.tokens = token_slice_orig;
         match nodes {
             Ok(mut n) => {
@@ -185,7 +194,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Lookup SegmentDef by name
-    pub fn get_segment_grammar(&self, name: &str) -> Option<&'static Grammar> {
+    pub fn get_segment_grammar(&self, name: &str) -> Option<Arc<Grammar>> {
         self.dialect.get_segment_grammar(name)
     }
 }

@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::parser::Grammar;
 use hashbrown::HashMap;
 use crate::parser::{Node, ParseError, ParseFrame};
@@ -9,11 +11,11 @@ impl<'a> Parser<'_> {
     /// Handle Token grammar in iterative parser
     pub(crate) fn handle_token_initial(
         &mut self,
-        grammar: &Grammar,
+        grammar: Arc<Grammar>,
         frame: &ParseFrame,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
-        let token_type = match grammar {
+        let token_type = match grammar.as_ref() {
             Grammar::Token { token_type } => token_type,
             _ => {
                 return Err(ParseError::new("handle_token_initial called with non-Token grammar".into()));

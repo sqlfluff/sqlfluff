@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 /// Tests for the `exclude` grammar functionality
 ///
 /// The `exclude` parameter allows grammars to specify patterns that should
@@ -22,29 +24,29 @@ fn test_oneof_with_exclude() -> Result<(), ParseError> {
     let mut parser = Parser::new(&tokens, dialect);
 
     // Create a OneOf grammar that matches "A" but excludes if "AB" is present
-    let grammar = Grammar::OneOf {
+    let grammar = Arc::new(Grammar::OneOf {
         elements: vec![
-            Grammar::StringParser {
+            Arc::new(Grammar::StringParser {
                 template: "A",
                 raw_class: "WordSegment",
                 token_type: "word",
                 optional: false,
-            },
+            }),
         ],
-        exclude: Some(Box::new(Grammar::Sequence {
+        exclude: Some(Box::new(Arc::new(Grammar::Sequence {
             elements: vec![
-                Grammar::StringParser {
+                Arc::new(Grammar::StringParser {
                     template: "A",
                     raw_class: "WordSegment",
                     token_type: "word",
                     optional: false,
-                },
-                Grammar::StringParser {
+                }),
+                Arc::new(Grammar::StringParser {
                     template: "B",
                     raw_class: "WordSegment",
                     token_type: "word",
                     optional: false,
-                },
+                }),
             ],
             optional: false,
             terminators: vec![],
@@ -52,17 +54,17 @@ fn test_oneof_with_exclude() -> Result<(), ParseError> {
             allow_gaps: true,
             parse_mode: ParseMode::Strict,
             simple_hint: None,
-        })),
+        }))),
         optional: false,
         terminators: vec![],
         reset_terminators: false,
         allow_gaps: true,
         parse_mode: ParseMode::Strict,
         simple_hint: None,
-    };
+    });
 
     // This should match since we only have "A", not "AB"
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_with_grammar_cached(grammar, &[])?;
 
     println!("\nParsed successfully: {:#?}", result);
 
@@ -85,29 +87,29 @@ fn test_oneof_exclude_blocks_match() -> Result<(), ParseError> {
     let mut parser = Parser::new(&tokens, dialect);
 
     // Create a OneOf grammar that matches "A" but excludes if "AB" is present
-    let grammar = Grammar::OneOf {
+    let grammar = Arc::new(Grammar::OneOf {
         elements: vec![
-            Grammar::StringParser {
+            Arc::new(Grammar::StringParser {
                 template: "A",
                 raw_class: "WordSegment",
                 token_type: "word",
                 optional: false,
-            },
+            }),
         ],
-        exclude: Some(Box::new(Grammar::Sequence {
+        exclude: Some(Box::new(Arc::new(Grammar::Sequence {
             elements: vec![
-                Grammar::StringParser {
+                Arc::new(Grammar::StringParser {
                     template: "A",
                     raw_class: "WordSegment",
                     token_type: "word",
                     optional: false,
-                },
-                Grammar::StringParser {
+                }),
+                Arc::new(Grammar::StringParser {
                     template: "B",
                     raw_class: "WordSegment",
                     token_type: "word",
                     optional: false,
-                },
+                }),
             ],
             optional: false,
             terminators: vec![],
@@ -115,17 +117,17 @@ fn test_oneof_exclude_blocks_match() -> Result<(), ParseError> {
             allow_gaps: true,
             parse_mode: ParseMode::Strict,
             simple_hint: None,
-        })),
+        }))),
         optional: false,
         terminators: vec![],
         reset_terminators: false,
         allow_gaps: true,
         parse_mode: ParseMode::Strict,
         simple_hint: None,
-    };
+    });
 
     // This should return Empty because "AB" matches the exclude pattern
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_with_grammar_cached(grammar, &[])?;
 
     println!("\nExclude triggered, got: {:#?}", result);
 
@@ -148,34 +150,34 @@ fn test_anynumberof_with_exclude() -> Result<(), ParseError> {
     let mut parser = Parser::new(&tokens, dialect);
 
     // Create an AnyNumberOf grammar that matches "A" repeatedly but excludes if "B" is present
-    let grammar = Grammar::AnyNumberOf {
+    let grammar = Arc::new(Grammar::AnyNumberOf {
         elements: vec![
-            Grammar::StringParser {
+            Arc::new(Grammar::StringParser {
                 template: "A",
                 raw_class: "WordSegment",
                 token_type: "word",
                 optional: false,
-            },
+            }),
         ],
         min_times: 1,
         max_times: None,
         max_times_per_element: None,
-        exclude: Some(Box::new(Grammar::StringParser {
+        exclude: Some(Box::new(Arc::new(Grammar::StringParser {
             template: "B",
             raw_class: "WordSegment",
             token_type: "word",
             optional: false,
-        })),
+        }))),
         optional: false,
         terminators: vec![],
         reset_terminators: false,
         allow_gaps: true,
         parse_mode: ParseMode::Strict,
         simple_hint: None,
-    };
+    });
 
     // This should match all three "A"s since there's no "B"
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_with_grammar_cached(grammar, &[])?;
 
     println!("\nParsed successfully: {:#?}", result);
 
