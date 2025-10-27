@@ -24,7 +24,6 @@ from sqlfluff.core.parser.parsers import (
 )
 from sqlfluff.core.parser.segments.base import BaseSegment, SegmentMetaclass
 from sqlfluff.core.parser.segments.meta import MetaSegment
-from sqlfluff.core.parser.types import SimpleHintType
 
 
 @dataclass
@@ -59,8 +58,11 @@ def generate_parser(dialect: str):
     segment_types = []
 
     # TODO: remove this if
-    if dialect == "ansi":
+    # if dialect == "ansi":
+    # if dialect not in ("snowflake", "tsql"):
+    if True:
         for name, match_grammar in sorted(loaded_dialect._library.items()):
+            name = name.replace(" ", "_")
             segment_grammars.append(
                 f'"{name}" => Some({matchable_to_const_name(name)}.clone()),'
             )
@@ -120,7 +122,7 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
     # print(type(match_grammar), vars(match_grammar))
     if match_grammar.__class__ is Ref and isinstance(match_grammar, Ref):
         print("Arc::new(Grammar::Ref {")
-        print(f'    name: "{match_grammar._ref}",')
+        print(f'    name: "{match_grammar._ref.replace(" ", "_")}",')
         print(f"    optional: {str(match_grammar.is_optional()).lower()},")
         print(f"    allow_gaps: {str(match_grammar.allow_gaps).lower()},")
         # Add exclude field
@@ -136,7 +138,7 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
             print(",")
         print("    ],")
         print(f"    reset_terminators: {str(match_grammar.reset_terminators).lower()},")
-        rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
+        rust_simple = rust_simple_hint(match_grammar, parse_context)
         print(f"    simple_hint: {rust_simple},")
         print("})")
 
@@ -222,7 +224,7 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
             match_grammar.parse_mode.name, "ParseMode::Strict"
         )
         print(f"    parse_mode: {rust_parse_mode},")
-        rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
+        rust_simple = rust_simple_hint(match_grammar, parse_context)
         print(f"    simple_hint: {rust_simple},")
         print("})")
 
@@ -263,7 +265,7 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
             match_grammar.parse_mode.name, "ParseMode::Strict"
         )
         print(f"    parse_mode: {rust_parse_mode},")
-        rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
+        rust_simple = rust_simple_hint(match_grammar, parse_context)
         print(f"    simple_hint: {rust_simple},")
         print("})")
 
@@ -305,7 +307,7 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
             match_grammar.parse_mode.name, "ParseMode::Strict"
         )
         print(f"    parse_mode: {rust_parse_mode},")
-        rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
+        rust_simple = rust_simple_hint(match_grammar, parse_context)
         print(f"    simple_hint: {rust_simple},")
         print("})")
 
@@ -334,7 +336,7 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
             match_grammar.parse_mode.name, "ParseMode::Strict"
         )
         print(f"    parse_mode: {rust_parse_mode},")
-        rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
+        rust_simple = rust_simple_hint(match_grammar, parse_context)
         print(f"    simple_hint: {rust_simple},")
         print("})")
 
@@ -377,7 +379,7 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
             match_grammar.parse_mode.name, "ParseMode::Strict"
         )
         print(f"    parse_mode: {rust_parse_mode},")
-        rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
+        rust_simple = rust_simple_hint(match_grammar, parse_context)
         print(f"    simple_hint: {rust_simple},")
         print("})")
 
@@ -417,7 +419,7 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
             match_grammar.parse_mode.name, "ParseMode::Strict"
         )
         print(f"    parse_mode: {rust_parse_mode},")
-        rust_simple = rust_simple_hint(match_grammar.simple(parse_context))
+        rust_simple = rust_simple_hint(match_grammar, parse_context)
         print(f"    simple_hint: {rust_simple},")
         print("})")
 
@@ -459,6 +461,13 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         # print(f"// {match_grammar.__mro__=}")
         # print("todo!()")
         print("Arc::new(Grammar::Missing)")
+    # except RuntimeError:
+    #     print(f"// Missing elements {match_grammar=}, {match_grammar.__class__=}")
+    #     # print(f"// {match_grammar.__name__=}")
+    #     # print(f"// {match_grammar.__qualname__=}")
+    #     # print(f"// {match_grammar.__mro__=}")
+    #     # print("todo!()")
+    #     print("Arc::new(Grammar::Missing)")
 
 
 def as_rust_option(value, is_regex: bool = False):
@@ -480,16 +489,20 @@ def as_rust_option(value, is_regex: bool = False):
     return f"Some({value})" if value else "None"
 
 
-def rust_simple_hint(hint: SimpleHintType):
+def rust_simple_hint(match_grammar, parse_context: DummyParseContext):
     """Generates a prebuilt simple_hint for Rust."""
-    if hint is None:
+    try:
+        hint = match_grammar.simple(parse_context)
+        if hint is None:
+            return "None"
+        raw = ", ".join(f'"{v}".to_string()' for v in hint[0])
+        types = ", ".join(f'"{t}".to_string()' for t in hint[1])
+        return f"""Some(SimpleHint {{
+            raw_values: hashbrown::HashSet::from_iter([{raw}]),
+            token_types: hashbrown::HashSet::from_iter([{types}]),
+        }})"""
+    except (RuntimeError, AttributeError):
         return "None"
-    raw = ", ".join(f'"{v}".to_string()' for v in hint[0])
-    types = ", ".join(f'"{t}".to_string()' for t in hint[1])
-    return f"""Some(SimpleHint {{
-        raw_values: hashbrown::HashSet::from_iter([{raw}]),
-        token_types: hashbrown::HashSet::from_iter([{types}]),
-    }})"""
 
 
 if __name__ == "__main__":

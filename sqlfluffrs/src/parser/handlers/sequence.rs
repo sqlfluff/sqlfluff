@@ -743,7 +743,8 @@ impl<'a> Parser<'_> {
             state,
             last_child_frame_id,
             bracket_max_idx,
-        } = &mut frame.context else {
+        } = &mut frame.context
+        else {
             unreachable!("Expected Bracketed context");
         };
         let local_bracket_max_idx = *bracket_max_idx;
@@ -759,18 +760,21 @@ impl<'a> Parser<'_> {
             parse_mode,
             optional,
             ..
-        } = grammar.as_ref() else {
+        } = grammar.as_ref()
+        else {
             panic!("Expected Grammar::Bracketed in FrameContext::Bracketed");
         };
         match state {
             BracketedState::MatchingOpen => {
                 if child_node.is_empty() {
                     self.pos = frame.pos;
-                    log::debug!("Bracketed returning Empty (no opening bracket, optional={})", optional);
-                    stack.results.insert(
-                        frame.frame_id,
-                        (Node::Empty, frame.pos, None),
+                    log::debug!(
+                        "Bracketed returning Empty (no opening bracket, optional={})",
+                        optional
                     );
+                    stack
+                        .results
+                        .insert(frame.frame_id, (Node::Empty, frame.pos, None));
                     return;
                 } else {
                     frame.accumulated.push(child_node.clone());
@@ -800,10 +804,8 @@ impl<'a> Parser<'_> {
                         );
                     }
                     if *allow_gaps {
-                        let code_idx = self.skip_start_index_forward_to_code(
-                            content_start_idx,
-                            self.tokens.len(),
-                        );
+                        let code_idx = self
+                            .skip_start_index_forward_to_code(content_start_idx, self.tokens.len());
                         for pos in content_start_idx..code_idx {
                             if let Some(tok) = self.tokens.get(pos) {
                                 let tok_type = tok.get_type();
@@ -857,7 +859,12 @@ impl<'a> Parser<'_> {
                 }
             }
             BracketedState::MatchingContent => {
-                log::debug!("Bracketed MatchingContent - frame_id={}, child_end_pos={}, is_empty={}", frame.frame_id, child_end_pos, child_node.is_empty());
+                log::debug!(
+                    "Bracketed MatchingContent - frame_id={}, child_end_pos={}, is_empty={}",
+                    frame.frame_id,
+                    child_end_pos,
+                    child_node.is_empty()
+                );
                 let mut check_pos = *child_end_pos;
                 while let Some(tok) = self.tokens.get(check_pos) {
                     let is_not_code = !tok.is_code();
@@ -869,14 +876,17 @@ impl<'a> Parser<'_> {
                     }
                 }
                 if let Some(expected_close_pos) = local_bracket_max_idx {
-                    log::debug!("[BRACKET-DEBUG] After skipping ws/nl: check_pos={}, expected_close_pos={}", check_pos, expected_close_pos);
+                    log::debug!(
+                        "[BRACKET-DEBUG] After skipping ws/nl: check_pos={}, expected_close_pos={}",
+                        check_pos,
+                        expected_close_pos
+                    );
                     if check_pos != expected_close_pos {
                         log::debug!("[BRACKET-DEBUG] Bracketed content did not end at closing bracket (check_pos != expected_close_pos), returning Node::Empty for retry. frame_id={}, frame.pos={}", frame.frame_id, frame.pos);
                         self.pos = frame.pos;
-                        stack.results.insert(
-                            frame.frame_id,
-                            (Node::Empty, frame.pos, None),
-                        );
+                        stack
+                            .results
+                            .insert(frame.frame_id, (Node::Empty, frame.pos, None));
                         return;
                     } else {
                         log::debug!("[BRACKET-DEBUG] Bracketed content ends at expected closing bracket (check_pos == expected_close_pos)");
@@ -897,12 +907,14 @@ impl<'a> Parser<'_> {
                 }
                 let gap_start = *child_end_pos;
                 self.pos = gap_start;
-                log::debug!("DEBUG: After content, gap_start={}, current_pos={}", gap_start, self.pos);
+                log::debug!(
+                    "DEBUG: After content, gap_start={}, current_pos={}",
+                    gap_start,
+                    self.pos
+                );
                 if *allow_gaps {
-                    let code_idx = self.skip_start_index_forward_to_code(
-                        gap_start,
-                        self.tokens.len(),
-                    );
+                    let code_idx =
+                        self.skip_start_index_forward_to_code(gap_start, self.tokens.len());
                     log::debug!(
                         "[BRACKET-DEBUG] After content, gap_start={}, code_idx={}, token at gap_start={:?}, token at code_idx={:?}",
                         gap_start, code_idx,
@@ -927,17 +939,20 @@ impl<'a> Parser<'_> {
                     }
                     self.pos = code_idx;
                 }
-                log::debug!("DEBUG: Checking for closing bracket - self.pos={}, tokens.len={}", self.pos, self.tokens.len());
+                log::debug!(
+                    "DEBUG: Checking for closing bracket - self.pos={}, tokens.len={}",
+                    self.pos,
+                    self.tokens.len()
+                );
                 if self.pos >= self.tokens.len()
                     || self.peek().is_some_and(|t| t.get_type() == "end_of_file")
                 {
                     log::debug!("DEBUG: No closing bracket found!");
                     if *parse_mode == ParseMode::Strict {
                         self.pos = frame.pos;
-                        stack.results.insert(
-                            frame.frame_id,
-                            (Node::Empty, frame.pos, None),
-                        );
+                        stack
+                            .results
+                            .insert(frame.frame_id, (Node::Empty, frame.pos, None));
                         return;
                     } else {
                         panic!("Couldn't find closing bracket for opening bracket");
@@ -946,7 +961,11 @@ impl<'a> Parser<'_> {
                     log::debug!("DEBUG: Transitioning to MatchingClose!");
                     *state = BracketedState::MatchingClose;
                     let parent_limit = frame.parent_max_idx;
-                    log::debug!("DEBUG: Creating closing bracket child at pos={}, parent_limit={:?}", self.pos, parent_limit);
+                    log::debug!(
+                        "DEBUG: Creating closing bracket child at pos={}, parent_limit={:?}",
+                        self.pos,
+                        parent_limit
+                    );
                     let mut child_frame = ParseFrame {
                         frame_id: stack.frame_id_counter,
                         grammar: (*bracket_pairs.1).clone(),
@@ -965,9 +984,17 @@ impl<'a> Parser<'_> {
                 }
             }
             BracketedState::MatchingClose => {
-                log::debug!("DEBUG: Bracketed MatchingClose - child_node.is_empty={}, child_end_pos={}", child_node.is_empty(), child_end_pos);
+                log::debug!(
+                    "DEBUG: Bracketed MatchingClose - child_node.is_empty={}, child_end_pos={}",
+                    child_node.is_empty(),
+                    child_end_pos
+                );
                 let window = 5;
-                let start = if self.pos >= window { self.pos - window } else { 0 };
+                let start = if self.pos >= window {
+                    self.pos - window
+                } else {
+                    0
+                };
                 let end = (self.pos + window + 1).min(self.tokens.len());
                 for idx in start..end {
                     let t = &self.tokens[idx];
@@ -976,24 +1003,37 @@ impl<'a> Parser<'_> {
                         idx,
                         t.get_type(),
                         t.raw(),
-                        if idx == self.pos { " <-- parser pos" } else { "" }
+                        if idx == self.pos {
+                            " <-- parser pos"
+                        } else {
+                            ""
+                        }
                     );
                 }
                 if let Some(tok) = self.tokens.get(self.pos) {
-                    log::debug!("[BRACKET-DEBUG] At parser pos {}: type='{}', raw='{}'", self.pos, tok.get_type(), tok.raw());
+                    log::debug!(
+                        "[BRACKET-DEBUG] At parser pos {}: type='{}', raw='{}'",
+                        self.pos,
+                        tok.get_type(),
+                        tok.raw()
+                    );
                 } else {
-                    log::debug!("[BRACKET-DEBUG] At parser pos {}: <out of bounds>", self.pos);
+                    log::debug!(
+                        "[BRACKET-DEBUG] At parser pos {}: <out of bounds>",
+                        self.pos
+                    );
                 }
                 if child_node.is_empty() {
                     if *parse_mode == ParseMode::Strict {
                         self.pos = frame.pos;
-                        stack.results.insert(
-                            frame.frame_id,
-                            (Node::Empty, frame.pos, None),
-                        );
+                        stack
+                            .results
+                            .insert(frame.frame_id, (Node::Empty, frame.pos, None));
                         return;
                     } else {
-                        panic!("Couldn't find closing bracket for opening bracket");
+                        ParseError::new(
+                            "Couldn't find closing bracket for opening bracket".to_string(),
+                        );
                     }
                 } else {
                     frame.accumulated.push(child_node.clone());
@@ -1006,10 +1046,9 @@ impl<'a> Parser<'_> {
                         frame.accumulated.len(),
                         frame.frame_id
                     );
-                    stack.results.insert(
-                        frame.frame_id,
-                        (result_node, *child_end_pos, None),
-                    );
+                    stack
+                        .results
+                        .insert(frame.frame_id, (result_node, *child_end_pos, None));
                     return;
                 }
             }

@@ -1,3 +1,76 @@
+#[test]
+fn test_all_dialect_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let dialects_dir = fixtures_root.join("dialects");
+    let mut dialects = Vec::new();
+    if let Ok(entries) = fs::read_dir(&dialects_dir) {
+        for entry in entries.flatten() {
+            if entry.file_type().map(|ft| ft.is_dir()).unwrap_or(false) {
+                if let Some(name) = entry.file_name().to_str() {
+                    dialects.push(name.to_string());
+                }
+            }
+        }
+    }
+    dialects.sort();
+
+    println!("\nFound dialects: {:?}", dialects);
+
+    let mut total_passed = 0;
+    let mut total_failed = 0;
+    let mut all_failed_tests = Vec::new();
+
+    for dialect in &dialects {
+        println!("\n=== Testing dialect: {} ===", dialect);
+        let tests = FixtureTest::discover(dialect, &fixtures_root);
+        println!("Found {} fixture tests for {}", tests.len(), dialect);
+        let mut passed = 0;
+        let mut failed = 0;
+        let mut failed_tests = Vec::new();
+        for test in &tests {
+            println!("Running test: {}", test.name);
+            match test.run() {
+                Ok(_ast) => {
+                    passed += 1;
+                    println!("✓ {}", test.name);
+                }
+                Err(e) => {
+                    failed += 1;
+                    let error = e.to_string();
+                    let error_short = if error.len() > 100 {
+                        format!("{}...", &error[..100])
+                    } else {
+                        error
+                    };
+                    failed_tests.push((format!("{}::{}", dialect, test.name), error_short));
+                    println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+                }
+            }
+        }
+        println!("Results for {}: {} passed, {} failed", dialect, passed, failed);
+        total_passed += passed;
+        total_failed += failed;
+        all_failed_tests.extend(failed_tests);
+    }
+
+    println!("\n========================================");
+    println!("Total Results: {} passed, {} failed", total_passed, total_failed);
+    println!("========================================\n");
+
+    if !all_failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &all_failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some dialect fixture tests failed");
+    }
+}
 /// Integration tests for parsing SQL fixtures
 ///
 /// This test suite parses SQL files from test/fixtures/dialects/ and compares
@@ -7,7 +80,7 @@ use sqlfluffrs::{
     parser::{Node, Parser},
     Dialect,
 };
-use std::fs;
+use std::{fs, str::FromStr};
 use std::path::{Path, PathBuf};
 
 struct FixtureTest {
@@ -54,10 +127,7 @@ impl FixtureTest {
             .map_err(|e| format!("Failed to read SQL file: {}", e))?;
 
         // Parse with Rust parser
-        let dialect = match self.dialect.as_str() {
-            "ansi" => Dialect::Ansi,
-            _ => return Err(format!("Unsupported dialect: {}", self.dialect)),
-        };
+        let dialect = Dialect::from_str(&self.dialect).expect("Invalid dialect");
 
         let input = LexInput::String(sql_content.clone());
         let lexer = Lexer::new(None, dialect);
@@ -71,7 +141,7 @@ impl FixtureTest {
 
         // Try to parse as a file (top-level rule)
         parser
-            .call_rule("FileSegment", &[])
+            .call_rule_as_root()
             .map_err(|e| format!("Parse error: {:?}", e))
     }
 }
@@ -200,10 +270,70 @@ fn test_ansi_fixtures() {
         for (name, error) in &failed_tests {
             println!("  {} - {}", name, error);
         }
+        panic!("tests failed")
     }
 
     // Don't fail the test - just report results
     // This allows us to see how many tests pass
+}
+
+#[test]
+fn test_bigquery_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("bigquery", &fixtures_root);
+    println!("\nFound {} bigquery fixture tests", tests.len());
+
+    if tests.is_empty() {
+        panic!("No bigquery fixtures found!");
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                // Truncate long errors
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some bigquery fixture tests failed");
+    }
 }
 
 #[test]

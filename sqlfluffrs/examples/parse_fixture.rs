@@ -12,6 +12,7 @@ use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process;
+use std::str::FromStr;
 
 use blake2::{Blake2s256, Digest};
 use serde_yaml::Value;
@@ -181,11 +182,7 @@ fn main() {
 fn infer_dialect(path: &Path) -> Dialect {
     if let Some(parent) = path.parent() {
         if let Some(dialect_name) = parent.file_name().and_then(|s| s.to_str()) {
-            return match dialect_name {
-                "ansi" => Dialect::Ansi,
-                // Add more dialects as needed
-                _ => Dialect::Ansi,
-            };
+            return Dialect::from_str(dialect_name).unwrap_or(Dialect::Ansi);
         }
     }
     Dialect::Ansi
