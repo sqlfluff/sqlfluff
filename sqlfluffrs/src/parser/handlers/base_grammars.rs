@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
+use crate::parser::cache::CacheKey;
 use crate::parser::iterative::NextStep;
 use crate::parser::iterative::ParseFrameStack;
-use crate::parser::types::SimpleHint;
 use crate::parser::FrameContext;
 use crate::parser::FrameState;
 use crate::parser::Grammar;
@@ -233,5 +233,80 @@ impl Parser<'_> {
                 }
             }
         }
+    }
+
+    /// Handle Ref grammar WaitingForChild state in iterative parser
+    pub(crate) fn handle_ref_waiting_for_child(
+        &mut self,
+        frame: &mut ParseFrame,
+        child_node: &Node,
+        child_end_pos: &usize,
+        stack: &mut ParseFrameStack,
+    ) {
+        let FrameContext::Ref {
+            grammar,
+            segment_type,
+            saved_pos,
+            last_child_frame_id: _,
+            ..
+        } = &frame.context
+        else {
+            panic!("Expected FrameContext::Ref in handle_ref_waiting_for_child");
+        };
+
+        let Grammar::Ref { name, .. } = grammar.as_ref() else {
+            panic!("Expected Grammar::Ref in FrameContext::Ref");
+        };
+
+        // Wrap the child node in a Ref node
+        let final_node = if child_node.is_empty() {
+            if grammar.is_optional() {
+                log::debug!("Ref {} returned empty (optional), accepting", name);
+                child_node.clone()
+            } else {
+                log::debug!("Ref {} returned empty (not optional), backtracking", name);
+                self.pos = *saved_pos;
+                child_node.clone()
+            }
+        } else {
+            log::debug!("MATCHED Ref {} successfully", name);
+            Node::Ref {
+                name: name.to_string(),
+                segment_type: segment_type.clone(),
+                child: Box::new(child_node.clone()),
+            }
+        };
+
+        self.pos = *child_end_pos;
+
+        // Store Ref result in cache for future reuse
+        let cache_key = CacheKey::new(
+            *saved_pos,
+            frame.grammar.clone(),
+            self.tokens,
+            &frame.terminators,
+        );
+        let transparent_positions: Vec<usize> = self
+            .collected_transparent_positions
+            .iter()
+            .filter(|&&pos| pos >= *saved_pos && pos < *child_end_pos)
+            .copied()
+            .collect();
+
+        log::debug!(
+            "Storing Ref({}) result in cache: pos {} -> {}",
+            name,
+            *saved_pos,
+            *child_end_pos
+        );
+
+        self.parse_cache.put(
+            cache_key,
+            Ok((final_node.clone(), self.pos, transparent_positions)),
+        );
+
+        stack
+            .results
+            .insert(frame.frame_id, (final_node, self.pos, None));
     }
 }

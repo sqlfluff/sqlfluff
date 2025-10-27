@@ -149,14 +149,14 @@ impl ParseFrame {
     /// Returns the new frame_id_counter value
     pub fn push_child_and_update_parent(
         stack: &mut ParseFrameStack,
-        mut parent_frame: ParseFrame,
+        parent_frame: &mut ParseFrame,
         mut child_frame: ParseFrame,
         parent_context_type: &str,
     ) {
         let child_id = child_frame.frame_id;
 
         // Push parent back onto stack first
-        stack.push(&mut parent_frame);
+        stack.push(parent_frame);
 
         // Update parent's last_child_frame_id
         Self::update_parent_last_child_id(stack, parent_context_type, child_id);
@@ -169,7 +169,7 @@ impl ParseFrame {
     /// Specialized version for Sequence that also updates current_element_idx
     pub fn push_sequence_child_and_update_parent(
         stack: &mut ParseFrameStack,
-        mut parent_frame: ParseFrame,
+        parent_frame: &mut ParseFrame,
         mut child_frame: ParseFrame,
         next_element_idx: usize,
     ) {
@@ -177,7 +177,7 @@ impl ParseFrame {
 
         // Push parent back onto stack first
         let parent_id = parent_frame.frame_id;
-        stack.push(&mut parent_frame);
+        stack.push(parent_frame);
 
         // Update parent's last_child_frame_id AND current_element_idx
         if let Some(parent_frame) = stack.last_mut() {

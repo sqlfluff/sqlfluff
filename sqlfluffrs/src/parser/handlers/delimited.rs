@@ -200,4 +200,217 @@ impl crate::parser::Parser<'_> {
         stack.push(&mut child_frame);
         Ok(NextStep::Continue) // Continue to process the child frame we just pushed
     }
+
+    pub(crate) fn handle_delimited_waiting_for_child(
+        &mut self,
+        frame: &mut ParseFrame,
+        child_node: &Node,
+        child_end_pos: &usize,
+        child_element_key: &Option<u64>,
+        stack: &mut ParseFrameStack,
+        frame_terminators: Vec<Arc<Grammar>>,
+    ) {
+        let FrameContext::Delimited {
+            grammar,
+            delimiter_count,
+            matched_idx,
+            working_idx,
+            max_idx,
+            state,
+            last_child_frame_id: _,
+        } = &mut frame.context else {
+            unreachable!("Expected Delimited context");
+        };
+        let Grammar::Delimited {
+            elements,
+            delimiter,
+            min_delimiters,
+            allow_trailing,
+            allow_gaps,
+            optional,
+            parse_mode,
+            ..
+        } = grammar.as_ref() else {
+            panic!("Expected Grammar::Delimited in FrameContext::Delimited");
+        };
+        log::debug!("[ITERATIVE] Delimited WaitingForChild: state={:?}, delimiter_count={}, child_node is_empty={}", state, delimiter_count, child_node.is_empty());
+        match state {
+            DelimitedState::MatchingElement => {
+                if child_node.is_empty() {
+                    log::debug!("[ITERATIVE] Delimited: no element matched at position {}", frame.pos);
+                    log::debug!("[ITERATIVE] Delimited completing with {} items", frame.accumulated.len());
+                    self.pos = *matched_idx;
+                    stack.results.insert(
+                        frame.frame_id,
+                        (Node::DelimitedList { children: frame.accumulated.clone() }, *matched_idx, None),
+                    );
+                    return;
+                } else {
+                    log::debug!("[ITERATIVE] Delimited element matched: pos {} -> {}", frame.pos, child_end_pos);
+                    if *allow_gaps {
+                        for check_pos in *matched_idx..*working_idx {
+                            if check_pos < self.tokens.len()
+                                && !self.tokens[check_pos].is_code()
+                                && !self.collected_transparent_positions.contains(&check_pos)
+                            {
+                                let tok = &self.tokens[check_pos];
+                                let tok_type = tok.get_type();
+                                if tok_type == "whitespace" {
+                                    frame.accumulated.push(Node::Whitespace {
+                                        raw: tok.raw().to_string(),
+                                        token_idx: check_pos,
+                                    });
+                                    self.collected_transparent_positions.insert(check_pos);
+                                } else if tok_type == "newline" {
+                                    frame.accumulated.push(Node::Newline {
+                                        raw: tok.raw().to_string(),
+                                        token_idx: check_pos,
+                                    });
+                                    self.collected_transparent_positions.insert(check_pos);
+                                }
+                            }
+                        }
+                    }
+                    frame.accumulated.push(child_node.clone());
+                    *matched_idx = *child_end_pos;
+                    *working_idx = *matched_idx;
+                    if *allow_gaps {
+                        *working_idx = self.skip_start_index_forward_to_code(*working_idx, *max_idx);
+                    }
+                    self.pos = *working_idx;
+                    if self.is_at_end() || self.is_terminated(&frame_terminators) {
+                        log::debug!("[ITERATIVE] Delimited: at EOF or terminator after element, completing at position {}", matched_idx);
+                        self.pos = *matched_idx;
+                        stack.results.insert(
+                            frame.frame_id,
+                            (Node::DelimitedList { children: frame.accumulated.clone() }, *matched_idx, None),
+                        );
+                        return;
+                    } else {
+                        *state = DelimitedState::MatchingDelimiter;
+                        let child_max_idx = *max_idx;
+                        let child_frame = ParseFrame::new_child(
+                            stack.frame_id_counter,
+                            (**delimiter).clone(),
+                            *working_idx,
+                            frame_terminators.clone(),
+                            Some(child_max_idx),
+                        );
+                        ParseFrame::push_child_and_update_parent(
+                            stack,
+                            frame,
+                            child_frame,
+                            "Delimited",
+                        );
+                        return;
+                    }
+                }
+            }
+            DelimitedState::MatchingDelimiter => {
+                if child_node.is_empty() {
+                    log::debug!("[ITERATIVE] Delimited: no delimiter found, completing at position {}", matched_idx);
+                    if *delimiter_count < *min_delimiters {
+                        if *optional {
+                            self.pos = frame.pos;
+                            stack.results.insert(
+                                frame.frame_id,
+                                (Node::DelimitedList { children: frame.accumulated.clone() }, frame.pos, None),
+                            );
+                        } else {
+                            panic!("Expected at least {} delimiters, found {}", min_delimiters, delimiter_count);
+                        }
+                    } else {
+                        self.pos = *matched_idx;
+                        stack.results.insert(
+                            frame.frame_id,
+                            (Node::DelimitedList { children: frame.accumulated.clone() }, *matched_idx, None),
+                        );
+                    }
+                    return;
+                } else {
+                    log::debug!("[ITERATIVE] Delimited delimiter matched: pos {} -> {}", working_idx, child_end_pos);
+                    if *allow_gaps {
+                        for check_pos in *matched_idx..*working_idx {
+                            if check_pos < self.tokens.len()
+                                && !self.tokens[check_pos].is_code()
+                                && !self.collected_transparent_positions.contains(&check_pos)
+                            {
+                                let tok = &self.tokens[check_pos];
+                                let tok_type = tok.get_type();
+                                if tok_type == "whitespace" {
+                                    frame.accumulated.push(Node::Whitespace {
+                                        raw: tok.raw().to_string(),
+                                        token_idx: check_pos,
+                                    });
+                                    self.collected_transparent_positions.insert(check_pos);
+                                } else if tok_type == "newline" {
+                                    frame.accumulated.push(Node::Newline {
+                                        raw: tok.raw().to_string(),
+                                        token_idx: check_pos,
+                                    });
+                                    self.collected_transparent_positions.insert(check_pos);
+                                }
+                            }
+                        }
+                    }
+                    frame.accumulated.push(child_node.clone());
+                    *matched_idx = *child_end_pos;
+                    *working_idx = *matched_idx;
+                    *delimiter_count += 1;
+                    self.pos = *matched_idx;
+                    if self.is_terminated(&frame_terminators) {
+                        log::debug!("[ITERATIVE] Delimited: terminated after delimiter");
+                        if !*allow_trailing {
+                            panic!("Trailing delimiter not allowed");
+                        }
+                        stack.results.insert(
+                            frame.frame_id,
+                            (Node::DelimitedList { children: frame.accumulated.clone() }, *matched_idx, None),
+                        );
+                        return;
+                    } else {
+                        *state = DelimitedState::MatchingElement;
+                        if *allow_gaps {
+                            *working_idx = self.skip_start_index_forward_to_code(*working_idx, *max_idx);
+                        }
+                        self.pos = *working_idx;
+                        if self.is_at_end() || self.is_terminated(&frame_terminators) {
+                            log::debug!("[ITERATIVE] Delimited: at terminator/EOF before next element, completing");
+                            self.pos = *matched_idx;
+                            stack.results.insert(
+                                frame.frame_id,
+                                (Node::DelimitedList { children: frame.accumulated.clone() }, *matched_idx, None),
+                            );
+                            return;
+                        }
+                        let child_max_idx = *max_idx;
+                        let child_grammar = Grammar::OneOf {
+                            elements: elements.clone(),
+                            exclude: None,
+                            optional: true,
+                            terminators: vec![],
+                            reset_terminators: false,
+                            allow_gaps: *allow_gaps,
+                            parse_mode: *parse_mode,
+                            simple_hint: None,
+                        };
+                        let child_frame = ParseFrame::new_child(
+                            stack.frame_id_counter,
+                            child_grammar.into(),
+                            *working_idx,
+                            frame_terminators.clone(),
+                            Some(child_max_idx),
+                        );
+                        ParseFrame::push_child_and_update_parent(
+                            stack,
+                            frame,
+                            child_frame,
+                            "Delimited",
+                        );
+                        return;
+                    }
+                }
+            }
+        }
+    }
 }
